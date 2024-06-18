@@ -259,6 +259,25 @@ namespace PortaleRegione.Common
             }
         }
         
+        public static string GetText_TipoMOZDettaglioDASI(int tipoMOZ)
+        {
+            switch ((TipoMOZEnum)tipoMOZ)
+            {
+                case TipoMOZEnum.ORDINARIA:
+                    return "Ordinaria";
+                case TipoMOZEnum.ABBINATA:
+                    return "Abbinata";
+                case TipoMOZEnum.URGENTE:
+                    return "Urgente";
+                case TipoMOZEnum.SFIDUCIA:
+                    return "Sfiducia";
+                case TipoMOZEnum.CENSURA:
+                    return "Censura";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoMOZ), tipoMOZ, null);
+            }
+        }
+        
         public static string GetText_AreaPolitica(int area)
         {
             switch ((AreaPoliticaIntEnum)area)

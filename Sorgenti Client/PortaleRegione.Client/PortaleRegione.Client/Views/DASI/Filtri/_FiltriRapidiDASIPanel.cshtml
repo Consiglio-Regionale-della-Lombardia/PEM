@@ -1,7 +1,6 @@
 ﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
-@using PortaleRegione.DTO.Routes
 @using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -41,6 +40,8 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDSeduta))", id: "@nameof(AttoDASIDto.UIDSeduta)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataIscrizioneSeduta))", id: "@nameof(AttoDASIDto.DataIscrizioneSeduta)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDPersonaProponente))", id: "@nameof(AttoDASIDto.UIDPersonaProponente)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataAnnunzio))", id: "@nameof(AttoDASIDto.DataAnnunzio)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoMOZ))", id: "@nameof(AttoDASIDto.TipoMOZ)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -158,7 +159,8 @@ async function inviaDatiChips(page, size) {
 		size = 20;
 	}
 	document.getElementById('tableResults').innerHTML = "";
-	document.getElementById('paginazione-container').innerHTML = "";
+	document.getElementById('paginazione-container-top').innerHTML = "";
+	document.getElementById('paginazione-container-bottom').innerHTML = "";
 	document.getElementById('loadingSpinner').style.display = 'block';
 
 	var request = {};
@@ -304,91 +306,100 @@ function CreaTabella(responseData) {
 }
 
 function creaPaginazione(data) {
-	if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
-		document.getElementById('paginazione-container').innerHTML = "";
-		return;
-	}
-	// Dati della paginazione ottenuti dalla risposta JSON
-	var totalePagine = data.Data.Paging.Last_Page;
-	var paginaCorrente = data.Data.Paging.Page;
-	var totaleRisultati = data.Data.Paging.Total;
-	var risultatiPerPagina = data.Data.Paging.Limit; // Aggiunto per gestire i tagli di paginazione
+    if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
+	    document.getElementById('paginazione-container-top').innerHTML = "";
+	    document.getElementById('paginazione-container-bottom').innerHTML = "";
+	    return;
+    }
+    // Dati della paginazione ottenuti dalla risposta JSON
+    var totalePagine = data.Data.Paging.Last_Page;
+    var paginaCorrente = data.Data.Paging.Page;
+    var totaleRisultati = data.Data.Paging.Total;
+    var risultatiPerPagina = data.Data.Paging.Limit; // Aggiunto per gestire i tagli di paginazione
 
-	// Elemento HTML per la paginazione
-	var paginationHTML = `<ul class="pagination">`;
-	// Aggiungi controlli di navigazione se necessario
-	if (data.Data.Paging.Has_Prev) {
-		paginationHTML += `
-<li class="waves-effect" style="margin-top: -4px;">
-    <a onclick="filterByPage(1)">
-        <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
-            first_page
-        </i>
-    </a>
-</li>
-<li class="waves-effect" style="margin-top: -4px;">
-    <a onclick="filterByPage(${paginaCorrente - 1})">
-        <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">
-            chevron_left
-        </i>
-    </a>
-</li>`;
-	}
+    // Elemento HTML per la paginazione
+    var paginationHTML = `<ul class="pagination">`;
+    // Aggiungi controlli di navigazione se necessario
+    if (data.Data.Paging.Has_Prev) {
+	    paginationHTML += `
+            <li class="waves-effect" style="margin-top: -4px;">
+            <a onclick="filterByPage(1)">
+            <i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina">
+                first_page
+            </i>
+            </a>
+            </li>
+            <li class="waves-effect" style="margin-top: -4px;">
+            <a onclick="filterByPage(${paginaCorrente - 1})">
+            <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">
+                chevron_left
+            </i>
+            </a>
+            </li>`;
+    }
 
-	// Aggiungi informazioni sulla pagina corrente e il totale delle pagine
-	paginationHTML += `
+    // Aggiungi informazioni sulla pagina corrente e il totale delle pagine
+    paginationHTML += `
     <li class="waves-effect">
-        <span class="badge tooltipped" data-tooltip="Seleziona pagina" data-position="top" onclick="ShowHidePaginationTabs()">
-            Pagina ${paginaCorrente} di ${totalePagine}
-        </span>
+    <span class="badge tooltipped" data-tooltip="Seleziona pagina" data-position="top" onclick="ShowHidePaginationTabs()">
+        Pagina ${paginaCorrente} di ${totalePagine}
+    </span>
     </li>
-	<li class="waves-effect">
-        <span>
-            ${totaleRisultati} risultati
-        </span>
+    <li class="waves-effect">
+    <span>
+        ${totaleRisultati} risultati
+    </span>
     </li>`;
 
-	// Aggiungi controlli di navigazione se necessario
-	if (data.Data.Paging.Has_Next) {
-		paginationHTML += `
-        <li class="waves-effect" style="margin-top: -4px;">
-            <a onclick="filterByPage(${paginaCorrente + 1})">
-                <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">
-                    chevron_right
-                </i>
-            </a>
-        </li>
-        <li class="waves-effect" style="margin-top: -4px;">
-            <a onclick="filterByPage(${totalePagine})">
-                <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
-                    last_page
-                </i>
-            </a>
-        </li>`;
-	}
+    // Aggiungi controlli di navigazione se necessario
+    if (data.Data.Paging.Has_Next) {
+	    paginationHTML += `
+            <li class="waves-effect" style="margin-top: -4px;">
+                <a onclick="filterByPage(${paginaCorrente + 1})">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">
+                        chevron_right
+                    </i>
+                </a>
+            </li>
+            <li class="waves-effect" style="margin-top: -4px;">
+                <a onclick="filterByPage(${totalePagine})">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
+                        last_page
+                    </i>
+                </a>
+            </li>`;
+    }
 
-	paginationHTML += `</ul>`;
+    paginationHTML += `</ul>`;
 
-	// Costruzione del selettore per i tagli di paginazione
-	var tagliPaginazione = [20, 50, 100, 250]; // Definisci i tagli di paginazione disponibili
-	var dropdownHTML = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
+    // Costruzione del selettore per i tagli di paginazione
+    var tagliPaginazione = [20, 50, 100, 250]; // Definisci i tagli di paginazione disponibili
+    var dropdownHTML_top = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
         Paginazione
-        <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
-        <ul id="ddlPaginazione" class="dropdown-content" style="width: 100px !important">`;
+        <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
+        <ul id="ddlPaginazione-top" class="dropdown-content" style="width: 100px !important">`;
+    var dropdownHTML_bottom = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
+        Paginazione
+        <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione-bottom" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
+        <ul id="ddlPaginazione-bottom" class="dropdown-content" style="width: 100px !important">`;
 
-	tagliPaginazione.forEach(function (limite) {
-		dropdownHTML += `<li><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
-	});
+    tagliPaginazione.forEach(function (limite) {
+	    dropdownHTML_top += `<li><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+	    dropdownHTML_bottom += `<li><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+    });
 
-	dropdownHTML += `</ul></div>`;
+    dropdownHTML_top += `</ul></div>`;
+    dropdownHTML_bottom += `</ul></div>`;
 
-	var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/><input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>`;
+    var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/><input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>`;
 
-	// Inserisci l'HTML nel DOM
-	document.getElementById('paginazione-container').innerHTML = paginationHTML + dropdownHTML + hiddenHTML;
+    // Inserisci l'HTML nel DOM
+    document.getElementById('paginazione-container-top').innerHTML = paginationHTML + dropdownHTML_top;
+    document.getElementById('paginazione-container-bottom').innerHTML = paginationHTML + dropdownHTML_bottom + hiddenHTML;
 
-	// Inizializza il dropdown con Materialize
-	var elems = document.querySelectorAll('.dropdown-trigger');
+    // Inizializza il dropdown con Materialize
+	var elems = document.querySelectorAll('.dropdown-trigger.chip.grey.white-text');
+	console.log("elems:", elems);
 	var instances = M.Dropdown.init(elems, { constrainWidth: false });
 }
 
@@ -417,7 +428,7 @@ function aggiornaConteggi(selector, testo, valore) {
 }
 
 async function openModalWithContent(key, txt, isEditing, currentValue){
-	
+
 	waiting(true);
 
     document.getElementById('autocomplete-input').value = "";
@@ -544,11 +555,11 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			selectHTML = `<div class="input-field col s12">
 				            <i class="material-icons prefix">search</i>
 					        <input type="text" id="proponenti-autocomplete" class="autocomplete">
-							
+
 							<div id="proponenti-selected"></div>
 					     </div>`;
-						 
-			document.getElementById('dynamic-select-container').innerHTML = selectHTML;			
+
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 			var data = [];
 			persone.forEach(function (item) {
 				data.push({
@@ -562,7 +573,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				limit: 20,
 				minLength: 2,
 				onAutocomplete: function (txt, key) {
-					
+
 					var existingChip = document.querySelector(`.chip[data-proponente-uid="${key}"]`);
 					if (!existingChip) {
 					    var chipsContainerProponenti = document.getElementById('proponenti-selected');
@@ -570,7 +581,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 						newChip.setAttribute('data-proponente-uid', key);
 					    newChip.classList.add('chip');
 					    newChip.textContent = txt;
-					    
+
 					    var closeIcon = document.createElement('i');
 					    closeIcon.classList.add('close', 'material-icons');
 					    closeIcon.style.setProperty('top', 'unset', 'important');
@@ -582,13 +593,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 
 					    chipsContainerProponenti.appendChild(newChip);
 					}
-					
+
 					document.getElementById('proponenti-autocomplete').value = "";
 				}
 			});
-			
+
 			if (isEditing){
-				console.log('EDIT', currentValue)
 				var currentValueArray = currentValue.split(',');
 				var chipsContainerProponenti = document.getElementById('proponenti-selected');
 				currentValueArray.forEach(function (guid) {
@@ -612,6 +622,25 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 					}
 				});
 			}
+            break;
+		case '@nameof(AttoDASIDto.TipoMOZ)':
+	        var tipiMozione = [
+	            { id: @((int)TipoMOZEnum.URGENTE), text: '@(Utility.GetText_TipoMOZDettaglioDASI((int)TipoMOZEnum.URGENTE))'},
+	            { id: @((int)TipoMOZEnum.ABBINATA), text: '@(Utility.GetText_TipoMOZDettaglioDASI((int)TipoMOZEnum.ABBINATA))'},
+	            { id: @((int)TipoMOZEnum.CENSURA), text: '@(Utility.GetText_TipoMOZDettaglioDASI((int)TipoMOZEnum.CENSURA))'},
+	            { id: @((int)TipoMOZEnum.SFIDUCIA), text: '@(Utility.GetText_TipoMOZDettaglioDASI((int)TipoMOZEnum.SFIDUCIA))'},
+	        ];
+
+	        selectHTML = '<select id="tipi-mozione-select">';
+			tipiMozione.forEach(function (item) {
+		        if (item.id != 0) {
+			        var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+			        selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+		        }
+	        });
+	        selectHTML += '</select>';
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+	        M.FormSelect.init(document.querySelectorAll('select'));
             break;
 	    default:
 		    console.log("Filtro non riconosciuto!");
@@ -722,16 +751,18 @@ function ripristinaFiltri(){
 
 function filterByPage(page){
     inviaDatiChips(page, $("#hdPaginazioneCorrente").val());
+	window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function filterBySize(page, size){
     inviaDatiChips(page, size);
+	window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
 
 
 @{
-	Html.RenderPartial("Filtri/_DettaglioFiltroModal", Model);
-	Html.RenderPartial("Filtri/_FiltroConfigModal", Model);
-	Html.RenderPartial("Filtri/_ReportConfigModal", Model);
+    Html.RenderPartial("Filtri/_DettaglioFiltroModal", Model);
+    Html.RenderPartial("Filtri/_FiltroConfigModal", Model);
+    Html.RenderPartial("Filtri/_ReportConfigModal", Model);
 }
