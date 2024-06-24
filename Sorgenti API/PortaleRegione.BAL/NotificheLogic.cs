@@ -659,14 +659,26 @@ namespace PortaleRegione.BAL
             foreach (var id in notifiche)
             {
                 var notifica = await _unitOfWork.Notifiche.Get(id);
-                if (notifica.Mittente == user.UID_persona)
+
+                // #948
+                if (user.IsResponsabileSegreteriaPolitica)
                 {
-                    notifica.Chiuso = true;
+                    if (notifica.IdGruppo.Equals(user.id_gruppo_politico_rif))
+                    {
+                        notifica.Chiuso = true;
+                    }
                 }
                 else
                 {
-                    var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(id, user.UID_persona);
-                    if (notificheDestinatari != null) notificheDestinatari.Chiuso = true;
+                    if (notifica.Mittente == user.UID_persona)
+                    {
+                        notifica.Chiuso = true;
+                    }
+                    else
+                    {
+                        var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(id, user.UID_persona);
+                        if (notificheDestinatari != null) notificheDestinatari.Chiuso = true;
+                    }
                 }
 
                 await _unitOfWork.CompleteAsync();
