@@ -320,7 +320,7 @@ namespace PortaleRegione.API.Controllers
 
             var provvedimenti = new List<Guid>();
             var provvedimenti_request = new List<FilterStatement<AttoDASIDto>>();
-            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UID_Atto_ODG)))
             {
                 provvedimenti_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
