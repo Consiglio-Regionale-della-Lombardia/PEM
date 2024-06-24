@@ -49,9 +49,12 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
+        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, 
+            OrdinamentoEnum ordinamento,
+            ClientModeEnum mode,
             Filter<ATTI_DASI> filtro = null,
-            List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null, List<int> stati = null, List<Guid> atti_da_firmare = null)
+            List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null,
+            List<int> stati = null, List<Guid> atti_da_firmare = null)
         {
             var query = PRContext
                 .DASI
@@ -141,9 +144,22 @@ namespace PortaleRegione.Persistance
                 {
                     if (stati.Any(item => item.Equals((int)StatiAttoEnum.BOZZA)))
                     {
+                        // #946
+
+                        if (ordinamento == OrdinamentoEnum.Crescente)
+                        {
+                            query = query
+                                .OrderBy(item => item.Tipo)
+                                .ThenBy(item => item.DataCreazione);
+                        }
+                        else
+                        {
+                            query = query
+                                .OrderBy(item => item.Tipo)
+                                .ThenByDescending(item => item.DataCreazione);
+                        }
+
                         return await query
-                            .OrderBy(item => item.Tipo)
-                            .ThenByDescending(item => item.DataCreazione)
                             .Select(item => item.UIDAtto)
                             .Skip((page - 1) * size)
                             .Take(size)
@@ -152,9 +168,22 @@ namespace PortaleRegione.Persistance
                 }
             }
 
+            // #946
+
+            if (ordinamento == OrdinamentoEnum.Crescente)
+            {
+                query = query
+                    .OrderBy(item => item.Tipo)
+                    .ThenBy(item => item.NAtto_search);
+            }
+            else
+            {
+                query = query
+                    .OrderBy(item => item.Tipo)
+                    .ThenByDescending(item => item.NAtto_search);
+            }
+
             return await query
-                .OrderBy(item => item.Tipo)
-                .ThenByDescending(item => item.NAtto_search)
                 .Select(item => item.UIDAtto)
                 .Skip((page - 1) * size)
                 .Take(size)

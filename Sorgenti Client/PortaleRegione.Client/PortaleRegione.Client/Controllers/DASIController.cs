@@ -54,8 +54,9 @@ namespace PortaleRegione.Client.Controllers
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             var apiGateway = new ApiGateway(Token);
+            var currentLegislatura = await apiGateway.Legislature.GetLegislaturaAttuale();
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo,
-                currentUser.CurrentRole, view_require_my_sign);
+                currentUser.CurrentRole, currentLegislatura, view_require_my_sign);
             model.CurrentUser = currentUser;
             SetCache(page, size, tipo, stato, view);
             if (view == (int)ViewModeEnum.PREVIEW)

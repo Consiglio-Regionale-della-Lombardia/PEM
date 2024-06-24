@@ -120,6 +120,7 @@ namespace PortaleRegione.Client.Controllers
                     page = modelInCache.Data.Paging.Page,
                     size = modelInCache.Data.Paging.Total,
                     filtro = modelInCache.Data.Filters,
+                    ordine = OrdinamentoEnum.Crescente,
                     param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                 };
                 var list = await apiGateway.DASI.GetSoloIds(requestAtti);

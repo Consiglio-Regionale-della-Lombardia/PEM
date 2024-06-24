@@ -368,13 +368,14 @@ namespace PortaleRegione.API.Controllers
                 .GetAll(persona,
                     model.page,
                     model.size,
+                    model.ordine,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
-                    soggetti,
-                    proponenti,
-                    provvedimenti,
-                    stati,
-                    atti_da_firmare);
+                    soggetti: soggetti,
+                    proponenti: proponenti,
+                    provvedimenti: provvedimenti,
+                    stati: stati,
+                    atti_da_firmare: atti_da_firmare);
 
             if (!atti_in_db.Any())
             {
@@ -540,6 +541,7 @@ namespace PortaleRegione.API.Controllers
                 .GetAll(persona,
                     model.page,
                     model.size,
+                    model.ordine,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
                     soggetti,
@@ -2631,6 +2633,7 @@ namespace PortaleRegione.API.Controllers
                     .GetAll(persona
                         , model.page
                         , model.size
+                        , model.ordine
                         , ClientModeEnum.GRUPPI
                         , filtro);
                 return atti_in_db;
