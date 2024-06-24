@@ -124,5 +124,6 @@ namespace PortaleRegione.Domain
         public int DCR { get; set; }
         public int DCRC { get; set; }
         public string DCRL { get; set; }
+        public string BURL { get; set; }
     }
 }
