@@ -60,15 +60,6 @@ function setListaPersone(lista) {
     localStorage.setItem("listaPersone", JSON.stringify(lista));
 }
 
-function getClientMode() {
-    var session_raw = localStorage.getItem("CLIENT_MODE");
-    return JSON.parse(session_raw);
-}
-
-function setClientMode(mode) {
-    $('#hdMode').val(mode);
-    localStorage.setItem("CLIENT_MODE", JSON.stringify(mode));
-}
 
 function get_ListaLegislature() {
     var session_raw = localStorage.getItem("ListaLegislature");
