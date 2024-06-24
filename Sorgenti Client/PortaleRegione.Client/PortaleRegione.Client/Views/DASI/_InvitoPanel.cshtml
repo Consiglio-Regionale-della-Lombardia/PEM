@@ -86,8 +86,9 @@
         if ($('#chkCaricaConsiglieri').is(':checked')){
             
             if (persone[0].tag.includes("(")) {      
-				var nome_utente = $('#txtDisplayNameUser').data("target-val");
-				var codice_gruppo = $('a[data-target="ddlCambioGruppo"]').data("target-val");
+				const urlParams = new URLSearchParams(window.location.search);
+				const nome_utente = urlParams.get('nome');
+				const codice_gruppo = urlParams.get('codice_gruppo');
                 $.each(persone, function (index, item) {
                     if (item.tag.includes(nome_utente)) {
                         //salto me stesso

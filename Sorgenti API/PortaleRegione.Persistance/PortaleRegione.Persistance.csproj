@@ -99,11 +99,11 @@
       <HintPath>..\PortaleRegione.API\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="Z.EntityFramework.Extensions, Version=8.102.2.1, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
-      <HintPath>..\PortaleRegione.API\packages\Z.EntityFramework.Extensions.8.102.2.1\lib\net45\Z.EntityFramework.Extensions.dll</HintPath>
+    <Reference Include="Z.EntityFramework.Extensions, Version=8.102.2.3, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Z.EntityFramework.Extensions.8.102.2.3\lib\net45\Z.EntityFramework.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="Z.EntityFramework.Plus.EF6, Version=8.102.2.1, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
-      <HintPath>..\PortaleRegione.API\packages\Z.EntityFramework.Plus.EF6.8.102.2.1\lib\net45\Z.EntityFramework.Plus.EF6.dll</HintPath>
+    <Reference Include="Z.EntityFramework.Plus.EF6, Version=8.102.2.3, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Z.EntityFramework.Plus.EF6.8.102.2.3\lib\net45\Z.EntityFramework.Plus.EF6.dll</HintPath>
     </Reference>
     <Reference Include="Z.Expressions.Eval, Version=6.1.2.0, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
       <HintPath>..\PortaleRegione.API\packages\Z.Expressions.Eval.6.1.2\lib\net45\Z.Expressions.Eval.dll</HintPath>

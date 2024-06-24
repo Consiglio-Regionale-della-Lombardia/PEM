@@ -368,6 +368,13 @@ function goIntoOtherTab(link) {
     window.open(link, '_blank').focus();
 }
 
+function goIntoOtherTabWithName(link, name, codice_gruppo) {
+
+    link = link + "?name=" + name;
+    link = link + "&codice_gruppo=" + codice_gruppo;
+    window.open(link, '_blank').focus();
+}
+
 async function AbilitaTrattazione(mode) {
     if (mode == 2) {
         setClientMode(2);

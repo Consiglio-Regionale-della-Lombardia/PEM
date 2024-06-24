@@ -334,11 +334,14 @@
     <Content Include="fonts\text-security-disc.eot" />
     <Content Include="fonts\text-security-disc.ttf" />
     <Content Include="fonts\text-security-disc.woff" />
+    <None Include="packages.config" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.min.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.7.1.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
@@ -353,7 +356,6 @@
     <Content Include="Content\editor\plugins\specialchars\ui\sass\trumbowyg.specialchars.scss" />
     <Content Include="Content\editor\plugins\table\ui\sass\trumbowyg.table.scss" />
     <Content Include="Content\editor\ui\sass\trumbowyg.scss" />
-    <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile2.pubxml" />
@@ -484,8 +486,6 @@
     <Content Include="Views\DASI\_CartaceoPanelPartial.cshtml" />
     <Content Include="Views\Emendamenti\_OrdinamentoAttoScript.cshtml" />
     <Content Include="Views\Emendamenti\_ComandiOrdinamento.cshtml" />
-    <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
-    <Content Include="Scripts\jquery-3.7.1.min.map" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

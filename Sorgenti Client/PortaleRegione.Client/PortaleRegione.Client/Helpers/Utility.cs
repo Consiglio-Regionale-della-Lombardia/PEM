@@ -394,8 +394,7 @@ namespace PortaleRegione.Client.Helpers
                     PropertyId = nameof(AttoDASIDto.Oggetto),
                     Operation = Operation.Contains,
                     Value = filtroOggetto,
-                    Connector = FilterStatementConnector.And,
-                    Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Oggetto))
+                    Connector = FilterStatementConnector.And
                 });
         }
 
@@ -408,8 +407,7 @@ namespace PortaleRegione.Client.Helpers
                 PropertyId = nameof(AttoDASIDto.TipoMOZ),
                 Operation = Operation.EqualTo,
                 Value = Convert.ToInt16(TipoMOZEnum.URGENTE),
-                Connector = FilterStatementConnector.And,
-                Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoMOZ))
+                Connector = FilterStatementConnector.And
             });
         }
 
@@ -432,8 +430,7 @@ namespace PortaleRegione.Client.Helpers
                         PropertyId = nameof(AttoDASIDto.IDStato),
                         Operation = operation,
                         Value = filtroStato,
-                        Connector = FilterStatementConnector.And,
-                        Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))
+                        Connector = FilterStatementConnector.And
                     });
 
                     if (filtroStato == Convert.ToInt32(StatiAttoEnum.CHIUSO).ToString())
@@ -443,16 +440,14 @@ namespace PortaleRegione.Client.Helpers
                             PropertyId = nameof(AttoDASIDto.IDStato),
                             Operation = Operation.EqualTo,
                             Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_RITIRATO).ToString(),
-                            Connector = FilterStatementConnector.And,
-                            Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))
+                            Connector = FilterStatementConnector.And
                         });
                         model.filtro.Add(new FilterStatement<AttoDASIDto>
                         {
                             PropertyId = nameof(AttoDASIDto.IDStato),
                             Operation = Operation.EqualTo,
                             Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_DECADUTO).ToString(),
-                            Connector = FilterStatementConnector.And,
-                            Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))
+                            Connector = FilterStatementConnector.And
                         });
                     }
                 }
@@ -465,8 +460,7 @@ namespace PortaleRegione.Client.Helpers
                             PropertyId = nameof(AttoDASIDto.IDStato),
                             Operation = Operation.EqualTo,
                             Value = ((int)StatiAttoEnum.PRESENTATO).ToString(),
-                            Connector = FilterStatementConnector.And,
-                            Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))
+                            Connector = FilterStatementConnector.And
                         });
                     }
                     else
@@ -476,8 +470,7 @@ namespace PortaleRegione.Client.Helpers
                             PropertyId = nameof(AttoDASIDto.IDStato),
                             Operation = Operation.EqualTo,
                             Value = ((int)StatiAttoEnum.BOZZA).ToString(),
-                            Connector = FilterStatementConnector.And,
-                            Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))
+                            Connector = FilterStatementConnector.And
                         });
                     }
                 }
@@ -494,8 +487,7 @@ namespace PortaleRegione.Client.Helpers
                         PropertyId = nameof(AttoDASIDto.IDTipo_Risposta),
                         Operation = operation,
                         Value = filtroTipoRisposta,
-                        Connector = FilterStatementConnector.And,
-                        Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDTipo_Risposta))
+                        Connector = FilterStatementConnector.And
                     });
                 }
         }
@@ -518,9 +510,7 @@ namespace PortaleRegione.Client.Helpers
                             PropertyId = nameof(AttoDASIDto.NAtto) + "_search",
                             Operation = Operation.LessThanOrEqualTo,
                             Value = number2,
-                            Connector = FilterStatementConnector.And,
-                            Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto),
-                                nameof(AttoDASIDto.NAtto) + "_search")
+                            Connector = FilterStatementConnector.And
                         });
                     }
 
@@ -529,9 +519,7 @@ namespace PortaleRegione.Client.Helpers
                         PropertyId = nameof(AttoDASIDto.NAtto) + "_search",
                         Operation = operation,
                         Value = number,
-                        Connector = FilterStatementConnector.And,
-                        Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto),
-                            nameof(AttoDASIDto.NAtto) + "_search")
+                        Connector = FilterStatementConnector.And
                     });
                 }
             }
@@ -546,8 +534,7 @@ namespace PortaleRegione.Client.Helpers
                     PropertyId = nameof(AttoDASIDto.Tipo),
                     Operation = Operation.EqualTo,
                     Value = filtroTipoTrattazione,
-                    Connector = FilterStatementConnector.And,
-                    Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))
+                    Connector = FilterStatementConnector.And
                 });
             else if (filtroTipo != "0" && mode == ClientModeEnum.GRUPPI)
                 if (filtroTipo != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
@@ -556,8 +543,7 @@ namespace PortaleRegione.Client.Helpers
                         PropertyId = nameof(AttoDASIDto.Tipo),
                         Operation = Operation.EqualTo,
                         Value = filtroTipo,
-                        Connector = FilterStatementConnector.And,
-                        Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))
+                        Connector = FilterStatementConnector.And
                     });
         }
 
@@ -574,8 +560,7 @@ namespace PortaleRegione.Client.Helpers
                 {
                     PropertyId = "SoggettiDestinatari",
                     Operation = Operation.EqualTo,
-                    Value = id_Carica,
-                    Label = "Soggetti destinatari"
+                    Value = id_Carica
                 };
                 model.filtro.Add(filtro);
             }
@@ -594,8 +579,7 @@ namespace PortaleRegione.Client.Helpers
                     PropertyId = nameof(AttoDASIDto.UIDSeduta),
                     Operation = Operation.EqualTo,
                     Value = guid.ToString(),
-                    Connector = FilterStatementConnector.And,
-                    Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDSeduta))
+                    Connector = FilterStatementConnector.And
                 });
             }
         }
@@ -611,8 +595,7 @@ namespace PortaleRegione.Client.Helpers
                         PropertyId = nameof(AttoDASIDto.Legislatura),
                         Operation = Operation.EqualTo,
                         Value = number,
-                        Connector = FilterStatementConnector.And,
-                        Label = Common.Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))
+                        Connector = FilterStatementConnector.And
                     });
             }
         }
