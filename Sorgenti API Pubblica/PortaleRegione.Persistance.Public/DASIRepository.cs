@@ -22,6 +22,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
+using PortaleRegione.Common;
 using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
@@ -61,13 +62,67 @@ namespace PortaleRegione.Persistance.Public
             return atto;
         }
 
-        public async Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro = null)
+        public async Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro = null,
+            List<int> proponenti=null,
+            List<int> firmatari = null)
         {
             var query = PRContext
                 .DASI
                 .Where(item => !item.Eliminato
                                && item.Pubblicato);
             filtro?.BuildExpression(ref query);
+
+            if (proponenti != null)
+                if (proponenti.Count > 0)
+                {
+                    var view_proponenti = await PRContext
+                        .View_UTENTI
+                        .Where(u => proponenti.Contains(u.id_persona))
+                        .Select(u=>u.UID_persona.Value)
+                        .ToListAsync();
+                    if (view_proponenti.Any())
+                    {
+                        query = query.Where(a=> view_proponenti.Contains(a.UIDPersonaProponente.Value));
+                    }
+                    else
+                    {
+                        query = query.Where(a=> false);
+                    }
+                }
+
+            if (firmatari != null)
+                if (firmatari.Count > 0)
+                {
+                    var view_firmatari = await PRContext
+                        .View_UTENTI
+                        .Where(u => firmatari.Contains(u.id_persona))
+                        .Select(u=>u.UID_persona.Value)
+                        .ToListAsync();
+
+                    if (view_firmatari.Any())
+                    {
+                        var atti_firmatari = await PRContext
+                            .ATTI_FIRME
+                            .Where(f => view_firmatari.Contains(f.UID_persona))
+                            .Select(f=>f.UIDAtto)
+                            .Distinct()
+                            .ToListAsync();
+
+                        if (atti_firmatari.Any())
+                        {
+                            query = query.Where(a=> atti_firmatari.Contains(a.UIDAtto));
+                        }
+                        else
+                        {
+                            query = query.Where(a=> false);
+                        }
+                    }
+                    else
+                    {
+                        query = query.Where(a=> false);
+                    }
+                }
+
             return await query
                 .OrderBy(item => item.Tipo)
                 .ThenByDescending(item => item.NAtto_search)
@@ -76,7 +131,7 @@ namespace PortaleRegione.Persistance.Public
                 .ToListAsync();
         }
 
-        public async Task<int> Count(Filter<ATTI_DASI> filtro = null)
+        public async Task<int> Count(Filter<ATTI_DASI> filtro = null, List<int> proponenti = null, List<int> firmatari = null)
         {
             var query = PRContext
                 .DASI
@@ -84,6 +139,57 @@ namespace PortaleRegione.Persistance.Public
                                && item.Pubblicato);
 
             filtro?.BuildExpression(ref query);
+
+            if (proponenti != null)
+                if (proponenti.Count > 0)
+                {
+                    var view_proponenti = await PRContext
+                        .View_UTENTI
+                        .Where(u => proponenti.Contains(u.id_persona))
+                        .Select(u=>u.UID_persona.Value)
+                        .ToListAsync();
+                    if (view_proponenti.Any())
+                    {
+                        query = query.Where(a=> view_proponenti.Contains(a.UIDPersonaProponente.Value));
+                    }
+                    else
+                    {
+                        query = query.Where(a=> false);
+                    }
+                }
+
+            if (firmatari != null)
+                if (firmatari.Count > 0)
+                {
+                    var view_firmatari = await PRContext
+                        .View_UTENTI
+                        .Where(u => firmatari.Contains(u.id_persona))
+                        .Select(u=>u.UID_persona.Value)
+                        .ToListAsync();
+
+                    if (view_firmatari.Any())
+                    {
+                        var atti_firmatari = await PRContext
+                            .ATTI_FIRME
+                            .Where(f => view_firmatari.Contains(f.UID_persona))
+                            .Select(f=>f.UIDAtto)
+                            .Distinct()
+                            .ToListAsync();
+
+                        if (atti_firmatari.Any())
+                        {
+                            query = query.Where(a=> atti_firmatari.Contains(a.UIDAtto));
+                        }
+                        else
+                        {
+                            query = query.Where(a=> false);
+                        }
+                    }
+                    else
+                    {
+                        query = query.Where(a=> false);
+                    }
+                }
             return await query.CountAsync();
         }
 
@@ -172,6 +278,51 @@ namespace PortaleRegione.Persistance.Public
                 .ToListAsync();
 
             return dataFromDb;
+        }
+
+        public async Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto)
+        {
+            var abbinamentiInDB = await PRContext
+                .ATTI_ABBINAMENTI
+                .Where(a => a.UIDAtto.Equals(uidAtto))
+                .ToListAsync();
+
+            var res = new List<AttiAbbinamentoDto>();
+            foreach (var attiAbbinamenti in abbinamentiInDB)
+            {
+                var abbinata = new AttiAbbinamentoDto
+                {
+                    Uid = attiAbbinamenti.Uid,
+                    Data = attiAbbinamenti.Data
+                };
+
+                if (!string.IsNullOrEmpty(attiAbbinamenti.TipoAttoAbbinato)
+                    || !string.IsNullOrEmpty(attiAbbinamenti.NumeroAttoAbbinato)
+                    || !string.IsNullOrEmpty(attiAbbinamenti.OggettoAttoAbbinato))
+                {
+                    abbinata.OggettoAttoAbbinato = attiAbbinamenti.OggettoAttoAbbinato;
+                    abbinata.TipoAttoAbbinato = attiAbbinamenti.TipoAttoAbbinato;
+                    abbinata.NumeroAttoAbbinato = attiAbbinamenti.NumeroAttoAbbinato;
+                }
+                else if(attiAbbinamenti.UIDAttoAbbinato.HasValue)
+                {
+                    var attoAbbinato = await PRContext
+                        .VIEW_ATTI
+                        .Where(a => a.UIDAtto.Equals(attiAbbinamenti.UIDAttoAbbinato.Value))
+                        .FirstOrDefaultAsync();
+
+                    if (attoAbbinato == null)
+                        continue;
+
+                    abbinata.OggettoAttoAbbinato = attoAbbinato.Oggetto;
+                    abbinata.TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinato.Tipo);
+                    abbinata.NumeroAttoAbbinato = attoAbbinato.NAtto;
+                }
+
+                res.Add(abbinata);
+            }
+
+            return res;
         }
     }
 }

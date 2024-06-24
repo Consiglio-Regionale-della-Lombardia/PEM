@@ -37,6 +37,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request.Public;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using WebGrease.Configuration;
 
 namespace PortaleRegione.Api.Public.Business_Layer
 {
@@ -239,6 +240,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 TipoEnum = (TipoDocumentoEnum)d.Tipo
             }).ToList();
 
+            var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
+            var firme = await GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+
             var attoDto = new AttoDasiPublicDto
             {
                 uidAtto = attoInDb.UIDAtto,
@@ -257,16 +261,22 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
                 area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
                 data_iscrizione = attoInDb.DataIscrizioneSeduta?.ToString("dd/MM/yyyy"),
+                data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
+                stato_iter =
+                    Utility.GetText_StatoDASI(attoInDb.TipoChiusuraIter.HasValue ? attoInDb.TipoChiusuraIter.Value : 0),
                 gruppo = gruppo,
                 uid_proponente = attoInDb.UIDPersonaProponente.Value,
                 proponente = proponente,
                 commissioni = commissioni,
                 risposte = risposte,
-                documenti = documenti
+                documenti = documenti,
+                abbinamenti = abbinamenti,
+                dcrl = attoInDb.DCRL,
+                dcr = attoInDb.DCR,
+                dcrc = attoInDb.DCRC,
+                firme = firme,
+                burl = attoInDb.BURL
             };
-
-            var firme = await GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
-            attoDto.firme = firme;
 
             return attoDto;
         }
@@ -327,13 +337,44 @@ namespace PortaleRegione.Api.Public.Business_Layer
         public async Task<BaseResponse<AttoDASILightDto>> Cerca(CercaRequest request)
         {
             var filtroFromRequest = GetFiltroCercaFromRequest(request);
+            var firmatari = new List<int>();
+            var firmatari_request = new List<FilterStatement<AttoDASILightDto>>();
+            if (filtroFromRequest.Any(statement => statement.PropertyId == "firmatari"))
+            {
+                firmatari_request =
+                    new List<FilterStatement<AttoDASILightDto>>(filtroFromRequest.Where(statement =>
+                        statement.PropertyId == "firmatari"));
+                firmatari.AddRange(firmatari_request.Select(firma => int.Parse(firma.Value.ToString())));
+                foreach (var firmatarioStatement in firmatari_request) filtroFromRequest.Remove(firmatarioStatement);
+            }
+
+            var proponenti = new List<int>();
+            var proponenti_request = new List<FilterStatement<AttoDASILightDto>>();
+            if (filtroFromRequest.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                proponenti_request =
+                    new List<FilterStatement<AttoDASILightDto>>(filtroFromRequest.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)));
+                proponenti.AddRange(proponenti_request.Select(proponente => int.Parse(proponente.Value.ToString())));
+                foreach (var proponenteStatement in proponenti_request) filtroFromRequest.Remove(proponenteStatement);
+            }
+
             var filtroBase = new Filter<ATTI_DASI>();
             filtroBase.ImportStatements(filtroFromRequest);
             var res = await _unitOfWork.DASI.GetAll(
                 request.page,
                 request.size,
-                filtroBase);
-            var tot = await _unitOfWork.DASI.Count(filtroBase);
+                filtroBase,
+                proponenti,
+                firmatari);
+            var tot = await _unitOfWork.DASI.Count(filtroBase, proponenti, firmatari);
+
+            if (proponenti_request.Any())
+                filtroFromRequest.AddRange(proponenti_request);
+
+            if (firmatari_request.Any())
+                filtroFromRequest.AddRange(firmatari_request);
+
             return new BaseResponse<AttoDASILightDto>(
                 request.page,
                 request.size,
@@ -470,6 +511,20 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 });
             }
 
+            if (request.firmatari.Length > 0)
+            {
+                foreach (var firmatario in request.firmatari)
+                {
+                    res.Add(new FilterStatement<AttoDASILightDto>
+                    {
+                        PropertyId = "firmatari",
+                        Value = firmatario,
+                        Operation = Operation.EqualTo,
+                        Connector = FilterStatementConnector.Or
+                    });
+                }
+            }
+
             if (!string.IsNullOrEmpty(request.oggetto))
             {
                 res.Add(new FilterStatement<AttoDASILightDto>
@@ -539,7 +594,5 @@ namespace PortaleRegione.Api.Public.Business_Layer
             var result = Utility.ComposeFileResponse(complete_path);
             return result;
         }
-
-
     }
 }

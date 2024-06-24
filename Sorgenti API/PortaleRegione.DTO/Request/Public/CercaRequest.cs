@@ -47,6 +47,9 @@ namespace PortaleRegione.DTO.Request.Public
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] 
         public int[] stati { get; set; } = Array.Empty<int>();
         
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] 
+        public int[] firmatari { get; set; } = Array.Empty<int>();
+        
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string oggetto { get; set; }
         

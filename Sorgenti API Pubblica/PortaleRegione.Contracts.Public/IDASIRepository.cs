@@ -46,15 +46,20 @@ namespace PortaleRegione.Contracts.Public
         /// <param name="page">La pagina di risultati da recuperare.</param>
         /// <param name="size">Il numero di elementi per pagina.</param>
         /// <param name="filtro">Un filtro opzionale per restringere i risultati.</param>
+        /// <param name="proponenti"></param>
+        /// <param name="firmatari"></param>
         /// <returns>Un elenco paginato di ATTI_DASI che soddisfano i criteri di filtro.</returns>
-        Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro = null);
+        Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro = null, List<int> proponenti = null,
+            List<int> firmatari = null);
 
         /// <summary>
         ///     Conta il numero di ATTI_DASI che soddisfano un determinato filtro.
         /// </summary>
         /// <param name="filtro">Un filtro opzionale per restringere i risultati.</param>
+        /// <param name="proponenti"></param>
+        /// <param name="firmatari"></param>
         /// <returns>Il conteggio degli ATTI_DASI che soddisfano i criteri di filtro.</returns>
-        Task<int> Count(Filter<ATTI_DASI> filtro = null);
+        Task<int> Count(Filter<ATTI_DASI> filtro = null, List<int> proponenti = null, List<int> firmatari = null);
 
         /// <summary>
         ///     Recupera le firme associate a un specifico atto DASI.
@@ -84,5 +89,7 @@ namespace PortaleRegione.Contracts.Public
         /// <param name="uidAtto"></param>
         /// <returns></returns>
         Task<List<ATTI_DOCUMENTI>> GetDocumenti(Guid uidAtto);
+
+        Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto);
     }
 }

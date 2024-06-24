@@ -64,5 +64,12 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public int id_stato { get; set; }
         public int id_tipo { get; set; }
         public Guid uid_proponente { get; set; }
+        public string data_annunzio { get; set; }
+        public string stato_iter { get; set; }
+        public string dcrl { get; set; }
+        public int dcr { get; set; }
+        public int dcrc { get; set; }
+        public List<AttiAbbinamentoDto> abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
+        public string burl { get; set; }
     }
 }
