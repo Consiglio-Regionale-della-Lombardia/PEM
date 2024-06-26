@@ -1654,7 +1654,7 @@ namespace PortaleRegione.API.Controllers
                 //#864 Notifiche per responsabili di segreteria
                 var responsabili = await _logicPersona.GetSegreteriaPolitica(id_gruppo, false, true);
                 var destinatari = AppSettingsConfiguration.EmailInvioDASI;
-                if (!responsabili.Any())
+                if (responsabili.Any())
                     destinatari += ";" + responsabili.Select(p => p.email).Aggregate((i, j) => i + ";" + j);
 
                 var mailModel = new MailModel

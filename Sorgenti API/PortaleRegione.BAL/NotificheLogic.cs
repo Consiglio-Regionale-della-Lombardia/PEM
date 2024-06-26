@@ -260,7 +260,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var n_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+                    var n_atto = atto.Display;
 
                     var check = _unitOfWork.Notifiche.CheckIfNotificabile(atto, currentUser);
                     if (check == false)
@@ -663,9 +663,18 @@ namespace PortaleRegione.BAL
                 // #948
                 if (user.IsResponsabileSegreteriaPolitica)
                 {
-                    if (notifica.IdGruppo.Equals(user.id_gruppo_politico_rif))
+                    if (notifica.IdGruppo.Equals(user.Gruppo.id_gruppo))
                     {
                         notifica.Chiuso = true;
+                        var listaDestinatariGruppo = await _unitOfWork.Notifiche_Destinatari.Get(id, user.Gruppo.id_gruppo);
+                        if (listaDestinatariGruppo.Any())
+                        {
+                            foreach (var notificheDestinatario in listaDestinatariGruppo)
+                            {
+                                notificheDestinatario.Chiuso = true;
+                            }
+                        }
+                        await _unitOfWork.CompleteAsync();
                     }
                 }
                 else
@@ -679,9 +688,9 @@ namespace PortaleRegione.BAL
                         var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(id, user.UID_persona);
                         if (notificheDestinatari != null) notificheDestinatari.Chiuso = true;
                     }
-                }
 
-                await _unitOfWork.CompleteAsync();
+                    await _unitOfWork.CompleteAsync();
+                }
             }
         }
 
