@@ -320,11 +320,11 @@ namespace PortaleRegione.API.Controllers
 
             var provvedimenti = new List<Guid>();
             var provvedimenti_request = new List<FilterStatement<AttoDASIDto>>();
-            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UID_Atto_ODG)))
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.Abbinamenti)))
             {
                 provvedimenti_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
-                        statement.PropertyId == nameof(AttoDASIDto.UID_Atto_ODG)));
+                        statement.PropertyId == nameof(AttoDASIDto.Abbinamenti)));
                 provvedimenti.AddRange(provvedimenti_request.Select(provvedimento =>
                     new Guid(provvedimento.Value.ToString())));
                 foreach (var provvedimentoStatement in provvedimenti_request)
@@ -3513,6 +3513,18 @@ namespace PortaleRegione.API.Controllers
             sb.AppendLine($"<td>{dto.OggettoView()}</td>");
 
             return sb.ToString();
+        }
+
+        public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId)
+        {
+            var res = await _unitOfWork.DASI.GetAbbinamentiDisponibili(legislaturaId);
+            foreach (var item in res)
+            {
+                item.tipo_esteso = Utility.GetText_Tipo(int.Parse(item.tipo));
+                item.display = $"{item.tipo_esteso} {item.natto}";
+            }
+
+            return res;
         }
     }
 }

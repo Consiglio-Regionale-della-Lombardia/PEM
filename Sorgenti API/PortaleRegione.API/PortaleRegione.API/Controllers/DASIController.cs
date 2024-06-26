@@ -1191,5 +1191,22 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetAbbinamentiDisponibili)]
+        public async Task<IHttpActionResult> GetAbbinamentiDisponibili(int legislaturaId)
+        {
+            try
+            {
+                var res = await _dasiLogic.GetAbbinamentiDisponibili(legislaturaId);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get abbinamenti disponibili", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }

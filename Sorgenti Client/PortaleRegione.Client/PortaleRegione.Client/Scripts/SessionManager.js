@@ -88,8 +88,19 @@ function get_ListaProponenti() {
     return JSON.parse(session_raw);
 }
 
+function get_ListaViewAbbinamenti() {
+    var session_raw = localStorage.getItem("ListaViewAbbinamenti");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
 function set_ListaProponenti(obj) {
     localStorage.setItem("ListaProponenti", JSON.stringify(obj));
+}
+
+function set_ListaViewAbbinamenti(obj) {
+    localStorage.setItem("ListaViewAbbinamenti", JSON.stringify(obj));
 }
 
 function get_ListaStatiEM() {

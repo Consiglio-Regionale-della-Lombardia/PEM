@@ -43,6 +43,11 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataAnnunzio))", id: "@nameof(AttoDASIDto.DataAnnunzio)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoMOZ))", id: "@nameof(AttoDASIDto.TipoMOZ)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Abbinamenti))", id: "@nameof(AttoDASIDto.Abbinamenti)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Sollecito))", id: "@nameof(AttoDASIDto.Sollecito)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Pubblicato))", id: "@nameof(AttoDASIDto.Pubblicato)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Protocollo))", id: "@nameof(AttoDASIDto.Protocollo)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.CodiceMateria))", id: "@nameof(AttoDASIDto.CodiceMateria)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Emendato))", id: "@nameof(AttoDASIDto.Emendato)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -69,6 +74,26 @@ document.addEventListener('DOMContentLoaded', async function() {
             val = document.getElementById('oggetto').value;
             text = val;
             chipText = keyLabel + ": " + val;
+        }else if (key === "@nameof(AttoDASIDto.Protocollo)") {
+            val = document.getElementById('protocollo').value;
+            text = val;
+            chipText = keyLabel + ": " + val;
+        }else if (key === "@nameof(AttoDASIDto.CodiceMateria)") {
+            val = document.getElementById('codice_materia').value;
+            text = val;
+            chipText = keyLabel + ": " + val;
+        }else if (key === "@nameof(AttoDASIDto.Sollecito)") {
+			val = document.getElementById('sollecito').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Emendato)") {
+			val = document.getElementById('emendato').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Pubblicato)") {
+			val = document.getElementById('pubblicato').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.Timestamp)") {
 			var data_da_str = document.getElementById('data_presentazione_da').value;
 			var date_da_obj = new Date(data_da_str);
@@ -81,7 +106,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 			    var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
 				val += "," + data_a_formatted_date;
 				text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
-
 			}
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.UIDSeduta)") {
@@ -113,6 +137,23 @@ document.addEventListener('DOMContentLoaded', async function() {
 				}
 				text += chipInnerText;
 				val += item.getAttribute('data-proponente-uid');
+			});
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Abbinamenti)") {
+			text = "";
+			val = "";
+			var existingChips = document.querySelectorAll(`.chip[data-abbinamento-uid]`);
+			existingChips.forEach(function (item, index){
+				var chipInnerText = Array.from(item.childNodes)
+					.filter(node => node.nodeType === Node.TEXT_NODE)
+					.map(node => node.textContent.trim())
+					.join('');
+				if (index > 0) {
+					text += ", ";
+					val += ",";
+				}
+				text += chipInnerText;
+				val += item.getAttribute('data-abbinamento-uid');
 			});
             chipText = keyLabel + ": " + text;
         } else {
@@ -222,6 +263,8 @@ async function inviaDatiChips(page, size) {
 		document.getElementById('loadingSpinner').style.display = 'none';
 		console.error('Errore durante l\'invio dei dati delle chips:', error);
 	}
+	
+	waiting(false);
 }
 
 function CreaTabella(responseData) {
@@ -244,6 +287,8 @@ function CreaTabella(responseData) {
             <th>Firmatari</th>
             <th>Stato</th>
             <th>Seduta</th>
+            <th><i class="material-icons blue-text">public</i></th>
+            <th><i class="material-icons red-text">notifications_active</i></th>
             <th></th>
         </tr>
     `;
@@ -265,6 +310,19 @@ function CreaTabella(responseData) {
 </a>`
 		}
 
+		var isPubblicato = result.Pubblicato ? 'checked="checked"' : '';
+		var isSollecito = result.Sollecito ? 'checked="checked"' : '';
+		var colonnaTipo = result.DisplayTipoRispostaRichiesta;
+		var iconChipAggiuntiva = "";
+		if (result.Abbinamenti.length > 0){
+			colonnaTipo = "";
+			iconChipAggiuntiva = `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>`
+
+			result.Abbinamenti.forEach(abb => {
+				colonnaTipo += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UidAttoAbbinato}')">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</a></p>`;
+			});
+		}
+
 		const row = document.createElement('tr');
 		row.innerHTML = `
             <td style="width: 1%;">
@@ -275,12 +333,24 @@ function CreaTabella(responseData) {
                     </label>
                 </p>
             </td>
-			<td style="width: 10%;"><div class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')">${result.Display}</div></td>
-            <td>${result.DisplayTipoRispostaRichiesta}</td>
+			<td style="width: 10%;"><div class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')">${result.Display}${iconChipAggiuntiva}</div></td>
+            <td style="width: 8%;">${colonnaTipo}</td>
             <td>${result.Oggetto}</td>
             <td>${htmlFirme}</td>
             <td>${result.DisplayStato}</td>
             <td></td>
+            <td style="width: 1%;">
+			    <label class="tooltipped" data-tooltip="Pubblicato">
+                    <input type="checkbox" ${isPubblicato} onclick="return false;"/>
+                    <span></span>
+                </label>
+			</td>
+            <td style="width: 1%;">
+                <label class="tooltipped" data-tooltip="Sollecito">
+                    <input type="checkbox" ${isSollecito} onclick="return false;"/>
+                    <span></span>
+                </label>
+            </td>
             <td style="width: 10%;" class="center">
 			     <a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('${result.DisplayTipo}', ${result.NAtto}, ${result.Legislatura})">
                      <i class="icon material-icons">remove_red_eye</i>
@@ -517,6 +587,20 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
             </div>`;
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
+		case '@nameof(AttoDASIDto.Protocollo)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="protocollo" type="text" ${currentValueFormatted}/>
+            </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.CodiceMateria)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="codice_materia" type="text" ${currentValueFormatted}/>
+            </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
 		case '@nameof(AttoDASIDto.Timestamp)':
 
 			var dateValues = handleDateValue(currentValue);
@@ -552,77 +636,87 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.UIDPersonaProponente)':
-			var persone = await GetProponenti();
-			selectHTML = `<div class="input-field col s12">
-				            <i class="material-icons prefix">search</i>
-					        <input type="text" id="proponenti-autocomplete" class="autocomplete">
+			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+	            var idLegislatura = legislaturaChip.getAttribute('data-val');
+				var persone = await GetProponenti(idLegislatura);
+				selectHTML = `<div class="input-field col s12">
+	            <i class="material-icons prefix">search</i>
+		        <input type="text" id="proponenti-autocomplete" class="autocomplete">
 
-							<div id="proponenti-selected"></div>
-					     </div>`;
+				<div id="proponenti-selected"></div>
+		     </div>`;
 
-			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
-			var data = [];
-			persone.forEach(function (item) {
-				data.push({
-					tag: `${item.DisplayName}`,
-					id: `${item.uid}`
+				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+				var data = [];
+				persone.forEach(function (item) {
+					data.push({
+						tag: `${item.DisplayName}`,
+						id: `${item.uid}`
+					});
 				});
-			});
-			var elems = document.querySelectorAll('#proponenti-autocomplete');
-			var instances = M.Autocomplete.init(elems, {
-				data: data,
-				limit: 20,
-				minLength: 2,
-				onAutocomplete: function (txt, key) {
+				var elems = document.querySelectorAll('#proponenti-autocomplete');
+				var instances = M.Autocomplete.init(elems, {
+					data: data,
+					limit: 20,
+					minLength: 2,
+					onAutocomplete: function (txt, key) {
 
-					var existingChip = document.querySelector(`.chip[data-proponente-uid="${key}"]`);
-					if (!existingChip) {
-					    var chipsContainerProponenti = document.getElementById('proponenti-selected');
-					    var newChip = document.createElement('div');
-						newChip.setAttribute('data-proponente-uid', key);
-					    newChip.classList.add('chip');
-					    newChip.textContent = txt;
+						var existingChip = document.querySelector(`.chip[data-proponente-uid="${key}"]`);
+						if (!existingChip) {
+							var chipsContainerProponenti = document.getElementById('proponenti-selected');
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-proponente-uid', key);
+							newChip.classList.add('chip');
+							newChip.textContent = txt;
 
-					    var closeIcon = document.createElement('i');
-					    closeIcon.classList.add('close', 'material-icons');
-					    closeIcon.style.setProperty('top', 'unset', 'important');
-					    closeIcon.textContent = 'close';
-					    closeIcon.onclick = function () {
-						    newChip.remove();
-					    };
-					    newChip.appendChild(closeIcon);
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
 
-					    chipsContainerProponenti.appendChild(newChip);
+							chipsContainerProponenti.appendChild(newChip);
+						}
+
+						document.getElementById('proponenti-autocomplete').value = "";
 					}
+				});
 
-					document.getElementById('proponenti-autocomplete').value = "";
+				if (isEditing) {
+					var currentValueArray = currentValue.split(',');
+					var chipsContainerProponenti = document.getElementById('proponenti-selected');
+					currentValueArray.forEach(function (guid) {
+						var item = data.find(item => item.id === guid);
+						if (item) {
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-proponente-uid', item.id);
+							newChip.classList.add('chip');
+							newChip.textContent = item.tag;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerProponenti.appendChild(newChip);
+						}
+					});
 				}
-			});
-
-			if (isEditing){
-				var currentValueArray = currentValue.split(',');
-				var chipsContainerProponenti = document.getElementById('proponenti-selected');
-				currentValueArray.forEach(function (guid) {
-					var item = data.find(item => item.id === guid);
-					if (item) {
-						var newChip = document.createElement('div');
-						newChip.setAttribute('data-proponente-uid', item.id);
-						newChip.classList.add('chip');
-						newChip.textContent = item.tag;
-
-						var closeIcon = document.createElement('i');
-						closeIcon.classList.add('close', 'material-icons');
-						closeIcon.style.setProperty('top', 'unset', 'important');
-						closeIcon.textContent = 'close';
-						closeIcon.onclick = function () {
-							newChip.remove();
-						};
-						newChip.appendChild(closeIcon);
-
-						chipsContainerProponenti.appendChild(newChip);
-					}
-				});
-			}
+            }else{
+	            swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+				    .then(() => {
+						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+				    });
+            }
+			
             break;
 		case '@nameof(AttoDASIDto.TipoMOZ)':
 	        var tipiMozione = [
@@ -642,6 +736,121 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 	        selectHTML += '</select>';
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 	        M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+		case '@nameof(AttoDASIDto.Abbinamenti)':
+			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+			if (legislaturaChip) {
+				var idLegislatura = legislaturaChip.getAttribute('data-val');
+				var abbinamenti = await GetAbbinamentiDisponibili(idLegislatura);
+				selectHTML = `<div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="abbinamenti-autocomplete" class="autocomplete">
+
+		        <div id="abbinamenti-selected"></div>
+             </div>`;
+
+				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+				var data = [];
+				abbinamenti.forEach(function (item) {
+					data.push({
+						tag: `${item.display}`,
+						id: `${item.uidAtto}`
+					});
+				});
+				var elems = document.querySelectorAll('#abbinamenti-autocomplete');
+				var instances = M.Autocomplete.init(elems, {
+					data: data,
+					limit: 20,
+					minLength: 2,
+					onAutocomplete: function (txt, key) {
+
+						var existingChip = document.querySelector(`.chip[data-abbinamento-uid="${key}"]`);
+						if (!existingChip) {
+							var chipsContainerAbbinamento = document.getElementById('abbinamenti-selected');
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-abbinamento-uid', key);
+							newChip.classList.add('chip');
+							newChip.textContent = txt;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerAbbinamento.appendChild(newChip);
+						}
+
+						document.getElementById('abbinamenti-autocomplete').value = "";
+					}
+				});
+
+				if (isEditing) {
+					var currentValueArray = currentValue.split(',');
+					var chipsContainerAbbinamento = document.getElementById('abbinamenti-selected');
+					currentValueArray.forEach(function (guid) {
+						var item = data.find(item => item.id === guid);
+						if (item) {
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-abbinamento-uid', item.id);
+							newChip.classList.add('chip');
+							newChip.textContent = item.tag;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerAbbinamento.appendChild(newChip);
+						}
+					});
+				}
+			}else{
+				swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+				    .then(() => {
+						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+				    });
+			}
+            break;
+		case '@nameof(AttoDASIDto.Sollecito)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="sollecito" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Pubblicato)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="pubblicato" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Emendato)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="emendato" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 	    default:
 		    console.log("Filtro non riconosciuto!");

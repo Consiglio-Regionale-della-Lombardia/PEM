@@ -16,22 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using ExpressionBuilder.Generics;
-using PortaleRegione.Common;
-using PortaleRegione.Contracts;
-using PortaleRegione.DataBase;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ExpressionBuilder.Generics;
 using PortaleRegione.BAL;
+using PortaleRegione.Common;
+using PortaleRegione.Contracts;
+using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Routes;
 using Z.EntityFramework.Plus;
 
@@ -55,11 +55,12 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
             Filter<ATTI_DASI> filtro = null,
-            List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null, List<int> stati = null, List<Guid> atti_da_firmare = null)
+            List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null,
+            List<int> stati = null, List<Guid> atti_da_firmare = null)
         {
             var query = PRContext
                 .DASI
-                .Where(item => !item.Eliminato 
+                .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
             var filtro2 = new Filter<ATTI_DASI>();
@@ -84,7 +85,7 @@ namespace PortaleRegione.Persistance
                 else if (f.PropertyId == nameof(ATTI_DASI.NAtto))
                 {
                     var nAttoFilters = f.Value.ToString().Split(',');
-                    List<int> singleNumbers = new List<int>();
+                    var singleNumbers = new List<int>();
                     Expression<Func<ATTI_DASI, bool>> combinedRangePredicate = null;
 
                     foreach (var nAttoFilter in nAttoFilters)
@@ -95,17 +96,19 @@ namespace PortaleRegione.Persistance
                         if (nAttoFilter.Contains('-'))
                         {
                             var parts = nAttoFilter.Split('-').Select(int.Parse).ToArray();
-                            int start = parts[0];
-                            int end = parts[1];
+                            var start = parts[0];
+                            var end = parts[1];
 
                             // Crea un'espressione per l'intervallo
-                            Expression<Func<ATTI_DASI, bool>> rangePredicate = item => item.NAtto_search >= start && item.NAtto_search <= end;
+                            Expression<Func<ATTI_DASI, bool>> rangePredicate = item =>
+                                item.NAtto_search >= start && item.NAtto_search <= end;
 
                             // Combina l'espressione corrente con le espressioni precedenti
                             if (combinedRangePredicate == null)
                                 combinedRangePredicate = rangePredicate;
                             else
-                                combinedRangePredicate = ExpressionExtensions.CombineExpressions(combinedRangePredicate, rangePredicate);
+                                combinedRangePredicate =
+                                    ExpressionExtensions.CombineExpressions(combinedRangePredicate, rangePredicate);
                         }
                         else
                         {
@@ -115,8 +118,11 @@ namespace PortaleRegione.Persistance
 
                     if (singleNumbers.Any())
                     {
-                        Expression<Func<ATTI_DASI, bool>> singleNumbersPredicate = item => singleNumbers.Contains(item.NAtto_search);
-                        combinedRangePredicate = combinedRangePredicate == null ? singleNumbersPredicate : ExpressionExtensions.CombineExpressions(combinedRangePredicate, singleNumbersPredicate);
+                        Expression<Func<ATTI_DASI, bool>> singleNumbersPredicate =
+                            item => singleNumbers.Contains(item.NAtto_search);
+                        combinedRangePredicate = combinedRangePredicate == null
+                            ? singleNumbersPredicate
+                            : ExpressionExtensions.CombineExpressions(combinedRangePredicate, singleNumbersPredicate);
                     }
 
                     if (combinedRangePredicate != null)
@@ -171,9 +177,17 @@ namespace PortaleRegione.Persistance
 
             if (provvedimenti != null)
                 if (provvedimenti.Count > 0)
+                {
+                    var view_abbinamenti = await PRContext
+                        .ATTI_ABBINAMENTI
+                        .Where(abb => provvedimenti.Contains(abb.UIDAttoAbbinato.Value))
+                        .Select(abb => abb.UIDAtto)
+                        .ToListAsync();
                     // #541 Avvio ricerca provvedimenti;
                     query = query
-                        .Where(atto => provvedimenti.Contains(atto.UID_Atto_ODG.Value));
+                        .Where(atto => provvedimenti.Contains(atto.UID_Atto_ODG.Value)
+                                       || view_abbinamenti.Contains(atto.UIDAtto));
+                }
 
             if (atti_da_firmare != null)
                 if (atti_da_firmare.Any())
@@ -307,7 +321,8 @@ namespace PortaleRegione.Persistance
         }
 
         public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid? sedutaId,
-            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro, List<int> soggetti, List<Guid> proponenti, List<Guid> atti_da_firmare)
+            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro, List<int> soggetti, List<Guid> proponenti,
+            List<Guid> atti_da_firmare)
         {
             try
             {
@@ -370,6 +385,7 @@ namespace PortaleRegione.Persistance
                     {
                         query = query.Where(item => item.UIDSeduta == sedutaId && item.DataIscrizioneSeduta.HasValue);
                     }
+
                     if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato == (int)stato);
                     if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int)tipo);
                 }
@@ -442,11 +458,11 @@ namespace PortaleRegione.Persistance
             switch (persona.CurrentRole)
             {
                 case RuoliIntEnum.Consigliere_Regionale:
-                    {
-                        if (persona.IsCapoGruppo) return dto.id_gruppo == persona.Gruppo.id_gruppo;
+                {
+                    if (persona.IsCapoGruppo) return dto.id_gruppo == persona.Gruppo.id_gruppo;
 
-                        return dto.UIDPersonaProponente == persona.UID_persona;
-                    }
+                    return dto.UIDPersonaProponente == persona.UID_persona;
+                }
                 case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
                 case RuoliIntEnum.Presidente_Regione:
                 case RuoliIntEnum.Amministratore_PEM:
@@ -862,7 +878,7 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
             var res = new List<NoteDto>();
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
-            
+
             foreach (var nota in noteInDB)
             {
                 var persona = await PRContext.View_UTENTI.FindAsync(nota.UIDPersona);
@@ -892,7 +908,7 @@ namespace PortaleRegione.Persistance
             {
                 var abbinata = new AttiAbbinamentoDto
                 {
-                    Uid = attiAbbinamenti.Uid,
+                    UidAbbinamento = attiAbbinamenti.Uid,
                     Data = attiAbbinamenti.Data
                 };
 
@@ -904,7 +920,7 @@ namespace PortaleRegione.Persistance
                     abbinata.TipoAttoAbbinato = attiAbbinamenti.TipoAttoAbbinato;
                     abbinata.NumeroAttoAbbinato = attiAbbinamenti.NumeroAttoAbbinato;
                 }
-                else if(attiAbbinamenti.UIDAttoAbbinato.HasValue)
+                else if (attiAbbinamenti.UIDAttoAbbinato.HasValue)
                 {
                     var attoAbbinato = await PRContext
                         .VIEW_ATTI
@@ -917,12 +933,29 @@ namespace PortaleRegione.Persistance
                     abbinata.OggettoAttoAbbinato = attoAbbinato.Oggetto;
                     abbinata.TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinato.Tipo);
                     abbinata.NumeroAttoAbbinato = attoAbbinato.NAtto;
+                    abbinata.UidAttoAbbinato = attoAbbinato.UIDAtto;
                 }
 
                 res.Add(abbinata);
             }
 
             return res;
+        }
+
+        public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId)
+        {
+            var query = PRContext
+                .VIEW_ATTI
+                .Where(a => a.Legislatura.Equals(legislaturaId))
+                .Select(a => new AttoLightDto
+                {
+                    tipo = a.Tipo.ToString(),
+                    natto = a.NAtto,
+                    uidAtto = a.UIDAtto,
+                    oggetto = a.Oggetto
+                });
+
+            return await query.ToListAsync();
         }
 
         public async Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId)
@@ -1013,7 +1046,8 @@ namespace PortaleRegione.Persistance
             foreach (var attiDasi in atti_proposti_in_seduta)
             {
                 var firmatari = await PRContext.ATTI_FIRME
-                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma) && i.Prioritario)
+                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma) &&
+                                i.Prioritario)
                     .ToListAsync();
                 if (firmatari.Any(i => i.UID_persona == uidPersona)) res = false;
             }
@@ -1039,7 +1073,8 @@ namespace PortaleRegione.Persistance
             foreach (var attiDasi in atti_proposti_in_seduta)
             {
                 var firmatari = await PRContext.ATTI_FIRME
-                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma) && i.Prioritario)
+                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma) &&
+                                i.Prioritario)
                     .ToListAsync();
                 if (firmatari.Any(i => i.UID_persona == personaUID))
                 {

@@ -15,15 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using PortaleRegione.DTO.Autenticazione;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
-using PortaleRegione.DTO.Response;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Autenticazione;
+using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Response;
 
 namespace PortaleRegione.Gateway
 {
@@ -44,6 +45,6 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool firma, bool deposito);
         Task<LoginResponse> Login(LoginRequest request);
         Task SalvaPin(CambioPinModel model);
-        Task<List<PersonaPublicDto>> GetProponentiFirmatari();
+        Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId);
     }
 }

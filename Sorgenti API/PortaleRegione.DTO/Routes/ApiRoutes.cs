@@ -235,15 +235,16 @@ namespace PortaleRegione.DTO.Routes
             public const string StampaImmediata = Base + "/{id}/stampa-immediata";
             public const string StampaImmediataPrivacy = Base + "/{id}/stampa-immediata-privacy";
             public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
-            public const string SaveCartaceo = Base + "/save-draft";
-            public const string CambiaPrioritaFirma = Base + "/change-signature-priority";
-            public const string SalvaFiltriPreferiti = Base + "/filters/save";
+            public const string SaveCartaceo = Base + "/salva-bozza-cartacea";
+            public const string CambiaPrioritaFirma = Base + "/cambia-priorità-firma";
+            public const string SalvaFiltriPreferiti = Base + "/filters/salva";
             public const string GetFiltriPreferiti = Base + "/filters";
-            public const string EliminaFiltriPreferiti = Base + "/filters/delete";
-            public const string GeneraReport = Base + "/reports/generate";
-            public const string SalvaReport = Base + "/reports/save";
-            public const string EliminaReport = Base + "/reports/delete";
+            public const string EliminaFiltriPreferiti = Base + "/filters/elimina";
+            public const string GeneraReport = Base + "/reports/genera";
+            public const string SalvaReport = Base + "/reports/salva";
+            public const string EliminaReport = Base + "/reports/elimina";
             public const string GetReports = Base + "/reports";
+            public const string GetAbbinamentiDisponibili = Base + "/filters/abbinamenti-disponibili";
         }
 
         public static class Notifiche

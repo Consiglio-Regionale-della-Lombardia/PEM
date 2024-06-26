@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.Contracts
 {
@@ -73,5 +74,6 @@ namespace PortaleRegione.Contracts
         Task<List<AttiDocumentiDto>> GetDocumenti(Guid uidAtto);
         Task<List<NoteDto>> GetNote(Guid uidAtto);
         Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto);
+        Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId);
     }
 }

@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.Gateway
 {
@@ -81,6 +82,7 @@ namespace PortaleRegione.Gateway
         Task<FileResponse> GeneraReport(ReportDto request);
         Task SalvaReport(ReportDto report);
         Task<List<ReportDto>> GetReports();
+        Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId);
         Task EliminaReport(string nomeReport);
     }
 }

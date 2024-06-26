@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using PortaleRegione.Common;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.Gateway
 {
@@ -604,6 +605,13 @@ namespace PortaleRegione.Gateway
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetReports}";
             var lst = JsonConvert.DeserializeObject<List<ReportDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAbbinamentiDisponibili}?legislaturaId={legislaturaId}";
+            var lst = JsonConvert.DeserializeObject<List<AttoLightDto>>(await Get(requestUrl, _token));
             return lst;
         }
 

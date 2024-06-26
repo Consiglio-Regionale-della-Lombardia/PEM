@@ -330,7 +330,7 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [DisplayName("Data Chiusura")]public DateTime? DataChiusuraIter { get; set; }
 
-    public bool Emendato { get; set; }
+    [DisplayName("Emendato")]public bool Emendato { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [DisplayName("Tipo Votazione")] public int? TipoVotazioneIter { get; set; }
@@ -360,7 +360,7 @@ public class AttoDASIDto
     [DisplayName("Abbinamenti")] public List<AttiAbbinamentoDto> Abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
     public string DisplayTipoChiusuraIter { get; set; }
     public string DisplayTipoVotazioneIter { get; set; }
-    public int DCR { get; set; }
-    public int DCRC { get; set; }
+    public int? DCR { get; set; }
+    public int? DCRC { get; set; }
     public string DCRL { get; set; }
 }

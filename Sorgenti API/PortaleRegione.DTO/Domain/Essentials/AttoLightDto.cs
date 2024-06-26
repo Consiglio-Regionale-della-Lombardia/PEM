@@ -23,11 +23,12 @@ using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.DTO.Domain.Essentials
 {
-    public class AttoDASILightDto
+    public class AttoLightDto
     {
         public Guid uidAtto { get; set; }
         public string oggetto { get; set; }
         public string display { get; set; }
+        public string natto { get; set; }
         public string tipo { get; set; }
         public string tipo_esteso { get; set; }
     }

@@ -102,18 +102,27 @@ function GetLegislature() {
     });
 }
 
-function GetProponenti() {
-    var proponenti = get_ListaProponenti();
-    if (proponenti.length > 0) {
-        return proponenti;
-    }
-
+function GetProponenti(idLegislatura) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/persone/proponenti-firmatari",
+            url: baseUrl + "/persone/proponenti-firmatari?legislaturaId=" + idLegislatura,
             type: "GET"
         }).done(function(result) {
             set_ListaProponenti(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetAbbinamentiDisponibili(legislaturaId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/view-abbinamenti-disponibili?legislaturaId=" + legislaturaId,
+            type: "GET"
+        }).done(function(result) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);

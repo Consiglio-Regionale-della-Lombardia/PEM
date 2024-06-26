@@ -351,11 +351,11 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route(ApiRoutes.Persone.GetProponentiFirmatari)]
-        public async Task<IHttpActionResult> GetProponentiFirmatari()
+        public async Task<IHttpActionResult> GetProponentiFirmatari(string legislaturaId)
         {
             try
             {
-                var persone = await _personeLogic.GetProponentiFirmatari();
+                var persone = await _personeLogic.GetProponentiFirmatari(legislaturaId);
 
                 return Ok(persone);
             }

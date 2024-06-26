@@ -121,8 +121,8 @@ namespace PortaleRegione.Domain
         public string AreaTematica { get; set; }
         public string AltriSoggetti { get; set; }
 
-        public int DCR { get; set; }
-        public int DCRC { get; set; }
+        public int? DCR { get; set; }
+        public int? DCRC { get; set; }
         public string DCRL { get; set; }
         public string BURL { get; set; }
     }

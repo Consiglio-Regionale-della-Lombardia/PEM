@@ -22,10 +22,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
-using System.Web.UI.WebControls;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
-using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -33,6 +31,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using Utility = PortaleRegione.Common.Utility;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -55,7 +54,7 @@ namespace PortaleRegione.Client.Controllers
             CheckCacheClientMode(ClientModeEnum.GRUPPI);
             await CheckCacheGruppiAdmin(currentUser.CurrentRole);
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
-            
+
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo,
                 currentUser.CurrentRole, view_require_my_sign);
@@ -99,7 +98,7 @@ namespace PortaleRegione.Client.Controllers
                     };
                     return Json(resEmpty);
                 }
-                
+
                 if (!model.filters.Any())
                 {
                     var resEmpty = new RiepilogoDASIModel
@@ -118,7 +117,7 @@ namespace PortaleRegione.Client.Controllers
                 {
                     if (modelFilter.property.Equals(nameof(AttoDASIDto.UIDSeduta)))
                     {
-                        var formattedDate = Common.Utility.FormatDateToISO(modelFilter.value);
+                        var formattedDate = Utility.FormatDateToISO(modelFilter.value);
                         var sedutaRes = await apiGateway.Sedute.Get(new BaseRequest<SeduteDto>
                         {
                             filtro = new List<FilterStatement<SeduteDto>>
@@ -160,15 +159,41 @@ namespace PortaleRegione.Client.Controllers
                             Connector = FilterStatementConnector.And
                         });
                         continue;
-
                     }
-                    
+
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.Protocollo))
+                        || modelFilter.property.Equals(nameof(AttoDASIDto.CodiceMateria)))
+                    {
+                        if (string.IsNullOrEmpty(modelFilter.value))
+                        {
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.EqualTo,
+                                Value = string.Empty,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                        else
+                        {
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.Contains,
+                                Value = modelFilter.value,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+
+                        continue;
+                    }
+
                     if (modelFilter.property.Equals(nameof(AttoDASIDto.Timestamp)))
                     {
                         var dates = modelFilter.value.Split(',');
                         if (dates.Length == 1)
                         {
-                            var formattedDate = Common.Utility.FormatDateToISO(dates[0]);
+                            var formattedDate = Utility.FormatDateToISO(dates[0]);
                             request.filtro.Add(new FilterStatement<AttoDASIDto>
                             {
                                 PropertyId = modelFilter.property,
@@ -186,8 +211,8 @@ namespace PortaleRegione.Client.Controllers
                         }
                         else if (dates.Length == 2)
                         {
-                            var formattedDate1 = Common.Utility.FormatDateToISO(dates[0]);
-                            var formattedDate2 = Common.Utility.FormatDateToISO(dates[1]);
+                            var formattedDate1 = Utility.FormatDateToISO(dates[0]);
+                            var formattedDate2 = Utility.FormatDateToISO(dates[1]);
                             request.filtro.Add(new FilterStatement<AttoDASIDto>
                             {
                                 PropertyId = modelFilter.property,
@@ -203,12 +228,13 @@ namespace PortaleRegione.Client.Controllers
                                 Connector = FilterStatementConnector.And
                             });
                         }
+
                         continue;
                     }
-                    
+
                     if (modelFilter.property.Equals(nameof(AttoDASIDto.DataIscrizioneSeduta)))
                     {
-                        var formattedDate = Common.Utility.FormatDateToISO(modelFilter.value);
+                        var formattedDate = Utility.FormatDateToISO(modelFilter.value);
                         request.filtro.Add(new FilterStatement<AttoDASIDto>
                         {
                             PropertyId = modelFilter.property,
@@ -243,6 +269,23 @@ namespace PortaleRegione.Client.Controllers
                         continue;
                     }
 
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.Abbinamenti)))
+                    {
+                        var splitAbbinamenti = modelFilter.value.Split(',');
+                        foreach (var s in splitAbbinamenti)
+                        {
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.EqualTo,
+                                Value = Guid.Parse(s),
+                                Connector = FilterStatementConnector.Or
+                            });
+                        }
+
+                        continue;
+                    }
+
                     request.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
                         PropertyId = modelFilter.property,
@@ -261,7 +304,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpPost]
         [Route("salva-gruppo-filtri")]
         public async Task<ActionResult> SalvaGruppoFiltri(FiltroPreferitoDto model)
@@ -277,7 +320,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("elimina-gruppo-filtri")]
         public async Task<ActionResult> EliminaGruppoFiltri(string nomeFiltro)
@@ -293,7 +336,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("gruppo-filtri")]
         public async Task<ActionResult> GetGruppoFiltri()
@@ -320,7 +363,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 CurrentUser = CurrentUser
             };
-            
+
             if (CanAccess(new List<RuoliIntEnum>
                     { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
                 return View("RiepilogoDASI_Admin", model);
@@ -457,12 +500,12 @@ namespace PortaleRegione.Client.Controllers
                 atto.FirmeAnte = firme_ante.ToList();
                 atto.FirmePost = firme_post.ToList();
 
-                atto.Firme = await Utility.GetFirmatariDASI(
+                atto.Firme = await Helpers.Utility.GetFirmatariDASI(
                     atto.FirmeAnte,
                     currentUser.UID_persona,
                     FirmeTipoEnum.PRIMA_DEPOSITO,
                     Token);
-                atto.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
+                atto.Firme_dopo_deposito = await Helpers.Utility.GetFirmatariDASI(
                     atto.FirmePost,
                     currentUser.UID_persona,
                     FirmeTipoEnum.DOPO_DEPOSITO,
@@ -470,7 +513,7 @@ namespace PortaleRegione.Client.Controllers
 
                 if (!atto.IsChiuso)
                     atto.Destinatari =
-                        await Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
+                        await Helpers.Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
 
                 var result = new DASIFormModel
                 {
@@ -1288,7 +1331,8 @@ namespace PortaleRegione.Client.Controllers
             {
                 modelInCache = new RiepilogoDASIModel
                 {
-                    ClientMode = (ClientModeEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE))),
+                    ClientMode =
+                        (ClientModeEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE))),
                     Stato = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
                     Tipo = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
                 };
@@ -1311,7 +1355,8 @@ namespace PortaleRegione.Client.Controllers
 
                 Session["RiepilogoDASI"] = resultPreview;
 
-                SetCache(resultPreview.Data.Paging.Page, resultPreview.Data.Paging.Limit, (int)resultPreview.Tipo, (int)resultPreview.Stato,
+                SetCache(resultPreview.Data.Paging.Page, resultPreview.Data.Paging.Limit, (int)resultPreview.Tipo,
+                    (int)resultPreview.Stato,
                     Convert.ToInt16(view));
 
                 foreach (var atti in resultPreview.Data.Results)
@@ -1325,12 +1370,12 @@ namespace PortaleRegione.Client.Controllers
                     atti.FirmeAnte = firme_ante.ToList();
                     atti.FirmePost = firme_post.ToList();
 
-                    atti.Firme = await Utility.GetFirmatariDASI(
+                    atti.Firme = await Helpers.Utility.GetFirmatariDASI(
                         atti.FirmeAnte,
                         resultPreview.CurrentUser.UID_persona,
                         FirmeTipoEnum.PRIMA_DEPOSITO,
                         Token);
-                    atti.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
+                    atti.Firme_dopo_deposito = await Helpers.Utility.GetFirmatariDASI(
                         atti.FirmePost,
                         resultPreview.CurrentUser.UID_persona,
                         FirmeTipoEnum.DOPO_DEPOSITO,
@@ -1358,7 +1403,8 @@ namespace PortaleRegione.Client.Controllers
                     var resultGrid = await apiGateway.DASI.Get(request);
                     resultGrid.CurrentUser = CurrentUser;
                     resultGrid.ClientMode = modelInCache.ClientMode;
-                    SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo, (int)resultGrid.Stato,
+                    SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo,
+                        (int)resultGrid.Stato,
                         Convert.ToInt16(view));
 
                     Session["RiepilogoDASI"] = resultGrid;
@@ -1711,7 +1757,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("get-reports")]
         public async Task<ActionResult> GetReports()
@@ -1720,6 +1766,22 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 var res = await apiGateway.DASI.GetReports();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("view-abbinamenti-disponibili")]
+        public async Task<ActionResult> GetAbbinamentiDisponibili(int legislaturaId)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetAbbinamentiDisponibili(legislaturaId);
                 return Json(res, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

@@ -78,7 +78,7 @@
     <Compile Include="Domain\AttoDASIDto.cs" />
     <Compile Include="Domain\CommissioneDto.cs" />
     <Compile Include="Domain\DestinatariNotificaDto.cs" />
-    <Compile Include="Domain\Essentials\AttoDASILightDto.cs" />
+    <Compile Include="Domain\Essentials\AttoLightDto.cs" />
     <Compile Include="Domain\Essentials\EmendamentoLightDto.cs" />
     <Compile Include="Domain\Essentials\MetaDatiEMDto.cs" />
     <Compile Include="Domain\Essentials\PersonaLightDto.cs" />
