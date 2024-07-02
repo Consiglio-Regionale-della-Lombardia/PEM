@@ -69,7 +69,7 @@ public class AttoDASIDto
     public string Richiesta_Modificata { get; set; }
 
 
-    [DisplayName("Tipo")] public int Tipo { get; set; }
+    [DisplayName("Tipo atto")] public int Tipo { get; set; }
 
     [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;
 
@@ -360,7 +360,7 @@ public class AttoDASIDto
     [DisplayName("Abbinamenti")] public List<AttiAbbinamentoDto> Abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
     public string DisplayTipoChiusuraIter { get; set; }
     public string DisplayTipoVotazioneIter { get; set; }
-    public int? DCR { get; set; }
-    public int? DCRC { get; set; }
+    [DisplayName("DCR/DCCR")] public int? DCR { get; set; }
+    public int? DCCR { get; set; }
     public string DCRL { get; set; }
 }

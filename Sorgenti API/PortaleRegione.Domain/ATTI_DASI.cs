@@ -122,7 +122,7 @@ namespace PortaleRegione.Domain
         public string AltriSoggetti { get; set; }
 
         public int? DCR { get; set; }
-        public int? DCRC { get; set; }
+        public int? DCCR { get; set; }
         public string DCRL { get; set; }
         public string BURL { get; set; }
     }
