@@ -95,6 +95,7 @@
     <Compile Include="Domain\ReportDto.cs" />
     <Compile Include="Domain\StampaDto.cs" />
     <Compile Include="Domain\Stampa_InfoDto.cs" />
+    <Compile Include="Domain\TemplatesItemDto.cs" />
     <Compile Include="Domain\TipoNotificaDto.cs" />
     <Compile Include="Domain\View_Conteggi_EM_Area_PoliticaDto.cs" />
     <Compile Include="Domain\View_Conteggi_EM_Gruppi_PoliticiDto.cs" />

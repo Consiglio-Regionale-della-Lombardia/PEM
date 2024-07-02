@@ -17,6 +17,7 @@
  */
 
 using System.Data.Entity;
+using System.Threading.Tasks;
 using PortaleRegione.Domain;
 
 namespace PortaleRegione.DataBase
@@ -127,6 +128,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
         public virtual DbSet<FILTRI> FILTRI { get; set; } // Filtri personalizzati
         public virtual DbSet<REPORTS> REPORTS { get; set; } // Reports personalizzati
+        public virtual DbSet<TEMPLATES> TEMPLATES { get; set; } // Templates
 
         /// <summary>
         ///     Override del metodo OnModelCreating per configurare i modelli di entità quando il modello per questo contesto viene

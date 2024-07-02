@@ -371,5 +371,15 @@ namespace PortaleRegione.DTO.Routes
                 public const string GetAtti = Base + "/atti";
             }
         }
+
+        public static class Templates
+        {
+            private const string Base = Root + "/templates";
+
+            public const string GetAll = Base + "/all";
+            public const string Get = Base + "/{id}";
+            public const string Delete = Base + "/{id}/delete";
+            public const string Save = Base + "/save";
+        }
     }
 }

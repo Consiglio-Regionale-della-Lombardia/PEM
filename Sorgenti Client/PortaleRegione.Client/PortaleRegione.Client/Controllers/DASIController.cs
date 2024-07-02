@@ -117,7 +117,22 @@ namespace PortaleRegione.Client.Controllers
                 {
                     if (modelFilter.property.Equals(nameof(AttoDASIDto.UIDSeduta)))
                     {
-                        var formattedDate = Utility.FormatDateToISO(modelFilter.value);
+                        var sedutaDate = string.Empty;
+                        var sedutaDate2 = string.Empty;
+                        var dates = modelFilter.value.Split(',');
+                        if (dates.Length == 1)
+                        {
+                            sedutaDate = Utility.FormatDateToISO(dates[0]);
+                            sedutaDate2 = sedutaDate + " 23:59:59";
+                            
+                        }
+                        else if (dates.Length == 2)
+                        {
+                            sedutaDate = Utility.FormatDateToISO(dates[0]);
+                            sedutaDate2 = Utility.FormatDateToISO(dates[1]) + " 23:59:59";
+                            
+                        }
+                        
                         var sedutaRes = await apiGateway.Sedute.Get(new BaseRequest<SeduteDto>
                         {
                             filtro = new List<FilterStatement<SeduteDto>>
@@ -126,14 +141,14 @@ namespace PortaleRegione.Client.Controllers
                                 {
                                     PropertyId = nameof(SeduteDto.Data_seduta),
                                     Operation = Operation.GreaterThanOrEqualTo,
-                                    Value = formattedDate,
+                                    Value = sedutaDate,
                                     Connector = FilterStatementConnector.And
                                 },
                                 new FilterStatement<SeduteDto>
                                 {
                                     PropertyId = nameof(SeduteDto.Data_seduta),
                                     Operation = Operation.LessThanOrEqualTo,
-                                    Value = formattedDate + " 23:59:59",
+                                    Value = sedutaDate2,
                                     Connector = FilterStatementConnector.And
                                 }
                             }
@@ -141,23 +156,20 @@ namespace PortaleRegione.Client.Controllers
 
                         if (sedutaRes.Paging.Total == 0)
                         {
+                            continue;
+                        }
+
+                        foreach (var sedutaResResult in sedutaRes.Results)
+                        {
                             request.filtro.Add(new FilterStatement<AttoDASIDto>
                             {
                                 PropertyId = modelFilter.property,
                                 Operation = Operation.EqualTo,
-                                Value = Guid.NewGuid(),
-                                Connector = FilterStatementConnector.And
+                                Value = sedutaResResult.UIDSeduta,
+                                Connector = FilterStatementConnector.Or
                             });
-                            continue;
                         }
 
-                        request.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = modelFilter.property,
-                            Operation = Operation.EqualTo,
-                            Value = sedutaRes.Results.First().UIDSeduta,
-                            Connector = FilterStatementConnector.And
-                        });
                         continue;
                     }
 
@@ -189,6 +201,117 @@ namespace PortaleRegione.Client.Controllers
                     }
 
                     if (modelFilter.property.Equals(nameof(AttoDASIDto.Timestamp)))
+                    {
+                        var dates = modelFilter.value.Split(',');
+                        if (dates.Length == 1)
+                        {
+                            var formattedDate = Utility.FormatDateToISO(dates[0]);
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.GreaterThanOrEqualTo,
+                                Value = formattedDate,
+                                Connector = FilterStatementConnector.And
+                            });
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.LessThanOrEqualTo,
+                                Value = formattedDate + " 23:59:59",
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                        else if (dates.Length == 2)
+                        {
+                            var formattedDate1 = Utility.FormatDateToISO(dates[0]);
+                            var formattedDate2 = Utility.FormatDateToISO(dates[1]);
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.GreaterThanOrEqualTo,
+                                Value = formattedDate1,
+                                Connector = FilterStatementConnector.And
+                            });
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.LessThanOrEqualTo,
+                                Value = formattedDate2 + " 23:59:59",
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+
+                        continue;
+                    }
+                    
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.DCR)))
+                    {
+                        if (string.IsNullOrEmpty(modelFilter.value))
+                        {
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.EqualTo,
+                                Value = string.Empty,
+                                Connector = FilterStatementConnector.And
+                            });
+
+                            continue;
+                        }
+
+                        var dcrSplit = modelFilter.value.Split(',');
+                        if (dcrSplit.Length == 1)
+                        {
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.EqualTo,
+                                Value = dcrSplit[0],
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                        else if (dcrSplit.Length == 2)
+                        {
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.EqualTo,
+                                Value = dcrSplit[0],
+                                Connector = FilterStatementConnector.And
+                            });
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = nameof(AttoDASIDto.DCRC),
+                                Operation = Operation.EqualTo,
+                                Value = dcrSplit[1],
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+
+                        continue;
+                    }
+                    
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.Tipo)))
+                    {
+                        var tipoSplit = modelFilter.value.Split(',');
+                        if (tipoSplit.Length > 0)
+                        {
+                            foreach (var tipo in tipoSplit)
+                            {
+                                request.filtro.Add(new FilterStatement<AttoDASIDto>
+                                {
+                                    PropertyId = modelFilter.property,
+                                    Operation = Operation.EqualTo,
+                                    Value = tipo,
+                                    Connector = FilterStatementConnector.Or
+                                });
+                            }
+                        }
+
+                        continue;
+                    }
+                    
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.DataChiusuraIter)))
                     {
                         var dates = modelFilter.value.Split(',');
                         if (dates.Length == 1)

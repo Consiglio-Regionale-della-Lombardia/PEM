@@ -783,5 +783,78 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
+        public async Task<BaseResponse<TemplatesItemDto>> GetTemplates(Uri url)
+        {
+            var resFromDb = await _unitOfWork.Templates.GetAll();
+            var results = new List<TemplatesItemDto>();
+
+            foreach (var item in resFromDb)
+            {
+                results.Add(new TemplatesItemDto
+                {
+                    Uid = item.Uid,
+                    Nome = item.Nome,
+                    Corpo = item.Corpo,
+                    Tipo = item.Tipo
+                });
+            }
+
+            return new BaseResponse<TemplatesItemDto>(
+                1,
+                99,
+                results,
+                null,
+                results.Count,
+                url);
+        }
+
+        public async Task<TemplatesItemDto> GetTemplateFromDb(Guid uid)
+        {
+            var item = await _unitOfWork.Templates.Get(uid);
+            return new TemplatesItemDto
+            {
+                Uid = item.Uid,
+                Nome = item.Nome,
+                Corpo = item.Corpo,
+                Tipo = item.Tipo
+            };
+        }
+
+        public async Task DeleteTemplate(TEMPLATES template)
+        {
+           _unitOfWork.Templates.Remove(template);
+           await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task<TemplatesItemDto> SaveTemplate(TemplatesItemDto request)
+        {
+            if (request.Uid.Equals(Guid.Empty))
+            {
+                // Nuovo inserimento
+                var template = new TEMPLATES
+                {
+                    Uid = Guid.NewGuid(),
+                    Nome = request.Nome,
+                    Corpo = request.Corpo,
+                    Tipo = request.Tipo
+                };
+
+                _unitOfWork.Templates.Add(template);
+
+                await _unitOfWork.CompleteAsync();
+
+                request.Uid = template.Uid;
+
+                return request;
+            }
+
+            var templateInDb = await _unitOfWork.Templates.Get(request.Uid);
+            templateInDb.Corpo = request.Corpo;
+            
+            await _unitOfWork.CompleteAsync();
+
+            return request;
+        }
     }
 }

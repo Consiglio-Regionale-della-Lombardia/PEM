@@ -16,19 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Response;
+
+namespace PortaleRegione.Gateway
 {
-    public enum TemplateTypeEnum
+    public interface ITemplatesGateway
     {
-        PDF = 1,
-        PDF_COPERTINA = 2,
-        MAIL = 3,
-        HTML = 4,
-        HTML_MODIFICABILE = 5,
-        FIRMA = 6,
-        INDICE_DASI = 7,
-        REPORT_HEADER_DEFAULT = 8,
-        REPORT_ITEM_CARD = 9,
-        REPORT_COVER = 10,
+        Task<BaseResponse<TemplatesItemDto>> GetAll();
+        Task<TemplatesItemDto> Get(Guid uid);
+        Task Delete(Guid uid);
+        Task<TemplatesItemDto> Save(TemplatesItemDto item);
+
     }
 }

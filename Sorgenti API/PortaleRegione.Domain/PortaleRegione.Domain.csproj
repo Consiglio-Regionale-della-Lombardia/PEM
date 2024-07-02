@@ -83,6 +83,7 @@
     <Compile Include="STATI_EM.cs" />
     <Compile Include="TAGS.cs" />
     <Compile Include="tbl_recapiti.cs" />
+    <Compile Include="TEMPLATES.cs" />
     <Compile Include="TIPI_ATTO.cs" />
     <Compile Include="TIPI_EM.cs" />
     <Compile Include="TIPI_NOTIFICA.cs" />

@@ -51,6 +51,7 @@ namespace PortaleRegione.Persistance
             Atti_Firme = new AttiFirmeRepository(context);
             Filtri = new FiltriRepository(context);
             Reports = new ReportsRepository(context);
+            Templates = new TemplatesRepository(context);
         }
 
         public ISeduteRepository Sedute { get; }
@@ -71,6 +72,7 @@ namespace PortaleRegione.Persistance
         public IAttiFirmeRepository Atti_Firme { get; }
         public IFiltriRepository Filtri { get; }
         public IReportsRepository Reports { get; }
+        public ITemplatesRepository Templates { get; }
 
         public async Task<int> CompleteAsync()
         {

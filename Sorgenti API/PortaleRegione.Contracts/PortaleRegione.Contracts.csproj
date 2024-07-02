@@ -56,6 +56,7 @@
     <Compile Include="IRuoliRepository.cs" />
     <Compile Include="ISeduteRepository.cs" />
     <Compile Include="IStampeRepository.cs" />
+    <Compile Include="ITemplatesRepository.cs" />
     <Compile Include="IUnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

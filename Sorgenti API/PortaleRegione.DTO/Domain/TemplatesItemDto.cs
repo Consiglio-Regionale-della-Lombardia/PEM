@@ -16,19 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using System;
+using PortaleRegione.DTO.Enum;
+
+namespace PortaleRegione.DTO.Domain;
+
+public class TemplatesItemDto
 {
-    public enum TemplateTypeEnum
-    {
-        PDF = 1,
-        PDF_COPERTINA = 2,
-        MAIL = 3,
-        HTML = 4,
-        HTML_MODIFICABILE = 5,
-        FIRMA = 6,
-        INDICE_DASI = 7,
-        REPORT_HEADER_DEFAULT = 8,
-        REPORT_ITEM_CARD = 9,
-        REPORT_COVER = 10,
-    }
+    public Guid Uid { get; set; }
+    public string Nome { get; set; }
+    public string Corpo { get; set; }
+    public int Tipo { get; set; }
 }

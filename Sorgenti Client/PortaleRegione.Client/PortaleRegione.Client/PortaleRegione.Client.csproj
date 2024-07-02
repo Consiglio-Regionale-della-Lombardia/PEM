@@ -129,6 +129,7 @@
     <Compile Include="Controllers\GEASIController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
+    <Compile Include="Controllers\TemplateController.cs" />
     <Compile Include="Models\StampaModel.cs" />
     <Compile Include="Helpers\AppSettingsConfiguration.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
@@ -492,6 +493,8 @@
     <Content Include="Views\DASI\Filtri\_FiltroConfigModal.cshtml" />
     <Content Include="Views\DASI\Filtri\_DettaglioFiltroModal.cshtml" />
     <Content Include="Views\DASI\_PannelloRicercheConsiglieri.cshtml" />
+    <Content Include="Views\Template\View.cshtml" />
+    <Content Include="Views\Template\TemplateForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

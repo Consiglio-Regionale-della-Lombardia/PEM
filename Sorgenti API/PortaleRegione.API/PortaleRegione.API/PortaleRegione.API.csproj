@@ -218,6 +218,7 @@
     <Compile Include="Controllers\PersoneController.cs" />
     <Compile Include="Controllers\SeduteController.cs" />
     <Compile Include="Controllers\StampeController.cs" />
+    <Compile Include="Controllers\TemplatesController.cs" />
     <Compile Include="Controllers\UtilsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

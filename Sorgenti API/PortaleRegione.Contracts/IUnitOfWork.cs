@@ -44,6 +44,7 @@ namespace PortaleRegione.Contracts
         IAttiFirmeRepository Atti_Firme { get; }
         IFiltriRepository Filtri { get; }
         IReportsRepository Reports { get; }
+        ITemplatesRepository Templates { get; }
 
         /// <summary>
         /// Salva le operazioni fatte finora nel Context

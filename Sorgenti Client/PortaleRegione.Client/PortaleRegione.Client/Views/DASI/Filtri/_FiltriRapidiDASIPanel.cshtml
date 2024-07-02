@@ -48,6 +48,9 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Protocollo))", id: "@nameof(AttoDASIDto.Protocollo)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.CodiceMateria))", id: "@nameof(AttoDASIDto.CodiceMateria)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Emendato))", id: "@nameof(AttoDASIDto.Emendato)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoVotazioneIter))", id: "@nameof(AttoDASIDto.TipoVotazioneIter)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DCR))", id: "@nameof(AttoDASIDto.DCR)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataChiusuraIter))", id: "@nameof(AttoDASIDto.DataChiusuraIter)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -78,6 +81,29 @@ document.addEventListener('DOMContentLoaded', async function() {
             val = document.getElementById('protocollo').value;
             text = val;
             chipText = keyLabel + ": " + val;
+        }else if (key === "@nameof(AttoDASIDto.DCR)") {
+            var dcrValue = document.getElementById('dcr').value.trim();
+            var dcrcValue = document.getElementById('dcrc').value.trim();
+
+			dcrValue = dcrValue === "0" ? "" : dcrValue;
+			dcrcValue = dcrcValue === "0" ? "" : dcrcValue;
+
+			if (dcrcValue !== "") {
+				val = dcrValue + (dcrValue ? ', ' : '') + dcrcValue;
+			} else {
+				val = dcrValue;
+			}
+
+			text = val;
+			chipText = keyLabel + ": " + text;
+            chipText = keyLabel + ": " + text;
+        } else if (key === "@nameof(AttoDASIDto.Tipo)") {
+			var selectedOptions = document.querySelectorAll('#tipi-select option:checked');
+			var values = Array.from(selectedOptions).map(option => option.value);
+			var texts = Array.from(selectedOptions).map(option => option.text);
+			val = values.join(',');
+			text = texts.join(', ');
+			chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.CodiceMateria)") {
             val = document.getElementById('codice_materia').value;
             text = val;
@@ -108,13 +134,34 @@ document.addEventListener('DOMContentLoaded', async function() {
 				text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
 			}
             chipText = keyLabel + ": " + text;
-        }else if (key === "@nameof(AttoDASIDto.UIDSeduta)") {
-			var data_seduta_str = document.getElementById('data_seduta').value;
-			var data_seduta_obj = new Date(data_seduta_str);
-			var data_seduta_formatted_date = ('0' + data_seduta_obj.getDate()).slice(-2) + '/' + ('0' + (data_seduta_obj.getMonth() + 1)).slice(-2) + '/' + data_seduta_obj.getFullYear();
-			val = data_seduta_formatted_date;
-			text = data_seduta_formatted_date;
+        }else if (key === "@nameof(AttoDASIDto.DataChiusuraIter)") {
+			var data_da_str = document.getElementById('data_chiusura_iter_da').value;
+			var date_da_obj = new Date(data_da_str);
+			var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+			val = data_da_formatted_date;
+			text = data_da_formatted_date;
+			if (document.getElementById('data_chiusura_iter_a').value !== '') {
+				var data_a_str = document.getElementById('data_chiusura_iter_a').value;
+			    var date_a_obj = new Date(data_a_str);
+			    var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+				val += "," + data_a_formatted_date;
+				text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+			}
             chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.UIDSeduta)") {
+			var data_da_str = document.getElementById('data_seduta_da').value;
+			var date_da_obj = new Date(data_da_str);
+			var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+			val = data_da_formatted_date;
+			text = data_da_formatted_date;
+			if (document.getElementById('data_seduta_a').value !== '') {
+				var data_a_str = document.getElementById('data_seduta_a').value;
+				var date_a_obj = new Date(data_a_str);
+				var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+				val += "," + data_a_formatted_date;
+				text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+			}
+			chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.DataIscrizioneSeduta)") {
 			var data_iscrizione_seduta_str = document.getElementById('data_iscrizione_seduta').value;
 			var data_iscrizione_seduta_obj = new Date(data_iscrizione_seduta_str);
@@ -263,7 +310,7 @@ async function inviaDatiChips(page, size) {
 		document.getElementById('loadingSpinner').style.display = 'none';
 		console.error('Errore durante l\'invio dei dati delle chips:', error);
 	}
-	
+
 	waiting(false);
 }
 
@@ -287,6 +334,7 @@ function CreaTabella(responseData) {
             <th>Firmatari</th>
             <th>Stato</th>
             <th>Seduta</th>
+            <th><i class="material-icons green-text">description</i></th>
             <th><i class="material-icons blue-text">public</i></th>
             <th><i class="material-icons red-text">notifications_active</i></th>
             <th></th>
@@ -312,6 +360,7 @@ function CreaTabella(responseData) {
 
 		var isPubblicato = result.Pubblicato ? 'checked="checked"' : '';
 		var isSollecito = result.Sollecito ? 'checked="checked"' : '';
+		var haveProtocollo = result.Protocollo ? 'checked="checked"' : '';
 		var colonnaTipo = result.DisplayTipoRispostaRichiesta;
 		var iconChipAggiuntiva = "";
 		if (result.Abbinamenti.length > 0){
@@ -339,12 +388,18 @@ function CreaTabella(responseData) {
             <td>${htmlFirme}</td>
             <td>${result.DisplayStato}</td>
             <td></td>
-            <td style="width: 1%;">
-			    <label class="tooltipped" data-tooltip="Pubblicato">
-                    <input type="checkbox" ${isPubblicato} onclick="return false;"/>
+			<td style="width: 1%;">
+			    <label class="tooltipped" data-tooltip="Protocollo: ${result.Protocollo}">
+                    <input type="checkbox" ${haveProtocollo} onclick="return false;"/>
                     <span></span>
                 </label>
 			</td>
+			<td style="width: 1%;">
+                <label class="tooltipped" data-tooltip="Pubblicato">
+                    <input type="checkbox" ${isPubblicato} onclick="return false;"/>
+                    <span></span>
+                </label>
+            </td>
             <td style="width: 1%;">
                 <label class="tooltipped" data-tooltip="Sollecito">
                     <input type="checkbox" ${isSollecito} onclick="return false;"/>
@@ -533,7 +588,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 		    break;
 	    case '@nameof(AttoDASIDto.Tipo)':
 			var tipi = await GetTipiDASI();
-			selectHTML = '<select id="tipi-select">';
+			selectHTML = '<select id="tipi-select" multiple>';
 			tipi.forEach(function (item) {
 				if (item.IDTipoAtto != 0) {
 					var selected = isEditing && currentValue > 0 && item.IDTipoAtto == currentValue ? 'selected' : '';
@@ -553,6 +608,45 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 
 			selectHTML = '<select id="tipi-risposta-select">';
 			tipiRisposta.forEach(function (item) {
+				if (item.id != 0) {
+					var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+					selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+				}
+			});
+			selectHTML += '</select>';
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			M.FormSelect.init(document.querySelectorAll('select'));
+		    break;
+		case '@nameof(AttoDASIDto.TipoVotazioneIter)':
+			var tipiVotazioneIter = [
+			    { id: @((int)TipoVotazioneIterEnum.NESSUNO), text: '@(Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.NESSUNO))'},
+			    { id: @((int)TipoVotazioneIterEnum.APPELLO_NOMINALE), text: '@(Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE))'},
+			    { id: @((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO), text: '@(Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO))'},
+			    { id: @((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO), text: '@(Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO))'},
+			];
+
+			selectHTML = '<select id="tipi-votazione-iter-select">';
+			tipiVotazioneIter.forEach(function (item) {
+				if (item.id != 0) {
+					var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+					selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+				}
+			});
+			selectHTML += '</select>';
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			M.FormSelect.init(document.querySelectorAll('select'));
+		    break;
+		case '@nameof(AttoDASIDto.TipoChiusuraIter)':
+			var tipiChiusuraIter = [
+			    { id: @((int)StatiAttoEnum.CHIUSO), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO))'},
+			    { id: @((int)StatiAttoEnum.CHIUSO_DECADUTO), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO_DECADUTO))'},
+			    { id: @((int)StatiAttoEnum.CHIUSO_DECADENZA_PER_FINE_LEGISLATURA), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO_DECADENZA_PER_FINE_LEGISLATURA))'},
+			    { id: @((int)StatiAttoEnum.CHIUSO_INAMMISSIBILE), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO_INAMMISSIBILE))'},
+			    { id: @((int)StatiAttoEnum.CHIUSO_RITIRATO), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO_RITIRATO))'},
+			];
+
+			selectHTML = '<select id="tipi-chiusura-iter-select">';
+			tipiChiusuraIter.forEach(function (item) {
 				if (item.id != 0) {
 					var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
 					selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
@@ -591,6 +685,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
             var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
             selectHTML = `<div class="input-field col s12">
                 <input id="protocollo" type="text" ${currentValueFormatted}/>
+				<div class="card blue lighten-5">
+                    <div class="card-content black-text">
+                        <span class="card-title">Informazioni</span>
+                        <p>Lasciare vuoto per cercare gli atti non protocollati</p>
+                    </div>
+                </div>
             </div>`;
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
@@ -615,14 +715,32 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
   </div>`;
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
+		case '@nameof(AttoDASIDto.DataChiusuraIter)':
+
+			var dateValues = handleDateValue(currentValue);
+			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+			var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+			selectHTML = `<div class="input-field col s12">
+      <input id="data_chiusura_iter_da" type="date" ${currentValueFormatted1}/>
+  </div>
+  <div class="input-field col s12">
+      <input id="data_chiusura_iter_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
 		case '@nameof(AttoDASIDto.UIDSeduta)':
 
 			var dateValues = handleDateValue(currentValue);
 			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+			var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
 
 			selectHTML = `<div class="input-field col s12">
-      <input id="data_seduta" type="date" ${currentValueFormatted1}/>
-  </div>`;
+    <input id="data_seduta_da" type="date" ${currentValueFormatted1}/>
+</div>
+<div class="input-field col s12">
+    <input id="data_seduta_a" type="date" ${currentValueFormatted2}/>
+</div>`;
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.DataIscrizioneSeduta)':
@@ -716,7 +834,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
 				    });
             }
-			
+
             break;
 		case '@nameof(AttoDASIDto.TipoMOZ)':
 	        var tipiMozione = [
@@ -851,6 +969,34 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                     </label>
                 </div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.DCR)':
+
+			var dcrValue = '';
+			var dcrcValue = '';
+
+			// Controlla se currentValue contiene una virgola e quindi due valori separati
+			if (isEditing && currentValue) {
+				var parts = currentValue.split(',');
+				if (parts.length > 1) {
+					dcrValue = `value="${parts[0].trim()}"`; // Primo valore per DCR
+					dcrcValue = `value="${parts[1].trim()}"`; // Secondo valore per DCRC
+				} else {
+					dcrValue = `value="${currentValue.trim()}"`; // Solo un valore, assegna a DCR
+				}
+			}
+
+			selectHTML = `
+    <div class="input-field col s6">
+        <input id="dcr" type="text" ${dcrValue}/>
+        <label for="dcr" class="active">DCR</label>
+    </div>
+    <div class="input-field col s6">
+        <input id="dcrc" type="text" ${dcrcValue}/>
+        <label for="dcrc" class="active">DCRC</label>
+    </div>`;
+
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 	    default:
 		    console.log("Filtro non riconosciuto!");

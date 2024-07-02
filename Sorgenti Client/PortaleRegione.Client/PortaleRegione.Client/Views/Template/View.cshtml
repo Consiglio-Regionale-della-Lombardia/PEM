@@ -1,0 +1,133 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.TemplatesItemDto>
+@{
+    ViewBag.Title = "Templates";
+}
+
+<div class="row">
+    <div class="col s12">
+        <h4>
+            <b>@ViewBag.Title</b>
+        </h4>
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Paging);
+}
+
+
+<div id="contentTable" class="row">
+
+    @if (!Model.Results.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono template.
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <ul class="collapsible">
+        @foreach (var item in Model.Results)
+        {
+            <li>
+                <div class="collapsible-header">
+                    @if (item.Tipo == (int)TemplateTypeEnum.REPORT_COVER)
+                    {
+                        <i class="material-icons">description</i>
+                    }
+                    else
+                    {
+                        <i class="material-icons">article</i>
+                    }
+                    @item.Nome
+                </div>
+                <div class="collapsible-body">
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="card blue-grey lighten-1">
+                                <div class="card-action">
+                                    <a href="#" onclick="editTemplate(this)" data-uid="@item.Uid">Modifica</a>
+                                    <a href="#" class="red-text" onclick="removeTemplate(this)" data-uid="@item.Uid" data-name="@item.Nome">Elimina</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <span>@Html.Raw(item.Corpo)</span>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+<script>
+    function removeTemplate(ctrl)
+    {
+		var uid = ctrl.getAttribute('data-uid');
+		var nome_template = ctrl.getAttribute('data-name');
+
+        swal("Verrà rimosso il template " + nome_template + ". Sei sicuro?",
+        {
+            buttons: {
+                cancel: "Annulla",
+                confirm: {
+                    className: "red white-text",
+                    title: "Elimina template",
+                    value: true
+                }
+            }
+        }).then((value) => {
+            if (value == true) {
+                var url = '@Url.Action("RemoveTemplate", "Template")';
+                var templateIds = [];
+		        templateIds.push(uid);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+				    data: JSON.stringify(templateIds),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+			        if (data.message) {
+				        swal({
+					        title: "Errore",
+					        text: data.message,
+					        icon: "error"
+				        });
+			        }else
+                    {
+                        location.reload();
+                    }
+
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            }
+        });
+    }
+
+    function editTemplate(ctrl)
+    {
+		var uid = ctrl.getAttribute('data-uid');
+		goIntoOtherTab(`@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/templates/${uid}/edit`)
+    }
+
+    window.addEventListener("message", (event) => {
+	// Controlla l'origine del messaggio per motivi di sicurezza
+	if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") { // sostituisci con il tuo dominio
+		return;
+	}
+
+	if (event.data === "aggiornaPadre") {
+		location.reload(); // Ricarica la pagina padre
+	}
+}, false);
+
+</script>

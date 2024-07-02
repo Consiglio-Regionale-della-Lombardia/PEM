@@ -64,12 +64,14 @@
     <Compile Include="IPersoneGateway.cs" />
     <Compile Include="ISeduteGateway.cs" />
     <Compile Include="IStampeGateway.cs" />
+    <Compile Include="ITemplatesGateway.cs" />
     <Compile Include="LegislatureGateway.cs" />
     <Compile Include="NotificheGateway.cs" />
     <Compile Include="PersoneGateway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeduteGateway.cs" />
     <Compile Include="StampeGateway.cs" />
+    <Compile Include="TemplatesGateway.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Sorgenti API\ExpressionBuilder\ExpressionBuilder.csproj">
