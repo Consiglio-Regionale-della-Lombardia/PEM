@@ -281,7 +281,7 @@ namespace PortaleRegione.Client.Controllers
                             });
                             request.filtro.Add(new FilterStatement<AttoDASIDto>
                             {
-                                PropertyId = nameof(AttoDASIDto.DCRC),
+                                PropertyId = nameof(AttoDASIDto.DCCR),
                                 Operation = Operation.EqualTo,
                                 Value = dcrSplit[1],
                                 Connector = FilterStatementConnector.And
