@@ -134,7 +134,7 @@ public class AttoDASIDto
     [DisplayName("Stato")] public int IDStato { get; set; }
     public bool Firma_su_invito { get; set; } = false;
     public Guid UID_QRCode { get; set; }
-    [DisplayName("Area Politica")]public int AreaPolitica { get; set; }
+    [DisplayName("Area Politica")] public int AreaPolitica { get; set; }
     public bool Firma_da_ufficio { get; set; } = false;
     public bool Firmato_Da_Me { get; set; } = false;
     public bool Firmato_Dal_Proponente { get; set; } = false;
@@ -157,7 +157,7 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Firme { get; set; }
 
-    [DisplayName("Data presentazione")]public DateTime Timestamp { get; set; }
+    [DisplayName("Data presentazione")] public DateTime Timestamp { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Firme_dopo_deposito { get; set; }
@@ -310,10 +310,12 @@ public class AttoDASIDto
     }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    [DisplayName("Data Annunzio")]public DateTime? DataAnnunzio { get; set; }
+    [DisplayName("Data Annunzio")]
+    public DateTime? DataAnnunzio { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    [DisplayName("Codice Materia")]public string CodiceMateria { get; set; }
+    [DisplayName("Codice Materia")]
+    public string CodiceMateria { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Protocollo { get; set; }
@@ -325,21 +327,26 @@ public class AttoDASIDto
     public bool Sollecito { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    [DisplayName("Tipo Chiusura")]public int? TipoChiusuraIter { get; set; }
+    [DisplayName("Tipo Chiusura")]
+    public int? TipoChiusuraIter { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    [DisplayName("Data Chiusura")]public DateTime? DataChiusuraIter { get; set; }
+    [DisplayName("Data Chiusura")]
+    public DateTime? DataChiusuraIter { get; set; }
 
-    [DisplayName("Emendato")]public bool Emendato { get; set; }
-
-    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    [DisplayName("Tipo Votazione")] public int? TipoVotazioneIter { get; set; }
+    [DisplayName("Emendato")] public bool Emendato { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    [DisplayName("Area Tematica")]public string AreaTematica { get; set; }
+    [DisplayName("Tipo Votazione")]
+    public int? TipoVotazioneIter { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    [DisplayName("Altri Soggetti")] public string AltriSoggetti { get; set; }
+    [DisplayName("Area Tematica")]
+    public string AreaTematica { get; set; }
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Altri Soggetti")]
+    public string AltriSoggetti { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string DisplayTipoRispostaRichiesta { get; set; }
@@ -357,10 +364,57 @@ public class AttoDASIDto
     public List<AttiMonitoraggioDto> Monitoraggi { get; set; } = new List<AttiMonitoraggioDto>();
     public List<AttiDocumentiDto> Documenti { get; set; } = new List<AttiDocumentiDto>();
     public List<NoteDto> Note { get; set; } = new List<NoteDto>();
-    [DisplayName("Abbinamenti")] public List<AttiAbbinamentoDto> Abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
+
+    [DisplayName("Abbinamenti")]
+    public List<AttiAbbinamentoDto> Abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
+
     public string DisplayTipoChiusuraIter { get; set; }
     public string DisplayTipoVotazioneIter { get; set; }
     [DisplayName("DCR/DCCR")] public int? DCR { get; set; }
     public int? DCCR { get; set; }
     public string DCRL { get; set; }
+}
+
+public class AttoDASIReportDto
+{
+    [DisplayName("UIDAtto")] public Guid UIDAtto { get; set; }
+    [DisplayName("Display")]public string Display { get; set; }
+    [DisplayName("Tipo atto")] public int Tipo { get; set; }
+    [DisplayName("Numero atto")] public string NAtto { get; set; }
+    [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;
+    [DisplayName("Etichetta")]public string Etichetta { get; set; }
+    [DisplayName("Oggetto")]public string Oggetto { get; set; }
+    [DisplayName("Premesse")]public string Premesse { get; set; }
+    [DisplayName("Richiesta")] public string Richiesta { get; set; }
+    [DisplayName("Proponente")] public Guid? UIDPersonaProponente { get; set; }
+    [DisplayName("Gruppo")] public int id_gruppo { get; set; }
+    [DisplayName("Stato")] public int IDStato { get; set; }
+    [DisplayName("Pubblicato")] public bool Pubblicato { get; set; }
+    [DisplayName("Ollecito")]public bool Sollecito { get; set; }
+    [DisplayName("Protocollo")] public string Protocollo { get; set; }
+    [DisplayName("Codice Materia")] public string CodiceMateria { get; set; }
+    [DisplayName("Data richiesta iscrizione")] public string DataRichiestaIscrizioneSeduta { get; set; }
+    [DisplayName("Data prima firma")] public DateTime? DataPrimaFirma { get; set; }
+    [DisplayName("Data ritiro")] public DateTime? DataRitiro { get; set; }
+    [DisplayName("Tipo risposta richiesta")] public int IDTipo_Risposta { get; set; }
+    [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
+    [DisplayName("Firme")]public string Firme { get; set; }
+    [DisplayName("Data presentazione")] public DateTime Timestamp { get; set; }
+    [DisplayName("Data presentazione mozione urgente")] public string DataPresentazione_MOZ_URGENTE { get; set; }
+    [DisplayName("Data presentazione mozione abbinata")] public string DataPresentazione_MOZ_ABBINATA { get; set; }
+    [DisplayName("Data iscrizione in seduta")] public DateTime? DataIscrizioneSeduta { get; set; }
+    [DisplayName("Data Annunzio")] public DateTime? DataAnnunzio { get; set; }
+    [DisplayName("Tipo chiusura")] public int? TipoChiusuraIter { get; set; }
+    [DisplayName("Data chiusura")] public DateTime? DataChiusuraIter { get; set; }
+    [DisplayName("Tipo Votazione")] public int? TipoVotazioneIter { get; set; }
+    [DisplayName("Emendato")] public bool Emendato { get; set; }
+    [DisplayName("Area Tematica")] public string AreaTematica { get; set; }
+    [DisplayName("Altri Soggetti")] public string AltriSoggetti { get; set; }
+    [DisplayName("DCR")] public int? DisplayDCR { get; set; }
+    [DisplayName("Ordine visualizzazione")] public int OrdineVisualizzazione { get; set; }
+    [DisplayName("Seduta")] public Guid? UIDSeduta { get; set; }
+    [DisplayName("Area Politica")] public int AreaPolitica { get; set; }
+    [DisplayName("Legislatura")] public int Legislatura { get; set; }
+    [DisplayName("QR code")] public Guid UID_QRCode { get; set; }
+    [DisplayName("Non passaggio in esame")] public bool Non_Passaggio_In_Esame { get; set; } = false;
 }

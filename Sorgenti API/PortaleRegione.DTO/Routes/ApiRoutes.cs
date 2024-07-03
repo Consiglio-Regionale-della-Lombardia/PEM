@@ -245,6 +245,7 @@ namespace PortaleRegione.DTO.Routes
             public const string EliminaReport = Base + "/reports/elimina";
             public const string GetReports = Base + "/reports";
             public const string GetAbbinamentiDisponibili = Base + "/filters/abbinamenti-disponibili";
+            public const string GetReportsCovers = Base + "/reports/templates/covers";
         }
 
         public static class Notifiche

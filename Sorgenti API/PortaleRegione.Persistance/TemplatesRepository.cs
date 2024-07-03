@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Persistance
 {
@@ -40,6 +41,15 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .TEMPLATES
                 .Where(t => t.Eliminato == false)
+                .ToListAsync();
+        }
+
+        public async Task<List<TEMPLATES>> GetAllByType(TemplateTypeEnum type)
+        {
+            return await PRContext
+                .TEMPLATES
+                .Where(t => t.Eliminato == false
+                && t.Tipo.Equals((int)type))
                 .ToListAsync();
         }
 

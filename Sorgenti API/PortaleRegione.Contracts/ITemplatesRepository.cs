@@ -20,12 +20,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Contracts
 {
     public interface ITemplatesRepository : IRepository<TEMPLATES>
     {
         Task<List<TEMPLATES>> GetAll();
+        Task<List<TEMPLATES>> GetAllByType(TemplateTypeEnum type);
         Task<TEMPLATES> Get(Guid uid);
     }
 }

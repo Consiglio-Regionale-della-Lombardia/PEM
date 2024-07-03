@@ -22,5 +22,6 @@ namespace PortaleRegione.DTO.Enum
     {
         WORD = 1,
         PDF = 2,
+        EXCEL = 3
     }
 }

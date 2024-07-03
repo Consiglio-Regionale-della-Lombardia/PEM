@@ -1,4 +1,8 @@
-﻿<div id="modalReportConfig" class="modal">
+﻿@using System.ComponentModel
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Domain.Essentials
+@using PortaleRegione.DTO.Enum
+<div id="modalReportConfig" class="modal">
     <div class="modal-content">
         <h4>Report</h4>
         <div id="chips-container-report-config">
@@ -13,38 +17,47 @@
         </div>
         <div class="row">
             <div class="input-field col s6">
+                <select name="exportFormat" onchange="exportFormat_onChange(this)">
+                    <option value="@Html.Raw((int)ExportFormatEnum.EXCEL)">EXCEL</option>
+                    <option value="@Html.Raw((int)ExportFormatEnum.PDF)">PDF</option>
+                    <option value="@Html.Raw((int)ExportFormatEnum.WORD)">WORD</option>
+                </select>
+                <label>Formato esportazione</label>
+            </div>
+            <div class="input-field col s6">
+                <select name="columns" id="columns-select" multiple>
+                    <option value="" disabled selected>Scegli colonne</option>
+                    @foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
+                    {
+                        var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                            .Cast<DisplayNameAttribute>()
+                            .FirstOrDefault()?.DisplayName ?? prop.Name;
+
+                        <option value="@prop.Name">@displayName</option>
+                    }
+                </select>
+                <label>Colonne da visualizzare</label>
+                <p>
+                    <label>
+                        <input type="checkbox" id="select-all-columns"/>
+                        <span>Seleziona tutte le colonne</span>
+                    </label>
+                </p>
+            </div>
+        </div>
+        <div class="row" id="extraOptions" style="display: none;">
+            <div class="input-field col s6">
                 <select name="coverType">
                     <option value="" disabled selected>Scegli la copertina</option>
-                    <option value="1">Copertina 1</option>
-                    <option value="2">Copertina 2</option>
-                    <option value="3">Copertina 3</option>
                 </select>
                 <label>Copertina</label>
             </div>
             <div class="input-field col s6">
                 <select name="dataViewType">
-                    <option value="1" selected>GRIGLIA</option>
-                    <option value="2">CARD</option>
+                    <option value="@Html.Raw((int)DataViewTypeEnum.GRID)">GRIGLIA</option>
+                    <option value="@Html.Raw((int)DataViewTypeEnum.CARD)">CARD</option>
                 </select>
                 <label>Visualizzazione dati</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s6">
-                <select name="columns" multiple>
-                    <option value="" disabled selected>Scegli colonne</option>
-                    <option value="1">Colonna 1</option>
-                    <option value="2">Colonna 2</option>
-                    <option value="3">Colonna 3</option>
-                </select>
-                <label>Colonne da visualizzare</label>
-            </div>
-            <div class="input-field col s6">
-                <select name="exportFormat">
-                    <option value="1" selected>WORD</option>
-                    <option value="2">PDF</option>
-                </select>
-                <label>Formato esportazione</label>
             </div>
         </div>
     </div>
@@ -58,8 +71,27 @@
 
 <script>
 	var reportsArray = [];
-	document.getElementById('btnReportConfig').addEventListener('click', function () {
-		openModalWithContent_Report("", localStorage.getItem('filtriDasi'));
+
+	document.getElementById('btnReportConfig').addEventListener('click', async function () {
+		await openModalWithContent_Report("", localStorage.getItem('filtriDasi'));
+	});
+
+	 function exportFormat_onChange(ctrl) {
+        var exportFormat = $(ctrl).val();
+        var extraOptions = document.getElementById('extraOptions');
+        if (exportFormat == '@Html.Raw((int)ExportFormatEnum.EXCEL)') {
+            extraOptions.style.display = 'none';
+        } else {
+            extraOptions.style.display = 'block';
+        }
+    }
+
+	$('#select-all-columns').change(function () {
+		var isChecked = this.checked;
+		$('#columns-select option').not(':disabled').each(function () {
+			$(this).prop('selected', isChecked);
+		});
+		$('#columns-select').formSelect(); // Update UI if needed
 	});
 
 	document.getElementById('btnSalvaReport').addEventListener('click', async function () {
@@ -79,17 +111,17 @@
             },
             body: JSON.stringify(request),
         });
-		
+
 		if (!response.ok) {
 			throw new Error('Network response was not ok');
 		}
-		
+
 		const data = await response.json();
 		if (data.message) {
 			ErrorAlert(data.message);
 			return;
 		}
-		
+
 		M.toast({
 			html: `<span><b class="yellow-text">${document.getElementById('report_name').value}</b> salvato con successo</span>`, classes: 'rounded', displayLength: 5000
 		});
@@ -115,7 +147,7 @@
 		request.reportname = document.getElementById('report_name').value;
 		request.covertype = document.querySelector('select[name="coverType"]').value;
 		request.dataviewtype = document.querySelector('select[name="dataViewType"]').value;
-		request.columns = Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value);
+		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
 		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
 
         var url = '@Url.Action("GeneraReport", "DASI")';
@@ -152,7 +184,20 @@
 		$('#modalReportConfig').modal("close");
 	});
 
-	function openModalWithContent_Report(name, filters) {
+	async function openModalWithContent_Report(name, filters) {
+		$('#select-all-columns').prop('checked', false);
+		document.getElementById('extraOptions').style.display = 'none';
+
+		var copertine = await GetCopertine();
+		var coverTypeSelect = $('select[name="coverType"]');
+		coverTypeSelect.empty();
+
+		coverTypeSelect.append('<option value="" disabled selected>Scegli la copertina</option>');
+		copertine.forEach(function (copertina) {
+			coverTypeSelect.append(`<option value="${copertina.Uid}">${copertina.Nome}</option>`);
+		});
+		coverTypeSelect.formSelect();
+
 		$('#chips-container-report-config').empty();
 
 		var existingChip = document.querySelector(`.chip[data-selected-report]`);
@@ -160,6 +205,8 @@
 			var report_name = $(existingChip).data("selected-report");
 			var index = reportsArray.findIndex(el => el.reportname === report_name);
 			var selectedReport = reportsArray[index];
+			
+			console.log("item", selectedReport)
 
 			$('#report_name').val(selectedReport.reportname);
 			$('select[name="coverType"]').val(selectedReport.covertype).formSelect();
@@ -174,14 +221,18 @@
 				$('select[name="columns"]').find(`option[value="${columnId}"]`).prop('selected', true);
 			});
 			$('select[name="columns"]').formSelect();
+
+			if (selectedReport.exportformat !== '@Html.Raw((int)ExportFormatEnum.EXCEL)'){
+				document.getElementById('extraOptions').style.display = 'block';
+			}
 		}else{
 			$('#report_name').val('');
 			$('select[name="coverType"]').prop('selectedIndex', 0).formSelect();
 			$('select[name="dataViewType"]').prop('selectedIndex', 0).formSelect();
 			$('select[name="columns"]').prop('selectedIndex', -1).formSelect();
 			$('select[name="exportFormat"]').prop('selectedIndex', 0).formSelect();
-		}		
-		
+		}
+
 		const filtri = JSON.parse(filters);
 		if (filtri) {
 			filtri.forEach(function (filtro) {
@@ -228,14 +279,14 @@
 			chipsKeys = [];
 			$('#chips-container').empty();
 			ripristinaFiltri();
-            
+
 			$('#chips-container-selected-report').empty();
 			var chipsContainer = document.getElementById('chips-container-selected-report');
 			var selectedReportChip = document.createElement('div');
 			selectedReportChip.classList.add('chip', 'pink', 'black-text');
 			selectedReportChip.textContent = item.reportname;
 			selectedReportChip.setAttribute('data-selected-report', item.reportname);
-			
+
 			var removeSelectedReportIcon = document.createElement('i');
 			removeSelectedReportIcon.className = 'material-icons secondary-content black-text tiny';
 			removeSelectedReportIcon.style.marginLeft = '10px';
@@ -300,5 +351,25 @@
         collection.appendChild(li);
     });
 }
+
+	function GetCopertine() {
+		var copertine = get_ListaCopertine();
+		if (copertine.length > 0) {
+			return copertine;
+		}
+
+		return new Promise(async function (resolve, reject) {
+			$.ajax({
+				url: baseUrl + "/dasi/view-reports-covers",
+				type: "GET"
+			}).done(function (result) {
+				set_ListaCopertine(result);
+				resolve(result);
+			}).fail(function (err) {
+				console.log("error", err);
+				Error(err);
+			});
+		});
+	}
 
 </script>

@@ -851,6 +851,7 @@ namespace PortaleRegione.BAL
 
             var templateInDb = await _unitOfWork.Templates.Get(request.Uid);
             templateInDb.Corpo = request.Corpo;
+            templateInDb.Nome = request.Nome;
             
             await _unitOfWork.CompleteAsync();
 

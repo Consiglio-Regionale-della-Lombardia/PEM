@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 
 namespace PortaleRegione.DTO.Domain
@@ -23,7 +24,7 @@ namespace PortaleRegione.DTO.Domain
     public class ReportDto
     {
         public string reportname { get; set; }
-        public int covertype { get; set; }
+        public string covertype { get; set; }
         public int dataviewtype { get; set; }
         public string columns { get; set; }
         public int exportformat { get; set; }

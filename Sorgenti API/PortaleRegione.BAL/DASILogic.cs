@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -34,6 +35,7 @@ using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using HtmlToOpenXml;
 using Newtonsoft.Json;
+using OfficeOpenXml;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -590,6 +592,17 @@ namespace PortaleRegione.API.Controllers
 
             dto.Risposte = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
             dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
+
+            dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
+
+            if (dto.ConteggioFirme > 1)
+            {
+                var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+                dto.Firme = firme
+                    .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
+                    .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                    .Aggregate((i, j) => i + "<br>" + j);
+            }
 
             return dto;
         }
@@ -3378,22 +3391,25 @@ namespace PortaleRegione.API.Controllers
         }
 
         public async Task<HttpResponseMessage> GeneraReport(ReportDto model, PersonaDto currentUser)
-        {
-            var body = await ComposeReportBodyFromTemplate(model, currentUser);
-
-            // genera word o pdf
+        { 
             var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
             var filePath = Path.Combine(tempFolderPath, $"Report_{DateTime.Now.Ticks}");
             switch ((ExportFormatEnum)model.exportformat)
             {
                 case ExportFormatEnum.PDF:
                     filePath += ".pdf";
+                    var bodyPDF = await ComposeReportBodyFromTemplate(model, currentUser);
                     var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-                    await stamper.CreaPDFAsync(filePath, body, "Report");
+                    await stamper.CreaPDFAsync(filePath, bodyPDF, "Report");
                     break;
                 case ExportFormatEnum.WORD:
                     filePath += ".docx";
-                    CreateWordReport(filePath, body);
+                    var bodyWord = await ComposeReportBodyFromTemplate(model, currentUser);
+                    CreateWordReport(filePath, bodyWord);
+                    break;
+                case ExportFormatEnum.EXCEL:
+                    filePath += ".xlsx";
+                    await CreateExcelReport(filePath, model, currentUser);
                     break;
                 default:
                     throw new ArgumentException("Formato di esportazione non supportato");
@@ -3407,6 +3423,107 @@ namespace PortaleRegione.API.Controllers
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
 
             return result;
+        }
+
+        private async Task CreateExcelReport(string filePath, ReportDto model, PersonaDto currentUser)
+        {
+            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
+            var filterStatements = new List<FilterStatement<AttoDASIDto>>();
+            foreach (var filterItem in filtri)
+            {
+                filterStatements.Add(new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = filterItem.property,
+                    Operation = Operation.EqualTo,
+                    Value = filterItem.value,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            var request = new BaseRequest<AttoDASIDto>
+            {
+                page = 1,
+                size = 9999,
+                filtro = filterStatements,
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+            };
+
+            var idsList = await GetSoloIds(request, currentUser, null);
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Report");
+
+                // Definisci le colonne
+                var columns = !string.IsNullOrEmpty(model.columns)
+                    ? JsonConvert.DeserializeObject<List<string>>(model.columns)
+                    : new List<string> { nameof(AttoDASIDto.Display) };
+
+                // Aggiungi intestazioni
+                for (int i = 0; i < columns.Count; i++)
+                {
+                    worksheet.Cells[1, i + 1].Value = columns[i];
+                }
+
+                // Aggiungi righe di dati
+                for (int rowIndex = 0; rowIndex < idsList.Count; rowIndex++)
+                {
+                    var guid = idsList[rowIndex];
+                    var atto = await GetAttoDto(guid);
+
+                    for (int colIndex = 0; colIndex < columns.Count; colIndex++)
+                    {
+                        var column = columns[colIndex];
+                        var cellValue = GetPropertyValue(atto, column);
+                        worksheet.Cells[rowIndex + 2, colIndex + 1].Value = cellValue;
+                    }
+                }
+
+                await package.SaveAsAsync(new FileInfo(filePath));
+            }
+        }
+
+        private object GetPropertyValue(AttoDASIDto atto, string propertyName)
+        {
+            if (propertyName.Equals(nameof(AttoDASIDto.IDStato)))
+            {
+                return atto.DisplayStato;
+            }
+            if (propertyName.Equals(nameof(AttoDASIDto.Tipo)))
+            {
+                return atto.DisplayTipo;
+            }
+            if (propertyName.Equals(nameof(AttoDASIDto.AreaPolitica)))
+            {
+                return atto.DisplayAreaPolitica;
+            }
+            if (propertyName.Equals(nameof(AttoDASIDto.TipoChiusuraIter)))
+            {
+                return atto.DisplayTipoChiusuraIter;
+            }
+            if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta)))
+            {
+                return atto.DisplayTipoRispostaRichiesta;
+            }
+            if (propertyName.Equals(nameof(AttoDASIDto.TipoVotazioneIter)))
+            {
+                return atto.DisplayTipoVotazioneIter;
+            }
+            if (propertyName.Equals(nameof(AttoDASIDto.Oggetto)))
+            {
+                return atto.OggettoView();
+            }
+            if (propertyName.Equals(nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                return atto.PersonaProponente.DisplayName;
+            }
+            if (propertyName.Equals(nameof(AttoDASIDto.id_gruppo)))
+            {
+                return atto.gruppi_politici.nome_gruppo;
+            }
+
+            var propertyInfo = typeof(AttoDASIDto).GetProperty(propertyName);
+            return propertyInfo != null ? propertyInfo.GetValue(atto) : null;
         }
 
         private async Task<string> ComposeReportBodyFromTemplate(ReportDto model, PersonaDto currentUser)
@@ -3434,12 +3551,19 @@ namespace PortaleRegione.API.Controllers
 
             // get dati dal database
             var idsList = await GetSoloIds(request, currentUser, null);
-
+            
             // comporre il body con la lista dei dati
             var body =
                 "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
                 "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
                 $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">";
+
+            if (Guid.TryParse(model.covertype, out Guid covertUid))
+            {
+                var cover = await _unitOfWork.Templates.Get(covertUid);
+                body += cover.Corpo;
+            }
+
             var templateHeader = GetTemplate(TemplateTypeEnum.REPORT_HEADER_DEFAULT, true);
             templateHeader = templateHeader.Replace("{{TOTALE_ATTI}}", idsList.Count.ToString());
             body += templateHeader;
@@ -3448,12 +3572,21 @@ namespace PortaleRegione.API.Controllers
             {
                 case DataViewTypeEnum.GRID:
                     body += "<table>";
+                    // Aggiungi intestazioni delle colonne
+                    body += "<tr>";
+                    var columns = JsonConvert.DeserializeObject<List<string>>(model.columns);
+                    foreach (var column in columns)
+                    {
+                        body += $"<th>{column}</th>";
+                    }
+                    body += "</tr>";
+
                     foreach (var guid in idsList)
                     {
                         body += "<tr>";
                         var atto = await GetAttoDto(guid);
 
-                        body += GetBodyItemGrid(atto);
+                        body += GetBodyItemGrid(atto, model.columns);
 
                         body += "</tr>";
                     }
@@ -3466,7 +3599,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         var atto = await GetAttoDto(guid);
 
-                        body += templateItemCard.Replace("{{ITEM}}", GetBodyItemCard(atto));
+                        body += templateItemCard.Replace("{{ITEM}}", GetBodyItemCard(atto, model.columns));
                     }
 
                     break;
@@ -3495,26 +3628,86 @@ namespace PortaleRegione.API.Controllers
             mainPart.Document.Save();
         }
 
-        private string GetBodyItemCard(AttoDASIDto dto)
+        private string GetBodyItemCard(AttoDASIDto dto, string modelColumns)
         {
+            var columns = new List<string>();
+            if (!string.IsNullOrEmpty(modelColumns))
+            {
+                columns = JsonConvert.DeserializeObject<List<string>>(modelColumns);
+            }
+            else
+            {
+                columns.Add(nameof(AttoDASIDto.Display));
+            }
+
             var sb = new StringBuilder();
 
-            sb.AppendLine($"<b>{dto.Display}</b>");
-            sb.AppendLine($"<p>{dto.OggettoView()}</p>");
+            foreach (var column in columns)
+            {
+                var value = GetPropertyValueForHtml(dto, column);
+                if (!string.IsNullOrEmpty(value))
+                {
+                    sb.AppendLine(value);
+                }
+            }
 
             return sb.ToString();
         }
 
-        private string GetBodyItemGrid(AttoDASIDto dto)
+        private string GetPropertyValueForHtml(AttoDASIDto dto, string propertyName)
         {
+            switch (propertyName)
+            {
+                case nameof(AttoDASIReportDto.Display):
+                    return $"<b>{dto.Display}</b>";
+                default:
+                    var displayName = GetPropertyDisplayName(typeof(AttoDASIReportDto), propertyName);
+                    var value = GetPropertyValue(dto, propertyName);
+                    return value != null ? $"<p><b>{displayName}:</b> {value}</p>" : null;
+            }
+        }
+
+        private string GetPropertyDisplayName(Type type, string propertyName)
+        {
+            var propertyInfo = type.GetProperty(propertyName);
+            var displayNameAttribute = propertyInfo?.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                .Cast<DisplayNameAttribute>()
+                .FirstOrDefault();
+            return displayNameAttribute?.DisplayName ?? propertyName;
+        }
+
+        private string GetBodyItemGrid(AttoDASIDto dto, string modelColumns)
+        {
+            var columns = new List<string>();
+            if (!string.IsNullOrEmpty(modelColumns))
+            {
+                columns = JsonConvert.DeserializeObject<List<string>>(modelColumns);
+            }
+            else
+            {
+                columns.Add(nameof(AttoDASIDto.Display));
+            }
+
             var sb = new StringBuilder();
 
-            sb.AppendLine($"<td><b>{dto.Display}</b></td>");
-            sb.AppendLine($"<td>{dto.OggettoView()}</td>");
+            foreach (var column in columns)
+            {
+                var value = GetPropertyValueForHtmlGrid(dto, column);
+                if (!string.IsNullOrEmpty(value))
+                {
+                    sb.AppendLine(value);
+                }
+            }
 
             return sb.ToString();
         }
 
+        private string GetPropertyValueForHtmlGrid(AttoDASIDto dto, string propertyName)
+        {
+            var value = GetPropertyValue(dto, propertyName);
+            return value != null ? $"<td>{value}</td>" : null;
+        }
+        
         public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId)
         {
             var res = await _unitOfWork.DASI.GetAbbinamentiDisponibili(legislaturaId);

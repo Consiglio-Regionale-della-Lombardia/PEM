@@ -37,7 +37,7 @@ namespace PortaleRegione.Domain
         public string Filtri { get; set; }
         public int FormatoEsportazione { get; set; }
         public int TipoVisualizzazione { get; set; }
-        public int TipoCopertina { get; set; }
+        public string TipoCopertina { get; set; }
 
         public string Colonne { get; set; }
         public Guid UId_persona { get; set; }

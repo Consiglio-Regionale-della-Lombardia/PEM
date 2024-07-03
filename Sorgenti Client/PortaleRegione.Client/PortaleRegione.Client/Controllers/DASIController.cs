@@ -1912,5 +1912,21 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        [HttpGet]
+        [Route("view-reports-covers")]
+        public async Task<ActionResult> GetReportsCovers()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetReportsCovers();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

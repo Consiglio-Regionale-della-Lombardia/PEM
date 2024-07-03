@@ -128,6 +128,13 @@ function get_ListaTipiDASI() {
     return JSON.parse(session_raw);
 }
 
+function get_ListaCopertine() {
+    var session_raw = localStorage.getItem("ListaCopertine");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
 function get_ListaTipiPEM() {
     var session_raw = localStorage.getItem("ListaTipiPEM");
     if (session_raw == null)
@@ -159,6 +166,10 @@ function set_ListaTipiPEM(obj) {
 
 function set_ListaTipiDASI(obj) {
     localStorage.setItem("ListaTipiDASI", JSON.stringify(obj));
+}
+
+function set_ListaCopertine(obj) {
+    localStorage.setItem("ListaCopertine", JSON.stringify(obj));
 }
 
 function set_ListaTipiMOZDASI(obj) {

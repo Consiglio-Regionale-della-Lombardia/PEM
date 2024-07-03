@@ -1192,6 +1192,11 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        /// <summary>
+        ///     Endpoint per avere tutti gli abbinamenti per una data legislatura
+        /// </summary>
+        /// <param name="legislaturaId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route(ApiRoutes.DASI.GetAbbinamentiDisponibili)]
         public async Task<IHttpActionResult> GetAbbinamentiDisponibili(int legislaturaId)
@@ -1205,6 +1210,27 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Get abbinamenti disponibili", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per avere le copertine disponibili da apporre ai report
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetReportsCovers)]
+        public async Task<IHttpActionResult> GetReportsCovers()
+        {
+            try
+            {
+                var res = await _unitOfWork.Templates.GetAllByType(TemplateTypeEnum.REPORT_COVER);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get copertine disponibili", e);
                 return ErrorHandler(e);
             }
         }
