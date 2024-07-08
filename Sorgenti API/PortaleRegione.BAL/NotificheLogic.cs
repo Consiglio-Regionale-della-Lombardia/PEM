@@ -16,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.API.Controllers;
-using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -28,10 +31,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -62,7 +61,7 @@ namespace PortaleRegione.BAL
                 var idGruppo = 0;
                 if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                     || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
-                || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Politica
+                    || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Politica
                     || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
                     idGruppo = currentUser.Gruppo.id_gruppo;
 
@@ -314,6 +313,10 @@ namespace PortaleRegione.BAL
                     {
                         Console.WriteLine(e);
                     }
+                    // #954
+                    bodyMail +=
+                        $@"[{atto.Display}] (proponente {atto.PersonaProponente.DisplayName} - {atto.gruppi_politici.codice_gruppo}) - {atto.OggettoView()}
+<a href='{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}'> Collegati all’atto per procedere alla firma</a>";
 
                     var attoInDb = await _logicDasi.Get(atto.UIDAtto);
                     var content = await _logicDasi.PDFIstantaneo(attoInDb, null);
@@ -322,14 +325,20 @@ namespace PortaleRegione.BAL
                 }
 
                 if (attachMail.Any())
+                {
+                    // #954
+                    bodyMail += $@"<br> <a href='{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", "riepilogodasi")}'>Collegati alla piattaforma per visualizzare tutti gli atti del tuo gruppo</a>";
+
                     await _logicUtil.InvioMail(new MailModel
                     {
-                        OGGETTO = "Invito a firmare i seguenti atti",
+                        OGGETTO = "Invito a firmare un atto",
                         DA = currentUser.email,
-                        A = $"{string.Join(";", listaDestinatari.Select(p => p.email))};{string.Join(";", listaResponsabili.Select(r => r.email))}",
-                        MESSAGGIO = "E' richiesta la firma per gli atti in allegato",
+                        A =
+                            $"{string.Join(";", listaDestinatari.Select(p => p.email))};{string.Join(";", listaResponsabili.Select(r => r.email))}",
+                        MESSAGGIO = $"{currentUser.DisplayName} chiede di firmare i seguenti atti: <br> {bodyMail}",
                         ATTACHMENTS = attachMail
                     });
+                }
 
                 #endregion
             }
@@ -424,7 +433,8 @@ namespace PortaleRegione.BAL
                     {
                         OGGETTO = "Invito a firmare i seguenti emendamenti",
                         DA = currentUser.email,
-                        A = $"{string.Join(";", listaDestinatari.Select(p => p.email))};{string.Join(";", listaResponsabili.Select(r => r.email))}",
+                        A =
+                            $"{string.Join(";", listaDestinatari.Select(p => p.email))};{string.Join(";", listaResponsabili.Select(r => r.email))}",
                         MESSAGGIO = bodyMail
                     });
 
@@ -666,7 +676,8 @@ namespace PortaleRegione.BAL
                     if (notifica.IdGruppo.Equals(user.Gruppo.id_gruppo))
                     {
                         notifica.Chiuso = true;
-                        var listaDestinatariGruppo = await _unitOfWork.Notifiche_Destinatari.Get(id, user.Gruppo.id_gruppo);
+                        var listaDestinatariGruppo =
+                            await _unitOfWork.Notifiche_Destinatari.Get(id, user.Gruppo.id_gruppo);
                         if (listaDestinatariGruppo.Any())
                         {
                             foreach (var notificheDestinatario in listaDestinatariGruppo)
@@ -674,6 +685,7 @@ namespace PortaleRegione.BAL
                                 notificheDestinatario.Chiuso = true;
                             }
                         }
+
                         await _unitOfWork.CompleteAsync();
                     }
                 }
