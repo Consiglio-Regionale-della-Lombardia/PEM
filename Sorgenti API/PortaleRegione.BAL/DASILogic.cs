@@ -3125,6 +3125,22 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task CambiaOrdineVisualizzazione(List<AttiFirmeDto> firme)
+        {
+            var uidAtto = firme.First().UIDAtto;
+            var firmeInDb = await _unitOfWork
+                .Atti_Firme
+                .GetFirmatari(uidAtto);
+
+            foreach (var attiFirmeDto in firme)
+            {
+                var firmaInDb = firmeInDb.First(f => f.UID_persona.Equals(attiFirmeDto.UID_persona));
+                firmaInDb.OrdineVisualizzazione = attiFirmeDto.OrdineVisualizzazione;
+            }
+
+            await _unitOfWork.CompleteAsync();
+        }
+
         public async Task SalvaCartaceo(AttoDASIDto attoDto, PersonaDto currentUser)
         {
             if (!attoDto.UIDPersonaProponente.HasValue)

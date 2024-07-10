@@ -48,6 +48,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Capogruppo { get; set; } = false;
 
         public bool Prioritario { get; set; } = true;
+        public int OrdineVisualizzazione { get; set; } = 0;
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public virtual PersonaDto UTENTI_NoCons { get; set; }

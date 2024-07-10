@@ -67,23 +67,23 @@
 	</script>
 
 <div id="waiting" class="modal" style="height: 120px">
-	<div class="modal-content center">
-		<div class="preloader-wrapper active">
-			<div class="spinner-layer spinner-blue-only">
-				<div class="circle-clipper left">
-					<div class="circle"></div>
-				</div>
-				<div class="gap-patch">
-					<div class="circle"></div>
-				</div>
-				<div class="circle-clipper right">
-					<div class="circle"></div>
-				</div>
-			</div>
-		</div>
+    <div class="modal-content center">
+        <div class="preloader-wrapper active">
+            <div class="spinner-layer spinner-blue-only">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="gap-patch">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
 
-		<div id="waiting_info_message"></div>
-	</div>
+        <div id="waiting_info_message"></div>
+    </div>
 </div>
 <div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
@@ -424,7 +424,7 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
         || Model.CurrentUser.IsSegreteriaAssemblea
         || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
     {
-							@* FIRME PRIORITA' *@
+		@* FIRME PRIORITA' *@
         <div class="row" id="pnlPrioritaFirme" style="display: none;">
             <div class="col s12">
                 <a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
@@ -441,7 +441,7 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
                     }
                     @foreach (var firme in firmeGroup)
                     {
-                        <li>
+                        <li data-uid-persona="@firme.UID_persona" data-uid-atto="@firme.UIDAtto">
                             @if (firme.Prioritario)
                             {
                                 <div class="collapsible-header valign-wrapper">
@@ -454,6 +454,16 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
                                     }
                                     @firme.FirmaCert
 
+                                    <span class="order-index">@firme.OrdineVisualizzazione</span>
+
+                                    @if (atto.UIDPersonaProponente != firme.UID_persona)
+                                    {
+            @* Freccia Su *@
+                                        <i class="material-icons black-text arrow-up" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, -1)">arrow_upward</i>
+
+            @* Freccia Giù *@
+                                        <i class="material-icons black-text arrow-down" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, 1)">arrow_downward</i>
+                                    }
                                 </div>
                             }
                             else
@@ -470,6 +480,17 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
                                     else
                                     {
                                         <del>@firme.FirmaCert</del>
+                                    }
+
+                                    <span class="order-index">@firme.OrdineVisualizzazione</span>
+
+                                    @if (atto.UIDPersonaProponente != firme.UID_persona)
+                                    {
+            @* Freccia Su *@
+                                        <i class="material-icons black-text arrow-up" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, -1)">arrow_upward</i>
+
+            @* Freccia Giù *@
+                                        <i class="material-icons black-text arrow-down" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, 1)">arrow_downward</i>
                                     }
                                 </div>
                             }
@@ -562,6 +583,93 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
 				seduteMOZU = data.Results;
 			}
         });
+        
+	$(document).ready(function () {
+		aggiornaFrecceNavigazione();
+	});
+
+    function CambioOrdineVisualizzazione(ctrl, direction) {
+    
+    waiting(true);
+    // Trova il contesto del firmatario corrente
+    var listItem = $(ctrl).closest('li');
+    var currentIndex = listItem.index();
+    var newIndex = currentIndex + direction;
+
+    // Ottieni la lista dei firmatari
+    var list = listItem.parent();
+
+    // Scambia gli elementi
+    if (newIndex >= 0 && newIndex < list.children().length) {
+        if (direction === -1) {
+            listItem.insertBefore(listItem.prev());
+        } else if (direction === 1) {
+            listItem.insertAfter(listItem.next());
+        }
+
+        // Aggiorna gli indici degli elementi nella lista
+        list.children().each(function(index, element) {
+            if (index != 0){
+                $(element).find('.order-index').text(index);
+            }
+        });
+
+        // Prepara la lista aggiornata da inviare al server
+        var updatedList = [];
+        list.children().each(function(index, element) {
+            var uidPersona = $(element).data('uid-persona');
+            var uidAtto = $(element).data('uid-atto');
+			updatedList.push({ UIDAtto: uidAtto, UID_persona: uidPersona, OrdineVisualizzazione: index });
+        });        
+
+        // Invia la lista aggiornata al server
+        var url = '@Url.Action("UpdateOrdineVisualizzazione", "DASI")';
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: JSON.stringify(updatedList),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function(response) {
+				waiting(false);
+				if (response.message) {
+					swal("Errore", "Si è verificato un errore durante l'aggiornamento dell'ordine di visualizzazione.", "error");
+                } else {
+					swal("Ordine aggiornato", "L'ordine di visualizzazione è stato aggiornato con successo.", "success");
+                }
+                
+				aggiornaFrecceNavigazione();
+            },
+            error: function(xhr, status, error) {
+				waiting(false);
+                console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                swal("Errore", "Si è verificato un errore durante l'aggiornamento dell'ordine di visualizzazione.", "error");
+            }
+        });
+    }
+}
+
+function aggiornaFrecceNavigazione() {
+    var list = $('ul.collapsible.expandable');
+    var maxIndex = list.children().length - 1;
+
+    list.children().each(function(index, element) {
+        var upArrow = $(element).find('.arrow-up');
+        var downArrow = $(element).find('.arrow-down');
+
+        if (index === 1) {
+            upArrow.hide();
+        } else {
+            upArrow.show();
+        }
+
+        if (index === maxIndex) {
+            downArrow.hide();
+        } else {
+            downArrow.show();
+        }
+    });
+}
 
     function CambiaPrioritaFirma(ctrl, uidAtto, uidPersona) {
 

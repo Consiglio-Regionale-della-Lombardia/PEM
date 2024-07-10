@@ -75,5 +75,6 @@ namespace PortaleRegione.Gateway
         Task<List<AttoDASIDto>> GetCartacei();
         Task SalvaCartaceo(AttoDASIDto atto);
         Task CambiaPrioritaFirma(AttiFirmeDto firma);
+        Task CambiaOrdineVisualizzazioneFirme(List<AttiFirmeDto> firme);
     }
 }

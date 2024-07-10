@@ -237,6 +237,7 @@ namespace PortaleRegione.DTO.Routes
             public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
             public const string SaveCartaceo = Base + "/save-draft";
             public const string CambiaPrioritaFirma = Base + "/change-signature-priority";
+            public const string CambiaOrdineVisualizzazioneFirme = Base + "/change-signature-order-view";
         }
 
         public static class Notifiche

@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Contracts;
-using PortaleRegione.DataBase;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.Contracts;
+using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Persistance
 {
@@ -52,9 +52,9 @@ namespace PortaleRegione.Persistance
         /// <param name="em"></param>
         public async Task Firma(Guid attoUId, Guid personaUId, int id_gruppo, string firmaCert,
             string dataFirmaCert, DateTime timestamp,
-            bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false, bool prioritario = true)
+            bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false,
+            bool prioritario = true)
         {
-
             PRContext
                 .ATTI_FIRME
                 .Add(new ATTI_FIRME
@@ -95,7 +95,8 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext
                 .ATTI_FIRME
-                .CountAsync(f => f.UIDAtto == attoUId && string.IsNullOrEmpty(f.Data_ritirofirma) && f.Valida && f.Prioritario);
+                .CountAsync(f =>
+                    f.UIDAtto == attoUId && string.IsNullOrEmpty(f.Data_ritirofirma) && f.Valida && f.Prioritario);
         }
 
         /// <summary>
@@ -109,6 +110,7 @@ namespace PortaleRegione.Persistance
                 .ATTI_FIRME
                 .Where(f => f.UIDAtto == attoUId && f.Valida)
                 .OrderBy(f => f.Timestamp)
+                .ThenBy(f => f.OrdineVisualizzazione)
                 .ToListAsync();
 
             return result;
@@ -157,9 +159,9 @@ namespace PortaleRegione.Persistance
             if (atto.DataIscrizioneSeduta.HasValue) return false;
             if (atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
                 && (atto.Tipo == (int)TipoAttoEnum.ITL
-                 && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
-                 || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA
-                || atto.Tipo == (int)TipoAttoEnum.ITR
+                    && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
+                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA
+                    || atto.Tipo == (int)TipoAttoEnum.ITR
                     && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
                     || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA))
             {
@@ -241,7 +243,9 @@ namespace PortaleRegione.Persistance
                     throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
             }
 
-            query = query.OrderBy(f => f.Timestamp);
+            // #955
+            query = query.OrderBy(f => f.Timestamp)
+                .ThenBy(f => f.OrdineVisualizzazione);
 
             var lst = await query
                 .ToListAsync();

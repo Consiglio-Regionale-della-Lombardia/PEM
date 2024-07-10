@@ -1397,5 +1397,21 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpPost]
+        [Route("cambia-ordine-visualizzazione-firme")]
+        public async Task<ActionResult> UpdateOrdineVisualizzazione(List<AttiFirmeDto> updatedList)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.CambiaOrdineVisualizzazioneFirme(updatedList);
+                return Json("", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }
