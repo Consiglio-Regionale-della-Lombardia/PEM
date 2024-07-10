@@ -1,4 +1,6 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using System.ComponentModel
+@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Domain.TemplatesItemDto
 
@@ -71,35 +73,53 @@
 <div class="card">
     <div class="card-content">
         <div class="row">
-			<div class="col s12">
-				@using (Html.BeginForm("SaveTemplate", "Template", FormMethod.Post, new { id = "formTemplate" }))
-				{
-					@Html.AntiForgeryToken()
-					@Html.HiddenFor(m => m.Uid)
-				    <div class="form-group" style="padding-top: 10px">
+            <div class="col s12">
+                @using (Html.BeginForm("SaveTemplate", "Template", FormMethod.Post, new { id = "formTemplate" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.Uid)
+                    <div class="form-group" style="padding-top: 10px">
                         <label>Tipo Template: </label>
                         <select id="ddlTipo">
                             <option value="@((int)TemplateTypeEnum.REPORT_COVER)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_COVER ? "selected='selected'" : "")>Copertina</option>
                             <option value="@((int)TemplateTypeEnum.REPORT_ITEM_CARD)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_CARD ? "selected='selected'" : "")>Card</option>
                         </select>
                     </div>
-					<div class="form-group" style="padding-top: 10px">
-						@Html.LabelFor(s => s.Nome)
-						@Html.TextBoxFor(model => model.Nome, new { @class = "form-control" })
-					</div>
-					<div class="form-group" style="padding-top: 10px">
-						@Html.LabelFor(s => s.Corpo)
-						@Html.TextAreaFor(model => model.Corpo, new { @class = "form-control trumbowyg" })
-					</div>
+                    <div class="form-group" style="padding-top: 10px">
+                        @Html.LabelFor(s => s.Nome)
+                        @Html.TextBoxFor(model => model.Nome, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group" style="padding-top: 10px">
+                        @Html.LabelFor(s => s.Corpo)
+                        @Html.TextAreaFor(model => model.Corpo, new { @class = "form-control trumbowyg" })
+                    </div>
 
-					<div class="fixed-action-btn">
-						<button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva template">
-							<i class="large material-icons">save</i>
-						</button>
-					</div>
-				}
-			</div>
+                    <div class="fixed-action-btn">
+                        <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva template">
+                            <i class="large material-icons">save</i>
+                        </button>
+                    </div>
+                }
+            </div>
         </div>
+    </div>
+</div>
+
+<div class="card blue lighten-5">
+    <div class="card-content black-text">
+        <span class="card-title">Informazioni</span>
+        <p>Chiavi disponibili per Template CARD:
+            <ul style="padding-left: 40px">
+                @foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
+                {
+                    var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                        .Cast<DisplayNameAttribute>()
+                        .FirstOrDefault()?.DisplayName ?? prop.Name;
+                    
+					<li style="list-style-type: disc;">@displayName: {{@prop.Name}}</li>
+                }
+            </ul>
+        </p>
     </div>
 </div>
 
@@ -131,7 +151,6 @@
 			 contentType: "application/json; charset=utf-8",
 			 dataType: "json"
          }).done(function(data) {
-             console.log(data);
              if (data.message) {
                  swal({
                      title: "Errore",
@@ -144,7 +163,7 @@
                      text: "Template inserito correttamente a sistema.",
                      icon: "success"
                  }).then((value) => {
-			        //go(data);
+			        go(data);
                  });
              }
          }).fail(function(err) {

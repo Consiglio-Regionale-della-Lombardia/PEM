@@ -52,6 +52,15 @@ namespace PortaleRegione.Client.Controllers
 
             return View("TemplateForm", res);
         }
+        
+        [HttpGet]
+        [Route("new")]
+        public async Task<ActionResult> NewTemplate()
+        {
+            var res = new TemplatesItemDto();
+
+            return View("TemplateForm", res);
+        }
 
         [HttpPost]
         [Route("delete")]

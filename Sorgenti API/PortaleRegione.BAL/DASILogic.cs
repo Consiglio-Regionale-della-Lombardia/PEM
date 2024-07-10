@@ -3303,7 +3303,8 @@ namespace PortaleRegione.API.Controllers
                     Colonne = report.columns,
                     FormatoEsportazione = report.exportformat,
                     TipoCopertina = report.covertype,
-                    TipoVisualizzazione = report.dataviewtype
+                    TipoVisualizzazione = report.dataviewtype,
+                    TipoVisualizzazione_Card_Template = report.dataviewtype_template
                 };
 
                 _unitOfWork.Reports.Add(item);
@@ -3315,6 +3316,7 @@ namespace PortaleRegione.API.Controllers
                 reportInDb.FormatoEsportazione = report.exportformat;
                 reportInDb.TipoCopertina = report.covertype;
                 reportInDb.TipoVisualizzazione = report.dataviewtype;
+                reportInDb.TipoVisualizzazione_Card_Template = report.dataviewtype_template;
             }
 
             await _unitOfWork.CompleteAsync();
@@ -3376,6 +3378,7 @@ namespace PortaleRegione.API.Controllers
                     columns = f.Colonne,
                     covertype = f.TipoCopertina,
                     dataviewtype = f.TipoVisualizzazione,
+                    dataviewtype_template = f.TipoVisualizzazione_Card_Template,
                     exportformat = f.FormatoEsportazione
                 });
             }
@@ -3391,7 +3394,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         public async Task<HttpResponseMessage> GeneraReport(ReportDto model, PersonaDto currentUser)
-        { 
+        {
             var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
             var filePath = Path.Combine(tempFolderPath, $"Report_{DateTime.Now.Ticks}");
             switch ((ExportFormatEnum)model.exportformat)
@@ -3460,18 +3463,18 @@ namespace PortaleRegione.API.Controllers
                     : new List<string> { nameof(AttoDASIDto.Display) };
 
                 // Aggiungi intestazioni
-                for (int i = 0; i < columns.Count; i++)
+                for (var i = 0; i < columns.Count; i++)
                 {
                     worksheet.Cells[1, i + 1].Value = columns[i];
                 }
 
                 // Aggiungi righe di dati
-                for (int rowIndex = 0; rowIndex < idsList.Count; rowIndex++)
+                for (var rowIndex = 0; rowIndex < idsList.Count; rowIndex++)
                 {
                     var guid = idsList[rowIndex];
                     var atto = await GetAttoDto(guid);
 
-                    for (int colIndex = 0; colIndex < columns.Count; colIndex++)
+                    for (var colIndex = 0; colIndex < columns.Count; colIndex++)
                     {
                         var column = columns[colIndex];
                         var cellValue = GetPropertyValue(atto, column);
@@ -3485,38 +3488,51 @@ namespace PortaleRegione.API.Controllers
 
         private object GetPropertyValue(AttoDASIDto atto, string propertyName)
         {
+            if (propertyName.Equals(nameof(AttoDASIDto.Firme)))
+            {
+                return atto.Firme.Replace("<br>", ", ");
+            }
+            
             if (propertyName.Equals(nameof(AttoDASIDto.IDStato)))
             {
                 return atto.DisplayStato;
             }
+
             if (propertyName.Equals(nameof(AttoDASIDto.Tipo)))
             {
                 return atto.DisplayTipo;
             }
+
             if (propertyName.Equals(nameof(AttoDASIDto.AreaPolitica)))
             {
                 return atto.DisplayAreaPolitica;
             }
+
             if (propertyName.Equals(nameof(AttoDASIDto.TipoChiusuraIter)))
             {
                 return atto.DisplayTipoChiusuraIter;
             }
+
             if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta)))
             {
                 return atto.DisplayTipoRispostaRichiesta;
             }
+
             if (propertyName.Equals(nameof(AttoDASIDto.TipoVotazioneIter)))
             {
                 return atto.DisplayTipoVotazioneIter;
             }
+
             if (propertyName.Equals(nameof(AttoDASIDto.Oggetto)))
             {
                 return atto.OggettoView();
             }
+
             if (propertyName.Equals(nameof(AttoDASIDto.UIDPersonaProponente)))
             {
                 return atto.PersonaProponente.DisplayName;
             }
+
             if (propertyName.Equals(nameof(AttoDASIDto.id_gruppo)))
             {
                 return atto.gruppi_politici.nome_gruppo;
@@ -3551,14 +3567,14 @@ namespace PortaleRegione.API.Controllers
 
             // get dati dal database
             var idsList = await GetSoloIds(request, currentUser, null);
-            
+
             // comporre il body con la lista dei dati
             var body =
                 "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
                 "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
                 $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">";
 
-            if (Guid.TryParse(model.covertype, out Guid covertUid))
+            if (Guid.TryParse(model.covertype, out var covertUid))
             {
                 var cover = await _unitOfWork.Templates.Get(covertUid);
                 body += cover.Corpo;
@@ -3579,12 +3595,13 @@ namespace PortaleRegione.API.Controllers
                     {
                         body += $"<th>{column}</th>";
                     }
+
                     body += "</tr>";
 
                     foreach (var guid in idsList)
                     {
                         body += "<tr>";
-                        var atto = await GetAttoDto(guid);
+                        var atto = await GetAttoDto(guid, currentUser);
 
                         body += GetBodyItemGrid(atto, model.columns);
 
@@ -3594,12 +3611,39 @@ namespace PortaleRegione.API.Controllers
                     body += "</table>";
                     break;
                 case DataViewTypeEnum.CARD:
-                    var templateItemCard = GetTemplate(TemplateTypeEnum.REPORT_ITEM_CARD, true);
+                    string templateItemCard_Standard = GetTemplate(TemplateTypeEnum.REPORT_ITEM_CARD, true);
+
                     foreach (var guid in idsList)
                     {
-                        var atto = await GetAttoDto(guid);
+                        var atto = await GetAttoDto(guid, currentUser);
 
-                        body += templateItemCard.Replace("{{ITEM}}", GetBodyItemCard(atto, model.columns));
+                        body += templateItemCard_Standard.Replace("{{ITEM}}", GetBodyItemCard(atto, model.columns));
+                    }
+
+                    break;
+                case DataViewTypeEnum.CARD_TEMPLATE:
+                    var templateFromDb = await _unitOfWork.Templates.Get(Guid.Parse(model.dataviewtype_template));
+                    var templateItemCard = templateFromDb.Corpo;
+
+                    foreach (var guid in idsList)
+                    {
+                        var atto = await GetAttoDto(guid, currentUser);
+
+                        if (templateItemCard.Contains("{{ITEM}}"))
+                        {
+                            body += templateItemCard.Replace("{{ITEM}}", GetBodyItemCard(atto, model.columns));
+                        }
+                        else
+                        {
+                            var itemAtto = templateItemCard;
+                            foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
+                            {
+                                if (itemAtto.Contains("{{"+prop.Name+"}}"))
+                                    itemAtto = itemAtto.Replace("{{"+prop.Name+"}}", GetPropertyValue(atto, prop.Name).ToString());
+                            }
+
+                            body += itemAtto;
+                        }
                     }
 
                     break;
@@ -3607,6 +3651,10 @@ namespace PortaleRegione.API.Controllers
                     throw new ArgumentOutOfRangeException("Visualizzazione non supportata");
             }
 
+            if (body.Contains("{{OGGI}}"))
+            {
+                body = body.Replace("{{OGGI}}", DateTime.Now.ToString("dd/MM/yyyy"));
+            }
 
             return body;
         }
@@ -3707,7 +3755,7 @@ namespace PortaleRegione.API.Controllers
             var value = GetPropertyValue(dto, propertyName);
             return value != null ? $"<td>{value}</td>" : null;
         }
-        
+
         public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId)
         {
             var res = await _unitOfWork.DASI.GetAbbinamentiDisponibili(legislaturaId);

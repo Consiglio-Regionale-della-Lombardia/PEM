@@ -1234,5 +1234,26 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per avere i template delle card disponibili
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetReportsCardTemplates)]
+        public async Task<IHttpActionResult> GetReportsCardTemplates()
+        {
+            try
+            {
+                var res = await _unitOfWork.Templates.GetAllByType(TemplateTypeEnum.REPORT_ITEM_CARD);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get templates cards disponibili", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }

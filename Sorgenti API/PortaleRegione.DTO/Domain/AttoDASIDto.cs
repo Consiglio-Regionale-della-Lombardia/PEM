@@ -155,7 +155,7 @@ public class AttoDASIDto
     public string BodyAtto { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Firme { get; set; }
+    public string Firme { get; set; } = string.Empty;
 
     [DisplayName("Data presentazione")] public DateTime Timestamp { get; set; }
 
@@ -377,7 +377,6 @@ public class AttoDASIDto
 
 public class AttoDASIReportDto
 {
-    [DisplayName("UIDAtto")] public Guid UIDAtto { get; set; }
     [DisplayName("Display")]public string Display { get; set; }
     [DisplayName("Tipo atto")] public int Tipo { get; set; }
     [DisplayName("Numero atto")] public string NAtto { get; set; }
@@ -417,4 +416,5 @@ public class AttoDASIReportDto
     [DisplayName("Legislatura")] public int Legislatura { get; set; }
     [DisplayName("QR code")] public Guid UID_QRCode { get; set; }
     [DisplayName("Non passaggio in esame")] public bool Non_Passaggio_In_Esame { get; set; } = false;
+    [DisplayName("UIDAtto")] public Guid UIDAtto { get; set; }
 }

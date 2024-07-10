@@ -85,5 +85,6 @@ namespace PortaleRegione.Gateway
         Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId);
         Task EliminaReport(string nomeReport);
         Task<List<TemplatesItemDto>> GetReportsCovers();
+        Task<List<TemplatesItemDto>> GetReportsCardTemplates();
     }
 }

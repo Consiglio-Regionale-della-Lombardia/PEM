@@ -21,6 +21,7 @@ namespace PortaleRegione.DTO.Enum
     public enum DataViewTypeEnum
     {
         GRID = 1,
-        CARD = 2
+        CARD = 2,
+        CARD_TEMPLATE = 3
     }
 }

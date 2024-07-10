@@ -25,6 +25,7 @@ using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Enum;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -38,6 +39,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<TEMPLATES>> GetAll()
         {
+            PRContext.TEMPLATES.FromCache(DateTimeOffset.Now.AddHours(1)).ToList();
             return await PRContext
                 .TEMPLATES
                 .Where(t => t.Eliminato == false)
@@ -46,6 +48,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<TEMPLATES>> GetAllByType(TemplateTypeEnum type)
         {
+            PRContext.TEMPLATES.FromCache(DateTimeOffset.Now.AddHours(1)).ToList();
+
             return await PRContext
                 .TEMPLATES
                 .Where(t => t.Eliminato == false
@@ -55,6 +59,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<TEMPLATES> Get(Guid uid)
         {
+            PRContext.TEMPLATES.FromCache(DateTimeOffset.Now.AddHours(1)).ToList();
+
             return await PRContext
                 .TEMPLATES
                 .FirstOrDefaultAsync(t => t.Uid.Equals(uid));

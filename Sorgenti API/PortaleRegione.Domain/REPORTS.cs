@@ -41,5 +41,6 @@ namespace PortaleRegione.Domain
 
         public string Colonne { get; set; }
         public Guid UId_persona { get; set; }
+        public string TipoVisualizzazione_Card_Template { get; set; }
     }
 }

@@ -628,6 +628,13 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task<List<TemplatesItemDto>> GetReportsCardTemplates()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetReportsCardTemplates}";
+            var lst = JsonConvert.DeserializeObject<List<TemplatesItemDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RitiroFirma}";

@@ -135,6 +135,13 @@ function get_ListaCopertine() {
     return JSON.parse(session_raw);
 }
 
+function get_ListaCardTemplates() {
+    var session_raw = localStorage.getItem("ListaCardTemplates");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
 function get_ListaTipiPEM() {
     var session_raw = localStorage.getItem("ListaTipiPEM");
     if (session_raw == null)
@@ -170,6 +177,10 @@ function set_ListaTipiDASI(obj) {
 
 function set_ListaCopertine(obj) {
     localStorage.setItem("ListaCopertine", JSON.stringify(obj));
+}
+
+function set_ListaCardTemplates(obj) {
+    localStorage.setItem("ListaCardTemplates", JSON.stringify(obj));
 }
 
 function set_ListaTipiMOZDASI(obj) {
