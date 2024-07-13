@@ -311,6 +311,86 @@ namespace PortaleRegione.Client.Controllers
                         continue;
                     }
                     
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.IDStato)))
+                    {
+                        var statoSplit = modelFilter.value.Split(',');
+                        if (statoSplit.Length > 0)
+                        {
+                            foreach (var stato in statoSplit)
+                            {
+                                request.filtro.Add(new FilterStatement<AttoDASIDto>
+                                {
+                                    PropertyId = modelFilter.property,
+                                    Operation = Operation.EqualTo,
+                                    Value = stato,
+                                    Connector = FilterStatementConnector.Or
+                                });
+                            }
+                        }
+
+                        continue;
+                    }
+                    
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.TipoChiusuraIter)))
+                    {
+                        var tipochiusuraSplit = modelFilter.value.Split(',');
+                        if (tipochiusuraSplit.Length > 0)
+                        {
+                            foreach (var tipochiusura in tipochiusuraSplit)
+                            {
+                                request.filtro.Add(new FilterStatement<AttoDASIDto>
+                                {
+                                    PropertyId = modelFilter.property,
+                                    Operation = Operation.EqualTo,
+                                    Value = tipochiusura,
+                                    Connector = FilterStatementConnector.Or
+                                });
+                            }
+                        }
+
+                        continue;
+                    }
+                    
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.TipoVotazioneIter)))
+                    {
+                        var tipovotazioneSplit = modelFilter.value.Split(',');
+                        if (tipovotazioneSplit.Length > 0)
+                        {
+                            foreach (var tipovotazione in tipovotazioneSplit)
+                            {
+                                request.filtro.Add(new FilterStatement<AttoDASIDto>
+                                {
+                                    PropertyId = modelFilter.property,
+                                    Operation = Operation.EqualTo,
+                                    Value = tipovotazione,
+                                    Connector = FilterStatementConnector.Or
+                                });
+                            }
+                        }
+
+                        continue;
+                    }
+                    
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.Documenti)))
+                    {
+                        var tipoDocumentiSplit = modelFilter.value.Split(',');
+                        if (tipoDocumentiSplit.Length > 0)
+                        {
+                            foreach (var tipoDocumento in tipoDocumentiSplit)
+                            {
+                                request.filtro.Add(new FilterStatement<AttoDASIDto>
+                                {
+                                    PropertyId = modelFilter.property,
+                                    Operation = Operation.EqualTo,
+                                    Value = tipoDocumento,
+                                    Connector = FilterStatementConnector.Or
+                                });
+                            }
+                        }
+
+                        continue;
+                    }
+                    
                     if (modelFilter.property.Equals(nameof(AttoDASIDto.DataChiusuraIter)))
                     {
                         var dates = modelFilter.value.Split(',');

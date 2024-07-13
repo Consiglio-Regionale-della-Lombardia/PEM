@@ -16,27 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using ExpressionBuilder.Generics;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ExpressionBuilder.Generics;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
 
 namespace PortaleRegione.Contracts
 {
     public interface IDASIRepository : IRepository<ATTI_DASI>
     {
         Task<ATTI_DASI> Get(Guid attoUId);
+
         Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
-            Filter<ATTI_DASI> filtro = null, List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null, List<int> stati = null, List<Guid> atti_da_firmare = null);
+            Filter<ATTI_DASI> filtro, QueryExtendedRequest queryExtended);
+
         Task<int> Count(Filter<ATTI_DASI> queryFilter);
-        Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> queryFilter, List<int> soggetti, List<int> stati = null, List<Guid> atti_da_firmare = null);
-        Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid? sedutaId,
-            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro, List<int> soggetti, List<Guid> proponenti, List<Guid> atti_da_firmare);
+
         Task<ATTI_DASI_CONTATORI> GetContatore(int tipo, int tipo_risposta);
         bool CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona);
         bool CheckIfRitirabile(AttoDASIDto dto, PersonaDto persona);
@@ -64,8 +65,10 @@ namespace PortaleRegione.Contracts
         Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona);
         Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, Guid personaUID);
         Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto);
+
         Task<string> GetAll_Query(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti,
             List<int> stati);
+
         Task<List<Guid>> GetAbbinamentiMozione(Guid uidAtto);
         Task<List<Guid>> GetAllCartacei(int legislatura);
         Task<List<Guid>> GetAttiProponente(Guid personaUid);
@@ -75,5 +78,12 @@ namespace PortaleRegione.Contracts
         Task<List<NoteDto>> GetNote(Guid uidAtto);
         Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto);
         Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId);
+
+        Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, ClientModeEnum clientMode, Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended);
+
+        Task<int> Count(PersonaDto persona, StatiAttoEnum stato, ClientModeEnum clientMode,
+            Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended);
+
+        Task<int> Count(PersonaDto persona, ClientModeEnum clientMode, Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended);
     }
 }

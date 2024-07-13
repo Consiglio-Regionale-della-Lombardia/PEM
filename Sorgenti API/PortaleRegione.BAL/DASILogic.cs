@@ -287,8 +287,7 @@ namespace PortaleRegione.API.Controllers
 
         public async Task<RiepilogoDASIModel> Get(BaseRequest<AttoDASIDto> model, PersonaDto persona, Uri uri)
         {
-            var requestStato = GetResponseStatusFromFilters(model.filtro);
-            var requestTipo = GetResponseTypeFromFilters(model.filtro);
+            var queryExtended = new QueryExtendedRequest();
 
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
             model.param.TryGetValue("RequireMySign", out var RequireMySign); // #539
@@ -298,53 +297,99 @@ namespace PortaleRegione.API.Controllers
                 model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
             var sedutaId = Guid.Empty;
             if (filtro_seduta != null) sedutaId = new Guid(filtro_seduta.Value.ToString());
-            var soggetti = new List<int>();
+            
             var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
             if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
             {
                 soggetti_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
                         statement.PropertyId == "SoggettiDestinatari"));
-                soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
+                queryExtended.Soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
                 foreach (var s in soggetti_request) model.filtro.Remove(s);
             }
-
-            var proponenti = new List<Guid>();
+            
             var proponenti_request = new List<FilterStatement<AttoDASIDto>>();
             if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
             {
                 proponenti_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
                         statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)));
-                proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
+                queryExtended.Proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
                 foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
             }
-
-            var provvedimenti = new List<Guid>();
+            
             var provvedimenti_request = new List<FilterStatement<AttoDASIDto>>();
             if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.Abbinamenti)))
             {
                 provvedimenti_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
                         statement.PropertyId == nameof(AttoDASIDto.Abbinamenti)));
-                provvedimenti.AddRange(provvedimenti_request.Select(provvedimento =>
+                queryExtended.Provvedimenti.AddRange(provvedimenti_request.Select(provvedimento =>
                     new Guid(provvedimento.Value.ToString())));
                 foreach (var provvedimentoStatement in provvedimenti_request)
                     model.filtro.Remove(provvedimentoStatement);
             }
-
-            var stati = new List<int>();
+            
             var stati_request = new List<FilterStatement<AttoDASIDto>>();
             if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
             {
                 stati_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
                         statement.PropertyId == nameof(AttoDASIDto.IDStato)));
-                stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                queryExtended.Stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
                 foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
             }
+            
+            var tipi_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.Tipo)))
+            {
+                tipi_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.Tipo)));
+                queryExtended.Tipi.AddRange(tipi_request.Select(tipo => Convert.ToInt32(tipo.Value.ToString())));
+                foreach (var tipoStatement in tipi_request) model.filtro.Remove(tipoStatement);
+            }
+            
+            var tipi_chiusura_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.TipoChiusuraIter)))
+            {
+                tipi_chiusura_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.TipoChiusuraIter)));
+                queryExtended.TipiChiusura.AddRange(tipi_chiusura_request.Select(tipoChiusura =>
+                    Convert.ToInt32(tipoChiusura.Value.ToString())));
+                foreach (var tipoChiusuraStatement in tipi_chiusura_request) model.filtro.Remove(tipoChiusuraStatement);
+            }
+            
+            var tipi_votazione_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.TipoVotazioneIter)))
+            {
+                tipi_votazione_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.TipoVotazioneIter)));
+                queryExtended.TipiVotazione.AddRange(tipi_votazione_request.Select(tipoVotazione =>
+                    Convert.ToInt32(tipoVotazione.Value.ToString())));
+                foreach (var tipoVotazioneStatement in tipi_votazione_request)
+                    model.filtro.Remove(tipoVotazioneStatement);
+            }
+            
+            var tipi_documento_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.Documenti)))
+            {
+                tipi_documento_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.Documenti) && !statement.Value.Equals("_NOT_")));
+                if (model.filtro.Any(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.Documenti) && statement.Value.Equals("_NOT_")))
+                {
+                    queryExtended.DocumentiMancanti = true;
+                }
 
-            var atti_da_firmare = new List<Guid>();
+                queryExtended.TipiDocumento.AddRange(
+                    tipi_documento_request.Select(tipoDoc => Convert.ToInt32(tipoDoc.Value.ToString())));
+                foreach (var tipoDocStatement in tipi_documento_request) model.filtro.Remove(tipoDocStatement);
+            }
+            
             if (Convert.ToBoolean(RequireMySign))
             {
                 var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(persona.UID_persona);
@@ -357,15 +402,15 @@ namespace PortaleRegione.API.Controllers
                         continue; // Notifica chiusa
                     if (notifica.UIDEM.HasValue)
                         continue; // notifica PEM
-                    if (atti_da_firmare.Contains(notifica.UIDAtto))
+                    if (queryExtended.AttiDaFirmare.Contains(notifica.UIDAtto))
                         continue; // UidAtto già presente
 
-                    atti_da_firmare.Add(notifica.UIDAtto);
+                    queryExtended.AttiDaFirmare.Add(notifica.UIDAtto);
                 }
 
                 var my_atti_proponente = await _unitOfWork.DASI.GetAttiProponente(persona.UID_persona);
                 if (my_atti_proponente.Any())
-                    atti_da_firmare.AddRange(my_atti_proponente);
+                    queryExtended.AttiDaFirmare.AddRange(my_atti_proponente);
             }
 
             var queryFilter = new Filter<ATTI_DASI>();
@@ -377,18 +422,16 @@ namespace PortaleRegione.API.Controllers
                     model.size,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
-                    soggetti,
-                    proponenti,
-                    provvedimenti,
-                    stati,
-                    atti_da_firmare);
+                    queryExtended);
 
             if (!atti_in_db.Any())
             {
                 queryFilter.ImportStatements(model.filtro);
                 var defaultCounterBar =
-                    await GetResponseCountBar(persona, requestTipo, sedutaId, CLIENT_MODE,
-                        queryFilter, soggetti, proponenti, atti_da_firmare);
+                    await GetResponseCountBar(persona,
+                        (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                        queryFilter,
+                        queryExtended);
                 if (soggetti_request.Any())
                     model.filtro.AddRange(soggetti_request);
                 if (proponenti_request.Any())
@@ -397,6 +440,14 @@ namespace PortaleRegione.API.Controllers
                     model.filtro.AddRange(provvedimenti_request);
                 if (stati_request.Any())
                     model.filtro.AddRange(stati_request);
+                if (tipi_request.Any())
+                    model.filtro.AddRange(tipi_request);
+                if (tipi_chiusura_request.Any())
+                    model.filtro.AddRange(tipi_chiusura_request);
+                if (tipi_votazione_request.Any())
+                    model.filtro.AddRange(tipi_votazione_request);
+                if (tipi_documento_request.Any())
+                    model.filtro.AddRange(tipi_documento_request);
 
                 return new RiepilogoDASIModel
                 {
@@ -407,8 +458,6 @@ namespace PortaleRegione.API.Controllers
                         , model.filtro
                         , 0
                         , uri),
-                    Stato = requestStato,
-                    Tipo = requestTipo,
                     CountBarData = defaultCounterBar
                 };
             }
@@ -423,14 +472,9 @@ namespace PortaleRegione.API.Controllers
             var totaleAtti = await _unitOfWork
                 .DASI
                 .Count(persona,
-                    requestTipo,
-                    requestStato,
-                    null,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
-                    soggetti,
-                    proponenti,
-                    atti_da_firmare);
+                    queryExtended);
 
             queryFilter.ImportStatements(model.filtro);
             var responseModel = new RiepilogoDASIModel
@@ -442,10 +486,10 @@ namespace PortaleRegione.API.Controllers
                     , model.filtro
                     , totaleAtti
                     , uri),
-                Stato = requestStato,
-                Tipo = requestTipo,
-                CountBarData = await GetResponseCountBar(persona, requestTipo, sedutaId, CLIENT_MODE,
-                    queryFilter, soggetti, proponenti, atti_da_firmare)
+                CountBarData = await GetResponseCountBar(persona,
+                    (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                    queryFilter,
+                    queryExtended)
             };
 
             if (persona.IsSegreteriaAssemblea) responseModel.CommissioniAttive = await GetCommissioniAttive();
@@ -458,65 +502,170 @@ namespace PortaleRegione.API.Controllers
                 model.filtro.AddRange(provvedimenti_request);
             if (stati_request.Any())
                 model.filtro.AddRange(stati_request);
+            if (tipi_request.Any())
+                model.filtro.AddRange(tipi_request);
+            if (tipi_chiusura_request.Any())
+                model.filtro.AddRange(tipi_chiusura_request);
+            if (tipi_votazione_request.Any())
+                model.filtro.AddRange(tipi_votazione_request);
+            if (tipi_documento_request.Any())
+                model.filtro.AddRange(tipi_documento_request);
 
             return responseModel;
         }
 
+        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, ClientModeEnum clientMode,
+            Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended)
+        {
+            var filtro = PulisciFiltro(queryFilter);
+            var result = new CountBarData
+            {
+                ITL = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.ITL, clientMode, filtro,queryExtended),
+                ITR = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.ITR, clientMode, filtro, queryExtended),
+                IQT = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.IQT, clientMode, filtro, queryExtended),
+                MOZ = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.MOZ, clientMode, filtro, queryExtended),
+                ODG = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.ODG, clientMode, filtro, queryExtended),
+                TUTTI = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.TUTTI, clientMode, filtro,queryExtended),
+                BOZZE = await _unitOfWork
+                    .DASI
+                    .Count(persona, StatiAttoEnum.BOZZA, clientMode, filtro,queryExtended),
+                PRESENTATI = await _unitOfWork
+                    .DASI
+                    .Count(persona, StatiAttoEnum.PRESENTATO, clientMode, filtro, queryExtended),
+                IN_TRATTAZIONE = await _unitOfWork
+                    .DASI
+                    .Count(persona, StatiAttoEnum.IN_TRATTAZIONE, clientMode, filtro,queryExtended),
+                CHIUSO = await _unitOfWork
+                    .DASI
+                    .Count(persona, StatiAttoEnum.CHIUSO, clientMode, filtro, queryExtended)
+            };
+
+            return result;
+        }
+
         public async Task<List<Guid>> GetSoloIds(BaseRequest<AttoDASIDto> model, PersonaDto persona, Uri uri)
         {
+            var queryExtended = new QueryExtendedRequest();
+
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
             model.param.TryGetValue("RequireMySign", out var RequireMySign); // #539
+            if (RequireMySign == null)
+                RequireMySign = false;
             var filtro_seduta =
                 model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
             var sedutaId = Guid.Empty;
             if (filtro_seduta != null) sedutaId = new Guid(filtro_seduta.Value.ToString());
-            var soggetti = new List<int>();
+            
             var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
             if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
             {
                 soggetti_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
                         statement.PropertyId == "SoggettiDestinatari"));
-                soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
+                queryExtended.Soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
                 foreach (var s in soggetti_request) model.filtro.Remove(s);
             }
-
-            var proponenti = new List<Guid>();
+            
             var proponenti_request = new List<FilterStatement<AttoDASIDto>>();
             if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
             {
                 proponenti_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
                         statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)));
-                proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
+                queryExtended.Proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
                 foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
             }
-
-            var provvedimenti = new List<Guid>();
+            
             var provvedimenti_request = new List<FilterStatement<AttoDASIDto>>();
-            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.Abbinamenti)))
             {
                 provvedimenti_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
-                        statement.PropertyId == nameof(AttoDASIDto.UID_Atto_ODG)));
-                provvedimenti.AddRange(provvedimenti_request.Select(provvedimento =>
+                        statement.PropertyId == nameof(AttoDASIDto.Abbinamenti)));
+                queryExtended.Provvedimenti.AddRange(provvedimenti_request.Select(provvedimento =>
                     new Guid(provvedimento.Value.ToString())));
                 foreach (var provvedimentoStatement in provvedimenti_request)
                     model.filtro.Remove(provvedimentoStatement);
             }
-
-            var stati = new List<int>();
+            
             var stati_request = new List<FilterStatement<AttoDASIDto>>();
             if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
             {
                 stati_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
                         statement.PropertyId == nameof(AttoDASIDto.IDStato)));
-                stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                queryExtended.Stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
                 foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
             }
+            
+            var tipi_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.Tipo)))
+            {
+                tipi_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.Tipo)));
+                queryExtended.Tipi.AddRange(tipi_request.Select(tipo => Convert.ToInt32(tipo.Value.ToString())));
+                foreach (var tipoStatement in tipi_request) model.filtro.Remove(tipoStatement);
+            }
+            
+            var tipi_chiusura_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.TipoChiusuraIter)))
+            {
+                tipi_chiusura_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.TipoChiusuraIter)));
+                queryExtended.TipiChiusura.AddRange(tipi_chiusura_request.Select(tipoChiusura =>
+                    Convert.ToInt32(tipoChiusura.Value.ToString())));
+                foreach (var tipoChiusuraStatement in tipi_chiusura_request) model.filtro.Remove(tipoChiusuraStatement);
+            }
+            
+            var tipi_votazione_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.TipoVotazioneIter)))
+            {
+                tipi_votazione_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.TipoVotazioneIter)));
+                queryExtended.TipiVotazione.AddRange(tipi_votazione_request.Select(tipoVotazione =>
+                    Convert.ToInt32(tipoVotazione.Value.ToString())));
+                foreach (var tipoVotazioneStatement in tipi_votazione_request)
+                    model.filtro.Remove(tipoVotazioneStatement);
+            }
+            
+            var tipi_documento_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.Documenti)))
+            {
+                tipi_documento_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.Documenti) && !statement.Value.Equals("_NOT_")));
+                if (model.filtro.Any(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.Documenti) && statement.Value.Equals("_NOT_")))
+                {
+                    queryExtended.DocumentiMancanti = true;
+                }
 
-            var atti_da_firmare = new List<Guid>();
+                queryExtended.TipiDocumento.AddRange(
+                    tipi_documento_request.Select(tipoDoc => Convert.ToInt32(tipoDoc.Value.ToString())));
+                foreach (var tipoDocStatement in tipi_documento_request) model.filtro.Remove(tipoDocStatement);
+            }
+            
             if (Convert.ToBoolean(RequireMySign))
             {
                 var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(persona.UID_persona);
@@ -529,15 +678,15 @@ namespace PortaleRegione.API.Controllers
                         continue; // Notifica chiusa
                     if (notifica.UIDEM.HasValue)
                         continue; // notifica PEM
-                    if (atti_da_firmare.Contains(notifica.UIDAtto))
+                    if (queryExtended.AttiDaFirmare.Contains(notifica.UIDAtto))
                         continue; // UidAtto già presente
 
-                    atti_da_firmare.Add(notifica.UIDAtto);
+                    queryExtended.AttiDaFirmare.Add(notifica.UIDAtto);
                 }
 
                 var my_atti_proponente = await _unitOfWork.DASI.GetAttiProponente(persona.UID_persona);
                 if (my_atti_proponente.Any())
-                    atti_da_firmare.AddRange(my_atti_proponente);
+                    queryExtended.AttiDaFirmare.AddRange(my_atti_proponente);
             }
 
             var queryFilter = new Filter<ATTI_DASI>();
@@ -549,11 +698,7 @@ namespace PortaleRegione.API.Controllers
                     model.size,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
-                    soggetti,
-                    proponenti,
-                    provvedimenti,
-                    stati,
-                    atti_da_firmare);
+                    queryExtended);
         }
 
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid)
@@ -793,71 +938,6 @@ namespace PortaleRegione.API.Controllers
             }
 
             return sb.Aggregate((i, j) => i + "<br>" + j);
-        }
-
-        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, TipoAttoEnum tipo,
-            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti,
-            List<Guid> proponenti, List<Guid> atti_da_firmare)
-        {
-            var clientMode = (ClientModeEnum)Convert.ToInt16(_clientMode);
-            var filtro = PulisciFiltro(_filtro);
-            var result = new CountBarData
-            {
-                ITL = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        TipoAttoEnum.ITL
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
-                ITR = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        TipoAttoEnum.ITR
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
-                IQT = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        TipoAttoEnum.IQT
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
-                MOZ = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        TipoAttoEnum.MOZ
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
-                ODG = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        TipoAttoEnum.ODG
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
-                TUTTI = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        TipoAttoEnum.TUTTI
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
-                BOZZE = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        tipo
-                        , StatiAttoEnum.BOZZA, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
-                PRESENTATI = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        tipo
-                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro, soggetti, proponenti,
-                        atti_da_firmare),
-                IN_TRATTAZIONE = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        tipo
-                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti, proponenti,
-                        atti_da_firmare),
-                CHIUSO = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        tipo
-                        , StatiAttoEnum.CHIUSO, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare)
-            };
-
-            return result;
         }
 
         private Filter<ATTI_DASI> PulisciFiltro(Filter<ATTI_DASI> filtro)
@@ -2668,7 +2748,8 @@ namespace PortaleRegione.API.Controllers
                         , model.page
                         , model.size
                         , ClientModeEnum.GRUPPI
-                        , filtro);
+                        , filtro
+                        ,new QueryExtendedRequest());
                 return atti_in_db;
             }
             catch (Exception e)
@@ -3492,7 +3573,7 @@ namespace PortaleRegione.API.Controllers
             {
                 return atto.Firme.Replace("<br>", ", ");
             }
-            
+
             if (propertyName.Equals(nameof(AttoDASIDto.IDStato)))
             {
                 return atto.DisplayStato;
@@ -3548,6 +3629,23 @@ namespace PortaleRegione.API.Controllers
             var filterStatements = new List<FilterStatement<AttoDASIDto>>();
             foreach (var filterItem in filtri)
             {
+                if (filterItem.value.Contains(","))
+                {
+                    var splitFilter = filterItem.value.Split(',');
+                    foreach (var s in splitFilter)
+                    {
+                        filterStatements.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.EqualTo,
+                            Value = s,
+                            Connector = FilterStatementConnector.Or
+                        });
+                    }
+
+                    continue;
+                }
+
                 filterStatements.Add(new FilterStatement<AttoDASIDto>
                 {
                     PropertyId = filterItem.property,
@@ -3611,7 +3709,7 @@ namespace PortaleRegione.API.Controllers
                     body += "</table>";
                     break;
                 case DataViewTypeEnum.CARD:
-                    string templateItemCard_Standard = GetTemplate(TemplateTypeEnum.REPORT_ITEM_CARD, true);
+                    var templateItemCard_Standard = GetTemplate(TemplateTypeEnum.REPORT_ITEM_CARD, true);
 
                     foreach (var guid in idsList)
                     {
@@ -3638,8 +3736,9 @@ namespace PortaleRegione.API.Controllers
                             var itemAtto = templateItemCard;
                             foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
                             {
-                                if (itemAtto.Contains("{{"+prop.Name+"}}"))
-                                    itemAtto = itemAtto.Replace("{{"+prop.Name+"}}", GetPropertyValue(atto, prop.Name).ToString());
+                                if (itemAtto.Contains("{{" + prop.Name + "}}"))
+                                    itemAtto = itemAtto.Replace("{{" + prop.Name + "}}",
+                                        GetPropertyValue(atto, prop.Name).ToString());
                             }
 
                             body += itemAtto;

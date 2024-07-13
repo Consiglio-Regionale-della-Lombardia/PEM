@@ -195,6 +195,7 @@
     <Compile Include="Request\Public\CommissioniRequest.cs" />
     <Compile Include="Request\Public\FirmatariRequest.cs" />
     <Compile Include="Request\Public\GruppiRequest.cs" />
+    <Compile Include="Request\QueryExtendedRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />
     <Compile Include="Request\SalvaGruppoRequest.cs" />
     <Compile Include="Request\StampaRequest.cs" />

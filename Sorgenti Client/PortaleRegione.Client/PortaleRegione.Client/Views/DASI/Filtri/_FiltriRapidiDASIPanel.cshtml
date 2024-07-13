@@ -49,8 +49,10 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.CodiceMateria))", id: "@nameof(AttoDASIDto.CodiceMateria)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Emendato))", id: "@nameof(AttoDASIDto.Emendato)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoVotazioneIter))", id: "@nameof(AttoDASIDto.TipoVotazioneIter)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoChiusuraIter))", id: "@nameof(AttoDASIDto.TipoChiusuraIter)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DCR))", id: "@nameof(AttoDASIDto.DCR)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataChiusuraIter))", id: "@nameof(AttoDASIDto.DataChiusuraIter)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Documenti))", id: "@nameof(AttoDASIDto.Documenti)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -97,10 +99,44 @@ document.addEventListener('DOMContentLoaded', async function() {
 			text = val;
 			chipText = keyLabel + ": " + text;
             chipText = keyLabel + ": " + text;
-        } else if (key === "@nameof(AttoDASIDto.Tipo)") {
+        } else if (key === "@nameof(AttoDASIDto.IDStato)") {
+			var selectedOptions = document.querySelectorAll('#stati-select option:checked');
+			var values = Array.from(selectedOptions).map(option => option.value);
+			var texts = Array.from(selectedOptions).map(option => option.text);
+			val = values.join(',');
+			text = texts.join(', ');
+			chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Tipo)") {
 			var selectedOptions = document.querySelectorAll('#tipi-select option:checked');
 			var values = Array.from(selectedOptions).map(option => option.value);
 			var texts = Array.from(selectedOptions).map(option => option.text);
+			val = values.join(',');
+			text = texts.join(', ');
+			chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.TipoChiusuraIter)") {
+			var selectedOptions = document.querySelectorAll('#tipi-chiusura-iter-select option:checked');
+			var values = Array.from(selectedOptions).map(option => option.value);
+			var texts = Array.from(selectedOptions).map(option => option.text);
+			val = values.join(',');
+			text = texts.join(', ');
+			chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.TipoVotazioneIter)") {
+			var selectedOptions = document.querySelectorAll('#tipi-votazione-iter-select option:checked');
+			var values = Array.from(selectedOptions).map(option => option.value);
+			var texts = Array.from(selectedOptions).map(option => option.text);
+			val = values.join(',');
+			text = texts.join(', ');
+			chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Documenti)") {
+			var selectedOptions = document.querySelectorAll('#tipi-documento-select option:checked');
+			var checkedOption = document.querySelector('#chkDocumentiMancanti');
+			var values = Array.from(selectedOptions).map(option => option.value);
+			var texts = Array.from(selectedOptions).map(option => option.text);
+			
+			if (checkedOption && checkedOption.checked) {
+				values.push('_NOT_');
+			}
+
 			val = values.join(',');
 			text = texts.join(', ');
 			chipText = keyLabel + ": " + text;
@@ -575,7 +611,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 		    break;
 	    case '@nameof(AttoDASIDto.IDStato)':
 			var stati = await GetStatiDASI();
-			selectHTML = '<select id="stati-select">';
+			selectHTML = '<select id="stati-select" multiple>';
 			stati.forEach(function (item) {
 				if (item.IDStato != 0) {
 					var selected = isEditing && currentValue > 0 && item.IDStato == currentValue ? 'selected' : '';
@@ -606,7 +642,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			    { id: @((int)TipoRispostaEnum.COMMISSIONE), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE))'},
 			];
 
-			selectHTML = '<select id="tipi-risposta-select">';
+			selectHTML = '<select id="tipi-risposta-select" multiple>';
 			tipiRisposta.forEach(function (item) {
 				if (item.id != 0) {
 					var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
@@ -625,7 +661,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			    { id: @((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO), text: '@(Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO))'},
 			];
 
-			selectHTML = '<select id="tipi-votazione-iter-select">';
+			selectHTML = '<select id="tipi-votazione-iter-select" multiple>';
 			tipiVotazioneIter.forEach(function (item) {
 				if (item.id != 0) {
 					var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
@@ -645,7 +681,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			    { id: @((int)StatiAttoEnum.CHIUSO_RITIRATO), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO_RITIRATO))'},
 			];
 
-			selectHTML = '<select id="tipi-chiusura-iter-select">';
+			selectHTML = '<select id="tipi-chiusura-iter-select" multiple>';
 			tipiChiusuraIter.forEach(function (item) {
 				if (item.id != 0) {
 					var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
@@ -656,6 +692,31 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 			M.FormSelect.init(document.querySelectorAll('select'));
 		    break;
+		case '@nameof(AttoDASIDto.Documenti)':
+	        var tipiDocumento = [
+	            { id: @((int)TipoDocumentoEnum.TESTO_ALLEGATO), text: 'Testo allegato'},
+	            { id: @((int)TipoDocumentoEnum.RISPOSTA), text: 'Risposta'},
+	            { id: @((int)TipoDocumentoEnum.AGGIUNTIVO), text: 'Aggiuntivo'},
+	            { id: @((int)TipoDocumentoEnum.ABBINAMENTO), text: 'Abbinamento'},
+	            { id: @((int)TipoDocumentoEnum.CHIUSURA_ITER), text: 'Chiusura iter'},
+	            { id: @((int)TipoDocumentoEnum.MONITORAGGIO), text: 'Monitoraggio'}
+	        ];
+
+			selectHTML = '<select id="tipi-documento-select" multiple>';
+			tipiDocumento.forEach(function (item) {
+			    var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+			    selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+	        });
+	        selectHTML += '</select>';
+			selectHTML += `<p>
+                  <label>
+                    <input id="chkDocumentiMancanti" type="checkbox" />
+                    <span>Cerca documenti mancanti</span>
+                  </label>
+                </p>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+	        M.FormSelect.init(document.querySelectorAll('select'));
+            break;
 		case '@nameof(AttoDASIDto.NAtto)':
             var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
             selectHTML = `<div class="input-field col s12">
