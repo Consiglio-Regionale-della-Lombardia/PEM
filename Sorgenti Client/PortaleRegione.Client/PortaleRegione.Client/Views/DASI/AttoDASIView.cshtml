@@ -38,6 +38,10 @@
         }
     }
     var modeFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}");
+    
+    var firmeGroup = new List<AttiFirmeDto>();
+    firmeGroup.AddRange(atto.FirmeAnte);
+    firmeGroup.AddRange(atto.FirmePost);
 }
 
 <!DOCTYPE html>
@@ -382,40 +386,47 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
 </div>
 @* FIRME *@
 <div class="row" id="pnlStandardFirme">
-    <div class="col s12">
-        @if (atto.Tipo == (int)TipoAttoEnum.IQT
-             || atto.Tipo == (int)TipoAttoEnum.MOZ)
-        {
-            if ((atto.FirmeAnte.Any()
-                 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-                || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                    && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
-                || Model.CurrentUser.IsSegreteriaAssemblea)
+	<div class="col s12">
+		@if (atto.Tipo == (int)TipoAttoEnum.IQT
+			 || atto.Tipo == (int)TipoAttoEnum.MOZ)
+		{
+			if ((atto.FirmeAnte.Any()
+				 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+				|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+					&& Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+				|| Model.CurrentUser.IsSegreteriaAssemblea)
+			{
+				<a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+					Visualizza priorita
+					<i class="material-icons right pink-text">low_priority</i>
+				</a>
+				<br />
+			}
+		}
+        
+        <ul class="collection" id="pnlFirme">
+            @foreach (var firme in firmeGroup)
             {
-                <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
-                    Visualizza priorita
-                    <i class="material-icons right pink-text">low_priority</i>
-                </a>
-                <br/>
+				<li class="collection-item" data-uid-persona="@firme.UID_persona" data-uid-atto="@firme.UIDAtto" data-ordine="@firme.OrdineVisualizzazione">@firme.FirmaCert</li>
             }
-        }
+        </ul>
+        
+        @*@Html.Raw(atto.Firme)*@
 
-        @Html.Raw(atto.Firme)
+			@if (!string.IsNullOrEmpty(atto.DataPresentazione))
+			{
+				var testoDeposito = "Atto presentato";
 
-        @if (!string.IsNullOrEmpty(atto.DataPresentazione))
-        {
-            var testoDeposito = "Atto presentato";
+				<label class="black-text">
+					<b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
+				</label>
+			}
 
-            <label class="black-text">
-                <b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
-            </label>
-        }
-
-        @if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
-        {
-            @Html.Raw(atto.Firme_dopo_deposito)
-        }
-    </div>
+			@if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
+			{
+				@Html.Raw(atto.Firme_dopo_deposito)
+			}
+	</div>
 </div>
 @if (atto.Tipo == (int)TipoAttoEnum.IQT
      || atto.Tipo == (int)TipoAttoEnum.MOZ)
@@ -434,14 +445,10 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
                 <br/>
 
                 <ul class="collapsible expandable">
-                    @{
-                        var firmeGroup = new List<AttiFirmeDto>();
-                        firmeGroup.AddRange(atto.FirmeAnte);
-                        firmeGroup.AddRange(atto.FirmePost);
-                    }
+                    
                     @foreach (var firme in firmeGroup)
                     {
-                        <li data-uid-persona="@firme.UID_persona" data-uid-atto="@firme.UIDAtto">
+                        <li data-uid-persona="@firme.UID_persona" data-uid-atto="@firme.UIDAtto" data-ordine="@firme.OrdineVisualizzazione">
                             @if (firme.Prioritario)
                             {
                                 <div class="collapsible-header valign-wrapper">
@@ -453,9 +460,7 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
                                         </a>
                                     }
                                     @firme.FirmaCert
-
-                                    <span class="order-index">@firme.OrdineVisualizzazione</span>
-
+                                    
                                     @if (atto.UIDPersonaProponente != firme.UID_persona)
                                     {
             @* Freccia Su *@
@@ -481,9 +486,7 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
                                     {
                                         <del>@firme.FirmaCert</del>
                                     }
-
-                                    <span class="order-index">@firme.OrdineVisualizzazione</span>
-
+                                    
                                     @if (atto.UIDPersonaProponente != firme.UID_persona)
                                     {
             @* Freccia Su *@
@@ -598,29 +601,41 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
 
     // Ottieni la lista dei firmatari
     var list = listItem.parent();
+    var listStandard = $("#pnlFirme");
+    
+	var uidPersona = listItem.data('uid-persona');
+	var listItemStandard = listStandard.find('li[data-uid-persona="' + uidPersona + '"]');
 
     // Scambia gli elementi
     if (newIndex >= 0 && newIndex < list.children().length) {
         if (direction === -1) {
             listItem.insertBefore(listItem.prev());
+			listItemStandard.insertBefore(listItemStandard.prev());
         } else if (direction === 1) {
             listItem.insertAfter(listItem.next());
+			listItemStandard.insertAfter(listItemStandard.next());
         }
 
         // Aggiorna gli indici degli elementi nella lista
         list.children().each(function(index, element) {
             if (index != 0){
-                $(element).find('.order-index').text(index);
+				$(element).attr('data-ordine', index);
             }
         });
-
+        
+		listStandard.children().each(function (index, element) {
+			if (index != 0) {
+				$(element).attr('data-ordine', index);
+			}
+		});
+        
         // Prepara la lista aggiornata da inviare al server
         var updatedList = [];
         list.children().each(function(index, element) {
             var uidPersona = $(element).data('uid-persona');
             var uidAtto = $(element).data('uid-atto');
 			updatedList.push({ UIDAtto: uidAtto, UID_persona: uidPersona, OrdineVisualizzazione: index });
-        });        
+        });       
 
         // Invia la lista aggiornata al server
         var url = '@Url.Action("UpdateOrdineVisualizzazione", "DASI")';
