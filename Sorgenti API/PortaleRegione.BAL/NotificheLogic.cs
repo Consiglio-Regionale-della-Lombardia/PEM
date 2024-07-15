@@ -316,7 +316,7 @@ namespace PortaleRegione.BAL
                     // #954
                     bodyMail +=
                         $@"[{atto.Display}] (proponente {atto.PersonaProponente.DisplayName} - {atto.gruppi_politici.codice_gruppo}) - {atto.OggettoView()}
-<a href='{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}'> Collegati all’atto per procedere alla firma</a>";
+<a href='{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}'> Collegati all’atto per procedere alla firma</a><br>";
 
                     var attoInDb = await _logicDasi.Get(atto.UIDAtto);
                     var content = await _logicDasi.PDFIstantaneo(attoInDb, null);
@@ -327,7 +327,7 @@ namespace PortaleRegione.BAL
                 if (attachMail.Any())
                 {
                     // #954
-                    bodyMail += $@"<br> <a href='{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", "riepilogodasi")}'>Collegati alla piattaforma per visualizzare tutti gli atti del tuo gruppo</a>";
+                    bodyMail += $@"<br><br><br> <a href='{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", "riepilogodasi")}'>Collegati alla piattaforma per visualizzare tutti gli atti del tuo gruppo</a>";
 
                     await _logicUtil.InvioMail(new MailModel
                     {
