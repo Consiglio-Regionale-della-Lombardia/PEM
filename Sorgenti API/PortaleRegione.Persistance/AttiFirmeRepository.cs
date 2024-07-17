@@ -244,7 +244,7 @@ namespace PortaleRegione.Persistance
             }
 
             // #955
-            query = query.OrderBy(f => f.Timestamp)
+            query = query.OrderBy(f =>  DbFunctions.TruncateTime(f.Timestamp))
                 .ThenBy(f => f.OrdineVisualizzazione);
 
             var lst = await query

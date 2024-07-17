@@ -38,7 +38,7 @@
         }
     }
     var modeFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}");
-    
+
     var firmeGroup = new List<AttiFirmeDto>();
     firmeGroup.AddRange(atto.FirmeAnte);
     firmeGroup.AddRange(atto.FirmePost);
@@ -386,125 +386,155 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
 </div>
 @* FIRME *@
 <div class="row" id="pnlStandardFirme">
-	<div class="col s12">
-		@if (atto.Tipo == (int)TipoAttoEnum.IQT
-			 || atto.Tipo == (int)TipoAttoEnum.MOZ)
-		{
-			if ((atto.FirmeAnte.Any()
-				 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-				|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-					&& Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
-				|| Model.CurrentUser.IsSegreteriaAssemblea)
-			{
-				<a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
-					Visualizza priorita
-					<i class="material-icons right pink-text">low_priority</i>
-				</a>
-				<br />
-			}
-		}
-        
+    <div class="col s12">
+
+        @if ((atto.FirmeAnte.Any()
+              && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+            || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+             || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                 && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+             || Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+                Visualizza priorita
+                <i class="material-icons right pink-text">low_priority</i>
+            </a>
+            <br/>
+        }
+
         <ul class="collection" id="pnlFirme">
-            @foreach (var firme in firmeGroup)
+            @foreach (var firme in atto.FirmeAnte)
             {
-				<li class="collection-item" data-uid-persona="@firme.UID_persona" data-uid-atto="@firme.UIDAtto" data-ordine="@firme.OrdineVisualizzazione">@firme.FirmaCert</li>
+                <li class="collection-item" data-uid-persona="@firme.UID_persona" data-uid-atto="@firme.UIDAtto" data-ordine="@firme.OrdineVisualizzazione" data-dopo-deposito="@(firme.Timestamp > atto.Timestamp && !atto.IsBozza)">
+                    <span @Html.Raw(firme.Prioritario ? "class='bold-text'" : "")>
+                        @firme.FirmaCert
+                    </span>
+                    <label>Firmato il @firme.Timestamp.ToString("dd/MM/yyyy")</label>
+                    @if (Model.CurrentUser.UID_persona.Equals(firme.UID_persona))
+                    {
+                        if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                        {
+                            <a class='btn-floating red center white-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset;margin-top:-16px" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+                        }
+                        else
+                        {
+                            <a class='btn-floating red center white-text secondary-content' style="min-width:unset;margin-top:-16px" onclick="EliminaFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+                        }
+                    }
+                </li>
             }
         </ul>
-        
-        @*@Html.Raw(atto.Firme)*@
 
-			@if (!string.IsNullOrEmpty(atto.DataPresentazione))
-			{
-				var testoDeposito = "Atto presentato";
+        @if (!string.IsNullOrEmpty(atto.DataPresentazione))
+        {
+            var testoDeposito = "Atto presentato";
 
-				<label class="black-text">
-					<b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
-				</label>
-			}
+            <label class="black-text">
+                <b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
+            </label>
+        }
 
-			@if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
-			{
-				@Html.Raw(atto.Firme_dopo_deposito)
-			}
-	</div>
+        @if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
+        {
+            @Html.Raw(atto.Firme_dopo_deposito)
+        }
+    </div>
 </div>
-@if (atto.Tipo == (int)TipoAttoEnum.IQT
-     || atto.Tipo == (int)TipoAttoEnum.MOZ)
-{
-    if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
-        || Model.CurrentUser.IsSegreteriaAssemblea
-        || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
-    {
-		@* FIRME PRIORITA' *@
-        <div class="row" id="pnlPrioritaFirme" style="display: none;">
-            <div class="col s12">
-                <a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
-                    Visualizza griglia
-                    <i class="material-icons right pink-text">grid_on</i>
-                </a>
-                <br/>
 
-                <ul class="collapsible expandable">
-                    
-                    @foreach (var firme in firmeGroup)
+@if ((atto.FirmeAnte.Any()
+      && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+     || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+         && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+     || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+         && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+     || Model.CurrentUser.IsSegreteriaAssemblea)
+{
+@* FIRME PRIORITA' *@
+<div class="row" id="pnlPrioritaFirme" style="display: none;">
+    <div class="col s12">
+        <a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
+            Visualizza griglia
+            <i class="material-icons right pink-text">grid_on</i>
+        </a>
+        <br/>
+
+        <ul class="collapsible expandable">
+
+            @foreach (var firme in firmeGroup)
+            {
+                <li data-uid-persona="@firme.UID_persona" data-uid-atto="@firme.UIDAtto" data-ordine="@firme.OrdineVisualizzazione" data-dopo-deposito="@(firme.Timestamp > atto.Timestamp && !atto.IsBozza)">
+                    @if (firme.Prioritario)
                     {
-                        <li data-uid-persona="@firme.UID_persona" data-uid-atto="@firme.UIDAtto" data-ordine="@firme.OrdineVisualizzazione">
-                            @if (firme.Prioritario)
+                        <div class="collapsible-header valign-wrapper">
+                            @if (atto.UIDPersonaProponente != firme.UID_persona)
                             {
-                                <div class="collapsible-header valign-wrapper">
-                                    @if (atto.UIDPersonaProponente != firme.UID_persona)
-                                    {
-                                        <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
-                                           onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
-                                            <i class="material-icons black-text" style="margin-left: 5px;">star</i>
-                                        </a>
-                                    }
-                                    @firme.FirmaCert
-                                    
-                                    @if (atto.UIDPersonaProponente != firme.UID_persona)
-                                    {
+                                if (atto.Tipo != (int)TipoAttoEnum.ITL && atto.Tipo != (int)TipoAttoEnum.ITR)
+                                {
+                                    <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+                                       onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+                                        <i class="material-icons black-text" style="margin-left: 5px;">star</i>
+                                    </a>
+                                }
+                            }
+                            <span class="title bold-text">
+                                @firme.FirmaCert
+                            </span>
+                            <p> - Firmato il @firme.Timestamp.ToString("dd/MM/yyyy")</p>
+
+                            @if (atto.UIDPersonaProponente != firme.UID_persona)
+                            {
             @* Freccia Su *@
-                                        <i class="material-icons black-text arrow-up" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, -1)">arrow_upward</i>
+                                <i class="material-icons black-text arrow-up" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, -1)">arrow_upward</i>
 
             @* Freccia Giù *@
-                                        <i class="material-icons black-text arrow-down" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, 1)">arrow_downward</i>
-                                    }
-                                </div>
+                                <i class="material-icons black-text arrow-down" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, 1)">arrow_downward</i>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="collapsible-header valign-wrapper">
+
+                            @if (string.IsNullOrEmpty(firme.Data_ritirofirma))
+                            {
+                                if (atto.Tipo != (int)TipoAttoEnum.ITL && atto.Tipo != (int)TipoAttoEnum.ITR)
+                                {
+                                    <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+                                       onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+                                        <i class="material-icons" style="margin-left: 5px;">star_border</i>
+                                    </a>
+                                }
+                                <span class="title">@firme.FirmaCert</span>
+                                <p> - Firmato il @firme.Timestamp.ToString("dd/MM/yyyy")</p>
                             }
                             else
                             {
-                                <div class="collapsible-header valign-wrapper">
-                                    @if (string.IsNullOrEmpty(firme.Data_ritirofirma))
-                                    {
-                                        <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
-                                           onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
-                                            <i class="material-icons" style="margin-left: 5px;">star_border</i>
-                                        </a>
-                                        @firme.FirmaCert
-                                    }
-                                    else
-                                    {
-                                        <del>@firme.FirmaCert</del>
-                                    }
-                                    
-                                    @if (atto.UIDPersonaProponente != firme.UID_persona)
-                                    {
+                                <del>
+                                    <span class="title">@firme.FirmaCert</span>
+                                </del>
+                                <p> - Firmato il <del>@firme.Timestamp.ToString("dd/MM/yyyy")</del> ritirato il @firme.Data_ritirofirma</p>
+                            }
+
+
+                            @if (atto.UIDPersonaProponente != firme.UID_persona)
+                            {
             @* Freccia Su *@
-                                        <i class="material-icons black-text arrow-up" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, -1)">arrow_upward</i>
+                                <i class="material-icons black-text arrow-up" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, -1)">arrow_upward</i>
 
             @* Freccia Giù *@
-                                        <i class="material-icons black-text arrow-down" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, 1)">arrow_downward</i>
-                                    }
-                                </div>
+                                <i class="material-icons black-text arrow-down" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, 1)">arrow_downward</i>
                             }
-                        </li>
+                        </div>
                     }
-                </ul>
+                </li>
+            }
+        </ul>
 
-            </div>
-        </div>
-    }
+    </div>
+</div>
 }
+
 
 @* INVITI *@
 @if (!string.IsNullOrEmpty(atto.Destinatari))
@@ -586,13 +616,13 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
 				seduteMOZU = data.Results;
 			}
         });
-        
+
 	$(document).ready(function () {
 		aggiornaFrecceNavigazione();
 	});
 
     function CambioOrdineVisualizzazione(ctrl, direction) {
-    
+
     waiting(true);
     // Trova il contesto del firmatario corrente
     var listItem = $(ctrl).closest('li');
@@ -602,7 +632,7 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
     // Ottieni la lista dei firmatari
     var list = listItem.parent();
     var listStandard = $("#pnlFirme");
-    
+
 	var uidPersona = listItem.data('uid-persona');
 	var listItemStandard = listStandard.find('li[data-uid-persona="' + uidPersona + '"]');
 
@@ -622,20 +652,20 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
 				$(element).attr('data-ordine', index);
             }
         });
-        
+
 		listStandard.children().each(function (index, element) {
 			if (index != 0) {
 				$(element).attr('data-ordine', index);
 			}
 		});
-        
+
         // Prepara la lista aggiornata da inviare al server
         var updatedList = [];
         list.children().each(function(index, element) {
             var uidPersona = $(element).data('uid-persona');
             var uidAtto = $(element).data('uid-atto');
 			updatedList.push({ UIDAtto: uidAtto, UID_persona: uidPersona, OrdineVisualizzazione: index });
-        });       
+        });
 
         // Invia la lista aggiornata al server
         var url = '@Url.Action("UpdateOrdineVisualizzazione", "DASI")';
@@ -650,9 +680,9 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
 				if (response.message) {
 					swal("Errore", "Si è verificato un errore durante l'aggiornamento dell'ordine di visualizzazione.", "error");
                 } else {
-					swal("Ordine aggiornato", "L'ordine di visualizzazione è stato aggiornato con successo.", "success");
+					M.toast({ html: "<span>L'ordine di visualizzazione è stato aggiornato con successo.</span>", classes: 'rounded', displayLength: 10000 });
                 }
-                
+
 				aggiornaFrecceNavigazione();
             },
             error: function(xhr, status, error) {
@@ -664,33 +694,36 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
     }
 }
 
-function aggiornaFrecceNavigazione() {
-    var list = $('ul.collapsible.expandable');
-    var maxIndex = list.children().length - 1;
+	function aggiornaFrecceNavigazione() {
+		var list = $('ul.collapsible.expandable');
+		var maxIndex = list.children().length - 1;
 
-    list.children().each(function(index, element) {
-        var upArrow = $(element).find('.arrow-up');
-        var downArrow = $(element).find('.arrow-down');
+		list.children().each(function (index, element) {
+			var upArrow = $(element).find('.arrow-up');
+			var downArrow = $(element).find('.arrow-down');
 
-        if (index === 1) {
-            upArrow.hide();
-        } else {
-            upArrow.show();
-        }
+			if (index === 1) {
+				upArrow.hide();
+			} else {
+				upArrow.show();
+			}
 
-        if (index === maxIndex) {
-            downArrow.hide();
-        } else {
-            downArrow.show();
-        }
-    });
-}
+			if (index === maxIndex) {
+				downArrow.hide();
+			} else {
+				downArrow.show();
+			}
+		});
+	}
 
     function CambiaPrioritaFirma(ctrl, uidAtto, uidPersona) {
-
+        waiting(true);
         var body = {};
         body.UIDAtto = uidAtto;
         body.UID_persona = uidPersona;
+
+		var listStandard = $("#pnlFirme");
+		var listItemStandard = listStandard.find('li[data-uid-persona="' + uidPersona + '"]');
 
         var url = "@Url.Action("CambiaPrioritaFirma", "DASI")";
         $.ajax({
@@ -703,6 +736,7 @@ function aggiornaFrecceNavigazione() {
                 console.log("RICHIESTA INVIATA");
             },
             success: function(response, status, xhr) {
+				waiting(false);
                 if (response.message) {
                     swal({
                         title: "Azione non permessa",
@@ -714,22 +748,30 @@ function aggiornaFrecceNavigazione() {
                 var elem = $(ctrl).find('i');
                 if (elem.text() == "star") {
                     elem.text("star_border");
-                    elem.removeClass("black-text");
+					$(ctrl).parent().find('span').removeClass("bold-text");
+
+					$(listItemStandard).find('span').removeClass("bold-text");
                 } else {
                     elem.text("star");
-                    elem.addClass("black-text");
+					$(ctrl).parent().find('span').addClass("bold-text");
+
+					$(listItemStandard).find('span').addClass("bold-text");
                 }
             },
             error: function(xhr, status, error) {
+				waiting(false);
                 console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
             },
             complete: function() {
+				waiting(false);
                 console.log("OK");
             },
             cache: false,
             processData: false
         });
     }
+
+
     function DeclassaMozione(uidAtto, nome, tipo) {
         var nome_atto = nome;
     var azione = "l'urgenza";
