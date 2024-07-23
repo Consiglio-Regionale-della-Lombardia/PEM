@@ -946,7 +946,7 @@ namespace PortaleRegione.API.Controllers
                         firmaCert = BALHelper.EncryptString(bodyFirmaCert
                             , AppSettingsConfiguration.masterKey);
                     }
-
+                    
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     if (countFirme == 0)
                     {
@@ -1016,7 +1016,7 @@ namespace PortaleRegione.API.Controllers
 
                     await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
                         timestampFirma,
-                        firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo, prioritario);
+                        firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo, prioritario, countFirme);
 
                     if (destinatario_notifica != null)
                     {
@@ -1475,6 +1475,7 @@ namespace PortaleRegione.API.Controllers
                                                   && (a.IDStato == (int)StatiAttoEnum.CHIUSO
                                                       || a.IDStato == (int)StatiAttoEnum.PRESENTATO
                                                       || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
+                        .Distinct()
                         .ToList();
 
                     //Jolly attivo limite impostato {MassimoODG_Jolly}

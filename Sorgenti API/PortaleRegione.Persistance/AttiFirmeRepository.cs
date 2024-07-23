@@ -53,7 +53,8 @@ namespace PortaleRegione.Persistance
         public async Task Firma(Guid attoUId, Guid personaUId, int id_gruppo, string firmaCert,
             string dataFirmaCert, DateTime timestamp,
             bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false,
-            bool prioritario = true)
+            bool prioritario = true,
+            int ordine = 0)
         {
             PRContext
                 .ATTI_FIRME
@@ -69,7 +70,8 @@ namespace PortaleRegione.Persistance
                     id_gruppo = id_gruppo,
                     Valida = valida,
                     Capogruppo = capogruppo,
-                    Prioritario = prioritario
+                    Prioritario = prioritario,
+                    OrdineVisualizzazione = ordine
                 });
             await PRContext.SaveChangesAsync();
         }
