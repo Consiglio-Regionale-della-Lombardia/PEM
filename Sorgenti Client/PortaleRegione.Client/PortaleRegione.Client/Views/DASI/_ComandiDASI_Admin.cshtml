@@ -211,12 +211,13 @@
             });
         });
 
-    $("#checkAll").click(function() {
-        setSelezionaTutti_DASI(this.checked);
-        setListaAtti([]);
-        $('input[id^="chk_Atto_"]').not(this).prop('checked', this.checked);
-        AbilitaComandiMassivi_DASI(null);
-    });
+	function checkAllFunc(ctrl){
+		var isChecked = $(ctrl).prop('checked');
+		setSelezionaTutti_DASI(isChecked);
+		setListaAtti([]);
+		$('input[id^="chk_Atto_"]').not($(ctrl)).prop('checked', isChecked);
+		AbilitaComandiMassivi_DASI(null);
+    }
 
     function resetGridSelection() {
         $("#checkAll").prop("checked", false);

@@ -231,12 +231,13 @@
             var visibility = getPaginationTabsVisibility();
             if (visibility == true)
             {
-                $('#pnlPaginationTabs').show();
+                $('#pnlPaginationTabs').show();				
             }
             else
             {
                 $('#pnlPaginationTabs').hide();
             }
+			$('.dropdown-trigger').dropdown();
         });
 
     function ShowHidePaginationTabs(){
