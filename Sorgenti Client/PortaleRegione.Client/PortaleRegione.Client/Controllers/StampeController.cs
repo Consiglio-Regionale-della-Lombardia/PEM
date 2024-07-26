@@ -72,7 +72,7 @@ namespace PortaleRegione.Client.Controllers
                 var request = new BaseRequest<EmendamentiDto>
                 {
                     id = modelInCache.Atto.UIDAtto,
-                    page = modelInCache.Data.Paging.Page,
+                    page = 1,
                     size = modelInCache.Data.Paging.Total,
                     filtro = modelInCache.Data.Filters,
                     param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } },
@@ -117,7 +117,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var requestAtti = new BaseRequest<AttoDASIDto>
                 {
-                    page = modelInCache.Data.Paging.Page,
+                    page = 1,
                     size = modelInCache.Data.Paging.Total,
                     filtro = modelInCache.Data.Filters,
                     ordine = OrdinamentoEnum.Crescente,
