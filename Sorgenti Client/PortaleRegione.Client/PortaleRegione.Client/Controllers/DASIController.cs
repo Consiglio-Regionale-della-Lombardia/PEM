@@ -39,7 +39,8 @@ namespace PortaleRegione.Client.Controllers
     /// </summary>
     [Authorize]
     [RoutePrefix("dasi")]
-    public class DASIController : BaseController
+    public class 
+        DASIController : BaseController
     {
         /// <summary>
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
@@ -310,7 +311,7 @@ namespace PortaleRegione.Client.Controllers
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = modelInCache.Data.Paging.Page,
+                        page = 1,
                         size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }

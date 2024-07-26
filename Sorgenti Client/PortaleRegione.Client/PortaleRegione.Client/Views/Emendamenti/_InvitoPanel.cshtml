@@ -182,6 +182,7 @@
             obj.AttoUId = '@Model.UIDAtto';
             obj.Lista = listaEM.length > 0 ? listaEM : [];
             obj.ListaDestinatari = listaDestinatari;
+			obj.Tutti = getSelezionaTutti();
 
             $.ajax({
                 url: baseUrl + "/emendamenti/azioni-massive",

@@ -150,6 +150,7 @@
             obj.Azione = @((int)ActionEnum.INVITA);
             obj.Lista = listaAtti.length > 0 ? listaAtti : [];
             obj.ListaDestinatari = listaDestinatari;
+			data.Tutti = getSelezionaTutti_DASI();
 
             $.ajax({
                 url: baseUrl + "/dasi/azioni-massive",

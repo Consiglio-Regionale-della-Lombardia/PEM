@@ -211,14 +211,6 @@
             });
         });
 
-	function checkAllFunc(ctrl){
-		var isChecked = $(ctrl).prop('checked');
-		setSelezionaTutti_DASI(isChecked);
-		setListaAtti([]);
-		$('input[id^="chk_Atto_"]').not($(ctrl)).prop('checked', isChecked);
-		AbilitaComandiMassivi_DASI(null);
-    }
-
     function resetGridSelection() {
         $("#checkAll").prop("checked", false);
         $('input[id^="chk_Atto_"]').not(this).prop("checked", false);

@@ -22,7 +22,7 @@
 <div class="row valign-wrapper">
     <div class="col l6 s6 left">
         <label>
-            <input type="checkbox" id="checkAll"/>
+            <input type="checkbox" id="checkAll" onclick="checkAllFunc(this)"/>
             <span for="checkAll">Seleziona tutti</span>
         </label>
         @if ((User.IsInRole(RuoliExt.Consigliere_Regionale) || User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)) && Model.mode == ClientModeEnum.GRUPPI)
@@ -123,10 +123,11 @@
         }
     }
 
-    $("#checkAll").click(function() {
-        setSelezionaTutti(this.checked);
-        setListaEmendamenti([]);
-        $('input[id^="chk_EM_"]').not(this).prop('checked', this.checked);
-        AbilitaComandiMassivi(null);
-    });
+	function checkAllFunc(ctrl) {
+		var isChecked = $(ctrl).prop('checked');
+		setSelezionaTutti(isChecked);
+		setListaEmendamenti([]);
+		$('input[id^="chk_EM_"]').not(this).prop('checked', isChecked);
+		AbilitaComandiMassivi(null);
+	}
 </script>
