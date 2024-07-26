@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.Gateway
 {
@@ -69,5 +70,6 @@ namespace PortaleRegione.Gateway
         Task UP_EM_TRATTAZIONE(Guid id);
         Task<List<TagDto>> GetTags();
         Task<FileResponse> Download(Guid id);
+        Task<Dictionary<Guid, string>> GetByJson(Guid uidStampa);
     }
 }

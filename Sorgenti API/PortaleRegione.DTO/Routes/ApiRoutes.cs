@@ -145,6 +145,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string Edit = Base + "/edit";
                 public const string GetAll = Base + "/all";
                 public const string GetAllSoloIds = Base + "/all/solo-ids";
+                public const string GetByJson = Base + "/all-by-json";
                 public const string GetAllRichiestaPropriaFirma = Base + "/all/richiesta-firma";
                 public const string DownloadDoc = Base + "/scarica-documento";
 
