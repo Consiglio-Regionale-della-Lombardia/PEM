@@ -118,7 +118,7 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public Guid? UIDPersonaRitiro { get; set; }
 
-    [DisplayName("Tipo risposta")] public int IDTipo_Risposta { get; set; }
+    [DisplayName("Tipo risposta richiesta")] public int IDTipo_Risposta { get; set; }
     public int OrdineVisualizzazione { get; set; }
 
     [DisplayName("Allegato")]
@@ -216,6 +216,7 @@ public class AttoDASIDto
     public string DettaglioMozioniAbbinate { get; set; }
 
     public string Display { get; set; }
+    public string DisplayExtended { get; set; }
 
     // Matteo Cattapan #520
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -276,9 +277,7 @@ public class AttoDASIDto
 
     // #558
 
-    public bool IsChiuso => IDStato == (int)StatiAttoEnum.CHIUSO
-                            || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
-                            || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
+    public bool IsChiuso => IDStato == (int)StatiAttoEnum.COMPLETATO;
 
     public bool IsBozza => IDStato == (int)StatiAttoEnum.BOZZA
                            || IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
@@ -377,7 +376,8 @@ public class AttoDASIDto
 
 public class AttoDASIReportDto
 {
-    [DisplayName("Display")]public string Display { get; set; }
+    [DisplayName("Tipo e numero atto")]public string Display { get; set; }
+    [DisplayName("Tipo e numero atto esteso")]public string DisplayExtended { get; set; }
     [DisplayName("Tipo atto")] public int Tipo { get; set; }
     [DisplayName("Numero atto")] public string NAtto { get; set; }
     [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;
@@ -389,7 +389,7 @@ public class AttoDASIReportDto
     [DisplayName("Gruppo")] public int id_gruppo { get; set; }
     [DisplayName("Stato")] public int IDStato { get; set; }
     [DisplayName("Pubblicato")] public bool Pubblicato { get; set; }
-    [DisplayName("Ollecito")]public bool Sollecito { get; set; }
+    [DisplayName("Sollecito")]public bool Sollecito { get; set; }
     [DisplayName("Protocollo")] public string Protocollo { get; set; }
     [DisplayName("Codice Materia")] public string CodiceMateria { get; set; }
     [DisplayName("Data richiesta iscrizione")] public string DataRichiestaIscrizioneSeduta { get; set; }
@@ -397,7 +397,7 @@ public class AttoDASIReportDto
     [DisplayName("Data ritiro")] public DateTime? DataRitiro { get; set; }
     [DisplayName("Tipo risposta richiesta")] public int IDTipo_Risposta { get; set; }
     [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
-    [DisplayName("Firme")]public string Firme { get; set; }
+    [DisplayName("Iniziativa")] public string Firme { get; set; }
     [DisplayName("Data presentazione")] public DateTime Timestamp { get; set; }
     [DisplayName("Data presentazione mozione urgente")] public string DataPresentazione_MOZ_URGENTE { get; set; }
     [DisplayName("Data presentazione mozione abbinata")] public string DataPresentazione_MOZ_ABBINATA { get; set; }

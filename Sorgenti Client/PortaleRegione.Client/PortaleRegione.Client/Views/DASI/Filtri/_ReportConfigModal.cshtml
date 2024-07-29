@@ -1,6 +1,5 @@
 ﻿@using System.ComponentModel
 @using PortaleRegione.DTO.Domain
-@using PortaleRegione.DTO.Domain.Essentials
 @using PortaleRegione.DTO.Enum
 <div id="modalReportConfig" class="modal">
     <div class="modal-content">
@@ -66,12 +65,12 @@
             </div>
         </div>
     </div>
-	<div class="modal-footer">
-		<a class="grey-text modal-close waves-effect waves-green btn-flat">Annulla</a>
+    <div class="modal-footer">
+        <a class="grey-text modal-close waves-effect waves-green btn-flat">Annulla</a>
         <a id="btnSalvaReport" class="btn blue-text waves-effect waves-green btn-flat">Salva report</a>
-		<a class="btn orange-text waves-effect waves-green btn-flat">Estrai testi (ZIP)</a>
-		<a id="btnGenerateReport" class="btn pink-text waves-effect waves-green btn-flat">Genera report</a>
-	</div>
+        <a id="btnGeneraZIP" class="btn orange-text waves-effect waves-green btn-flat">Estrai testi (ZIP)</a>
+        <a id="btnGenerateReport" class="btn pink-text waves-effect waves-green btn-flat">Genera report</a>
+    </div>
 </div>
 
 <script>
@@ -201,6 +200,52 @@
 		$('#modalReportConfig').modal("close");
 	});
 
+	document.getElementById('btnGeneraZIP').addEventListener('click', function () {
+		var request = {};
+        var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+        var filtriList = [];
+        $.each(filtri, function(index, item){
+	        filtriList.push({
+		        property: item.key,
+		        value: item.val
+	        });
+        });
+        request.filters = JSON.stringify(filtriList);
+
+        var url = '@Url.Action("GeneraZIP", "DASI")';
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: JSON.stringify(request),
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function() {
+                console.log("RICHIESTA INVIATA");
+                waiting(true, "Elaborazione in corso...");
+            },
+            success: function (response) {
+                console.log("Risposta ricevuta", response);
+                var a = document.createElement("a");
+                a.href = response;
+		        a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                $('#modalReportConfig').modal("close");
+            },
+            error: function(xhr, status, error) {
+                console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                waiting(false);
+            },
+            complete: function() {
+                console.log("Chiamata completata");
+                waiting(false);
+            }
+        });
+
+        $('#modalReportConfig').modal("close");
+	});
+
 	async function openModalWithContent_Report(name, filters) {
 		waiting(true);
 		$('#select-all-columns').prop('checked', false);
@@ -233,7 +278,7 @@
 			var report_name = $(existingChip).data("selected-report");
 			var index = reportsArray.findIndex(el => el.reportname === report_name);
 			var selectedReport = reportsArray[index];
-			
+
 			$('#report_name').val(selectedReport.reportname);
 			$('select[name="coverType"]').val(selectedReport.covertype).formSelect();
 			$('select[name="dataViewType"]').val(selectedReport.dataviewtype).formSelect();
@@ -249,7 +294,7 @@
 			});
 			$('select[name="columns"]').formSelect();
 
-			if (selectedReport.exportformat !== '@Html.Raw((int)ExportFormatEnum.EXCEL)'){
+			if (selectedReport.exportformat != '@Html.Raw((int)ExportFormatEnum.EXCEL)'){
 				document.getElementById('extraOptions').style.display = 'block';
 			}
 			if (selectedReport.dataviewtype == '@Html.Raw((int)DataViewTypeEnum.CARD_TEMPLATE)'){
@@ -270,7 +315,7 @@
 				addChipReportConfig(filtro.chipText);
 			});
 		}
-		
+
 		$('#modalReportConfig').modal("open");
 		waiting(false);
 	}

@@ -157,7 +157,9 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.Tipi.Any())
                 query = query.Where(i => queryExtended.Tipi.Contains(i.Tipo));
-
+            
+            if (queryExtended.TipiRispostaRichiesta.Any())
+                query = query.Where(i => queryExtended.TipiRispostaRichiesta.Contains(i.IDTipo_Risposta));
 
             if (queryExtended.TipiChiusura.Any())
                 query = query.Where(i => queryExtended.TipiChiusura.Contains(i.TipoChiusuraIter.Value));
@@ -165,37 +167,50 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.TipiVotazione.Any())
                 query = query.Where(i => queryExtended.TipiVotazione.Contains(i.TipoVotazioneIter.Value));
-
-
+            
             if (queryExtended.TipiDocumento.Any())
             {
-                var list = await PRContext
-                    .ATTI_DOCUMENTI
+                var documentQuery = PRContext.ATTI_DOCUMENTI
                     .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto)
-                    .ToListAsync();
+                    .Select(f => f.UIDAtto);
 
                 if (queryExtended.DocumentiMancanti)
                 {
                     query = query
-                        .Where(item => !list.Contains(item.UIDAtto));
+                        .GroupJoin(
+                            documentQuery,
+                            atto => atto.UIDAtto,
+                            doc => doc,
+                            (atto, docs) => new { atto, docs }
+                        )
+                        .Where(g => !g.docs.Any())
+                        .Select(g => g.atto);
                 }
                 else
                 {
                     query = query
-                        .Where(item => list.Contains(item.UIDAtto));
+                        .Join(
+                            documentQuery,
+                            atto => atto.UIDAtto,
+                            doc => doc,
+                            (atto, doc) => atto
+                        );
                 }
             }
-
-            if (queryExtended.Soggetti.Any())
+            
+            if (queryExtended.Risposte.Any())
             {
-                var list = await PRContext
-                    .ATTI_SOGGETTI_INTERROGATI
-                    .Where(f => queryExtended.Soggetti.Contains(f.id_carica))
-                    .Select(f => f.UIDAtto)
-                    .ToListAsync();
+                var risposteEffettiveQuery = PRContext.ATTI_RISPOSTE
+                    .Where(f => queryExtended.Risposte.Contains(f.Tipo))
+                    .Select(f => f.UIDAtto);
+
                 query = query
-                    .Where(item => list.Contains(item.UIDAtto));
+                    .Join(
+                        risposteEffettiveQuery,
+                        atto => atto.UIDAtto,
+                        risp => risp,
+                        (atto, risp) => atto
+                    );
             }
 
             if (queryExtended.Proponenti.Any())
@@ -204,15 +219,12 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.Provvedimenti.Any())
             {
-                var view_abbinamenti = await PRContext
-                    .ATTI_ABBINAMENTI
+                var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
                     .Where(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value))
-                    .Select(abb => abb.UIDAtto)
-                    .ToListAsync();
-                // #541 Avvio ricerca provvedimenti;
+                    .Select(abb => abb.UIDAtto);
+
                 query = query
-                    .Where(atto => queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value)
-                                   || view_abbinamenti.Contains(atto.UIDAtto));
+                    .Where(atto => queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value) || abbinamentiQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.AttiDaFirmare.Any())
@@ -233,7 +245,6 @@ namespace PortaleRegione.Persistance
                         .ToListAsync();
                 }
             }
-
 
             return await query
                 .OrderBy(item => item.Tipo)
@@ -902,10 +913,11 @@ namespace PortaleRegione.Persistance
             if (queryExtended.Stati.Any())
                 query = query.Where(i => queryExtended.Stati.Contains(i.IDStato));
 
-
             if (queryExtended.Tipi.Any())
                 query = query.Where(i => queryExtended.Tipi.Contains(i.Tipo));
-
+            
+            if (queryExtended.TipiRispostaRichiesta.Any())
+                query = query.Where(i => queryExtended.TipiRispostaRichiesta.Contains(i.IDTipo_Risposta));
 
             if (queryExtended.TipiChiusura.Any())
                 query = query.Where(i => queryExtended.TipiChiusura.Contains(i.TipoChiusuraIter.Value));
@@ -913,38 +925,50 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.TipiVotazione.Any())
                 query = query.Where(i => queryExtended.TipiVotazione.Contains(i.TipoVotazioneIter.Value));
-
-
+            
             if (queryExtended.TipiDocumento.Any())
             {
-                //Avvio ricerca documenti
-                var list = await PRContext
-                    .ATTI_DOCUMENTI
+                var documentQuery = PRContext.ATTI_DOCUMENTI
                     .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto)
-                    .ToListAsync();
+                    .Select(f => f.UIDAtto);
 
                 if (queryExtended.DocumentiMancanti)
                 {
                     query = query
-                        .Where(item => !list.Contains(item.UIDAtto));
+                        .GroupJoin(
+                            documentQuery,
+                            atto => atto.UIDAtto,
+                            doc => doc,
+                            (atto, docs) => new { atto, docs }
+                        )
+                        .Where(g => !g.docs.Any())
+                        .Select(g => g.atto);
                 }
                 else
                 {
                     query = query
-                        .Where(item => list.Contains(item.UIDAtto));
+                        .Join(
+                            documentQuery,
+                            atto => atto.UIDAtto,
+                            doc => doc,
+                            (atto, doc) => atto
+                        );
                 }
             }
 
-            if (queryExtended.Soggetti.Any())
+            if (queryExtended.Risposte.Any())
             {
-                var list = await PRContext
-                    .ATTI_SOGGETTI_INTERROGATI
-                    .Where(f => queryExtended.Soggetti.Contains(f.id_carica))
-                    .Select(f => f.UIDAtto)
-                    .ToListAsync();
+                var risposteEffettiveQuery = PRContext.ATTI_RISPOSTE
+                    .Where(f => queryExtended.Risposte.Contains(f.Tipo))
+                    .Select(f => f.UIDAtto);
+
                 query = query
-                    .Where(item => list.Contains(item.UIDAtto));
+                    .Join(
+                        risposteEffettiveQuery,
+                        atto => atto.UIDAtto,
+                        risp => risp,
+                        (atto, risp) => atto
+                    );
             }
 
             if (queryExtended.Proponenti.Any())
@@ -953,15 +977,12 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.Provvedimenti.Any())
             {
-                var view_abbinamenti = await PRContext
-                    .ATTI_ABBINAMENTI
+                var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
                     .Where(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value))
-                    .Select(abb => abb.UIDAtto)
-                    .ToListAsync();
-                // #541 Avvio ricerca provvedimenti;
+                    .Select(abb => abb.UIDAtto);
+
                 query = query
-                    .Where(atto => queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value)
-                                   || view_abbinamenti.Contains(atto.UIDAtto));
+                    .Where(atto => queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value) || abbinamentiQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.AttiDaFirmare.Any())
@@ -1085,10 +1106,11 @@ namespace PortaleRegione.Persistance
             if (queryExtended.Stati.Any())
                 query = query.Where(i => queryExtended.Stati.Contains(i.IDStato));
 
-
             if (queryExtended.Tipi.Any())
                 query = query.Where(i => queryExtended.Tipi.Contains(i.Tipo));
-
+            
+            if (queryExtended.TipiRispostaRichiesta.Any())
+                query = query.Where(i => queryExtended.TipiRispostaRichiesta.Contains(i.IDTipo_Risposta));
 
             if (queryExtended.TipiChiusura.Any())
                 query = query.Where(i => queryExtended.TipiChiusura.Contains(i.TipoChiusuraIter.Value));
@@ -1096,38 +1118,50 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.TipiVotazione.Any())
                 query = query.Where(i => queryExtended.TipiVotazione.Contains(i.TipoVotazioneIter.Value));
-
-
+            
             if (queryExtended.TipiDocumento.Any())
             {
-                //Avvio ricerca documenti
-                var list = await PRContext
-                    .ATTI_DOCUMENTI
+                var documentQuery = PRContext.ATTI_DOCUMENTI
                     .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto)
-                    .ToListAsync();
+                    .Select(f => f.UIDAtto);
 
                 if (queryExtended.DocumentiMancanti)
                 {
                     query = query
-                        .Where(item => !list.Contains(item.UIDAtto));
+                        .GroupJoin(
+                            documentQuery,
+                            atto => atto.UIDAtto,
+                            doc => doc,
+                            (atto, docs) => new { atto, docs }
+                        )
+                        .Where(g => !g.docs.Any())
+                        .Select(g => g.atto);
                 }
                 else
                 {
                     query = query
-                        .Where(item => list.Contains(item.UIDAtto));
+                        .Join(
+                            documentQuery,
+                            atto => atto.UIDAtto,
+                            doc => doc,
+                            (atto, doc) => atto
+                        );
                 }
             }
 
-            if (queryExtended.Soggetti.Any())
+            if (queryExtended.Risposte.Any())
             {
-                var list = await PRContext
-                    .ATTI_SOGGETTI_INTERROGATI
-                    .Where(f => queryExtended.Soggetti.Contains(f.id_carica))
-                    .Select(f => f.UIDAtto)
-                    .ToListAsync();
+                var risposteEffettiveQuery = PRContext.ATTI_RISPOSTE
+                    .Where(f => queryExtended.Risposte.Contains(f.Tipo))
+                    .Select(f => f.UIDAtto);
+
                 query = query
-                    .Where(item => list.Contains(item.UIDAtto));
+                    .Join(
+                        risposteEffettiveQuery,
+                        atto => atto.UIDAtto,
+                        risp => risp,
+                        (atto, risp) => atto
+                    );
             }
 
             if (queryExtended.Proponenti.Any())
@@ -1136,15 +1170,12 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.Provvedimenti.Any())
             {
-                var view_abbinamenti = await PRContext
-                    .ATTI_ABBINAMENTI
+                var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
                     .Where(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value))
-                    .Select(abb => abb.UIDAtto)
-                    .ToListAsync();
-                // #541 Avvio ricerca provvedimenti;
+                    .Select(abb => abb.UIDAtto);
+
                 query = query
-                    .Where(atto => queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value)
-                                   || view_abbinamenti.Contains(atto.UIDAtto));
+                    .Where(atto => queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value) || abbinamentiQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.AttiDaFirmare.Any())
@@ -1263,10 +1294,11 @@ namespace PortaleRegione.Persistance
             if (queryExtended.Stati.Any())
                 query = query.Where(i => queryExtended.Stati.Contains(i.IDStato));
 
-
             if (queryExtended.Tipi.Any())
                 query = query.Where(i => queryExtended.Tipi.Contains(i.Tipo));
-
+            
+            if (queryExtended.TipiRispostaRichiesta.Any())
+                query = query.Where(i => queryExtended.TipiRispostaRichiesta.Contains(i.IDTipo_Risposta));
 
             if (queryExtended.TipiChiusura.Any())
                 query = query.Where(i => queryExtended.TipiChiusura.Contains(i.TipoChiusuraIter.Value));
@@ -1274,38 +1306,50 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.TipiVotazione.Any())
                 query = query.Where(i => queryExtended.TipiVotazione.Contains(i.TipoVotazioneIter.Value));
-
-
+            
             if (queryExtended.TipiDocumento.Any())
             {
-                //Avvio ricerca documenti
-                var list = await PRContext
-                    .ATTI_DOCUMENTI
+                var documentQuery = PRContext.ATTI_DOCUMENTI
                     .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto)
-                    .ToListAsync();
+                    .Select(f => f.UIDAtto);
 
                 if (queryExtended.DocumentiMancanti)
                 {
                     query = query
-                        .Where(item => !list.Contains(item.UIDAtto));
+                        .GroupJoin(
+                            documentQuery,
+                            atto => atto.UIDAtto,
+                            doc => doc,
+                            (atto, docs) => new { atto, docs }
+                        )
+                        .Where(g => !g.docs.Any())
+                        .Select(g => g.atto);
                 }
                 else
                 {
                     query = query
-                        .Where(item => list.Contains(item.UIDAtto));
+                        .Join(
+                            documentQuery,
+                            atto => atto.UIDAtto,
+                            doc => doc,
+                            (atto, doc) => atto
+                        );
                 }
             }
 
-            if (queryExtended.Soggetti.Any())
+            if (queryExtended.Risposte.Any())
             {
-                var list = await PRContext
-                    .ATTI_SOGGETTI_INTERROGATI
-                    .Where(f => queryExtended.Soggetti.Contains(f.id_carica))
-                    .Select(f => f.UIDAtto)
-                    .ToListAsync();
+                var risposteEffettiveQuery = PRContext.ATTI_RISPOSTE
+                    .Where(f => queryExtended.Risposte.Contains(f.Tipo))
+                    .Select(f => f.UIDAtto);
+
                 query = query
-                    .Where(item => list.Contains(item.UIDAtto));
+                    .Join(
+                        risposteEffettiveQuery,
+                        atto => atto.UIDAtto,
+                        risp => risp,
+                        (atto, risp) => atto
+                    );
             }
 
             if (queryExtended.Proponenti.Any())
@@ -1314,15 +1358,12 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.Provvedimenti.Any())
             {
-                var view_abbinamenti = await PRContext
-                    .ATTI_ABBINAMENTI
+                var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
                     .Where(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value))
-                    .Select(abb => abb.UIDAtto)
-                    .ToListAsync();
-                // #541 Avvio ricerca provvedimenti;
+                    .Select(abb => abb.UIDAtto);
+
                 query = query
-                    .Where(atto => queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value)
-                                   || view_abbinamenti.Contains(atto.UIDAtto));
+                    .Where(atto => queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value) || abbinamentiQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.AttiDaFirmare.Any())
@@ -1377,9 +1418,7 @@ namespace PortaleRegione.Persistance
                                                      && atto.id_gruppo == gruppoId
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
+                                                     && !atto.TipoChiusuraIter.HasValue);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 
@@ -1392,9 +1431,7 @@ namespace PortaleRegione.Persistance
                                                      && atto.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
                                                      && atto.Tipo == (int)tipo
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
+                                                     && !atto.TipoChiusuraIter.HasValue);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA)
             {
@@ -1412,8 +1449,7 @@ namespace PortaleRegione.Persistance
                                     && item.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                     && item.UID_Atto_ODG == uidAtto
                                     && item.DataIscrizioneSeduta.HasValue
-                                    && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                    && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
+                                    && !item.TipoChiusuraIter.HasValue);
         }
 
         public async Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona)
@@ -1424,8 +1460,7 @@ namespace PortaleRegione.Persistance
                 .Where(i => i.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
                             && i.Tipo == (int)TipoAttoEnum.IQT
                             && i.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO)
+                            && !i.TipoChiusuraIter.HasValue)
                 .ToListAsync();
 
             foreach (var attiDasi in atti_proposti_in_seduta)
@@ -1446,8 +1481,7 @@ namespace PortaleRegione.Persistance
             var atti_proposti_in_seduta = await PRContext.DASI
                 .Where(i => !i.Eliminato
                             && i.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO
+                            && !i.TipoChiusuraIter.HasValue
                             && (i.UIDSeduta == seduta.UIDSeduta
                                 || i.DataRichiestaIscrizioneSeduta == dataSedutaEncrypt)
                             && i.Tipo == (int)TipoAttoEnum.MOZ

@@ -116,6 +116,7 @@
     <Compile Include="Enum\TipiEMEnum.cs" />
     <Compile Include="Enum\TipoAllegatoEnum.cs" />
     <Compile Include="Enum\TipoAttoCSSConst.cs" />
+    <Compile Include="Enum\TipoChiusuraIterEnum.cs" />
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
     <Compile Include="Enum\TipoDocumentoEnum.cs" />
     <Compile Include="Enum\TipoMOZEnum.cs" />

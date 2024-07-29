@@ -102,9 +102,7 @@ namespace PortaleRegione.Domain
 
         // #558
 
-        public bool IsChiuso => IDStato == (int)StatiAttoEnum.CHIUSO
-                                || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
+        public bool IsChiuso => IDStato == (int)StatiAttoEnum.COMPLETATO;
 
         
         public DateTime? DataAnnunzio { get; set; }

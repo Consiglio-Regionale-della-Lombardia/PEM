@@ -170,13 +170,9 @@ else
                     {
                         tooltipStato = $"Depositato il {item.DataPresentazione}";
                         var motivazione = "";
-                        if (item.IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO)
+                        if (item.TipoChiusuraIter.HasValue)
                         {
-                            motivazione = "Ritirato";
-                        }
-                        else if (item.IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO)
-                        {
-                            motivazione = "Decaduto";
+                            motivazione = Utility.GetText_ChiusuraIterDASI(item.TipoChiusuraIter.Value);
                         }
 
                         if (!string.IsNullOrEmpty(motivazione))
@@ -304,7 +300,7 @@ else
                     && (!Model.CurrentUser.IsCapoGruppo && !Model.CurrentUser.IsResponsabileSegreteriaPolitica))
                     {
                     }
-                    else if (item.IDStato < (int)StatiAttoEnum.CHIUSO
+                    else if (item.IDStato < (int)StatiAttoEnum.COMPLETATO 
                         && ((!item.DataIscrizioneSeduta.HasValue
                               && item.Tipo != (int)TipoAttoEnum.ITL
                               && item.Tipo != (int)TipoAttoEnum.ITR

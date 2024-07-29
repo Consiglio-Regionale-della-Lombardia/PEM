@@ -167,9 +167,7 @@ namespace PortaleRegione.Client.Helpers
                     return StatiAttoCSSConst.PRESENTATO;
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return StatiAttoCSSConst.IN_TRATTAZIONE;
-                case StatiAttoEnum.CHIUSO:
-                case StatiAttoEnum.CHIUSO_RITIRATO:
-                case StatiAttoEnum.CHIUSO_DECADUTO:
+                case StatiAttoEnum.COMPLETATO:
                     return StatiAttoCSSConst.CHIUSO;
                 case StatiAttoEnum.BOZZA_CARTACEA:
                     return StatiAttoCSSConst.CARTACEO;
@@ -432,24 +430,6 @@ namespace PortaleRegione.Client.Helpers
                         Value = filtroStato,
                         Connector = FilterStatementConnector.And
                     });
-
-                    if (filtroStato == Convert.ToInt32(StatiAttoEnum.CHIUSO).ToString())
-                    {
-                        model.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = nameof(AttoDASIDto.IDStato),
-                            Operation = Operation.EqualTo,
-                            Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_RITIRATO).ToString(),
-                            Connector = FilterStatementConnector.And
-                        });
-                        model.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = nameof(AttoDASIDto.IDStato),
-                            Operation = Operation.EqualTo,
-                            Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_DECADUTO).ToString(),
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
                 }
                 else
                 {

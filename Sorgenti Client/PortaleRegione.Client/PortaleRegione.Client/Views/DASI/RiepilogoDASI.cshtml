@@ -21,7 +21,7 @@
         case StatiAttoEnum.IN_TRATTAZIONE:
             classTabTrattazione = "active";
             break;
-        case StatiAttoEnum.CHIUSO:
+        case StatiAttoEnum.COMPLETATO:
             classTabChiusi = "active";
             break;
     }
@@ -113,7 +113,7 @@
                         </a>
                     </li>
                     <li class="tab col l3 s12">
-                        <a class="@classTabChiusi" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.CHIUSO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
+                        <a class="@classTabChiusi" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.COMPLETATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
                             Chiusi (@Model.CountBarData.CHIUSO)
                         </a>
                     </li>

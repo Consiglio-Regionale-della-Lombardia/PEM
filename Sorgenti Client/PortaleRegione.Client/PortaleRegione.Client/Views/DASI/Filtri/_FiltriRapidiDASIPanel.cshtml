@@ -53,6 +53,7 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DCR))", id: "@nameof(AttoDASIDto.DCR)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataChiusuraIter))", id: "@nameof(AttoDASIDto.DataChiusuraIter)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Documenti))", id: "@nameof(AttoDASIDto.Documenti)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Risposte))", id: "@nameof(AttoDASIDto.Risposte)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -113,6 +114,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 			val = values.join(',');
 			text = texts.join(', ');
 			chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.IDTipo_Risposta)") {
+			var selectedOptions = document.querySelectorAll('#tipi-risposta-select option:checked');
+			var values = Array.from(selectedOptions).map(option => option.value);
+			var texts = Array.from(selectedOptions).map(option => option.text);
+			val = values.join(',');
+			text = texts.join(', ');
+			chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.TipoChiusuraIter)") {
 			var selectedOptions = document.querySelectorAll('#tipi-chiusura-iter-select option:checked');
 			var values = Array.from(selectedOptions).map(option => option.value);
@@ -131,12 +139,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 			var selectedOptions = document.querySelectorAll('#tipi-documento-select option:checked');
 			var checkedOption = document.querySelector('#chkDocumentiMancanti');
 			var values = Array.from(selectedOptions).map(option => option.value);
-			var texts = Array.from(selectedOptions).map(option => option.text);
+			var texts = Array.from(selectedOptions).map(option => (checkedOption && checkedOption.checked) ? option.text + " mancanti" : option.text);
 			
 			if (checkedOption && checkedOption.checked) {
 				values.push('_NOT_');
 			}
 
+			val = values.join(',');
+			text = texts.join(', ');
+			chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Risposte)") {
+			var selectedOptions = document.querySelectorAll('#tipi-risposta-effettiva-select option:checked');
+			var values = Array.from(selectedOptions).map(option => option.value);
+			var texts = Array.from(selectedOptions).map(option => option.text);
+			
 			val = values.join(',');
 			text = texts.join(', ');
 			chipText = keyLabel + ": " + text;
@@ -398,6 +414,10 @@ function CreaTabella(responseData) {
 		var isSollecito = result.Sollecito ? 'checked="checked"' : '';
 		var haveProtocollo = result.Protocollo ? 'checked="checked"' : '';
 		var colonnaTipo = result.DisplayTipoRispostaRichiesta;
+		var stato = `${result.DisplayStato}`;
+		if (result.TipoChiusuraIter > 0){
+			stato += ` ${result.DisplayTipoChiusuraIter}`
+		}
 		var iconChipAggiuntiva = "";
 		if (result.Abbinamenti.length > 0){
 			colonnaTipo = "";
@@ -422,7 +442,7 @@ function CreaTabella(responseData) {
             <td style="width: 8%;">${colonnaTipo}</td>
             <td>${result.Oggetto}</td>
             <td>${htmlFirme}</td>
-            <td>${result.DisplayStato}</td>
+            <td>${stato}</td>
             <td></td>
 			<td style="width: 1%;">
 			    <label class="tooltipped" data-tooltip="Protocollo: ${result.Protocollo}">
@@ -674,11 +694,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 		    break;
 		case '@nameof(AttoDASIDto.TipoChiusuraIter)':
 			var tipiChiusuraIter = [
-			    { id: @((int)StatiAttoEnum.CHIUSO), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO))'},
-			    { id: @((int)StatiAttoEnum.CHIUSO_DECADUTO), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO_DECADUTO))'},
-			    { id: @((int)StatiAttoEnum.CHIUSO_DECADENZA_PER_FINE_LEGISLATURA), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO_DECADENZA_PER_FINE_LEGISLATURA))'},
-			    { id: @((int)StatiAttoEnum.CHIUSO_INAMMISSIBILE), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO_INAMMISSIBILE))'},
-			    { id: @((int)StatiAttoEnum.CHIUSO_RITIRATO), text: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO_RITIRATO))'},
+			    { id: @((int)TipoChiusuraIterEnum.APPROVATO), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO))'},
+			    { id: @((int)TipoChiusuraIterEnum.RESPINTO), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO))'},
+			    { id: @((int)TipoChiusuraIterEnum.RITIRATO), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO))'},
+			    { id: @((int)TipoChiusuraIterEnum.INAMMISSIBILE), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE))'},
+			    { id: @((int)TipoChiusuraIterEnum.DECADUTO), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO))'},
+			    { id: @((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA))'},
 			];
 
 			selectHTML = '<select id="tipi-chiusura-iter-select" multiple>';
@@ -714,6 +735,24 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                     <span>Cerca documenti mancanti</span>
                   </label>
                 </p>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+	        M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+		case '@nameof(AttoDASIDto.Risposte)':
+	        var tipiRisposte = [
+	            { id: @((int)TipoRispostaEnum.ORALE), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)'},
+	            { id: @((int)TipoRispostaEnum.SCRITTA), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)'},
+	            { id: @((int)TipoRispostaEnum.COMMISSIONE), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)'},
+	            { id: @((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)'},
+	            { id: @((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)'}
+	        ];
+
+			selectHTML = '<select id="tipi-risposta-effettiva-select" multiple>';
+			tipiRisposte.forEach(function (item) {
+			    var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+			    selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+	        });
+	        selectHTML += '</select>';
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 	        M.FormSelect.init(document.querySelectorAll('select'));
             break;

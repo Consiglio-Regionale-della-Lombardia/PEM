@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -258,7 +257,7 @@ namespace PortaleRegione.Common
                     throw new ArgumentOutOfRangeException(nameof(tipoMOZ), tipoMOZ, null);
             }
         }
-        
+
         public static string GetText_TipoMOZDettaglioDASI(int tipoMOZ)
         {
             switch ((TipoMOZEnum)tipoMOZ)
@@ -277,7 +276,7 @@ namespace PortaleRegione.Common
                     throw new ArgumentOutOfRangeException(nameof(tipoMOZ), tipoMOZ, null);
             }
         }
-        
+
         public static string GetText_AreaPolitica(int area)
         {
             switch ((AreaPoliticaIntEnum)area)
@@ -311,30 +310,35 @@ namespace PortaleRegione.Common
                 }
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return "In trattazione";
-                case StatiAttoEnum.CHIUSO:
+                case StatiAttoEnum.COMPLETATO:
                     return "Chiuso";
-                case StatiAttoEnum.CHIUSO_RITIRATO:
-                    return "Chiuso Ritirato";
-                case StatiAttoEnum.CHIUSO_DECADUTO:
-                    return "Chiuso Decaduto";
                 case StatiAttoEnum.TUTTI:
                     return "Tutti";
                 case StatiAttoEnum.BOZZA_CARTACEA:
                     return "Bozza cartacea";
-                case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
-                    return "Comunicazione assemblea";
-
-                case StatiAttoEnum.CHIUSO_DECADENZA_PER_FINE_LEGISLATURA:
-                    return "Chiuso decaduto per fine legislatura";
-
-                case StatiAttoEnum.CHIUSO_INAMMISSIBILE:
-                    return "Chiuso inammissibile";
-
-                case StatiAttoEnum.TRATTAZIONE_IN_ASSEMBLEA:
-                    return "Trattazione in assemblea";
-
                 default:
                     return "Stato non valido";
+            }
+        }
+        
+        public static string GetText_ChiusuraIterDASI(int stato)
+        {
+            switch ((TipoChiusuraIterEnum)stato)
+            {
+                case TipoChiusuraIterEnum.RESPINTO:
+                    return "Respinto";
+                case TipoChiusuraIterEnum.APPROVATO:
+                    return "Approvato";
+                case TipoChiusuraIterEnum.RITIRATO:
+                    return "Ritirato";
+                case TipoChiusuraIterEnum.DECADUTO:
+                    return "Decaduto";
+                case TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA:
+                    return "Decaduto per fine legislatura";
+                case TipoChiusuraIterEnum.INAMMISSIBILE:
+                    return "Inammissibile";
+                default:
+                    return "Chiusura iter non valida";
             }
         }
 
@@ -915,8 +919,8 @@ namespace PortaleRegione.Common
 
         public static string ConvertiCaratteriSpeciali(string input)
         {
-            StringBuilder sb = new StringBuilder(input);
-        
+            var sb = new StringBuilder(input);
+
             sb.Replace("À", "&Agrave;");
             sb.Replace("à", "&agrave;");
             sb.Replace("È", "&Egrave;");
@@ -927,7 +931,7 @@ namespace PortaleRegione.Common
             sb.Replace("ò", "&ograve;");
             sb.Replace("Ù", "&Ugrave;");
             sb.Replace("ù", "&ugrave;");
-        
+
             sb.Replace("Á", "&Aacute;");
             sb.Replace("á", "&aacute;");
             sb.Replace("É", "&Eacute;");
@@ -938,7 +942,7 @@ namespace PortaleRegione.Common
             sb.Replace("ó", "&oacute;");
             sb.Replace("Ú", "&Uacute;");
             sb.Replace("ú", "&uacute;");
-            
+
             sb.Replace("\"", "&quot;");
             sb.Replace("'", "&#39;");
 
@@ -971,6 +975,15 @@ namespace PortaleRegione.Common
         {
             var parts = dateStr.Split('/');
             return $"{parts[2]}-{parts[1].PadLeft(2, '0')}-{parts[0].PadLeft(2, '0')}";
+        }
+
+        public static bool IsDateProperty(string propertyName)
+        {
+            return propertyName == nameof(AttoDASIDto.Timestamp)
+                   || propertyName == nameof(AttoDASIDto.DataAnnunzio)
+                   || propertyName == nameof(AttoDASIDto.DataChiusuraIter)
+                   || propertyName == nameof(AttoDASIDto.DataIscrizioneSeduta)
+                   || propertyName == nameof(AttoDASIDto.UIDSeduta); 
         }
     }
 }

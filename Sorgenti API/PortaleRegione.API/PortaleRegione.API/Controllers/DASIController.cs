@@ -1110,6 +1110,11 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        /// <summary>
+        ///     Endpoint per generare i report
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route(ApiRoutes.DASI.GeneraReport)]
         public async Task<IHttpActionResult> GeneraReport(ReportDto request)
@@ -1126,7 +1131,28 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per generare l'estratto degli atti in zip
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.GeneraZIP)]
+        public async Task<IHttpActionResult> GeneraZIP(ReportDto request)
+        {
+            try
+            {
+                var file = await _dasiLogic.GeneraZip(request, CurrentUser);
 
+                return ResponseMessage(file);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Genera report", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per salvare un report

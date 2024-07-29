@@ -240,13 +240,9 @@ else
                 {
                     tooltipStato = $"Depositato il {item.DataPresentazione}";
                     var motivazione = "";
-                    if (item.IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO)
+                    if (item.TipoChiusuraIter.HasValue)
                     {
-                        motivazione = "Ritirato";
-                    }
-                    else if (item.IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO)
-                    {
-                        motivazione = "Decaduto";
+                        motivazione = Utility.GetText_ChiusuraIterDASI(item.TipoChiusuraIter.Value);
                     }
 
                     if (!string.IsNullOrEmpty(motivazione))
@@ -278,8 +274,8 @@ else
                         </a>
                     </li>
                     <li>
-                        <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int)StatiAttoEnum.CHIUSO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int)StatiAttoEnum.CHIUSO))">
-                            <i class="material-icons">storage</i> @Html.Raw(Utility.GetText_StatoDASI((int)StatiAttoEnum.CHIUSO))
+                        <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int)StatiAttoEnum.COMPLETATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int)StatiAttoEnum.CHIUSO))">
+                            <i class="material-icons">storage</i> @Html.Raw(Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO))
                         </a>
                     </li>
                 </ul>

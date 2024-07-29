@@ -593,6 +593,14 @@ namespace PortaleRegione.Gateway
             var lst = await GetFile(requestUrl, body, _token);
             return lst;
         }
+        
+        public async Task<FileResponse> GeneraZIP(ReportDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GeneraZIP}";
+            var body = JsonConvert.SerializeObject(request);
+            var lst = await GetFile(requestUrl, body, _token);
+            return lst;
+        }
 
         public async Task SalvaReport(ReportDto report)
         {

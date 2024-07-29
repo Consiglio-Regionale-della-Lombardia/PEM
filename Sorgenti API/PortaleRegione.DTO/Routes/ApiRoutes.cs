@@ -241,6 +241,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetFiltriPreferiti = Base + "/filters";
             public const string EliminaFiltriPreferiti = Base + "/filters/elimina";
             public const string GeneraReport = Base + "/reports/genera";
+            public const string GeneraZIP = Base + "/reports/genera-zip";
             public const string SalvaReport = Base + "/reports/salva";
             public const string EliminaReport = Base + "/reports/elimina";
             public const string GetReports = Base + "/reports";
