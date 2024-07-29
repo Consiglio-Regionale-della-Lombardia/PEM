@@ -260,7 +260,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var n_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+                    var n_atto = atto.Display;
 
                     var check = _unitOfWork.Notifiche.CheckIfNotificabile(atto, currentUser);
                     if (check == false)
@@ -659,17 +659,38 @@ namespace PortaleRegione.BAL
             foreach (var id in notifiche)
             {
                 var notifica = await _unitOfWork.Notifiche.Get(id);
-                if (notifica.Mittente == user.UID_persona)
+
+                // #948
+                if (user.IsResponsabileSegreteriaPolitica)
                 {
-                    notifica.Chiuso = true;
+                    if (notifica.IdGruppo.Equals(user.Gruppo.id_gruppo))
+                    {
+                        notifica.Chiuso = true;
+                        var listaDestinatariGruppo = await _unitOfWork.Notifiche_Destinatari.Get(id, user.Gruppo.id_gruppo);
+                        if (listaDestinatariGruppo.Any())
+                        {
+                            foreach (var notificheDestinatario in listaDestinatariGruppo)
+                            {
+                                notificheDestinatario.Chiuso = true;
+                            }
+                        }
+                        await _unitOfWork.CompleteAsync();
+                    }
                 }
                 else
                 {
-                    var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(id, user.UID_persona);
-                    if (notificheDestinatari != null) notificheDestinatari.Chiuso = true;
-                }
+                    if (notifica.Mittente == user.UID_persona)
+                    {
+                        notifica.Chiuso = true;
+                    }
+                    else
+                    {
+                        var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(id, user.UID_persona);
+                        if (notificheDestinatari != null) notificheDestinatari.Chiuso = true;
+                    }
 
-                await _unitOfWork.CompleteAsync();
+                    await _unitOfWork.CompleteAsync();
+                }
             }
         }
 

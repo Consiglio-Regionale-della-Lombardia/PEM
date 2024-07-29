@@ -204,7 +204,7 @@
                                     </a>
                                 }
 
-                                <a class="btn-floating white black-text tooltipped" data-tooltip="Vedi emendamento" onclick="go('@Url.Action("ViewEmendamento", "Emendamenti", new { id = notifica.UIDEM, notificaId = notifica.UIDNotifica })')">
+                                <a class="btn-floating white black-text tooltipped" data-tooltip="Vedi emendamento" onclick="goIntoOtherTab('@Url.Action("ViewEmendamento", "Emendamenti", new { id = notifica.UIDEM, notificaId = notifica.UIDNotifica })')">
                                     <i class="material-icons">remove_red_eye</i>
                                 </a>
 
@@ -234,7 +234,7 @@
                                     </a>
                                 }
                                 <a class="btn-floating white black-text tooltipped" data-tooltip="Vedi atto"
-                                   onclick="go('@Url.Action("ViewAtto", "DASI", new { id = notifica.ATTO_DASI.UIDAtto })')">
+                                   onclick="goIntoOtherTab('@Url.Action("ViewAtto", "DASI", new { id = notifica.ATTO_DASI.UIDAtto })')">
                                     <i class="material-icons">remove_red_eye</i>
                                 </a>
 

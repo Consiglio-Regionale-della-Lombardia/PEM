@@ -40,15 +40,6 @@
 
 }
 
-<script>
-    $(document).ready(function() {
-        var modeCache = @Html.Raw((int)Model.ClientMode);
-        if (mode != modeCache) {
-            setClientMode(modeCache);
-        }
-    });
-</script>
-
 <div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
         <a class="btn-floating waves-effect waves-light grey header-back" href="@url">

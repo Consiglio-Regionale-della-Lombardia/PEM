@@ -226,7 +226,7 @@
             $("#pnlNuovoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();
-            var mode = getClientMode();
+            var mode = @Html.Raw(mode);
             if (mode == @((int)ClientModeEnum.GRUPPI)) {
                 $("#pnlNuovoDASI").show();
             } else {

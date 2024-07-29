@@ -39,7 +39,7 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn modal-close grey">Annulla</button>
-        <a id="btnConfermaNotificaA" class="btn blue">Invita</a>
+        <a id="btnConfermaNotificaA" onclick="submitModalInvito()" class="btn blue">Invita</a>
     </div>
 </div>
 
@@ -119,12 +119,11 @@
     async function NotificaADASI(attoUId, tipo) {
         await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
         $("#modalDASINotificaA").modal("open");
-
-        $("#btnConfermaNotificaA").on("click",
-            function() {
-                $("#formNotificaA").submit();
-				$("#modalDASINotificaA").modal("close");
-            });
+    }
+    
+    function submitModalInvito(){
+		$("#formNotificaA").submit();
+		$("#modalDASINotificaA").modal("close");
     }
 
     $("#formNotificaA").submit(function(e) {
@@ -151,7 +150,8 @@
                 });
                 return;
             }
-
+            
+            console.log("DEST",destinatari)
             var listaDestinatari = [];
             $.each(destinatari,
                 function(index, item) {
