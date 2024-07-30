@@ -25,6 +25,8 @@ namespace PortaleRegione.DTO.Enum
         RITIRATO = 15,
         DECADUTO = 16,
         DECADENZA_PER_FINE_LEGISLATURA = 22,
-        INAMMISSIBILE= 23
+        INAMMISSIBILE= 23,
+        CHIUSURA_PER_MOTIVI_DIVERSI = 24,
+        DECADENZA_PER_FINE_MANDATO_CONSIGLIERE = 25,
     }
 }

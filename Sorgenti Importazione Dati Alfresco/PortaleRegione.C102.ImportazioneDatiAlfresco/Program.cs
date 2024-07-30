@@ -230,14 +230,13 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 // nodeid alfresco 
                                 var nodeIdFromAlfresco = Convert.ToString(cellsAtti[row, 2].Value);
                                 attoImportato.idNodoAlfresco = nodeIdFromAlfresco;
+                                
+                                var statoId = (int)StatiAttoEnum.COMPLETATO;
 
-                                var stato = Convert.ToString(cellsAtti[row, 10].Value);
-                                var statoId = ParseDescr2Enum_Stato(stato);
-
-                                if (statoId == (int)StatiAttoEnum.PRESENTATO)
-                                {
-                                    throw new Exception("Atto scartato perchè in stato presentato.");
-                                }
+                                //if (statoId == (int)StatiAttoEnum.PRESENTATO)
+                                //{
+                                //    throw new Exception("Atto scartato perchè in stato presentato.");
+                                //}
 
                                 //legislatura
                                 if (string.IsNullOrEmpty(legislaturaFromAlfresco))
@@ -501,9 +500,12 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     }
                                 }
 
-                                if (chkf == 0) throw new Exception("Nessuna firma trovata per l'atto.");
+                                if (tipoAttoEnum != TipoAttoEnum.RIS)
+                                {
+                                    if (chkf == 0) throw new Exception("Nessuna firma trovata per l'atto.");
 
-                                if (chkf > 0 && id_gruppo == 0) throw new Exception("Nessun proponente trovato.");
+                                    if (chkf > 0 && id_gruppo == 0) throw new Exception("Nessun proponente trovato.");
+                                }
 
                                 #endregion
 
@@ -727,7 +729,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 (UIDAtto, Tipo, TipoMOZ, NAtto, Etichetta, NAtto_search, Oggetto, Premesse, IDTipo_Risposta, DataPresentazione, IDStato, Legislatura, 
                                 UIDPersonaCreazione, UIDPersonaPresentazione, idRuoloCreazione, UIDPersonaProponente, UIDPersonaPrimaFirma, 
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
-{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, DCR, DCRC, DCRL, AreaTematica, AltriSoggetti, Proietta, Firma_su_invito, Eliminato) 
+{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, DCR, DCCR, DCRL, AreaTematica, AltriSoggetti, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
@@ -824,7 +826,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 else
                                 {
                                     command.Parameters.AddWithValue("@TipoChiusuraIter",
-                                        ParseDescr2Enum_Stato(tipoChiusuraIter));
+                                        ParseDescr2Enum_ChiusuraIter(tipoChiusuraIter));
                                 }
 
                                 if (string.IsNullOrEmpty(dataChiusuraIter))
@@ -1054,42 +1056,46 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
             }
         }
 
-        private static int ParseDescr2Enum_Stato(string statoDescr)
+        private static int ParseDescr2Enum_ChiusuraIter(string chiusuraIter)
         {
-            switch (statoDescr.ToLower())
+            switch (chiusuraIter.ToLower())
             {
-                case "comunicazione all'assemblea":
+                case "atto approvato":
                 {
-                    return (int)StatiAttoEnum.CHIUSO;
-                    //return (int)StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA;
+                    return (int)TipoChiusuraIterEnum.APPROVATO;
                 }
-                case "in trattazione":
-                case "trattazione in assemblea":
+                case "atto respinto":
                 {
-                    return (int)StatiAttoEnum.CHIUSO;
-                    //return (int)StatiAttoEnum.TRATTAZIONE_IN_ASSEMBLEA;
+                    return (int)TipoChiusuraIterEnum.RESPINTO;
                 }
                 case "decadenza per fine legislatura":
                 {
-                    return (int)StatiAttoEnum.CHIUSO;
-                    //return (int)StatiAttoEnum.CHIUSO_DECADENZA_PER_FINE_LEGISLATURA;
+                    return (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA;
                 }
                 case "ritiro":
                 {
-                    return (int)StatiAttoEnum.CHIUSO_RITIRATO;
-                }
-                case "presentato":
-                case "depositato":
-                {
-                    return (int)StatiAttoEnum.PRESENTATO;
+                    return (int)TipoChiusuraIterEnum.RITIRATO;
                 }
                 case "inammissibile":
                 {
-                    return (int)StatiAttoEnum.CHIUSO;
-                    //return (int)StatiAttoEnum.CHIUSO_INAMMISSIBILE;
+                    return (int)TipoChiusuraIterEnum.INAMMISSIBILE;
                 }
-                default:
-                    return (int)StatiAttoEnum.CHIUSO;
+                case "chiusura per motivi diversi":
+                {
+                    return (int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI;
+                }
+                case "decadenza per fine mandato consigliere":
+                {
+                    return (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE;
+                }
+                case "decadenza":
+                {
+                    return (int)TipoChiusuraIterEnum.DECADUTO;
+                }
+                default: 
+                {
+                    return (int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI;
+                }
             }
         }
 
@@ -1191,7 +1197,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     return TipoAttoEnum.PRE;
                 case nameof(TipoAttoEnum.REL):
                     return TipoAttoEnum.REL;
-                case nameof(TipoAttoEnum.RIS):
+                case "risoluzione":
                     return TipoAttoEnum.RIS;
                 default:
                     return TipoAttoEnum.ALTRO;

@@ -7,7 +7,7 @@ namespace PortaleRegione.JobStampeTest
 {
     public class BaseTest
     {
-        private string apiURL = "http://localhost:52415";
+        private string apiURL = "http://localhost:52417";
         public ApiGateway apiGateway;
 
         protected BaseTest()
