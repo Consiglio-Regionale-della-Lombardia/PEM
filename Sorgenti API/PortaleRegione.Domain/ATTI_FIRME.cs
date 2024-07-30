@@ -54,5 +54,6 @@ namespace PortaleRegione.Domain
         public bool Valida { get; set; } = true;
         public bool Capogruppo { get; set; } = false;
         public bool Prioritario { get; set; } = true;
+        public int OrdineVisualizzazione { get; set; } = 0;
     }
 }

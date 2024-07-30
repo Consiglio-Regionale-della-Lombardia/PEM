@@ -52,6 +52,7 @@ namespace PortaleRegione.Gateway
             try
             {
                 using var httpClient = new HttpClient();
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 if (!string.IsNullOrEmpty(token))
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");

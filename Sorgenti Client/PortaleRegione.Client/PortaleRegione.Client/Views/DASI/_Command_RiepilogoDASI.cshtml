@@ -10,7 +10,7 @@
 <div class="row valign-wrapper">
     <div class="col l6 s6">
         <label>
-            <input type="checkbox" id="checkAll" />
+            <input type="checkbox" id="checkAll" onclick="checkAllFunc(this)"/>
             <span for="checkAll">
                 Seleziona tutti
             </span>
@@ -91,4 +91,12 @@
         $('#inputFilterView').val(newMode);
         filtra();
     }
+    
+	function checkAllFunc(ctrl) {
+		var isChecked = $(ctrl).prop('checked');
+		setSelezionaTutti_DASI(isChecked);
+		setListaAtti([]);
+		$('input[id^="chk_Atto_"]').not($(ctrl)).prop('checked', isChecked);
+		AbilitaComandiMassivi_DASI(null);
+	}
 </script>

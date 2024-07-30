@@ -48,6 +48,7 @@
     var data_preload = [];
 
     async function LoadDestinatari(tipo) {
+		waiting(true);
         $('#chkCaricaConsiglieri').prop('checked', false);
         data_preload = [];
         persone = [];
@@ -73,6 +74,8 @@
                 autocompleteOptions: autocompleteDataOptions,
                 data: data_preload
             });
+            
+		waiting(false);
     }
     
 	function CaricaConsiglieriProprioGruppo() {
@@ -110,9 +113,8 @@
 	}
 
     async function NotificaADASI() {
-                await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
-        $("#modalDASINotificaA").modal("open");
-        
+        await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
+        $("#modalDASINotificaA").modal("open");        
 
         $("#btnConfermaNotificaA").on("click",
             function() {
@@ -125,9 +127,9 @@
         e.preventDefault();
     }).validate({
         submitHandler: function (form) {
-
+			waiting(true);
             var listaAtti = getListaAtti();
-            console.log("listaAtti", listaAtti)
+
             var destinatari = chipInstanceNotificaADASI.getData();
             if (destinatari.length == 0) {
                 swal({
@@ -148,6 +150,7 @@
             obj.Azione = @((int)ActionEnum.INVITA);
             obj.Lista = listaAtti.length > 0 ? listaAtti : [];
             obj.ListaDestinatari = listaDestinatari;
+			data.Tutti = getSelezionaTutti_DASI();
 
             $.ajax({
                 url: baseUrl + "/dasi/azioni-massive",
@@ -156,6 +159,7 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(data) {
+				waiting(false);
                 if (data.message) {
                     var typeMessage = "error";
                     var str = data.message;
@@ -175,6 +179,7 @@
 					location.reload();
                 }
             }).fail(function(err) {
+				waiting(false);
                 console.log("error", err);
                 Error(err);
             });

@@ -98,7 +98,9 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue
+                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
             }
 
             if (stati != null)
@@ -233,7 +235,9 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue
+                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
             }
 
             if (stati.Any())
@@ -349,10 +353,9 @@ namespace PortaleRegione.Persistance
                 }
                 else
                 {
-                    if (sedutaId.HasValue)
-                    {
-                        query = query.Where(item => item.UIDSeduta == sedutaId && item.DataIscrizioneSeduta.HasValue);
-                    }
+                    query = query.Where(item => item.DataIscrizioneSeduta.HasValue
+                                                && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                                && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
                     if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato == (int)stato);
                     if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int)tipo);
                 }
@@ -709,7 +712,9 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue
+                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
             }
 
             if (stati.Any())

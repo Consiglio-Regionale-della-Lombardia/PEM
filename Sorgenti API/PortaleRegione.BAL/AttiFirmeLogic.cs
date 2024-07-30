@@ -48,6 +48,8 @@ namespace PortaleRegione.BAL
                 if (!firme.Any()) return new List<AttiFirmeDto>();
 
                 var result = new List<AttiFirmeDto>();
+                var ordineDefault = 0;
+
                 foreach (var firma in firme)
                 {
                     var dto = new AttiFirmeDto
@@ -65,10 +67,17 @@ namespace PortaleRegione.BAL
                         Capogruppo = firma.Capogruppo,
                         id_AreaPolitica = firma.id_AreaPolitica,
                         Data_firma = firma.Timestamp.ToString("dd/MM/yyyy"),
-                        Prioritario = firma.Prioritario
+                        Prioritario = firma.Prioritario,
+                        OrdineVisualizzazione = firma.OrdineVisualizzazione
                     };
 
+                    if (firma.OrdineVisualizzazione == 0 && firma.UID_persona != atto.UIDPersonaProponente)
+                    {
+                        dto.OrdineVisualizzazione = ordineDefault;
+                    }
+
                     result.Add(dto);
+                    ordineDefault++;
                 }
 
                 return result;
@@ -108,6 +117,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var atto = await _unitOfWork.DASI.Get(attoUId);
                 var firmeInDb = await _unitOfWork
                     .Atti_Firme
                     .GetFirmatari(attoUId);
@@ -117,6 +127,7 @@ namespace PortaleRegione.BAL
                 if (!firme.Any()) return new List<AttiFirmeDto>();
 
                 var result = new List<AttiFirmeDto>();
+                var ordineDefault = 0;
                 foreach (var firma in firme)
                 {
                     var firmaDto = new AttiFirmeDto
@@ -130,10 +141,17 @@ namespace PortaleRegione.BAL
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
                             : BALHelper.Decrypt(firma.Data_ritirofirma),
-                        Timestamp = firma.Timestamp
+                        Timestamp = firma.Timestamp,
+                        OrdineVisualizzazione = firma.OrdineVisualizzazione
                     };
 
+                    if (firma.OrdineVisualizzazione == 0 && firma.UID_persona != atto.UIDPersonaProponente)
+                    {
+                        firmaDto.OrdineVisualizzazione = ordineDefault;
+                    }
+
                     result.Add(firmaDto);
+                    ordineDefault++;
                 }
 
                 return result;

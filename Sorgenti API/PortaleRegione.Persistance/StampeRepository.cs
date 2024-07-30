@@ -16,17 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -53,7 +53,7 @@ namespace PortaleRegione.Persistance
             var query = PRContext.STAMPE.Where(s => true);
 
             if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                     && persona.CurrentRole != RuoliIntEnum.Amministratore_Giunta)
+                && persona.CurrentRole != RuoliIntEnum.Amministratore_Giunta)
             {
                 query = PRContext.STAMPE.Where(s => s.UIDUtenteRichiesta == persona.UID_persona);
             }
@@ -69,10 +69,19 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<STAMPE>> GetAll(int? page, int? size)
         {
+            // #961
+            var lockedCount = await PRContext.STAMPE.CountAsync(s => s.Lock && !s.DataFineEsecuzione.HasValue);
+
+            if (lockedCount >= 5)
+            {
+                return new List<STAMPE>();
+            }
+
             return await PRContext
                 .STAMPE
                 .Where(s => !s.Lock)
-                .OrderByDescending(s => s.DataRichiesta)
+                .OrderByDescending(s => s.CurrentRole)
+                .ThenBy(s => s.DataRichiesta)
                 .Skip((page.Value - 1) * size.Value)
                 .Take(size.Value)
                 .ToListAsync();

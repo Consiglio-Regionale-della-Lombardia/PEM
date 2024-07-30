@@ -31,7 +31,7 @@ namespace GeneraStampeJob
                 });
                 //Log.Debug($"User service [{auth.id}][{auth.jwt}]");
                 apiGateway = new ApiGateway(auth.jwt);
-                var stampe = await apiGateway.Stampe.JobGetStampe(1, 1);
+                var stampe = await apiGateway.Stampe.JobGetStampe(1, 5);
                 //Log.Debug($"Stampe da elaborare [{stampe.Results.Count()}]");
 
                 var work = new Worker(auth, ref _model);

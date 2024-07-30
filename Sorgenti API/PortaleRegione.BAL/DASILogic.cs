@@ -946,7 +946,7 @@ namespace PortaleRegione.API.Controllers
                         firmaCert = BALHelper.EncryptString(bodyFirmaCert
                             , AppSettingsConfiguration.masterKey);
                     }
-
+                    
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     if (countFirme == 0)
                     {
@@ -1016,7 +1016,7 @@ namespace PortaleRegione.API.Controllers
 
                     await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
                         timestampFirma,
-                        firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo, prioritario);
+                        firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo, prioritario, countFirme);
 
                     if (destinatario_notifica != null)
                     {
@@ -1475,6 +1475,7 @@ namespace PortaleRegione.API.Controllers
                                                   && (a.IDStato == (int)StatiAttoEnum.CHIUSO
                                                       || a.IDStato == (int)StatiAttoEnum.PRESENTATO
                                                       || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
+                        .Distinct()
                         .ToList();
 
                     //Jolly attivo limite impostato {MassimoODG_Jolly}
@@ -3123,6 +3124,22 @@ namespace PortaleRegione.API.Controllers
 
                 throw new Exception(res);
             }
+        }
+
+        public async Task CambiaOrdineVisualizzazione(List<AttiFirmeDto> firme)
+        {
+            var uidAtto = firme.First().UIDAtto;
+            var firmeInDb = await _unitOfWork
+                .Atti_Firme
+                .GetFirmatari(uidAtto);
+
+            foreach (var attiFirmeDto in firme)
+            {
+                var firmaInDb = firmeInDb.First(f => f.UID_persona.Equals(attiFirmeDto.UID_persona));
+                firmaInDb.OrdineVisualizzazione = attiFirmeDto.OrdineVisualizzazione;
+            }
+
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task SalvaCartaceo(AttoDASIDto attoDto, PersonaDto currentUser)

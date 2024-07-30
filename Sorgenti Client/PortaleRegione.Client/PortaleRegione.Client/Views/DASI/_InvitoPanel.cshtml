@@ -117,8 +117,10 @@
     }
 
     async function NotificaADASI(attoUId, tipo) {
+        waiting(true);
         await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
         $("#modalDASINotificaA").modal("open");
+		waiting(false);
     }
     
     function submitModalInvito(){
@@ -130,7 +132,7 @@
         e.preventDefault();
     }).validate({
         submitHandler: function (form) {
-
+            waiting(true);
             var listaAtti = getListaAtti();
             @{
                 var type = Model.GetType();
@@ -140,7 +142,6 @@
                 }
             }
             
-            console.log("listaAtti", listaAtti)
             var destinatari = chipInstanceNotificaADASI.getData();
             if (destinatari.length == 0) {
                 swal({
@@ -151,7 +152,6 @@
                 return;
             }
             
-            console.log("DEST",destinatari)
             var listaDestinatari = [];
             $.each(destinatari,
                 function(index, item) {
@@ -170,6 +170,7 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(data) {
+				waiting(false);
                 if (data.message) {
                     var typeMessage = "error";
                     var str = data.message;
@@ -189,6 +190,7 @@
                     location.reload();
                 }
             }).fail(function(err) {
+				waiting(false);
                 console.log("error", err);
                 Error(err);
             });

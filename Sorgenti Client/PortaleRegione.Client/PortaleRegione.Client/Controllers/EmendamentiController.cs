@@ -507,7 +507,7 @@ namespace PortaleRegione.Client.Controllers
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
-                        page = modelInCache.Data.Paging.Page,
+                        page = 1,
                         size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         ordine = modelInCache.Ordinamento,
@@ -518,7 +518,7 @@ namespace PortaleRegione.Client.Controllers
                     if (model.Richiesta_Firma) // #879 (fix) Azione massiva: Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma + Seleziona tutti + Firma massiva
                     {
                         var lista_propria_firma = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(request.id,
-                            modelInCache.Mode, modelInCache.Ordinamento, modelInCache.Data.Paging.Page,
+                            modelInCache.Mode, modelInCache.Ordinamento, 1,
                             modelInCache.Data.Paging.Limit);
                         list = lista_propria_firma.Data.Results.Select(i => i.UIDEM).ToList();
                     }

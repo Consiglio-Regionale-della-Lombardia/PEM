@@ -58,7 +58,15 @@
             }
             else
             {
-                @Html.Raw("var modeFromCache = " + HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}"))
+                var clientModeFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}");
+                if (clientModeFromCache == null)
+                {
+                    @Html.Raw("var modeFromCache = " + (int)ClientModeEnum.GRUPPI)
+                }
+                else
+                {
+                    @Html.Raw("var modeFromCache = " + clientModeFromCache);
+                }
             }
         }
 	    

@@ -646,7 +646,6 @@ namespace PortaleRegione.BAL
             try
             {
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
-                var emendamentoDto = await GetEM_DTO(em.UIDEM, atto, persona);
                 var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
 
                 try
@@ -661,13 +660,13 @@ namespace PortaleRegione.BAL
                     {
                         case TemplateTypeEnum.MAIL:
                         case TemplateTypeEnum.HTML:
-                            GetBody(emendamentoDto, attoDto, firme, persona, false, ref body);
+                            GetBody(em, attoDto, firme, persona, false, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            GetBody(emendamentoDto, attoDto, firme, persona, true, ref body);
+                            GetBody(em, attoDto, firme, persona, true, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
-                            GetBodyTemporaneo(emendamentoDto, attoDto, ref body);
+                            GetBodyTemporaneo(em, attoDto, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:
                             break;
@@ -1622,8 +1621,6 @@ namespace PortaleRegione.BAL
                 var gruppo = await _unitOfWork.Gruppi.Get(em.id_gruppo);
                 emendamentoDto.PersonaProponente.codice_gruppo = gruppo.codice_gruppo;
 
-
-
                 return emendamentoDto;
             }
             catch (Exception e)
@@ -2371,6 +2368,24 @@ namespace PortaleRegione.BAL
                 Log.Error("PDFIstantaneo", e);
                 throw e;
             }
+        }
+
+        public async Task<Dictionary<Guid, string>> GetByJson(Guid uidStampa)
+        {
+            var stampa = await _unitOfWork.Stampe.Get(uidStampa);
+
+            var listaEMFromJson = JsonConvert.DeserializeObject<List<Guid>>(stampa.Query);
+            var resFromJson = new Dictionary<Guid, string>();
+            foreach (var guid in listaEMFromJson)
+            {
+                var item = await GetEM_DTO(guid);
+                var firme = await _logicFirme.GetFirme(item, FirmeTipoEnum.ATTIVI);
+                var bodyHtml = await GetBodyEM(item, firme.ToList(), null, TemplateTypeEnum.PDF);
+                
+                resFromJson.Add(item.UIDEM, bodyHtml);
+            }
+
+            return resFromJson;
         }
     }
 }

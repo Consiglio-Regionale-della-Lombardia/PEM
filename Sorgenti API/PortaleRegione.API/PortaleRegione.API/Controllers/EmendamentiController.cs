@@ -131,6 +131,27 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per avere tutti gli emendamenti
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.PEM.Emendamenti.GetByJson)]
+        public async Task<IHttpActionResult> GetByJson(BaseRequest<StampaDto> stampaRequest)
+        {
+            try
+            {
+                var res = await _emendamentiLogic.GetByJson(stampaRequest.id);
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetEmendamenti", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per avere solo gli emendamenti appartenenti ad un atto dove è richiesta la firma dell'utente corrente
