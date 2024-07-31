@@ -115,8 +115,20 @@ namespace PortaleRegione.Client.Controllers
 
                 foreach (var filterItem in model.filters)
                 {
+                    if (string.IsNullOrEmpty(filterItem.value))
+                    {
+                        request.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.IsNull,
+                            Connector = FilterStatementConnector.And
+                        });
+
+                        continue;
+                    }
+
                     var values = filterItem.value.Split(',');
-                    if (values.Length > 1)
+                    if (values.Length > 1 && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto)))
                     {
                         if (Utility.IsDateProperty(filterItem.property))
                         {
@@ -1656,6 +1668,22 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 var res = await apiGateway.DASI.GetAbbinamentiDisponibili(legislaturaId);
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        [HttpGet]
+        [Route("view-organi-disponibili")]
+        public async Task<ActionResult> GetOrganiDisponibili(int legislaturaId)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetOrganiDisponibili(legislaturaId);
                 return Json(res, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

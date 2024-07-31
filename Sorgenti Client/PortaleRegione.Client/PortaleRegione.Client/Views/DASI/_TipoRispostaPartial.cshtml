@@ -41,7 +41,7 @@
         <option value="">Seleziona commissione</option>
         @foreach (var commissione in Model.CommissioniAttive)
         {
-            var commissioneSelezionata = Model.Atto.Commissioni.FirstOrDefault(item => item.id_organo == commissione.id_organo);
+            var commissioneSelezionata = Model.Atto.Organi.FirstOrDefault(item => item.id_organo == commissione.id_organo);
             <option value="@commissione.id_organo" @Html.Raw(commissioneSelezionata == null ? "" : "selected")>@commissione.nome_organo</option>
         }
     </select>

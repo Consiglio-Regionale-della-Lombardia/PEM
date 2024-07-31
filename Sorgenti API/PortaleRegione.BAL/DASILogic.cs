@@ -38,7 +38,6 @@ using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using OfficeOpenXml;
-using Org.BouncyCastle.Asn1;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -339,6 +338,11 @@ namespace PortaleRegione.API.Controllers
                 queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.Abbinamenti), queryExtended.Provvedimenti, Guid.Parse,
                 queryExtended);
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.DataTrasmissione), queryExtended.DataTrasmissione,
+                DateTime.Parse,
+                queryExtended);
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.Organi), queryExtended.Organi, int.Parse,
+                queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.IDStato), queryExtended.Stati, int.Parse, queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.Tipo), queryExtended.Tipi, int.Parse, queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.IDTipo_Risposta), queryExtended.TipiRispostaRichiesta,
@@ -358,8 +362,21 @@ namespace PortaleRegione.API.Controllers
         private void ExtractAndAddFilters<T>(BaseRequest<AttoDASIDto> model, string propertyId, List<T> targetList,
             Func<string, T> convertFunc, QueryExtendedRequest query)
         {
+            if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                              && propertyId == nameof(AttoDASIDto.DataTrasmissione)
+                                              && statement.Operation == Operation.IsNull))
+            {
+                query.DataTrasmissioneIsNull = true;
+                var statementTrasmissione = model.filtro
+                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                foreach (var statement in statementTrasmissione) model.filtro.Remove(statement);
+
+                return;
+            }
+
             var statements = model.filtro
-                .Where(statement => statement.PropertyId == propertyId && !statement.Value.Equals("_NOT_")).ToList();
+                .Where(statement => statement.PropertyId == propertyId
+                                    && !statement.Value.Equals("_NOT_")).ToList();
             if (statements.Any())
             {
                 targetList.AddRange(statements.Select(statement => convertFunc(statement.Value.ToString())));
@@ -679,8 +696,8 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
-                dto.Commissioni = commissioni
-                    .Select(Mapper.Map<View_Commissioni_attive, CommissioneDto>).ToList();
+                dto.Organi = commissioni
+                    .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
 
                 if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO
                     && attoInDb.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
@@ -854,7 +871,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         firmaCert = BALHelper.EncryptString($"{persona.DisplayName_GruppoCode}",
                             AppSettingsConfiguration.masterKey); // matcat - #615
-                        timestampFirma = atto.Timestamp.AddMinutes(-2);
+                        timestampFirma = atto.Timestamp.Value.AddMinutes(-2);
                         dataFirma = BALHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
                     }
@@ -1519,7 +1536,7 @@ namespace PortaleRegione.API.Controllers
                 atto.UIDPersonaPresentazione = persona.UID_persona;
                 atto.OrdineVisualizzazione = contatore_progressivo;
                 atto.Timestamp = DateTime.Now;
-                atto.DataPresentazione = BALHelper.EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
+                atto.DataPresentazione = BALHelper.EncryptString(atto.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                     AppSettingsConfiguration.masterKey);
                 atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
 
@@ -1979,7 +1996,7 @@ namespace PortaleRegione.API.Controllers
             if (!persona.IsSegreteriaAssemblea
                 && !persona.IsPresidente)
                 result.Atto.id_gruppo = persona.Gruppo.id_gruppo;
-            result.Atto.Commissioni = new List<CommissioneDto>();
+            result.Atto.Organi = new List<OrganoDto>();
 
             var testo_richiesta = "<strong>{{RICHIESTA}}</strong>";
             switch (tipo)
@@ -2082,11 +2099,11 @@ namespace PortaleRegione.API.Controllers
             return result;
         }
 
-        public async Task<List<CommissioneDto>> GetCommissioniAttive()
+        public async Task<List<OrganoDto>> GetCommissioniAttive()
         {
             var result = await _unitOfWork.DASI.GetCommissioniAttive();
             return result
-                .Select(Mapper.Map<View_Commissioni_attive, CommissioneDto>)
+                .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>)
                 .ToList();
         }
 
@@ -2708,7 +2725,7 @@ namespace PortaleRegione.API.Controllers
                     .Replace("{DataDeposito}",
                         string.IsNullOrEmpty(dasiDto.DataPresentazione)
                             ? ""
-                            : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
+                            : "<br>Depositato il " + dasiDto.Timestamp.Value.ToString("dd/MM/yyyy")));
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -2749,7 +2766,7 @@ namespace PortaleRegione.API.Controllers
                     .Replace("{DataDeposito}",
                         string.IsNullOrEmpty(dasiDto.DataPresentazione)
                             ? ""
-                            : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
+                            : "<br>Depositato il " + dasiDto.Timestamp.Value.ToString("dd/MM/yyyy")));
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -2826,8 +2843,8 @@ namespace PortaleRegione.API.Controllers
                 atto.Richiesta_Modificata = string.Empty;
 
             await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
-            if (model.Commissioni != null)
-                foreach (var commissioneDto in model.Commissioni)
+            if (model.Organi.Any(o => o.tipo_organo == TipoOrganoEnum.COMMISSIONE))
+                foreach (var commissioneDto in model.Organi.Where(o => o.tipo_organo == TipoOrganoEnum.COMMISSIONE))
                     _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
 
             await _unitOfWork.CompleteAsync();
@@ -3633,7 +3650,7 @@ namespace PortaleRegione.API.Controllers
             {
                 return atto.gruppi_politici.nome_gruppo;
             }
-            
+
             var propertyInfo = typeof(AttoDASIDto).GetProperty(propertyName);
             if (propertyInfo == null)
             {
@@ -3748,7 +3765,7 @@ namespace PortaleRegione.API.Controllers
                     body += "<table>";
                     // Aggiungi intestazioni delle colonne
                     body += "<tr>";
-                    
+
                     foreach (var column in columns)
                     {
                         var prop = properties.FirstOrDefault(p => p.Name == column);
@@ -3934,6 +3951,12 @@ namespace PortaleRegione.API.Controllers
                 item.display = $"{item.tipo_esteso} {item.natto}";
             }
 
+            return res;
+        }
+
+        public async Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId)
+        {
+            var res = await _unitOfWork.DASI.GetOrganiDisponibili(legislaturaId);
             return res;
         }
     }

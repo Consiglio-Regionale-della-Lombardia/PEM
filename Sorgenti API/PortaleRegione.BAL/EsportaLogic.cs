@@ -701,9 +701,9 @@ namespace PortaleRegione.BAL
                     sheet.Cells[row, 5].Value = "";
                     sheet.Cells[row, 6].Value = "";
                     sheet.Cells[row, 7].Value = new DateTime(
-                        atto.Timestamp.Year,
-                        atto.Timestamp.Month,
-                        atto.Timestamp.Day);
+                        atto.Timestamp.Value.Year,
+                        atto.Timestamp.Value.Month,
+                        atto.Timestamp.Value.Day);
                     sheet.Cells[row, 7].Style.Numberformat.Format = "dd/MM/yyyy";
 
                     if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT

@@ -622,6 +622,13 @@ namespace PortaleRegione.Gateway
             var lst = JsonConvert.DeserializeObject<List<AttoLightDto>>(await Get(requestUrl, _token));
             return lst;
         }
+        
+        public async Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetOrganiDisponibili}?legislaturaId={legislaturaId}";
+            var lst = JsonConvert.DeserializeObject<List<OrganoDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
 
         public async Task EliminaReport(string nomeReport)
         {

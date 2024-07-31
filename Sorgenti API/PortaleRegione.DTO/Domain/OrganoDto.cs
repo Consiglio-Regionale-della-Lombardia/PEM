@@ -16,11 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.DTO.Enum;
+
 namespace PortaleRegione.DTO.Domain
 {
-    public class CommissioneDto
+    public class OrganoDto
     {
         public int id_organo { get; set; }
         public string nome_organo { get; set; }
+        public TipoOrganoEnum tipo_organo { get; set; }
     }
 }

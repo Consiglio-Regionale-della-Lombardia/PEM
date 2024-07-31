@@ -66,7 +66,6 @@ namespace PortaleRegione.Common
             TipoAttoEnum.REF,
             TipoAttoEnum.REL,
             TipoAttoEnum.ORG,
-            TipoAttoEnum.RIS,
             TipoAttoEnum.ALTRO
         };
 

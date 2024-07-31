@@ -35,4 +35,7 @@ public class QueryExtendedRequest
     public List<Guid> Provvedimenti { get; set; } = new List<Guid>();
     public List<Guid> AttiDaFirmare { get; set; } = new List<Guid>();
     public List<int> Risposte { get; set; } = new List<int>();
+    public List<int> Organi { get; set; } = new List<int>();
+    public List<DateTime> DataTrasmissione { get; set; } = new List<DateTime>();
+    public bool DataTrasmissioneIsNull { get; set; } = false;
 }

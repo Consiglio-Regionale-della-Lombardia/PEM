@@ -157,7 +157,7 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Firme { get; set; } = string.Empty;
 
-    [DisplayName("Data presentazione")] public DateTime Timestamp { get; set; }
+    [DisplayName("Data presentazione")] public DateTime? Timestamp { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Firme_dopo_deposito { get; set; }
@@ -179,7 +179,7 @@ public class AttoDASIDto
     public int id_gruppo { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public List<CommissioneDto> Commissioni { get; set; }
+    public List<OrganoDto> Organi { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Commissioni_client { get; set; }
@@ -190,6 +190,9 @@ public class AttoDASIDto
     [DisplayName("Data iscrizione in seduta")]
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public DateTime? DataIscrizioneSeduta { get; set; }
+    
+    [DisplayName("Data trasmissione")]
+    public DateTime? DataTrasmissione { get; set; }
 
     public bool Invito_Abilitato { get; set; } = false;
     public bool PresentatoOltreITermini { get; set; } = false;

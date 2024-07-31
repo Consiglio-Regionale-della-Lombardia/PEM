@@ -1241,6 +1241,28 @@ namespace PortaleRegione.API.Controllers
         }
         
         /// <summary>
+        ///     Endpoint per avere tutti gli organi per una data legislatura
+        /// </summary>
+        /// <param name="legislaturaId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetOrganiDisponibili)]
+        public async Task<IHttpActionResult> GetOrganiDisponibili(int legislaturaId)
+        {
+            try
+            {
+                var res = await _dasiLogic.GetOrganiDisponibili(legislaturaId);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get abbinamenti disponibili", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
         ///     Endpoint per avere le copertine disponibili da apporre ai report
         /// </summary>
         /// <returns></returns>

@@ -131,6 +131,20 @@ function GetAbbinamentiDisponibili(legislaturaId) {
     });
 }
 
+function GetOrganiDisponibili(legislaturaId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/view-organi-disponibili?legislaturaId=" + legislaturaId,
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
 function GetSedutaByData(dataSeduta) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
