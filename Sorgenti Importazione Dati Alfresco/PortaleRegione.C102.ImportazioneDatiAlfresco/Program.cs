@@ -394,6 +394,87 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 #endregion
 
+                                #region NOTE PRIVACY privacy_dati_personali_sensibili_note
+
+                                var noteprivacy_dati_personali_sensibili_note = Convert.ToString(cellsAtti[row, 61].Value);
+
+                                if (string.IsNullOrEmpty(noteprivacy_dati_personali_sensibili_note))
+                                {
+                                    // Ignored
+                                }
+                                else
+                                {
+                                    var queryInsertPrivacy_dati_personali_sensibili_note =
+                                        @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                                    VALUES
+                                                (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                    var commandInsertPrivacy_dati_personali_sensibili_note =
+                                        new SqlCommand(queryInsertPrivacy_dati_personali_sensibili_note, connection);
+                                    commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
+                                    commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue("@UIDPersona",
+                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                    commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue("@Tipo",
+                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                    commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue("@Nota", noteprivacy_dati_personali_sensibili_note);
+                                    commandInsertPrivacy_dati_personali_sensibili_note.ExecuteNonQuery();
+                                }
+
+                                #endregion
+                                
+                                #region NOTE PRIVACY privacy_dati_personali_giudiziari_note
+
+                                var noteprivacy_dati_personali_giudiziari_note = Convert.ToString(cellsAtti[row, 62].Value);
+
+                                if (string.IsNullOrEmpty(noteprivacy_dati_personali_giudiziari_note))
+                                {
+                                    // Ignored
+                                }
+                                else
+                                {
+                                    var queryInsertPrivacy_dati_personali_giudiziari_note =
+                                        @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                                    VALUES
+                                                (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                    var commandInsertPrivacy_dati_personali_giudiziari_note =
+                                        new SqlCommand(queryInsertPrivacy_dati_personali_giudiziari_note, connection);
+                                    commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
+                                    commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue("@UIDPersona",
+                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                    commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue("@Tipo",
+                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                    commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue("@Nota", noteprivacy_dati_personali_giudiziari_note);
+                                    commandInsertPrivacy_dati_personali_giudiziari_note.ExecuteNonQuery();
+                                }
+
+                                #endregion
+                                
+                                #region NOTE PRIVACY privacy_dati_personali_semplici_note
+
+                                var noteprivacy_dati_personali_semplici_note = Convert.ToString(cellsAtti[row, 63].Value);
+
+                                if (string.IsNullOrEmpty(noteprivacy_dati_personali_semplici_note))
+                                {
+                                    // Ignored
+                                }
+                                else
+                                {
+                                    var queryInsertPrivacy_dati_personali_semplici_note =
+                                        @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                                    VALUES
+                                                (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                    var commandInsertPrivacy_dati_personali_semplici_note =
+                                        new SqlCommand(queryInsertPrivacy_dati_personali_semplici_note, connection);
+                                    commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
+                                    commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue("@UIDPersona",
+                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                    commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue("@Tipo",
+                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                    commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue("@Nota", noteprivacy_dati_personali_semplici_note);
+                                    commandInsertPrivacy_dati_personali_semplici_note.ExecuteNonQuery();
+                                }
+
+                                #endregion
+
                                 #endregion
 
                                 #region FIRME
@@ -723,18 +804,31 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var areaTematica = Convert.ToString(cellsAtti[row, 72].Value);
                                 var altriSoggetti = Convert.ToString(cellsAtti[row, 71].Value);
+                                
+                                var privacy_dati_personali_giudiziari_sn = Convert.ToBoolean(cellsAtti[row, 53].Value);
+                                var privacy_divieto_pubblicazione_salute_sn = Convert.ToBoolean(cellsAtti[row, 54].Value);
+                                var privacy_divieto_pubblicazione_vita_sessuale_sn = Convert.ToBoolean(cellsAtti[row, 55].Value);
+                                var privacy_divieto_pubblicazione_sn = Convert.ToBoolean(cellsAtti[row, 56].Value);
+                                var privacy_dati_personali_sensibili_sn = Convert.ToBoolean(cellsAtti[row, 57].Value);
+                                var privacy_divieto_pubblicazione_altri_sn = Convert.ToBoolean(cellsAtti[row, 58].Value);
+                                var privacy_dati_personali_semplici_sn = Convert.ToBoolean(cellsAtti[row, 59].Value);
+                                var privacy_sn = Convert.ToBoolean(cellsAtti[row, 60].Value);
 
                                 var query = @"
                                 INSERT INTO [ATTI_DASI] 
                                 (UIDAtto, Tipo, TipoMOZ, NAtto, Etichetta, NAtto_search, Oggetto, Premesse, IDTipo_Risposta, DataPresentazione, IDStato, Legislatura, 
                                 UIDPersonaCreazione, UIDPersonaPresentazione, idRuoloCreazione, UIDPersonaProponente, UIDPersonaPrimaFirma, 
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
-{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, DCR, DCCR, DCRL, AreaTematica, AltriSoggetti, Proietta, Firma_su_invito, Eliminato) 
+{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, DCR, DCCR, DCRL, AreaTematica, AltriSoggetti, Privacy_Dati_Personali_Giudiziari,
+Privacy_Divieto_Pubblicazione_Salute, Privacy_Divieto_Pubblicazione_Vita_Sessuale, Privacy_Divieto_Pubblicazione, Privacy_Dati_Personali_Sensibili, Privacy_Divieto_Pubblicazione_Altri, Privacy_Dati_Personali_Semplici, 
+Privacy, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
-{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, 0, 0, 0)";
+{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, @Privacy_Dati_Personali_Giudiziari,
+@Privacy_Divieto_Pubblicazione_Salute, @Privacy_Divieto_Pubblicazione_Vita_Sessuale, @Privacy_Divieto_Pubblicazione, @Privacy_Dati_Personali_Sensibili, @Privacy_Divieto_Pubblicazione_Altri, @Privacy_Dati_Personali_Semplici, 
+@Privacy, 0, 0, 0)";
 
                                 if (string.IsNullOrEmpty(dataAnnunzio))
                                     query = query
@@ -809,6 +903,15 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 command.Parameters.AddWithValue("@DCRL", dcrl);
                                 command.Parameters.AddWithValue("@AreaTematica", areaTematica);
                                 command.Parameters.AddWithValue("@AltriSoggetti", altriSoggetti);
+
+                                command.Parameters.AddWithValue("@Privacy_Dati_Personali_Giudiziari", privacy_dati_personali_giudiziari_sn);
+                                command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Salute", privacy_divieto_pubblicazione_salute_sn);
+                                command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Vita_Sessuale", privacy_divieto_pubblicazione_vita_sessuale_sn);
+                                command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione", privacy_divieto_pubblicazione_sn);
+                                command.Parameters.AddWithValue("@Privacy_Dati_Personali_Sensibili", privacy_dati_personali_sensibili_sn);
+                                command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Altri", privacy_divieto_pubblicazione_altri_sn);
+                                command.Parameters.AddWithValue("@Privacy_Dati_Personali_Semplici", privacy_dati_personali_semplici_sn);
+                                command.Parameters.AddWithValue("@Privacy", privacy_sn);
 
                                 if (string.IsNullOrEmpty(dataAnnunzio))
                                 {

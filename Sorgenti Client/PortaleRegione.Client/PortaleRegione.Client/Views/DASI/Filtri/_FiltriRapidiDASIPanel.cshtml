@@ -56,6 +56,14 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Risposte))", id: "@nameof(AttoDASIDto.Risposte)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi))", id: "@nameof(AttoDASIDto.Organi)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataTrasmissione))", id: "@nameof(AttoDASIDto.DataTrasmissione)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy))", id: "@nameof(AttoDASIDto.Privacy)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)"},
+{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -142,7 +150,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 			var checkedOption = document.querySelector('#chkDocumentiMancanti');
 			var values = Array.from(selectedOptions).map(option => option.value);
 			var texts = Array.from(selectedOptions).map(option => (checkedOption && checkedOption.checked) ? option.text + " mancanti" : option.text);
-			
+
 			if (checkedOption && checkedOption.checked) {
 				values.push('_NOT_');
 			}
@@ -154,7 +162,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 			var selectedOptions = document.querySelectorAll('#tipi-risposta-effettiva-select option:checked');
 			var values = Array.from(selectedOptions).map(option => option.value);
 			var texts = Array.from(selectedOptions).map(option => option.text);
-			
+
 			val = values.join(',');
 			text = texts.join(', ');
 			chipText = keyLabel + ": " + text;
@@ -168,6 +176,38 @@ document.addEventListener('DOMContentLoaded', async function() {
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.Emendato)") {
 			val = document.getElementById('emendato').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Privacy)") {
+			val = document.getElementById('privacy').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)") {
+			val = document.getElementById('privacy_giudiziari').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)") {
+			val = document.getElementById('privacy_semplici').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)") {
+			val = document.getElementById('privacy_sensibili').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)") {
+			val = document.getElementById('privacy_pubblicazione').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)") {
+			val = document.getElementById('privacy_pubblicazione_altri').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)") {
+			val = document.getElementById('privacy_pubblicazione_salute').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)") {
+			val = document.getElementById('privacy_pubblicazione_sessuale').checked;
 			text = val ? 'Si' : 'No';
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.Pubblicato)") {
@@ -184,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 				val = data_da_formatted_date;
 				text = data_da_formatted_date;
 			}
-			
+
 			if (document.getElementById('data_presentazione_a').value !== '') {
 			    var data_a_str = document.getElementById('data_presentazione_a').value;
 			    var date_a_obj = new Date(data_a_str);
@@ -192,49 +232,49 @@ document.addEventListener('DOMContentLoaded', async function() {
 					var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
 					val += "," + data_a_formatted_date;
 					text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
-				}			    
+				}
 			}
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.DataChiusuraIter)") {
 			val = "";
 			text = "";
 			var data_da_str = document.getElementById('data_chiusura_iter_da').value;
-			var date_da_obj = new Date(data_da_str);			
+			var date_da_obj = new Date(data_da_str);
 			if (!isNaN(date_da_obj.getTime())) {
 				var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
 				val = data_da_formatted_date;
 				text = data_da_formatted_date;
 			}
-			
+
 			if (document.getElementById('data_chiusura_iter_a').value !== '') {
 				var data_a_str = document.getElementById('data_chiusura_iter_a').value;
-			    var date_a_obj = new Date(data_a_str);				
+			    var date_a_obj = new Date(data_a_str);
 				if (!isNaN(date_a_obj.getTime())) {
 					var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
 					val += "," + data_a_formatted_date;
 					text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
-				}			    
+				}
 			}
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.DataTrasmissione)") {
 			val = "";
 			text = "";
 			var data_da_str = document.getElementById('data_trasmissione_da').value;
-			var date_da_obj = new Date(data_da_str);			
+			var date_da_obj = new Date(data_da_str);
 			if (!isNaN(date_da_obj.getTime())) {
 				var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
 				val = data_da_formatted_date;
 				text = data_da_formatted_date;
 			}
-			
+
 			if (document.getElementById('data_trasmissione_a').value !== '') {
 				var data_a_str = document.getElementById('data_trasmissione_a').value;
-			    var date_a_obj = new Date(data_a_str);				
+			    var date_a_obj = new Date(data_a_str);
 				if (!isNaN(date_a_obj.getTime())) {
 					var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
 					val += "," + data_a_formatted_date;
 					text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
-				}			    
+				}
 			}
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.UIDSeduta)") {
@@ -247,7 +287,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 				val = data_da_formatted_date;
 				text = data_da_formatted_date;
 			}
-			
+
 			if (document.getElementById('data_seduta_a').value !== '') {
 				var data_a_str = document.getElementById('data_seduta_a').value;
 				var date_a_obj = new Date(data_a_str);
@@ -268,7 +308,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 				val = data_iscrizione_seduta_formatted_date;
 				text = data_iscrizione_seduta_formatted_date;
 			}
-			
+
 			if (document.getElementById('data_iscrizione_seduta_a').value !== '') {
 				var data_a_str = document.getElementById('data_iscrizione_seduta_a').value;
 				var date_a_obj = new Date(data_a_str);
@@ -290,7 +330,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 				val = data_da_formatted_date;
 				text = data_da_formatted_date;
 			}
-			
+
 			if (document.getElementById('data_annunzio_a').value !== '') {
 				var data_a_str = document.getElementById('data_annunzio_a').value;
 				var date_a_obj = new Date(data_a_str);
@@ -495,7 +535,7 @@ function CreaTabella(responseData) {
 	// Crea il corpo della tabella e popolalo con i dati
 	const tbody = document.createElement('tbody');
 	responseData.Data.Results.forEach(result => {
-		
+
 		var htmlFirme = ``;
 		if (result.id_gruppo != 0 ){
 			if (result.Firmato_Dal_Proponente == false) {
@@ -503,7 +543,7 @@ function CreaTabella(responseData) {
 			} else {
 				htmlFirme = `<b>${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</b>`;
 			}
-		}		
+		}
 
 		if (result.ConteggioFirme > 1) {
 			htmlFirme += `<br/><a class='chip tooltipped blue white-text' data-position='left' data-tooltip='${result.Firme}' style="min-width: unset;">
@@ -974,7 +1014,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.DataIscrizioneSeduta)':
-			
+
 			var dateValues = handleDateValue(currentValue);
 			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
 			var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
@@ -1281,6 +1321,94 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                 <div class="input-field col s12">
                     <label>
                         <input id="emendato" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Privacy)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="privacy" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="privacy_giudiziari" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="privacy_semplici" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="privacy_sensibili" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="privacy_pubblicazione" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="privacy_pubblicazione_altri" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="privacy_pubblicazione_salute" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="privacy_pubblicazione_sessuale" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
                 </div>`;

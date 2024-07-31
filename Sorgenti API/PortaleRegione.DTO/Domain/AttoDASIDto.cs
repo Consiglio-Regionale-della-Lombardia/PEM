@@ -375,6 +375,15 @@ public class AttoDASIDto
     [DisplayName("DCR/DCCR")] public int? DCR { get; set; }
     public int? DCCR { get; set; }
     public string DCRL { get; set; }
+
+    [DisplayName("Privacy per motivi giudiziari")]public bool Privacy_Dati_Personali_Giudiziari { get; set; }
+    [DisplayName("Privacy per motivi di salute")]public bool Privacy_Divieto_Pubblicazione_Salute { get; set; }
+    [DisplayName("Privacy per motivi di natura sessuale")]public bool Privacy_Divieto_Pubblicazione_Vita_Sessuale { get; set; }
+    [DisplayName("Privacy per motivi di pubblicazione")]public bool Privacy_Divieto_Pubblicazione { get; set; }
+    [DisplayName("Privacy per dati sensibili")]public bool Privacy_Dati_Personali_Sensibili { get; set; }
+    [DisplayName("Privicy per altri motivi")]public bool Privacy_Divieto_Pubblicazione_Altri { get; set; }
+    [DisplayName("Privacy per motivi semplici")]public bool Privacy_Dati_Personali_Semplici { get; set; }
+    [DisplayName("Privacy")]public bool Privacy { get; set; }
 }
 
 public class AttoDASIReportDto
@@ -385,6 +394,14 @@ public class AttoDASIReportDto
     [DisplayName("Numero atto")] public string NAtto { get; set; }
     [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;
     [DisplayName("Etichetta")]public string Etichetta { get; set; }
+    [DisplayName("Data prima firma")] public DateTime? DataPrimaFirma { get; set; }
+    [DisplayName("Data ritiro")] public DateTime? DataRitiro { get; set; }
+    [DisplayName("Data richiesta iscrizione")] public string DataRichiestaIscrizioneSeduta { get; set; }
+    [DisplayName("Data presentazione mozione urgente")] public string DataPresentazione_MOZ_URGENTE { get; set; }
+    [DisplayName("Data presentazione mozione abbinata")] public string DataPresentazione_MOZ_ABBINATA { get; set; }
+    [DisplayName("Data iscrizione in seduta")] public DateTime? DataIscrizioneSeduta { get; set; }
+    [DisplayName("Data Annunzio")] public DateTime? DataAnnunzio { get; set; }
+    [DisplayName("Data chiusura")] public DateTime? DataChiusuraIter { get; set; }
     [DisplayName("Oggetto")]public string Oggetto { get; set; }
     [DisplayName("Premesse")]public string Premesse { get; set; }
     [DisplayName("Richiesta")] public string Richiesta { get; set; }
@@ -395,19 +412,11 @@ public class AttoDASIReportDto
     [DisplayName("Sollecito")]public bool Sollecito { get; set; }
     [DisplayName("Protocollo")] public string Protocollo { get; set; }
     [DisplayName("Codice Materia")] public string CodiceMateria { get; set; }
-    [DisplayName("Data richiesta iscrizione")] public string DataRichiestaIscrizioneSeduta { get; set; }
-    [DisplayName("Data prima firma")] public DateTime? DataPrimaFirma { get; set; }
-    [DisplayName("Data ritiro")] public DateTime? DataRitiro { get; set; }
     [DisplayName("Tipo risposta richiesta")] public int IDTipo_Risposta { get; set; }
     [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
     [DisplayName("Iniziativa")] public string Firme { get; set; }
     [DisplayName("Data presentazione")] public DateTime Timestamp { get; set; }
-    [DisplayName("Data presentazione mozione urgente")] public string DataPresentazione_MOZ_URGENTE { get; set; }
-    [DisplayName("Data presentazione mozione abbinata")] public string DataPresentazione_MOZ_ABBINATA { get; set; }
-    [DisplayName("Data iscrizione in seduta")] public DateTime? DataIscrizioneSeduta { get; set; }
-    [DisplayName("Data Annunzio")] public DateTime? DataAnnunzio { get; set; }
     [DisplayName("Tipo chiusura")] public int? TipoChiusuraIter { get; set; }
-    [DisplayName("Data chiusura")] public DateTime? DataChiusuraIter { get; set; }
     [DisplayName("Tipo Votazione")] public int? TipoVotazioneIter { get; set; }
     [DisplayName("Emendato")] public bool Emendato { get; set; }
     [DisplayName("Area Tematica")] public string AreaTematica { get; set; }
@@ -420,4 +429,13 @@ public class AttoDASIReportDto
     [DisplayName("QR code")] public Guid UID_QRCode { get; set; }
     [DisplayName("Non passaggio in esame")] public bool Non_Passaggio_In_Esame { get; set; } = false;
     [DisplayName("UIDAtto")] public Guid UIDAtto { get; set; }
+
+   [DisplayName("Privacy per motivi giudiziari")]public bool Privacy_Dati_Personali_Giudiziari { get; set; }
+   [DisplayName("Privacy per motivi di salute")]public bool Privacy_Divieto_Pubblicazione_Salute { get; set; }
+   [DisplayName("Privacy per motivi di natura sessuale")]public bool Privacy_Divieto_Pubblicazione_Vita_Sessuale { get; set; }
+   [DisplayName("Privacy per motivi di pubblicazione")]public bool Privacy_Divieto_Pubblicazione { get; set; }
+   [DisplayName("Privacy per dati sensibili")]public bool Privacy_Dati_Personali_Sensibili { get; set; }
+   [DisplayName("Privicy per altri motivi")]public bool Privacy_Divieto_Pubblicazione_Altri { get; set; }
+   [DisplayName("Privacy per motivi semplici")]public bool Privacy_Dati_Personali_Semplici { get; set; }
+   [DisplayName("Privacy")]public bool Privacy { get; set; }
 }

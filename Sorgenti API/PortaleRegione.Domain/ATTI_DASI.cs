@@ -123,5 +123,15 @@ namespace PortaleRegione.Domain
         public int? DCCR { get; set; }
         public string DCRL { get; set; }
         public string BURL { get; set; }
+
+        public bool Privacy_Dati_Personali_Giudiziari { get; set; }
+        public bool Privacy_Divieto_Pubblicazione_Salute { get; set; }
+        public bool Privacy_Divieto_Pubblicazione_Vita_Sessuale { get; set; }
+        public bool Privacy_Divieto_Pubblicazione { get; set; }
+        public bool Privacy_Dati_Personali_Sensibili { get; set; }
+        public bool Privacy_Divieto_Pubblicazione_Altri { get; set; }
+        public bool Privacy_Dati_Personali_Semplici { get; set; }
+        public bool Privacy { get; set; }
+
     }
 }
