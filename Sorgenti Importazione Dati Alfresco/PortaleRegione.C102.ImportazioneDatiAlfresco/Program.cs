@@ -773,6 +773,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var area = Convert.ToString(cellsAtti[row, 23].Value);
 
+                                var dataComunicazioneAssemblea = Convert.ToString(cellsAtti[row, 91].Value);
                                 var dataAnnunzio = Convert.ToString(cellsAtti[row, 17].Value);
                                 var codiceMateria = Convert.ToString(cellsAtti[row, 18].Value);
                                 var protocollo = Convert.ToString(cellsAtti[row, 14].Value);
@@ -821,14 +822,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
 {FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, DCR, DCCR, DCRL, AreaTematica, AltriSoggetti, Privacy_Dati_Personali_Giudiziari,
 Privacy_Divieto_Pubblicazione_Salute, Privacy_Divieto_Pubblicazione_Vita_Sessuale, Privacy_Divieto_Pubblicazione, Privacy_Dati_Personali_Sensibili, Privacy_Divieto_Pubblicazione_Altri, Privacy_Dati_Personali_Semplici, 
-Privacy, Proietta, Firma_su_invito, Eliminato) 
+Privacy{FIELD_DATA_DataComunicazioneAssemblea}, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
 {PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, @Privacy_Dati_Personali_Giudiziari,
 @Privacy_Divieto_Pubblicazione_Salute, @Privacy_Divieto_Pubblicazione_Vita_Sessuale, @Privacy_Divieto_Pubblicazione, @Privacy_Dati_Personali_Sensibili, @Privacy_Divieto_Pubblicazione_Altri, @Privacy_Dati_Personali_Semplici, 
-@Privacy, 0, 0, 0)";
+@Privacy{PARAM_DATA_DataComunicazioneAssemblea}, 0, 0, 0)";
 
                                 if (string.IsNullOrEmpty(dataAnnunzio))
                                     query = query
@@ -838,6 +839,15 @@ Privacy, Proietta, Firma_su_invito, Eliminato)
                                     query = query
                                         .Replace("{FIELD_DATA_ANNUNZIO}", ", DataAnnunzio")
                                         .Replace("{PARAM_DATA_ANNUNZIO}", ", @DataAnnunzio");
+                                
+                                if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
+                                    query = query
+                                        .Replace("{FIELD_DATA_DataComunicazioneAssemblea}", "")
+                                        .Replace("{PARAM_DATA_DataComunicazioneAssemblea}", "");
+                                else
+                                    query = query
+                                        .Replace("{FIELD_DATA_DataComunicazioneAssemblea}", ", DataComunicazioneAssemblea")
+                                        .Replace("{PARAM_DATA_DataComunicazioneAssemblea}", ", @DataComunicazioneAssemblea");
 
                                 if (string.IsNullOrEmpty(tipoChiusuraIter))
                                     query = query
@@ -920,6 +930,15 @@ Privacy, Proietta, Firma_su_invito, Eliminato)
                                 else
                                 {
                                     command.Parameters.AddWithValue("@DataAnnunzio", Convert.ToDateTime(dataAnnunzio));
+                                }
+
+                                if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
+                                {
+                                        // ignored
+                                }
+                                else
+                                {
+                                    command.Parameters.AddWithValue("@DataComunicazioneAssemblea", Convert.ToDateTime(dataComunicazioneAssemblea));
                                 }
 
                                 if (string.IsNullOrEmpty(tipoChiusuraIter))

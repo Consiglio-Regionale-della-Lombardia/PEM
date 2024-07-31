@@ -384,6 +384,8 @@ public class AttoDASIDto
     [DisplayName("Privicy per altri motivi")]public bool Privacy_Divieto_Pubblicazione_Altri { get; set; }
     [DisplayName("Privacy per motivi semplici")]public bool Privacy_Dati_Personali_Semplici { get; set; }
     [DisplayName("Privacy")]public bool Privacy { get; set; }
+
+    [DisplayName("Data comunicazione assemblea")]public DateTime? DataComunicazioneAssemblea { get; set; }
 }
 
 public class AttoDASIReportDto
@@ -438,4 +440,6 @@ public class AttoDASIReportDto
    [DisplayName("Privicy per altri motivi")]public bool Privacy_Divieto_Pubblicazione_Altri { get; set; }
    [DisplayName("Privacy per motivi semplici")]public bool Privacy_Dati_Personali_Semplici { get; set; }
    [DisplayName("Privacy")]public bool Privacy { get; set; }
+
+   [DisplayName("Data comunicazione assemblea")]public DateTime? DataComunicazioneAssemblea { get; set; }
 }

@@ -3355,6 +3355,16 @@ namespace PortaleRegione.API.Controllers
             var filterStatements = new List<FilterStatement<AttoDASIDto>>();
             foreach (var filterItem in filtri)
             {
+                if (string.IsNullOrEmpty(filterItem.value))
+                {
+                    filterStatements.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = filterItem.property,
+                        Operation = Operation.IsNull,
+                    });
+                    continue;
+                }
+
                 var values = filterItem.value.Split(',');
                 if (values.Length > 1)
                 {
@@ -3495,8 +3505,18 @@ namespace PortaleRegione.API.Controllers
             var filterStatements = new List<FilterStatement<AttoDASIDto>>();
             foreach (var filterItem in filtri)
             {
+                if (string.IsNullOrEmpty(filterItem.value))
+                {
+                    filterStatements.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = filterItem.property,
+                        Operation = Operation.IsNull,
+                    });
+                    continue;
+                }
+
                 var values = filterItem.value.Split(',');
-                if (values.Length > 1)
+                if (values.Length > 1 && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto)))
                 {
                     if (Utility.IsDateProperty(filterItem.property))
                     {
@@ -3675,8 +3695,18 @@ namespace PortaleRegione.API.Controllers
             var filterStatements = new List<FilterStatement<AttoDASIDto>>();
             foreach (var filterItem in filtri)
             {
+                if (string.IsNullOrEmpty(filterItem.value))
+                {
+                    filterStatements.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = filterItem.property,
+                        Operation = Operation.IsNull,
+                    });
+                    continue;
+                }
+
                 var values = filterItem.value.Split(',');
-                if (values.Length > 1)
+                if (values.Length > 1 && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto)))
                 {
                     if (Utility.IsDateProperty(filterItem.property))
                     {

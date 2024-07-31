@@ -56,6 +56,7 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Risposte))", id: "@nameof(AttoDASIDto.Risposte)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi))", id: "@nameof(AttoDASIDto.Organi)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataTrasmissione))", id: "@nameof(AttoDASIDto.DataTrasmissione)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataComunicazioneAssemblea))", id: "@nameof(AttoDASIDto.DataComunicazioneAssemblea)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy))", id: "@nameof(AttoDASIDto.Privacy)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)"},
@@ -227,6 +228,27 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 			if (document.getElementById('data_presentazione_a').value !== '') {
 			    var data_a_str = document.getElementById('data_presentazione_a').value;
+			    var date_a_obj = new Date(data_a_str);
+				if (!isNaN(date_a_obj.getTime())) {
+					var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+					val += "," + data_a_formatted_date;
+					text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+				}
+			}
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.DataComunicazioneAssemblea)") {
+			text = "";
+			val = "";
+			var data_da_str = document.getElementById('data_comunicazione_da').value;
+			var date_da_obj = new Date(data_da_str);
+			if (!isNaN(date_da_obj.getTime())) {
+				var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+				val = data_da_formatted_date;
+				text = data_da_formatted_date;
+			}
+
+			if (document.getElementById('data_comunicazione_a').value !== '') {
+				var data_a_str = document.getElementById('data_comunicazione_a').value;
 			    var date_a_obj = new Date(data_a_str);
 				if (!isNaN(date_a_obj.getTime())) {
 					var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
@@ -996,6 +1018,20 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 </div>
 <div class="input-field col s12">
     <input id="data_seduta_a" type="date" ${currentValueFormatted2}/>
+</div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.DataComunicazioneAssemblea)':
+
+			var dateValues = handleDateValue(currentValue);
+			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+			var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+			selectHTML = `<div class="input-field col s12">
+    <input id="data_comunicazione_da" type="date" ${currentValueFormatted1}/>
+</div>
+<div class="input-field col s12">
+    <input id="data_comunicazione_a" type="date" ${currentValueFormatted2}/>
 </div>`;
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;

@@ -235,6 +235,13 @@ namespace PortaleRegione.Persistance
 
                 query = query
                     .Where(atto => organiQuery.Contains(atto.UIDAtto));
+                
+                var risposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
+                    .Select(organo => organo.UIDAtto);
+
+                query = query
+                    .Where(atto => risposteQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.DataTrasmissione.Any())
@@ -1271,6 +1278,13 @@ namespace PortaleRegione.Persistance
 
                 query = query
                     .Where(atto => organiQuery.Contains(atto.UIDAtto));
+                
+                var risposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
+                    .Select(organo => organo.UIDAtto);
+
+                query = query
+                    .Where(atto => risposteQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.AttiDaFirmare.Any())
@@ -1489,6 +1503,13 @@ namespace PortaleRegione.Persistance
 
                 query = query
                     .Where(atto => organiQuery.Contains(atto.UIDAtto));
+                
+                var risposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
+                    .Select(organo => organo.UIDAtto);
+
+                query = query
+                    .Where(atto => risposteQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.AttiDaFirmare.Any())

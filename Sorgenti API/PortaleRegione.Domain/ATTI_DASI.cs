@@ -133,5 +133,7 @@ namespace PortaleRegione.Domain
         public bool Privacy_Dati_Personali_Semplici { get; set; }
         public bool Privacy { get; set; }
 
+        public DateTime? DataComunicazioneAssemblea { get; set; }
+
     }
 }
