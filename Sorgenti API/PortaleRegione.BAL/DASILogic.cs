@@ -373,7 +373,37 @@ namespace PortaleRegione.API.Controllers
 
                 return;
             }
+            
+            if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                              && propertyId == nameof(AttoDASIDto.Risposte)
+                                              && statement.Operation == Operation.IsNull))
+            {
+                query.RispostaMancante = true;
+                var statementRispsota = model.filtro
+                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                foreach (var statement in statementRispsota) model.filtro.Remove(statement);
 
+                return;
+            }
+            
+            if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                              && propertyId == nameof(AttoDASIDto.Organi)
+                                              && statement.Operation == Operation.IsNull))
+            {
+                query.OrganiIsNull = true;
+                var statementOrgani = model.filtro
+                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                foreach (var statement in statementOrgani) model.filtro.Remove(statement);
+
+                return;
+            }
+            
+            if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                              && statement.Operation == Operation.IsNull || statement.Operation == Operation.IsNullOrWhiteSpace))
+            {
+                return;
+            }
+            
             var statements = model.filtro
                 .Where(statement => statement.PropertyId == propertyId
                                     && !statement.Value.Equals("_NOT_")).ToList();
@@ -3352,77 +3382,9 @@ namespace PortaleRegione.API.Controllers
         public async Task<HttpResponseMessage> GeneraZip(ReportDto model, PersonaDto currentUser)
         {
             var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
-            var filterStatements = new List<FilterStatement<AttoDASIDto>>();
-            foreach (var filterItem in filtri)
-            {
-                if (string.IsNullOrEmpty(filterItem.value))
-                {
-                    filterStatements.Add(new FilterStatement<AttoDASIDto>
-                    {
-                        PropertyId = filterItem.property,
-                        Operation = Operation.IsNull,
-                    });
-                    continue;
-                }
-
-                var values = filterItem.value.Split(',');
-                if (values.Length > 1)
-                {
-                    if (Utility.IsDateProperty(filterItem.property))
-                    {
-                        filterStatements.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.GreaterThanOrEqualTo,
-                            Value = values[0].Trim(),
-                            Connector = FilterStatementConnector.And
-                        });
-
-                        filterStatements.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.LessThanOrEqualTo,
-                            Value = values[1].Trim(),
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
-                    else
-                    {
-                        var orStatements = values.Select(value => new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.EqualTo,
-                            Value = value.Trim(),
-                            Connector = FilterStatementConnector.Or
-                        }).ToList();
-
-                        // Add the first statement to the main list
-                        filterStatements.Add(orStatements.First());
-
-                        // Link the remaining statements with 'Or' connectors
-                        for (var i = 1; i < orStatements.Count; i++)
-                        {
-                            orStatements[i].Connector = FilterStatementConnector.Or;
-                            filterStatements.Add(orStatements[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    filterStatements.Add(new FilterStatement<AttoDASIDto>
-                    {
-                        PropertyId = filterItem.property,
-                        Operation = Operation.EqualTo,
-                        Value = filterItem.value,
-                        Connector = FilterStatementConnector.And
-                    });
-                }
-            }
-
+            var filterStatements = Utility.ParseFilterDasi(filtri);
             var request = new BaseRequest<AttoDASIDto>
             {
-                page = 1,
-                size = 9999,
                 filtro = filterStatements,
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
             };
@@ -3502,77 +3464,10 @@ namespace PortaleRegione.API.Controllers
         private async Task CreateExcelReport(string filePath, ReportDto model, PersonaDto currentUser)
         {
             var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
-            var filterStatements = new List<FilterStatement<AttoDASIDto>>();
-            foreach (var filterItem in filtri)
-            {
-                if (string.IsNullOrEmpty(filterItem.value))
-                {
-                    filterStatements.Add(new FilterStatement<AttoDASIDto>
-                    {
-                        PropertyId = filterItem.property,
-                        Operation = Operation.IsNull,
-                    });
-                    continue;
-                }
-
-                var values = filterItem.value.Split(',');
-                if (values.Length > 1 && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto)))
-                {
-                    if (Utility.IsDateProperty(filterItem.property))
-                    {
-                        filterStatements.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.GreaterThanOrEqualTo,
-                            Value = values[0].Trim(),
-                            Connector = FilterStatementConnector.And
-                        });
-
-                        filterStatements.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.LessThanOrEqualTo,
-                            Value = values[1].Trim(),
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
-                    else
-                    {
-                        var orStatements = values.Select(value => new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.EqualTo,
-                            Value = value.Trim(),
-                            Connector = FilterStatementConnector.Or
-                        }).ToList();
-
-                        // Add the first statement to the main list
-                        filterStatements.Add(orStatements.First());
-
-                        // Link the remaining statements with 'Or' connectors
-                        for (var i = 1; i < orStatements.Count; i++)
-                        {
-                            orStatements[i].Connector = FilterStatementConnector.Or;
-                            filterStatements.Add(orStatements[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    filterStatements.Add(new FilterStatement<AttoDASIDto>
-                    {
-                        PropertyId = filterItem.property,
-                        Operation = Operation.EqualTo,
-                        Value = filterItem.value,
-                        Connector = FilterStatementConnector.And
-                    });
-                }
-            }
+            var filterStatements = Utility.ParseFilterDasi(filtri);
 
             var request = new BaseRequest<AttoDASIDto>
             {
-                page = 1,
-                size = 9999,
                 filtro = filterStatements,
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
             };
@@ -3692,77 +3587,10 @@ namespace PortaleRegione.API.Controllers
         private async Task<string> ComposeReportBodyFromTemplate(ReportDto model, PersonaDto currentUser)
         {
             var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
-            var filterStatements = new List<FilterStatement<AttoDASIDto>>();
-            foreach (var filterItem in filtri)
-            {
-                if (string.IsNullOrEmpty(filterItem.value))
-                {
-                    filterStatements.Add(new FilterStatement<AttoDASIDto>
-                    {
-                        PropertyId = filterItem.property,
-                        Operation = Operation.IsNull,
-                    });
-                    continue;
-                }
-
-                var values = filterItem.value.Split(',');
-                if (values.Length > 1 && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto)))
-                {
-                    if (Utility.IsDateProperty(filterItem.property))
-                    {
-                        filterStatements.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.GreaterThanOrEqualTo,
-                            Value = values[0].Trim(),
-                            Connector = FilterStatementConnector.And
-                        });
-
-                        filterStatements.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.LessThanOrEqualTo,
-                            Value = values[1].Trim(),
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
-                    else
-                    {
-                        var orStatements = values.Select(value => new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.EqualTo,
-                            Value = value.Trim(),
-                            Connector = FilterStatementConnector.Or
-                        }).ToList();
-
-                        // Add the first statement to the main list
-                        filterStatements.Add(orStatements.First());
-
-                        // Link the remaining statements with 'Or' connectors
-                        for (var i = 1; i < orStatements.Count; i++)
-                        {
-                            orStatements[i].Connector = FilterStatementConnector.Or;
-                            filterStatements.Add(orStatements[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    filterStatements.Add(new FilterStatement<AttoDASIDto>
-                    {
-                        PropertyId = filterItem.property,
-                        Operation = Operation.EqualTo,
-                        Value = filterItem.value,
-                        Connector = FilterStatementConnector.And
-                    });
-                }
-            }
+            var filterStatements = Utility.ParseFilterDasi(filtri);
 
             var request = new BaseRequest<AttoDASIDto>
             {
-                page = 1,
-                size = 9999,
                 filtro = filterStatements,
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
             };
@@ -3972,9 +3800,9 @@ namespace PortaleRegione.API.Controllers
             return value != null ? $"<td>{value}</td>" : null;
         }
 
-        public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId)
+        public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
         {
-            var res = await _unitOfWork.DASI.GetAbbinamentiDisponibili(legislaturaId);
+            var res = await _unitOfWork.DASI.GetAbbinamentiDisponibili(legislaturaId, page, size);
             foreach (var item in res)
             {
                 item.tipo_esteso = Utility.GetText_Tipo(int.Parse(item.tipo));

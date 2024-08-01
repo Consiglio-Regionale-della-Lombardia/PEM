@@ -117,17 +117,55 @@ function GetProponenti(idLegislatura) {
     });
 }
 
+let cacheAbbinamentiDisponibili = {
+    timestamp: null,
+    data: null
+};
+
 function GetAbbinamentiDisponibili(legislaturaId) {
     return new Promise(async function(resolve, reject) {
-        $.ajax({
-            url: baseUrl + "/dasi/view-abbinamenti-disponibili?legislaturaId=" + legislaturaId,
-            type: "GET"
-        }).done(function(result) {
-            resolve(result);
-        }).fail(function(err) {
+        const now = new Date().getTime();
+        const oneHour = 60 * 60 * 1000;
+
+        // Verifica se i dati sono in cache e non sono scaduti
+        if (cache.timestamp && (now - cache.timestamp < oneHour)) {
+            resolve(cache.data);
+            return;
+        }
+
+        let page = 0;
+        const size = 50; // possiamo impostare una dimensione di pagina standard
+        let allResults = [];
+
+        try {
+            while (true) {
+                const result = await $.ajax({
+                    url: `${baseUrl}/dasi/view-abbinamenti-disponibili`,
+                    type: "GET",
+                    data: {
+                        legislaturaId: legislaturaId,
+                        page: page,
+                        size: size
+                    }
+                });
+
+                if (result && result.length > 0) {
+                    allResults = allResults.concat(result);
+                    page++;
+                } else {
+                    break;
+                }
+            }
+
+            // Memorizza i dati nella cache e aggiorna il timestamp
+            cache.data = allResults;
+            cache.timestamp = now;
+
+            resolve(allResults);
+        } catch (err) {
             console.log("error", err);
-            Error(err);
-        });
+            reject(err);
+        }
     });
 }
 

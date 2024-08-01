@@ -38,4 +38,6 @@ public class QueryExtendedRequest
     public List<int> Organi { get; set; } = new List<int>();
     public List<DateTime> DataTrasmissione { get; set; } = new List<DateTime>();
     public bool DataTrasmissioneIsNull { get; set; } = false;
+    public bool RispostaMancante { get; set; } = false;
+    public bool OrganiIsNull { get; set; } = false;
 }

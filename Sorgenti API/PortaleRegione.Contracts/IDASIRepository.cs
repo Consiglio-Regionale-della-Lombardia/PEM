@@ -33,7 +33,7 @@ namespace PortaleRegione.Contracts
     {
         Task<ATTI_DASI> Get(Guid attoUId);
 
-        Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
+        Task<List<Guid>> GetAll(PersonaDto currentUser, int page, int size, ClientModeEnum mode,
             Filter<ATTI_DASI> filtro, QueryExtendedRequest queryExtended);
 
         Task<int> Count(Filter<ATTI_DASI> queryFilter);
@@ -77,7 +77,7 @@ namespace PortaleRegione.Contracts
         Task<List<AttiDocumentiDto>> GetDocumenti(Guid uidAtto);
         Task<List<NoteDto>> GetNote(Guid uidAtto);
         Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto);
-        Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId);
+        Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size);
         Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId);
 
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, ClientModeEnum clientMode, Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended);

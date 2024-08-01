@@ -83,7 +83,7 @@ namespace PortaleRegione.Gateway
         Task<FileResponse> GeneraZIP(ReportDto request);
         Task SalvaReport(ReportDto report);
         Task<List<ReportDto>> GetReports();
-        Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId);
+        Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size);
         Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId);
         Task EliminaReport(string nomeReport);
         Task<List<TemplatesItemDto>> GetReportsCovers();

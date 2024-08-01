@@ -616,9 +616,9 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId)
+        public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAbbinamentiDisponibili}?legislaturaId={legislaturaId}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAbbinamentiDisponibili}?legislaturaId={legislaturaId}&page={page}&size={size}";
             var lst = JsonConvert.DeserializeObject<List<AttoLightDto>>(await Get(requestUrl, _token));
             return lst;
         }

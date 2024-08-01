@@ -1225,11 +1225,11 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route(ApiRoutes.DASI.GetAbbinamentiDisponibili)]
-        public async Task<IHttpActionResult> GetAbbinamentiDisponibili(int legislaturaId)
+        public async Task<IHttpActionResult> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
         {
             try
             {
-                var res = await _dasiLogic.GetAbbinamentiDisponibili(legislaturaId);
+                var res = await _dasiLogic.GetAbbinamentiDisponibili(legislaturaId, page, size);
 
                 return Ok(res);
             }

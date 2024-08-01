@@ -952,7 +952,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				<div class="card blue lighten-5">
                     <div class="card-content black-text">
                         <span class="card-title">Informazioni</span>
-                        <p>Lasciare vuoto per cercare gli atti non protocollati</p>
+                        <p>Lasciare vuoto per cercare gli atti senza protocollo</p>
                     </div>
                 </div>
             </div>`;
@@ -962,6 +962,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
             var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
             selectHTML = `<div class="input-field col s12">
                 <input id="codice_materia" type="text" ${currentValueFormatted}/>
+				<div class="card blue lighten-5">
+                    <div class="card-content black-text">
+                        <span class="card-title">Informazioni</span>
+                        <p>Lasciare vuoto per cercare gli atti senza codice materia</p>
+                    </div>
+                </div>
             </div>`;
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;

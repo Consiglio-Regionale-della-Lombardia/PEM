@@ -113,73 +113,7 @@ namespace PortaleRegione.Client.Controllers
 
                 var apiGateway = new ApiGateway(Token);
 
-                foreach (var filterItem in model.filters)
-                {
-                    if (string.IsNullOrEmpty(filterItem.value))
-                    {
-                        request.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.IsNull,
-                            Connector = FilterStatementConnector.And
-                        });
-
-                        continue;
-                    }
-
-                    var values = filterItem.value.Split(',');
-                    if (values.Length > 1 && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto)))
-                    {
-                        if (Utility.IsDateProperty(filterItem.property))
-                        {
-                            request.filtro.Add(new FilterStatement<AttoDASIDto>
-                            {
-                                PropertyId = filterItem.property,
-                                Operation = Operation.GreaterThanOrEqualTo,
-                                Value = values[0].Trim(),
-                                Connector = FilterStatementConnector.And
-                            });
-
-                            request.filtro.Add(new FilterStatement<AttoDASIDto>
-                            {
-                                PropertyId = filterItem.property,
-                                Operation = Operation.LessThanOrEqualTo,
-                                Value = values[1].Trim(),
-                                Connector = FilterStatementConnector.And
-                            });
-                        }
-                        else
-                        {
-                            var orStatements = values.Select(value => new FilterStatement<AttoDASIDto>
-                            {
-                                PropertyId = filterItem.property,
-                                Operation = Operation.EqualTo,
-                                Value = value.Trim(),
-                                Connector = FilterStatementConnector.Or
-                            }).ToList();
-
-                            // Add the first statement to the main list
-                            request.filtro.Add(orStatements.First());
-
-                            // Link the remaining statements with 'Or' connectors
-                            for (int i = 1; i < orStatements.Count; i++)
-                            {
-                                orStatements[i].Connector = FilterStatementConnector.Or;
-                                request.filtro.Add(orStatements[i]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        request.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.EqualTo,
-                            Value = filterItem.value,
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
-                }
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
 
                 var res = await apiGateway.DASI.Get(request);
                 res.CurrentUser = CurrentUser;
@@ -1662,12 +1596,12 @@ namespace PortaleRegione.Client.Controllers
 
         [HttpGet]
         [Route("view-abbinamenti-disponibili")]
-        public async Task<ActionResult> GetAbbinamentiDisponibili(int legislaturaId)
+        public async Task<ActionResult> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
         {
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                var res = await apiGateway.DASI.GetAbbinamentiDisponibili(legislaturaId);
+                var res = await apiGateway.DASI.GetAbbinamentiDisponibili(legislaturaId, page, size);
                 return Json(res, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

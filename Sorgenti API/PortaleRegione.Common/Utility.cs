@@ -319,7 +319,7 @@ namespace PortaleRegione.Common
                     return "Stato non valido";
             }
         }
-        
+
         public static string GetText_ChiusuraIterDASI(int stato)
         {
             switch ((TipoChiusuraIterEnum)stato)
@@ -980,9 +980,170 @@ namespace PortaleRegione.Common
         {
             return propertyName == nameof(AttoDASIDto.Timestamp)
                    || propertyName == nameof(AttoDASIDto.DataAnnunzio)
+                   || propertyName == nameof(AttoDASIDto.DataComunicazioneAssemblea)
+                   || propertyName == nameof(AttoDASIDto.DataTrasmissione)
                    || propertyName == nameof(AttoDASIDto.DataChiusuraIter)
                    || propertyName == nameof(AttoDASIDto.DataIscrizioneSeduta)
-                   || propertyName == nameof(AttoDASIDto.UIDSeduta); 
+                   || propertyName == nameof(AttoDASIDto.UIDSeduta);
+        }
+
+        public static List<FilterStatement<AttoDASIDto>> ParseFilterDasi(List<FilterItem> clientFilters)
+        {
+            var result = new List<FilterStatement<AttoDASIDto>>();
+            if (clientFilters == null)
+                return result;
+
+            foreach (var filterItem in clientFilters)
+            {
+                if (string.IsNullOrEmpty(filterItem.value))
+                {
+                    if (IsDateProperty(filterItem.property)
+                        || filterItem.property.Equals(nameof(AttoDASIDto.TipoVotazioneIter))
+                        || filterItem.property.Equals(nameof(AttoDASIDto.TipoChiusuraIter))
+                        || filterItem.property.Equals(nameof(AttoDASIDto.Risposte))
+                        || filterItem.property.Equals(nameof(AttoDASIDto.Organi)))
+                    {
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.IsNull,
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+                    else
+                    {
+                        if (filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.EqualTo,
+                                Value = 0,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                        else
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.IsEmpty,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                    }
+
+                    continue;
+                }
+
+                var values = filterItem.value.Split(',');
+                if (values.Length > 1 && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto)))
+                {
+                    if (IsDateProperty(filterItem.property))
+                    {
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.GreaterThan,
+                            Value = DateTime.Parse(values[0].Trim()).ToString("yyyy-MM-dd") + " 00:00:00",
+                            Connector = FilterStatementConnector.And
+                        });
+
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.LessThan,
+                            Value = DateTime.Parse(values[1].Trim()).ToString("yyyy-MM-dd") + " 23:59:59",
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+                    else if (filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
+                    {
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.EqualTo,
+                            Value = int.Parse(values[0].Trim()),
+                            Connector = FilterStatementConnector.And
+                        });
+
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.DCCR),
+                            Operation = Operation.EqualTo,
+                            Value = int.Parse(values[1].Trim()),
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+                    else
+                    {
+                        var orStatements = values.Select(value => new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.EqualTo,
+                            Value = value.Trim(),
+                            Connector = FilterStatementConnector.Or
+                        }).ToList();
+
+                        // Add the first statement to the main list
+                        result.Add(orStatements.First());
+
+                        // Link the remaining statements with 'Or' connectors
+                        for (var i = 1; i < orStatements.Count; i++)
+                        {
+                            orStatements[i].Connector = FilterStatementConnector.Or;
+                            result.Add(orStatements[i]);
+                        }
+                    }
+                }
+                else
+                {
+                    if (IsDateProperty(filterItem.property))
+                    {
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.GreaterThan,
+                            Value = DateTime.Parse(filterItem.value.Trim()).ToString("yyyy-MM-dd") + " 00:00:00",
+                            Connector = FilterStatementConnector.And
+                        });
+
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.LessThan,
+                            Value = DateTime.Parse(filterItem.value.Trim()).ToString("yyyy-MM-dd") + " 23:59:59",
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+                    else
+                    {
+                        if (filterItem.property.Equals(nameof(AttoDASIDto.Protocollo))
+                            || filterItem.property.Equals(nameof(AttoDASIDto.CodiceMateria)))
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.Contains,
+                                Value = filterItem.value,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                        else
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.EqualTo,
+                                Value = filterItem.value,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }
