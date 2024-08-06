@@ -263,7 +263,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 data_iscrizione = attoInDb.DataIscrizioneSeduta?.ToString("dd/MM/yyyy"),
                 data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
                 stato_iter =
-                    Utility.GetText_StatoDASI(attoInDb.TipoChiusuraIter.HasValue ? attoInDb.TipoChiusuraIter.Value : 0),
+                    Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue ? attoInDb.TipoChiusuraIter.Value : 0),
                 gruppo = gruppo,
                 uid_proponente = attoInDb.UIDPersonaProponente.Value,
                 proponente = proponente,
@@ -273,7 +273,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 abbinamenti = abbinamenti,
                 dcrl = attoInDb.DCRL,
                 dcr = attoInDb.DCR,
-                dcrc = attoInDb.DCRC,
+                dcrc = attoInDb.DCCR,
                 firme = firme,
                 burl = attoInDb.BURL
             };
@@ -334,26 +334,26 @@ namespace PortaleRegione.Api.Public.Business_Layer
         /// </summary>
         /// <param name="request">L'oggetto richiesta contenente i criteri di ricerca.</param>
         /// <returns>Una task che, al suo completamento, restituisce un oggetto BaseResponse con i risultati della ricerca.</returns>
-        public async Task<BaseResponse<AttoDASILightDto>> Cerca(CercaRequest request)
+        public async Task<BaseResponse<AttoDasiPublicDto>> Cerca(CercaRequest request)
         {
             var filtroFromRequest = GetFiltroCercaFromRequest(request);
             var firmatari = new List<int>();
-            var firmatari_request = new List<FilterStatement<AttoDASILightDto>>();
+            var firmatari_request = new List<FilterStatement<AttoDasiPublicDto>>();
             if (filtroFromRequest.Any(statement => statement.PropertyId == "firmatari"))
             {
                 firmatari_request =
-                    new List<FilterStatement<AttoDASILightDto>>(filtroFromRequest.Where(statement =>
+                    new List<FilterStatement<AttoDasiPublicDto>>(filtroFromRequest.Where(statement =>
                         statement.PropertyId == "firmatari"));
                 firmatari.AddRange(firmatari_request.Select(firma => int.Parse(firma.Value.ToString())));
                 foreach (var firmatarioStatement in firmatari_request) filtroFromRequest.Remove(firmatarioStatement);
             }
 
             var proponenti = new List<int>();
-            var proponenti_request = new List<FilterStatement<AttoDASILightDto>>();
+            var proponenti_request = new List<FilterStatement<AttoDasiPublicDto>>();
             if (filtroFromRequest.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
             {
                 proponenti_request =
-                    new List<FilterStatement<AttoDASILightDto>>(filtroFromRequest.Where(statement =>
+                    new List<FilterStatement<AttoDasiPublicDto>>(filtroFromRequest.Where(statement =>
                         statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)));
                 proponenti.AddRange(proponenti_request.Select(proponente => int.Parse(proponente.Value.ToString())));
                 foreach (var proponenteStatement in proponenti_request) filtroFromRequest.Remove(proponenteStatement);
@@ -375,10 +375,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
             if (firmatari_request.Any())
                 filtroFromRequest.AddRange(firmatari_request);
 
-            return new BaseResponse<AttoDASILightDto>(
+            return new BaseResponse<AttoDasiPublicDto>(
                 request.page,
                 request.size,
-                res.Select(a => new AttoDASILightDto
+                res.Select(a => new AttoDasiPublicDto()
                 {
                     uidAtto = a.UIDAtto,
                     oggetto = a.Oggetto,
@@ -390,12 +390,12 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 tot);
         }
 
-        private List<FilterStatement<AttoDASILightDto>> GetFiltroCercaFromRequest(CercaRequest request)
+        private List<FilterStatement<AttoDasiPublicDto>> GetFiltroCercaFromRequest(CercaRequest request)
         {
-            var res = new List<FilterStatement<AttoDASILightDto>>();
+            var res = new List<FilterStatement<AttoDasiPublicDto>>();
             if (request.id_tipo.HasValue && request.id_tipo > 0)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoDasiPublicDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Tipo),
                     Value = request.id_tipo.Value,
@@ -406,7 +406,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (request.id_legislatura.HasValue && request.id_legislatura > 0)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoDasiPublicDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Legislatura),
                     Value = request.id_legislatura.Value,
@@ -419,7 +419,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             {
                 foreach (var stato in request.stati)
                 {
-                    res.Add(new FilterStatement<AttoDASILightDto>
+                    res.Add(new FilterStatement<AttoDasiPublicDto>
                     {
                         PropertyId = nameof(ATTI_DASI.IDStato),
                         Value = stato,
@@ -431,7 +431,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (request.id_tipo_risposta.HasValue && request.id_tipo_risposta > 0)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoDasiPublicDto>
                 {
                     PropertyId = nameof(ATTI_DASI.IDTipo_Risposta),
                     Value = request.id_tipo_risposta.Value,
@@ -442,7 +442,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (request.id_gruppo.HasValue && request.id_gruppo > 0)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoDasiPublicDto>
                 {
                     PropertyId = nameof(ATTI_DASI.id_gruppo),
                     Value = request.id_gruppo.Value,
@@ -457,7 +457,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 {
                     var n_attoSplit = request.n_atto.Split('-');
 
-                    res.Add(new FilterStatement<AttoDASILightDto>
+                    res.Add(new FilterStatement<AttoDasiPublicDto>
                     {
                         PropertyId = nameof(ATTI_DASI.NAtto_search),
                         Value = int.Parse(n_attoSplit[0]),
@@ -468,7 +468,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 }
                 else
                 {
-                    res.Add(new FilterStatement<AttoDASILightDto>
+                    res.Add(new FilterStatement<AttoDasiPublicDto>
                     {
                         PropertyId = nameof(ATTI_DASI.NAtto_search),
                         Value = int.Parse(request.n_atto),
@@ -480,7 +480,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (request.data_presentazione_da.HasValue)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoDasiPublicDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Timestamp),
                     Value = request.data_presentazione_da.Value,
@@ -491,7 +491,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (request.data_presentazione_a.HasValue)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoDasiPublicDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Timestamp),
                     Value = request.data_presentazione_a.Value,
@@ -502,7 +502,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (request.id_proponente.HasValue)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoDasiPublicDto>
                 {
                     PropertyId = nameof(ATTI_DASI.UIDPersonaProponente),
                     Value = request.id_proponente.Value,
@@ -515,7 +515,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             {
                 foreach (var firmatario in request.firmatari)
                 {
-                    res.Add(new FilterStatement<AttoDASILightDto>
+                    res.Add(new FilterStatement<AttoDasiPublicDto>
                     {
                         PropertyId = "firmatari",
                         Value = firmatario,
@@ -527,11 +527,44 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (!string.IsNullOrEmpty(request.oggetto))
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoDasiPublicDto>
                 {
                     PropertyId = nameof(ATTI_DASI.UIDPersonaProponente),
                     Value = request.oggetto,
                     Operation = Operation.Contains,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+            
+            if (!string.IsNullOrEmpty(request.burl))
+            {
+                res.Add(new FilterStatement<AttoDasiPublicDto>
+                {
+                    PropertyId = nameof(ATTI_DASI.BURL),
+                    Value = request.burl,
+                    Operation = Operation.Contains,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+            
+            if (request.dcr.HasValue)
+            {
+                res.Add(new FilterStatement<AttoDasiPublicDto>
+                {
+                    PropertyId = nameof(ATTI_DASI.DCR),
+                    Value = request.dcr.Value,
+                    Operation = Operation.EqualTo,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+            
+            if (request.dccr.HasValue)
+            {
+                res.Add(new FilterStatement<AttoDasiPublicDto>
+                {
+                    PropertyId = nameof(ATTI_DASI.DCCR),
+                    Value = request.dccr.Value,
+                    Operation = Operation.EqualTo,
                     Connector = FilterStatementConnector.And
                 });
             }

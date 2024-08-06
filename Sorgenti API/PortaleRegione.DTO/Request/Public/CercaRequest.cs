@@ -62,6 +62,15 @@ namespace PortaleRegione.DTO.Request.Public
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string n_atto { get; set; }
         
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string burl { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? dcr { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? dccr { get; set; }
+        
         public int page { get; set; } = 1;
         public int size { get; set; } = 20;
     }

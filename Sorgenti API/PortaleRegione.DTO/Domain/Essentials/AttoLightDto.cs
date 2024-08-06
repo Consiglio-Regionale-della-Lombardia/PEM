@@ -68,8 +68,8 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string data_annunzio { get; set; }
         public string stato_iter { get; set; }
         public string dcrl { get; set; }
-        public int dcr { get; set; }
-        public int dcrc { get; set; }
+        public int? dcr { get; set; }
+        public int? dcrc { get; set; }
         public List<AttiAbbinamentoDto> abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
         public string burl { get; set; }
     }

@@ -292,7 +292,7 @@ namespace PortaleRegione.Persistance.Public
             {
                 var abbinata = new AttiAbbinamentoDto
                 {
-                    Uid = attiAbbinamenti.Uid,
+                    UidAbbinamento = attiAbbinamenti.Uid,
                     Data = attiAbbinamenti.Data
                 };
 
