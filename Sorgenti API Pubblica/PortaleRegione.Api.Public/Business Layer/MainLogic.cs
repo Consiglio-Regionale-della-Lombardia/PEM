@@ -220,7 +220,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             //}
 
             proponente.DisplayName += $" ({gruppo.sigla.Trim()})";
-
+                
             var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);
             var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
             var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
