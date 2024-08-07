@@ -128,12 +128,12 @@ function GetAbbinamentiDisponibili(legislaturaId) {
         const oneHour = 60 * 60 * 1000;
 
         // Verifica se i dati sono in cache e non sono scaduti
-        if (cache.timestamp && (now - cache.timestamp < oneHour)) {
-            resolve(cache.data);
+        if (cacheAbbinamentiDisponibili.timestamp && (now - cacheAbbinamentiDisponibili.timestamp < oneHour)) {
+            resolve(cacheAbbinamentiDisponibili.data);
             return;
         }
 
-        let page = 0;
+        let page = 1;
         const size = 50; // possiamo impostare una dimensione di pagina standard
         let allResults = [];
 
@@ -158,8 +158,8 @@ function GetAbbinamentiDisponibili(legislaturaId) {
             }
 
             // Memorizza i dati nella cache e aggiorna il timestamp
-            cache.data = allResults;
-            cache.timestamp = now;
+            cacheAbbinamentiDisponibili.data = allResults;
+            cacheAbbinamentiDisponibili.timestamp = now;
 
             resolve(allResults);
         } catch (err) {
