@@ -155,6 +155,21 @@ namespace PortaleRegione.Persistance.Public
                     .Where(g => !g.docs.Any())
                     .Select(g => g.atto);
             }
+            
+            if (request.id_tipo_risposta.Any())
+            {
+                var attiRisposte = PRContext
+                    .ATTI_RISPOSTE
+                    .Where(c => request.id_tipo_risposta.Contains(c.Tipo))
+                    .Select(c => c.UIDAtto);
+
+                query = query.GroupJoin(attiRisposte,
+                        atto => atto.UIDAtto,
+                        doc => doc,
+                        (atto, docs) => new { atto, docs })
+                    .Where(g => !g.docs.Any())
+                    .Select(g => g.atto);
+            }
 
             return query;
         }

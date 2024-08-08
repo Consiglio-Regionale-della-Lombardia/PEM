@@ -32,19 +32,19 @@ internal class Program
             foreach (var filePath in files)
             {
                 var fileName = Path.GetFileName(filePath);
-                var match = Regex.Match(fileName, @"Atto_(\w+)_Id_Leg_Rif_(\d+)_Numero_Atto_(\d+)");
+                var match = Regex.Match(fileName, @"(?:CHIUSURA_ITER_|testo_privacy_)?atto_(\w+)_Id_Leg_Rif_(\d+)_Numero_Atto_(\d+)");
 
                 if (match.Success)
                 {
                     var tipo = match.Groups[1].Value;
                     var legislatura = match.Groups[2].Value;
                     var numeroAtto = match.Groups[3].Value;
-                    var tipoAtto = ParseTipoAtto(Path.GetFullPath(filePath));
-                    var tipoDocumento = ParseTipoDocumento(tipo);
+                    var tipoAtto = ParseTipoAtto(filePath);
+                    var tipoDocumento = ParseTipoDocumento(fileName);
 
                     Debug(
-                        $"Tipo Documento: {match.Groups[1].Value}[{tipoDocumento}], Legislatura: {legislatura}, Numero Atto: {numeroAtto}");
-
+                        $"Tipo Documento: {tipoAtto}[{tipoDocumento}], Legislatura: {legislatura}, Numero Atto: {numeroAtto}");
+                    
                     var connectionString = ConfigurationManager.AppSettings["connection_string"];
                     using (var connection = new SqlConnection(connectionString))
                     {
@@ -53,7 +53,7 @@ internal class Program
                         var atto = GetAtto(connection, legislatura, numeroAtto, tipoAtto);
                         if (atto == null)
                         {
-                            Debug($"Atto non trovato nel database. Legislatura: {legislatura}, Numero Atto: {numeroAtto}, Tipo Atto: {tipoAtto}");
+                            Debug($"Atto non trovato nel database [{fileName}]. Legislatura: {legislatura}, Numero Atto: {numeroAtto}, Tipo Atto: {tipoAtto}");
                             sb.AppendLine($"{fileName},atto_non_trovato");
                             continue;
                         }
@@ -170,6 +170,9 @@ AND Tipo = @TipoAtto";
         else if (lowerTipoDocumento.Contains("ordine_del_giorno"))
         {
             return (int)TipoAttoEnum.ODG;
+        } else if (lowerTipoDocumento.Contains("risoluzione"))
+        {
+            return (int)TipoAttoEnum.RIS;
         }
 
         return 0;
@@ -198,6 +201,10 @@ AND Tipo = @TipoAtto";
         else if (lowerTipoDocumento.Contains("risposta"))
         {
             return (int)TipoDocumentoEnum.RISPOSTA;
+        }
+        else if (lowerTipoDocumento.Contains("privacy"))
+        {
+            return (int)TipoDocumentoEnum.TESTO_PRIVACY;
         }
 
         return (int)TipoDocumentoEnum.TESTO_ALLEGATO;

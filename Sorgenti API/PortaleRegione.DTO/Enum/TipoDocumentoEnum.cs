@@ -25,5 +25,6 @@ public enum TipoDocumentoEnum
     MONITORAGGIO = 2,
     ABBINAMENTO = 3,
     CHIUSURA_ITER = 4,
-    RISPOSTA = 5
+    RISPOSTA = 5,
+    TESTO_PRIVACY = 6
 }

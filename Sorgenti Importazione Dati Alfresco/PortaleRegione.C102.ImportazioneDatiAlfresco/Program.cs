@@ -773,7 +773,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var area = Convert.ToString(cellsAtti[row, 23].Value);
 
-                                var dataComunicazioneAssemblea = Convert.ToString(cellsAtti[row, 91].Value);
+                                var dataComunicazioneAssemblea = Convert.ToString(cellsAtti[row, 31].Value);
                                 var dataAnnunzio = Convert.ToString(cellsAtti[row, 17].Value);
                                 var codiceMateria = Convert.ToString(cellsAtti[row, 18].Value);
                                 var protocollo = Convert.ToString(cellsAtti[row, 14].Value);
@@ -791,6 +791,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var tipoVotazione = Convert.ToString(cellsAtti[row, 33].Value);
                                 var dcrl = Convert.ToString(cellsAtti[row, 34].Value);
+                                var burl = Convert.ToString(cellsAtti[row, 35].Value);
                                 var dcr = Convert.ToString(cellsAtti[row, 44].Value);
                                 if (string.IsNullOrEmpty(dcr))
                                 {
@@ -820,14 +821,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 (UIDAtto, Tipo, TipoMOZ, NAtto, Etichetta, NAtto_search, Oggetto, Premesse, IDTipo_Risposta, DataPresentazione, IDStato, Legislatura, 
                                 UIDPersonaCreazione, UIDPersonaPresentazione, idRuoloCreazione, UIDPersonaProponente, UIDPersonaPrimaFirma, 
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
-{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, DCR, DCCR, DCRL, AreaTematica, AltriSoggetti, Privacy_Dati_Personali_Giudiziari,
+{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, BURL, DCR, DCCR, DCRL, AreaTematica, AltriSoggetti, Privacy_Dati_Personali_Giudiziari,
 Privacy_Divieto_Pubblicazione_Salute, Privacy_Divieto_Pubblicazione_Vita_Sessuale, Privacy_Divieto_Pubblicazione, Privacy_Dati_Personali_Sensibili, Privacy_Divieto_Pubblicazione_Altri, Privacy_Dati_Personali_Semplici, 
 Privacy{FIELD_DATA_DataComunicazioneAssemblea}, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
-{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, @Privacy_Dati_Personali_Giudiziari,
+{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @BURL, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, @Privacy_Dati_Personali_Giudiziari,
 @Privacy_Divieto_Pubblicazione_Salute, @Privacy_Divieto_Pubblicazione_Vita_Sessuale, @Privacy_Divieto_Pubblicazione, @Privacy_Dati_Personali_Sensibili, @Privacy_Divieto_Pubblicazione_Altri, @Privacy_Dati_Personali_Semplici, 
 @Privacy{PARAM_DATA_DataComunicazioneAssemblea}, 0, 0, 0)";
 
@@ -908,6 +909,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, Proietta, Firma_su_invito, Elimi
                                 command.Parameters.AddWithValue("@Protocollo", protocollo);
                                 command.Parameters.AddWithValue("@CodiceMateria", codiceMateria);
                                 command.Parameters.AddWithValue("@Emendato", emendato);
+                                command.Parameters.AddWithValue("@BURL", burl);
                                 command.Parameters.AddWithValue("@DCR", dcr);
                                 command.Parameters.AddWithValue("@DCRC", dcrc);
                                 command.Parameters.AddWithValue("@DCRL", dcrl);
