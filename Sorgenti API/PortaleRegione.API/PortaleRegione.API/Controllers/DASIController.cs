@@ -1239,6 +1239,28 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per avere tutti i gruppi per una data legislatura
+        /// </summary>
+        /// <param name="legislaturaId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetGruppiDisponibili)]
+        public async Task<IHttpActionResult> GetGruppiDisponibili(int legislaturaId, int page, int size)
+        {
+            try
+            {
+                var res = await _dasiLogic.GetGruppiDisponibili(legislaturaId, page, size);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get gruppi disponibili", e);
+                return ErrorHandler(e);
+            }
+        }
         
         /// <summary>
         ///     Endpoint per avere tutti gli organi per una data legislatura

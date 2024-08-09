@@ -336,6 +336,10 @@ namespace PortaleRegione.Common
                     return "Decaduto per fine legislatura";
                 case TipoChiusuraIterEnum.INAMMISSIBILE:
                     return "Inammissibile";
+                case TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA:
+                    return "Comunicazione all'assemblea";
+                case TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA:
+                    return "Trattazione in assemblea";
                 default:
                     return "Chiusura iter non valida";
             }
@@ -982,6 +986,7 @@ namespace PortaleRegione.Common
                    || propertyName == nameof(AttoDASIDto.DataAnnunzio)
                    || propertyName == nameof(AttoDASIDto.DataComunicazioneAssemblea)
                    || propertyName == nameof(AttoDASIDto.DataTrasmissione)
+                   || propertyName == nameof(AttoDASIDto.DataTrattazione)
                    || propertyName == nameof(AttoDASIDto.DataChiusuraIter)
                    || propertyName == nameof(AttoDASIDto.DataIscrizioneSeduta)
                    || propertyName == nameof(AttoDASIDto.UIDSeduta);
@@ -995,6 +1000,29 @@ namespace PortaleRegione.Common
 
             foreach (var filterItem in clientFilters)
             {
+                if (filterItem.not_empty)
+                {
+                    if (filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
+                    {
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.DCRL),
+                            Operation = Operation.IsNotEmpty,
+                            Connector = FilterStatementConnector.And
+                        });
+                        continue;
+                    }
+
+                    result.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = filterItem.property,
+                        Operation = Operation.IsNotNullNorWhiteSpace,
+                        Connector = FilterStatementConnector.And
+                    });
+
+                    continue;
+                }
+
                 if (string.IsNullOrEmpty(filterItem.value))
                 {
                     if (IsDateProperty(filterItem.property)
@@ -1017,6 +1045,14 @@ namespace PortaleRegione.Common
                             result.Add(new FilterStatement<AttoDASIDto>
                             {
                                 PropertyId = filterItem.property,
+                                Operation = Operation.EqualTo,
+                                Value = 0,
+                                Connector = FilterStatementConnector.And
+                            });
+                            
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = nameof(AttoDASIDto.DCCR),
                                 Operation = Operation.EqualTo,
                                 Value = 0,
                                 Connector = FilterStatementConnector.And
@@ -1059,21 +1095,27 @@ namespace PortaleRegione.Common
                     }
                     else if (filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
                     {
-                        result.Add(new FilterStatement<AttoDASIDto>
+                        if (int.Parse(values[0].Trim()) > 0)
                         {
-                            PropertyId = filterItem.property,
-                            Operation = Operation.EqualTo,
-                            Value = int.Parse(values[0].Trim()),
-                            Connector = FilterStatementConnector.And
-                        });
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.EqualTo,
+                                Value = int.Parse(values[0].Trim()),
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
 
-                        result.Add(new FilterStatement<AttoDASIDto>
+                        if (int.Parse(values[1].Trim()) > 0)
                         {
-                            PropertyId = nameof(AttoDASIDto.DCCR),
-                            Operation = Operation.EqualTo,
-                            Value = int.Parse(values[1].Trim()),
-                            Connector = FilterStatementConnector.And
-                        });
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = nameof(AttoDASIDto.DCCR),
+                                Operation = Operation.EqualTo,
+                                Value = int.Parse(values[1].Trim()),
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
                     }
                     else
                     {
@@ -1119,7 +1161,8 @@ namespace PortaleRegione.Common
                     else
                     {
                         if (filterItem.property.Equals(nameof(AttoDASIDto.Protocollo))
-                            || filterItem.property.Equals(nameof(AttoDASIDto.CodiceMateria)))
+                            || filterItem.property.Equals(nameof(AttoDASIDto.CodiceMateria))
+                            || filterItem.property.Equals(nameof(AttoDASIDto.BURL)))
                         {
                             result.Add(new FilterStatement<AttoDASIDto>
                             {

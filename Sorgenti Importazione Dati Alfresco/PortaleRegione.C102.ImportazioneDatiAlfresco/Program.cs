@@ -783,6 +783,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var tipoChiusuraIter = Convert.ToString(cellsAtti[row, 28].Value);
                                 var dataChiusuraIter = Convert.ToString(cellsAtti[row, 30].Value);
+                                var iterMultiplo = Convert.ToString(cellsAtti[row, 50].Value) == "1";
 
                                 var emendatoFromAlfresco = Convert.ToString(cellsAtti[row, 32].Value);
                                 var emendato = !string.IsNullOrEmpty(emendatoFromAlfresco)
@@ -823,14 +824,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
 {FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, BURL, DCR, DCCR, DCRL, AreaTematica, AltriSoggetti, Privacy_Dati_Personali_Giudiziari,
 Privacy_Divieto_Pubblicazione_Salute, Privacy_Divieto_Pubblicazione_Vita_Sessuale, Privacy_Divieto_Pubblicazione, Privacy_Dati_Personali_Sensibili, Privacy_Divieto_Pubblicazione_Altri, Privacy_Dati_Personali_Semplici, 
-Privacy{FIELD_DATA_DataComunicazioneAssemblea}, Proietta, Firma_su_invito, Eliminato) 
+Privacy{FIELD_DATA_DataComunicazioneAssemblea}, IterMultiplo, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
 {PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @BURL, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, @Privacy_Dati_Personali_Giudiziari,
 @Privacy_Divieto_Pubblicazione_Salute, @Privacy_Divieto_Pubblicazione_Vita_Sessuale, @Privacy_Divieto_Pubblicazione, @Privacy_Dati_Personali_Sensibili, @Privacy_Divieto_Pubblicazione_Altri, @Privacy_Dati_Personali_Semplici, 
-@Privacy{PARAM_DATA_DataComunicazioneAssemblea}, 0, 0, 0)";
+@Privacy{PARAM_DATA_DataComunicazioneAssemblea}, @IterMultiplo, 0, 0, 0)";
 
                                 if (string.IsNullOrEmpty(dataAnnunzio))
                                     query = query
@@ -915,6 +916,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, Proietta, Firma_su_invito, Elimi
                                 command.Parameters.AddWithValue("@DCRL", dcrl);
                                 command.Parameters.AddWithValue("@AreaTematica", areaTematica);
                                 command.Parameters.AddWithValue("@AltriSoggetti", altriSoggetti);
+                                command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
 
                                 command.Parameters.AddWithValue("@Privacy_Dati_Personali_Giudiziari", privacy_dati_personali_giudiziari_sn);
                                 command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Salute", privacy_divieto_pubblicazione_salute_sn);
@@ -1215,6 +1217,14 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, Proietta, Firma_su_invito, Elimi
                 case "decadenza":
                 {
                     return (int)TipoChiusuraIterEnum.DECADUTO;
+                }
+                case "comunicazione":
+                {
+                    return (int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA;
+                }
+                case "trattazione":
+                {
+                    return (int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA;
                 }
                 default: 
                 {

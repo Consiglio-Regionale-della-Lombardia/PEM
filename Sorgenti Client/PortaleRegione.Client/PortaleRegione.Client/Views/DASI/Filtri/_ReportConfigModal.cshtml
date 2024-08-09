@@ -152,11 +152,20 @@
 		var request = {};
 		var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
         var filtriList = [];
-        $.each(filtri, function(index, item){
-			filtriList.push({
-				property: item.key,
-				value: item.val
-			});
+		$.each(filtri, function (index, item) {
+			if (item.val.indexOf("Non vuoto") !== -1) {
+				filtriList.push({
+					property: item.key,
+					value: item.val,
+					not_empty: true
+				});
+			} else {
+				filtriList.push({
+					property: item.key,
+					value: item.val
+				});
+			}
+			
         });
 		request.filters = JSON.stringify(filtriList);
 		request.reportname = document.getElementById('report_name').value;

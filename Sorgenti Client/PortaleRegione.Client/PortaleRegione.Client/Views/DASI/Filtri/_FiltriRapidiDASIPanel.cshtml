@@ -43,6 +43,9 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataAnnunzio))", id: "@nameof(AttoDASIDto.DataAnnunzio)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoMOZ))", id: "@nameof(AttoDASIDto.TipoMOZ)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Abbinamenti))", id: "@nameof(AttoDASIDto.Abbinamenti)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.id_gruppo))", id: "@nameof(AttoDASIDto.id_gruppo)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.id_gruppo_firmatari))", id: "@nameof(AttoDASIDto.id_gruppo_firmatari)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Firme))", id: "@nameof(AttoDASIDto.Firme)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Sollecito))", id: "@nameof(AttoDASIDto.Sollecito)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Pubblicato))", id: "@nameof(AttoDASIDto.Pubblicato)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Protocollo))", id: "@nameof(AttoDASIDto.Protocollo)"},
@@ -56,7 +59,9 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Risposte))", id: "@nameof(AttoDASIDto.Risposte)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi))", id: "@nameof(AttoDASIDto.Organi)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataTrasmissione))", id: "@nameof(AttoDASIDto.DataTrasmissione)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataTrattazione))", id: "@nameof(AttoDASIDto.DataTrattazione)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataComunicazioneAssemblea))", id: "@nameof(AttoDASIDto.DataComunicazioneAssemblea)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataRisposta))", id: "@nameof(AttoDASIDto.DataRisposta)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy))", id: "@nameof(AttoDASIDto.Privacy)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)"},
@@ -65,6 +70,10 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.AreaPolitica))", id: "@nameof(AttoDASIDto.AreaPolitica)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.BURL))", id: "@nameof(AttoDASIDto.BURL)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Note))", id: "@nameof(AttoDASIDto.Note)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IterMultiplo))", id: "@nameof(AttoDASIDto.IterMultiplo)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -91,18 +100,29 @@ document.addEventListener('DOMContentLoaded', async function() {
             val = document.getElementById('oggetto').value;
             text = val;
             chipText = keyLabel + ": " + val;
+        }else if (key === "@nameof(AttoDASIDto.BURL)") {
+            val = document.getElementById('burl').value;
+            text = val;
+            chipText = keyLabel + ": " + val;
+        }else if (key === "@nameof(AttoDASIDto.Note)") {
+            val = document.getElementById('note').value;
+            text = val;
+            chipText = keyLabel + ": " + val;
         }else if (key === "@nameof(AttoDASIDto.Protocollo)") {
             val = document.getElementById('protocollo').value;
             text = val;
             chipText = keyLabel + ": " + val;
         }else if (key === "@nameof(AttoDASIDto.DCR)") {
-            var dcrValue = document.getElementById('dcr').value.trim();
-            var dcrcValue = document.getElementById('dcrc').value.trim();
+			var dcrValue = document.getElementById('dcr').value.trim();
+			var dcrcValue = document.getElementById('dcrc').value.trim();
+			var nonEmptyChecked = document.getElementById('dcr_non_empty').checked;
 
-			dcrValue = dcrValue === "0" ? "" : dcrValue;
-			dcrcValue = dcrcValue === "0" ? "" : dcrcValue;
+			dcrValue = dcrValue === "" ? "0" : dcrValue;
+			dcrcValue = dcrcValue === "" ? "0" : dcrcValue;
 
-			if (dcrcValue !== "") {
+			if (nonEmptyChecked) {
+				val = 'Non vuoto';
+			}else if (dcrcValue !== "0") {
 				val = dcrValue + (dcrValue ? ', ' : '') + dcrcValue;
 			} else {
 				val = dcrValue;
@@ -110,9 +130,15 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 			text = val;
 			chipText = keyLabel + ": " + text;
-            chipText = keyLabel + ": " + text;
-        } else if (key === "@nameof(AttoDASIDto.IDStato)") {
+		} else if (key === "@nameof(AttoDASIDto.IDStato)") {
 			var selectedOptions = document.querySelectorAll('#stati-select option:checked');
+			var values = Array.from(selectedOptions).map(option => option.value);
+			var texts = Array.from(selectedOptions).map(option => option.text);
+			val = values.join(',');
+			text = texts.join(', ');
+			chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.AreaPolitica)") {
+			var selectedOptions = document.querySelectorAll('#area-politica-select option:checked');
 			var values = Array.from(selectedOptions).map(option => option.value);
 			var texts = Array.from(selectedOptions).map(option => option.text);
 			val = values.join(',');
@@ -175,8 +201,16 @@ document.addEventListener('DOMContentLoaded', async function() {
 			val = document.getElementById('sollecito').checked;
 			text = val ? 'Si' : 'No';
             chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.IterMultiplo)") {
+			val = document.getElementById('iter-multiplo').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.Emendato)") {
 			val = document.getElementById('emendato').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.PresentatoOltreITermini)") {
+			val = document.getElementById('presentato-oltre-i-termini').checked;
 			text = val ? 'Si' : 'No';
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.Privacy)") {
@@ -257,6 +291,27 @@ document.addEventListener('DOMContentLoaded', async function() {
 				}
 			}
             chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.DataRisposta)") {
+			text = "";
+			val = "";
+			var data_da_str = document.getElementById('data_risposta_da').value;
+			var date_da_obj = new Date(data_da_str);
+			if (!isNaN(date_da_obj.getTime())) {
+				var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+				val = data_da_formatted_date;
+				text = data_da_formatted_date;
+			}
+
+			if (document.getElementById('data_risposta_a').value !== '') {
+				var data_a_str = document.getElementById('data_risposta_a').value;
+			    var date_a_obj = new Date(data_a_str);
+				if (!isNaN(date_a_obj.getTime())) {
+					var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+					val += "," + data_a_formatted_date;
+					text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+				}
+			}
+            chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.DataChiusuraIter)") {
 			val = "";
 			text = "";
@@ -291,6 +346,27 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 			if (document.getElementById('data_trasmissione_a').value !== '') {
 				var data_a_str = document.getElementById('data_trasmissione_a').value;
+			    var date_a_obj = new Date(data_a_str);
+				if (!isNaN(date_a_obj.getTime())) {
+					var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+					val += "," + data_a_formatted_date;
+					text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+				}
+			}
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.DataTrattazione)") {
+			val = "";
+			text = "";
+			var data_da_str = document.getElementById('data_trattazione_da').value;
+			var date_da_obj = new Date(data_da_str);
+			if (!isNaN(date_da_obj.getTime())) {
+				var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+				val = data_da_formatted_date;
+				text = data_da_formatted_date;
+			}
+
+			if (document.getElementById('data_trattazione_a').value !== '') {
+				var data_a_str = document.getElementById('data_trattazione_a').value;
 			    var date_a_obj = new Date(data_a_str);
 				if (!isNaN(date_a_obj.getTime())) {
 					var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
@@ -381,6 +457,23 @@ document.addEventListener('DOMContentLoaded', async function() {
 				val += item.getAttribute('data-proponente-uid');
 			});
             chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Firme)") {
+			text = "";
+			val = "";
+			var existingChips = document.querySelectorAll(`.chip[data-firme-uid]`);
+			existingChips.forEach(function (item, index){
+				var chipInnerText = Array.from(item.childNodes)
+					.filter(node => node.nodeType === Node.TEXT_NODE)
+					.map(node => node.textContent.trim())
+					.join('');
+				if (index > 0) {
+					text += ", ";
+					val += ",";
+				}
+				text += chipInnerText;
+				val += item.getAttribute('data-firme-uid');
+			});
+            chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.Abbinamenti)") {
 			text = "";
 			val = "";
@@ -396,6 +489,40 @@ document.addEventListener('DOMContentLoaded', async function() {
 				}
 				text += chipInnerText;
 				val += item.getAttribute('data-abbinamento-uid');
+			});
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.id_gruppo)") {
+			text = "";
+			val = "";
+			var existingChips = document.querySelectorAll(`.chip[data-gruppo-id]`);
+			existingChips.forEach(function (item, index){
+				var chipInnerText = Array.from(item.childNodes)
+					.filter(node => node.nodeType === Node.TEXT_NODE)
+					.map(node => node.textContent.trim())
+					.join('');
+				if (index > 0) {
+					text += ", ";
+					val += ",";
+				}
+				text += chipInnerText;
+				val += item.getAttribute('data-gruppo-id');
+			});
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.id_gruppo_firmatari)") {
+			text = "";
+			val = "";
+			var existingChips = document.querySelectorAll(`.chip[data-gruppo-firmatari-id]`);
+			existingChips.forEach(function (item, index){
+				var chipInnerText = Array.from(item.childNodes)
+					.filter(node => node.nodeType === Node.TEXT_NODE)
+					.map(node => node.textContent.trim())
+					.join('');
+				if (index > 0) {
+					text += ", ";
+					val += ",";
+				}
+				text += chipInnerText;
+				val += item.getAttribute('data-gruppo-firmatari-id');
 			});
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.Organi)") {
@@ -467,10 +594,19 @@ async function inviaDatiChips(page, size) {
 	var request = {};
 	var chipsData = [];
 	document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
-		chipsData.push({
-			property: chip.getAttribute('data-filterby'),
-			value: chip.getAttribute('data-val')
-		});
+		if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
+			chipsData.push({
+				property: chip.getAttribute('data-filterby'),
+				value: '',
+				not_empty: true
+			});
+		}
+		else {
+			chipsData.push({
+				property: chip.getAttribute('data-filterby'),
+				value: chip.getAttribute('data-val')
+			});
+		}		
 	});
 
 	try {
@@ -863,11 +999,33 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			    { id: @((int)TipoChiusuraIterEnum.INAMMISSIBILE), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE))'},
 			    { id: @((int)TipoChiusuraIterEnum.DECADUTO), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO))'},
 			    { id: @((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA))'},
-				{ id: @((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI))'},
+				{ id: @((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI))' },
+				{ id: @((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA))' },
+				{ id: @((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA))'},
 			];
 
 			selectHTML = '<select id="tipi-chiusura-iter-select" multiple>';
 			tipiChiusuraIter.forEach(function (item) {
+				if (item.id != 0) {
+					var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+					selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+				}
+			});
+			selectHTML += '</select>';
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			M.FormSelect.init(document.querySelectorAll('select'));
+			break;
+		case '@nameof(AttoDASIDto.AreaPolitica)':
+			var tipiAreaPolitica = [
+			    { id: @((int)AreaPoliticaIntEnum.Maggioranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza))'},
+			    { id: @((int)AreaPoliticaIntEnum.Minoranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza))'},
+			    { id: @((int)AreaPoliticaIntEnum.Misto_Maggioranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza))'},
+			    { id: @((int)AreaPoliticaIntEnum.Misto_Minoranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza))'},
+			    { id: @((int)AreaPoliticaIntEnum.Misto), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto))'},
+			];
+
+			selectHTML = '<select id="area-politica-select" multiple>';
+			tipiAreaPolitica.forEach(function (item) {
 				if (item.id != 0) {
 					var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
 					selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
@@ -884,6 +1042,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 	            { id: @((int)TipoDocumentoEnum.AGGIUNTIVO), text: 'Aggiuntivo'},
 	            { id: @((int)TipoDocumentoEnum.ABBINAMENTO), text: 'Abbinamento'},
 	            { id: @((int)TipoDocumentoEnum.CHIUSURA_ITER), text: 'Chiusura iter'},
+	            { id: @((int)TipoDocumentoEnum.VERBALE_VOTAZIONE), text: 'Verbale votazione'},
 	            { id: @((int)TipoDocumentoEnum.MONITORAGGIO), text: 'Monitoraggio'}
 	        ];
 
@@ -957,6 +1116,26 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                 </div>
             </div>`;
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			break;
+		case '@nameof(AttoDASIDto.BURL)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="burl" type="text" ${currentValueFormatted}/>
+				<div class="card blue lighten-5">
+                    <div class="card-content black-text">
+                        <span class="card-title">Informazioni</span>
+                        <p>Lasciare vuoto per cercare gli atti senza burl</p>
+                    </div>
+                </div>
+            </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			break;
+		case '@nameof(AttoDASIDto.Note)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="note" type="text" ${currentValueFormatted}/>
+            </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.CodiceMateria)':
             var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
@@ -1010,6 +1189,34 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
   </div>
   <div class="input-field col s12">
       <input id="data_trasmissione_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			break;
+		case '@nameof(AttoDASIDto.DataTrattazione)':
+
+			var dateValues = handleDateValue(currentValue);
+			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+			var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+			selectHTML = `<div class="input-field col s12">
+      <input id="data_trattazione_da" type="date" ${currentValueFormatted1}/>
+  </div>
+  <div class="input-field col s12">
+      <input id="data_trattazione_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			break;
+		case '@nameof(AttoDASIDto.DataRisposta)':
+
+			var dateValues = handleDateValue(currentValue);
+			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+			var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+			selectHTML = `<div class="input-field col s12">
+      <input id="data_risposta_da" type="date" ${currentValueFormatted1}/>
+  </div>
+  <div class="input-field col s12">
+      <input id="data_risposta_a" type="date" ${currentValueFormatted2}/>
   </div>`;
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
@@ -1151,6 +1358,89 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				    });
             }
 
+			break;
+		case '@nameof(AttoDASIDto.Firme)':
+			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+	            var idLegislatura = legislaturaChip.getAttribute('data-val');
+				var persone = await GetProponenti(idLegislatura);
+				selectHTML = `<div class="input-field col s12">
+	            <i class="material-icons prefix">search</i>
+		        <input type="text" id="firme-autocomplete" class="autocomplete">
+
+				<div id="firme-selected"></div>
+		     </div>`;
+
+				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+				var data = [];
+				persone.forEach(function (item) {
+					data.push({
+						tag: `${item.DisplayName}`,
+						id: `${item.uid}`
+					});
+				});
+				var elems = document.querySelectorAll('#firme-autocomplete');
+				var instances = M.Autocomplete.init(elems, {
+					data: data,
+					limit: 20,
+					minLength: 2,
+					onAutocomplete: function (txt, key) {
+
+						var existingChip = document.querySelector(`.chip[data-firme-uid="${key}"]`);
+						if (!existingChip) {
+							var chipsContainerProponenti = document.getElementById('firme-selected');
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-firme-uid', key);
+							newChip.classList.add('chip');
+							newChip.textContent = txt;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerProponenti.appendChild(newChip);
+						}
+
+						document.getElementById('firme-autocomplete').value = "";
+					}
+				});
+
+				if (isEditing) {
+					var currentValueArray = currentValue.split(',');
+					var chipsContainerProponenti = document.getElementById('firme-selected');
+					currentValueArray.forEach(function (guid) {
+						var item = data.find(item => item.id === guid);
+						if (item) {
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-firme-uid', item.id);
+							newChip.classList.add('chip');
+							newChip.textContent = item.tag;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerProponenti.appendChild(newChip);
+						}
+					});
+				}
+            }else{
+	            swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+				    .then(() => {
+						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+				    });
+            }
+
             break;
 		case '@nameof(AttoDASIDto.TipoMOZ)':
 	        var tipiMozione = [
@@ -1252,6 +1542,172 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
 				    });
 			}
+			break;
+		case '@nameof(AttoDASIDto.id_gruppo)':
+			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+			if (legislaturaChip) {
+				var idLegislatura = legislaturaChip.getAttribute('data-val');
+				var gruppi = await GetGruppiByLegislatura(idLegislatura);
+
+				selectHTML = `<div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="gruppi-autocomplete" class="autocomplete">
+
+		        <div id="gruppi-selected"></div>
+             </div>`;
+
+				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+				var data = [];
+				gruppi.forEach(function (item) {
+					data.push({
+						tag: `${item.nome_gruppo}`,
+						id: `${item.id_gruppo}`
+					});
+				});
+				var elems = document.querySelectorAll('#gruppi-autocomplete');
+				var instances = M.Autocomplete.init(elems, {
+					data: data,
+					limit: 20,
+					minLength: 2,
+					onAutocomplete: function (txt, key) {
+
+						var existingChip = document.querySelector(`.chip[data-gruppo-id="${key}"]`);
+						if (!existingChip) {
+							var chipsContainerGruppi = document.getElementById('gruppi-selected');
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-gruppo-id', key);
+							newChip.classList.add('chip');
+							newChip.textContent = txt;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerGruppi.appendChild(newChip);
+						}
+
+						document.getElementById('gruppi-autocomplete').value = "";
+					}
+				});
+
+				if (isEditing) {
+					var currentValueArray = currentValue.split(',');
+					var chipsContainerGruppi = document.getElementById('gruppi-selected');
+					currentValueArray.forEach(function (guid) {
+						var item = data.find(item => item.id === guid);
+						if (item) {
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-gruppo-id', item.id);
+							newChip.classList.add('chip');
+							newChip.textContent = item.tag;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerGruppi.appendChild(newChip);
+						}
+					});
+				}
+			}else{
+				swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+				    .then(() => {
+						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+				    });
+			}
+			break;
+		case '@nameof(AttoDASIDto.id_gruppo_firmatari)':
+			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+			if (legislaturaChip) {
+				var idLegislatura = legislaturaChip.getAttribute('data-val');
+				var gruppi = await GetGruppiByLegislatura(idLegislatura);
+
+				selectHTML = `<div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="gruppi-firmatari-autocomplete" class="autocomplete">
+
+		        <div id="gruppi-firmatari-selected"></div>
+             </div>`;
+
+				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+				var data = [];
+				gruppi.forEach(function (item) {
+					data.push({
+						tag: `${item.nome_gruppo}`,
+						id: `${item.id_gruppo}`
+					});
+				});
+				var elems = document.querySelectorAll('#gruppi-firmatari-autocomplete');
+				var instances = M.Autocomplete.init(elems, {
+					data: data,
+					limit: 20,
+					minLength: 2,
+					onAutocomplete: function (txt, key) {
+
+						var existingChip = document.querySelector(`.chip[data-gruppo-firmatari-id="${key}"]`);
+						if (!existingChip) {
+							var chipsContainerGruppi = document.getElementById('gruppi-firmatari-selected');
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-gruppo-firmatari-id', key);
+							newChip.classList.add('chip');
+							newChip.textContent = txt;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerGruppi.appendChild(newChip);
+						}
+
+						document.getElementById('gruppi-firmatari-autocomplete').value = "";
+					}
+				});
+
+				if (isEditing) {
+					var currentValueArray = currentValue.split(',');
+					var chipsContainerGruppi = document.getElementById('gruppi-firmatari-selected');
+					currentValueArray.forEach(function (guid) {
+						var item = data.find(item => item.id === guid);
+						if (item) {
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-gruppo-firmatari-id', item.id);
+							newChip.classList.add('chip');
+							newChip.textContent = item.tag;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerGruppi.appendChild(newChip);
+						}
+					});
+				}
+			}else{
+				swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+				    .then(() => {
+						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+				    });
+			}
             break;
 		case '@nameof(AttoDASIDto.Organi)':
 			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
@@ -1335,6 +1791,28 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				    });
 			}
             break;
+		case '@nameof(AttoDASIDto.PresentatoOltreITermini)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="presentato-oltre-i-termini" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			break;
+		case '@nameof(AttoDASIDto.IterMultiplo)':
+			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="iter-multiplo" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			break;
 		case '@nameof(AttoDASIDto.Sollecito)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
@@ -1460,30 +1938,42 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 
 			var dcrValue = '';
 			var dcrcValue = '';
+			var nonEmptyChecked = '';
 
 			// Controlla se currentValue contiene una virgola e quindi due valori separati
 			if (isEditing && currentValue) {
-				var parts = currentValue.split(',');
-				if (parts.length > 1) {
-					dcrValue = `value="${parts[0].trim()}"`; // Primo valore per DCR
-					dcrcValue = `value="${parts[1].trim()}"`; // Secondo valore per DCRC
+				if (currentValue.indexOf("Non vuoto") !== -1) {
+					nonEmptyChecked = 'checked';
 				} else {
-					dcrValue = `value="${currentValue.trim()}"`; // Solo un valore, assegna a DCR
-				}
+					var parts = currentValue.split(',');
+					 if (parts.length > 1) {
+						dcrValue = `value="${parts[0].trim()}"`; // Primo valore per DCR
+						dcrcValue = `value="${parts[1].trim()}"`; // Secondo valore per DCRC
+					} else {
+						dcrValue = `value="${currentValue.trim()}"`; // Solo un valore, assegna a DCR
+					}
+				}				
 			}
 
 			selectHTML = `
-    <div class="input-field col s6">
-        <input id="dcr" type="text" ${dcrValue}/>
-        <label for="dcr" class="active">DCR</label>
-    </div>
-    <div class="input-field col s6">
-        <input id="dcrc" type="text" ${dcrcValue}/>
-        <label for="dcrc" class="active">DCRC</label>
-    </div>`;
+		<div class="input-field col s6">
+			<input id="dcr" type="text" ${dcrValue}/>
+			<label for="dcr" class="active">DCR</label>
+		</div>
+		<div class="input-field col s6">
+			<input id="dcrc" type="text" ${dcrcValue}/>
+			<label for="dcrc" class="active">DCCR</label>
+		</div>
+		<div class="input-field col s12">
+			<label>
+				<input id="dcr_non_empty" type="checkbox" ${nonEmptyChecked}/>
+				<span>Non vuoti</span>
+			</label>
+		</div>`;
 
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
-            break;
+			break;
+
 	    default:
 		    console.log("Filtro non riconosciuto!");
 		    break;

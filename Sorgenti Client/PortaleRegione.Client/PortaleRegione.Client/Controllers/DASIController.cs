@@ -1611,6 +1611,22 @@ namespace PortaleRegione.Client.Controllers
         }
         
         [HttpGet]
+        [Route("view-gruppi-disponibili")]
+        public async Task<ActionResult> GetGruppiDisponibili(int legislaturaId, int page, int size)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetGruppiDisponibili(legislaturaId, page, size);
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        [HttpGet]
         [Route("view-organi-disponibili")]
         public async Task<ActionResult> GetOrganiDisponibili(int legislaturaId)
         {

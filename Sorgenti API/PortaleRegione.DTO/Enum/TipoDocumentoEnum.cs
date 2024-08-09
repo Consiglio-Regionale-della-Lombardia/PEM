@@ -26,5 +26,6 @@ public enum TipoDocumentoEnum
     ABBINAMENTO = 3,
     CHIUSURA_ITER = 4,
     RISPOSTA = 5,
-    TESTO_PRIVACY = 6
+    TESTO_PRIVACY = 6,
+    VERBALE_VOTAZIONE = 7
 }

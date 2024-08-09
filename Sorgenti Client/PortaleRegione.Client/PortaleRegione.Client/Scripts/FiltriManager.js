@@ -119,7 +119,8 @@ function GetProponenti(idLegislatura) {
 
 let cacheAbbinamentiDisponibili = {
     timestamp: null,
-    data: null
+    data: null,
+    legislatura: null
 };
 
 function GetAbbinamentiDisponibili(legislaturaId) {
@@ -128,7 +129,7 @@ function GetAbbinamentiDisponibili(legislaturaId) {
         const oneHour = 60 * 60 * 1000;
 
         // Verifica se i dati sono in cache e non sono scaduti
-        if (cacheAbbinamentiDisponibili.timestamp && (now - cacheAbbinamentiDisponibili.timestamp < oneHour)) {
+        if (cacheAbbinamentiDisponibili.timestamp && (now - cacheAbbinamentiDisponibili.timestamp < oneHour) && cacheAbbinamentiDisponibili.legislatura == legislaturaId) {
             resolve(cacheAbbinamentiDisponibili.data);
             return;
         }
@@ -160,6 +161,61 @@ function GetAbbinamentiDisponibili(legislaturaId) {
             // Memorizza i dati nella cache e aggiorna il timestamp
             cacheAbbinamentiDisponibili.data = allResults;
             cacheAbbinamentiDisponibili.timestamp = now;
+            cacheAbbinamentiDisponibili.legislatura = legislaturaId;
+
+            resolve(allResults);
+        } catch (err) {
+            console.log("error", err);
+            reject(err);
+        }
+    });
+}
+
+let cacheGruppiByLegislatura = {
+    timestamp: null,
+    data: null,
+    legislatura: null
+};
+
+function GetGruppiByLegislatura(legislaturaId) {
+    return new Promise(async function (resolve, reject) {
+        const now = new Date().getTime();
+        const oneHour = 60 * 60 * 1000;
+
+        // Verifica se i dati sono in cache e non sono scaduti
+        if (cacheGruppiByLegislatura.timestamp && (now - cacheGruppiByLegislatura.timestamp < oneHour) && cacheGruppiByLegislatura.legislatura == legislaturaId) {
+            resolve(cacheGruppiByLegislatura.data);
+            return;
+        }
+
+        let page = 1;
+        const size = 50; // possiamo impostare una dimensione di pagina standard
+        let allResults = [];
+
+        try {
+            while (true) {
+                const result = await $.ajax({
+                    url: `${baseUrl}/dasi/view-gruppi-disponibili`,
+                    type: "GET",
+                    data: {
+                        legislaturaId: legislaturaId,
+                        page: page,
+                        size: size
+                    }
+                });
+
+                if (result && result.length > 0) {
+                    allResults = allResults.concat(result);
+                    page++;
+                } else {
+                    break;
+                }
+            }
+
+            // Memorizza i dati nella cache e aggiorna il timestamp
+            cacheGruppiByLegislatura.data = allResults;
+            cacheGruppiByLegislatura.timestamp = now;
+            cacheGruppiByLegislatura.legislatura = legislaturaId;
 
             resolve(allResults);
         } catch (err) {

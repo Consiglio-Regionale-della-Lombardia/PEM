@@ -40,4 +40,21 @@ public class QueryExtendedRequest
     public bool DataTrasmissioneIsNull { get; set; } = false;
     public bool RispostaMancante { get; set; } = false;
     public bool OrganiIsNull { get; set; } = false;
+    public List<DateTime> DataSeduta { get; set; } = new List<DateTime>();
+    public List<DateTime> DataRisposta { get; set; } = new List<DateTime>();
+    public bool DataRispostaIsNull { get; set; } = false;
+    public bool DataAnnunzioIsNull { get; set; } = false;
+    public bool DataComunicazioneAssembleaIsNull { get; set; } = false;
+    public bool DataChiusuraIterIsNull { get; set; } = false;
+    public List<DateTime> DataComunicazioneAssemblea { get; set; } = new List<DateTime>();
+    public List<DateTime> DataAnnunzio { get; set; } = new List<DateTime>();
+    public List<DateTime> DataChiusuraIter { get; set; } = new List<DateTime>();
+    public List<DateTime> DataTrattazione { get; set; } = new List<DateTime>();
+    public bool DataTrattazioneIsNull { get; set; } = false;
+    public List<DateTime> DataPresentazione { get; set; } = new List<DateTime>();
+    public bool DataPresentazioneIsNull { get; set; } = false;
+    public List<int> GruppiProponenti { get; set; } = new List<int>();
+    public List<Guid> Firmatari { get; set; } = new List<Guid>();
+    public List<int> GruppiFirmatari { get; set; } = new List<int>();
+    public List<int> AreaPolitica { get; set; } = new List<int>();
 }
