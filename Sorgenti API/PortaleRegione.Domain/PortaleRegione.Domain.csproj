@@ -45,6 +45,7 @@
     <Compile Include="ATTI_DOCUMENTI.cs" />
     <Compile Include="ATTI_MONITORAGGIO.cs" />
     <Compile Include="ATTI_NOTE.cs" />
+    <Compile Include="ATTI_PROPONENTI.cs" />
     <Compile Include="ATTI_RISPOSTE.cs" />
     <Compile Include="ATTI_DASI_CONTATORI.cs" />
     <Compile Include="ATTI_FIRME.cs" />

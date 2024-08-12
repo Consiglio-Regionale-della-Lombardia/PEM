@@ -41,6 +41,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
             var foglioAssociazione_Sind_Ind = args[7];
             var foglioAssociazione_Gea = args[9];
             var foglioAssociazione_Altro = args[8];
+            var foglioProponentiCommissioni = args[10];
 
             var auth = AutenticazioneAPI();
 
@@ -71,6 +72,11 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     package.Workbook.Worksheets.First(w => w.Name.Equals(foglioMonitoraggioGiunta));
                 var cellsMonitoraggioGiunta = worksheetMonitoraggioGiunta.Cells;
                 var rowCountMG = worksheetMonitoraggioGiunta.Dimension.Rows;
+
+                var worksheetProponentiCommissioni =
+                    package.Workbook.Worksheets.First(w => w.Name.Equals(foglioProponentiCommissioni));
+                var cellsProponentiCommissioni = worksheetProponentiCommissioni.Cells;
+                var rowCountPC = worksheetProponentiCommissioni.Dimension.Rows;
 
                 var worksheetAssociazione_Sind_Ind =
                     package.Workbook.Worksheets.First(w => w.Name.Equals(foglioAssociazione_Sind_Ind));
@@ -736,6 +742,36 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                             Convert.ToInt16(idMonitorato));
 
                                         commandMonitoraggioGiunta.ExecuteNonQuery();
+                                    }
+                                }
+
+                                #endregion
+
+                                #region PROPONENTI COMMISSIONI
+
+                                for (var rowPC = 2; rowPC <= rowCountPC; rowPC++)
+                                {
+                                    var valoreCella = cellsProponentiCommissioni[rowPC, 2].Value;
+
+                                    if (valoreCella != null && valoreCella.ToString() == nodeIdFromAlfresco)
+                                    {
+                                        var nomeCommissione = cellsProponentiCommissioni[rowPC, 9].Value;
+                                        var idCommissione = cellsProponentiCommissioni[rowPC, 8].Value;
+                                        var queryInsertProponentiCommissione =
+                                            @"INSERT INTO ATTI_PROPONENTI (Uid, UIDAtto, DescrizioneOrgano, IdOrgano)
+                                         VALUES"
+                                            + "(@Uid, @UIDAtto, @Nome, @IdOrgano)";
+
+                                        var commandProponentiCommissione =
+                                            new SqlCommand(queryInsertProponentiCommissione, connection);
+                                        commandProponentiCommissione.Parameters.AddWithValue("@Uid",
+                                            Guid.NewGuid());
+                                        commandProponentiCommissione.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
+                                        commandProponentiCommissione.Parameters.AddWithValue("@Nome", nomeCommissione);
+                                        commandProponentiCommissione.Parameters.AddWithValue("@IdOrgano",
+                                            Convert.ToInt16(idCommissione));
+
+                                        commandProponentiCommissione.ExecuteNonQuery();
                                     }
                                 }
 

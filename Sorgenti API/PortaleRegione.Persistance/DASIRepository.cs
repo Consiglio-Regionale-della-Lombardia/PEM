@@ -595,6 +595,26 @@ namespace PortaleRegione.Persistance
                 .ToList();
         }
 
+        public async Task<List<OrganoDto>> GetCommissioniProponenti(Guid uidAtto)
+        {
+            var commissioniProponentiInDb = await PRContext
+                .ATTI_PROPONENTI
+                .Where(d => d.UIDAtto == uidAtto)
+                .ToListAsync();
+            var res = new List<OrganoDto>();
+            foreach (var commissione in commissioniProponentiInDb)
+            {
+                res.Add(new OrganoDto()
+                {
+                    tipo_organo = TipoOrganoEnum.COMMISSIONE,
+                    nome_organo = commissione.DescrizioneOrgano,
+                    id_organo = commissione.IdOrgano
+                });
+            }
+
+            return res;
+        }
+
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)
         {
             var noteInDB = await PRContext
@@ -1117,7 +1137,7 @@ namespace PortaleRegione.Persistance
             if (queryExtended.Proponenti.Any())
                 query = query
                     .Where(atto => queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value));
-
+            
             if (queryExtended.Provvedimenti.Any())
             {
                 var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
@@ -1152,7 +1172,14 @@ namespace PortaleRegione.Persistance
                     .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
                     .Select(organo => organo.UIDAtto);
 
-                query = query.Where(atto => organiQuery.Contains(atto.UIDAtto) || risposteQuery.Contains(atto.UIDAtto));
+                var commissioniProponentiQuery = PRContext
+                    .ATTI_PROPONENTI
+                    .Where(commissione => queryExtended.Organi.Contains(commissione.IdOrgano))
+                    .Select(commissione => commissione.UIDAtto);
+
+                query = query.Where(atto => organiQuery.Contains(atto.UIDAtto) 
+                                            || risposteQuery.Contains(atto.UIDAtto)
+                                            || commissioniProponentiQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.DataSeduta.Any())

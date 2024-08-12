@@ -87,5 +87,6 @@ namespace PortaleRegione.Contracts
 
         Task<int> Count(PersonaDto persona, ClientModeEnum clientMode, Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended);
         Task<List<GruppiDto>> GetGruppiDisponibili(int legislaturaId, int page, int size);
+        Task<List<OrganoDto>> GetCommissioniProponenti(Guid uidAtto);
     }
 }

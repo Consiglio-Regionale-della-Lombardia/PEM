@@ -391,6 +391,8 @@ public class AttoDASIDto
     [DisplayName("Data risposta")]public DateTime? DataRisposta { get; set; }
     [DisplayName("Data trattazione risposta")]public DateTime? DataTrattazione { get; set; }
     [DisplayName("Iter multiplo")]public bool IterMultiplo { get; set; } = false;
+    [DisplayName("Commissioni proponenti")]public List<OrganoDto> CommissioniProponenti { get; set; }
+
 
 }
 
@@ -422,6 +424,8 @@ public class AttoDASIReportDto
     [DisplayName("Premesse")] public string Premesse { get; set; }
     [DisplayName("Richiesta")] public string Richiesta { get; set; }
     [DisplayName("Proponente")] public Guid? UIDPersonaProponente { get; set; }
+    [DisplayName("Commissioni proponenti")] public List<OrganoDto> CommissioniProponenti { get; set; }
+
     [DisplayName("Gruppo")] public int id_gruppo { get; set; }
     [DisplayName("Stato")] public int IDStato { get; set; }
     [DisplayName("Pubblicato")] public bool Pubblicato { get; set; }

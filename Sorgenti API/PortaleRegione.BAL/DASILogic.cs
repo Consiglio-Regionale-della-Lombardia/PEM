@@ -690,7 +690,9 @@ namespace PortaleRegione.API.Controllers
             dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
             dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
             dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
-
+            if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+                dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
+            
             dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
 
             if (dto.ConteggioFirme > 1)
@@ -876,7 +878,9 @@ namespace PortaleRegione.API.Controllers
                 dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
                 dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
                 dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
-
+                if(attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+                    dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
+                
                 return dto;
             }
             catch (Exception e)

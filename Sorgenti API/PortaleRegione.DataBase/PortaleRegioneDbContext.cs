@@ -123,6 +123,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<ATTI_MONITORAGGIO> ATTI_MONITORAGGIO { get; set; } // DASI - Monitoraggi
         public virtual DbSet<ATTI_DOCUMENTI> ATTI_DOCUMENTI { get; set; } // DASI - Documenti
         public virtual DbSet<ATTI_NOTE> ATTI_NOTE { get; set; } // DASI - Note
+        public virtual DbSet<ATTI_PROPONENTI> ATTI_PROPONENTI { get; set; } // DASI - Commissioni proponenti
         public virtual DbSet<ATTI_ABBINAMENTI> ATTI_ABBINAMENTI { get; set; } // DASI - Abbinamenti
         public virtual DbSet<View_Atti> VIEW_ATTI { get; set; } // ATTI + ATTI_DASI
         public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
