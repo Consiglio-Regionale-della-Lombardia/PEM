@@ -14,21 +14,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>@ViewBag.Title</title>
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
-	@Styles.Render("~/Content/css")
-	@*Import Trumbowyg plugins style...*@
-	<link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet" />
+    @Styles.Render("~/Content/css")
+    @*Import Trumbowyg plugins style...*@
+    <link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet"/>
 
-	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-	@Scripts.Render("~/bundles/lib")
-	@Scripts.Render("~/bundles/logic")
-	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-	<script src="~/Scripts/moment.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    @Scripts.Render("~/bundles/lib")
+    @Scripts.Render("~/bundles/logic")
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="~/Scripts/moment.js"></script>
 </head>
 <body>
 
@@ -80,14 +80,19 @@
                     @Html.HiddenFor(m => m.Uid)
                     <div class="form-group" style="padding-top: 10px">
                         <label>Tipo Template: </label>
-                        <select id="ddlTipo">
+                        <select id="ddlTipo" onchange="ddlTipo_OnChange(this)">
                             <option value="@((int)TemplateTypeEnum.REPORT_COVER)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_COVER ? "selected='selected'" : "")>Copertina</option>
                             <option value="@((int)TemplateTypeEnum.REPORT_ITEM_CARD)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_CARD ? "selected='selected'" : "")>Card</option>
+                            <option value="@((int)TemplateTypeEnum.REPORT_ITEM_GRID)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_GRID ? "selected='selected'" : "")>Griglia</option>
                         </select>
                     </div>
                     <div class="form-group" style="padding-top: 10px">
                         @Html.LabelFor(s => s.Nome)
                         @Html.TextBoxFor(model => model.Nome, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group" style="padding-top: 10px; display:none;" id="pnlTestata">
+                        @Html.LabelFor(s => s.Testata)
+                        @Html.TextAreaFor(model => model.Testata, new { @class = "form-control trumbowyg" })
                     </div>
                     <div class="form-group" style="padding-top: 10px">
                         @Html.LabelFor(s => s.Corpo)
@@ -108,15 +113,16 @@
 <div class="card blue lighten-5">
     <div class="card-content black-text">
         <span class="card-title">Informazioni</span>
-        <p>Chiavi disponibili per Template CARD:
+        <p>
+            Chiavi disponibili per Template CARD:
             <ul style="padding-left: 40px">
                 @foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
                 {
                     var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
                         .Cast<DisplayNameAttribute>()
                         .FirstOrDefault()?.DisplayName ?? prop.Name;
-                    
-					<li style="list-style-type: disc;">@displayName: {{@prop.Name}}</li>
+
+                    <li style="list-style-type: disc;">@displayName: {{@prop.Name}}</li>
                 }
             </ul>
         </p>
@@ -124,6 +130,25 @@
 </div>
 
 <script>
+
+	$(window).on("load",
+		async function () {
+            if ($('select[id="ddlTipo"]').children("option:selected").val() == '@Html.Raw((int)TemplateTypeEnum.REPORT_ITEM_GRID)') {
+                var pnlTestata = document.getElementById('pnlTestata');
+				pnlTestata.style.display = 'block';
+            }
+		});
+
+	function ddlTipo_OnChange(ctrl) {
+        var itemFormat = $(ctrl).val();
+		var pnlTestata = document.getElementById('pnlTestata');
+		if (itemFormat == '@Html.Raw((int)TemplateTypeEnum.REPORT_ITEM_GRID)') {
+			pnlTestata.style.display = 'block';
+         } else {
+			pnlTestata.style.display = 'none';
+         }
+    }
+
     $("#btnSave").on("click",
         function() {
 			$('#formTemplate').submit();
@@ -134,16 +159,20 @@
      e.preventDefault();
  }).validate({
      submitHandler: function(form) {
-         
-		 var container_corpo = $("#Corpo").parent();
+
+		 var container_testata = $("#Testata").parent();
+		 var editor_testata = $(container_testata).find(".trumbowyg-editor");
+
+         var container_corpo = $("#Corpo").parent();
 		 var editor_corpo = $(container_corpo).find(".trumbowyg-editor");
-         
+
          var obj = {};
 		 obj.Uid = $("#Uid").val();
 		 obj.Nome = $("#Nome").val();
 		 obj.Corpo = editor_corpo.html();
+		 obj.Testata = editor_testata.html();
 		 obj.Tipo = $('select[id="ddlTipo"]').children("option:selected").val();
-         
+
          $.ajax({
              url: '@Url.Action("SaveTemplate")',
              type: "POST",

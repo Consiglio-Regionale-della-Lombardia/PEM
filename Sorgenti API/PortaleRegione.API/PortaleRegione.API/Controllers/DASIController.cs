@@ -1315,7 +1315,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var res = await _unitOfWork.Templates.GetAllByType(TemplateTypeEnum.REPORT_ITEM_CARD);
+                var itemCardsList = await _unitOfWork.Templates.GetAllByType(TemplateTypeEnum.REPORT_ITEM_CARD);
+                var itemGridList = await _unitOfWork.Templates.GetAllByType(TemplateTypeEnum.REPORT_ITEM_GRID);
+                var res = new List<TEMPLATES>();
+                res.AddRange(itemCardsList);
+                res.AddRange(itemGridList);
 
                 return Ok(res);
             }

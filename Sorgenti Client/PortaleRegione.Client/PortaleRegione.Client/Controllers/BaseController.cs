@@ -77,7 +77,7 @@ namespace PortaleRegione.Client.Controllers
                 return data;
             }
         }
-
+        
         public string Token
         {
             get

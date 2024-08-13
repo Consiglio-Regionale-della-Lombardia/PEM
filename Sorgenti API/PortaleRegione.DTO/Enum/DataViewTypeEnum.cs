@@ -22,6 +22,6 @@ namespace PortaleRegione.DTO.Enum
     {
         GRID = 1,
         CARD = 2,
-        CARD_TEMPLATE = 3
+        TEMPLATE = 3
     }
 }

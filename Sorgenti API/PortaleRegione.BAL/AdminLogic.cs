@@ -796,6 +796,7 @@ namespace PortaleRegione.BAL
                     Uid = item.Uid,
                     Nome = item.Nome,
                     Corpo = item.Corpo,
+                    Testata = item.Testata,
                     Tipo = item.Tipo
                 });
             }
@@ -817,6 +818,7 @@ namespace PortaleRegione.BAL
                 Uid = item.Uid,
                 Nome = item.Nome,
                 Corpo = item.Corpo,
+                Testata = item.Testata,
                 Tipo = item.Tipo
             };
         }
@@ -837,6 +839,7 @@ namespace PortaleRegione.BAL
                     Uid = Guid.NewGuid(),
                     Nome = request.Nome,
                     Corpo = request.Corpo,
+                    Testata = request.Testata,
                     Tipo = request.Tipo
                 };
 
@@ -851,6 +854,7 @@ namespace PortaleRegione.BAL
 
             var templateInDb = await _unitOfWork.Templates.Get(request.Uid);
             templateInDb.Corpo = request.Corpo;
+            templateInDb.Testata = request.Testata;
             templateInDb.Nome = request.Nome;
             
             await _unitOfWork.CompleteAsync();

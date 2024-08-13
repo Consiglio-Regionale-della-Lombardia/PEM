@@ -1,7 +1,7 @@
 ﻿@using System.ComponentModel
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
-<div id="modalReportConfig" class="modal">
+<div id="modalReportConfig" class="modal modal-fixed-footer">
     <div class="modal-content">
         <h4>Report</h4>
         <div id="chips-container-report-config">
@@ -55,7 +55,7 @@
                 <select name="dataViewType" onchange="dataViewType_onChange(this)">
                     <option value="@Html.Raw((int)DataViewTypeEnum.GRID)">GRIGLIA</option>
                     <option value="@Html.Raw((int)DataViewTypeEnum.CARD)">CARD</option>
-                    <option value="@Html.Raw((int)DataViewTypeEnum.CARD_TEMPLATE)">CARD TEMPLATE</option>
+                    <option value="@Html.Raw((int)DataViewTypeEnum.TEMPLATE)">TEMPLATE</option>
                 </select>
                 <label>Visualizzazione dati</label>
                 <div id="panelDataViewType_Templates" style="display: none;">
@@ -93,7 +93,7 @@
 	function dataViewType_onChange(ctrl){
 		var dataViewType = $(ctrl).val();
 		var extraOptions = document.getElementById('panelDataViewType_Templates');
-		if (dataViewType == '@Html.Raw((int)DataViewTypeEnum.CARD_TEMPLATE)') {
+		if (dataViewType == '@Html.Raw((int)DataViewTypeEnum.TEMPLATE)') {
             extraOptions.style.display = 'block';
         } else {
             extraOptions.style.display = 'none';
@@ -306,7 +306,7 @@
 			if (selectedReport.exportformat != '@Html.Raw((int)ExportFormatEnum.EXCEL)'){
 				document.getElementById('extraOptions').style.display = 'block';
 			}
-			if (selectedReport.dataviewtype == '@Html.Raw((int)DataViewTypeEnum.CARD_TEMPLATE)'){
+			if (selectedReport.dataviewtype == '@Html.Raw((int)DataViewTypeEnum.TEMPLATE)'){
 				document.getElementById('panelDataViewType_Templates').style.display = 'block';
 			}
 		}else{

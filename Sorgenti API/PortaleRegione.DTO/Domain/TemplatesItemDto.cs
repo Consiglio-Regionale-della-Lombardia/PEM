@@ -17,7 +17,6 @@
  */
 
 using System;
-using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.DTO.Domain;
 
@@ -26,5 +25,6 @@ public class TemplatesItemDto
     public Guid Uid { get; set; }
     public string Nome { get; set; }
     public string Corpo { get; set; }
+    public string Testata { get; set; }
     public int Tipo { get; set; }
 }

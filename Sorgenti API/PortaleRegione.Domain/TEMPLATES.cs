@@ -34,6 +34,7 @@ namespace PortaleRegione.Domain
         public Guid Uid { get; set; }
         public string Nome { get; set; }
         public string Corpo { get; set; }
+        public string Testata { get; set; }
         public int Tipo { get; set; }
         public bool Eliminato { get; set; } = false;
     }

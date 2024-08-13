@@ -3676,11 +3676,11 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.id_gruppo))) return atto.gruppi_politici.nome_gruppo;
 
             var propertyInfo = typeof(AttoDASIDto).GetProperty(propertyName);
-            if (propertyInfo == null) return null;
+            if (propertyInfo == null) return "--";
 
             var propValue = propertyInfo.GetValue(atto);
             if (propValue == null)
-                return null;
+                return "--";
 
             if (DateTime.TryParse(propValue.ToString(), out var resDate)) return resDate.ToString("dd/MM/yyyy");
 
@@ -3712,7 +3712,7 @@ namespace PortaleRegione.API.Controllers
                 var cover = await _unitOfWork.Templates.Get(covertUid);
                 body += cover.Corpo;
             }
-
+            
             var templateHeader = GetTemplate(TemplateTypeEnum.REPORT_HEADER_DEFAULT, true);
             templateHeader = templateHeader.Replace("{{TOTALE_ATTI}}", idsList.Count.ToString());
             body += templateHeader;
@@ -3765,9 +3765,18 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     break;
-                case DataViewTypeEnum.CARD_TEMPLATE:
+                case DataViewTypeEnum.TEMPLATE:
                     var templateFromDb = await _unitOfWork.Templates.Get(Guid.Parse(model.dataviewtype_template));
                     var templateItemCard = templateFromDb.Corpo;
+
+                    if (templateFromDb.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_GRID)
+                    {
+                        body += "<table>";
+                        body += "<thead>";
+                        body += templateFromDb.Testata;
+                        body += "</thead>";
+                        body += "<tbody>";
+                    }
 
                     foreach (var guid in idsList)
                     {
@@ -3787,6 +3796,12 @@ namespace PortaleRegione.API.Controllers
 
                             body += itemAtto;
                         }
+                    }
+
+                    if (templateFromDb.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_GRID)
+                    {
+                        body += "</tbody>";
+                        body += "</table>";
                     }
 
                     break;
