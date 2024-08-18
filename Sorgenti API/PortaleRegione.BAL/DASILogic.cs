@@ -38,6 +38,7 @@ using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -340,7 +341,8 @@ namespace PortaleRegione.API.Controllers
                 queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.id_gruppo), queryExtended.GruppiProponenti, int.Parse,
                 queryExtended);
-            ExtractAndAddFilters(model, nameof(AttoDASIDto.id_gruppo_firmatari), queryExtended.GruppiFirmatari, int.Parse,
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.id_gruppo_firmatari), queryExtended.GruppiFirmatari,
+                int.Parse,
                 queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.Firme), queryExtended.Firmatari, Guid.Parse,
                 queryExtended);
@@ -355,7 +357,8 @@ namespace PortaleRegione.API.Controllers
             ExtractAndAddFilters(model, nameof(AttoDASIDto.UIDSeduta), queryExtended.DataSeduta,
                 DateTime.Parse,
                 queryExtended);
-            ExtractAndAddFilters(model, nameof(AttoDASIDto.DataComunicazioneAssemblea), queryExtended.DataComunicazioneAssemblea,
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.DataComunicazioneAssemblea),
+                queryExtended.DataComunicazioneAssemblea,
                 DateTime.Parse,
                 queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.DataAnnunzio), queryExtended.DataAnnunzio,
@@ -402,7 +405,7 @@ namespace PortaleRegione.API.Controllers
 
                 return;
             }
-            
+
             if (model.filtro.Any(statement => statement.PropertyId == propertyId
                                               && propertyId == nameof(AttoDASIDto.DataRisposta)
                                               && statement.Operation == Operation.IsNull))
@@ -414,7 +417,7 @@ namespace PortaleRegione.API.Controllers
 
                 return;
             }
-            
+
             if (model.filtro.Any(statement => statement.PropertyId == propertyId
                                               && propertyId == nameof(AttoDASIDto.DataAnnunzio)
                                               && statement.Operation == Operation.IsNull))
@@ -426,7 +429,7 @@ namespace PortaleRegione.API.Controllers
 
                 return;
             }
-            
+
             if (model.filtro.Any(statement => statement.PropertyId == propertyId
                                               && propertyId == nameof(AttoDASIDto.DataComunicazioneAssemblea)
                                               && statement.Operation == Operation.IsNull))
@@ -438,7 +441,7 @@ namespace PortaleRegione.API.Controllers
 
                 return;
             }
-            
+
             if (model.filtro.Any(statement => statement.PropertyId == propertyId
                                               && propertyId == nameof(AttoDASIDto.DataChiusuraIter)
                                               && statement.Operation == Operation.IsNull))
@@ -450,7 +453,7 @@ namespace PortaleRegione.API.Controllers
 
                 return;
             }
-            
+
             if (model.filtro.Any(statement => statement.PropertyId == propertyId
                                               && propertyId == nameof(AttoDASIDto.Timestamp)
                                               && statement.Operation == Operation.IsNull))
@@ -661,6 +664,9 @@ namespace PortaleRegione.API.Controllers
             dto.DisplayTipo = Utility.GetText_Tipo(attoInDb.Tipo);
             dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
             dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} {dto.NAtto}";
+            dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
+            dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
+            dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
 
             dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
             dto.Firmato_Dal_Proponente =
@@ -692,7 +698,7 @@ namespace PortaleRegione.API.Controllers
             dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
             if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
-            
+
             dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
 
             if (dto.ConteggioFirme > 1)
@@ -878,9 +884,9 @@ namespace PortaleRegione.API.Controllers
                 dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
                 dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
                 dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
-                if(attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+                if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                     dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
-                
+
                 return dto;
             }
             catch (Exception e)
@@ -3446,6 +3452,10 @@ namespace PortaleRegione.API.Controllers
                     filePath += ".xlsx";
                     await CreateExcelReport(filePath, model, currentUser);
                     break;
+                case ExportFormatEnum.EXCEL_SITUAZIONE:
+                    filePath += ".xlsx";
+                    await CreateExcelSituazioneReport(filePath, model, currentUser);
+                    break;
                 default:
                     throw new ArgumentException("Formato di esportazione non supportato");
             }
@@ -3595,16 +3605,133 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task CreateExcelSituazioneReport(string filePath, ReportDto model, PersonaDto currentUser)
+        {
+            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
+            var filterStatements = Utility.ParseFilterDasi(filtri);
+
+            var request = new BaseRequest<AttoDASIDto>
+            {
+                filtro = filterStatements,
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+            };
+
+            var idsList = await GetSoloIds(request, currentUser, null);
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Report");
+
+                // Intestazioni delle colonne
+                worksheet.Cells[1, 1].Value = "Atto";
+                worksheet.Cells[1, 2].Value = "Risposta richiesta";
+                worksheet.Cells[1, 3].Value = "Presentate";
+                worksheet.Cells[1, 4].Value = "Ritirate/Inammissibili";
+                worksheet.Cells[1, 5].Value = "Annunciate";
+                worksheet.Cells[1, 6].Value = "Risposte pervenute";
+                worksheet.Cells[1, 7].Value = "In attesa risposta";
+                worksheet.Cells[1, 8].Value = "di cui in ritardo oltre 20gg";
+                worksheet.Cells[1, 9].Value = "% risposte";
+
+                var currentRow = 2;
+                var groupedByAtto = new Dictionary<string, List<AttoDASIDto>>();
+
+                // Raggruppa gli atti per tipo (es. ITR, ITL, IQT)
+                foreach (var guid in idsList)
+                {
+                    var atto = await GetAttoDto(guid);
+                    if (!groupedByAtto.ContainsKey(atto.DisplayTipo))
+                        groupedByAtto[atto.DisplayTipo] = new List<AttoDASIDto>();
+                    groupedByAtto[atto.DisplayTipo].Add(atto);
+                }
+
+                // Per ogni tipo di Atto, crea una sezione nella tabella
+                foreach (var gruppo in groupedByAtto)
+                {
+                    var tipoAtto = gruppo.Key;
+                    var atti = gruppo.Value;
+
+                    var tipoRisposte = atti.GroupBy(a => a.DisplayTipoRispostaRichiesta).ToList();
+
+                    foreach (var gruppoRisposta in tipoRisposte)
+                    {
+                        var risposte = gruppoRisposta.ToList();
+                        var presentate = risposte.Count;
+                        var ritirate = risposte.Count(r =>
+                            r.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RITIRATO
+                            || r.TipoChiusuraIter == (int)TipoChiusuraIterEnum.INAMMISSIBILE);
+                        var annunciate = presentate - ritirate;
+                        var rispostePerv = risposte.Count(r => r.DataAnnunzio.HasValue && r.Risposte.Any());
+                        var inAttesa = annunciate - rispostePerv;
+                        var ritardoOltre20gg = risposte.Count(r =>
+                            r.DataAnnunzio.HasValue && !r.Risposte.Any() &&
+                            (DateTime.Now - r.DataAnnunzio.Value).TotalDays > 20);
+                        var percentualeRisposte = (annunciate - inAttesa) > 0 ? (rispostePerv / (double)(annunciate - inAttesa)) * 100 : 0;
+
+                        if (annunciate == 0)
+                        {
+                            rispostePerv = 0;
+                            inAttesa = 0;
+                            ritardoOltre20gg = 0;
+                            percentualeRisposte = 0;
+                        }
+
+                        // Scrivi i dati nella riga corrente
+                        worksheet.Cells[currentRow, 1].Value = tipoAtto;
+                        worksheet.Cells[currentRow, 2].Value = gruppoRisposta.Key; // Scritta/Orale/Commissione
+                        worksheet.Cells[currentRow, 3].Value = presentate;
+                        worksheet.Cells[currentRow, 4].Value = ritirate;
+                        worksheet.Cells[currentRow, 5].Value = annunciate;
+                        worksheet.Cells[currentRow, 6].Value = rispostePerv;
+                        worksheet.Cells[currentRow, 7].Value = inAttesa;
+                        worksheet.Cells[currentRow, 8].Value = ritardoOltre20gg;
+                        worksheet.Cells[currentRow, 9].Value = percentualeRisposte;
+
+                        currentRow++;
+                    }
+
+                    // Totale per tipo di atto
+                    worksheet.Cells[currentRow, 2].Value = "Totale";
+                    worksheet.Cells[currentRow, 3].Formula =
+                        $"SUM(C{currentRow - tipoRisposte.Count}:C{currentRow - 1})";
+                    worksheet.Cells[currentRow, 4].Formula =
+                        $"SUM(D{currentRow - tipoRisposte.Count}:D{currentRow - 1})";
+                    worksheet.Cells[currentRow, 5].Formula =
+                        $"SUM(E{currentRow - tipoRisposte.Count}:E{currentRow - 1})";
+                    worksheet.Cells[currentRow, 6].Formula =
+                        $"SUM(F{currentRow - tipoRisposte.Count}:F{currentRow - 1})";
+                    worksheet.Cells[currentRow, 7].Formula =
+                        $"SUM(G{currentRow - tipoRisposte.Count}:G{currentRow - 1})";
+                    worksheet.Cells[currentRow, 8].Formula =
+                        $"SUM(H{currentRow - tipoRisposte.Count}:H{currentRow - 1})";
+                    
+                    worksheet.Cells[currentRow, 9].Formula = $"IF(C{currentRow}-D{currentRow}<>0,F{currentRow}/(C{currentRow}-D{currentRow})*100,0)";
+                    worksheet.Cells[currentRow, 9].Style.Numberformat.Format = "0.00";
+
+                    worksheet.Cells[currentRow, 1, currentRow, 9].Style.Font.Bold = true;
+                    worksheet.Cells[currentRow, 1, currentRow, 9].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[currentRow, 1, currentRow, 9].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+
+                    currentRow++;
+                    currentRow++;
+                }
+
+                // Formattazione delle celle e salvataggio
+                worksheet.Cells[1, 1, currentRow - 1, 9].AutoFitColumns();
+                worksheet.Cells[1, 1, 1, 9].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, currentRow - 1, 9].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+
+                await package.SaveAsAsync(new FileInfo(filePath));
+            }
+        }
+
         private object GetPropertyValue(AttoDASIDto atto, string propertyName, ExportFormatEnum exportFormat)
         {
             if (propertyName.Equals(nameof(AttoDASIDto.DCR))
-            || propertyName.Equals(nameof(AttoDASIDto.DCCR))
-            || propertyName.Equals(nameof(AttoDASIDto.DCRL)))
+                || propertyName.Equals(nameof(AttoDASIDto.DCCR))
+                || propertyName.Equals(nameof(AttoDASIDto.DCRL)))
             {
-                if (string.IsNullOrEmpty(atto.DCRL))
-                {
-                    return "--";
-                }
+                if (string.IsNullOrEmpty(atto.DCRL)) return "--";
 
                 if (atto.DCCR > 0)
                     return $"{atto.DCRL}/{atto.DCR}/{atto.DCCR}";
@@ -3612,7 +3739,7 @@ namespace PortaleRegione.API.Controllers
             }
 
             if (propertyName.Equals(nameof(AttoDASIDto.Firme))) return atto.Firme.Replace("<br>", ", ");
-            
+
             if (propertyName.Equals(nameof(AttoDASIDto.CodiceMateria))) return atto.CodiceMateria;
 
             if (propertyName.Equals(nameof(AttoDASIDto.UIDSeduta)))
@@ -3635,18 +3762,18 @@ namespace PortaleRegione.API.Controllers
                 if (!atto.Documenti.Any())
                     return "--";
                 if (exportFormat == ExportFormatEnum.PDF)
-                {
-                    return atto.Documenti.Select(a => $"{a.Tipo} - <a href='{a.Link}' target='_blank'>Download</a>").Aggregate((i, j) => i + "<br>" + j);
-                }
+                    return atto.Documenti.Select(a => $"{a.Tipo} - <a href='{a.Link}' target='_blank'>Download</a>")
+                        .Aggregate((i, j) => i + "<br>" + j);
 
                 return atto.Documenti.Select(a => $"{a.Tipo} - {a.Link}").Aggregate((i, j) => i + "<br>" + j);
             }
-            
+
             if (propertyName.Equals(nameof(AttoDASIDto.Risposte)))
             {
                 if (!atto.Risposte.Any())
                     return "--";
-                return atto.Risposte.Select(a => $"{a.DisplayTipo} - {a.DescrizioneOrgano}").Aggregate((i, j) => i + ", " + j);
+                return atto.Risposte.Select(a => $"{a.DisplayTipo} - {a.DescrizioneOrgano}")
+                    .Aggregate((i, j) => i + ", " + j);
             }
 
             if (propertyName.Equals(nameof(AttoDASIDto.Note)))
@@ -3712,7 +3839,7 @@ namespace PortaleRegione.API.Controllers
                 var cover = await _unitOfWork.Templates.Get(covertUid);
                 body += cover.Corpo;
             }
-            
+
             var templateHeader = GetTemplate(TemplateTypeEnum.REPORT_HEADER_DEFAULT, true);
             templateHeader = templateHeader.Replace("{{TOTALE_ATTI}}", idsList.Count.ToString());
             body += templateHeader;
@@ -3724,7 +3851,6 @@ namespace PortaleRegione.API.Controllers
             {
                 case DataViewTypeEnum.GRID:
                     body += "<table>";
-                    // Aggiungi intestazioni delle colonne
                     body += "<tr>";
 
                     foreach (var column in columns)

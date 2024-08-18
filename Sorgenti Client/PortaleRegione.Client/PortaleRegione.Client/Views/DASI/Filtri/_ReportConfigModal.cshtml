@@ -16,11 +16,12 @@
         </div>
         <div class="row">
             <div class="input-field col s6">
-                <select name="exportFormat" onchange="exportFormat_onChange(this)">
-                    <option value="@Html.Raw((int)ExportFormatEnum.EXCEL)">EXCEL</option>
-                    <option value="@Html.Raw((int)ExportFormatEnum.PDF)">PDF</option>
-                    <option value="@Html.Raw((int)ExportFormatEnum.WORD)">WORD</option>
-                </select>
+				<select name="exportFormat" onchange="exportFormat_onChange(this)">
+					<option value="@Html.Raw((int)ExportFormatEnum.EXCEL)">EXCEL</option>
+					<option value="@Html.Raw((int)ExportFormatEnum.PDF)">PDF</option>
+					<option value="@Html.Raw((int)ExportFormatEnum.WORD)">WORD</option>
+					<option value="@Html.Raw((int)ExportFormatEnum.EXCEL_SITUAZIONE)">EXCEL + SITUAZIONE</option>
+				</select>
                 <label>Formato esportazione</label>
             </div>
             <div class="input-field col s6">
