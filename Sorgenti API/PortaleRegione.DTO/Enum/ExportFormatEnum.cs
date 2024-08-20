@@ -23,6 +23,7 @@ namespace PortaleRegione.DTO.Enum
         WORD = 1,
         PDF = 2,
         EXCEL = 3,
-        EXCEL_SITUAZIONE = 4
+        EXCEL_SITUAZIONE = 4,
+        EXCEL_COMMISSIONI = 5
     }
 }

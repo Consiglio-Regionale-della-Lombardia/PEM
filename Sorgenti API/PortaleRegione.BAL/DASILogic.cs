@@ -51,6 +51,7 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
+using Color = System.Drawing.Color;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -716,6 +717,10 @@ namespace PortaleRegione.API.Controllers
 
             if (attoInDb.UIDSeduta.HasValue)
                 dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(await _unitOfWork.Sedute.Get(attoInDb.UIDSeduta.Value));
+
+            var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
+            dto.Organi = commissioni
+                .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
 
             return dto;
         }
@@ -3456,6 +3461,10 @@ namespace PortaleRegione.API.Controllers
                     filePath += ".xlsx";
                     await CreateExcelSituazioneReport(filePath, model, currentUser);
                     break;
+                case ExportFormatEnum.EXCEL_COMMISSIONI:
+                    filePath += ".xlsx";
+                    await CreateExcelCommissioniReport(filePath, model, currentUser);
+                    break;
                 default:
                     throw new ArgumentException("Formato di esportazione non supportato");
             }
@@ -3660,13 +3669,31 @@ namespace PortaleRegione.API.Controllers
                         var ritirate = risposte.Count(r =>
                             r.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RITIRATO
                             || r.TipoChiusuraIter == (int)TipoChiusuraIterEnum.INAMMISSIBILE);
-                        var annunciate = presentate - ritirate;
-                        var rispostePerv = risposte.Count(r => r.DataAnnunzio.HasValue && r.Risposte.Any());
+                        var annunciate = risposte.Count(r => r.DataAnnunzio.HasValue);
+                        var rispostePerv = risposte.Count(r =>
+                            r.DataAnnunzio.HasValue && r.Risposte.Any(r => r.Data.HasValue));
                         var inAttesa = annunciate - rispostePerv;
+
+
+                        ///
+                        ///  escludere gli atti che hanno ricevuto una risposta 
+                        ///
+
                         var ritardoOltre20gg = risposte.Count(r =>
-                            r.DataAnnunzio.HasValue && !r.Risposte.Any() &&
-                            (DateTime.Now - r.DataAnnunzio.Value).TotalDays > 20);
-                        var percentualeRisposte = (annunciate - inAttesa) > 0 ? (rispostePerv / (double)(annunciate - inAttesa)) * 100 : 0;
+                            r.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RITIRATO
+                            || (r.TipoChiusuraIter == (int)TipoChiusuraIterEnum.INAMMISSIBILE
+                                &&
+                                r.DataAnnunzio.HasValue && r.Risposte.Any(r => !r.Data.HasValue) &&
+                                (DateTime.Now - r.DataAnnunzio.Value).TotalDays > 20));
+
+                        ///
+                        ///
+                        ///
+                        /// 
+
+                        var percentualeRisposte = annunciate - inAttesa > 0
+                            ? rispostePerv / (double)(annunciate - inAttesa) * 100
+                            : 0;
 
                         if (annunciate == 0)
                         {
@@ -3704,13 +3731,14 @@ namespace PortaleRegione.API.Controllers
                         $"SUM(G{currentRow - tipoRisposte.Count}:G{currentRow - 1})";
                     worksheet.Cells[currentRow, 8].Formula =
                         $"SUM(H{currentRow - tipoRisposte.Count}:H{currentRow - 1})";
-                    
-                    worksheet.Cells[currentRow, 9].Formula = $"IF(C{currentRow}-D{currentRow}<>0,F{currentRow}/(C{currentRow}-D{currentRow})*100,0)";
+
+                    worksheet.Cells[currentRow, 9].Formula =
+                        $"IF(C{currentRow}-D{currentRow}<>0,F{currentRow}/(C{currentRow}-D{currentRow})*100,0)";
                     worksheet.Cells[currentRow, 9].Style.Numberformat.Format = "0.00";
 
                     worksheet.Cells[currentRow, 1, currentRow, 9].Style.Font.Bold = true;
                     worksheet.Cells[currentRow, 1, currentRow, 9].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[currentRow, 1, currentRow, 9].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                    worksheet.Cells[currentRow, 1, currentRow, 9].Style.Fill.BackgroundColor.SetColor(Color.Yellow);
 
                     currentRow++;
                     currentRow++;
@@ -3720,6 +3748,68 @@ namespace PortaleRegione.API.Controllers
                 worksheet.Cells[1, 1, currentRow - 1, 9].AutoFitColumns();
                 worksheet.Cells[1, 1, 1, 9].Style.Font.Bold = true;
                 worksheet.Cells[1, 1, currentRow - 1, 9].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+
+                await package.SaveAsAsync(new FileInfo(filePath));
+            }
+        }
+
+        public async Task CreateExcelCommissioniReport(string filePath, ReportDto model, PersonaDto currentUser)
+        {
+            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
+            var filterStatements = Utility.ParseFilterDasi(filtri);
+
+            var request = new BaseRequest<AttoDASIDto>
+            {
+                filtro = filterStatements,
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+            };
+
+            var idsList = await GetSoloIds(request, currentUser, null);
+
+            var commissionCounts = new Dictionary<string, int>();
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Report");
+
+                var currentRow = 1;
+
+                foreach (var guid in idsList)
+                {
+                    var atto = await GetAttoDto(guid);
+                    if (atto.Risposte.Any())
+                        foreach (var attiRisposteDto in atto.Risposte)
+                        {
+                            worksheet.Cells[currentRow, 1].Value = atto.DisplayTipo;
+                            worksheet.Cells[currentRow, 2].Value = atto.NAtto;
+                            worksheet.Cells[currentRow, 3].Value = attiRisposteDto.DescrizioneOrgano;
+                            if (attiRisposteDto.DataTrasmissione.HasValue)
+                                worksheet.Cells[currentRow, 4].Value =
+                                    attiRisposteDto.DataTrasmissione.Value.ToString("dd/MM/yyyy");
+                            else
+                                worksheet.Cells[currentRow, 4].Value = "--";
+
+                            if (!commissionCounts.ContainsKey(attiRisposteDto.DescrizioneOrgano))
+                                commissionCounts[attiRisposteDto.DescrizioneOrgano] = 0;
+                            commissionCounts[attiRisposteDto.DescrizioneOrgano]++;
+
+                            currentRow++;
+                        }
+                }
+
+                currentRow += 2;
+
+                worksheet.Cells[currentRow, 1].Value = "Commissione";
+                worksheet.Cells[currentRow, 2].Value = "Totale";
+
+                currentRow++;
+
+                foreach (var commission in commissionCounts.OrderBy(c => c.Value))
+                {
+                    worksheet.Cells[currentRow, 1].Value = commission.Key;
+                    worksheet.Cells[currentRow, 2].Value = commission.Value;
+                    currentRow++;
+                }
 
                 await package.SaveAsAsync(new FileInfo(filePath));
             }
