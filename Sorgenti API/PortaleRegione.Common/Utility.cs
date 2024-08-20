@@ -374,10 +374,12 @@ namespace PortaleRegione.Common
             }
         }
 
-        public static string GetText_TipoVotazioneDASI(int tipoVotazioneIter)
+        public static string GetText_TipoVotazioneDASI(int? tipoVotazioneIter)
         {
             try
             {
+                if (!tipoVotazioneIter.HasValue) return "";
+
                 switch ((TipoVotazioneIterEnum)tipoVotazioneIter)
                 {
                     case TipoVotazioneIterEnum.NESSUNO:
@@ -987,6 +989,7 @@ namespace PortaleRegione.Common
                    || propertyName == nameof(AttoDASIDto.DataComunicazioneAssemblea)
                    || propertyName == nameof(AttoDASIDto.DataTrasmissione)
                    || propertyName == nameof(AttoDASIDto.DataTrattazione)
+                   || propertyName == nameof(AttoDASIDto.DataRisposta)
                    || propertyName == nameof(AttoDASIDto.DataChiusuraIter)
                    || propertyName == nameof(AttoDASIDto.DataIscrizioneSeduta)
                    || propertyName == nameof(AttoDASIDto.UIDSeduta);

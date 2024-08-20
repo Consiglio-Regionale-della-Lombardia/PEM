@@ -1087,13 +1087,9 @@ namespace PortaleRegione.Persistance
             {
                 var docsQuery = PRContext.ATTI_DOCUMENTI
                     .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto);
-                query = query.GroupJoin(docsQuery,
-                        atto => atto.UIDAtto,
-                        doc => doc,
-                        (atto, docs) => new { atto, docs })
-                    .Where(g => !g.docs.Any())
-                    .Select(g => g.atto);
+                    .Select(f => f.UIDAtto)
+                    .ToList();
+                query = query.Where(i => !docsQuery.Contains(i.UIDAtto));
             }
             else if (queryExtended.TipiDocumento.Any() && !queryExtended.DocumentiMancanti)
             {
