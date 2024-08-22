@@ -3972,7 +3972,11 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.Oggetto))) return atto.OggettoView();
 
             if (propertyName.Equals(nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                if (atto.Tipo == (int)TipoAttoEnum.RIS)
+                    return "--";
                 return atto.PersonaProponente.DisplayName;
+            }
 
             if (propertyName.Equals(nameof(AttoDASIDto.id_gruppo)))
             {
