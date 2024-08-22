@@ -136,5 +136,8 @@ namespace PortaleRegione.Domain
         public DateTime? DataComunicazioneAssemblea { get; set; }
 
         public bool IterMultiplo { get; set; } = false;
+        public string ImpegniScadenze { get; set; }
+        public string StatoAttuazione { get; set; }
+        public string CompetenzaMonitoraggio { get; set; }
     }
 }

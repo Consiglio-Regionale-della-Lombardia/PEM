@@ -409,4 +409,8 @@ public class AttoDASIDto
 
     [DisplayName("Commissioni proponenti")]
     public List<OrganoDto> CommissioniProponenti { get; set; } = new List<OrganoDto>();
+
+    [DisplayName("Impegni scadenze")] public string ImpegniScadenze { get; set; }
+    [DisplayName("Stato attuazione")] public string StatoAttuazione { get; set; }
+    [DisplayName("Competenza monitoraggio")] public string CompetenzaMonitoraggio { get; set; }
 }

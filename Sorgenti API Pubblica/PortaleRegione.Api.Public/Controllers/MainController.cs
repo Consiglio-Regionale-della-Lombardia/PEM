@@ -244,18 +244,18 @@ namespace PortaleRegione.Api.Public.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route(ApiRoutes.ScaricaDocumento)]
-        public Task<IHttpActionResult> Download(string path)
+        public async Task<IHttpActionResult> Download(string path)
         {
             try
             {
                 var response = ResponseMessage(_logic.ScaricaDocumento(path));
 
-                return Task.FromResult<IHttpActionResult>(response);
+                return response;
             }
             catch (Exception e)
             {
                 Log.Error("Download Allegato Atto", e);
-                return Task.FromResult(ErrorHandler(e));
+                return ErrorHandler(e);
             }
         }
 
