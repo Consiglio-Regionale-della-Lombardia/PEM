@@ -36,39 +36,34 @@ public class AttoDASIReportDto
 
     [DisplayName("Data presentazione")] public DateTime Timestamp { get; set; }
     [DisplayName("Data ritiro")] public DateTime? DataRitiro { get; set; }
-    [DisplayName("Data richiesta iscrizione")] public string DataRichiestaIscrizioneSeduta { get; set; }
-    [DisplayName("Data iscrizione in seduta")] public DateTime? DataIscrizioneSeduta { get; set; }
     [DisplayName("Data annunzio")] public DateTime? DataAnnunzio { get; set; }
-    //[DisplayName("Data trattazione risposta")] public DateTime? DataTrattazione { get; set; }
-    //[DisplayName("Data trasmissione risposta")] public DateTime? DataTrasmissione { set; get; }
-    //[DisplayName("Data risposta")] public DateTime? DataRisposta { get; set; }
     [DisplayName("Data chiusura")] public DateTime? DataChiusuraIter { get; set; }
     [DisplayName("Data comunicazione assemblea")] public DateTime? DataComunicazioneAssemblea { get; set; }
 
-    [DisplayName("Data prima firma")] public DateTime? DataPrimaFirma { get; set; }
     [DisplayName("Oggetto")] public string Oggetto { get; set; }
     [DisplayName("Premesse")] public string Premesse { get; set; }
     [DisplayName("Richiesta")] public string Richiesta { get; set; }
     [DisplayName("Proponente")] public Guid? UIDPersonaProponente { get; set; }
+    [DisplayName("Altri firmatari")] public string Firme { get; set; }
+    [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
+
     [DisplayName("Commissioni proponenti")] public List<OrganoDto> CommissioniProponenti { get; set; }
 
     [DisplayName("Gruppo")] public int id_gruppo { get; set; }
     [DisplayName("Stato")] public int IDStato { get; set; }
-    [DisplayName("Pubblicato")] public bool Pubblicato { get; set; }
-    [DisplayName("Sollecito")] public bool Sollecito { get; set; }
     [DisplayName("Protocollo")] public string Protocollo { get; set; }
     [DisplayName("Codice materia")] public string CodiceMateria { get; set; }
 
     [DisplayName("Tipo risposta richiesta")]
     public int IDTipo_Risposta { get; set; }
 
-    [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
-    [DisplayName("Altri firmatari")] public string Firme { get; set; }
     [DisplayName("Abbinamenti")] public string Abbinamenti { get; set; }
     [DisplayName("Informazioni risposte")] public string Risposte { get; set; }
     [DisplayName("Tipo chiusura")] public int? TipoChiusuraIter { get; set; }
     [DisplayName("Tipo votazione")] public int? TipoVotazioneIter { get; set; }
     [DisplayName("Emendato")] public bool Emendato { get; set; }
+    [DisplayName("Pubblicato")] public bool Pubblicato { get; set; }
+    [DisplayName("Sollecito")] public bool Sollecito { get; set; }
     [DisplayName("Area tematica")] public string AreaTematica { get; set; }
     [DisplayName("Altri soggetti")] public string AltriSoggetti { get; set; }
     [DisplayName("DCR/DCCR")] public int? DCR { get; set; }
@@ -79,7 +74,6 @@ public class AttoDASIReportDto
     [DisplayName("Non passaggio in esame")]
     public bool Non_Passaggio_In_Esame { get; set; } = false;
 
-    [DisplayName("UIDAtto")] public Guid UIDAtto { get; set; }
 
     [DisplayName("Privacy - dati giudiziari")]
     public bool Privacy_Dati_Personali_Giudiziari { get; set; }
@@ -109,4 +103,5 @@ public class AttoDASIReportDto
 
     [DisplayName("Presentato oltre i termini")] public bool PresentatoOltreITermini { get; set; } = false;
     public string BURL { get; set; }
+    [DisplayName("UIDAtto")] public Guid UIDAtto { get; set; }
 }

@@ -680,7 +680,12 @@ namespace PortaleRegione.API.Controllers
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
             dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
-            dto.DisplayTipoVotazioneIter = Utility.GetText_TipoVotazioneDASI(dto.TipoVotazioneIter);
+            if (attoInDb.TipoChiusuraIter.HasValue)
+                dto.DisplayTipoChiusuraIter = Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.Value);
+            if (attoInDb.TipoVotazioneIter.HasValue)
+                dto.DisplayTipoVotazioneIter = Utility.GetText_TipoVotazioneDASI(attoInDb.TipoVotazioneIter.Value);
+
+            dto.DisplayTipoMozione = Utility.GetText_TipoMOZDASI(dto.TipoMOZ);
 
             dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
             dto.Firmato_Dal_Proponente =
@@ -688,9 +693,10 @@ namespace PortaleRegione.API.Controllers
 
             dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
 
-            dto.gruppi_politici =
-                Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                    await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+            if (dto.id_gruppo > 0)
+                dto.gruppi_politici =
+                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                        await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
 
             if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
                 dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
@@ -796,9 +802,10 @@ namespace PortaleRegione.API.Controllers
                         .Aggregate((i, j) => i + "<br>" + j);
                 }
 
-                dto.gruppi_politici =
-                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                        await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+                if (dto.Tipo != (int)TipoAttoEnum.RIS)
+                    dto.gruppi_politici =
+                        Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                            await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
 
                 if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
                     dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
@@ -3462,9 +3469,18 @@ namespace PortaleRegione.API.Controllers
                     await stamper.CreaPDFAsync(filePath, bodyPDF, "Report");
                     break;
                 case ExportFormatEnum.WORD:
-                    filePath += ".docx";
-                    var bodyWord = await ComposeReportBodyFromTemplate(model, currentUser);
-                    CreateWordReport(filePath, bodyWord);
+                    try
+                    {
+                        filePath += ".docx";
+                        var bodyWord = await ComposeReportBodyFromTemplate(model, currentUser);
+                        CreateWordReport(filePath, bodyWord);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+
                     break;
                 case ExportFormatEnum.EXCEL:
                     filePath += ".xlsx";
@@ -3925,6 +3941,13 @@ namespace PortaleRegione.API.Controllers
                 return bodyRisposte;
             }
 
+            if (propertyName.Equals(nameof(AttoDASIDto.CommissioniProponenti)))
+            {
+                if (!atto.CommissioniProponenti.Any()) return "--";
+
+                return atto.CommissioniProponenti.Select(c => c.nome_organo).Aggregate((i, j) => i + "; " + j);
+            }
+
             if (propertyName.Equals(nameof(AttoDASIDto.Note)))
             {
                 if (!atto.Note.Any())
@@ -3935,6 +3958,8 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.IDStato))) return atto.DisplayStato;
 
             if (propertyName.Equals(nameof(AttoDASIDto.Tipo))) return atto.DisplayTipo;
+
+            if (propertyName.Equals(nameof(AttoDASIDto.TipoMOZ))) return atto.DisplayTipoMozione;
 
             if (propertyName.Equals(nameof(AttoDASIDto.AreaPolitica))) return atto.DisplayAreaPolitica;
 
@@ -3949,7 +3974,12 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.UIDPersonaProponente)))
                 return atto.PersonaProponente.DisplayName;
 
-            if (propertyName.Equals(nameof(AttoDASIDto.id_gruppo))) return atto.gruppi_politici.codice_gruppo;
+            if (propertyName.Equals(nameof(AttoDASIDto.id_gruppo)))
+            {
+                if (atto.id_gruppo > 0)
+                    return atto.gruppi_politici.codice_gruppo;
+                return "--";
+            }
 
             var propertyInfo = typeof(AttoDASIDto).GetProperty(propertyName);
             if (propertyInfo == null) return "--";
@@ -3959,6 +3989,7 @@ namespace PortaleRegione.API.Controllers
                 return "--";
 
             if (DateTime.TryParse(propValue.ToString(), out var resDate)) return resDate.ToString("dd/MM/yyyy");
+            if (bool.TryParse(propValue.ToString(), out var resBool)) return resBool ? "Si" : "No";
 
             return propertyInfo.GetValue(atto);
         }
@@ -4035,7 +4066,6 @@ namespace PortaleRegione.API.Controllers
                     foreach (var guid in idsList)
                     {
                         var atto = await GetAttoDto(guid, currentUser);
-
                         body += templateItemCard_Standard.Replace("{{ITEM}}", GetBodyItemCard(atto, model.columns));
                     }
 

@@ -72,6 +72,7 @@ public class AttoDASIDto
     [DisplayName("Tipo atto")] public int Tipo { get; set; }
 
     [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;
+    public string DisplayTipoMozione { get; set; }
 
     [DisplayName("Numero atto")] public string NAtto { get; set; }
     public DateTime DataCreazione { get; set; }
@@ -405,5 +406,7 @@ public class AttoDASIDto
     [DisplayName("Data risposta")]public DateTime? DataRisposta { get; set; }
     [DisplayName("Data trattazione risposta")]public DateTime? DataTrattazione { get; set; }
     [DisplayName("Iter multiplo")]public bool IterMultiplo { get; set; } = false;
-    [DisplayName("Commissioni proponenti")]public List<OrganoDto> CommissioniProponenti { get; set; }
+
+    [DisplayName("Commissioni proponenti")]
+    public List<OrganoDto> CommissioniProponenti { get; set; } = new List<OrganoDto>();
 }

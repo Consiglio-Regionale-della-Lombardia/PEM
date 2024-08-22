@@ -122,7 +122,7 @@
                         .Cast<DisplayNameAttribute>()
                         .FirstOrDefault()?.DisplayName ?? prop.Name;
 
-                    <li style="list-style-type: disc;">@displayName: {{@prop.Name}}</li>
+                    <li style="list-style-type: disc;">@displayName: <a onclick="addKeyOnEditor(this)">{{@prop.Name}}</a></li>
                 }
             </ul>
         </p>
@@ -137,7 +137,15 @@
                 var pnlTestata = document.getElementById('pnlTestata');
 				pnlTestata.style.display = 'block';
             }
-		});
+        });
+
+    function addKeyOnEditor(ctrl) {
+        var keyToAdd = $(ctrl).text();
+		var container_testo_richiesta = $("#Corpo").parent();
+		var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
+		var testo = editor_testo_richiesta.html() + keyToAdd;
+		editor_testo_richiesta.html(testo);
+    }
 
 	function ddlTipo_OnChange(ctrl) {
         var itemFormat = $(ctrl).val();

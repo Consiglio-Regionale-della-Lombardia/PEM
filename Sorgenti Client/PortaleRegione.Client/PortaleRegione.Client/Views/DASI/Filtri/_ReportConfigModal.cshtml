@@ -49,7 +49,7 @@
         <div class="row" id="extraOptions" style="display: none;">
             <div class="input-field col s6">
                 <select name="coverType">
-                    <option value="" disabled selected>Scegli la copertina</option>
+                    <option value="" selected>Scegli la copertina</option>
                 </select>
                 <label>Copertina</label>
             </div>
@@ -143,11 +143,11 @@
 		M.toast({
 			html: `<span><b class="yellow-text">${document.getElementById('report_name').value}</b> salvato con successo</span>`, classes: 'rounded', displayLength: 5000
 		});
-		var index = reportsArray.findIndex(el => el.reportname === item.reportname);
+		var index = reportsArray.findIndex(el => el.reportname === request.reportname);
 		if (index !== -1) {
 			reportsArray.splice(index, 1);
 		}
-		reportsArray.push(request)
+		reportsArray.push(request);
 		creaPannelloReportLaterale();
 	});
 
@@ -267,7 +267,7 @@
 		var cardTemplates = await GetCardTemplates();
 		var cardTemplatesTypeSelect = $('select[name="dataViewType_Templates"]');
 		cardTemplatesTypeSelect.empty();
-		cardTemplatesTypeSelect.append('<option value="" disabled selected>Scegli il template</option>');
+		cardTemplatesTypeSelect.append('<option value="" selected>Scegli il template</option>');
 		cardTemplates.forEach(function (template) {
 			cardTemplatesTypeSelect.append(`<option value="${template.Uid}">${template.Nome}</option>`);
 		});
@@ -277,7 +277,7 @@
 		var coverTypeSelect = $('select[name="coverType"]');
 		coverTypeSelect.empty();
 
-		coverTypeSelect.append('<option value="" disabled selected>Scegli la copertina</option>');
+		coverTypeSelect.append('<option value="" selected>Scegli la copertina</option>');
 		copertine.forEach(function (copertina) {
 			coverTypeSelect.append(`<option value="${copertina.Uid}">${copertina.Nome}</option>`);
 		});

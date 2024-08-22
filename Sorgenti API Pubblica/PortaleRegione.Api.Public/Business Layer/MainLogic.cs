@@ -212,14 +212,20 @@ namespace PortaleRegione.Api.Public.Business_Layer
             var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
             if (attoInDb == null)
                 throw new KeyNotFoundException($"Identificativo {uidAtto} non trovato.");
-            var gruppo = await _unitOfWork.Persone.GetGruppo(attoInDb.id_gruppo);
+            KeyValueDto gruppo = null;
+            if (attoInDb.Tipo != (int)TipoAttoEnum.RIS)
+            {
+                gruppo = await _unitOfWork.Persone.GetGruppo(attoInDb.id_gruppo);
+            }
+            
             var proponente = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaProponente.Value);
             //if (proponente.DisplayName.Contains("(--)"))
             //{
             //    proponente.DisplayName = proponente.DisplayName.Replace("--", gruppo.sigla.Trim());
             //}
 
-            proponente.DisplayName += $" ({gruppo.sigla.Trim()})";
+            if (gruppo != null)
+                proponente.DisplayName += $" ({gruppo.sigla.Trim()})";
                 
             var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);
             var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);

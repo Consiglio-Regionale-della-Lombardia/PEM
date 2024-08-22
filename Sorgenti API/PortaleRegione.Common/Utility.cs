@@ -320,8 +320,11 @@ namespace PortaleRegione.Common
             }
         }
 
-        public static string GetText_ChiusuraIterDASI(int stato)
+        public static string GetText_ChiusuraIterDASI(int? stato)
         {
+            if (stato == null)
+                return "--";
+
             switch ((TipoChiusuraIterEnum)stato)
             {
                 case TipoChiusuraIterEnum.RESPINTO:
