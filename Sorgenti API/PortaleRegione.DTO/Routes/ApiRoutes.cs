@@ -194,6 +194,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetModificaModello = Base + "/edit/model/{id}";
             public const string AggiornaMetaDati = Base + "/edit/model/meta";
             public const string Save = Base + "/save";
+            public const string Save_GeneralInfos = Base + "/save/general-infos";
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";
             public const string GetAll_SoloIds = Base + "/all/solo-ids";

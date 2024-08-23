@@ -180,8 +180,12 @@
     <div class="collapsible-body">
         <div class="row">
             <div class="input-field col s12 m12 l6">
-                @Html.TextBox("txtStatoAtto", atto.DisplayStato, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.IDStato)
+                <select id='Atto_Stato'>
+                    <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.PRESENTATO ? "selected=\"selected\"" : "")>@Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
+                    <option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE ? "selected=\"selected\"" : "")>@Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
+                    <option value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.COMPLETATO ? "selected=\"selected\"" : "")>@Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
+                </select>
+                <label for="Atto_Stato">Stato</label>
             </div>
             <div class="input-field col s12 m12 l6">
                 @Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
@@ -206,19 +210,31 @@
         </div>
         <div class="row">
             <div class="input-field col s12 m12 l6">
-                @Html.TextBox("txtAreaPoliticaAtto", atto.DisplayAreaPolitica, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.AreaPolitica)
+                <select id='Atto_AreaPolitica'>
+                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza ? "selected=\"selected\"" : "")>@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)</option>
+                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza ? "selected=\"selected\"" : "")>@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza)</option>
+                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto ? "selected=\"selected\"" : "")>@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)</option>
+                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Minoranza ? "selected=\"selected\"" : "")>@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)</option>
+                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza ? "selected=\"selected\"" : "")>@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)</option>
+                </select>
+                <label for="Atto_AreaPolitica">Area politica</label>
             </div>
             <div class="input-field col s12 m12 l6">
-                @Html.TextBox("txtTipoRispostaAtto", atto.DisplayTipoRispostaRichiesta, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.IDTipo_Risposta)
+                <select id='Atto_RispostaRichiesta'>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)</option>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
+                </select>
+                <label for="Atto_RispostaRichiesta">Risposta richiesta</label>
             </div>
         </div>
         <div class="row">
             <div class="input-field col s12 m12 l6">
                 <p>
                     <label>
-                        <input type="checkbox" value="true" @Html.Raw((Model.Atto.Pubblicato ? "checked=\"checked\"" : ""))/>
+                        <input type="checkbox" value="true" name="Atto.Pubblicato" @Html.Raw(Model.Atto.Pubblicato ? "checked=\"checked\"" : "")/>
                         <span>Pubblicato</span>
                     </label>
                 </p>
@@ -226,10 +242,15 @@
             <div class="input-field col s12 m12 l6">
                 <p>
                     <label>
-                        <input type="checkbox" value="true" @Html.Raw((Model.Atto.Sollecito ? "checked=\"checked\"" : ""))/>
+                        <input type="checkbox" name="Atto.Sollecito" value="true" @Html.Raw(Model.Atto.Sollecito ? "checked=\"checked\"" : "")/>
                         <span>Sollecito</span>
                     </label>
                 </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <a id="btnSalva_InformazioniGenerali" class="btn blue-text waves-effect waves-green btn-flat" style="width:100%">Salva</a>
             </div>
         </div>
         <div class="row">
@@ -258,7 +279,7 @@
 </li>
 <li>
     <div class="collapsible-header collection-header-custom @cssClass">
-		<i class="material-icons">insert_link</i>Abbinamenti
+        <i class="material-icons">insert_link</i>Abbinamenti
         @if (atto.Abbinamenti.Any())
         {
             <div class="chip" style="left: 190px; margin-top: -4px; position: absolute;">@atto.Abbinamenti.Count</div>
@@ -288,7 +309,7 @@
                                 @abb.TipoAttoAbbinato @abb.NumeroAttoAbbinato
                                 @if (!string.IsNullOrEmpty(abb.OggettoAttoAbbinato))
                                 {
-                                    @Html.Raw($"- {abb.OggettoAttoAbbinato}");
+                                    @Html.Raw($"- {abb.OggettoAttoAbbinato}")
                                 }
                             </li>
                         }
@@ -347,11 +368,11 @@
                 {
                     <tr>
                         <td>@Html.Raw(risposta.DisplayTipo)</td>
-                        <td>@Html.Raw((risposta.Data.HasValue) ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
+                        <td>@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
                         <td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
                         <td>@Html.Raw(risposta.DescrizioneOrgano)</td>
-                        <td>@Html.Raw((risposta.DataTrasmissione.HasValue) ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
-                        <td>@Html.Raw((risposta.DataTrattazione.HasValue) ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
+                        <td>@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
+                        <td>@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
                     </tr>
                 }
                 </tbody>
@@ -511,7 +532,7 @@
             <div class="input-field col s12 m12 l4">
                 <p>
                     <label>
-                        <input type="checkbox" value="true" @Html.Raw((Model.Atto.Emendato ? "checked=\"checked\"" : ""))/>
+                        <input type="checkbox" value="true" @Html.Raw(Model.Atto.Emendato ? "checked=\"checked\"" : "")/>
                         <span>Emendato</span>
                     </label>
                 </p>
@@ -589,6 +610,77 @@
     </div>
 </li>
 <li>
+    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">security</i>Privacy</div>
+    <div class="collapsible-body">
+        <div class="row">
+            <div class="input-field col s12 m12 l12">
+                <p>
+                    <label>
+                        <input type="checkbox" value="true" @Html.Raw(Model.Atto.Privacy ? "checked=\"checked\"" : "")/>
+                        <span>Privacy</span>
+                    </label>
+                </p>
+            </div>
+            <div class="input-field col s12 m12 l12">
+                <p>
+                    <label>
+                        <input type="checkbox" value="true" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Semplici ? "checked=\"checked\"" : "")/>
+                        <span>Privacy - dati personali semplici</span>
+                    </label>
+                </p>
+            </div>
+            <div class="input-field col s12 m12 l12">
+                <p>
+                    <label>
+                        <input type="checkbox" value="true" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Sensibili ? "checked=\"checked\"" : "")/>
+                        <span>Privacy - dati sensibili</span>
+                    </label>
+                </p>
+            </div>
+            <div class="input-field col s12 m12 l12">
+                <p>
+                    <label>
+                        <input type="checkbox" value="true" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Giudiziari ? "checked=\"checked\"" : "")/>
+                        <span>Privacy - dati giudiziari</span>
+                    </label>
+                </p>
+            </div>
+            <div class="input-field col s12 m12 l12">
+                <p>
+                    <label>
+                        <input type="checkbox" value="true" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione ? "checked=\"checked\"" : "")/>
+                        <span>Privacy - divieto di pubblicazione</span>
+                    </label>
+                </p>
+            </div>
+            <div class="input-field col s12 m12 l12">
+                <p>
+                    <label>
+                        <input type="checkbox" value="true" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Salute ? "checked=\"checked\"" : "")/>
+                        <span>Privacy - dati sanitari</span>
+                    </label>
+                </p>
+            </div>
+            <div class="input-field col s12 m12 l12">
+                <p>
+                    <label>
+                        <input type="checkbox" value="true" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale ? "checked=\"checked\"" : "")/>
+                        <span>Privacy - dati di natura sessuale</span>
+                    </label>
+                </p>
+            </div>
+            <div class="input-field col s12 m12 l12">
+                <p>
+                    <label>
+                        <input type="checkbox" value="true" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Altri ? "checked=\"checked\"" : "")/>
+                        <span>Privicy - altri motivi</span>
+                    </label>
+                </p>
+            </div>
+        </div>
+    </div>
+</li>
+<li>
     <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe</div>
     <div class="collapsible-body">
         <span>Lorem ipsum dolor sit amet.</span>
@@ -631,6 +723,51 @@
 	    var instance = M.Collapsible.init(elem, {
 		    accordion: false
 	    });
+    });
+
+    document.getElementById('btnSalva_InformazioniGenerali').addEventListener('click', async function () {
+
+        swal({
+            title: "Salvataggio informazioni generali",
+            text: "Sei sicuro di voler salvare le informazioni generali?",
+            icon: "warning",
+            buttons: ["Annulla", "Salva"]
+        }).then(async (answer) => {
+            if (answer) {
+                var data = {
+                    UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+                    Stato: document.getElementById('Atto_Stato').value,
+                    DataAnnunzio: document.querySelector('input[name="Atto.DataAnnunzio"]').value,
+                    Oggetto: document.querySelector('input[name="Atto.Oggetto"]').value,
+                    Protocollo: document.querySelector('input[name="Atto.Protocollo"]').value,
+                    CodiceMateria: document.querySelector('input[name="Atto.CodiceMateria"]').value,
+                    AreaPolitica: document.getElementById('Atto_AreaPolitica').value,
+                    RispostaRichiesta: document.getElementById('Atto_RispostaRichiesta').value,
+                    Pubblicato: document.querySelector('input[name="Atto.Pubblicato"]').checked,
+                    Sollecito: document.querySelector('input[name="Atto.Sollecito"]').checked
+                };
+
+                var url = '@Url.Action("Salva_InformazioniGeneraliAtto", "DASI")';
+                // Send the data using fetch
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                M.toast({
+                    html: `<span>Informazioni generali salvate con successo</span>`,
+                    classes: 'rounded',
+                    displayLength: 5000
+                });
+            }
+        });
     });
 
     function CambiaPrioritaFirma(ctrl, uidAtto, uidPersona) {
@@ -680,7 +817,7 @@
             processData: false
         });
     }
-	
+
 </script>
 </body>
 </html>

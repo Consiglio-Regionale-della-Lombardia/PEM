@@ -1690,5 +1690,26 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per il salvataggio dell' atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-info-generali")]
+        public async Task<ActionResult> Salva_InformazioniGeneraliAtto(AttoDASI_InformazioniGeneraliDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_InformazioniGenerali(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

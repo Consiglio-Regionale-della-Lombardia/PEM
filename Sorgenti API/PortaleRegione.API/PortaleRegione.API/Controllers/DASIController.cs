@@ -142,6 +142,29 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        
+        /// <summary>
+        ///     Endpoint per salvare le informazioni generali di un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_GeneralInfos)]
+        public async Task<IHttpActionResult> Salva_InformazioniGenerali(AttoDASI_InformazioniGeneraliDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_InformazioniGenerali(request, CurrentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva informazioni generali DASI", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per salvare la bozza di un atto cartaceo

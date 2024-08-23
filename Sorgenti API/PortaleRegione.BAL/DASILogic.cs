@@ -266,6 +266,27 @@ namespace PortaleRegione.API.Controllers
             return attoInDb;
         }
 
+        public async Task Salva_InformazioniGenerali(AttoDASI_InformazioniGeneraliDto request, PersonaDto persona)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.UIDPersonaModifica = persona.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
+            attoInDb.Oggetto = request.Oggetto;
+            attoInDb.IDTipo_Risposta = request.RispostaRichiesta;
+            attoInDb.AreaPolitica = request.AreaPolitica;
+            attoInDb.IDStato = request.Stato;
+            attoInDb.CodiceMateria = request.CodiceMateria;
+            attoInDb.Protocollo = request.Protocollo;
+            attoInDb.DataAnnunzio = request.DataAnnunzio;
+            attoInDb.Pubblicato = request.Pubblicato;
+            attoInDb.Sollecito = request.Sollecito;
+
+            await _unitOfWork.CompleteAsync();
+        }
+
         private async Task GestioneCommissioni(AttoDASIDto attoDto, bool isUpdate = false)
         {
             if (isUpdate) await _unitOfWork.DASI.RimuoviCommissioni(attoDto.UIDAtto);

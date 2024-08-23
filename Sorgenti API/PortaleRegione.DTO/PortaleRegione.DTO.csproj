@@ -77,6 +77,7 @@
     <Compile Include="Domain\AttiRisposteDto.cs" />
     <Compile Include="Domain\AttoDASIDto.cs" />
     <Compile Include="Domain\AttoDASIReportDto.cs" />
+    <Compile Include="Domain\AttoDASI_InformazioniGeneraliDto.cs" />
     <Compile Include="Domain\OrganoDto.cs" />
     <Compile Include="Domain\DestinatariNotificaDto.cs" />
     <Compile Include="Domain\Essentials\AttoLightDto.cs" />
@@ -223,5 +224,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
