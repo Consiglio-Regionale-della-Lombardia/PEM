@@ -37,9 +37,9 @@ namespace PortaleRegione.DTO.Request.Public
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? id_carica { get; set; }
-        
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int[] id_tipo_risposta { get; set; }
+        public int[] id_tipo_risposta { get; set; } = Array.Empty<int>();
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int[] id_commissione { get; set; } = Array.Empty<int>();
