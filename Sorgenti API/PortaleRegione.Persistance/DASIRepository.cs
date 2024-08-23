@@ -1088,6 +1088,7 @@ namespace PortaleRegione.Persistance
                 var docsQuery = PRContext.ATTI_DOCUMENTI
                     .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
                     .Select(f => f.UIDAtto)
+                    .Distinct()
                     .ToList();
                 query = query.Where(i => !docsQuery.Contains(i.UIDAtto));
             }
@@ -1095,7 +1096,8 @@ namespace PortaleRegione.Persistance
             {
                 var documentQuery = PRContext.ATTI_DOCUMENTI
                     .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto);
+                    .Select(f => f.UIDAtto)
+                    .Distinct();
 
                 query = query
                     .Join(
@@ -1109,7 +1111,8 @@ namespace PortaleRegione.Persistance
             if (queryExtended.RispostaMancante)
             {
                 var risposteQuery = PRContext.ATTI_RISPOSTE
-                    .Select(f => f.UIDAtto);
+                    .Select(f => f.UIDAtto)
+                    .Distinct();
 
                 query = query.GroupJoin(risposteQuery,
                         atto => atto.UIDAtto,
@@ -1122,7 +1125,8 @@ namespace PortaleRegione.Persistance
             {
                 var risposteEffettiveQuery = PRContext.ATTI_RISPOSTE
                     .Where(f => queryExtended.Risposte.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto);
+                    .Select(f => f.UIDAtto)
+                    .Distinct();
 
                 query = query.Join(risposteEffettiveQuery,
                     atto => atto.UIDAtto,
@@ -1138,7 +1142,8 @@ namespace PortaleRegione.Persistance
             {
                 var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
                     .Where(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value))
-                    .Select(abb => abb.UIDAtto);
+                    .Select(abb => abb.UIDAtto)
+                    .Distinct();
 
                 query = query
                     .Where(atto =>
@@ -1149,7 +1154,8 @@ namespace PortaleRegione.Persistance
             if (queryExtended.OrganiIsNull)
             {
                 var commissioniQuery = PRContext.ATTI_COMMISSIONI
-                    .Select(f => f.UIDAtto);
+                    .Select(f => f.UIDAtto)
+                    .Distinct();
 
                 query = query.GroupJoin(commissioniQuery,
                         atto => atto.UIDAtto,
@@ -1162,20 +1168,29 @@ namespace PortaleRegione.Persistance
             {
                 var organiQuery = PRContext.ATTI_COMMISSIONI
                     .Where(organo => queryExtended.Organi.Contains(organo.id_organo))
-                    .Select(organo => organo.UIDAtto);
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct();
 
                 var risposteQuery = PRContext.ATTI_RISPOSTE
                     .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
-                    .Select(organo => organo.UIDAtto);
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct();
+
+                var monitoraggioQuery = PRContext.ATTI_MONITORAGGIO
+                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct();
 
                 var commissioniProponentiQuery = PRContext
                     .ATTI_PROPONENTI
                     .Where(commissione => queryExtended.Organi.Contains(commissione.IdOrgano))
-                    .Select(commissione => commissione.UIDAtto);
+                    .Select(commissione => commissione.UIDAtto)
+                    .Distinct();
 
                 query = query.Where(atto => organiQuery.Contains(atto.UIDAtto) 
                                             || risposteQuery.Contains(atto.UIDAtto)
-                                            || commissioniProponentiQuery.Contains(atto.UIDAtto));
+                                            || commissioniProponentiQuery.Contains(atto.UIDAtto)
+                                            || monitoraggioQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.DataSeduta.Any())
