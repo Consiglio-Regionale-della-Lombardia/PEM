@@ -245,9 +245,7 @@
 								<select id='Atto_RispostaRichiesta'>
 									<option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
 									<option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
-									<option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
-									<option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)</option>
-									<option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
+                                    <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
 								</select>
 								<label for="Atto_RispostaRichiesta">Risposta richiesta</label>
 							</div>
@@ -793,6 +791,8 @@
                         <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
                         <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
                         <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                        <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)</option>
+                        <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
                     </select>
                     <label>Tipo risposta</label>
                 </div>
@@ -919,7 +919,7 @@
 						// Aggiungi il nuovo abbinamento alla lista
 						var newItem = document.createElement('li');
 						newItem.className = 'collection-item';
-						newItem.innerHTML = `${txt}`;
+						newItem.innerHTML = `${txt} <a href="#!" class="secondary-content red-text" onclick="rimuoviAbbinamento(this,'${key}')"><i class="material-icons">close</i></a> `;
 
 						document.getElementById('lstAbbinamentiAtto').appendChild(newItem);
 
