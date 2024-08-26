@@ -77,6 +77,20 @@ namespace PortaleRegione.Gateway
             var body = JsonConvert.SerializeObject(request);
             await Post(requestUrl, body, _token);
         }
+        
+        public async Task Salva_RimuoviRisposta(AttiRisposteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_RemoveAnswer}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Salva_NuovaRisposta(AttiRisposteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_AddAnswer}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
 
         public async Task<AttoDASIDto> Get(Guid id)
         {

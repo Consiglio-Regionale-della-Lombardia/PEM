@@ -297,6 +297,17 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
         }
+
+        public async Task Salva_NuovaRisposta(AttiRisposteDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            _unitOfWork.DASI.AggiungiRisposta(request.UIDAtto, request.IdOrgano, request.DescrizioneOrgano, request.TipoOrgano);
+
+            await _unitOfWork.CompleteAsync();
+        }
         
         public async Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
         {
@@ -306,7 +317,18 @@ namespace PortaleRegione.API.Controllers
 
             var abbinamentoInDb = await _unitOfWork.DASI.GetAbbinamento(request.UidAbbinamento, request.UidAttoAbbinato);
 
-            _unitOfWork.DASI.RemoveAbbinamento(abbinamentoInDb);
+            _unitOfWork.DASI.RimuoviAbbinamento(abbinamentoInDb);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task Salva_RimuoviRisposta(AttiRisposteDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            var risposteInDb = await _unitOfWork.DASI.GetRisposta(request.UIDAtto, request.IdOrgano);
+            _unitOfWork.DASI.RimuoviRisposta(risposteInDb);
             await _unitOfWork.CompleteAsync();
         }
 

@@ -165,7 +165,48 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        /// <summary>
+        ///     Endpoint per aggiungere una risposta ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_AddAnswer)]
+        public async Task<IHttpActionResult> Salva_NuovaRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_NuovaRisposta(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nuovo risposta DASI", e);
+                return ErrorHandler(e);
+            }
+        }
         
+        /// <summary>
+        ///     Endpoint per aggiungere una risposta ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_RemoveAnswer)]
+        public async Task<IHttpActionResult> Salva_RimuoviRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_RimuoviRisposta(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi risposta DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
         /// <summary>
         ///     Endpoint per aggiungere un abbinamento ad un atto
         /// </summary>

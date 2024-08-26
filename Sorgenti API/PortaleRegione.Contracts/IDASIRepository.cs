@@ -90,6 +90,11 @@ namespace PortaleRegione.Contracts
         Task<List<OrganoDto>> GetCommissioniProponenti(Guid uidAtto);
         void AggiungiAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato);
         Task<ATTI_ABBINAMENTI> GetAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato);
-        void RemoveAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb);
+        void RimuoviAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb);
+        void AggiungiRisposta(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano,
+            int requestTipoOrgano);
+
+        void RimuoviRisposta(ATTI_RISPOSTE risposta);
+        Task<ATTI_RISPOSTE> GetRisposta(Guid requestUidAtto, int requestIdOrgano);
     }
 }

@@ -92,5 +92,7 @@ namespace PortaleRegione.Gateway
         Task<List<TemplatesItemDto>> GetReportsCardTemplates();
         Task Salva_NuovoAbbinamento(AttiAbbinamentoDto request);
         Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request);
+        Task Salva_NuovaRisposta(AttiRisposteDto request);
+        Task Salva_RimuoviRisposta(AttiRisposteDto request);
     }
 }

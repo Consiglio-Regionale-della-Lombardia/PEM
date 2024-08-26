@@ -632,9 +632,32 @@ namespace PortaleRegione.Persistance
                                                                 && a.UIDAttoAbbinato == requestUidAttoAbbinato);
         }
 
-        public void RemoveAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb)
+        public void RimuoviAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb)
         {
             PRContext.ATTI_ABBINAMENTI.Remove(abbinamentoInDb);
+        }
+
+        public void AggiungiRisposta(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano, int requestTipoOrgano)
+        {
+            PRContext.ATTI_RISPOSTE.Add(new ATTI_RISPOSTE
+            {
+                Uid = Guid.NewGuid(),
+                UIDAtto = requestUidAtto,
+                IdOrgano = requestIdOrgano,
+                DescrizioneOrgano = requestDescrizioneOrgano,
+                TipoOrgano = requestTipoOrgano
+            });
+        }
+
+        public void RimuoviRisposta(ATTI_RISPOSTE risposta)
+        {
+            PRContext.ATTI_RISPOSTE.Remove(risposta);
+        }
+
+        public async Task<ATTI_RISPOSTE> GetRisposta(Guid requestUidAtto, int requestIdOrgano)
+        {
+            return await PRContext.ATTI_RISPOSTE.FirstOrDefaultAsync(r => r.UIDAtto == requestUidAtto
+                                                             && r.IdOrgano == requestIdOrgano);
         }
 
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)

@@ -366,50 +366,56 @@
 						}
 					</div>
 					<div class="collapsible-body">
+                        <div class="row">
+                            <div class="col s12">
+                                <a id="btnAggiungiRisposta" class="btn blue-text waves-effect waves-green btn-flat" style="width:100%">Aggiungi risposta</a>
+                            </div>
+                        </div>
+						<h6>
+                            <b>Risposte fornite</b>
+                        </h6>
+                        <hr />
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Tipo risposta fornita</th>
+                                <th>Data risposta</th>
+                                <th>Tipo organo</th>
+                                <th>Organo</th>
+                                <th>Data trasmissione</th>
+                                <th>Data trattazione</th>
+                                <th></th>
+                            </tr>
+                            </thead>
 
-						@if (!atto.Risposte.Any())
-						{
-							<div class="card-panel panel-warning center">
-								<span class="center">
-									<p>Nessuna risposta</p>
-								</span>
-							</div>
-						}
-						else
-						{
-							<h6>
-								<b>Risposte fornite</b>
-							</h6>
-							<hr />
-							<table>
-								<thead>
-									<tr>
-										<th>Tipo risposta fornita</th>
-										<th>Data risposta</th>
-										<th>Tipo organo</th>
-										<th>Organo</th>
-										<th>Data trasmissione</th>
-										<th>Data trattazione</th>
-									</tr>
-								</thead>
+                            <tbody>
+                            @foreach (var risposta in atto.Risposte)
+                            {
+                                <tr>
+                                    <td>@Html.Raw(risposta.DisplayTipo)</td>
+                                    <td>@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
+                                    <td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
+                                    <td>@Html.Raw(risposta.DescrizioneOrgano)</td>
+                                    <td>@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
+                                    <td>@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
+                                    <td>
+                                        <a href="#!" class="red-text" onclick="rimuoviRisposta(this, @risposta.IdOrgano)"><i class="material-icons">close</i></a>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+						
+                        @if (!atto.Risposte.Any())
+                        {
+                            <div id="empty-risposte" class="card-panel panel-warning center">
+                                <span class="center">
+                                    <p>Nessuna risposta</p>
+                                </span>
+                            </div>
+                        }
 
-								<tbody>
-									@foreach (var risposta in atto.Risposte)
-									{
-										<tr>
-											<td>@Html.Raw(risposta.DisplayTipo)</td>
-											<td>@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
-											<td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
-											<td>@Html.Raw(risposta.DescrizioneOrgano)</td>
-											<td>@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
-											<td>@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						}
-
-						@if (atto.Documenti.Any())
+                        @if (atto.Documenti.Any())
 						{
 							if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.RISPOSTA))
 							{
@@ -746,16 +752,30 @@
 		}
 	</div>
 
-	<div id="modalAbbinamenti" class="modal">
+<div id="modalAbbinamenti" class="modal">
+    <div class="modal-content">
+        <h4>Abbinamenti</h4>
+        <p>Ricerca abbinamenti all'atto @Model.Atto.Display</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="abbinamenti-autocomplete" class="autocomplete">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+    </div>
+</div>
+
+<div id="modalRisposte" class="modal">
 		<div class="modal-content">
-			<h4>Abbinamenti</h4>
-			<p>Ricerca abbinamenti all'atto @Model.Atto.Display</p>
+			<h4>Risposte</h4>
+			<p>Ricerca organi di risposta all'atto @Model.Atto.Display</p>
 			<div class="row">
 				<div class="input-field col s12">
 					<i class="material-icons prefix">search</i>
-					<input type="text" id="abbinamenti-autocomplete" class="autocomplete">
-
-					<div id="abbinamenti-selected"></div>
+					<input type="text" id="organi-autocomplete" class="autocomplete">
 				</div>
 			</div>
 		</div>
@@ -764,7 +784,7 @@
 		</div>
 	</div>
 
-	<script>
+<script>
 	document.addEventListener('DOMContentLoaded', async function () {
 	    var elem = document.querySelector('.collapsible.expandable');
 	    var instance = M.Collapsible.init(elem, {
@@ -921,6 +941,137 @@
 		});
 	}
 
+	document.getElementById('btnAggiungiRisposta').addEventListener('click', async function () {
+		waiting(true);
+
+		var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+		var data = [];
+		organi.forEach(function (item) {
+			data.push({
+				tag: `${item.nome_organo}`,
+				id: `${item.id_organo}`
+			});
+		});
+		var elems = document.querySelectorAll('#organi-autocomplete');
+		var instances = M.Autocomplete.init(elems, {
+			data: data,
+			limit: 20,
+			minLength: 2,
+			onAutocomplete: function (txt, key) {
+				swal({
+					title: "Inserimento nuovo organo",
+					text: "Sei sicuro di voler inserire " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+					icon: "warning",
+					buttons: ["Annulla", "Inserisci"]
+				}).then(async (answer) => {
+
+					if (answer) {
+
+						let tipoOrgano;
+						let displayTipoOrgano;
+
+						if (txt.includes("Commissione")) {
+							tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+							displayTipoOrgano = "Commissione";
+						} else if (txt.includes("Giunta")) {
+							tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+							displayTipoOrgano = "Giunta";
+						} else {
+							tipoOrgano = 0; // Nessun tipo specifico
+							displayTipoOrgano = "Altro";
+						}
+
+						// Simula la richiesta al server per salvare i dati
+						var request = {
+							UIDAtto: '@Model.Atto.UIDAtto',
+							IdOrgano: `${key}`,
+							TipoOrgano: tipoOrgano,
+							DisplayTipoOrgano: displayTipoOrgano,
+							DescrizioneOrgano: txt,
+						}
+
+						var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+						// Send the data using fetch
+						const response = await fetch(url, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify(request)
+						});
+
+						if (!response.ok) {
+							throw new Error('Network response was not ok');
+						}
+
+						// Aggiungi una nuova riga alla tabella
+						var newRow = document.createElement('tr');
+						newRow.innerHTML = `
+							<td></td>
+							<td></td>
+							<td>${request.DisplayTipoOrgano}</td>
+							<td>${request.DescrizioneOrgano}</td>
+							<td></td>
+							<td></td>
+							<td><a class="red-text" onclick="rimuoviRisposta(this, ${key})"><i class="material-icons">close</i></a></td>
+						`;
+
+							document.querySelector('table tbody').appendChild(newRow);
+
+							M.toast({
+								html: `<span>${txt} inserito con successo all'atto @Html.Raw(Model.Atto.Display)</span>`,
+								classes: 'rounded',
+								displayLength: 5000
+							});
+
+							$('#empty-risposte').hide();
+						}
+						document.getElementById('organi-autocomplete').value = "";
+					});
+				}
+			});
+		waiting(false);
+		$('#modalRisposte').modal("open");
+	});
+
+	function rimuoviRisposta(ctrl, organoId) {
+			var row = $(ctrl).closest('tr');
+			var id = organoId;
+
+			swal({
+				title: "Rimuovi risposta",
+				text: "Sei sicuro di voler rimuovere questa risposta?",
+				icon: "warning",
+				buttons: ["Annulla", "Rimuovi"]
+			}).then(async (answer) => {
+				if (answer) {
+					// Simula la richiesta al server per rimuovere i dati
+					var url = '@Url.Action("Salva_RimuoviRisposta", "DASI")';
+					const response = await fetch(url, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({ IdOrgano: id, UIDAtto: '@Model.Atto.UIDAtto' })
+					});
+
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+
+					// Rimuovi la riga dalla tabella
+					row.remove();
+
+					M.toast({
+						html: `<span>Risposta rimossa con successo</span>`,
+						classes: 'rounded',
+						displayLength: 5000
+					});
+				}
+			});
+	}
+
+
     function CambiaPrioritaFirma(ctrl, uidAtto, uidPersona) {
 
         var body = {};
@@ -969,6 +1120,6 @@
         });
     }
 
-	</script>
+</script>
 </body>
 </html>
