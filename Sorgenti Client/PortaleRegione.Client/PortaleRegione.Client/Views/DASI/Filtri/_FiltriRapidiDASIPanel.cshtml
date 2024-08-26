@@ -1477,7 +1477,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				var data = [];
 				abbinamenti.forEach(function (item) {
 					data.push({
-						tag: `${item.display}`,
+						tag: `${item.display}, con oggetto: ${item.oggetto}`,
 						id: `${item.uidAtto}`
 					});
 				});

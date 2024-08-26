@@ -161,7 +161,7 @@ label {
 	padding-left: 8px;
 }
 
-.chip { cursor: pointer; }
+.chip { cursor: pointer; height:unset!important; }
 
 .chip-centered {
 	cursor: pointer;

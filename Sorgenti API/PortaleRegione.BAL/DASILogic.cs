@@ -286,6 +286,29 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
         }
+        
+        public async Task Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UidAbbinamento);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            _unitOfWork.DASI.AggiungiAbbinamento(request.UidAbbinamento, request.UidAttoAbbinato);
+
+            await _unitOfWork.CompleteAsync();
+        }
+        
+        public async Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UidAbbinamento);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            var abbinamentoInDb = await _unitOfWork.DASI.GetAbbinamento(request.UidAbbinamento, request.UidAttoAbbinato);
+
+            _unitOfWork.DASI.RemoveAbbinamento(abbinamentoInDb);
+            await _unitOfWork.CompleteAsync();
+        }
 
         private async Task GestioneCommissioni(AttoDASIDto attoDto, bool isUpdate = false)
         {

@@ -1711,5 +1711,47 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per il aggiungere un nuovo abbinamento all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-nuovo-abbinamento")]
+        public async Task<ActionResult> Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_NuovoAbbinamento(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere un abbinamento all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-rimuovi-abbinamento")]
+        public async Task<ActionResult> Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_RimuoviAbbinamento(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

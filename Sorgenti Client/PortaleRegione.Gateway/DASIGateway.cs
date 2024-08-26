@@ -64,6 +64,20 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
+        public async Task Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_AddReference}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_RemoveReference}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
         public async Task<AttoDASIDto> Get(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Get.Replace("{id}", id.ToString())}";

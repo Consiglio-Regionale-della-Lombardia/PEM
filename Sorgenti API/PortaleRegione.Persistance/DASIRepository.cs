@@ -615,6 +615,28 @@ namespace PortaleRegione.Persistance
             return res;
         }
 
+        public void AggiungiAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato)
+        {
+            PRContext.ATTI_ABBINAMENTI.Add(new ATTI_ABBINAMENTI
+            {
+                Uid = Guid.NewGuid(),
+                Data = DateTime.Now,
+                UIDAtto = requestUidAbbinamento,
+                UIDAttoAbbinato = requestUidAttoAbbinato
+            });
+        }
+
+        public async Task<ATTI_ABBINAMENTI> GetAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato)
+        {
+            return await PRContext.ATTI_ABBINAMENTI.FirstOrDefaultAsync(a => a.UIDAtto == requestUidAbbinamento
+                                                                && a.UIDAttoAbbinato == requestUidAttoAbbinato);
+        }
+
+        public void RemoveAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb)
+        {
+            PRContext.ATTI_ABBINAMENTI.Remove(abbinamentoInDb);
+        }
+
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)
         {
             var noteInDB = await PRContext
@@ -646,6 +668,7 @@ namespace PortaleRegione.Persistance
             var abbinamentiInDB = await PRContext
                 .ATTI_ABBINAMENTI
                 .Where(a => a.UIDAtto.Equals(uidAtto))
+                .OrderBy(a=>a.Data)
                 .ToListAsync();
 
             var res = new List<AttiAbbinamentoDto>();

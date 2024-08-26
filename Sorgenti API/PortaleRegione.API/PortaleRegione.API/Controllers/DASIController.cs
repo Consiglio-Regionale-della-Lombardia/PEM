@@ -143,7 +143,6 @@ namespace PortaleRegione.API.Controllers
             }
         }
         
-        
         /// <summary>
         ///     Endpoint per salvare le informazioni generali di un atto
         /// </summary>
@@ -162,6 +161,49 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Salva informazioni generali DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        
+        /// <summary>
+        ///     Endpoint per aggiungere un abbinamento ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_AddReference)]
+        public async Task<IHttpActionResult> Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_NuovoAbbinamento(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nuovo abbinamento DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere un abbinamento ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_RemoveReference)]
+        public async Task<IHttpActionResult> Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_RimuoviAbbinamento(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi abbinamento DASI", e);
                 return ErrorHandler(e);
             }
         }
