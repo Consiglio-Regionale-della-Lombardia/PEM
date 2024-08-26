@@ -332,6 +332,20 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
+        public async Task Salva_DettagliRisposta(AttiRisposteDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            var risposteInDb = await _unitOfWork.DASI.GetRisposta(request.UIDAtto, request.IdOrgano);
+            risposteInDb.Tipo = request.Tipo;
+            risposteInDb.Data = request.Data;
+            risposteInDb.DataTrasmissione = request.DataTrasmissione;
+            risposteInDb.DataTrattazione = request.DataTrattazione;
+            await _unitOfWork.CompleteAsync();
+        }
+
         private async Task GestioneCommissioni(AttoDASIDto attoDto, bool isUpdate = false)
         {
             if (isUpdate) await _unitOfWork.DASI.RimuoviCommissioni(attoDto.UIDAtto);

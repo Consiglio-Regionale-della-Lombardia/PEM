@@ -85,6 +85,13 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
+        public async Task Salva_DettagliRisposta(AttiRisposteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_DetailAnswer}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
         public async Task Salva_NuovaRisposta(AttiRisposteDto request)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_AddAnswer}";

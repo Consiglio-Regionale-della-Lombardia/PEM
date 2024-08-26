@@ -248,6 +248,27 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per salvare i dettagli di una risposta ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_DetailAnswer)]
+        public async Task<IHttpActionResult> Salva_DettagliRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_DettagliRisposta(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi abbinamento DASI", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per salvare la bozza di un atto cartaceo

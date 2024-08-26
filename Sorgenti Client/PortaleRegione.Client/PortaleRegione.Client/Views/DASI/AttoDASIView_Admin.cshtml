@@ -399,6 +399,7 @@
                                     <td>@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
                                     <td>@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
                                     <td>
+                                        <a onclick="modificaDettagliRisposta(this, @risposta.IdOrgano)"><i class="material-icons">edit</i></a>
                                         <a href="#!" class="red-text" onclick="rimuoviRisposta(this, @risposta.IdOrgano)"><i class="material-icons">close</i></a>
                                     </td>
                                 </tr>
@@ -769,18 +770,53 @@
 </div>
 
 <div id="modalRisposte" class="modal">
+    <div class="modal-content">
+        <h4>Risposte</h4>
+        <p>Ricerca organi di risposta all'atto @Model.Atto.Display</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-autocomplete" class="autocomplete">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+    </div>
+</div>
+
+<div id="modalDettaglioRisposta" class="modal">
 		<div class="modal-content">
-			<h4>Risposte</h4>
-			<p>Ricerca organi di risposta all'atto @Model.Atto.Display</p>
-			<div class="row">
-				<div class="input-field col s12">
-					<i class="material-icons prefix">search</i>
-					<input type="text" id="organi-autocomplete" class="autocomplete">
-				</div>
-			</div>
-		</div>
+            <div class="row">
+                <div class="input-field col s12 m12 l12">
+                    <select id="tipi-risposta-select">
+                        <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                        <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+                        <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                    </select>
+                    <label>Tipo risposta</label>
+                </div>
+                <div class="input-field col s12 m12 l12">
+                    <input id="dataRisposta" type="date"/>
+                    <label>Data risposta</label>
+                </div>
+                <div class="input-field col s12 m12 l12">
+                    <input id="dataTrasmissione" type="date"/>
+                    <label>Data trasmissione</label>
+                </div>
+                <div class="input-field col s12 m12 l12">
+                    <input id="dataTrattazione" type="date"/>
+                    <label>Data trattazione</label>
+                </div>
+            </div>
+			
+            <input id="idOrganoDettaglioRisposta" type="hidden"/>
+            <input id="descrizioneOrganoDettaglioRisposta" type="hidden"/>
+
+        </div>
 		<div class="modal-footer">
 			<a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+			<a onclick="btnSalvaDettagliRisposta()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
 		</div>
 	</div>
 
@@ -973,12 +1009,9 @@
 						if (txt.includes("Commissione")) {
 							tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
 							displayTipoOrgano = "Commissione";
-						} else if (txt.includes("Giunta")) {
+						} else {
 							tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
 							displayTipoOrgano = "Giunta";
-						} else {
-							tipoOrgano = 0; // Nessun tipo specifico
-							displayTipoOrgano = "Altro";
 						}
 
 						// Simula la richiesta al server per salvare i dati
@@ -1013,7 +1046,10 @@
 							<td>${request.DescrizioneOrgano}</td>
 							<td></td>
 							<td></td>
-							<td><a class="red-text" onclick="rimuoviRisposta(this, ${key})"><i class="material-icons">close</i></a></td>
+							<td>
+								<a onclick="modificaDettagliRisposta(this, ${key})"><i class="material-icons">edit</i></a>
+								<a class="red-text" onclick="rimuoviRisposta(this, ${key})"><i class="material-icons">close</i></a>
+							</td>
 						`;
 
 							document.querySelector('table tbody').appendChild(newRow);
@@ -1069,6 +1105,109 @@
 					});
 				}
 			});
+	}
+
+	function modificaDettagliRisposta(ctrl, organoId) {
+		// Ottieni la riga selezionata
+		var row = $(ctrl).closest('tr');
+
+		// Ottieni i dati dalla riga
+		var tipoRisposta = row.find('td:eq(0)').text().trim(); // Primo TD
+		var dataRisposta = row.find('td:eq(1)').text().trim(); // Secondo TD
+		var tipoOrgano = row.find('td:eq(2)').text().trim(); // Terzo TD
+		var descrizioneOrgano = row.find('td:eq(3)').text().trim(); // Quarto TD
+		var dataTrasmissione = row.find('td:eq(4)').text().trim(); // Quinto TD
+		var dataTrattazione = row.find('td:eq(5)').text().trim(); // Sesto TD
+
+		var tipoRispostaValue = null;
+		$('#tipi-risposta-select option').each(function () {
+			if ($(this).text().trim() === tipoRisposta) {
+				tipoRispostaValue = $(this).val();
+			}
+		});
+
+		// Precompila i controlli nella modale
+		$('#tipi-risposta-select').val(tipoRispostaValue).formSelect(); // Seleziona il valore nel select
+		$('#dataRisposta').val(formatDateForInput(dataRisposta)); // Setta la data risposta
+		$('#dataTrasmissione').val(formatDateForInput(dataTrasmissione)); // Setta la data trasmissione
+		$('#dataTrattazione').val(formatDateForInput(dataTrattazione)); // Setta la data trattazione
+		$('#idOrganoDettaglioRisposta').val(organoId); // Setta l'organo
+		$('#descrizioneOrganoDettaglioRisposta').val(descrizioneOrgano); // Setta la descrizione dell' organo
+
+		// Apri la modale
+		$('#modalDettaglioRisposta').modal('open');
+	}
+
+	function formatDateForInput(dateStr) {
+		// Converti la data in formato "dd/MM/yyyy" a "yyyy-MM-dd" per gli input di tipo date
+		if (dateStr) {
+			var parts = dateStr.split('/');
+			return `${parts[2]}-${parts[1]}-${parts[0]}`;
+		}
+		return '';
+	}
+
+	async function btnSalvaDettagliRisposta() {
+		// Ottieni i dati dalla modale
+		var tipoRispostaValue = $('#tipi-risposta-select').val();
+		var tipoRispostaText = $('#tipi-risposta-select option:selected').text();
+		var dataRisposta = $('#dataRisposta').val();
+		var dataTrasmissione = $('#dataTrasmissione').val();
+		var dataTrattazione = $('#dataTrattazione').val();
+		var organoId = $('#idOrganoDettaglioRisposta').val();
+		var organoDescrizione = $('#descrizioneOrganoDettaglioRisposta').val();
+
+		// Prepara i dati per il salvataggio
+		var requestData = {
+			UIDAtto: '@Model.Atto.UIDAtto',
+			IdOrgano: organoId,
+			Tipo: tipoRispostaValue,
+			Data: dataRisposta,
+			DataTrasmissione: dataTrasmissione,
+			DataTrattazione: dataTrattazione
+		};
+
+		var url = '@Url.Action("Salva_DettagliRisposta", "DASI")';
+
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(requestData)
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		// Aggiorna la riga nella tabella
+		var row = $('table tbody tr').filter(function () {
+			return $(this).find('td:eq(3)').text().trim() === organoDescrizione;
+		});
+
+		row.find('td:eq(0)').text(tipoRispostaText);
+		row.find('td:eq(1)').text(formatDateForDisplay(dataRisposta));
+		row.find('td:eq(4)').text(formatDateForDisplay(dataTrasmissione));
+		row.find('td:eq(5)').text(formatDateForDisplay(dataTrattazione));
+
+		M.toast({
+			html: `<span>Dettagli della risposta salvati con successo</span>`,
+			classes: 'rounded',
+			displayLength: 5000
+		});
+
+		// Chiudi la modale
+		$('#modalDettaglioRisposta').modal('close');
+	}
+
+	function formatDateForDisplay(dateStr) {
+		// Converti la data in formato "yyyy-MM-dd" a "dd/MM/yyyy" per la visualizzazione
+		if (dateStr) {
+			var parts = dateStr.split('-');
+			return `${parts[2]}/${parts[1]}/${parts[0]}`;
+		}
+		return '';
 	}
 
 

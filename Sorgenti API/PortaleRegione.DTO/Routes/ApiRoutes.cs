@@ -199,6 +199,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Save_RemoveReference = Base + "/save/remove-reference";
             public const string Save_AddAnswer = Base + "/save/add-answer";
             public const string Save_RemoveAnswer = Base + "/save/remove-answer";
+            public const string Save_DetailAnswer = Base + "/save/detail-answer";
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";
             public const string GetAll_SoloIds = Base + "/all/solo-ids";

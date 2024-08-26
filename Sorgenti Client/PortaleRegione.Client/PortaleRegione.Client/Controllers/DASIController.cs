@@ -1795,5 +1795,26 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per salvare i dettagli di una risposta all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-salva-dettagli-risposta")]
+        public async Task<ActionResult> Salva_DettagliRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_DettagliRisposta(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }
