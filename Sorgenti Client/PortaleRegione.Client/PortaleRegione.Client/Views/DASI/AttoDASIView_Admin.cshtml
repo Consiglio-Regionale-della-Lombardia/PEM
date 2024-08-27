@@ -8,6 +8,11 @@
     var atto = Model.Atto;
     ViewBag.Title = $"{Utility.GetText_Tipo(atto)} {atto.NAtto} - {atto.GetLegislatura()}";
 
+    if (string.IsNullOrEmpty(Model.Atto.DCRL))
+    {
+        Model.Atto.DCRL = Model.Atto.GetLegislatura();
+    }
+
     var cssClass = PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(atto.Tipo);
 }
 <!DOCTYPE html>
@@ -458,6 +463,11 @@
                             </div>
                             <div class="row">
                                 <div class="col s12">
+                                    <a id="btnSalva_InformazioniAggiuntiveMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width:100%">Salva informazioni monitoraggio</a>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12">
                                     <a id="btnAggiungiMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width:100%">Aggiungi monitoraggio</a>
                                 </div>
                             </div>
@@ -539,45 +549,66 @@
 					</div>
 					<div class="collapsible-body">
 						<div class="row">
-							<div class="input-field col s12 m12 l4">
-								@Html.TextBox("txtTipoChiusura", atto.DisplayTipoChiusuraIter, new { @class = "form-control" })
-								@Html.LabelFor(s => s.Atto.TipoChiusuraIter)
+                            <div class="input-field col s12 m12 l4">
+                                <select id='Atto_TipoChiusuraIter'>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.APPROVATO ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RESPINTO ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RITIRATO ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.INAMMISSIBILE ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADUTO ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI ? "selected=\"selected\"" : "")>@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)</option>
+                                </select>
+                                <label for="Atto_TipoChiusuraIter">Tipo chiusura iter</label>
+                            </div>
+                            <div class="input-field col s12 m12 l4">
+                                @Html.TextBoxFor(s => s.Atto.DataChiusuraIter, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                                @Html.LabelFor(s => s.Atto.DataChiusuraIter, new { @class = "active" })
+                            </div>
+                            <div class="input-field col s12 m12 l4">
+								<select id='Atto_TipoVotazione'>
+									<option value="@Html.Raw((int)TipoVotazioneIterEnum.NESSUNO)" @Html.Raw(!Model.Atto.TipoVotazioneIter.HasValue ? "selected=\"selected\"" : "")>@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.NESSUNO)</option>
+									<option value="@Html.Raw((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)" @Html.Raw(Model.Atto.TipoVotazioneIter == (int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO ? "selected=\"selected\"" : "")>@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)</option>
+									<option value="@Html.Raw((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)" @Html.Raw(Model.Atto.TipoVotazioneIter == (int)TipoVotazioneIterEnum.APPELLO_NOMINALE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)</option>
+									<option value="@Html.Raw((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)" @Html.Raw(Model.Atto.TipoVotazioneIter == (int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO ? "selected=\"selected\"" : "")>@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)</option>
+								</select>
+                                <label for="Atto_TipoVotazione">Tipo votazione</label>
 							</div>
-							<div class="input-field col s12 m12 l4">
-								@Html.LabelFor(s => s.Atto.DataChiusuraIter, new { @class = "active" })
-								@Html.TextBoxFor(s => s.Atto.DataChiusuraIter, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
-							</div>
-							<div class="input-field col s12 m12 l4">
-								@Html.TextBoxFor(model => model.Atto.DisplayTipoVotazioneIter, new { @class = "form-control" })
-								@Html.LabelFor(s => s.Atto.TipoVotazioneIter)
-							</div>
-						</div>
-						<div class="row">
-							<div class="input-field col s12 m12 l8">
-								<div class="row">
-									<div class="input-field col s12 m12 l4">
-										<label>DCR</label>
-										@Html.TextBoxFor(model => model.Atto.DCRL, new { @class = "form-control" })
-									</div>
-									<div class="input-field col s12 m12 l4">
-										<label> </label>
-										@Html.TextBoxFor(model => model.Atto.DCR, new { @class = "form-control" })
-									</div>
-									<div class="input-field col s12 m12 l4">
-										<label> </label>
-										@Html.TextBoxFor(model => model.Atto.DCCR, new { @class = "form-control" })
-									</div>
-								</div>
-							</div>
-							<div class="input-field col s12 m12 l4">
-								<p>
-									<label>
-										<input type="checkbox" value="true" @Html.Raw(Model.Atto.Emendato ? "checked=\"checked\"" : "") />
-										<span>Emendato</span>
-									</label>
-								</p>
-							</div>
-						</div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12 m12 l8">
+                                <div class="row">
+                                    <div class="input-field col s12 m12 l4">
+                                        <label>DCR</label>
+                                        @Html.TextBoxFor(model => model.Atto.DCRL, new { @class = "form-control" })
+                                    </div>
+                                    <div class="input-field col s12 m12 l4">
+                                        <label> </label>
+                                        @Html.TextBoxFor(model => model.Atto.DCR, new { @class = "form-control" })
+                                    </div>
+                                    <div class="input-field col s12 m12 l4">
+                                        <label> </label>
+                                        @Html.TextBoxFor(model => model.Atto.DCCR, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="input-field col s12 m12 l4">
+                                <p>
+                                    <label>
+                                        <input name="Atto.Emendato" type="checkbox" value="true" @Html.Raw(Model.Atto.Emendato ? "checked=\"checked\"" : "") />
+                                        <span>Emendato</span>
+                                    </label>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <a id="btnSalva_InformazioniChiusuraIter" class="btn blue-text waves-effect waves-green btn-flat" style="width:100%">Salva</a>
+                            </div>
+                        </div>
 						<div class="row">
 							<div class="input-field col s12 m12 l12">
 								@if (atto.Documenti.Any())
@@ -883,7 +914,15 @@
 
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
-                }
+				}
+
+				try {
+					const errorData = await response.json();
+					if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+				} catch (error) {
+					// ignored
+				}
 
                 M.toast({
                     html: `<span>Informazioni generali salvate con successo</span>`,
@@ -937,6 +976,14 @@
 							throw new Error('Network response was not ok');
 						}
 
+						try {
+							const errorData = await response.json();
+							if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+						} catch (error) {
+							// ignored
+						}
+
 						// Aggiungi il nuovo abbinamento alla lista
 						var newItem = document.createElement('li');
 						newItem.className = 'collection-item';
@@ -986,6 +1033,14 @@
 
 				if (!response.ok) {
 					throw new Error('Network response was not ok');
+				}
+
+				try {
+					const errorData = await response.json();
+					if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+				} catch (error) {
+					// ignored
 				}
 
 				$(ctrl).parent().remove();
@@ -1058,6 +1113,14 @@
 							throw new Error('Network response was not ok');
 						}
 
+						try {
+							const errorData = await response.json();
+							if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+						} catch (error) {
+							// ignored
+						}
+
 						// Aggiungi una nuova riga alla tabella
 						var newRow = document.createElement('tr');
 						newRow.innerHTML = `
@@ -1114,6 +1177,14 @@
 
 					if (!response.ok) {
 						throw new Error('Network response was not ok');
+					}
+
+					try {
+						const errorData = await response.json();
+						if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+					} catch (error) {
+						// ignored
 					}
 
 					// Rimuovi la riga dalla tabella
@@ -1272,6 +1343,14 @@
 					throw new Error('Network response was not ok');
 				}
 
+				try {
+					const errorData = await response.json();
+					if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+				} catch (error) {
+					// ignored
+				}
+
 				// Rimuovi la riga dalla tabella
 				row.remove();
 
@@ -1283,6 +1362,52 @@
 			}
 		});
 	}
+
+    document.getElementById('btnSalva_InformazioniAggiuntiveMonitoraggio').addEventListener('click', async function () {
+
+        swal({
+            title: "Salvataggio informazioni monitoraggio",
+            text: "Sei sicuro di voler salvare le informazioni di monitoraggio?",
+            icon: "warning",
+            buttons: ["Annulla", "Salva"]
+        }).then(async (answer) => {
+            if (answer) {
+                var data = {
+                    UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+					AltriSoggetti: document.querySelector('input[name="Atto.AltriSoggetti"]').value,
+					AreaTematica: document.querySelector('input[name="Atto.AreaTematica"]').value
+                };
+
+                var url = '@Url.Action("Salva_InformazioniMonitoraggio", "DASI")';
+                // Send the data using fetch
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+				}
+
+				try {
+					const errorData = await response.json();
+					if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+				} catch (error) {
+					// ignored
+				}
+
+                M.toast({
+                    html: `<span>Informazioni di monitoraggio salvate con successo</span>`,
+                    classes: 'rounded',
+                    displayLength: 5000
+                });
+            }
+        });
+    });
 
 	function formatDateForInput(dateStr) {
 		// Converti la data in formato "dd/MM/yyyy" a "yyyy-MM-dd" per gli input di tipo date
@@ -1327,6 +1452,14 @@
 			throw new Error('Network response was not ok');
 		}
 
+		try {
+			const errorData = await response.json();
+			if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+		} catch (error) {
+			// ignored
+		}
+
 		// Aggiorna la riga nella tabella
 		var row = $('table tbody tr').filter(function () {
 			return $(this).find('td:eq(3)').text().trim() === organoDescrizione;
@@ -1356,6 +1489,56 @@
 		return '';
 	}
 
+	document.getElementById('btnSalva_InformazioniChiusuraIter').addEventListener('click', async function () {
+
+		 swal({
+			 title: "Salvataggio informazioni chiusura",
+			 text: "Sei sicuro di voler salvare le informazioni di chiusura?",
+			 icon: "warning",
+			 buttons: ["Annulla", "Salva"]
+		 }).then(async (answer) => {
+			 if (answer) {
+				 var data = {
+					 UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+					 TipoChiusuraIter: document.getElementById('Atto_TipoChiusuraIter').value,
+					 TipoVotazioneIter: document.getElementById('Atto_TipoVotazione').value,
+					 DataChiusuraIter: document.querySelector('input[name="Atto.DataChiusuraIter"]').value,
+					 DCR: document.querySelector('input[name="Atto.DCR"]').value,
+					 DCCR: document.querySelector('input[name="Atto.DCCR"]').value,
+					 DCRL: document.querySelector('input[name="Atto.DCRL"]').value,
+					 Emendato: document.querySelector('input[name="Atto.Emendato"]').checked
+				 };
+
+				 var url = '@Url.Action("Salva_InformazioniChiusuraIter", "DASI")';
+				 // Send the data using fetch
+				 const response = await fetch(url, {
+					 method: 'POST',
+					 headers: {
+						 'Content-Type': 'application/json'
+					 },
+					 body: JSON.stringify(data)
+				 });
+
+				 if (!response.ok) {
+					 throw new Error('Network response was not ok');
+				 }
+
+				 try {
+					 const errorData = await response.json();
+					 if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+					 
+				 } catch (error) {
+					 // ignored
+				 }
+
+				 M.toast({
+					 html: `<span>Informazioni chiusura iter salvate con successo</span>`,
+					 classes: 'rounded',
+					 displayLength: 5000
+				 });
+			 }
+		 });
+	 });
 
     function CambiaPrioritaFirma(ctrl, uidAtto, uidPersona) {
 

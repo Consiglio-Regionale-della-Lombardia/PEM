@@ -286,7 +286,7 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
         }
-        
+
         public async Task Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UidAbbinamento);
@@ -304,18 +304,20 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
-            _unitOfWork.DASI.AggiungiRisposta(request.UIDAtto, request.IdOrgano, request.DescrizioneOrgano, request.TipoOrgano);
+            _unitOfWork.DASI.AggiungiRisposta(request.UIDAtto, request.IdOrgano, request.DescrizioneOrgano,
+                request.TipoOrgano);
 
             await _unitOfWork.CompleteAsync();
         }
-        
+
         public async Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UidAbbinamento);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
-            var abbinamentoInDb = await _unitOfWork.DASI.GetAbbinamento(request.UidAbbinamento, request.UidAttoAbbinato);
+            var abbinamentoInDb =
+                await _unitOfWork.DASI.GetAbbinamento(request.UidAbbinamento, request.UidAttoAbbinato);
 
             _unitOfWork.DASI.RimuoviAbbinamento(abbinamentoInDb);
             await _unitOfWork.CompleteAsync();
@@ -363,8 +365,71 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
-            _unitOfWork.DASI.AggiungiMonitoraggio(request.UIDAtto, request.IdOrgano, request.DescrizioneOrgano, request.TipoOrgano);
-            
+            _unitOfWork.DASI.AggiungiMonitoraggio(request.UIDAtto, request.IdOrgano, request.DescrizioneOrgano,
+                request.TipoOrgano);
+
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task Salva_InformazioniMonitoraggio(AttoDASIDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.AltriSoggetti = request.AltriSoggetti;
+            attoInDb.AreaTematica = request.AreaTematica;
+
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task Salva_InformazioniChiusuraIter(AttoDASIDto request, PersonaDto currentUser)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            if (!attoInDb.DCRL.Equals(request.DCRL)
+                || !attoInDb.DCR.Equals(request.DCR)
+                || !attoInDb.DCRL.Equals(request.DCRL))
+            {
+                var filtroDCR = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.DCRL),
+                        value = request.DCRL
+                    },
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.DCR),
+                        value = request.DCR.ToString()
+                    },
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.DCCR),
+                        value = request.DCCR.ToString()
+                    }
+                };
+
+                var query = Utility.ParseFilterDasi(filtroDCR);
+                var queryFilter = new Filter<ATTI_DASI>();
+                queryFilter.ImportStatements(query);
+                var res = await _unitOfWork.DASI.GetAll(currentUser, 1, 1, ClientModeEnum.GRUPPI, queryFilter,
+                    new QueryExtendedRequest());
+
+                if (res.Any()) throw new InvalidOperationException("DCR/DCCR già presente a sistema.");
+
+                attoInDb.DCRL = request.DCRL;
+                attoInDb.DCR = request.DCR;
+                attoInDb.DCCR = request.DCCR;
+            }
+
+            attoInDb.TipoChiusuraIter = request.TipoChiusuraIter;
+            attoInDb.TipoVotazioneIter = request.TipoVotazioneIter;
+            attoInDb.DataChiusuraIter = request.DataChiusuraIter;
+            attoInDb.Emendato = request.Emendato;
+
             await _unitOfWork.CompleteAsync();
         }
 

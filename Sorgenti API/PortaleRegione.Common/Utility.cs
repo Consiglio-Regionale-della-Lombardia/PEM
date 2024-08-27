@@ -337,12 +337,16 @@ namespace PortaleRegione.Common
                     return "Decaduto";
                 case TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA:
                     return "Decaduto per fine legislatura";
+                case TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE:
+                    return "Decaduto per fine mandato consigliere";
                 case TipoChiusuraIterEnum.INAMMISSIBILE:
                     return "Inammissibile";
                 case TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA:
                     return "Comunicazione all'assemblea";
                 case TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA:
                     return "Trattazione in assemblea";
+                case TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI:
+                    return "Chiusura per motivi diversi";
                 default:
                     return "Chiusura iter non valida";
             }

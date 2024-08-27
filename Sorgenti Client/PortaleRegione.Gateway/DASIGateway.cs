@@ -106,6 +106,20 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
+        public async Task Salva_InfoMonitoraggio(AttoDASIDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_InfoMonitoring}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+        
+        public async Task Salva_InfoChiusuraIter(AttoDASIDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_InfoClosureFlow}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
         public async Task Salva_NuovaRisposta(AttiRisposteDto request)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_AddAnswer}";

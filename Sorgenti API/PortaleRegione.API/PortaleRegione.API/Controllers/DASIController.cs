@@ -311,6 +311,48 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per salvare le informazioni del monitoraggio ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_InfoMonitoring)]
+        public async Task<IHttpActionResult> Salva_InformazioniMonitoraggio(AttoDASIDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_InformazioniMonitoraggio(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva info monitoraggio DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per salvare le informazioni di chiusura iter dell' atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_InfoClosureFlow)]
+        public async Task<IHttpActionResult> Salva_InformazioniChiusuraIter(AttoDASIDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_InformazioniChiusuraIter(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva info monitoraggio DASI", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per salvare la bozza di un atto cartaceo
