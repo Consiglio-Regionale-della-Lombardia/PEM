@@ -1816,5 +1816,47 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per aggiungere un organo monitorato all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-monitoraggio")]
+        public async Task<ActionResult> Salva_NuovoMonitoraggio(AttiRisposteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_NuovoMonitoraggio(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere il monitoraggio all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-rimuovi-monitoraggio")]
+        public async Task<ActionResult> Salva_RimuoviMonitoraggio(AttiRisposteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_RimuoviMonitoraggio(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

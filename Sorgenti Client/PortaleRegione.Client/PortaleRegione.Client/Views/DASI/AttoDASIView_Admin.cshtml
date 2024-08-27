@@ -313,27 +313,16 @@
 						</div>
 						<div class="row">
 							<div class="input-field col s12 m12 l12">
-								@if (!atto.Abbinamenti.Any())
-								{
-									<div id="empty-abbinamenti" class="card-panel panel-warning center">
-										<span class="center">
-											<p>Nessun abbinamento</p>
-										</span>
-									</div>
-								}
-								else
-								{
-									<h6>
-										<b>Lista abbinamenti</b>
-									</h6>
-									<hr />
-								}
 								
+                                <h6>
+                                    <b>Lista abbinamenti</b>
+                                </h6>
+                                <hr />
                                 <ul id="lstAbbinamentiAtto" class="collection">
                                     @foreach (var abb in atto.Abbinamenti)
                                     {
                                         <li class="collection-item">
-											@abb.TipoAttoAbbinato @abb.NumeroAttoAbbinato
+                                            @abb.TipoAttoAbbinato @abb.NumeroAttoAbbinato
                                             @if (!string.IsNullOrEmpty(abb.OggettoAttoAbbinato))
                                             {
                                                 @Html.Raw($", con oggetto: {abb.OggettoAttoAbbinato}")
@@ -343,6 +332,15 @@
                                         </li>
                                     }
                                 </ul>
+								
+                                @if (!atto.Abbinamenti.Any())
+                                {
+                                    <div id="empty-abbinamenti" class="card-panel panel-warning center">
+                                        <span class="center">
+                                            <p>Nessun abbinamento</p>
+                                        </span>
+                                    </div>
+                                }
                             </div>
 						</div>
 					</div>
@@ -373,7 +371,7 @@
                             <b>Risposte fornite</b>
                         </h6>
                         <hr />
-                        <table>
+                        <table id="tableRisposte">
                             <thead>
                             <tr>
                                 <th>Tipo risposta fornita</th>
@@ -448,50 +446,57 @@
 							}
 						</div>
 						<div class="collapsible-body">
-							<div class="row">
-								<div class="input-field col s12 m12 l6">
-									@Html.TextBoxFor(model => model.Atto.AreaTematica, new { @class = "form-control" })
-									@Html.LabelFor(s => s.Atto.AreaTematica)
-								</div>
-								<div class="input-field col s12 m12 l6">
-									@Html.TextBoxFor(model => model.Atto.AltriSoggetti, new { @class = "form-control" })
-									@Html.LabelFor(s => s.Atto.AltriSoggetti)
-								</div>
-							</div>
+                            <div class="row">
+                                <div class="input-field col s12 m12 l6">
+                                    @Html.TextBoxFor(model => model.Atto.AreaTematica, new { @class = "form-control" })
+                                    @Html.LabelFor(s => s.Atto.AreaTematica)
+                                </div>
+                                <div class="input-field col s12 m12 l6">
+                                    @Html.TextBoxFor(model => model.Atto.AltriSoggetti, new { @class = "form-control" })
+                                    @Html.LabelFor(s => s.Atto.AltriSoggetti)
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12">
+                                    <a id="btnAggiungiMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width:100%">Aggiungi monitoraggio</a>
+                                </div>
+                            </div>
 							<div class="row">
 								<div class="input-field col s12">
 
-									@if (!atto.Monitoraggi.Any())
-									{
-										<div class="card-panel panel-warning center">
-											<span class="center">
-												<p>Nessuna monitoraggio</p>
-											</span>
-										</div>
-									}
-									else
-									{
-										<table>
-											<thead>
-												<tr>
-													<th>Tipo organo monitorato</th>
-													<th>Organo monitorato</th>
-												</tr>
-											</thead>
+									<table id="tableMonitoraggio">
+                                        <thead>
+                                        <tr>
+                                            <th>Tipo organo monitorato</th>
+                                            <th>Organo monitorato</th>
+                                            <th></th>
+                                        </tr>
+                                        </thead>
 
-											<tbody>
-												@foreach (var monitoraggio in atto.Monitoraggi)
-												{
-													<tr>
-														<td>@Html.Raw(monitoraggio.DisplayTipoOrgano)</td>
-														<td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
-													</tr>
-												}
-											</tbody>
-										</table>
-									}
+                                        <tbody>
+                                        @foreach (var monitoraggio in atto.Monitoraggi)
+                                        {
+                                            <tr>
+                                                <td>@Html.Raw(monitoraggio.DisplayTipoOrgano)</td>
+                                                <td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
+                                                <td>
+                                                    <a href="#!" class="red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)"><i class="material-icons">close</i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+									
+                                    @if (!atto.Monitoraggi.Any())
+                                    {
+                                        <div id="empty-monitoraggio" class="card-panel panel-warning center">
+                                            <span class="center">
+                                                <p>Nessuna monitoraggio</p>
+                                            </span>
+                                        </div>
+                                    }
 
-									@if (atto.Documenti.Any())
+                                    @if (atto.Documenti.Any())
 									{
 										if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
 										{
@@ -819,6 +824,22 @@
 			<a onclick="btnSalvaDettagliRisposta()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
 		</div>
 	</div>
+	
+<div id="modalMonitoraggio" class="modal">
+    <div class="modal-content">
+        <h4>Monitoraggio</h4>
+        <p>Ricerca organi da monitorare all'atto @Model.Atto.Display</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-monitoraggio-autocomplete" class="autocomplete">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+    </div>
+</div>
 
 <script>
 	document.addEventListener('DOMContentLoaded', async function () {
@@ -1052,7 +1073,7 @@
 							</td>
 						`;
 
-							document.querySelector('table tbody').appendChild(newRow);
+							document.querySelector('#tableRisposte tbody').appendChild(newRow);
 
 							M.toast({
 								html: `<span>${txt} inserito con successo all'atto @Html.Raw(Model.Atto.Display)</span>`,
@@ -1136,6 +1157,131 @@
 
 		// Apri la modale
 		$('#modalDettaglioRisposta').modal('open');
+	}
+
+	document.getElementById('btnAggiungiMonitoraggio').addEventListener('click', async function () {
+		waiting(true);
+
+		var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+		var data = [];
+		organi.forEach(function (item) {
+			data.push({
+				tag: `${item.nome_organo}`,
+				id: `${item.id_organo}`
+			});
+		});
+		var elems = document.querySelectorAll('#organi-monitoraggio-autocomplete');
+		var instances = M.Autocomplete.init(elems, {
+			data: data,
+			limit: 20,
+			minLength: 2,
+			onAutocomplete: function (txt, key) {
+				swal({
+					title: "Inserimento nuovo organo",
+					text: "Sei sicuro di voler inserire " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+					icon: "warning",
+					buttons: ["Annulla", "Inserisci"]
+				}).then(async (answer) => {
+
+					if (answer) {
+
+						let tipoOrgano;
+						let displayTipoOrgano;
+
+						if (txt.includes("Commissione")) {
+							tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+							displayTipoOrgano = "Commissione";
+						} else {
+							tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+							displayTipoOrgano = "Giunta";
+						}
+
+						// Simula la richiesta al server per salvare i dati
+						var request = {
+							UIDAtto: '@Model.Atto.UIDAtto',
+							IdOrgano: `${key}`,
+							TipoOrgano: tipoOrgano,
+							DisplayTipoOrgano: displayTipoOrgano,
+							DescrizioneOrgano: txt,
+						}
+
+						var url = '@Url.Action("Salva_NuovoMonitoraggio", "DASI")';
+						// Send the data using fetch
+						const response = await fetch(url, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify(request)
+						});
+
+						if (!response.ok) {
+							throw new Error('Network response was not ok');
+						}
+
+						// Aggiungi una nuova riga alla tabella
+						var newRow = document.createElement('tr');
+						newRow.innerHTML = `
+							<td>${request.DisplayTipoOrgano}</td>
+							<td>${request.DescrizioneOrgano}</td>
+							<td>
+								<a class="red-text" onclick="rimuoviMonitoraggio(this, ${key})"><i class="material-icons">close</i></a>
+							</td>
+						`;
+
+							document.querySelector('#tableMonitoraggio tbody').appendChild(newRow);
+
+							M.toast({
+								html: `<span>${txt} inserito con successo all'atto @Html.Raw(Model.Atto.Display)</span>`,
+								classes: 'rounded',
+								displayLength: 5000
+							});
+
+							$('#empty-monitoraggio').hide();
+						}
+						document.getElementById('organi-monitoraggio-autocomplete').value = "";
+					});
+				}
+			});
+		waiting(false);
+		$('#modalMonitoraggio').modal("open");
+	});
+
+	function rimuoviMonitoraggio(ctrl, organoId) {
+		var row = $(ctrl).closest('tr');
+		var id = organoId;
+
+		swal({
+			title: "Rimuovi monitoraggio",
+			text: "Sei sicuro di voler rimuovere questo monitoraggio?",
+			icon: "warning",
+			buttons: ["Annulla", "Rimuovi"]
+		}).then(async (answer) => {
+			if (answer) {
+				// Simula la richiesta al server per rimuovere i dati
+				var url = '@Url.Action("Salva_RimuoviMonitoraggio", "DASI")';
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ IdOrgano: id, UIDAtto: '@Model.Atto.UIDAtto' })
+				});
+
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+
+				// Rimuovi la riga dalla tabella
+				row.remove();
+
+				M.toast({
+					html: `<span>Monitoraggio rimosso con successo</span>`,
+					classes: 'rounded',
+					displayLength: 5000
+				});
+			}
+		});
 	}
 
 	function formatDateForInput(dateStr) {

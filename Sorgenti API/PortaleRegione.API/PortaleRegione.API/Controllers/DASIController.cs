@@ -269,6 +269,48 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per aggiungere un monitoraggio ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_AddMonitoring)]
+        public async Task<IHttpActionResult> Salva_NuovoMonitoraggio(AttiRisposteDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_NuovoMonitoraggio(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nuovo monitoraggio DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere un monitoraggio ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_RemoveMonitoring)]
+        public async Task<IHttpActionResult> Salva_RimuoviMonitoraggio(AttiRisposteDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_RimuoviMonitoraggio(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi monitoraggio DASI", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per salvare la bozza di un atto cartaceo

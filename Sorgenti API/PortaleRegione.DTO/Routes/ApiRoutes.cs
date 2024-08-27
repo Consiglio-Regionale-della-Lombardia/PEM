@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json.Linq;
+
 namespace PortaleRegione.DTO.Routes
 {
     public static class ApiRoutes
@@ -200,6 +202,9 @@ namespace PortaleRegione.DTO.Routes
             public const string Save_AddAnswer = Base + "/save/add-answer";
             public const string Save_RemoveAnswer = Base + "/save/remove-answer";
             public const string Save_DetailAnswer = Base + "/save/detail-answer";
+            public const string Save_AddMonitoring = Base + "/save/add-monitoring";
+            public const string Save_RemoveMonitoring = Base + "/save/remove-monitoring";
+
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";
             public const string GetAll_SoloIds = Base + "/all/solo-ids";

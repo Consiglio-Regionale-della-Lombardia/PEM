@@ -346,6 +346,28 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
+        public async Task Salva_RimuoviMonitoraggio(AttiRisposteDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            var monitoraggioInDb = await _unitOfWork.DASI.GetMonitoraggio(request.UIDAtto, request.IdOrgano);
+            _unitOfWork.DASI.RimuoviMonitoraggio(monitoraggioInDb);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task Salva_NuovoMonitoraggio(AttiRisposteDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            _unitOfWork.DASI.AggiungiMonitoraggio(request.UIDAtto, request.IdOrgano, request.DescrizioneOrgano, request.TipoOrgano);
+            
+            await _unitOfWork.CompleteAsync();
+        }
+
         private async Task GestioneCommissioni(AttoDASIDto attoDto, bool isUpdate = false)
         {
             if (isUpdate) await _unitOfWork.DASI.RimuoviCommissioni(attoDto.UIDAtto);

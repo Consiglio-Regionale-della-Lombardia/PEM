@@ -660,6 +660,31 @@ namespace PortaleRegione.Persistance
                                                              && r.IdOrgano == requestIdOrgano);
         }
 
+        public async Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUidAtto, int requestIdOrgano)
+        {
+            return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.UIDAtto == requestUidAtto 
+                                                                              && m.IdOrgano == requestIdOrgano);
+            
+        }
+
+        public void AggiungiMonitoraggio(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano,
+            int requestTipoOrgano)
+        {
+            PRContext.ATTI_MONITORAGGIO.Add(new ATTI_MONITORAGGIO
+            {
+                Uid = Guid.NewGuid(),
+                UIDAtto = requestUidAtto,
+                IdOrgano = requestIdOrgano,
+                TipoOrgano = requestTipoOrgano,
+                DescrizioneOrgano = requestDescrizioneOrgano
+            });
+        }
+
+        public void RimuoviMonitoraggio(ATTI_MONITORAGGIO monitoraggioInDb)
+        {
+            PRContext.ATTI_MONITORAGGIO.Remove(monitoraggioInDb);
+        }
+
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)
         {
             var noteInDB = await PRContext

@@ -96,5 +96,8 @@ namespace PortaleRegione.Contracts
 
         void RimuoviRisposta(ATTI_RISPOSTE risposta);
         Task<ATTI_RISPOSTE> GetRisposta(Guid requestUidAtto, int requestIdOrgano);
+        Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUidAtto, int requestIdOrgano);
+        void AggiungiMonitoraggio(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano, int requestTipoOrgano);
+        void RimuoviMonitoraggio(ATTI_MONITORAGGIO monitoraggioInDb);
     }
 }

@@ -95,5 +95,7 @@ namespace PortaleRegione.Gateway
         Task Salva_NuovaRisposta(AttiRisposteDto request);
         Task Salva_RimuoviRisposta(AttiRisposteDto request);
         Task Salva_DettagliRisposta(AttiRisposteDto request);
+        Task Salva_NuovoMonitoraggio(AttiRisposteDto request);
+        Task Salva_RimuoviMonitoraggio(AttiRisposteDto request);
     }
 }
