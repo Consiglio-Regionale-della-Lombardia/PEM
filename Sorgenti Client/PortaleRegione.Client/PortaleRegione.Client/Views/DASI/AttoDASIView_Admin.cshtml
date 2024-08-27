@@ -215,8 +215,8 @@
 								<label for="Atto_Stato">Stato</label>
 							</div>
 							<div class="input-field col s12 m12 l6">
-								@Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
 								@Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                                @Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
 							</div>
 						</div>
 						<div class="row">
