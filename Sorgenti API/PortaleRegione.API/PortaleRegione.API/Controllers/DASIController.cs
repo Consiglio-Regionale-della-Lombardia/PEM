@@ -353,6 +353,48 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per salvare le note di un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_Note)]
+        public async Task<IHttpActionResult> Salva_Nota(NoteDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_Nota(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nota DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere le note da un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_RemoveNote)]
+        public async Task<IHttpActionResult> Salva_RimuoviNota(NoteDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_RimuoviNota(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nota DASI", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per salvare la bozza di un atto cartaceo

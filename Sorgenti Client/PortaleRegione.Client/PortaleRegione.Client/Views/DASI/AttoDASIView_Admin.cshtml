@@ -642,43 +642,51 @@
 						}
 					</div>
 					<div class="collapsible-body">
-						@if (!atto.Note.Any())
-						{
-							<div class="card-panel panel-warning center">
-								<span class="center">
-									<p>Nessuna nota</p>
-								</span>
-							</div>
-						}
-						else
-						{
-							<h6>
-								<b>Note dell'atto</b>
-							</h6>
-							<hr />
-							<table>
-								<thead>
-									<tr>
-										<th>Tipo nota</th>
-										<th>Nota</th>
-										<th>Utente</th>
-									</tr>
-								</thead>
+                        <div class="row">
+                            <div class="col s12">
+                                <a id="btnAggiungiNota" class="btn blue-text waves-effect waves-green btn-flat" style="width:100%">Aggiungi nota</a>
+                            </div>
+                        </div>
+                        <h6>
+                            <b>Note dell'atto</b>
+                        </h6>
+                        <hr />
+                        <table id="tableNoteGenerali">
+                            <thead>
+                            <tr>
+                                <th>Tipo nota</th>
+                                <th>Nota</th>
+                                <th>Utente</th>
+                                <th></th>
+                            </tr>
+                            </thead>
 
-								<tbody>
-									@foreach (var nota in atto.Note)
-									{
-										<tr>
-											<td>@Html.Raw(nota.Tipo)</td>
-											<td>@Html.Raw(nota.Nota)</td>
-											<td>@Html.Raw(nota.Persona.DisplayName)</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						}
+                            <tbody>
+                            @foreach (var nota in atto.Note)
+                            {
+                                <tr>
+                                    <td>@Html.Raw(nota.Tipo)</td>
+                                    <td>@Html.Raw(nota.Nota)</td>
+                                    <td>@Html.Raw(nota.Persona.DisplayName)</td>
+                                    <td>
+                                        <a onclick="modificaNota(this)"><i class="material-icons">edit</i></a>
+                                        <a class="red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))"><i class="material-icons">close</i></a>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+						
+                        @if (!atto.Note.Any())
+                        {
+                            <div id="empty-note" class="card-panel panel-warning center">
+                                <span class="center">
+                                    <p>Nessuna nota</p>
+                                </span>
+                            </div>
+                        }
 
-					</div>
+                    </div>
 				</li>
 				<li>
 					<div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">security</i>Privacy</div>
@@ -869,6 +877,33 @@
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+    </div>
+</div>
+
+<div id="modalNota" class="modal">
+    <div class="modal-content">
+        <h4>Nota</h4>
+        <div class="row">
+            <div class="input-field col s12">
+                <select id="tipi-nota-select">
+                    <option value="0"></option>
+                    <option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PRIVATA)">@Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA)</option>
+                    <option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PUBBLICA)">@Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PUBBLICA)</option>
+                    <option value="@Html.Raw((int)TipoNotaEnum.CHIUSURA_ITER)">@Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER)</option>
+                    <option value="@Html.Raw((int)TipoNotaEnum.RISPOSTA)">@Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA)</option>
+                </select>
+                <label>Tipo nota</label>
+            </div>
+            <label>Nota</label>
+
+			<div class="input-field col s12">
+                <textarea id="txtNota_Testo" class="materialize-textarea"></textarea>
+			</div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+        <a onclick="btnSalvaNota()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
     </div>
 </div>
 
@@ -1526,7 +1561,7 @@
 				 try {
 					 const errorData = await response.json();
 					 if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
-					 
+
 				 } catch (error) {
 					 // ignored
 				 }
@@ -1538,7 +1573,155 @@
 				 });
 			 }
 		 });
-	 });
+	});
+
+	document.getElementById('btnAggiungiNota').addEventListener('click', async function () {
+		waiting(true);
+		$("#txtNota_Testo").val("")
+		$('#tipi-nota-select').val($('#tipi-nota-select option:first').val());
+		$('#tipi-nota-select').formSelect();
+		waiting(false);
+		$('#modalNota').modal("open");
+	});
+
+	async function btnSalvaNota() {
+		// Ottieni i dati dalla modale
+		var tipoNotaValue = $('#tipi-nota-select').val();
+		var tipoNotaText = $('#tipi-nota-select option:selected').text();
+		var nota_testo = $('#txtNota_Testo').val();
+
+		// Prepara i dati per il salvataggio
+		var requestData = {
+			UIDAtto: '@Model.Atto.UIDAtto',
+			TipoEnum: tipoNotaValue,
+			Nota: nota_testo
+		};
+
+		var url = '@Url.Action("Salva_Nota", "DASI")';
+
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(requestData)
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		try {
+			const errorData = await response.json();
+			if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+		} catch (error) {
+			// ignored
+		}
+
+		var row = $('#tableNoteGenerali tbody tr').filter(function () {
+			return $(this).find('td:eq(0)').text().trim() === tipoNotaText;
+		});
+
+		if (row.length > 0) {
+			// Aggiorna la riga esistente se trovata
+			row.find('td:eq(0)').text(tipoNotaText);
+			row.find('td:eq(1)').text(nota_testo);
+			row.find('td:eq(2)').text('@Html.Raw(Model.CurrentUser.DisplayName)'); // Aggiorna con l'utente corrente
+		} else {
+			// Aggiungi una nuova riga se non esiste
+			var newRow = document.createElement('tr');
+			newRow.innerHTML = `
+				<td>${tipoNotaText}</td>
+				<td>${nota_testo}</td>
+				<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
+				<td>
+					<a onclick="modificaNota(this, '${tipoNotaText}')"><i class="material-icons">edit</i></a>
+					<a class="red-text" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></a>
+				</td>
+			`;
+
+			document.querySelector('#tableNoteGenerali tbody').appendChild(newRow);
+		}
+
+		$('#empty-note').hide();
+		M.toast({
+			html: `<span>Nota salvata con successo</span>`,
+			classes: 'rounded',
+			displayLength: 5000
+		});
+
+		// Chiudi la modale
+		$('#modalNota').modal('close');
+	}
+
+	function rimuoviNota(ctrl, tipoNota) {
+		var row = $(ctrl).closest('tr');
+		var id = tipoNota;
+
+		swal({
+			title: "Rimuovi nota",
+			text: "Sei sicuro di voler rimuovere questa nota?",
+			icon: "warning",
+			buttons: ["Annulla", "Rimuovi"]
+		}).then(async (answer) => {
+			if (answer) {
+				// Simula la richiesta al server per rimuovere i dati
+				var url = '@Url.Action("Salva_RimuoviNota", "DASI")';
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ TipoEnum: id, UIDAtto: '@Model.Atto.UIDAtto' })
+				});
+
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+
+				try {
+					const errorData = await response.json();
+					if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+				} catch (error) {
+					// ignored
+				}
+
+				// Rimuovi la riga dalla tabella
+				row.remove();
+
+				M.toast({
+					html: `<span>Nota rimossa con successo</span>`,
+					classes: 'rounded',
+					displayLength: 5000
+				});
+			}
+		});
+	}
+
+	function modificaNota(ctrl) {
+		// Ottieni la riga selezionata
+		var row = $(ctrl).closest('tr');
+
+		// Ottieni i dati dalla riga
+		var tipoNotaText = row.find('td:eq(0)').text().trim(); // Tipo nota
+		var notaTesto = row.find('td:eq(1)').text().trim(); // Testo della nota
+
+		// Trova il valore del tipo di nota nel select utilizzando il testo
+		$('#tipi-nota-select option').each(function () {
+			if ($(this).text().trim() === tipoNotaText) {
+				// Se il testo corrisponde, seleziona questa opzione
+				$('#tipi-nota-select').val($(this).val()).formSelect();
+			}
+		});
+
+		// Precompila il campo di testo della nota
+		$('#txtNota_Testo').val(notaTesto);
+
+		// Apri la modale
+		$('#modalNota').modal('open');
+	}
 
     function CambiaPrioritaFirma(ctrl, uidAtto, uidPersona) {
 

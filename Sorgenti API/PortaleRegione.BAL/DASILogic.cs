@@ -334,6 +334,48 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
+        public async Task Salva_RimuoviNota(NoteDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            var notaInDb = await _unitOfWork.DASI.GetNota(request.UIDAtto, request.TipoEnum);
+            _unitOfWork.DASI.RimuoviNota(notaInDb);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task Salva_Nota(NoteDto request, PersonaDto currentUser)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            var nota = await _unitOfWork.DASI.GetNota(request.UIDAtto, request.TipoEnum);
+            if (nota == null)
+            {
+                //Aggiungi nota
+                _unitOfWork.DASI.AggiungiNota(new ATTI_NOTE
+                {
+                    Data = DateTime.Now,
+                    Nota = request.Nota,
+                    Tipo = (int)request.TipoEnum,
+                    UIDAtto = request.UIDAtto,
+                    UIDPersona = currentUser.UID_persona,
+                    Uid = Guid.NewGuid()
+                });
+                await _unitOfWork.CompleteAsync();
+                return;
+            }
+
+            //Modifica nota
+            nota.Nota = request.Nota;
+            nota.UIDPersona = currentUser.UID_persona;
+            nota.Data = DateTime.Now;
+
+            await _unitOfWork.CompleteAsync();
+        }
+
         public async Task Salva_DettagliRisposta(AttiRisposteDto request)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);

@@ -685,6 +685,22 @@ namespace PortaleRegione.Persistance
             PRContext.ATTI_MONITORAGGIO.Remove(monitoraggioInDb);
         }
 
+        public async Task<ATTI_NOTE> GetNota(Guid requestUidAtto, TipoNotaEnum requestTipoEnum)
+        {
+            return await PRContext.ATTI_NOTE.FirstOrDefaultAsync(n => n.UIDAtto == requestUidAtto
+                                                                      && n.Tipo == (int)requestTipoEnum);
+        }
+
+        public void RimuoviNota(ATTI_NOTE notaInDb)
+        {
+            PRContext.ATTI_NOTE.Remove(notaInDb);
+        }
+        
+        public void AggiungiNota(ATTI_NOTE notaInDb)
+        {
+            PRContext.ATTI_NOTE.Add(notaInDb);
+        }
+
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)
         {
             var noteInDB = await PRContext
@@ -699,7 +715,7 @@ namespace PortaleRegione.Persistance
                 var persona = await PRContext.View_UTENTI.FindAsync(nota.UIDPersona);
                 res.Add(new NoteDto
                 {
-                    Tipo = ((TipoNotaEnum)nota.Tipo).ToString(),
+                    Tipo = Utility.GetText_TipoNotaDASI(nota.Tipo),
                     TipoEnum = (TipoNotaEnum)nota.Tipo,
                     Data = nota.Data,
                     Uid = nota.Uid,

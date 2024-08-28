@@ -471,6 +471,31 @@ namespace PortaleRegione.Common
                 return " ";
             }
         }
+        
+        public static string GetText_TipoNotaDASI(int tipoNota)
+        {
+            try
+            {
+                switch ((TipoNotaEnum)tipoNota)
+                {
+                    case TipoNotaEnum.GENERALE_PRIVATA:
+                        return "Privata";
+                    case TipoNotaEnum.GENERALE_PUBBLICA:
+                        return "Pubblica";
+                    case TipoNotaEnum.CHIUSURA_ITER:
+                        return "Chiusura iter";
+                    case TipoNotaEnum.RISPOSTA:
+                        return "Risposta";
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(tipoNota),
+                            tipoNota, null);
+                }
+            }
+            catch (Exception)
+            {
+                return " ";
+            }
+        }
 
         /// <summary>
         ///     Metodo per convertire un enum in KeyValueDto

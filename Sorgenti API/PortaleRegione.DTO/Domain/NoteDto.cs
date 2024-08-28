@@ -25,6 +25,7 @@ namespace PortaleRegione.DTO.Domain;
 public class NoteDto
 {
     public Guid Uid { get; set; }
+    public Guid UIDAtto { get; set; }
     public PersonaLightDto Persona { get; set; }
     public TipoNotaEnum TipoEnum { get; set; }
     public string Tipo { get; set; }
