@@ -397,6 +397,27 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per salvare le informazioni riguardanti la privacy
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_Privacy)]
+        public async Task<IHttpActionResult> Salva_PrivacyAtto(AttoDASIDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_Privacy(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva privacy DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per salvare la bozza di un atto cartaceo
         /// </summary>
         /// <param name="request"></param>

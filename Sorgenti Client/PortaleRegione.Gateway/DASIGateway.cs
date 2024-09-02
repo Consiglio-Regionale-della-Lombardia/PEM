@@ -141,6 +141,13 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
+        public async Task Salva_PrivacyAtto(AttoDASIDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_Privacy}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
         public async Task<AttoDASIDto> Get(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Get.Replace("{id}", id.ToString())}";

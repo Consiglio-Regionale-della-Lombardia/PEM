@@ -208,6 +208,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Save_InfoClosureFlow = Base + "/save/info-closure-flow";
             public const string Save_Note = Base + "/save/note";
             public const string Save_RemoveNote = Base + "/save/remove-note";
+            public const string Save_Privacy = Base + "/save/privacy";
 
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";

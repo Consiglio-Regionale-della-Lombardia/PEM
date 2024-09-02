@@ -286,6 +286,26 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
         }
+        
+        public async Task Salva_Privacy(AttoDASIDto request, PersonaDto persona)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.UIDPersonaModifica = persona.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
+            attoInDb.Privacy = request.Privacy;
+            attoInDb.Privacy_Dati_Personali_Giudiziari = request.Privacy_Dati_Personali_Giudiziari;
+            attoInDb.Privacy_Dati_Personali_Semplici = request.Privacy_Dati_Personali_Semplici;
+            attoInDb.Privacy_Dati_Personali_Sensibili = request.Privacy_Dati_Personali_Sensibili;
+            attoInDb.Privacy_Divieto_Pubblicazione = request.Privacy_Divieto_Pubblicazione;
+            attoInDb.Privacy_Divieto_Pubblicazione_Altri = request.Privacy_Divieto_Pubblicazione_Altri;
+            attoInDb.Privacy_Divieto_Pubblicazione_Salute = request.Privacy_Divieto_Pubblicazione_Salute;
+            attoInDb.Privacy_Divieto_Pubblicazione_Vita_Sessuale = request.Privacy_Divieto_Pubblicazione_Vita_Sessuale;
+
+            await _unitOfWork.CompleteAsync();
+        }
 
         public async Task Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
         {

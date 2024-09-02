@@ -1942,5 +1942,27 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+
+        /// <summary>
+        ///     Endpoint per salvare le informazioni riguardanti la privacy dall'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-privacy")]
+        public async Task<ActionResult> Salva_PrivacyAtto(AttoDASIDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_PrivacyAtto(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }
