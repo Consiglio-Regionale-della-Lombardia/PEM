@@ -371,11 +371,11 @@ namespace PortaleRegione.API.Controllers
                     model.ordine,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
-                    soggetti: soggetti,
-                    proponenti: proponenti,
-                    provvedimenti: provvedimenti,
-                    stati: stati,
-                    atti_da_firmare: atti_da_firmare);
+                    soggetti,
+                    proponenti,
+                    provvedimenti,
+                    stati,
+                    atti_da_firmare);
 
             if (!atti_in_db.Any())
             {
@@ -455,7 +455,7 @@ namespace PortaleRegione.API.Controllers
 
             return responseModel;
         }
-        
+
         public async Task<List<Guid>> GetSoloIds(BaseRequest<AttoDASIDto> model, PersonaDto persona, Uri uri)
         {
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
@@ -946,7 +946,7 @@ namespace PortaleRegione.API.Controllers
                         firmaCert = BALHelper.EncryptString(bodyFirmaCert
                             , AppSettingsConfiguration.masterKey);
                     }
-                    
+
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     if (countFirme == 0)
                     {
@@ -985,7 +985,9 @@ namespace PortaleRegione.API.Controllers
                     var valida = !(id_gruppo != attoInDb.id_gruppo && destinatario_notifica == null && !firmaUfficio);
                     var prioritario = true;
                     if (atto.Tipo == (int)TipoAttoEnum.IQT
-                        && atto.UIDPersonaProponente.Value != persona.UID_persona)
+                        && atto.UIDPersonaProponente.Value != persona.UID_persona
+                        && (atto.IDStato == (int)StatiAttoEnum.BOZZA ||
+                            atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA))
                     {
                         var sedutaRichiesta =
                             await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta));
@@ -1012,6 +1014,14 @@ namespace PortaleRegione.API.Controllers
 
                         if (iqt_firmatari.Any(f => f.UID_persona == persona.UID_persona && f.Prioritario))
                             prioritario = false;
+                    }
+                    else if (atto.Tipo == (int)TipoAttoEnum.IQT
+                             && atto.UIDPersonaProponente.Value != persona.UID_persona
+                             && atto.IDStato != (int)StatiAttoEnum.BOZZA
+                             && atto.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
+                    {
+                        // #976
+                        prioritario = false;
                     }
 
                     await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
@@ -1501,7 +1511,7 @@ namespace PortaleRegione.API.Controllers
                         var dataOdierna = DateTime.Now;
                         // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
                         var dataSedutaPerODG = new DateTime(
-                            seduta.Data_seduta.Year, 
+                            seduta.Data_seduta.Year,
                             seduta.Data_seduta.Month,
                             seduta.Data_seduta.Day);
 
@@ -2707,6 +2717,7 @@ namespace PortaleRegione.API.Controllers
             {
                 Log.Error("Logic - Count DASI By JsonQuery", e);
             }
+
             try
             {
                 return await _unitOfWork.DASI.CountByQuery(model);
@@ -2723,7 +2734,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var atti = new List<Guid>();
-                
+
                 try
                 {
                     atti = JsonConvert.DeserializeObject<List<Guid>>(model.Query);
