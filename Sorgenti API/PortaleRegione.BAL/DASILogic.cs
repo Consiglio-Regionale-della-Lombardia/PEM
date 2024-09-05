@@ -1893,6 +1893,13 @@ namespace PortaleRegione.API.Controllers
                 throw new InvalidOperationException(
                     "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
 
+            if (!string.IsNullOrEmpty(atto.DataPresentazione))
+            {
+                // #977
+                throw new InvalidOperationException(
+                    "L'atto è già stato presentato. Puoi solamente effettuare il ritiro.");
+            }
+
             atto.Eliminato = true;
             atto.DataElimina = DateTime.Now;
             atto.UIDPersonaElimina = persona.UID_persona;
