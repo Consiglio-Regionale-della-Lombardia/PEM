@@ -10,12 +10,23 @@ namespace PortaleRegione.JobStampeTest
     {
         [Test]
         [TestCase("matteo.c", "Opencast88!")]
-        public async Task Stampa(string username, string password)
+        public async Task GetStampe(string username, string password)
+        {
+            await Init(username, password);
+
+            var stampa = await apiGateway.Stampe.JobGetStampe(1,1);
+
+            Assert.IsNotNull(stampa);
+        }
+
+        [Test]
+        [TestCase("matteo.c", "Opencast88!", "a8906779-da61-4628-910b-5e830d9f04c3")]
+        public async Task Stampa(string username, string password, string uidStampa)
         {
             await Init(username, password);
             try
             {
-                var stampa = await apiGateway.Stampe.Get(new Guid("d12543a3-17c8-45e6-86ca-52eb936e2310"));
+                var stampa = await apiGateway.Stampe.Get(new Guid(uidStampa));
                 var model = new ThreadWorkerModel
                 {
                     CartellaLavoroStampe = @"D:\Regione Lombardia\Stampe",
@@ -26,9 +37,9 @@ namespace PortaleRegione.JobStampeTest
                     Password = "passWD01",
                     Username = "servizio_pem",
                     RootRepository = @"D:\Regione Lombardia\Emendamenti",
-                    UrlAPI = "http://localhost:52415",
-                    UrlCLIENT = "http://localhost:58019",
-                    PDF_LICENSE = "IRONPDF.DEVTEAM.IRO231017.6714.98141B-AABBF41E63-CUID3XETD2IFM3N-LNILMOQXMDRE-RBQPZQXCIWXT-AUOEGNSNGNJU-SA2YPICMLHAF-CUD4Y4-LFT3WEY5OLGNUA-IRONPDF.DOTNET.LITE.SUB-XOOCEJ.RENEW.SUPPORT.16.OCT.2024"
+                    UrlAPI = "http://localhost:52417",
+                    UrlCLIENT = "http://localhost:58020",
+                    PDF_LICENSE = "IRONPDF.NAMIRIALSPA.IRO221014.7583.32109.410122-18A3800A31-CFV723JMBJIYZ4K-HCIT6H72EBCJ-NQYCKHU2WYVO-DUCCQUCNKAXF-MGYXL4N53BA5-UH6NWC-L23P7VJKHTGKUA-LITE.SUB-JVZX4D.RENEW.SUPPORT.14.OCT.2023"
                 };
 
                 var auth = await apiGateway.Persone.Login(new LoginRequest
