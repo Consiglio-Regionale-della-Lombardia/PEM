@@ -226,73 +226,53 @@ namespace GeneraStampeJob
         private async Task<Dictionary<Guid, BodyModel>> GeneraPDFAtti(List<AttoDASIDto> lista, string path)
         {
             var listaPercorsi = new Dictionary<Guid, BodyModel>();
-            var lockObject = new object();
-            var counter = 0;
-            var maxParallelism = 5;
-            var batchSize = 100; // ridurre la dimensione del batch se necessario
 
             try
             {
                 listaPercorsi = lista.ToDictionary(atto => atto.UIDAtto, atto => new BodyModel());
 
-                for (var i = 0; i < lista.Count; i += batchSize)
+                foreach (var item in lista)
                 {
-                    var batch = lista.Skip(i).Take(batchSize).ToList();
-
-                    var parallelOptions = new ParallelOptions
+                    try
                     {
-                        MaxDegreeOfParallelism = maxParallelism
-                    };
+                        var bodyPDF = await apiGateway.DASI.GetBody(item.UIDAtto, TemplateTypeEnum.PDF, true);
+                        var nameFilePDF = $"{item.Display}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                        var filePathComplete = string.IsNullOrEmpty(path)
+                            ? nameFilePDF
+                            : Path.Combine(path, nameFilePDF);
 
-                    await Task.Run(() =>
-                    {
-                        Parallel.ForEach(batch, parallelOptions, async item =>
+                        var dettagliCreaPDF = new BodyModel
                         {
-                            try
-                            {
-                                var bodyPDF = await apiGateway.DASI.GetBody(item.UIDAtto, TemplateTypeEnum.PDF, true);
-                                var nameFilePDF = $"{item.Display}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                                var filePathComplete = string.IsNullOrEmpty(path)
-                                    ? nameFilePDF
-                                    : Path.Combine(path, nameFilePDF);
+                            Path = filePathComplete,
+                            Body = bodyPDF,
+                            Atto = item
+                        };
 
-                                var dettagliCreaPDF = new BodyModel
-                                {
-                                    Path = filePathComplete,
-                                    Body = bodyPDF,
-                                    Atto = item
-                                };
+                        var listAttachments = new List<string>();
+                        if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
+                        {
+                            var completePath = Path.Combine(_model.PercorsoCompatibilitaDocumenti,
+                                Path.GetFileName(item.PATH_AllegatoGenerico));
+                            listAttachments.Add(completePath);
+                            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
+                                $"PercorsoCompatibilitaDocumenti {_model.PercorsoCompatibilitaDocumenti} - {Path.GetFileName(item.PATH_AllegatoGenerico)}");
+                        }
 
-                                var listAttachments = new List<string>();
-                                if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
-                                {
-                                    var completePath = Path.Combine(_model.PercorsoCompatibilitaDocumenti,
-                                        Path.GetFileName(item.PATH_AllegatoGenerico));
-                                    listAttachments.Add(completePath);
-                                    await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
-                                        $"PercorsoCompatibilitaDocumenti {_model.PercorsoCompatibilitaDocumenti} - {Path.GetFileName(item.PATH_AllegatoGenerico)}");
-                                }
+                        // Genera PDF e salva direttamente su disco
+                        dettagliCreaPDF.Content = await _stamper.CreaPDFInMemory(dettagliCreaPDF.Body, item.Display,
+                            listAttachments);
 
-                                // Genera PDF e salva direttamente su disco
-                                await _stamper.CreaPDFAsync(filePathComplete, dettagliCreaPDF.Body, item.Display,
-                                    listAttachments);
+                        listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
+                        counter++;
 
-                                lock (lockObject)
-                                {
-                                    listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
-                                    counter++;
-                                }
-
-                                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
-                                    $"Progresso {counter}/{lista.Count}");
-                            }
-                            catch (Exception e)
-                            {
-                                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Errore: {item.Display}");
-                                // Log error here if necessary
-                            }
-                        });
-                    });
+                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
+                            $"Progresso {counter}/{lista.Count}");
+                    }
+                    catch (Exception e)
+                    {
+                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Errore: {item.Display}");
+                        // Log error here if necessary
+                    }
                 }
             }
             catch (Exception ex)
@@ -517,7 +497,6 @@ namespace GeneraStampeJob
 
             var destinazioneDeposito = Path.Combine(pathRepository, nameFilePDF);
             File.WriteAllBytes(destinazioneDeposito, content);
-
 
             //SpostaFascicolo(listaPdfEmendamentiGenerati.First().Value.Path, destinazioneDeposito);
             _stampa.PathFile = Path.Combine($"{dirSeduta}/{dirPDL}", nameFilePDF);
