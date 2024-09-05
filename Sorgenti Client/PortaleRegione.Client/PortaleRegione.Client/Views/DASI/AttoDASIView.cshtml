@@ -396,7 +396,7 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
                  && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
              || Model.CurrentUser.IsSegreteriaAssemblea)
         {
-            <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+            <a class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
                 Visualizza priorita
                 <i class="material-icons right pink-text">low_priority</i>
             </a>
@@ -469,7 +469,9 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
                         <div class="collapsible-header valign-wrapper">
                             @if (atto.UIDPersonaProponente != firme.UID_persona)
                             {
-                                if (atto.Tipo != (int)TipoAttoEnum.ITL && atto.Tipo != (int)TipoAttoEnum.ITR)
+                                if (atto.Tipo != (int)TipoAttoEnum.ITL 
+                                    && atto.Tipo != (int)TipoAttoEnum.ITR
+                                    && atto.Tipo != (int)TipoAttoEnum.ODG) // #980
                                 {
                                     <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
                                        onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
@@ -616,6 +618,21 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
 				seduteMOZU = data.Results;
 			}
         });
+        
+        function SwitchVisualizzazionePriorita(){
+            // #979
+			swal({
+				title: "Informazioni priorità firme",
+				text: "Attenzione: è consentito lo spostamento delle firme solo nella medesima data. Eventuali spostamenti di firme in date diverse non verranno salvate alla chiusura dell'atto",
+				icon: "warning"
+			})
+            .then((value)=>{
+                if (value){
+					$('#pnlStandardFirme').hide(); 
+                    $('#pnlPrioritaFirme').show();
+                }
+            });
+        }
 
 	$(document).ready(function () {
 		aggiornaFrecceNavigazione();
