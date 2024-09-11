@@ -127,7 +127,8 @@ namespace PortaleRegione.Persistance.Public
                 .Select(p => new PersonaPublicDto
                 {
                     id = p.id_persona,
-                    DisplayName = p.DisplayName.Replace("(--)", "")
+                    DisplayName = p.DisplayName.Replace("(--)", ""),
+                    uid = p.UID_persona
                 })
                 .ToListAsync();
 

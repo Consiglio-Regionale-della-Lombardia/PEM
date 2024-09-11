@@ -36,13 +36,10 @@ namespace PortaleRegione.DTO.Request.Public
         public int? id_gruppo { get; set; }
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? id_carica { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int[] id_tipo_risposta { get; set; } = Array.Empty<int>();
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int[] id_commissione { get; set; } = Array.Empty<int>();
+        public int[] organi { get; set; } = Array.Empty<int>();
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] 
         public int[] stati { get; set; } = Array.Empty<int>();

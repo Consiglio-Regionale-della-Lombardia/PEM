@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
 <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
     <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
         <i class="large material-icons">playlist_add</i>
@@ -26,6 +27,11 @@
             </a>
         </li>
         <li>
+            <a class="btn-floating btn-large tooltipped chiuso" data-position="left" data-tooltip="Modifica massiva dati" onclick="openModificaMassiva()">
+                <i class="material-icons">content_copy</i>
+            </a>
+        </li>
+        <li>
             <a class="btn-floating btn-large grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
             </a>
@@ -33,12 +39,155 @@
     </ul>
 </div>
 
+<div id="modalModificaMassiva" class="modal">
+    <div class="modal-content">
+        <h4>Modifica massiva dati</h4>
+        <ul class="collapsible">
+            <li class="active">
+                <div class="collapsible-header"><i class="material-icons">format_list_bulleted</i>Lista atti selezionati</div>
+                <div class="collapsible-body">
+                    <ul class="collection" id="listaMassivaAtti">
+                    </ul>
+                </div>
+            </li>
+            <li>
+                <div class="collapsible-header"><i class="material-icons">tune</i>Dati modificabili massivamente</div>
+                <div class="collapsible-body">
+                    <div class="row">
+                        <div class="input-field col s12 m12 l6">
+                            <select id='Atto_Stato'>
+                                <option value="" disabled selected>Seleziona</option>
+                                <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
+                                <option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
+                                <option value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
+                            </select>
+                            <label for="Atto_Stato">Stato</label>
+                        </div>
+                        <div class="input-field col s12 m12 l6">
+                            <input type="date" class="form-control"/>
+                            <label>Data annunzio</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 m12 l6">
+                            <select id='Atto_TipoChiusuraIter'>
+                                <option value="" disabled selected>Seleziona</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)</option>
+                            </select>
+                            <label for="Atto_TipoChiusuraIter">Tipo chiusura iter</label>
+                        </div>
+                        <div class="input-field col s12 m12 l6">
+                            <input type="date" class="form-control"/>
+                            <label>Data chiusura iter</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 m12 l6">
+							<select id='Atto_TipoVotazione'>
+								<option value="" disabled selected>Seleziona</option>
+								<option value="@Html.Raw((int)TipoVotazioneIterEnum.NESSUNO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.NESSUNO)</option>
+								<option value="@Html.Raw((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)</option>
+								<option value="@Html.Raw((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)</option>
+								<option value="@Html.Raw((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)</option>
+							</select>
+                            <label for="Atto_TipoVotazione">Tipo votazione</label>
+                        </div>
+                        <div class="input-field col s12 m12 l6">
+                            <input type="date" class="form-control"/>
+                            <label>Data comunicazione assemblea</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 m12 l6">
+                            <p>
+                                <label>
+                                    <input name="Atto.Emendato" type="checkbox" value="true"/>
+                                    <span>Emendato</span>
+                                </label>
+                            </p>
+                            <p>
+                                <label>
+                                    <input name="Atto.Emendato" type="checkbox" value="true" class="filled-in" checked="checked"/>
+                                    <span></span>
+                                </label>
+                            </p>
+                        </div>
+                        <div class="input-field col s12 m12 l6">
+                            <p>
+                                <label>
+                                    <input name="Atto.Pubblicato" type="checkbox" value="true"/>
+                                    <span>Pubblicato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <div class="row">
+            <div class="col s12 right-align">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+                <a id="btnSalvaModificaMassiva" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 	$(document).ready(function () {
 		$('.fixed-action-btn').floatingActionButton({
 			hoverEnabled: false
 		});
-	});
+    });
+
+	function openModificaMassiva() {
+		waiting(true);
+
+		// Seleziona tutti i checkbox che hanno un ID che inizia con "chk_Atto_"
+		const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_Atto_"]:checked');
+
+		// Pulisci la lista esistente
+		const listaMassivaAtti = document.getElementById('listaMassivaAtti');
+		listaMassivaAtti.innerHTML = '';
+
+		// Crea un array per tracciare gli atti già aggiunti
+		const addedItems = new Set();
+
+		// Itera sui checkbox selezionati
+		selectedCheckboxes.forEach(checkbox => {
+			// Trova la riga padre del checkbox
+			const row = checkbox.closest('tr');
+			const displayColumn = row.querySelector('td:nth-child(2) .chip');
+
+			if (displayColumn) {
+				const displayText = displayColumn.getAttribute('data-text');
+				const displayId = displayColumn.getAttribute('data-id');
+
+				// Aggiungi l'elemento alla lista solo se non è già stato aggiunto
+				if (!addedItems.has(displayId)) {
+					const listItem = document.createElement('li');
+					listItem.className = 'collection-item';
+					listItem.innerHTML = `${displayText}`;
+                    listaMassivaAtti.appendChild(listItem);
+                    // aggiungere input inline protocollo + dcr
+
+					addedItems.add(displayId);
+				}
+			}
+		});
+
+		waiting(false);
+		$("#modalModificaMassiva").modal("open");
+	}
 
     function ModificaMetaDASI(tipo) {
         openFormDASI(tipo, true);

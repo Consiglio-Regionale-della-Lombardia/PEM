@@ -72,5 +72,7 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public int? dcrc { get; set; }
         public List<AttiAbbinamentoDto> abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
         public string burl { get; set; }
+        public string data_chiusura_iter { get; set; }
+        public List<NoteDto> note { get; set; } = new List<NoteDto>();
     }
 }

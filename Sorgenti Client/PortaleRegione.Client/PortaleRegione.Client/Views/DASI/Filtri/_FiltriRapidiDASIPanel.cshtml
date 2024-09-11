@@ -737,7 +737,7 @@ function CreaTabella(responseData) {
                     </label>
                 </p>
             </td>
-			<td style="width: 10%;"><div class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')">${result.Display}${iconChipAggiuntiva}</div></td>
+			<td style="width: 10%;"><div class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')" data-text='${result.Display}' data-id='${result.UIDAtto}'>${result.Display}${iconChipAggiuntiva}</div></td>
             <td style="width: 8%;">${colonnaTipo}</td>
             <td>${result.Oggetto}</td>
             <td>${htmlFirme}</td>

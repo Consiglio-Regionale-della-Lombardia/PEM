@@ -248,6 +248,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 TipoEnum = (TipoDocumentoEnum)d.Tipo
             }).ToList();
 
+            var note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
+
             var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
             var firme = await GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
 
@@ -268,7 +270,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 richiesta = attoInDb.Richiesta,
                 tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
                 area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
-                data_iscrizione = attoInDb.DataIscrizioneSeduta?.ToString("dd/MM/yyyy"),
+                data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
                 data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
                 stato_iter =
                     Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue ? attoInDb.TipoChiusuraIter.Value : 0),
@@ -283,7 +285,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 dcr = attoInDb.DCR,
                 dcrc = attoInDb.DCCR,
                 firme = firme,
-                burl = attoInDb.BURL
+                burl = attoInDb.BURL,
+                note = note
             };
 
             return attoDto;
@@ -451,7 +454,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             {
                 res.Add(new FilterStatement<AttoLightDto>
                 {
-                    PropertyId = nameof(ATTI_DASI.UIDPersonaProponente),
+                    PropertyId = nameof(ATTI_DASI.Oggetto),
                     Value = request.oggetto,
                     Operation = Operation.Contains,
                     Connector = FilterStatementConnector.And

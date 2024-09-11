@@ -89,5 +89,6 @@ namespace PortaleRegione.Contracts.Public
         Task<List<ATTI_DOCUMENTI>> GetDocumenti(Guid uidAtto);
 
         Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto);
+        Task<List<NoteDto>> GetNote(Guid uidAtto);
     }
 }

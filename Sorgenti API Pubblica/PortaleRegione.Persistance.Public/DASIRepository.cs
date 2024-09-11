@@ -27,9 +27,11 @@ using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request.Public;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance.Public
 {
@@ -43,15 +45,15 @@ namespace PortaleRegione.Persistance.Public
         /// </summary>
         protected readonly DbContext Context;
 
-        /// <summary>
-        ///     Proprietà di utilità per accedere al contesto del database specifico di PortaleRegione come tipizzato DbContext.
-        /// </summary>
-        public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
-
         public DASIRepository(DbContext context)
         {
             Context = context;
         }
+
+        /// <summary>
+        ///     Proprietà di utilità per accedere al contesto del database specifico di PortaleRegione come tipizzato DbContext.
+        /// </summary>
+        public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
         public async Task<ATTI_DASI> Get(Guid attoUId)
         {
@@ -63,125 +65,13 @@ namespace PortaleRegione.Persistance.Public
             return atto;
         }
 
-        private async Task<IQueryable<ATTI_DASI>> GetQuery(Filter<ATTI_DASI> filtro,
-            CercaRequest request)
-        {
-            var query = PRContext
-                .DASI
-                .Where(item => !item.Eliminato
-                               && item.Pubblicato);
-            filtro?.BuildExpression(ref query);
-
-            if (request.id_tipo.Any())
-            {
-                query = query.Where(a => request.id_tipo.Contains(a.Tipo));
-            }
-
-            if (request.stati.Any())
-            {
-                query = query.Where(a => request.stati.Contains(a.IDStato)
-                || request.stati.Contains(a.TipoChiusuraIter.Value));
-            }
-            
-            if (request.id_proponente.Any())
-            {
-                var view_proponenti = await PRContext
-                    .View_UTENTI
-                    .Where(u => request.id_proponente.Contains(u.id_persona))
-                    .Select(u => u.UID_persona.Value)
-                    .ToListAsync();
-                if (view_proponenti.Any())
-                {
-                    query = query.Where(a => view_proponenti.Contains(a.UIDPersonaProponente.Value));
-                }
-                else
-                {
-                    query = query.Where(a => false);
-                }
-            }
-
-            if (request.firmatari.Any())
-            {
-                var view_firmatari = await PRContext
-                    .View_UTENTI
-                    .Where(u => request.firmatari.Contains(u.id_persona))
-                    .Select(u => u.UID_persona.Value)
-                    .ToListAsync();
-
-                if (view_firmatari.Any())
-                {
-                    var atti_firmatari = PRContext
-                        .ATTI_FIRME
-                        .Where(f => view_firmatari.Contains(f.UID_persona))
-                        .Select(f => f.UIDAtto)
-                        .Distinct();
-
-                    query = query.GroupJoin(atti_firmatari,
-                            atto => atto.UIDAtto,
-                            doc => doc,
-                            (atto, docs) => new { atto, docs })
-                        .Where(g => !g.docs.Any())
-                        .Select(g => g.atto);
-                }
-                else
-                {
-                    query = query.Where(a => false);
-                }
-            }
-
-            if (request.id_commissione.Any())
-            {
-                var attiCommissioni = PRContext
-                    .ATTI_COMMISSIONI
-                    .Where(c => request.id_commissione.Contains(c.id_organo))
-                    .Select(c => c.UIDAtto);
-
-                query = query.GroupJoin(attiCommissioni,
-                        atto => atto.UIDAtto,
-                        doc => doc,
-                        (atto, docs) => new { atto, docs })
-                    .Where(g => !g.docs.Any())
-                    .Select(g => g.atto);
-
-                var attiRisposta = PRContext
-                    .ATTI_RISPOSTE
-                    .Where(c => request.id_commissione.Contains(c.IdOrgano))
-                    .Select(c => c.UIDAtto);
-
-                query = query.GroupJoin(attiRisposta,
-                        atto => atto.UIDAtto,
-                        doc => doc,
-                        (atto, docs) => new { atto, docs })
-                    .Where(g => !g.docs.Any())
-                    .Select(g => g.atto);
-            }
-            
-            if (request.id_tipo_risposta.Any())
-            {
-                var attiRisposte = PRContext
-                    .ATTI_RISPOSTE
-                    .Where(c => request.id_tipo_risposta.Contains(c.Tipo))
-                    .Select(c => c.UIDAtto);
-
-                query = query.GroupJoin(attiRisposte,
-                        atto => atto.UIDAtto,
-                        doc => doc,
-                        (atto, docs) => new { atto, docs })
-                    .Where(g => !g.docs.Any())
-                    .Select(g => g.atto);
-            }
-
-            return query;
-        }
-
         public async Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro,
-           CercaRequest request)
+            CercaRequest request)
         {
             var query = await GetQuery(filtro, request);
 
             return await query
-                .OrderBy(item => item.Tipo)
-                .ThenByDescending(item => item.NAtto_search)
+                .OrderByDescending(item => item.Timestamp)
                 .Skip((page - 1) * size)
                 .Take(size)
                 .ToListAsync();
@@ -325,6 +215,122 @@ namespace PortaleRegione.Persistance.Public
             }
 
             return res;
+        }
+
+        public async Task<List<NoteDto>> GetNote(Guid uidAtto)
+        {
+            var noteInDB = await PRContext
+                .ATTI_NOTE
+                .Where(d => d.UIDAtto == uidAtto)
+                .ToListAsync();
+            var res = new List<NoteDto>();
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
+            foreach (var nota in noteInDB)
+            {
+                var persona = await PRContext.View_UTENTI.FindAsync(nota.UIDPersona);
+                res.Add(new NoteDto
+                {
+                    Tipo = Utility.GetText_TipoNotaDASI(nota.Tipo),
+                    TipoEnum = (TipoNotaEnum)nota.Tipo,
+                    Data = nota.Data,
+                    Uid = nota.Uid,
+                    Nota = nota.Nota,
+                    Persona = new PersonaLightDto(persona.cognome, persona.nome)
+                });
+            }
+
+            return res;
+        }
+
+        private async Task<IQueryable<ATTI_DASI>> GetQuery(Filter<ATTI_DASI> filtro,
+            CercaRequest request)
+        {
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato
+                               && item.Pubblicato);
+            filtro?.BuildExpression(ref query);
+
+            if (request.id_tipo.Any()) query = query.Where(a => request.id_tipo.Contains(a.Tipo));
+
+            if (request.stati.Any())
+                query = query.Where(a => request.stati.Contains(a.IDStato)
+                                         || request.stati.Contains(a.TipoChiusuraIter.Value));
+
+            if (request.id_proponente.Any())
+            {
+                var view_proponenti = await PRContext
+                    .View_consiglieri
+                    .Where(u => request.id_proponente.Contains(u.id_persona))
+                    .Select(u => u.UID_persona)
+                    .ToListAsync();
+                if (view_proponenti.Any())
+                    query = query.Where(a => view_proponenti.Contains(a.UIDPersonaProponente.Value));
+                else
+                    query = query.Where(a => false);
+            }
+
+            if (request.firmatari.Any())
+            {
+                var view_firmatari = await PRContext
+                    .View_consiglieri
+                    .Where(u => request.firmatari.Contains(u.id_persona))
+                    .Select(u => u.UID_persona)
+                    .ToListAsync();
+
+                if (view_firmatari.Any())
+                {
+                    var atti_firmatari = await PRContext
+                        .ATTI_FIRME
+                        .Where(f => view_firmatari.Contains(f.UID_persona))
+                        .Select(f => f.UIDAtto)
+                        .Distinct()
+                        .ToListAsync();
+
+                    query = query.Where(u => atti_firmatari.Contains(u.UIDAtto));
+                }
+                else
+                {
+                    query = query.Where(a => false);
+                }
+            }
+
+            if (request.organi.Any())
+            {
+                var attiCommissioni = await PRContext
+                    .ATTI_COMMISSIONI
+                    .Where(c => request.organi.Contains(c.id_organo))
+                    .Select(c => c.UIDAtto)
+                    .Distinct()
+                    .ToListAsync();
+                if (attiCommissioni.Count > 0)
+                    query = query.Where(u => attiCommissioni.Contains(u.UIDAtto));
+
+                var attiRisposta = await PRContext
+                    .ATTI_RISPOSTE
+                    .Where(c => request.organi.Contains(c.IdOrgano))
+                    .Select(c => c.UIDAtto)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (attiRisposta.Count > 0)
+                    query = query.Where(u => attiRisposta.Contains(u.UIDAtto));
+            }
+
+            if (request.id_tipo_risposta.Any())
+            {
+                var attiRisposte = await PRContext
+                    .ATTI_RISPOSTE
+                    .Where(c => request.id_tipo_risposta.Contains(c.Tipo))
+                    .Select(c => c.UIDAtto)
+                    .Distinct()
+                    .ToListAsync();
+
+                query = query.Where(u => attiRisposte.Contains(u.UIDAtto));
+            }
+
+            return query;
         }
     }
 }

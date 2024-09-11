@@ -2541,7 +2541,7 @@ namespace PortaleRegione.API.Controllers
                 atto.DataIscrizioneSeduta = DateTime.Now;
                 atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
                 await _unitOfWork.CompleteAsync();
-                var nomeAtto =
+                var nomeAtto = 
                     $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
                 if (!listaRichieste.Any(item => (item.Value == nomeAtto
                                                  && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
