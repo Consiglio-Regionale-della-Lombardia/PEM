@@ -51,6 +51,11 @@ namespace PortaleRegione.Api.Public
         public const string GetStati = Root + "/stati";
 
         /// <summary>
+        /// Rotta per ottenere gli stati di chiusura possibili di un documento o di una procedura.
+        /// </summary>
+        public const string GetStatiChiusura = Root + "/stati-chiusura";
+
+        /// <summary>
         /// Rotta per ottenere l'elenco dei gruppi parlamentari.
         /// </summary>
         public const string GetGruppi = Root + "/gruppi";

@@ -255,8 +255,10 @@ namespace PortaleRegione.Persistance.Public
             if (request.id_tipo.Any()) query = query.Where(a => request.id_tipo.Contains(a.Tipo));
 
             if (request.stati.Any())
-                query = query.Where(a => request.stati.Contains(a.IDStato)
-                                         || request.stati.Contains(a.TipoChiusuraIter.Value));
+                query = query.Where(a => request.stati.Contains(a.IDStato));
+            
+            if (request.stati_chiusura.Any())
+                query = query.Where(a => request.stati_chiusura.Contains(a.TipoChiusuraIter.Value));
 
             if (request.id_proponente.Any())
             {

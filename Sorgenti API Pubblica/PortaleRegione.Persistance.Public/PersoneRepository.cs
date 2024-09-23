@@ -56,6 +56,7 @@ namespace PortaleRegione.Persistance.Public
             var result = await PRContext
                 .View_cariche_assessori_per_legislatura
                 .Where(c => c.id_legislatura == idLegislatura)
+                .Distinct()
                 .OrderBy(item => item.ordine)
                 .ThenBy(item => item.nome_carica)
                 .ToListAsync();
@@ -71,6 +72,7 @@ namespace PortaleRegione.Persistance.Public
             var result = await PRContext
                 .View_Commissioni_per_legislatura
                 .Where(c => c.id_legislatura == idLegislatura)
+                .Distinct()
                 .OrderBy(item => item.ordinamento)
                 .ThenBy(item => item.nome_organo)
                 .ToListAsync();
@@ -86,7 +88,8 @@ namespace PortaleRegione.Persistance.Public
         {
             var query = PRContext
                 .View_gruppi_politici_ws
-                .Where(j => j.id_legislatura == idLegislatura);
+                .Where(j => j.id_legislatura == idLegislatura)
+                .Distinct();
             var lstGruppi = await query
                 .Select(g => new KeyValueDto
                 {
@@ -124,6 +127,7 @@ namespace PortaleRegione.Persistance.Public
             var consiglieri = await PRContext
                 .View_consiglieri
                 .Where(p => p.id_legislatura == idLegislatura && p.id_persona > 0)
+                .Distinct()
                 .Select(p => new PersonaPublicDto
                 {
                     id = p.id_persona,
@@ -142,6 +146,7 @@ namespace PortaleRegione.Persistance.Public
             var query = PRContext
                 .View_UTENTI
                 .Where(u => u.UID_persona != Guid.Empty)
+                .Distinct()
                 .OrderByDescending(u => u.id_persona)
                 .ThenBy(u => u.cognome)
                 .ThenBy(u => u.nome);

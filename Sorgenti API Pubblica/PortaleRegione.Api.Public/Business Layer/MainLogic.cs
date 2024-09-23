@@ -157,6 +157,26 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             return result;
         }
+        
+        /// <summary>
+        ///     Recupera un elenco di stati di chiusura.
+        /// </summary>
+        /// <returns>Una lista di KeyValueDto che rappresenta gli stati degli atti.</returns>
+        public List<KeyValueDto> GetStatiChiusura()
+        {
+            var result = new List<KeyValueDto>();
+            var stati = Enum.GetValues(typeof(TipoChiusuraIterEnum));
+            foreach (var stato in stati)
+            {
+                result.Add(new KeyValueDto
+                {
+                    id = (int)stato,
+                    descr = Utility.GetText_ChiusuraIterDASI((int)stato)
+                });
+            }
+
+            return result;
+        }
 
         /// <summary>
         ///     Ottiene un elenco di gruppi per una data legislatura.

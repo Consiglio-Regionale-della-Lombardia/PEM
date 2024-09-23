@@ -119,6 +119,25 @@ namespace PortaleRegione.Api.Public.Controllers
                 return Task.FromResult(ErrorHandler(e));
             }
         }
+        
+        /// <summary>
+        ///     Restituisce un elenco degli stati di chiusura disponibili per gli atti.
+        /// </summary>
+        /// <returns>Un'azione risultato con gli stati degli atti.</returns>
+        [Route(ApiRoutes.GetStatiChiusura)]
+        public Task<IHttpActionResult> GetStatiChiusura()
+        {
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+            try
+            {
+                return Task.FromResult<IHttpActionResult>(Ok(_logic.GetStatiChiusura()));
+            }
+            catch (Exception e)
+            {
+                Log.Error(currentMethod, e);
+                return Task.FromResult(ErrorHandler(e));
+            }
+        }
 
         /// <summary>
         ///     Recupera l'elenco dei gruppi disponibili per una data legislatura.
