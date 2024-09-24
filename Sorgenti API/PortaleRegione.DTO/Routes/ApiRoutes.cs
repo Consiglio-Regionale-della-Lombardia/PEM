@@ -211,6 +211,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Save_Privacy = Base + "/save/privacy";
             public const string Save_Document = Base + "/save/document";
             public const string Remove_Document = Base + "/save/remove-document";
+            public const string Save_MassiveCommand = Base + "/save/massive";
 
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";
