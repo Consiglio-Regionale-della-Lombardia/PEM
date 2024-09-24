@@ -662,7 +662,9 @@ async function inviaDatiChips(page, size) {
 	waiting(false);
 }
 
+var risultatiTabella = [];
 function CreaTabella(responseData) {
+	risultatiTabella = responseData.Data.Results;
 	// Pulisci i risultati precedenti
 	const tableResults = document.getElementById('tableResults');
 	tableResults.innerHTML = '';
