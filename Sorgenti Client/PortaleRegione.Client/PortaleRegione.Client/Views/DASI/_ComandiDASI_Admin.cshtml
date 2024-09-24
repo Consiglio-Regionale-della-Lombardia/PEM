@@ -54,23 +54,41 @@
                 <div class="collapsible-header"><i class="material-icons">tune</i>Dati modificabili massivamente</div>
                 <div class="collapsible-body">
                     <div class="row">
-                        <div class="input-field col s12 m12 l6">
-                            <select id='Atto_Stato'>
-                                <option value="" disabled selected>Seleziona</option>
+                        <div class="input-field col s8">
+                            <select id='Atto_Stato' name='Atto.Stato'>
+                                <option value="" disabled selected>Seleziona stato</option>
                                 <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
                                 <option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
                                 <option value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
                             </select>
                             <label for="Atto_Stato">Stato</label>
                         </div>
-                        <div class="input-field col s12 m12 l6">
-                            <input type="date" class="form-control"/>
-                            <label>Data annunzio</label>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name='Atto.Stato.Check' />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="input-field col s12 m12 l6">
-                            <select id='Atto_TipoChiusuraIter'>
+                        <div class="input-field col s8">
+                            <input type="date" class="form-control" name="Atto.DataAnnunzio"/>
+                            <label>Data annunzio</label>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="Atto.DataAnnunzio.Check" />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <select id='Atto_TipoChiusuraIter' name='Atto.TipoChiusuraIter'>
                                 <option value="" disabled selected>Seleziona</option>
                                 <option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
                                 <option value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
@@ -85,47 +103,94 @@
                             </select>
                             <label for="Atto_TipoChiusuraIter">Tipo chiusura iter</label>
                         </div>
-                        <div class="input-field col s12 m12 l6">
-                            <input type="date" class="form-control"/>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name='Atto.TipoChiusuraIter.Check' />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <input type="date" class="form-control" name="Atto.DataChiusuraIter"/>
                             <label>Data chiusura iter</label>
                         </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="Atto.DataChiusuraIter.Check" />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
                     </div>
                     <div class="row">
-                        <div class="input-field col s12 m12 l6">
-							<select id='Atto_TipoVotazione'>
-								<option value="" disabled selected>Seleziona</option>
-								<option value="@Html.Raw((int)TipoVotazioneIterEnum.NESSUNO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.NESSUNO)</option>
-								<option value="@Html.Raw((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)</option>
-								<option value="@Html.Raw((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)</option>
-								<option value="@Html.Raw((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)</option>
-							</select>
+                        <div class="input-field col s8">
+                            <select id='Atto_TipoVotazione' name='Atto.TipoVotazione'>
+                                <option value="" disabled selected>Seleziona</option>
+                                <option value="@Html.Raw((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)</option>
+                                <option value="@Html.Raw((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)</option>
+                                <option value="@Html.Raw((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)</option>
+                            </select>
                             <label for="Atto_TipoVotazione">Tipo votazione</label>
                         </div>
-                        <div class="input-field col s12 m12 l6">
-                            <input type="date" class="form-control"/>
-                            <label>Data comunicazione assemblea</label>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name='Atto.TipoVotazione.Check' />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="input-field col s12 m12 l6">
+                        <div class="input-field col s8">
+                            <input type="date" class="form-control" name="Atto.DataComunicazioneAssemblea"/>
+                            <label>Data comunicazione assemblea</label>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="Atto.DataComunicazioneAssemblea.Check" />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
                             <p>
                                 <label>
                                     <input name="Atto.Emendato" type="checkbox" value="true"/>
                                     <span>Emendato</span>
                                 </label>
                             </p>
+                        </div>
+                        <div class="col s4 center">
                             <p>
                                 <label>
-                                    <input name="Atto.Emendato" type="checkbox" value="true" class="filled-in" checked="checked"/>
-                                    <span></span>
+                                    <input type="checkbox" class="filled-in" name="Atto.Emendato.Check" />
+                                    <span>Abilitato / Disabilitato</span>
                                 </label>
                             </p>
                         </div>
-                        <div class="input-field col s12 m12 l6">
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
                             <p>
                                 <label>
                                     <input name="Atto.Pubblicato" type="checkbox" value="true"/>
                                     <span>Pubblicato</span>
+                                </label>
+                            </p>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="Atto.Pubblicato.Check"/>
+                                    <span>Abilitato / Disabilitato</span>
                                 </label>
                             </p>
                         </div>
@@ -148,6 +213,8 @@
 			hoverEnabled: false
 		});
     });
+
+    var selectedUid = [];
 
 	function openModificaMassiva() {
 		waiting(true);
@@ -172,15 +239,37 @@
 				const displayText = displayColumn.getAttribute('data-text');
 				const displayId = displayColumn.getAttribute('data-id');
 
+				const oggettoTrovato = risultatiTabella.find(item => item.UIDAtto === displayId);
 				// Aggiungi l'elemento alla lista solo se non è già stato aggiunto
 				if (!addedItems.has(displayId)) {
 					const listItem = document.createElement('li');
 					listItem.className = 'collection-item';
-					listItem.innerHTML = `${displayText}`;
-                    listaMassivaAtti.appendChild(listItem);
-                    // aggiungere input inline protocollo + dcr
 
+					// Crea gli input per Protocollo, DCR e DCCR
+					listItem.innerHTML = `
+					<span>${displayText}</span>
+					<div class="row">
+						<div class="input-field col s4">
+							<input type="text" id="protocollo_${displayId}" name="Protocollo_${displayId}" placeholder="Protocollo" value="${oggettoTrovato.Protocollo}">
+							<label for="protocollo_${displayId}" class="active">Protocollo</label>
+						</div>
+						<div class="input-field col s4">
+							<input type="text" id="dcr_${displayId}" name="DCR_${displayId}" placeholder="DCR" value="${oggettoTrovato.DCR}">
+							<label for="dcr_${displayId}" class="active">DCR</label>
+						</div>
+						<div class="input-field col s4">
+							<input type="text" id="dccr_${displayId}" name="DCCR_${displayId}" placeholder="DCCR" value="${oggettoTrovato.DCCR}">
+							<label for="dccr_${displayId}" class="active">DCCR</label>
+						</div>
+					</div>
+				`;
+
+					// Aggiungi l'elemento alla lista
+					listaMassivaAtti.appendChild(listItem);
 					addedItems.add(displayId);
+
+					// Aggiungi l'UID alla lista degli elementi selezionati
+					selectedUid.push(displayId);
 				}
 			}
 		});
@@ -188,6 +277,91 @@
 		waiting(false);
 		$("#modalModificaMassiva").modal("open");
 	}
+
+
+	document.getElementById('btnSalvaModificaMassiva').addEventListener('click', function () {
+	    waiting(true);
+
+		swal({
+			title: "Salvataggio massivo",
+			text: "Sei sicuro di voler aggiornare massivamente i campi selezionati?",
+			icon: "info",
+			buttons: ["Annulla", "Procedi"]
+		}).then(async (answer) => {
+			if (answer) {
+
+				var request = {};
+				request.Lista = selectedUid;
+
+				let datiDaInviare = {};
+
+				// Raccogli sia il valore del checkbox che il valore del campo associato
+				datiDaInviare.statoCheck = document.querySelector("input[name='Atto.Stato.Check']").checked;
+				datiDaInviare.stato = document.querySelector("select[name='Atto.Stato']").value;
+
+				datiDaInviare.dataAnnunzioCheck = document.querySelector("input[name='Atto.DataAnnunzio.Check']").checked;
+				datiDaInviare.dataAnnunzio = document.querySelector("input[name='Atto.DataAnnunzio']").value;
+
+				datiDaInviare.tipoChiusuraIterCheck = document.querySelector("input[name='Atto.TipoChiusuraIter.Check']").checked;
+				datiDaInviare.tipoChiusuraIter = document.querySelector("select[name='Atto.TipoChiusuraIter']").value;
+
+				datiDaInviare.dataChiusuraIterCheck = document.querySelector("input[name='Atto.DataChiusuraIter.Check']").checked;
+				datiDaInviare.dataChiusuraIter = document.querySelector("input[name='Atto.DataChiusuraIter']").value;
+
+				datiDaInviare.tipoVotazioneCheck = document.querySelector("input[name='Atto.TipoVotazione.Check']").checked;
+				datiDaInviare.tipoVotazione = document.querySelector("select[name='Atto.TipoVotazione']").value;
+
+				datiDaInviare.dataComunicazioneAssembleaCheck = document.querySelector("input[name='Atto.DataComunicazioneAssemblea.Check']").checked;
+				datiDaInviare.dataComunicazioneAssemblea = document.querySelector("input[name='Atto.DataComunicazioneAssemblea']").value;
+
+				datiDaInviare.emendatoCheck = document.querySelector("input[name='Atto.Emendato.Check']").checked;
+				datiDaInviare.emendato = document.querySelector("input[name='Atto.Emendato']").checked;
+
+				datiDaInviare.pubblicatoCheck = document.querySelector("input[name='Atto.Pubblicato.Check']").checked;
+				datiDaInviare.pubblicato = document.querySelector("input[name='Atto.Pubblicato']").checked;
+
+				request.Dati = datiDaInviare;
+
+                var url = '@Url.Action("Salva_ComandoMassivo", "DASI")';
+
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(request)
+				});
+
+				if (!response.ok) {
+					waiting(false);
+					throw new Error('Network response was not ok');
+				}
+
+				try {
+					const errorData = await response.json();
+					if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+				} catch (error) {
+					// ignored
+					waiting(false);
+				}
+
+				M.toast({
+					html: `<span>Salva dati massivi completato con successo</span>`,
+					classes: 'rounded',
+					displayLength: 5000
+				});
+
+				setTimeout(function () {
+					location.reload();
+				}, 5000);
+            }
+        });
+
+        
+
+	    waiting(false);
+    });
 
     function ModificaMetaDASI(tipo) {
         openFormDASI(tipo, true);

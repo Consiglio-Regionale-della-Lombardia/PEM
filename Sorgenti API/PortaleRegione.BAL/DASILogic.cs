@@ -37,6 +37,7 @@ using ExpressionBuilder.Generics;
 using HtmlToOpenXml;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -54,6 +55,7 @@ using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
 using static PortaleRegione.DTO.Routes.ApiRoutes;
 using Color = System.Drawing.Color;
+using Utility = PortaleRegione.Common.Utility;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -282,7 +284,8 @@ namespace PortaleRegione.API.Controllers
             attoInDb.IDStato = request.Stato;
             attoInDb.CodiceMateria = request.CodiceMateria;
             attoInDb.Protocollo = request.Protocollo;
-            attoInDb.DataAnnunzio = request.DataAnnunzio;
+            if (request.DataAnnunzio > DateTime.MinValue)
+                attoInDb.DataAnnunzio = request.DataAnnunzio;
             attoInDb.Pubblicato = request.Pubblicato;
             attoInDb.Sollecito = request.Sollecito;
 
@@ -4513,6 +4516,81 @@ namespace PortaleRegione.API.Controllers
                 {
                     // ignored
                 }
+            }
+        }
+
+        public async Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request, PersonaDto currentUser)
+        {
+            foreach (var guid in request.Lista)
+            {
+                var atto = await _unitOfWork.DASI.Get(guid);
+
+                if (request.Dati.StatoCheck && int.Parse(request.Dati.Stato)>=1)
+                {
+                    atto.IDStato = int.Parse(request.Dati.Stato);
+                }
+
+                if (request.Dati.DataAnnunzioCheck)
+                {
+                    if (string.IsNullOrEmpty(request.Dati.DataAnnunzio))
+                        atto.DataAnnunzio = null;
+                    else
+                    {
+                        atto.DataAnnunzio = DateTime.Parse(request.Dati.DataAnnunzio);
+                    }
+                }
+
+                if (request.Dati.TipoChiusuraIterCheck)
+                {
+                    if (string.IsNullOrEmpty(request.Dati.TipoChiusuraIter))
+                        atto.TipoChiusuraIter = null;
+                    else
+                    {
+                        atto.TipoChiusuraIter = int.Parse(request.Dati.TipoChiusuraIter);
+                    }
+                }
+
+                if (request.Dati.DataChiusuraIterCheck)
+                {
+                    if (string.IsNullOrEmpty(request.Dati.DataChiusuraIter))
+                        atto.DataChiusuraIter = null;
+                    else
+                    {
+                        atto.DataChiusuraIter = DateTime.Parse(request.Dati.DataChiusuraIter);
+                    }
+                }
+
+                if (request.Dati.TipoVotazioneCheck)
+                {
+                    if (string.IsNullOrEmpty(request.Dati.TipoVotazione))
+                        atto.TipoVotazioneIter = null;
+                    else
+                    {
+                        atto.TipoVotazioneIter = int.Parse(request.Dati.TipoVotazione);
+                    }
+                }
+
+                if (request.Dati.DataComunicazioneAssembleaCheck)
+                {
+                    if (string.IsNullOrEmpty(request.Dati.DataComunicazioneAssemblea))
+                        atto.DataComunicazioneAssemblea = null;
+                    else
+                    {
+                        atto.DataComunicazioneAssemblea = DateTime.Parse(request.Dati.DataComunicazioneAssemblea);
+                    }
+                }
+                
+                if (request.Dati.EmendatoCheck)
+                {
+                    atto.Emendato = request.Dati.Emendato;
+                }
+                
+                if (request.Dati.PubblicatoCheck)
+                {
+                    atto.Pubblicato = request.Dati.Pubblicato;
+                }
+
+                await _unitOfWork.CompleteAsync();
             }
         }
     }

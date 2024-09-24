@@ -2041,5 +2041,26 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per salvare massivamente i dati di una lista di atti
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-comando-massivo")]
+        public async Task<ActionResult> Salva_ComandoMassivo(SalvaComandoMassivoRequest request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_ComandoMassivo(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

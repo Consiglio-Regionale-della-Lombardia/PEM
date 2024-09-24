@@ -439,6 +439,27 @@ namespace PortaleRegione.API.Controllers
         }
         
         /// <summary>
+        ///     Endpoint per salvare massivamente i dati di una lista di atti
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_MassiveCommand)]
+        public async Task<IHttpActionResult> Salva_ComandoMassivo(SalvaComandoMassivoRequest request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_ComandoMassivo(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva massivamente dati DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
         ///     Endpoint per salvare le informazioni riguardanti la privacy
         /// </summary>
         /// <param name="request"></param>
