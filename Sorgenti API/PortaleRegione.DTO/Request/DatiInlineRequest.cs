@@ -17,12 +17,13 @@
  */
 
 using System;
-using System.Collections.Generic;
 
 namespace PortaleRegione.DTO.Request;
 
-public class SalvaComandoMassivoRequest
+public class DatiInlineRequest
 {
-    public List<DatiInlineRequest> Lista { get; set; }
-    public DatiMassiviRequest Dati { get; set; }
+    public Guid Uid { get; set; }
+    public string Protocollo { get; set; }
+    public string DCR { get; set; }
+    public string DCCR { get; set; }
 }

@@ -27,7 +27,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.UI.WebControls;
 using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -37,12 +36,10 @@ using ExpressionBuilder.Generics;
 using HtmlToOpenXml;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using PortaleRegione.BAL;
-using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -53,7 +50,6 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
-using static PortaleRegione.DTO.Routes.ApiRoutes;
 using Color = System.Drawing.Color;
 using Utility = PortaleRegione.Common.Utility;
 
@@ -291,7 +287,7 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
         }
-        
+
         public async Task Salva_Privacy(AttoDASIDto request, PersonaDto persona)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
@@ -458,7 +454,7 @@ namespace PortaleRegione.API.Controllers
 
             if (!attoInDb.DCRL.Equals(request.DCRL)
                 || !attoInDb.DCR.Equals(request.DCR)
-                || !attoInDb.DCRL.Equals(request.DCRL))
+                || !attoInDb.DCCR.Equals(request.DCCR))
             {
                 var filtroDCR = new List<FilterItem>
                 {
@@ -2546,7 +2542,7 @@ namespace PortaleRegione.API.Controllers
                 atto.DataIscrizioneSeduta = DateTime.Now;
                 atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
                 await _unitOfWork.CompleteAsync();
-                var nomeAtto = 
+                var nomeAtto =
                     $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
                 if (!listaRichieste.Any(item => (item.Value == nomeAtto
                                                  && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
@@ -4480,7 +4476,7 @@ namespace PortaleRegione.API.Controllers
 
             var nomeFile =
                 $"{Path.GetFileNameWithoutExtension(request.Nome)}_{DateTime.Now.Ticks}{Path.GetExtension(request.Nome)}";
-            
+
             var destinazioneDeposito = Path.Combine(pathRepository, nomeFile);
             File.WriteAllBytes(destinazioneDeposito, request.Contenuto);
 
@@ -4521,11 +4517,58 @@ namespace PortaleRegione.API.Controllers
 
         public async Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request, PersonaDto currentUser)
         {
-            foreach (var guid in request.Lista)
+            foreach (var datiInline in request.Lista)
             {
-                var atto = await _unitOfWork.DASI.Get(guid);
+                var atto = await _unitOfWork.DASI.Get(datiInline.Uid);
 
-                if (request.Dati.StatoCheck && int.Parse(request.Dati.Stato)>=1)
+                if (string.IsNullOrEmpty(atto.DCRL))
+                {
+                    if (!string.IsNullOrEmpty(atto.Etichetta))
+                    {
+                        var parti = atto.Etichetta.Split('_');
+                        if (parti.Length > 0)
+                            atto.DCRL = parti[parti.Length - 1];
+                    }
+                }
+
+                if (!atto.DCR.Equals(int.Parse(datiInline.DCR))
+                    || !atto.DCCR.Equals(int.Parse(datiInline.DCCR)))
+                {
+                    var filtroDCR = new List<FilterItem>
+                    {
+                        new FilterItem
+                        {
+                            property = nameof(AttoDASIDto.DCRL),
+                            value = atto.DCRL
+                        },
+                        new FilterItem
+                        {
+                            property = nameof(AttoDASIDto.DCR),
+                            value = datiInline.DCR
+                        },
+                        new FilterItem
+                        {
+                            property = nameof(AttoDASIDto.DCCR),
+                            value = datiInline.DCCR
+                        }
+                    };
+
+                    var query = Utility.ParseFilterDasi(filtroDCR);
+                    var queryFilter = new Filter<ATTI_DASI>();
+                    queryFilter.ImportStatements(query);
+                    var res = await _unitOfWork.DASI.GetAll(currentUser, 1, 1, ClientModeEnum.GRUPPI, queryFilter,
+                        new QueryExtendedRequest());
+
+                    if (res.Any()) continue;
+
+                    atto.DCR = int.Parse(datiInline.DCR);
+                    atto.DCCR = int.Parse(datiInline.DCCR);
+                }
+
+                if (!string.IsNullOrEmpty(datiInline.Protocollo))
+                    atto.Protocollo = datiInline.Protocollo;
+
+                if (request.Dati.StatoCheck && int.Parse(request.Dati.Stato) >= 1)
                 {
                     atto.IDStato = int.Parse(request.Dati.Stato);
                 }
@@ -4579,12 +4622,12 @@ namespace PortaleRegione.API.Controllers
                         atto.DataComunicazioneAssemblea = DateTime.Parse(request.Dati.DataComunicazioneAssemblea);
                     }
                 }
-                
+
                 if (request.Dati.EmendatoCheck)
                 {
                     atto.Emendato = request.Dati.Emendato;
                 }
-                
+
                 if (request.Dati.PubblicatoCheck)
                 {
                     atto.Pubblicato = request.Dati.Pubblicato;

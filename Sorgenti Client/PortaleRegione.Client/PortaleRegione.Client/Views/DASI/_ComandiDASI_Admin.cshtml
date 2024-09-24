@@ -247,7 +247,7 @@
 
 					// Crea gli input per Protocollo, DCR e DCCR
 					listItem.innerHTML = `
-					<span>${displayText}</span>
+					<span><b>${displayText}</b></span>
 					<div class="row">
 						<div class="input-field col s4">
 							<input type="text" id="protocollo_${displayId}" name="Protocollo_${displayId}" placeholder="Protocollo" value="${oggettoTrovato.Protocollo}">
@@ -291,7 +291,23 @@
 			if (answer) {
 
 				var request = {};
-				request.Lista = selectedUid;
+				request.Lista = [];
+				selectedUid.forEach(uid => {
+					let protocollo = document.getElementById(`protocollo_${uid}`).value;
+					let dcr = document.getElementById(`dcr_${uid}`).value;
+					let dccr = document.getElementById(`dccr_${uid}`).value;
+
+					// Crea un oggetto per ogni atto
+					let attoData = {
+						uid: uid,
+						protocollo: protocollo,
+						dcr: dcr,
+						dccr: dccr
+					};
+
+					// Aggiungi l'oggetto alla lista di dati da inviare
+					request.Lista.push(attoData);
+				});
 
 				let datiDaInviare = {};
 
