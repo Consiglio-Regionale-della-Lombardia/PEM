@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
@@ -1717,7 +1718,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [Route("salva-nuovo-abbinamento")]
+        [Route("salva-abbinamento")]
         public async Task<ActionResult> Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
         {
             try
@@ -1738,13 +1739,13 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [Route("salva-rimuovi-abbinamento")]
+        [Route("rimuovi-abbinamento")]
         public async Task<ActionResult> Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
         {
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.Salva_RimuoviAbbinamento(request);
+                await apiGateway.DASI.Rimuovi_Abbinamento(request);
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1780,13 +1781,13 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [Route("salva-rimuovi-risposta")]
+        [Route("rimuovi-risposta")]
         public async Task<ActionResult> Salva_RimuoviRisposta(AttiRisposteDto request)
         {
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.Salva_RimuoviRisposta(request);
+                await apiGateway.DASI.Rimuovi_Risposta(request);
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1801,7 +1802,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [Route("salva-salva-dettagli-risposta")]
+        [Route("salva-dettagli-risposta")]
         public async Task<ActionResult> Salva_DettagliRisposta(AttiRisposteDto request)
         {
             try
@@ -1843,13 +1844,13 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [Route("salva-rimuovi-monitoraggio")]
+        [Route("rimuovi-monitoraggio")]
         public async Task<ActionResult> Salva_RimuoviMonitoraggio(AttiRisposteDto request)
         {
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.Salva_RimuoviMonitoraggio(request);
+                await apiGateway.DASI.Rimuovi_Monitoraggio(request);
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1927,13 +1928,13 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [Route("salva-rimuovi-nota")]
+        [Route("rimuovi-nota")]
         public async Task<ActionResult> Salva_RimuoviNota(NoteDto request)
         {
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.Salva_RimuoviNota(request);
+                await apiGateway.DASI.Rimuovi_Nota(request);
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1942,8 +1943,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-
-
+        
         /// <summary>
         ///     Endpoint per salvare le informazioni riguardanti la privacy dall'atto
         /// </summary>
@@ -1956,6 +1956,83 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.DASI.Salva_PrivacyAtto(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare un documento caricato dall'utente per un atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-documento")]
+        public async Task<ActionResult> Salva_Documento()
+        {
+            // Verifica che la richiesta contenga dei file
+            if (Request.Files == null || Request.Files.Count == 0)
+            {;
+                return Json(new ErrorResponse("Nessun file caricato."), JsonRequestBehavior.AllowGet);
+            }
+
+            // Ottieni il file dalla richiesta
+            var file = Request.Files[0];
+
+            // Valida il file (es. tipo MIME, dimensione massima)
+            if (file.ContentLength <= 0)
+            {
+                return Json(new ErrorResponse( "Il file è vuoto."), JsonRequestBehavior.AllowGet);
+            }
+
+            if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(new ErrorResponse( "Formato file non valido. Solo PDF accettati."), JsonRequestBehavior.AllowGet);
+            }
+
+            try
+            {
+                // Converte il file in un array di byte
+                byte[] fileData;
+                using (var binaryReader = new BinaryReader(file.InputStream))
+                {
+                    fileData = binaryReader.ReadBytes(file.ContentLength);
+                }
+
+                var request = new SalvaDocumentoRequest
+                {
+                    UIDAtto = Guid.Parse(Request.Form["UIDAtto"]),
+                    Tipo = int.Parse(Request.Form["TipoDocumento"]),
+                    Nome = file.FileName,
+                    Contenuto = fileData
+                };
+
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_DocumentoAtto(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere un documento dall'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-documento")]
+        public async Task<ActionResult> Salva_RimuoviDocumento(AttiDocumentiDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Rimuovi_Documento(request);
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

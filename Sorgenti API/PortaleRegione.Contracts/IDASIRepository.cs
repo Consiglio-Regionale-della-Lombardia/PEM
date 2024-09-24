@@ -102,5 +102,8 @@ namespace PortaleRegione.Contracts
         Task<ATTI_NOTE> GetNota(Guid requestUidAtto, TipoNotaEnum requestTipoEnum);
         void RimuoviNota(ATTI_NOTE notaInDb);
         void AggiungiNota(ATTI_NOTE notaInDb);
+        void AggiungiDocumento(ATTI_DOCUMENTI doc);
+        Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid);
+        void RimuoviDocumento(ATTI_DOCUMENTI doc);
     }
 }

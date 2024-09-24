@@ -71,16 +71,16 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
-        public async Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
+        public async Task Rimuovi_Abbinamento(AttiAbbinamentoDto request)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_RemoveReference}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Reference}";
             var body = JsonConvert.SerializeObject(request);
             await Post(requestUrl, body, _token);
         }
         
-        public async Task Salva_RimuoviRisposta(AttiRisposteDto request)
+        public async Task Rimuovi_Risposta(AttiRisposteDto request)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_RemoveAnswer}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Answer}";
             var body = JsonConvert.SerializeObject(request);
             await Post(requestUrl, body, _token);
         }
@@ -99,9 +99,9 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
         
-        public async Task Salva_RimuoviMonitoraggio(AttiRisposteDto request)
+        public async Task Rimuovi_Monitoraggio(AttiRisposteDto request)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_RemoveMonitoring}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Monitoring}";
             var body = JsonConvert.SerializeObject(request);
             await Post(requestUrl, body, _token);
         }
@@ -134,9 +134,9 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
         
-        public async Task Salva_RimuoviNota(NoteDto request)
+        public async Task Rimuovi_Nota(NoteDto request)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_RemoveNote}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Note}";
             var body = JsonConvert.SerializeObject(request);
             await Post(requestUrl, body, _token);
         }
@@ -144,6 +144,20 @@ namespace PortaleRegione.Gateway
         public async Task Salva_PrivacyAtto(AttoDASIDto request)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_Privacy}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Salva_DocumentoAtto(SalvaDocumentoRequest request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_Document}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Rimuovi_Documento(AttiDocumentiDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Document}";
             var body = JsonConvert.SerializeObject(request);
             await Post(requestUrl, body, _token);
         }

@@ -192,7 +192,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route(ApiRoutes.DASI.Save_RemoveAnswer)]
+        [Route(ApiRoutes.DASI.Remove_Answer)]
         public async Task<IHttpActionResult> Salva_RimuoviRisposta(AttiRisposteDto request)
         {
             try
@@ -234,7 +234,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route(ApiRoutes.DASI.Save_RemoveReference)]
+        [Route(ApiRoutes.DASI.Remove_Reference)]
         public async Task<IHttpActionResult> Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
         {
             try
@@ -297,7 +297,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route(ApiRoutes.DASI.Save_RemoveMonitoring)]
+        [Route(ApiRoutes.DASI.Remove_Monitoring)]
         public async Task<IHttpActionResult> Salva_RimuoviMonitoraggio(AttiRisposteDto request)
         {
             try
@@ -381,7 +381,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route(ApiRoutes.DASI.Save_RemoveNote)]
+        [Route(ApiRoutes.DASI.Remove_Note)]
         public async Task<IHttpActionResult> Salva_RimuoviNota(NoteDto request)
         {
             try
@@ -396,6 +396,48 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        /// <summary>
+        ///     Endpoint per salvare un documento caricato dall'utente per un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_Document)]
+        public async Task<IHttpActionResult> Salva_Documento(SalvaDocumentoRequest request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_Documento(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva documento atto DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere un documento caricato dall'utente per un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Remove_Document)]
+        public async Task<IHttpActionResult> Rimuovi_Documento(AttiDocumentiDto request)
+        {
+            try
+            {
+                await _dasiLogic.Rimuovi_Documento(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva documento atto DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
         /// <summary>
         ///     Endpoint per salvare le informazioni riguardanti la privacy
         /// </summary>

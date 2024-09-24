@@ -16,12 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.DTO.Domain;
 
 public class AttiDocumentiDto
 {
+    public Guid Uid { get; set; }
     public string Tipo { get; set; }
     public string Titolo { get; set; }
     public bool Pubblico { get; set; }

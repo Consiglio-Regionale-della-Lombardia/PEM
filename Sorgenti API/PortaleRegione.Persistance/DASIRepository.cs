@@ -581,11 +581,13 @@ namespace PortaleRegione.Persistance
             var docInDB = await PRContext
                 .ATTI_DOCUMENTI
                 .Where(d => d.UIDAtto == uidAtto)
+                .OrderBy(d => d.Data)
                 .ToListAsync();
 
             return docInDB
                 .Select(d => new AttiDocumentiDto
                 {
+                    Uid = d.Uid,
                     Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
                     Titolo = d.Titolo,
                     Pubblico = d.Pubblica,
@@ -629,7 +631,8 @@ namespace PortaleRegione.Persistance
         public async Task<ATTI_ABBINAMENTI> GetAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato)
         {
             return await PRContext.ATTI_ABBINAMENTI.FirstOrDefaultAsync(a => a.UIDAtto == requestUidAbbinamento
-                                                                && a.UIDAttoAbbinato == requestUidAttoAbbinato);
+                                                                             && a.UIDAttoAbbinato ==
+                                                                             requestUidAttoAbbinato);
         }
 
         public void RimuoviAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb)
@@ -637,7 +640,8 @@ namespace PortaleRegione.Persistance
             PRContext.ATTI_ABBINAMENTI.Remove(abbinamentoInDb);
         }
 
-        public void AggiungiRisposta(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano, int requestTipoOrgano)
+        public void AggiungiRisposta(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano,
+            int requestTipoOrgano)
         {
             PRContext.ATTI_RISPOSTE.Add(new ATTI_RISPOSTE
             {
@@ -657,14 +661,13 @@ namespace PortaleRegione.Persistance
         public async Task<ATTI_RISPOSTE> GetRisposta(Guid requestUidAtto, int requestIdOrgano)
         {
             return await PRContext.ATTI_RISPOSTE.FirstOrDefaultAsync(r => r.UIDAtto == requestUidAtto
-                                                             && r.IdOrgano == requestIdOrgano);
+                                                                          && r.IdOrgano == requestIdOrgano);
         }
 
         public async Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUidAtto, int requestIdOrgano)
         {
-            return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.UIDAtto == requestUidAtto 
+            return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.UIDAtto == requestUidAtto
                                                                               && m.IdOrgano == requestIdOrgano);
-            
         }
 
         public void AggiungiMonitoraggio(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano,
@@ -695,10 +698,25 @@ namespace PortaleRegione.Persistance
         {
             PRContext.ATTI_NOTE.Remove(notaInDb);
         }
-        
+
         public void AggiungiNota(ATTI_NOTE notaInDb)
         {
             PRContext.ATTI_NOTE.Add(notaInDb);
+        }
+
+        public void AggiungiDocumento(ATTI_DOCUMENTI doc)
+        {
+            PRContext.ATTI_DOCUMENTI.Add(doc);
+        }
+
+        public async Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid)
+        {
+            return await PRContext.ATTI_DOCUMENTI.FirstAsync(d => d.Uid.Equals(requestUid));
+        }
+
+        public void RimuoviDocumento(ATTI_DOCUMENTI doc)
+        {
+            PRContext.ATTI_DOCUMENTI.Remove(doc);
         }
 
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)
@@ -732,7 +750,7 @@ namespace PortaleRegione.Persistance
             var abbinamentiInDB = await PRContext
                 .ATTI_ABBINAMENTI
                 .Where(a => a.UIDAtto.Equals(uidAtto))
-                .OrderBy(a=>a.Data)
+                .OrderBy(a => a.Data)
                 .ToListAsync();
 
             var res = new List<AttiAbbinamentoDto>();
@@ -793,6 +811,7 @@ namespace PortaleRegione.Persistance
                 .Take(size)
                 .ToListAsync();
         }
+
         public async Task<List<GruppiDto>> GetGruppiDisponibili(int legislaturaId, int page, int size)
         {
             var query = PRContext
@@ -1132,7 +1151,7 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.Stati.Any())
                 query = query.Where(i => queryExtended.Stati.Contains(i.IDStato));
-            
+
             if (queryExtended.GruppiProponenti.Any())
                 query = query.Where(i => queryExtended.GruppiProponenti.Contains(i.id_gruppo));
 
@@ -1144,7 +1163,7 @@ namespace PortaleRegione.Persistance
 
                 query = query.Where(atto => firmeQuery.Contains(atto.UIDAtto));
             }
-            
+
             if (queryExtended.Firmatari.Any())
             {
                 var firmeQuery = PRContext.ATTI_FIRME
@@ -1224,7 +1243,7 @@ namespace PortaleRegione.Persistance
             if (queryExtended.Proponenti.Any())
                 query = query
                     .Where(atto => queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value));
-            
+
             if (queryExtended.Provvedimenti.Any())
             {
                 var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
@@ -1274,7 +1293,7 @@ namespace PortaleRegione.Persistance
                     .Select(commissione => commissione.UIDAtto)
                     .Distinct();
 
-                query = query.Where(atto => organiQuery.Contains(atto.UIDAtto) 
+                query = query.Where(atto => organiQuery.Contains(atto.UIDAtto)
                                             || risposteQuery.Contains(atto.UIDAtto)
                                             || commissioniProponentiQuery.Contains(atto.UIDAtto)
                                             || monitoraggioQuery.Contains(atto.UIDAtto));

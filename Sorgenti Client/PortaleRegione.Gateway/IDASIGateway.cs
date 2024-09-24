@@ -91,16 +91,18 @@ namespace PortaleRegione.Gateway
         Task<List<TemplatesItemDto>> GetReportsCovers();
         Task<List<TemplatesItemDto>> GetReportsCardTemplates();
         Task Salva_NuovoAbbinamento(AttiAbbinamentoDto request);
-        Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request);
+        Task Rimuovi_Abbinamento(AttiAbbinamentoDto request);
         Task Salva_NuovaRisposta(AttiRisposteDto request);
-        Task Salva_RimuoviRisposta(AttiRisposteDto request);
+        Task Rimuovi_Risposta(AttiRisposteDto request);
         Task Salva_DettagliRisposta(AttiRisposteDto request);
         Task Salva_NuovoMonitoraggio(AttiRisposteDto request);
-        Task Salva_RimuoviMonitoraggio(AttiRisposteDto request);
+        Task Rimuovi_Monitoraggio(AttiRisposteDto request);
         Task Salva_InfoMonitoraggio(AttoDASIDto request);
         Task Salva_InfoChiusuraIter(AttoDASIDto request);
         Task Salva_Nota(NoteDto request);
-        Task Salva_RimuoviNota(NoteDto request);
+        Task Rimuovi_Nota(NoteDto request);
         Task Salva_PrivacyAtto(AttoDASIDto request);
+        Task Salva_DocumentoAtto(SalvaDocumentoRequest request);
+        Task Rimuovi_Documento(AttiDocumentiDto request);
     }
 }

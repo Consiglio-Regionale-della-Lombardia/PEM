@@ -27,6 +27,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.UI.WebControls;
 using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -51,6 +52,7 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
+using static PortaleRegione.DTO.Routes.ApiRoutes;
 using Color = System.Drawing.Color;
 
 namespace PortaleRegione.API.Controllers
@@ -4459,6 +4461,59 @@ namespace PortaleRegione.API.Controllers
         {
             var res = await _unitOfWork.DASI.GetOrganiDisponibili(legislaturaId);
             return res;
+        }
+
+        public async Task Salva_Documento(SalvaDocumentoRequest request, PersonaDto currentUser)
+        {
+            var atto = await GetAttoDto(request.UIDAtto, currentUser);
+            if (atto == null)
+                throw new Exception("Atto non trovato");
+
+            var dir = $"{atto.GetLegislatura()}/{Utility.GetText_Tipo(atto.Tipo)}/{atto.Etichetta}";
+            var pathRepository = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{dir}";
+
+            if (!Directory.Exists(pathRepository))
+                Directory.CreateDirectory(pathRepository);
+
+            var nomeFile =
+                $"{Path.GetFileNameWithoutExtension(request.Nome)}_{DateTime.Now.Ticks}{Path.GetExtension(request.Nome)}";
+            
+            var destinazioneDeposito = Path.Combine(pathRepository, nomeFile);
+            File.WriteAllBytes(destinazioneDeposito, request.Contenuto);
+
+            var doc = new ATTI_DOCUMENTI
+            {
+                UIDAtto = atto.UIDAtto,
+                Data = DateTime.Now,
+                Path = Path.Combine($"{dir}", nomeFile),
+                Pubblica = false,
+                Tipo = request.Tipo,
+                Titolo = request.Nome,
+                Uid = Guid.NewGuid()
+            };
+            _unitOfWork.DASI.AggiungiDocumento(doc);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task Rimuovi_Documento(AttiDocumentiDto request, PersonaDto currentUser)
+        {
+            var doc = await _unitOfWork.DASI.GetDocumento(request.Uid);
+            _unitOfWork.DASI.RimuoviDocumento(doc);
+            await _unitOfWork.CompleteAsync();
+
+            var pathFile = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{doc.Path}";
+
+            if (File.Exists(pathFile))
+            {
+                try
+                {
+                    File.Delete(pathFile);
+                }
+                catch (IOException)
+                {
+                    // ignored
+                }
+            }
         }
     }
 }

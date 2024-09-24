@@ -200,6 +200,7 @@
     <Compile Include="Request\Public\GruppiRequest.cs" />
     <Compile Include="Request\QueryExtendedRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />
+    <Compile Include="Request\SalvaDocumentoRequest.cs" />
     <Compile Include="Request\SalvaGruppoRequest.cs" />
     <Compile Include="Request\StampaRequest.cs" />
     <Compile Include="Enum\TipoRispostaEnum.cs" />

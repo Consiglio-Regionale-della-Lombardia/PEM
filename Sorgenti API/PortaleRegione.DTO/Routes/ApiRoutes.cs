@@ -198,17 +198,19 @@ namespace PortaleRegione.DTO.Routes
             public const string Save = Base + "/save";
             public const string Save_GeneralInfos = Base + "/save/general-infos";
             public const string Save_AddReference = Base + "/save/add-reference";
-            public const string Save_RemoveReference = Base + "/save/remove-reference";
+            public const string Remove_Reference = Base + "/save/remove-reference";
             public const string Save_AddAnswer = Base + "/save/add-answer";
-            public const string Save_RemoveAnswer = Base + "/save/remove-answer";
+            public const string Remove_Answer = Base + "/save/remove-answer";
             public const string Save_DetailAnswer = Base + "/save/detail-answer";
             public const string Save_AddMonitoring = Base + "/save/add-monitoring";
-            public const string Save_RemoveMonitoring = Base + "/save/remove-monitoring";
+            public const string Remove_Monitoring = Base + "/save/remove-monitoring";
             public const string Save_InfoMonitoring = Base + "/save/info-monitoring";
             public const string Save_InfoClosureFlow = Base + "/save/info-closure-flow";
             public const string Save_Note = Base + "/save/note";
-            public const string Save_RemoveNote = Base + "/save/remove-note";
+            public const string Remove_Note = Base + "/save/remove-note";
             public const string Save_Privacy = Base + "/save/privacy";
+            public const string Save_Document = Base + "/save/document";
+            public const string Remove_Document = Base + "/save/remove-document";
 
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";
