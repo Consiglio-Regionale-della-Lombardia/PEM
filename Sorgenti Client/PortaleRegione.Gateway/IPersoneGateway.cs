@@ -46,5 +46,6 @@ namespace PortaleRegione.Gateway
         Task<LoginResponse> Login(LoginRequest request);
         Task SalvaPin(CambioPinModel model);
         Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId);
+        Task Logout(Guid uidPersona);
     }
 }

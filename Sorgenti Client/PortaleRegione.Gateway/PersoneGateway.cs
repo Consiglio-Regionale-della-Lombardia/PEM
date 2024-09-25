@@ -133,6 +133,12 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task Logout(Guid uidPersona)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Autenticazione.Logout}";
+            await Get(requestUrl, _token);
+        }
+
         public async Task<IEnumerable<PersonaDto>> GetGiuntaRegionale()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetGiunta}";

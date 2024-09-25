@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using System.ComponentModel
+@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
@@ -6,21 +7,6 @@
 @{
 	ViewBag.Title = "DASI";
 
-	var classTabPresentati = "";
-	var classTabInTrattazione = "";
-	var classTabChiuso = "";
-	switch (Model.Stato)
-	{
-		case StatiAttoEnum.PRESENTATO:
-			classTabPresentati = "active";
-			break;
-		case StatiAttoEnum.IN_TRATTAZIONE:
-			classTabInTrattazione = "active";
-			break;
-		case StatiAttoEnum.COMPLETATO:
-			classTabChiuso = "active";
-			break;
-	}
 	var url = Url.Action("Index", "Home");
 
 	if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
@@ -80,6 +66,9 @@
                     </div>
                     <div class="col l6 s6 right-align">
 
+                        <a class="btn-floating white black-text tooltipped" data-tooltip="Colonne griglia" data-position="left" id="btnSelezionaColonne">
+                            <i class="material-icons">apps</i>
+                        </a>
                         <a class="btn-floating white black-text tooltipped activator" data-tooltip="Conteggi" data-position="left">
                             <i class="material-icons">insert_chart</i>
                         </a>
@@ -169,3 +158,89 @@
 	Html.RenderPartial("_ScriptRiepilogoDASI", Model);
 }
 
+<div id="modalColonneGriglia" class="modal">
+	<div class="modal-content">
+		<h4>Seleziona le colonne della griglia</h4>
+		<div class="row">
+			<div class="input-field col s12">
+                <select name="columns-grid" id="columns-grid-select" multiple> 
+                    @foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
+                    {
+                        if (prop.Name == nameof(AttoDASIReportDto.Tipo)
+                            || prop.Name == nameof(AttoDASIReportDto.NAtto)
+                            || prop.Name == nameof(AttoDASIReportDto.DisplayExtended)
+                            || prop.Name == nameof(AttoDASIReportDto.Display))
+                        {
+                            continue;
+                        }
+
+                        var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                            .Cast<DisplayNameAttribute>()
+                            .FirstOrDefault()?.DisplayName ?? prop.Name;
+
+                        <option value="@prop.Name">@displayName</option>
+                    }
+                </select>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+		<a onclick="btnResetColonneGriglia()" class="red-text waves-effect waves-green btn-flat">Reset</a>
+		<a onclick="btnSalvaColonneGriglia()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+	</div>
+</div>
+
+<script>
+	document.getElementById('btnSelezionaColonne').addEventListener('click', function () {
+		waiting(true);
+
+		// Recupera le colonne salvate dal local storage (un array di oggetti con propertyName e displayText)
+		const savedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
+
+		// Seleziona automaticamente le colonne salvate
+		const columnsSelect = document.getElementById('columns-grid-select');
+		Array.from(columnsSelect.options).forEach(option => {
+			// Controlla se il propertyName della colonna è incluso nelle colonne salvate
+			const isSelected = savedColumns.some(col => col.propertyName === option.value);
+			option.selected = isSelected;
+		});
+
+		// Aggiorna il select dopo aver impostato le opzioni selezionate
+		$('#columns-grid-select').formSelect();
+
+		waiting(false);
+		$('#modalColonneGriglia').modal("open");
+	});
+
+    function btnResetColonneGriglia() {
+		localStorage.setItem('selectedColumns', JSON.stringify([]));
+		const savedColumns = [];
+		const columnsSelect = document.getElementById('columns-grid-select');
+		Array.from(columnsSelect.options).forEach(option => {
+			// Controlla se il propertyName della colonna è incluso nelle colonne salvate
+			const isSelected = savedColumns.some(col => col.propertyName === option.value);
+			option.selected = isSelected;
+		});
+
+		// Aggiorna il select dopo aver impostato le opzioni selezionate
+		$('#columns-grid-select').formSelect();
+
+		CreaTabella();
+    }
+
+    function btnSalvaColonneGriglia() {
+		const selectedColumns = Array.from(document.querySelector('select[name="columns-grid"]').selectedOptions).map(option => ({
+			propertyName: option.value,  // Nome della proprietà
+			displayText: option.text     // Testo visualizzato
+		}));
+
+		// Salva le colonne selezionate nel local storage
+		localStorage.setItem('selectedColumns', JSON.stringify(selectedColumns));
+
+        CreaTabella();
+
+		// Chiudi la modale
+		$('#modalColonneGriglia').modal('close');		
+    }
+</script>

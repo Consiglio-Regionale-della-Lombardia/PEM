@@ -439,5 +439,17 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        /// <summary>
+        ///     Controller per visualizzare le sessioni
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("users/sessions")]
+        public async Task<ActionResult> RiepilogoSessioni()
+        {
+            var apiGateway = new ApiGateway(Token);
+            return View("RiepilogoSessioni", await apiGateway.Admin.GetSessioni());
+        }
     }
 }

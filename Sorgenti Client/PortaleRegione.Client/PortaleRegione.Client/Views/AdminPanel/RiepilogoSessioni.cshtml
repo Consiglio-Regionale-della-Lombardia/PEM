@@ -1,0 +1,53 @@
+﻿@model System.Collections.Generic.List<PortaleRegione.DTO.Domain.SessioniDto>
+
+@{
+    ViewBag.Title = "Sessioni";
+}
+
+<div class="row">
+    <div class="col s12">
+        <h4>
+            <b>@ViewBag.Title</b>
+        </h4>
+    </div>
+</div>
+
+<div id="contentTable" class="row">
+    <table>
+        <thead>
+        <tr>
+            <td>Utente</td>
+            <td>Ingresso</td>
+            <td>Uscita</td>
+            <td>Stato</td>
+            <td>Chiusura corretta</td>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var sessione in Model)
+        {
+            <tr>
+                <td>@sessione.Persona.DisplayName</td>
+                <td>@sessione.DataIngresso.ToString("dd/MM/yyyy HH:mm")</td>
+				<td>@((sessione.DataUscita.HasValue)? sessione.DataUscita.Value.ToString("dd/MM/yyyy HH:mm"): "")</td>
+				<td>@sessione.Stato</td>
+				<td>@sessione.ChiusuraCorretta</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    
+	
+    @if (!Model.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono sessioni.
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+</div>

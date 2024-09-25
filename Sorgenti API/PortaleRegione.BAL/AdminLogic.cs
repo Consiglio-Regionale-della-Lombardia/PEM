@@ -861,5 +861,10 @@ namespace PortaleRegione.BAL
 
             return request;
         }
+
+        public async Task<List<SessioniDto>> GetSessioni()
+        {
+            return await _unitOfWork.Sessioni.Get();
+        }
     }
 }

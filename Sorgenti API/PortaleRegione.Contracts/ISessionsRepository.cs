@@ -16,28 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Model;
-using PortaleRegione.DTO.Request;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 
-namespace PortaleRegione.Gateway
+namespace PortaleRegione.Contracts
 {
-    public interface IAdminGateway
+    public interface ISessionsRepository: IRepository<Sessioni>
     {
-        Task<RiepilogoGruppiModel> GetGruppiAdmin(BaseRequest<GruppiDto> request);
-        Task<IEnumerable<KeyValueDto>> GetGruppiInDb();
-        Task<List<GruppoAD_Dto>> GetGruppiPoliticiAD();
-        Task<PersonaDto> GetPersona(Guid id);
-        Task<RiepilogoUtentiModel> GetPersone(BaseRequest<PersonaDto> request);
-        Task<List<RuoliDto>> GetRuoliAD();
-        Task ResetPassword(ResetRequest request);
-        Task ResetPin(ResetRequest request);
-        Task SalvaGruppo(SalvaGruppoRequest request);
-        Task<Guid> SalvaPersona(PersonaUpdateRequest request);
-        Task EliminaPersona(Guid uid_persona);
-        Task<List<SessioniDto>> GetSessioni();
+        Task NuovaSessione(Sessioni sessioni);
+        Task<List<SessioniDto>> Get();
+        Task ChiudiSessione(Guid currentUid);
     }
 }

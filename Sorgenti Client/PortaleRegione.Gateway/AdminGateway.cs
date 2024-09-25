@@ -80,6 +80,13 @@ namespace PortaleRegione.Gateway
             await Delete(requestUrl, _token);
         }
 
+        public async Task<List<SessioniDto>> GetSessioni()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.GetSessions}";
+            var result = JsonConvert.DeserializeObject<List<SessioniDto>>(await Get(requestUrl, _token));
+            return result;
+        }
+
         public async Task ResetPin(ResetRequest request)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.ResetPin}";

@@ -606,7 +606,7 @@ async function inviaDatiChips(page, size) {
 				property: chip.getAttribute('data-filterby'),
 				value: chip.getAttribute('data-val')
 			});
-		}		
+		}
 	});
 
 	try {
@@ -627,14 +627,14 @@ async function inviaDatiChips(page, size) {
 			throw new Error('Network response was not ok');
 		}
 
-		const responseData = await response.json();
+		responseData = await response.json();
 		if (responseData.message){
 			ErrorAlert(responseData.message);
 			return;
 		}
 
 		if (responseData.Data && responseData.Data.Results && responseData.Data.Results.length > 0) {
-			CreaTabella(responseData);
+			CreaTabella();
 		} else {
 			if (chipsData.length == 0){
 				document.getElementById('tableResults').innerHTML = `<div class="card-panel blue lighten-5 center">
@@ -662,8 +662,12 @@ async function inviaDatiChips(page, size) {
 	waiting(false);
 }
 
+var responseData = {};
 var risultatiTabella = [];
-function CreaTabella(responseData) {
+function CreaTabella() {
+	// Recupera le colonne selezionate dal local storage
+	const selectedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
+
 	risultatiTabella = responseData.Data.Results;
 	// Pulisci i risultati precedenti
 	const tableResults = document.getElementById('tableResults');
@@ -675,21 +679,25 @@ function CreaTabella(responseData) {
 
 	// Crea l'intestazione della tabella
 	const thead = document.createElement('thead');
-	thead.innerHTML = `
-        <tr>
-            <th></th>
-			<th>Atto</th>
-            <th>Tipo</th>
-            <th>Oggetto</th>
-            <th>Firmatari</th>
-            <th>Stato</th>
-            <th>Seduta</th>
-            <th><i class="material-icons green-text">description</i></th>
-            <th><i class="material-icons blue-text">public</i></th>
-            <th><i class="material-icons red-text">notifications_active</i></th>
-            <th></th>
-        </tr>
-    `;
+	const headerRow = document.createElement('tr');
+	const thCheckbox = document.createElement('th');
+	thCheckbox.textContent = '';
+	headerRow.appendChild(thCheckbox);
+	const thDispayAtto = document.createElement('th');
+	thDispayAtto.textContent = 'Atto';
+	headerRow.appendChild(thDispayAtto);
+
+	selectedColumns.forEach(col => {
+		const th = document.createElement('th');
+		th.textContent = col.displayText;
+		headerRow.appendChild(th);
+	});
+
+	const thCommands = document.createElement('th');
+	thCommands.textContent = '';
+	headerRow.appendChild(thCommands);
+
+	thead.appendChild(headerRow);
 	table.appendChild(thead);
 
 	// Crea il corpo della tabella e popolalo con i dati
@@ -714,23 +722,110 @@ function CreaTabella(responseData) {
 		var isPubblicato = result.Pubblicato ? 'checked="checked"' : '';
 		var isSollecito = result.Sollecito ? 'checked="checked"' : '';
 		var haveProtocollo = result.Protocollo ? 'checked="checked"' : '';
-		var colonnaTipo = result.DisplayTipoRispostaRichiesta;
-		var stato = `${result.DisplayStato}`;
-		if (result.TipoChiusuraIter > 0){
-			stato += ` ${result.DisplayTipoChiusuraIter}`
-		}
+
 		var iconChipAggiuntiva = "";
 		if (result.Abbinamenti.length > 0){
-			colonnaTipo = "";
-			iconChipAggiuntiva = `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>`
-
-			result.Abbinamenti.forEach(abb => {
-				colonnaTipo += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UidAttoAbbinato}')">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</a></p>`;
-			});
+			iconChipAggiuntiva = `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>`;
 		}
 
 		const row = document.createElement('tr');
-		row.innerHTML = `
+		const tdCheckBoxValue = document.createElement('td');
+		tdCheckBoxValue.style.width = '1%';
+		tdCheckBoxValue.innerHTML = `<p>
+    <label>
+        <input type="checkbox" id="chk_Atto_${result.UIDAtto}" onclick="AbilitaComandiMassivi_DASI('${result.UIDAtto}');"/>
+        <span></span>
+    </label>
+</p>`;
+		row.appendChild(tdCheckBoxValue);
+		const tdDisplayValue = document.createElement('td');
+		tdDisplayValue.style.width = '10%';
+		tdDisplayValue.innerHTML = `<div class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')" data-text='${result.Display}' data-id='${result.UIDAtto}'>${result.Display}${iconChipAggiuntiva}</div>`;
+		row.appendChild(tdDisplayValue);
+
+		// Verifica se il valore è nel formato /Date(XXXXXXXXXXXX)/
+		const dateRegex = /\/Date\((\d+)\)\//;
+
+		// Aggiungi le colonne selezionate alle righe della tabella
+		selectedColumns.forEach(col => {
+			const td = document.createElement('td');
+			if (col.propertyName === '@nameof(AttoDASIDto.IDStato)') {
+				td.textContent = result.DisplayStato;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.DCR)') {
+				if (result.DCR > 0) {
+					td.textContent = `${result.DCRL}/${result.DCR}`;
+					if (result.DCCR > 0) {
+						td.textContent += `${result.DCCR}`
+					}
+				} else {
+					td.textContent = "";
+				}
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Tipo)') {
+				td.textContent = result.DisplayTipo;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.TipoMOZ)') {
+				td.textContent = result.DisplayTipoMozione;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.IDTipo_Risposta)') {
+				td.textContent = result.DisplayTipoRispostaRichiesta;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.TipoChiusuraIter)') {
+				td.textContent = result.DisplayTipoChiusuraIter;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.TipoVotazioneIter)') {
+				td.textContent = result.DisplayTipoVotazioneIter;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.AreaPolitica)') {
+				td.textContent = result.DisplayAreaPolitica;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.id_gruppo)') {
+				if (result.id_gruppo > 0) { td.textContent = result.gruppi_politici.codice_gruppo; } else { td.textContent = "";}
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Legislatura)') {
+				const parts = result.Etichetta.split('_');
+				td.textContent = parts[parts.length - 1];
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Risposte)') {
+				result.Risposte.forEach(abb => {
+					var dataRisposta = ``;
+					if (abb.Data) {
+						const match = abb.Data.match(dateRegex);
+						const timestamp = parseInt(match[1], 10);
+						const date = new Date(timestamp);
+
+						// Formattare la data in un formato leggibile (dd/MM/yyyy)
+						const day = String(date.getDate()).padStart(2, '0');
+						const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+						const year = date.getFullYear();
+						dataRisposta = `<br><b>${day}/${month}/${year}<b>`;
+					}
+					td.innerHTML += `<p>${abb.DisplayTipo} - ${abb.DescrizioneOrgano}${dataRisposta}</p>`;
+				});
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Abbinamenti)') {
+				result.Abbinamenti.forEach(abb => {
+					td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UidAttoAbbinato}')">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</a></p>`;
+				});
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Documenti)') {
+				result.Documenti.forEach(abb => {
+					td.innerHTML += `<p>${abb.Tipo} - <a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('${abb.Link}')">${abb.Titolo}</a></p>`;
+				});
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Note)') {
+				result.Note.forEach(abb => {
+					td.innerHTML += `<p><b>${abb.Persona.DisplayName}<b><br> ${abb.Tipo}<br> ${abb.Nota}</p>`;
+				});
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Firme)') {
+				td.innerHTML = htmlFirme;
+			} else {
+				if (dateRegex.test(result[col.propertyName])) {
+					const match = result[col.propertyName].match(dateRegex);
+					const timestamp = parseInt(match[1], 10);
+					const date = new Date(timestamp);
+
+					// Formattare la data in un formato leggibile (dd/MM/yyyy)
+					const day = String(date.getDate()).padStart(2, '0');
+					const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+					const year = date.getFullYear();
+					td.textContent = `${day}/${month}/${year}`;
+				} else {
+					td.textContent = result[col.propertyName];
+				}
+			}
+			row.appendChild(td);
+		});
+
+		@*row.innerHTML = `
             <td style="width: 1%;">
 				<p>
                     <label>
@@ -764,22 +859,29 @@ function CreaTabella(responseData) {
                 </label>
             </td>
             <td style="width: 10%;" class="center">
-			     <a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('${result.DisplayTipo}', ${result.NAtto}, ${result.Legislatura})">
-                     <i class="icon material-icons">remove_red_eye</i>
-                 </a>
-                 <a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}"
-                    data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI")?id=${result.UIDAtto}" onclick="StampaUOLA(this)">
-                     <i class="material-icons">print</i>
-                 </a>
-                 <a class="black-text tooltipped" data-tooltip="Modifica Metadati" onclick="openMetaDatiDASI('${result.UIDAtto}')">
-                     <i class="icon material-icons">edit</i>
-                 </a>
+
 			</td>
-        `;
+        `;*@
+
+		const tdCommandsValue = document.createElement('td');
+		tdCommandsValue.classList.add('center');
+		tdCommandsValue.style.width = '10%';
+		tdCommandsValue.innerHTML = `<a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('${result.DisplayTipo}', ${result.NAtto}, ${result.Legislatura})">
+    <i class="icon material-icons">remove_red_eye</i>
+</a>
+<a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}"
+   data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI")?id=${result.UIDAtto}" onclick="StampaUOLA(this)">
+    <i class="material-icons">print</i>
+</a>
+<a class="black-text tooltipped" data-tooltip="Modifica Metadati" onclick="openMetaDatiDASI('${result.UIDAtto}')">
+    <i class="icon material-icons">edit</i>
+</a>`;
+		row.appendChild(tdCommandsValue);
 		tbody.appendChild(row);
 	});
 	table.appendChild(tbody);
 
+	table.style.backgroundColor = "#FFFFFF";
 	// Aggiungi la tabella al container dei risultati
 	tableResults.appendChild(table);
 
@@ -1954,7 +2056,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 					} else {
 						dcrValue = `value="${currentValue.trim()}"`; // Solo un valore, assegna a DCR
 					}
-				}				
+				}
 			}
 
 			selectHTML = `

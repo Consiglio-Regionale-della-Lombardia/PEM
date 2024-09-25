@@ -306,5 +306,25 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per avere le sessioni
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.Admin.GetSessions)]
+        public async Task<IHttpActionResult> GetSessioni()
+        {
+            try
+            {
+                var result = await _adminLogic.GetSessioni();
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return ErrorHandler(e);
+            }
+        }
     }
 }

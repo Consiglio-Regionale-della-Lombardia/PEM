@@ -79,6 +79,7 @@
     <Compile Include="RUOLI.cs" />
     <Compile Include="RUOLI_UTENTE.cs" />
     <Compile Include="SEDUTE.cs" />
+    <Compile Include="Sessioni.cs" />
     <Compile Include="STAMPE.cs" />
     <Compile Include="STAMPE_INFO.cs" />
     <Compile Include="STATI_EM.cs" />

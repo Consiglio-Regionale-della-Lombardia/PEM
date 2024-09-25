@@ -40,6 +40,7 @@ namespace PortaleRegione.DTO.Routes
             public const string EliminaUtente = Base + "/persone/{id}/elimina";
             public const string SalvaGruppo = Base + "/gruppi/salva-gruppo";
             public const string GetGruppi = Base + "/gruppi/all";
+            public const string GetSessions = Base + "/users/sessions";
         }
 
         public static class Autenticazione
@@ -48,6 +49,8 @@ namespace PortaleRegione.DTO.Routes
             private const string Base = Root + "/auth";
 
             public const string Login = Base + "/login";
+            public const string Logout = Base + "/logout";
+
             public const string CambioRuolo = Base + "/cambio-ruolo/{ruolo}";
             public const string CambioGruppo = Base + "/cambio-gruppo/{gruppo}";
         }
@@ -334,6 +337,7 @@ namespace PortaleRegione.DTO.Routes
             public const string CheckPin = Base + "/check-pin";
             public const string CambioPin = Base + "/cambio-pin";
             public const string ResetPin = Base + "/reset-pin";
+
         }
 
         public static class Public

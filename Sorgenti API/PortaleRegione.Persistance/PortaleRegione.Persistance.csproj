@@ -131,6 +131,7 @@
     <Compile Include="AttiRepository.cs" />
     <Compile Include="RuoliRepository.cs" />
     <Compile Include="SeduteRepository.cs" />
+    <Compile Include="SessionsRepository.cs" />
     <Compile Include="StampeRepository.cs" />
     <Compile Include="TemplatesRepository.cs" />
     <Compile Include="UnitOfWork.cs" />

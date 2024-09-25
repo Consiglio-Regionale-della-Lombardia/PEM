@@ -95,6 +95,7 @@
     <Compile Include="Domain\PersonaNoConsDto.cs" />
     <Compile Include="Domain\PinDto.cs" />
     <Compile Include="Domain\ReportDto.cs" />
+    <Compile Include="Domain\SessioniDto.cs" />
     <Compile Include="Domain\StampaDto.cs" />
     <Compile Include="Domain\Stampa_InfoDto.cs" />
     <Compile Include="Domain\TemplatesItemDto.cs" />

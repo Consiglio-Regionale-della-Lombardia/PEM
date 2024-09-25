@@ -55,6 +55,7 @@
     <Compile Include="IAttiRepository.cs" />
     <Compile Include="IRuoliRepository.cs" />
     <Compile Include="ISeduteRepository.cs" />
+    <Compile Include="ISessionsRepository.cs" />
     <Compile Include="IStampeRepository.cs" />
     <Compile Include="ITemplatesRepository.cs" />
     <Compile Include="IUnitOfWork.cs" />

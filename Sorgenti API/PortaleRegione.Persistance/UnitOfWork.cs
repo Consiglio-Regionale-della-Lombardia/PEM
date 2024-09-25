@@ -52,6 +52,7 @@ namespace PortaleRegione.Persistance
             Filtri = new FiltriRepository(context);
             Reports = new ReportsRepository(context);
             Templates = new TemplatesRepository(context);
+            Sessioni = new SessionsRepository(context);
         }
 
         public ISeduteRepository Sedute { get; }
@@ -73,6 +74,7 @@ namespace PortaleRegione.Persistance
         public IFiltriRepository Filtri { get; }
         public IReportsRepository Reports { get; }
         public ITemplatesRepository Templates { get; }
+        public ISessionsRepository Sessioni { get; }
 
         public async Task<int> CompleteAsync()
         {

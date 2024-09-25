@@ -343,7 +343,6 @@
 
 	async function ripristinaReports() {
 		var reports = await GetReportsDASI();
-		console.log(reports)
 		reportsArray = [];
 		$.each(reports, function (index, item) {
 			reportsArray.push(item);

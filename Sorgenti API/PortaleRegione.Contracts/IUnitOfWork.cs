@@ -45,6 +45,7 @@ namespace PortaleRegione.Contracts
         IFiltriRepository Filtri { get; }
         IReportsRepository Reports { get; }
         ITemplatesRepository Templates { get; }
+        ISessionsRepository Sessioni { get; }
 
         /// <summary>
         /// Salva le operazioni fatte finora nel Context
