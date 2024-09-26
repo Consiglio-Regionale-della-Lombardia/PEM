@@ -299,7 +299,7 @@ namespace GeneraStampeJob
             var dasiDto = listaAtti.First();
             var legislatura = dasiDto.GetLegislatura();
             //Legislatura/Tipo
-            var dir = $"{legislatura}/{Utility.GetText_Tipo(dasiDto.Tipo)}";
+            var dir = $"{legislatura}/{Utility.GetText_Tipo(dasiDto.Tipo)}/{dasiDto.Etichetta}";
             var pathRepository = $"{_model.RootRepository}/{dir}";
 
             if (!Directory.Exists(pathRepository))
