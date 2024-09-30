@@ -631,32 +631,16 @@ namespace PortaleRegione.BAL
                                 {firme}
                             </div>
                         </div>";
-            var TemplatefirmePOST = @"<div>
-                             <div style='width:100%;'>
-                                      <h6>Firmatari dopo la presentazione</h6>
-                              </div>
-                              <div style='text-align:left'>
-                                {firme}
-                            </div>
-                        </div>";
 
             if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
             {
                 //DEPOSITATO
                 body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
-
-                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= atto.Timestamp);
-                var firmePost = firmeDtos.Where(f => f.Timestamp > atto.Timestamp);
-
-                if (firmeAnte.Any())
+                
+                if (firmeDtos.Any())
                     body = body.Replace("{radGridFirmeView}",
-                        TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte)));
-
-                if (firmePost.Any())
-                    body = body.Replace("{radGridFirmePostView}",
-                        TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost)));
-                else
-                    body = body.Replace("{radGridFirmePostView}", string.Empty);
+                        TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeDtos)));
+                body = body.Replace("{radGridFirmePostView}", string.Empty);
             }
             else
             {

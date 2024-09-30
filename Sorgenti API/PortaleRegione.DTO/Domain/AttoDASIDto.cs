@@ -16,17 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Web;
+using System.Web.Mvc;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.UI.WebControls;
 
 namespace PortaleRegione.DTO.Domain
 {
@@ -38,10 +36,10 @@ namespace PortaleRegione.DTO.Domain
             FirmeAnte = new List<AttiFirmeDto>();
             FirmePost = new List<AttiFirmeDto>();
         }
+
         public Guid UIDAtto { get; set; }
 
-        [DisplayName("Seduta")]
-        public Guid? UIDSeduta { get; set; }
+        [DisplayName("Seduta")] public Guid? UIDSeduta { get; set; }
         public Guid? UID_MOZ_Abbinata { get; set; }
         public Guid? UID_Atto_ODG { get; set; }
         public string Etichetta { get; set; }
@@ -50,43 +48,34 @@ namespace PortaleRegione.DTO.Domain
         public string Oggetto_Modificato { get; set; }
         public string Oggetto_Privacy { get; set; }
 
-        [AllowHtml]
-        public string Premesse { get; set; }
+        [AllowHtml] public string Premesse { get; set; }
 
-        [AllowHtml]
-        public string Premesse_Modificato { get; set; }
+        [AllowHtml] public string Premesse_Modificato { get; set; }
 
-        [AllowHtml]
-        public string Richiesta { get; set; }
+        [AllowHtml] public string Richiesta { get; set; }
 
-        [AllowHtml]
-        public string Richiesta_Modificata { get; set; }
+        [AllowHtml] public string Richiesta_Modificata { get; set; }
 
 
-        [DisplayName("Tipo")]
-        public int Tipo { get; set; }
-        
-        [DisplayName("Tipo mozione")]
-        public int TipoMOZ { get; set; } = 0;
-        
-        [DisplayName("Numero atto")]
-        public string NAtto { get; set; }
+        [DisplayName("Tipo")] public int Tipo { get; set; }
+
+        [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;
+
+        [DisplayName("Numero atto")] public string NAtto { get; set; }
         public DateTime DataCreazione { get; set; }
         public Guid UIDPersonaCreazione { get; set; }
         public int idRuoloCreazione { get; set; }
         public DateTime? DataModifica { get; set; }
         public Guid? UIDPersonaModifica { get; set; }
-        
-        [DisplayName("Data presentazione")]
-        public string DataPresentazione { get; set; }
+
+        [DisplayName("Data presentazione")] public string DataPresentazione { get; set; }
         public string DataPresentazione_MOZ { get; set; }
         public string DataPresentazione_MOZ_URGENTE { get; set; }
         public string DataPresentazione_MOZ_ABBINATA { get; set; }
         public string DataRichiestaIscrizioneSeduta { get; set; }
         public Guid? UIDPersonaRichiestaIscrizione { get; set; }
 
-        [DisplayName("Proponente")]
-        public Guid? UIDPersonaProponente { get; set; }
+        [DisplayName("Proponente")] public Guid? UIDPersonaProponente { get; set; }
         public Guid? UIDPersonaPrimaFirma { get; set; }
         public DateTime DataPrimaFirma { get; set; }
         public Guid? UIDPersonaPresentazione { get; set; }
@@ -97,19 +86,16 @@ namespace PortaleRegione.DTO.Domain
         public Guid? UIDPersonaRitiro { get; set; }
         public string Hash { get; set; }
 
-        [DisplayName("Tipo risposta")]
-        public int IDTipo_Risposta { get; set; }
+        [DisplayName("Tipo risposta")] public int IDTipo_Risposta { get; set; }
         public int OrdineVisualizzazione { get; set; }
 
-        [DisplayName("Allegato")]
-        public string PATH_AllegatoGenerico { get; set; }
+        [DisplayName("Allegato")] public string PATH_AllegatoGenerico { get; set; }
 
 
         public string Note_Pubbliche { get; set; }
         public string Note_Private { get; set; }
-        
-        [DisplayName("Stato")]
-        public int IDStato { get; set; }
+
+        [DisplayName("Stato")] public int IDStato { get; set; }
         public bool Firma_su_invito { get; set; } = false;
         public Guid UID_QRCode { get; set; }
         public int AreaPolitica { get; set; }
@@ -118,9 +104,8 @@ namespace PortaleRegione.DTO.Domain
         public bool Firmato_Dal_Proponente { get; set; } = false;
         public bool Presentabile { get; set; } = false;
         public int Progressivo { get; set; }
-        
-        [DisplayName("Legislatura")]
-        public int Legislatura { get; set; }
+
+        [DisplayName("Legislatura")] public int Legislatura { get; set; }
 
         [JsonIgnore] public HttpPostedFileBase DocAllegatoGenerico { get; set; }
 
@@ -147,6 +132,7 @@ namespace PortaleRegione.DTO.Domain
 
         [DisplayName("Data iscrizione in seduta")]
         public DateTime? DataIscrizioneSeduta { get; set; }
+
         public bool Invito_Abilitato { get; set; } = false;
         public bool PresentatoOltreITermini { get; set; } = false;
         public bool Non_Passaggio_In_Esame { get; set; } = false;
@@ -223,9 +209,10 @@ namespace PortaleRegione.DTO.Domain
         public bool IsChiuso => IDStato == (int)StatiAttoEnum.CHIUSO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
+
         public bool IsBozza => IDStato == (int)StatiAttoEnum.BOZZA
-                                || IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
-                                || IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA;
+                               || IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
+                               || IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA;
 
 
         public List<AttiFirmeDto> FirmeAnte { get; set; }
