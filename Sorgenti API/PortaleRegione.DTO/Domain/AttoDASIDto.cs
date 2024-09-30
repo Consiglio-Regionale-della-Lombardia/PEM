@@ -37,7 +37,6 @@ public class AttoDASIDto
         FirmePost = new List<AttiFirmeDto>();
     }
 
-    public string CommissioniProponenti_string { get; set; }
     public Guid UIDAtto { get; set; }
 
     [DisplayName("Data seduta")] public Guid? UIDSeduta { get; set; }
@@ -414,4 +413,6 @@ public class AttoDASIDto
     [DisplayName("Impegni scadenze")] public string ImpegniScadenze { get; set; }
     [DisplayName("Stato attuazione")] public string StatoAttuazione { get; set; }
     [DisplayName("Competenza monitoraggio")] public string CompetenzaMonitoraggio { get; set; }
+    public IEnumerable<PersonaLightDto> Relatori { get; set; } = new List<PersonaLightDto>();
+    public string CommissioniProponenti_string { get; set; }
 }

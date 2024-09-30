@@ -26,6 +26,7 @@ namespace PortaleRegione.Domain
         public Guid UIDAtto { get; set; }
 
         public Guid UIDPersona { get; set; }
+        public int Tipo { get; set; }
 
         [Key]
         public Guid sycReplica { get; set; }

@@ -130,7 +130,7 @@
 
 									@Html.Raw(atto.Firme)
 
-									@if (!string.IsNullOrEmpty(atto.DataPresentazione))
+									@if (!string.IsNullOrEmpty(atto.DataPresentazione) && atto.Tipo != (int)TipoAttoEnum.RIS)
 									{
 										var testoDeposito = "Atto presentato";
 

@@ -1170,7 +1170,10 @@ namespace PortaleRegione.API.Controllers
                 dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
                 dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
                 if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+                {
                     dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
+                    dto.Relatori = await _unitOfWork.Atti.GetRelatori(attoInDb.UIDAtto);
+                }
 
                 return dto;
             }

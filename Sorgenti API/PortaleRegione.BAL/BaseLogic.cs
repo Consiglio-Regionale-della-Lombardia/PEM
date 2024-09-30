@@ -678,7 +678,10 @@ namespace PortaleRegione.BAL
             if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
             {
                 //DEPOSITATO
-                body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
+                if(atto.Tipo != (int)TipoAttoEnum.RIS)
+                    body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
+                else
+                    body = body.Replace("{lblDepositoATTOView}", string.Empty);
 
                 var firmeAnte = firmeDtos.Where(f => f.Timestamp <= atto.Timestamp);
                 var firmePost = firmeDtos.Where(f => f.Timestamp > atto.Timestamp);
@@ -686,6 +689,8 @@ namespace PortaleRegione.BAL
                 if (firmeAnte.Any())
                     body = body.Replace("{radGridFirmeView}",
                         TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte)));
+                else
+                    body = body.Replace("{radGridFirmeView}", string.Empty);
 
                 if (firmePost.Any())
                     body = body.Replace("{radGridFirmePostView}",
