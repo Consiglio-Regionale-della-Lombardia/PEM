@@ -37,6 +37,7 @@ public class AttoDASIDto
         FirmePost = new List<AttiFirmeDto>();
     }
 
+    public string CommissioniProponenti_string { get; set; }
     public Guid UIDAtto { get; set; }
 
     [DisplayName("Data seduta")] public Guid? UIDSeduta { get; set; }
@@ -408,7 +409,7 @@ public class AttoDASIDto
     [DisplayName("Iter multiplo")]public bool IterMultiplo { get; set; } = false;
 
     [DisplayName("Commissioni proponenti")]
-    public List<OrganoDto> CommissioniProponenti { get; set; } = new List<OrganoDto>();
+    public List<KeyValueDto> CommissioniProponenti { get; set; } = new List<KeyValueDto>();
 
     [DisplayName("Impegni scadenze")] public string ImpegniScadenze { get; set; }
     [DisplayName("Stato attuazione")] public string StatoAttuazione { get; set; }

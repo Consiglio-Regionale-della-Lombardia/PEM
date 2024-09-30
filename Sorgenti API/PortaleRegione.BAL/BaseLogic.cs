@@ -383,9 +383,23 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_START}", "<!--");
                 body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_END}", "-->");
             }
+            
+            if (atto.Tipo == (int)TipoAttoEnum.RIS)
+            {
+                body = body.Replace("{PROPONENTI_COMMENTO_START}", "");
+                body = body.Replace("{PROPONENTI_COMMENTO_END}", "");
+
+                body = body.Replace("{lblProponentiATTOView}", atto.CommissioniProponenti.Select(s=>s.descr).Aggregate((i,j)=>i + "<br>" + j));
+            }
+            else
+            {
+                body = body.Replace("{PROPONENTI_COMMENTO_START}", "<!--");
+                body = body.Replace("{PROPONENTI_COMMENTO_END}", "-->");
+            }
 
             if (atto.Tipo == (int)TipoAttoEnum.MOZ
-                || atto.Tipo == (int)TipoAttoEnum.ODG)
+                || atto.Tipo == (int)TipoAttoEnum.ODG
+                || atto.Tipo == (int)TipoAttoEnum.RIS)
             {
                 body = body.Replace("{TIPO_RISPOSTA_COMMENTO_START}", "<!--");
                 body = body.Replace("{TIPO_RISPOSTA_COMMENTO_END}", "-->");
@@ -418,7 +432,8 @@ namespace PortaleRegione.BAL
                 {
                     foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
                     {
-                        allegato_generico.AppendLine($"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{doc.Link}' target='_blank'>SCARICA - {doc.Titolo}</a></td></tr>");
+                        allegato_generico.AppendLine(
+                            $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{doc.Link}' target='_blank'>SCARICA - {doc.Titolo}</a></td></tr>");
                     }
                 }
             }
@@ -621,11 +636,11 @@ namespace PortaleRegione.BAL
             ref string body)
         {
             var firmeDtos = firme.ToList();
-            var title = $"{tipoAtto} {atto.NAtto}";
+            var title = atto.Display;
             if (atto.Non_Passaggio_In_Esame) title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
 
             body = body.Replace("{lblTitoloATTOView}", title);
-            body = body.Replace("{GRUPPO_POLITICO}", atto.gruppi_politici.nome_gruppo);
+            body = body.Replace("{GRUPPO_POLITICO}", atto.id_gruppo > 0 ? atto.gruppi_politici.nome_gruppo : "");
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
             body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
 

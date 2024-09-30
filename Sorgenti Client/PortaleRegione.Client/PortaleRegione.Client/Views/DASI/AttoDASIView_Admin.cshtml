@@ -35,1034 +35,1043 @@
     <script src="~/Scripts/moment.js"></script>
 </head>
 <body>
-<script>
+	<script>
 		$(document).ready(function () {
 			$('#btnSearch').hide();
 		});
 	</script>
 
-<style>
-    .collection-header-custom {
-        background-color: #f5f5f5 !important;
-        font-weight: bold;
-    }
-</style>
+	<style>
+		.collection-header-custom {
+			background-color: #f5f5f5 !important;
+			font-weight: bold;
+		}
+	</style>
 
-<div id="waiting" class="modal" style="height: 120px">
-    <div class="modal-content center">
-        <div class="preloader-wrapper active">
-            <div class="spinner-layer spinner-blue-only">
-                <div class="circle-clipper left">
-                    <div class="circle"></div>
-                </div>
-                <div class="gap-patch">
-                    <div class="circle"></div>
-                </div>
-                <div class="circle-clipper right">
-                    <div class="circle"></div>
-                </div>
-            </div>
-        </div>
+	<div id="waiting" class="modal" style="height: 120px">
+		<div class="modal-content center">
+			<div class="preloader-wrapper active">
+				<div class="spinner-layer spinner-blue-only">
+					<div class="circle-clipper left">
+						<div class="circle"></div>
+					</div>
+					<div class="gap-patch">
+						<div class="circle"></div>
+					</div>
+					<div class="circle-clipper right">
+						<div class="circle"></div>
+					</div>
+				</div>
+			</div>
 
-        <div id="waiting_info_message"></div>
-    </div>
-</div>
+			<div id="waiting_info_message"></div>
+		</div>
+	</div>
 
 
-<div class="row" style="left: 10px; margin-bottom: unset !important; position: absolute; top: 12px;">
-    <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
-            <i class="material-icons">close</i>
-        </a>
+	<div class="row" style="left: 10px; margin-bottom: unset !important; position: absolute; top: 12px;">
+		<div class="col s12">
+			<a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
+				<i class="material-icons">close</i>
+			</a>
 
-    </div>
-</div>
-<div class="row" style="margin-bottom: unset !important; position: absolute; right: 10px; top: 25px;">
-    <div class="col s12">
-        <div class="chip @Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset;">@PortaleRegione.Common.Utility.GetText_StatoDASI(atto.IDStato)</div>
-    </div>
-</div>
-<div class="row valign-wrapper">
-    <div class="col s12 center">
-        <h4>
-            <b>@atto.gruppi_politici.nome_gruppo</b>
-        </h4>
-    </div>
-</div>
-<div class="row">
-<div class="col s12">
-<ul class="collapsible expandable">
-<li class="active">
-    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">cloud_queue</i>Testo atto - @Html.Raw($"{atto.Display} ({atto.GetLegislatura()})")</div>
-    <div class="collapsible-body">
-        <div class="row">
-            <div class="col s12 center bodyEMClass">
-                @Html.Raw(atto.BodyAtto)
-            </div>
-        </div>
-        <div class="row" id="pnlStandardFirme">
-            <div class="col s12">
-                @if (atto.Tipo == (int)TipoAttoEnum.IQT
-                     || atto.Tipo == (int)TipoAttoEnum.MOZ)
-                {
-                    if ((atto.FirmeAnte.Any()
-                         && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-                        || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                            && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
-                        || Model.CurrentUser.IsSegreteriaAssemblea)
+		</div>
+	</div>
+	<div class="row" style="margin-bottom: unset !important; position: absolute; right: 10px; top: 25px;">
+		<div class="col s12">
+			<div class="chip @Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset;">@PortaleRegione.Common.Utility.GetText_StatoDASI(atto.IDStato)</div>
+		</div>
+	</div>
+	
+        <div class="row valign-wrapper">
+            <div class="col s12 center">
+                <h4>
+                    @if (atto.Tipo != (int)TipoAttoEnum.RIS)
                     {
-                        <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
-                            Visualizza priorita
-                            <i class="material-icons right pink-text">low_priority</i>
-                        </a>
-                        <br/>
+                        <b>@atto.gruppi_politici.nome_gruppo</b>
                     }
-                }
-
-                @Html.Raw(atto.Firme)
-
-                @if (!string.IsNullOrEmpty(atto.DataPresentazione))
-                {
-                    var testoDeposito = "Atto presentato";
-
-                    <label class="black-text">
-                        <b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
-                    </label>
-                }
-
-                @if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
-                {
-                    @Html.Raw(atto.Firme_dopo_deposito)
-                }
-            </div>
-        </div>
-        @if (atto.Tipo == (int)TipoAttoEnum.IQT
-             || atto.Tipo == (int)TipoAttoEnum.MOZ)
-        {
-            if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
-                || Model.CurrentUser.IsSegreteriaAssemblea
-                || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
-            {
-								@* FIRME PRIORITA' *@
-                <div class="row" id="pnlPrioritaFirme" style="display: none;">
-                    <div class="col s12">
-                        <a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
-                            Visualizza griglia
-                            <i class="material-icons right pink-text">grid_on</i>
-                        </a>
-                        <br/>
-
-                        <ul class="collapsible expandable">
-                            @{
-                                var firmeGroup = new List<AttiFirmeDto>();
-                                firmeGroup.AddRange(atto.FirmeAnte);
-                                firmeGroup.AddRange(atto.FirmePost);
-                            }
-                            @foreach (var firme in firmeGroup)
-                            {
-                                <li>
-                                    @if (firme.Prioritario)
-                                    {
-                                        <div class="collapsible-header valign-wrapper">
-                                            @if (atto.UIDPersonaProponente != firme.UID_persona)
-                                            {
-                                                <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
-                                                   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
-                                                    <i class="material-icons black-text" style="margin-left: 5px;">star</i>
-                                                </a>
-                                            }
-                                            @firme.FirmaCert
-
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="collapsible-header valign-wrapper">
-                                            @if (string.IsNullOrEmpty(firme.Data_ritirofirma))
-                                            {
-                                                <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
-                                                   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
-                                                    <i class="material-icons" style="margin-left: 5px;">star_border</i>
-                                                </a>
-                                                @firme.FirmaCert
-                                            }
-                                            else
-                                            {
-                                                <del>@firme.FirmaCert</del>
-                                            }
-                                        </div>
-                                    }
-                                </li>
-                            }
-                        </ul>
-
-                    </div>
-                </div>
-            }
-        }
-    </div>
-</li>
-<li>
-    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">info</i>Informazioni generali</div>
-    <div class="collapsible-body">
-        <div class="row">
-            <div class="input-field col s12 m12 l6">
-                <select id="Atto_Stato">
-                    <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.PRESENTATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
-                    <option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
-                    <option value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.COMPLETATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
-                </select>
-                <label for="Atto_Stato">Stato</label>
-            </div>
-            <div class="input-field col s12 m12 l6">
-                @Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
-                @Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.Oggetto)
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m12 l6">
-                @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.Protocollo)
-            </div>
-            <div class="input-field col s12 m12 l6">
-                @Html.TextBoxFor(model => model.Atto.CodiceMateria, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.CodiceMateria)
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m12 l6">
-                <select id="Atto_AreaPolitica">
-                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)</option>
-                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza)</option>
-                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)</option>
-                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)</option>
-                    <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)</option>
-                </select>
-                <label for="Atto_AreaPolitica">Area politica</label>
-            </div>
-            <div class="input-field col s12 m12 l6">
-                <select id="Atto_RispostaRichiesta">
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
-                </select>
-                <label for="Atto_RispostaRichiesta">Risposta richiesta</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m12 l6">
-                <p>
-                    <label>
-                        <input type="checkbox" value="true" name="Atto.Pubblicato" @Html.Raw(Model.Atto.Pubblicato ? "checked=\"checked\"" : "")/>
-                        <span>Pubblicato</span>
-                    </label>
-                </p>
-            </div>
-            <div class="input-field col s12 m12 l6">
-                <p>
-                    <label>
-                        <input type="checkbox" name="Atto.Sollecito" value="true" @Html.Raw(Model.Atto.Sollecito ? "checked=\"checked\"" : "")/>
-                        <span>Sollecito</span>
-                    </label>
-                </p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <a id="btnSalva_InformazioniGenerali" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <a id="btnAggiungiDocumento_InformazioniGenerali" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                @if (atto.Documenti.Any())
-                {
-                    if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.AGGIUNTIVO))
+                    else
                     {
-                        <h6>
-                            <b>Documenti aggiuntivi</b>
-                        </h6>
-                        <hr/>
-                        <table>
-                            <thead>
-                            <tr>
-                                <td>Tipo</td>
-                                <td>Documento</td>
-                                <td>Scarica</td>
-                                <td></td>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.AGGIUNTIVO))
-                            {
-                                <tr>
-                                    <td>@doc.Tipo</td>
-                                    <td>@doc.Titolo</td>
-                                    <td>
-                                        <a href="@doc.Link" target="_blank">
-                                            <i class="material-icons icon">link</i>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                            <i class="material-icons">close</i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                            </tbody>
-                        </table>
+                        <b>&nbsp;</b>
                     }
-                }
+                </h4>
             </div>
         </div>
-    </div>
-</li>
-<li>
-    <div class="collapsible-header collection-header-custom @cssClass">
-        <i class="material-icons">insert_link</i>Abbinamenti
-        @if (atto.Abbinamenti.Any())
-        {
-            <div class="chip" style="left: 190px; margin-top: -4px; position: absolute;">@atto.Abbinamenti.Count</div>
-        }
-    </div>
-    <div class="collapsible-body">
-        <div class="row">
-            <div class="col s12">
-                <a id="btnAggiungiAbbinamento" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi abbinamento</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m12 l12">
+    
+		<div class="row">
+			<div class="col s12">
+				<ul class="collapsible expandable">
+					<li class="active">
+						<div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">cloud_queue</i>Testo atto - @Html.Raw($"{atto.Display} ({atto.GetLegislatura()})")</div>
+						<div class="collapsible-body">
+							<div class="row">
+								<div class="col s12 center bodyEMClass">
+									@Html.Raw(atto.BodyAtto)
+								</div>
+							</div>
+							<div class="row" id="pnlStandardFirme">
+								<div class="col s12">
+									@if (atto.Tipo == (int)TipoAttoEnum.IQT
+										 || atto.Tipo == (int)TipoAttoEnum.MOZ)
+									{
+										if ((atto.FirmeAnte.Any()
+											 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+											|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+												&& Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+											|| Model.CurrentUser.IsSegreteriaAssemblea)
+										{
+											<a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+												Visualizza priorita
+												<i class="material-icons right pink-text">low_priority</i>
+											</a>
+											<br />
+										}
+									}
 
-                <h6>
-                    <b>Lista abbinamenti</b>
-                </h6>
-                <hr/>
-                <ul id="lstAbbinamentiAtto" class="collection">
-                    @foreach (var abb in atto.Abbinamenti)
-                    {
-                        <li class="collection-item">
-                            @abb.TipoAttoAbbinato @abb.NumeroAttoAbbinato
-                            @if (!string.IsNullOrEmpty(abb.OggettoAttoAbbinato))
-                            {
-                                @Html.Raw($", con oggetto: {abb.OggettoAttoAbbinato}")
-                            }
+									@Html.Raw(atto.Firme)
 
-                            <a href="#!" class="secondary-content red-text" onclick="rimuoviAbbinamento(this,'@abb.UidAttoAbbinato')">
-                                <i class="material-icons">close</i>
-                            </a>
-                        </li>
-                    }
-                </ul>
+									@if (!string.IsNullOrEmpty(atto.DataPresentazione))
+									{
+										var testoDeposito = "Atto presentato";
 
-                @if (!atto.Abbinamenti.Any())
-                {
-                    <div id="empty-abbinamenti" class="card-panel panel-warning center">
-                        <span class="center">
-                            <p>Nessun abbinamento</p>
-                        </span>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</li>
-<li>
-    <div class="collapsible-header collection-header-custom @cssClass">
-        <i class="material-icons">event_note</i>Trattazione
-        @if (atto.Risposte.Any())
-        {
-            <div style="left: 160px; position: absolute;">
-                <i class="material-icons icon right green-text">check_circle</i>
-            </div>
-        }
-        else
-        {
-            <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
-                <i class="material-icons icon right red-text">remove_circle</i>
-            </div>
-        }
-    </div>
-    <div class="collapsible-body">
-        <div class="row">
-            <div class="col s12">
-                <a id="btnAggiungiRisposta" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi risposta</a>
-            </div>
-        </div>
-        <h6>
-            <b>Risposte fornite</b>
-        </h6>
-        <hr/>
-        <table id="tableRisposte">
-            <thead>
-            <tr>
-                <th>Tipo risposta fornita</th>
-                <th>Data risposta</th>
-                <th>Tipo organo</th>
-                <th>Organo</th>
-                <th>Data trasmissione</th>
-                <th>Data trattazione</th>
-                <th></th>
-            </tr>
-            </thead>
+										<label class="black-text">
+											<b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
+										</label>
+									}
 
-            <tbody>
-            @foreach (var risposta in atto.Risposte)
-            {
-                <tr>
-                    <td>@Html.Raw(risposta.DisplayTipo)</td>
-                    <td>@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
-                    <td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
-                    <td>@Html.Raw(risposta.DescrizioneOrgano)</td>
-                    <td>@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
-                    <td>@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
-                    <td>
-                        <a onclick="modificaDettagliRisposta(this, @risposta.IdOrgano)">
-                            <i class="material-icons">edit</i>
-                        </a>
-                        <a href="#!" class="red-text" onclick="rimuoviRisposta(this, @risposta.IdOrgano)">
-                            <i class="material-icons">close</i>
-                        </a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+									@if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
+									{
+										@Html.Raw(atto.Firme_dopo_deposito)
+									}
+								</div>
+							</div>
+							@if (atto.Tipo == (int)TipoAttoEnum.IQT
+								 || atto.Tipo == (int)TipoAttoEnum.MOZ)
+							{
+								if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
+									|| Model.CurrentUser.IsSegreteriaAssemblea
+									|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
+								{
+									@* FIRME PRIORITA' *@
+									<div class="row" id="pnlPrioritaFirme" style="display: none;">
+										<div class="col s12">
+											<a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
+												Visualizza griglia
+												<i class="material-icons right pink-text">grid_on</i>
+											</a>
+											<br />
 
-        @if (!atto.Risposte.Any())
-        {
-            <div id="empty-risposte" class="card-panel panel-warning center">
-                <span class="center">
-                    <p>Nessuna risposta</p>
-                </span>
-            </div>
-        }
-		
-        <div class="row">
-            <div class="col s12">
-                <a id="btnAggiungiDocumento_Risposta" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
-            </div>
-        </div>
+											<ul class="collapsible expandable">
+												@{
+													var firmeGroup = new List<AttiFirmeDto>();
+													firmeGroup.AddRange(atto.FirmeAnte);
+													firmeGroup.AddRange(atto.FirmePost);
+												}
+												@foreach (var firme in firmeGroup)
+												{
+													<li>
+														@if (firme.Prioritario)
+														{
+															<div class="collapsible-header valign-wrapper">
+																@if (atto.UIDPersonaProponente != firme.UID_persona)
+																{
+																	<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+																	   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+																		<i class="material-icons black-text" style="margin-left: 5px;">star</i>
+																	</a>
+																}
+																@firme.FirmaCert
 
-        @if (atto.Documenti.Any())
-        {
-            if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.RISPOSTA))
-            {
-                <h6>
-                    <b>Documenti risposte</b>
-                </h6>
-                <hr/>
-                <table>
-                    <thead>
-                    <tr>
-                        <td>Tipo</td>
-                        <td>Documento</td>
-                        <td>Scarica</td>
-                        <td></td>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.RISPOSTA))
-                    {
-                        <tr>
-                            <td>@doc.Tipo</td>
-                            <td>@doc.Titolo</td>
-                            <td>
-                                <a href="@doc.Link" target="_blank">
-                                    <i class="material-icons icon">link</i>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                    <i class="material-icons">close</i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            }
-        }
-    </div>
-</li>
+															</div>
+														}
+														else
+														{
+															<div class="collapsible-header valign-wrapper">
+																@if (string.IsNullOrEmpty(firme.Data_ritirofirma))
+																{
+																	<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+																	   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+																		<i class="material-icons" style="margin-left: 5px;">star_border</i>
+																	</a>
+																	@firme.FirmaCert
+																}
+																else
+																{
+																	<del>@firme.FirmaCert</del>
+																}
+															</div>
+														}
+													</li>
+												}
+											</ul>
 
-@{
-    var monitoraggio_visibile = atto.Tipo == (int)TipoAttoEnum.MOZ
-                                || atto.Tipo == (int)TipoAttoEnum.IQT
-                                || atto.Tipo == (int)TipoAttoEnum.ODG
-                                || atto.Tipo == (int)TipoAttoEnum.RIS;
-}
+										</div>
+									</div>
+								}
+							}
+						</div>
+					</li>
+					<li>
+						<div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">info</i>Informazioni generali</div>
+						<div class="collapsible-body">
+							<div class="row">
+								<div class="input-field col s12 m12 l6">
+									<select id="Atto_Stato">
+										<option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.PRESENTATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
+										<option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
+										<option value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.COMPLETATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
+									</select>
+									<label for="Atto_Stato">Stato</label>
+								</div>
+								<div class="input-field col s12 m12 l6">
+									@Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+									@Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									@Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
+									@Html.LabelFor(s => s.Atto.Oggetto)
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12 m12 l6">
+									@Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
+									@Html.LabelFor(s => s.Atto.Protocollo)
+								</div>
+								<div class="input-field col s12 m12 l6">
+									@Html.TextBoxFor(model => model.Atto.CodiceMateria, new { @class = "form-control" })
+									@Html.LabelFor(s => s.Atto.CodiceMateria)
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12 m12 l6">
+									<select id="Atto_AreaPolitica">
+										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)</option>
+										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza)</option>
+										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)</option>
+										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)</option>
+										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)</option>
+									</select>
+									<label for="Atto_AreaPolitica">Area politica</label>
+								</div>
+								<div class="input-field col s12 m12 l6">
+									<select id="Atto_RispostaRichiesta">
+										<option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+										<option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+										<option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+									</select>
+									<label for="Atto_RispostaRichiesta">Risposta richiesta</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12 m12 l6">
+									<p>
+										<label>
+											<input type="checkbox" value="true" name="Atto.Pubblicato" @Html.Raw(Model.Atto.Pubblicato ? "checked=\"checked\"" : "") />
+											<span>Pubblicato</span>
+										</label>
+									</p>
+								</div>
+								<div class="input-field col s12 m12 l6">
+									<p>
+										<label>
+											<input type="checkbox" name="Atto.Sollecito" value="true" @Html.Raw(Model.Atto.Sollecito ? "checked=\"checked\"" : "") />
+											<span>Sollecito</span>
+										</label>
+									</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col s12">
+									<a id="btnSalva_InformazioniGenerali" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col s12">
+									<a id="btnAggiungiDocumento_InformazioniGenerali" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									@if (atto.Documenti.Any())
+									{
+										if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.AGGIUNTIVO))
+										{
+											<h6>
+												<b>Documenti aggiuntivi</b>
+											</h6>
+											<hr />
+											<table>
+												<thead>
+													<tr>
+														<td>Tipo</td>
+														<td>Documento</td>
+														<td>Scarica</td>
+														<td></td>
+													</tr>
+												</thead>
+												<tbody>
+													@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.AGGIUNTIVO))
+													{
+														<tr>
+															<td>@doc.Tipo</td>
+															<td>@doc.Titolo</td>
+															<td>
+																<a href="@doc.Link" target="_blank">
+																	<i class="material-icons icon">link</i>
+																</a>
+															</td>
+															<td>
+																<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+																	<i class="material-icons">close</i>
+																</a>
+															</td>
+														</tr>
+													}
+												</tbody>
+											</table>
+										}
+									}
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="collapsible-header collection-header-custom @cssClass">
+							<i class="material-icons">insert_link</i>Abbinamenti
+							@if (atto.Abbinamenti.Any())
+							{
+								<div class="chip" style="left: 190px; margin-top: -4px; position: absolute;">@atto.Abbinamenti.Count</div>
+							}
+						</div>
+						<div class="collapsible-body">
+							<div class="row">
+								<div class="col s12">
+									<a id="btnAggiungiAbbinamento" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi abbinamento</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12 m12 l12">
 
-<li style="@Html.Raw(monitoraggio_visibile ? "display: block;" : "display: none;")">
-    <div class="collapsible-header collection-header-custom @cssClass">
-        <i class="material-icons">network_check</i>Monitoraggio
-        @if (atto.Monitoraggi.Any())
-        {
-            <div class="chip" style="left: 195px; margin-top: -4px; position: absolute;">@atto.Monitoraggi.Count</div>
-        }
-    </div>
-    <div class="collapsible-body">
-        <div class="row">
-            <div class="input-field col s12 m12 l6">
-                @Html.TextBoxFor(model => model.Atto.AreaTematica, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.AreaTematica)
-            </div>
-            <div class="input-field col s12 m12 l6">
-                @Html.TextBoxFor(model => model.Atto.AltriSoggetti, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.AltriSoggetti)
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <a id="btnSalva_InformazioniAggiuntiveMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva informazioni monitoraggio</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <a id="btnAggiungiMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi monitoraggio</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
+									<h6>
+										<b>Lista abbinamenti</b>
+									</h6>
+									<hr />
+									<ul id="lstAbbinamentiAtto" class="collection">
+										@foreach (var abb in atto.Abbinamenti)
+										{
+											<li class="collection-item">
+												@abb.TipoAttoAbbinato @abb.NumeroAttoAbbinato
+												@if (!string.IsNullOrEmpty(abb.OggettoAttoAbbinato))
+												{
+													@Html.Raw($", con oggetto: {abb.OggettoAttoAbbinato}")
+												}
 
-                <table id="tableMonitoraggio">
-                    <thead>
-                    <tr>
-                        <th>Tipo organo monitorato</th>
-                        <th>Organo monitorato</th>
-                        <th></th>
-                    </tr>
-                    </thead>
+												<a href="#!" class="secondary-content red-text" onclick="rimuoviAbbinamento(this,'@abb.UidAttoAbbinato')">
+													<i class="material-icons">close</i>
+												</a>
+											</li>
+										}
+									</ul>
 
-                    <tbody>
-                    @foreach (var monitoraggio in atto.Monitoraggi)
-                    {
-                        <tr>
-                            <td>@Html.Raw(monitoraggio.DisplayTipoOrgano)</td>
-                            <td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
-                            <td>
-                                <a href="#!" class="red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
-                                    <i class="material-icons">close</i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
+									@if (!atto.Abbinamenti.Any())
+									{
+										<div id="empty-abbinamenti" class="card-panel panel-warning center">
+											<span class="center">
+												<p>Nessun abbinamento</p>
+											</span>
+										</div>
+									}
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="collapsible-header collection-header-custom @cssClass">
+							<i class="material-icons">event_note</i>Trattazione
+							@if (atto.Risposte.Any())
+							{
+								<div style="left: 160px; position: absolute;">
+									<i class="material-icons icon right green-text">check_circle</i>
+								</div>
+							}
+							else
+							{
+								<div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
+									<i class="material-icons icon right red-text">remove_circle</i>
+								</div>
+							}
+						</div>
+						<div class="collapsible-body">
+							<div class="row">
+								<div class="col s12">
+									<a id="btnAggiungiRisposta" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi risposta</a>
+								</div>
+							</div>
+							<h6>
+								<b>Risposte fornite</b>
+							</h6>
+							<hr />
+							<table id="tableRisposte">
+								<thead>
+									<tr>
+										<th>Tipo risposta fornita</th>
+										<th>Data risposta</th>
+										<th>Tipo organo</th>
+										<th>Organo</th>
+										<th>Data trasmissione</th>
+										<th>Data trattazione</th>
+										<th></th>
+									</tr>
+								</thead>
 
-                @if (!atto.Monitoraggi.Any())
-                {
-                    <div id="empty-monitoraggio" class="card-panel panel-warning center">
-                        <span class="center">
-                            <p>Nessuna monitoraggio</p>
-                        </span>
-                    </div>
-                }
-				
-                <div class="row">
-                    <div class="col s12">
-                        <a id="btnAggiungiDocumento_Monitoraggio" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
-                    </div>
-                </div>
+								<tbody>
+									@foreach (var risposta in atto.Risposte)
+									{
+										<tr>
+											<td>@Html.Raw(risposta.DisplayTipo)</td>
+											<td>@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
+											<td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
+											<td>@Html.Raw(risposta.DescrizioneOrgano)</td>
+											<td>@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
+											<td>@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
+											<td>
+												<a onclick="modificaDettagliRisposta(this, @risposta.IdOrgano)">
+													<i class="material-icons">edit</i>
+												</a>
+												<a href="#!" class="red-text" onclick="rimuoviRisposta(this, @risposta.IdOrgano)">
+													<i class="material-icons">close</i>
+												</a>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
 
-                @if (atto.Documenti.Any())
-                {
-                    if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
-                    {
-                        <h6>
-                            <b>Documenti monitoraggio</b>
-                        </h6>
-                        <hr/>
-                        <table>
-                            <thead>
-                            <tr>
-                                <td>Tipo</td>
-                                <td>Documento</td>
-                                <td>Scarica</td>
-                                <td></td>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
-                            {
-                                <tr>
-                                    <td>@doc.Tipo</td>
-                                    <td>@doc.Titolo</td>
-                                    <td>
-                                        <a href="@doc.Link" target="_blank">
-                                            <i class="material-icons icon">link</i>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                            <i class="material-icons">close</i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                            </tbody>
-                        </table>
-                    }
-                }
-            </div>
-        </div>
-    </div>
-</li>
-<li>
-    <div class="collapsible-header collection-header-custom @cssClass">
-        <i class="material-icons">lock</i>
-        Chiusura iter
+							@if (!atto.Risposte.Any())
+							{
+								<div id="empty-risposte" class="card-panel panel-warning center">
+									<span class="center">
+										<p>Nessuna risposta</p>
+									</span>
+								</div>
+							}
 
-        @if (atto.DataChiusuraIter.HasValue)
-        {
-            <div style="left: 160px; position: absolute;">
-                <i class="material-icons icon right green-text">check_circle</i>
-            </div>
-        }
-        else
-        {
-            <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Informazioni mancanti">
-                <i class="material-icons icon right red-text">remove_circle</i>
-            </div>
-        }
-    </div>
-    <div class="collapsible-body">
-        <div class="row">
-            <div class="input-field col s12 m12 l4">
-                <select id="Atto_TipoChiusuraIter">
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.APPROVATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)</option>
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RESPINTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RITIRATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.INAMMISSIBILE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE)</option>
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADUTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)</option>
-                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)</option>
-                </select>
-                <label for="Atto_TipoChiusuraIter">Tipo chiusura iter</label>
-            </div>
-            <div class="input-field col s12 m12 l4">
-                @Html.TextBoxFor(s => s.Atto.DataChiusuraIter, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
-                @Html.LabelFor(s => s.Atto.DataChiusuraIter, new { @class = "active" })
-            </div>
-            <div class="input-field col s12 m12 l4">
-                <select id="Atto_TipoVotazione">
-                    <option value="@Html.Raw((int)TipoVotazioneIterEnum.NESSUNO)" @Html.Raw(!Model.Atto.TipoVotazioneIter.HasValue ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.NESSUNO)</option>
-                    <option value="@Html.Raw((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)" @Html.Raw(Model.Atto.TipoVotazioneIter == (int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)</option>
-                    <option value="@Html.Raw((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)" @Html.Raw(Model.Atto.TipoVotazioneIter == (int)TipoVotazioneIterEnum.APPELLO_NOMINALE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)</option>
-                    <option value="@Html.Raw((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)" @Html.Raw(Model.Atto.TipoVotazioneIter == (int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)</option>
-                </select>
-                <label for="Atto_TipoVotazione">Tipo votazione</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m12 l8">
-                <div class="row">
-                    <div class="input-field col s12 m12 l4">
-                        <label>DCR</label>
-                        @Html.TextBoxFor(model => model.Atto.DCRL, new { @class = "form-control" })
-                    </div>
-                    <div class="input-field col s12 m12 l4">
-                        <label> </label>
-                        @Html.TextBoxFor(model => model.Atto.DCR, new { @class = "form-control" })
-                    </div>
-                    <div class="input-field col s12 m12 l4">
-                        <label> </label>
-                        @Html.TextBoxFor(model => model.Atto.DCCR, new { @class = "form-control" })
-                    </div>
-                </div>
-            </div>
-            <div class="input-field col s12 m12 l4">
-                <p>
-                    <label>
-                        <input name="Atto.Emendato" type="checkbox" value="true" @Html.Raw(Model.Atto.Emendato ? "checked=\"checked\"" : "")/>
-                        <span>Emendato</span>
-                    </label>
-                </p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <a id="btnSalva_InformazioniChiusuraIter" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <a id="btnAggiungiDocumento_ChiusuraIter" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m12 l12">
-                @if (atto.Documenti.Any())
-                {
-                    if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER
-                            || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE))
-                    {
-                        <h6>
-                            <b>Documenti di chiusura iter</b>
-                        </h6>
-                        <hr/>
-                        <table>
-                            <thead>
-                            <tr>
-                                <td>Tipo</td>
-                                <td>Documento</td>
-                                <td>Scarica</td>
-                                <td></td>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER 
-                                                                           || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE))
-                            {
-                                <tr>
-                                    <td>@doc.Tipo</td>
-                                    <td>@doc.Titolo</td>
-                                    <td>
-                                        <a href="@doc.Link" target="_blank">
-                                            <i class="material-icons icon">link</i>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                            <i class="material-icons">close</i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                            </tbody>
-                        </table>
-                    }
-                }
-            </div>
-        </div>
-    </div>
-</li>
-<li>
-    <div class="collapsible-header collection-header-custom @cssClass">
-        <i class="material-icons">comment</i>Note
-        @if (atto.Note.Any())
-        {
-            <div class="chip" style="left: 130px; margin-top: -4px; position: absolute;">@atto.Note.Count</div>
-        }
-    </div>
-    <div class="collapsible-body">
-        <div class="row">
-            <div class="col s12">
-                <a id="btnAggiungiNota" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi nota</a>
-            </div>
-        </div>
-        <h6>
-            <b>Note dell'atto</b>
-        </h6>
-        <hr/>
-        <table id="tableNoteGenerali">
-            <thead>
-            <tr>
-                <th>Tipo nota</th>
-                <th>Nota</th>
-                <th>Utente</th>
-                <th></th>
-            </tr>
-            </thead>
+							<div class="row">
+								<div class="col s12">
+									<a id="btnAggiungiDocumento_Risposta" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
+								</div>
+							</div>
 
-            <tbody>
-            @foreach (var nota in atto.Note)
-            {
-                <tr>
-                    <td>@Html.Raw(nota.Tipo)</td>
-                    <td>@Html.Raw(nota.Nota)</td>
-                    <td>@Html.Raw(nota.Persona.DisplayName)</td>
-                    <td>
-                        <a onclick="modificaNota(this)">
-                            <i class="material-icons">edit</i>
-                        </a>
-                        <a class="red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-                            <i class="material-icons">close</i>
-                        </a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+							@if (atto.Documenti.Any())
+							{
+								if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.RISPOSTA))
+								{
+									<h6>
+										<b>Documenti risposte</b>
+									</h6>
+									<hr />
+									<table>
+										<thead>
+											<tr>
+												<td>Tipo</td>
+												<td>Documento</td>
+												<td>Scarica</td>
+												<td></td>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.RISPOSTA))
+											{
+												<tr>
+													<td>@doc.Tipo</td>
+													<td>@doc.Titolo</td>
+													<td>
+														<a href="@doc.Link" target="_blank">
+															<i class="material-icons icon">link</i>
+														</a>
+													</td>
+													<td>
+														<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+															<i class="material-icons">close</i>
+														</a>
+													</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								}
+							}
+						</div>
+					</li>
 
-        @if (!atto.Note.Any())
-        {
-            <div id="empty-note" class="card-panel panel-warning center">
-                <span class="center">
-                    <p>Nessuna nota</p>
-                </span>
-            </div>
-        }
+					@{
+						var monitoraggio_visibile = atto.Tipo == (int)TipoAttoEnum.MOZ
+													|| atto.Tipo == (int)TipoAttoEnum.IQT
+													|| atto.Tipo == (int)TipoAttoEnum.ODG
+													|| atto.Tipo == (int)TipoAttoEnum.RIS;
+					}
 
-    </div>
-</li>
-<li>
-    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">security</i>Privacy</div>
-    <div class="collapsible-body">
-        <div class="row">
-            <div class="input-field col s12 m12 l12">
-                <p>
-                    <label>
-                        <input type="checkbox" name="Atto.Privacy" value="true" @Html.Raw(Model.Atto.Privacy ? "checked=\"checked\"" : "")/>
-                        <span>Privacy</span>
-                    </label>
-                </p>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <p>
-                    <label>
-                        <input type="checkbox" name="Atto.Privacy_Dati_Personali_Semplici" value="true" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Semplici ? "checked=\"checked\"" : "")/>
-                        <span>Privacy - dati personali semplici</span>
-                    </label>
-                </p>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <p>
-                    <label>
-                        <input type="checkbox" value="true" name="Atto.Privacy_Dati_Personali_Sensibili" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Sensibili ? "checked=\"checked\"" : "")/>
-                        <span>Privacy - dati sensibili</span>
-                    </label>
-                </p>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <p>
-                    <label>
-                        <input type="checkbox" value="true" name="Atto.Privacy_Dati_Personali_Giudiziari" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Giudiziari ? "checked=\"checked\"" : "")/>
-                        <span>Privacy - dati giudiziari</span>
-                    </label>
-                </p>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <p>
-                    <label>
-                        <input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione ? "checked=\"checked\"" : "")/>
-                        <span>Privacy - divieto di pubblicazione</span>
-                    </label>
-                </p>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <p>
-                    <label>
-                        <input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Salute" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Salute ? "checked=\"checked\"" : "")/>
-                        <span>Privacy - dati sanitari</span>
-                    </label>
-                </p>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <p>
-                    <label>
-                        <input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale ? "checked=\"checked\"" : "")/>
-                        <span>Privacy - dati di natura sessuale</span>
-                    </label>
-                </p>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <p>
-                    <label>
-                        <input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Altri" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Altri ? "checked=\"checked\"" : "")/>
-                        <span>Privicy - altri motivi</span>
-                    </label>
-                </p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <a id="btnSalva_Privacy" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
-            </div>
-        </div>
-    </div>
-</li>
-<li>
-    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe</div>
-    <div class="collapsible-body">
-        <span>Lorem ipsum dolor sit amet.</span>
-    </div>
-</li>
-</ul>
-</div>
-</div>
+					<li style="@Html.Raw(monitoraggio_visibile ? "display: block;" : "display: none;")">
+						<div class="collapsible-header collection-header-custom @cssClass">
+							<i class="material-icons">network_check</i>Monitoraggio
+							@if (atto.Monitoraggi.Any())
+							{
+								<div class="chip" style="left: 195px; margin-top: -4px; position: absolute;">@atto.Monitoraggi.Count</div>
+							}
+						</div>
+						<div class="collapsible-body">
+							<div class="row">
+								<div class="input-field col s12 m12 l6">
+									@Html.TextBoxFor(model => model.Atto.AreaTematica, new { @class = "form-control" })
+									@Html.LabelFor(s => s.Atto.AreaTematica)
+								</div>
+								<div class="input-field col s12 m12 l6">
+									@Html.TextBoxFor(model => model.Atto.AltriSoggetti, new { @class = "form-control" })
+									@Html.LabelFor(s => s.Atto.AltriSoggetti)
+								</div>
+							</div>
+							<div class="row">
+								<div class="col s12">
+									<a id="btnSalva_InformazioniAggiuntiveMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva informazioni monitoraggio</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col s12">
+									<a id="btnAggiungiMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi monitoraggio</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
 
-<div class="fixed-action-btn">
-    @if (Model.CurrentUser.UID_persona == atto.UIDPersonaProponente)
-    {
-        <a class="btn-floating btn-large white black-text tooltipped"
-           data-position="left"
-           data-tooltip="Stampa"
-           data-url="@Url.Action("Download", "DASI", new { id = atto.UIDAtto })"
-           data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
-           onclick="StampaUOLA(this)"
-           style="margin-right: 15px;">
-            <i class="material-icons">print</i>
-        </a>
-    }
-    else
-    {
-        <a class="btn-floating btn-large white black-text tooltipped"
-           data-position="left"
-           data-tooltip="Stampa"
-           target="_blank"
-           href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
-           style="margin-right: 15px;">
-            <i class="material-icons">print</i>
-        </a>
-    }
-</div>
+									<table id="tableMonitoraggio">
+										<thead>
+											<tr>
+												<th>Tipo organo monitorato</th>
+												<th>Organo monitorato</th>
+												<th></th>
+											</tr>
+										</thead>
 
-<div id="modalAbbinamenti" class="modal">
-    <div class="modal-content">
-        <h4>Abbinamenti</h4>
-        <p>Ricerca abbinamenti all'atto @Model.Atto.Display</p>
-        <div class="row">
-            <div class="input-field col s12">
-                <i class="material-icons prefix">search</i>
-                <input type="text" id="abbinamenti-autocomplete" class="autocomplete">
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
-    </div>
-</div>
+										<tbody>
+											@foreach (var monitoraggio in atto.Monitoraggi)
+											{
+												<tr>
+													<td>@Html.Raw(monitoraggio.DisplayTipoOrgano)</td>
+													<td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
+													<td>
+														<a href="#!" class="red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
+															<i class="material-icons">close</i>
+														</a>
+													</td>
+												</tr>
+											}
+										</tbody>
+									</table>
 
-<div id="modalRisposte" class="modal">
-    <div class="modal-content">
-        <h4>Risposte</h4>
-        <p>Ricerca organi di risposta all'atto @Model.Atto.Display</p>
-        <div class="row">
-            <div class="input-field col s12">
-                <i class="material-icons prefix">search</i>
-                <input type="text" id="organi-autocomplete" class="autocomplete">
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
-    </div>
-</div>
+									@if (!atto.Monitoraggi.Any())
+									{
+										<div id="empty-monitoraggio" class="card-panel panel-warning center">
+											<span class="center">
+												<p>Nessuna monitoraggio</p>
+											</span>
+										</div>
+									}
 
-<div id="modalDettaglioRisposta" class="modal">
-    <div class="modal-content">
-        <div class="row">
-            <div class="input-field col s12 m12 l12">
-                <select id="tipi-risposta-select">
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
-                </select>
-                <label>Tipo risposta</label>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <input id="dataRisposta" type="date"/>
-                <label>Data risposta</label>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <input id="dataTrasmissione" type="date"/>
-                <label>Data trasmissione</label>
-            </div>
-            <div class="input-field col s12 m12 l12">
-                <input id="dataTrattazione" type="date"/>
-                <label>Data trattazione</label>
-            </div>
-        </div>
+									<div class="row">
+										<div class="col s12">
+											<a id="btnAggiungiDocumento_Monitoraggio" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
+										</div>
+									</div>
 
-        <input id="idOrganoDettaglioRisposta" type="hidden"/>
-        <input id="descrizioneOrganoDettaglioRisposta" type="hidden"/>
+									@if (atto.Documenti.Any())
+									{
+										if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
+										{
+											<h6>
+												<b>Documenti monitoraggio</b>
+											</h6>
+											<hr />
+											<table>
+												<thead>
+													<tr>
+														<td>Tipo</td>
+														<td>Documento</td>
+														<td>Scarica</td>
+														<td></td>
+													</tr>
+												</thead>
+												<tbody>
+													@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
+													{
+														<tr>
+															<td>@doc.Tipo</td>
+															<td>@doc.Titolo</td>
+															<td>
+																<a href="@doc.Link" target="_blank">
+																	<i class="material-icons icon">link</i>
+																</a>
+															</td>
+															<td>
+																<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+																	<i class="material-icons">close</i>
+																</a>
+															</td>
+														</tr>
+													}
+												</tbody>
+											</table>
+										}
+									}
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="collapsible-header collection-header-custom @cssClass">
+							<i class="material-icons">lock</i>
+							Chiusura iter
 
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
-        <a onclick="btnSalvaDettagliRisposta()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
-    </div>
-</div>
+							@if (atto.DataChiusuraIter.HasValue)
+							{
+								<div style="left: 160px; position: absolute;">
+									<i class="material-icons icon right green-text">check_circle</i>
+								</div>
+							}
+							else
+							{
+								<div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Informazioni mancanti">
+									<i class="material-icons icon right red-text">remove_circle</i>
+								</div>
+							}
+						</div>
+						<div class="collapsible-body">
+							<div class="row">
+								<div class="input-field col s12 m12 l4">
+									<select id="Atto_TipoChiusuraIter">
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.APPROVATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RESPINTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RITIRATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.INAMMISSIBILE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE)</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADUTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)</option>
+									</select>
+									<label for="Atto_TipoChiusuraIter">Tipo chiusura iter</label>
+								</div>
+								<div class="input-field col s12 m12 l4">
+									@Html.TextBoxFor(s => s.Atto.DataChiusuraIter, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+									@Html.LabelFor(s => s.Atto.DataChiusuraIter, new { @class = "active" })
+								</div>
+								<div class="input-field col s12 m12 l4">
+									<select id="Atto_TipoVotazione">
+										<option value="@Html.Raw((int)TipoVotazioneIterEnum.NESSUNO)" @Html.Raw(!Model.Atto.TipoVotazioneIter.HasValue ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.NESSUNO)</option>
+										<option value="@Html.Raw((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)" @Html.Raw(Model.Atto.TipoVotazioneIter == (int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)</option>
+										<option value="@Html.Raw((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)" @Html.Raw(Model.Atto.TipoVotazioneIter == (int)TipoVotazioneIterEnum.APPELLO_NOMINALE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)</option>
+										<option value="@Html.Raw((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)" @Html.Raw(Model.Atto.TipoVotazioneIter == (int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)</option>
+									</select>
+									<label for="Atto_TipoVotazione">Tipo votazione</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12 m12 l8">
+									<div class="row">
+										<div class="input-field col s12 m12 l4">
+											<label>DCR</label>
+											@Html.TextBoxFor(model => model.Atto.DCRL, new { @class = "form-control" })
+										</div>
+										<div class="input-field col s12 m12 l4">
+											<label> </label>
+											@Html.TextBoxFor(model => model.Atto.DCR, new { @class = "form-control" })
+										</div>
+										<div class="input-field col s12 m12 l4">
+											<label> </label>
+											@Html.TextBoxFor(model => model.Atto.DCCR, new { @class = "form-control" })
+										</div>
+									</div>
+								</div>
+								<div class="input-field col s12 m12 l4">
+									<p>
+										<label>
+											<input name="Atto.Emendato" type="checkbox" value="true" @Html.Raw(Model.Atto.Emendato ? "checked=\"checked\"" : "") />
+											<span>Emendato</span>
+										</label>
+									</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col s12">
+									<a id="btnSalva_InformazioniChiusuraIter" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col s12">
+									<a id="btnAggiungiDocumento_ChiusuraIter" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12 m12 l12">
+									@if (atto.Documenti.Any())
+									{
+										if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER
+												|| d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE))
+										{
+											<h6>
+												<b>Documenti di chiusura iter</b>
+											</h6>
+											<hr />
+											<table>
+												<thead>
+													<tr>
+														<td>Tipo</td>
+														<td>Documento</td>
+														<td>Scarica</td>
+														<td></td>
+													</tr>
+												</thead>
+												<tbody>
+													@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER
+																								   || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE))
+													{
+														<tr>
+															<td>@doc.Tipo</td>
+															<td>@doc.Titolo</td>
+															<td>
+																<a href="@doc.Link" target="_blank">
+																	<i class="material-icons icon">link</i>
+																</a>
+															</td>
+															<td>
+																<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+																	<i class="material-icons">close</i>
+																</a>
+															</td>
+														</tr>
+													}
+												</tbody>
+											</table>
+										}
+									}
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="collapsible-header collection-header-custom @cssClass">
+							<i class="material-icons">comment</i>Note
+							@if (atto.Note.Any())
+							{
+								<div class="chip" style="left: 130px; margin-top: -4px; position: absolute;">@atto.Note.Count</div>
+							}
+						</div>
+						<div class="collapsible-body">
+							<div class="row">
+								<div class="col s12">
+									<a id="btnAggiungiNota" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi nota</a>
+								</div>
+							</div>
+							<h6>
+								<b>Note dell'atto</b>
+							</h6>
+							<hr />
+							<table id="tableNoteGenerali">
+								<thead>
+									<tr>
+										<th>Tipo nota</th>
+										<th>Nota</th>
+										<th>Utente</th>
+										<th></th>
+									</tr>
+								</thead>
 
-<div id="modalMonitoraggio" class="modal">
-    <div class="modal-content">
-        <h4>Monitoraggio</h4>
-        <p>Ricerca organi da monitorare all'atto @Model.Atto.Display</p>
-        <div class="row">
-            <div class="input-field col s12">
-                <i class="material-icons prefix">search</i>
-                <input type="text" id="organi-monitoraggio-autocomplete" class="autocomplete">
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
-    </div>
-</div>
+								<tbody>
+									@foreach (var nota in atto.Note)
+									{
+										<tr>
+											<td>@Html.Raw(nota.Tipo)</td>
+											<td>@Html.Raw(nota.Nota)</td>
+											<td>@Html.Raw(nota.Persona.DisplayName)</td>
+											<td>
+												<a onclick="modificaNota(this)">
+													<i class="material-icons">edit</i>
+												</a>
+												<a class="red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+													<i class="material-icons">close</i>
+												</a>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
 
-<div id="modalNota" class="modal">
-    <div class="modal-content">
-        <h4>Nota</h4>
-        <div class="row">
-            <div class="input-field col s12">
-                <select id="tipi-nota-select">
-                    <option value="0"></option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PRIVATA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA)</option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PUBBLICA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PUBBLICA)</option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.CHIUSURA_ITER)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER)</option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.RISPOSTA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA)</option>
-                </select>
-                <label>Tipo nota</label>
-            </div>
-            <label>Nota</label>
+							@if (!atto.Note.Any())
+							{
+								<div id="empty-note" class="card-panel panel-warning center">
+									<span class="center">
+										<p>Nessuna nota</p>
+									</span>
+								</div>
+							}
 
-            <div class="input-field col s12">
-                <textarea id="txtNota_Testo" class="materialize-textarea"></textarea>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
-        <a onclick="btnSalvaNota()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
-    </div>
-</div>
+						</div>
+					</li>
+					<li>
+						<div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">security</i>Privacy</div>
+						<div class="collapsible-body">
+							<div class="row">
+								<div class="input-field col s12 m12 l12">
+									<p>
+										<label>
+											<input type="checkbox" name="Atto.Privacy" value="true" @Html.Raw(Model.Atto.Privacy ? "checked=\"checked\"" : "") />
+											<span>Privacy</span>
+										</label>
+									</p>
+								</div>
+								<div class="input-field col s12 m12 l12">
+									<p>
+										<label>
+											<input type="checkbox" name="Atto.Privacy_Dati_Personali_Semplici" value="true" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Semplici ? "checked=\"checked\"" : "") />
+											<span>Privacy - dati personali semplici</span>
+										</label>
+									</p>
+								</div>
+								<div class="input-field col s12 m12 l12">
+									<p>
+										<label>
+											<input type="checkbox" value="true" name="Atto.Privacy_Dati_Personali_Sensibili" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Sensibili ? "checked=\"checked\"" : "") />
+											<span>Privacy - dati sensibili</span>
+										</label>
+									</p>
+								</div>
+								<div class="input-field col s12 m12 l12">
+									<p>
+										<label>
+											<input type="checkbox" value="true" name="Atto.Privacy_Dati_Personali_Giudiziari" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Giudiziari ? "checked=\"checked\"" : "") />
+											<span>Privacy - dati giudiziari</span>
+										</label>
+									</p>
+								</div>
+								<div class="input-field col s12 m12 l12">
+									<p>
+										<label>
+											<input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione ? "checked=\"checked\"" : "") />
+											<span>Privacy - divieto di pubblicazione</span>
+										</label>
+									</p>
+								</div>
+								<div class="input-field col s12 m12 l12">
+									<p>
+										<label>
+											<input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Salute" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Salute ? "checked=\"checked\"" : "") />
+											<span>Privacy - dati sanitari</span>
+										</label>
+									</p>
+								</div>
+								<div class="input-field col s12 m12 l12">
+									<p>
+										<label>
+											<input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale ? "checked=\"checked\"" : "") />
+											<span>Privacy - dati di natura sessuale</span>
+										</label>
+									</p>
+								</div>
+								<div class="input-field col s12 m12 l12">
+									<p>
+										<label>
+											<input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Altri" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Altri ? "checked=\"checked\"" : "") />
+											<span>Privicy - altri motivi</span>
+										</label>
+									</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col s12">
+									<a id="btnSalva_Privacy" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe</div>
+						<div class="collapsible-body">
+							<span>Lorem ipsum dolor sit amet.</span>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
 
-<div id="modalDocumento" class="modal">
-    <div class="modal-content">
-        <h4>Documento</h4>
-        <div class="row">
-            <div class="input-field col s12">
-                <select id="tipi-documento-select">
-                </select>
-                <label>Tipo documento</label>
-            </div>
-            <label>Carica documento</label>
+		<div class="fixed-action-btn">
+			@if (Model.CurrentUser.UID_persona == atto.UIDPersonaProponente)
+			{
+				<a class="btn-floating btn-large white black-text tooltipped"
+				   data-position="left"
+				   data-tooltip="Stampa"
+				   data-url="@Url.Action("Download", "DASI", new { id = atto.UIDAtto })"
+				   data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
+				   onclick="StampaUOLA(this)"
+				   style="margin-right: 15px;">
+					<i class="material-icons">print</i>
+				</a>
+			}
+			else
+			{
+				<a class="btn-floating btn-large white black-text tooltipped"
+				   data-position="left"
+				   data-tooltip="Stampa"
+				   target="_blank"
+				   href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
+				   style="margin-right: 15px;">
+					<i class="material-icons">print</i>
+				</a>
+			}
+		</div>
 
-            <div class="file-field input-field">
-                <div class="btn">
-                    <span>SFOGLIA</span>
-                    <input type="file" name="document_object" accept="application/pdf">
-                </div>
-                <div class="file-path-wrapper">
-                    <input class="file-path validate" type="text" placeholder="Carica documento">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
-        <a onclick="btnSalvaDocumento()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
-    </div>
-</div>
+		<div id="modalAbbinamenti" class="modal">
+			<div class="modal-content">
+				<h4>Abbinamenti</h4>
+				<p>Ricerca abbinamenti all'atto @Model.Atto.Display</p>
+				<div class="row">
+					<div class="input-field col s12">
+						<i class="material-icons prefix">search</i>
+						<input type="text" id="abbinamenti-autocomplete" class="autocomplete">
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+			</div>
+		</div>
 
-<script>
+		<div id="modalRisposte" class="modal">
+			<div class="modal-content">
+				<h4>Risposte</h4>
+				<p>Ricerca organi di risposta all'atto @Model.Atto.Display</p>
+				<div class="row">
+					<div class="input-field col s12">
+						<i class="material-icons prefix">search</i>
+						<input type="text" id="organi-autocomplete" class="autocomplete">
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+			</div>
+		</div>
+
+		<div id="modalDettaglioRisposta" class="modal">
+			<div class="modal-content">
+				<div class="row">
+					<div class="input-field col s12 m12 l12">
+						<select id="tipi-risposta-select">
+							<option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+							<option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+							<option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+							<option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)</option>
+							<option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
+						</select>
+						<label>Tipo risposta</label>
+					</div>
+					<div class="input-field col s12 m12 l12">
+						<input id="dataRisposta" type="date" />
+						<label>Data risposta</label>
+					</div>
+					<div class="input-field col s12 m12 l12">
+						<input id="dataTrasmissione" type="date" />
+						<label>Data trasmissione</label>
+					</div>
+					<div class="input-field col s12 m12 l12">
+						<input id="dataTrattazione" type="date" />
+						<label>Data trattazione</label>
+					</div>
+				</div>
+
+				<input id="idOrganoDettaglioRisposta" type="hidden" />
+				<input id="descrizioneOrganoDettaglioRisposta" type="hidden" />
+
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+				<a onclick="btnSalvaDettagliRisposta()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+			</div>
+		</div>
+
+		<div id="modalMonitoraggio" class="modal">
+			<div class="modal-content">
+				<h4>Monitoraggio</h4>
+				<p>Ricerca organi da monitorare all'atto @Model.Atto.Display</p>
+				<div class="row">
+					<div class="input-field col s12">
+						<i class="material-icons prefix">search</i>
+						<input type="text" id="organi-monitoraggio-autocomplete" class="autocomplete">
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+			</div>
+		</div>
+
+		<div id="modalNota" class="modal">
+			<div class="modal-content">
+				<h4>Nota</h4>
+				<div class="row">
+					<div class="input-field col s12">
+						<select id="tipi-nota-select">
+							<option value="0"></option>
+							<option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PRIVATA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA)</option>
+							<option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PUBBLICA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PUBBLICA)</option>
+							<option value="@Html.Raw((int)TipoNotaEnum.CHIUSURA_ITER)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER)</option>
+							<option value="@Html.Raw((int)TipoNotaEnum.RISPOSTA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA)</option>
+						</select>
+						<label>Tipo nota</label>
+					</div>
+					<label>Nota</label>
+
+					<div class="input-field col s12">
+						<textarea id="txtNota_Testo" class="materialize-textarea"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+				<a onclick="btnSalvaNota()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+			</div>
+		</div>
+
+		<div id="modalDocumento" class="modal">
+			<div class="modal-content">
+				<h4>Documento</h4>
+				<div class="row">
+					<div class="input-field col s12">
+						<select id="tipi-documento-select">
+						</select>
+						<label>Tipo documento</label>
+					</div>
+					<label>Carica documento</label>
+
+					<div class="file-field input-field">
+						<div class="btn">
+							<span>SFOGLIA</span>
+							<input type="file" name="document_object" accept="application/pdf">
+						</div>
+						<div class="file-path-wrapper">
+							<input class="file-path validate" type="text" placeholder="Carica documento">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+				<a onclick="btnSalvaDocumento()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+			</div>
+		</div>
+
+		<script>
 	document.addEventListener('DOMContentLoaded', async function () {
 	    var elem = document.querySelector('.collapsible.expandable');
 	    var instance = M.Collapsible.init(elem, {
@@ -1792,7 +1801,7 @@
 		waiting(false);
 		$('#modalDocumento').modal("open");
 	});
-    
+
     document.getElementById('btnAggiungiDocumento_Monitoraggio').addEventListener('click', function () {
 		waiting(true);
 		$('#tipi-documento-select').empty();
@@ -1802,7 +1811,7 @@
 		waiting(false);
 		$('#modalDocumento').modal("open");
 	});
-    
+
 	document.getElementById('btnAggiungiDocumento_Risposta').addEventListener('click', function () {
 		waiting(true);
 		$('#tipi-documento-select').empty();
@@ -1812,7 +1821,7 @@
 		waiting(false);
 		$('#modalDocumento').modal("open");
 	});
-    
+
 	document.getElementById('btnAggiungiDocumento_InformazioniGenerali').addEventListener('click', function () {
 		waiting(true);
 		$('#tipi-documento-select').empty();
@@ -1939,7 +1948,7 @@
 				}, 5000);
 		    }
 	    });
-}   
+}
 
 	document.getElementById('btnAggiungiNota').addEventListener('click', async function () {
 		waiting(true);
@@ -2137,6 +2146,6 @@
         });
     }
 
-</script>
-</body>
+		</script>
+	</body>
 </html>

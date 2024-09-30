@@ -125,6 +125,8 @@ namespace PortaleRegione.Client.Helpers
                     return TipoAttoCSSConst.MOZ;
                 case TipoAttoEnum.ODG:
                     return TipoAttoCSSConst.ODG;
+                case TipoAttoEnum.RIS:
+                    return TipoAttoCSSConst.RIS;
                 case TipoAttoEnum.PDL:
                     return string.Empty;
                 case TipoAttoEnum.PDA:

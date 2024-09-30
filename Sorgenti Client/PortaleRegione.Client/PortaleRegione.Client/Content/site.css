@@ -601,6 +601,15 @@ div.input-field > label { line-height: initial; }
 	min-width: unset !important;
 }
 
+.badgeRIS{
+	background-color: white;
+	border: 1px solid #ff5722;
+	border-left: 1em solid #ff5722;
+	color: black;
+	font-weight: bold;
+	min-width: unset !important;
+}
+
 .badgeCARTACEO {
 	background-color: white;
 	border: 1px solid gray;

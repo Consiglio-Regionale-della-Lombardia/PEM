@@ -309,6 +309,15 @@ namespace PortaleRegione.Persistance
             PRContext.ATTI_COMMISSIONI.RemoveRange(commissioni);
         }
 
+        public async Task RimuoviCommissioniProponenti(Guid UidAtto)
+        {
+            var commissioniProponenti = await PRContext
+                .ATTI_PROPONENTI
+                .Where(item => item.UIDAtto == UidAtto)
+                .ToListAsync();
+            PRContext.ATTI_PROPONENTI.RemoveRange(commissioniProponenti);
+        }
+
         public void AggiungiCommissione(Guid UidAtto, int organo)
         {
             PRContext.ATTI_COMMISSIONI.Add(new ATTI_COMMISSIONI
@@ -317,6 +326,28 @@ namespace PortaleRegione.Persistance
                 UIDAtto = UidAtto,
                 id_organo = organo
             });
+        }
+
+        public async Task AggiungiCommissioneProponente(Guid UidAtto, KeyValueDto organo)
+        {
+            var newObject = new ATTI_PROPONENTI
+            {
+                Uid = Guid.NewGuid(),
+                UIDAtto = UidAtto
+            };
+            
+            if (organo.id > 0)
+            {
+                newObject.IdOrgano = organo.id;
+                var organoInDb = await PRContext.View_Commissioni_attive.FindAsync(organo.id);
+                newObject.DescrizioneOrgano = organoInDb.nome_organo;
+            }
+            else
+            {
+                newObject.UidPersona = new Guid(organo.uid);
+            }
+
+            PRContext.ATTI_PROPONENTI.Add(newObject);
         }
 
         public async Task<List<View_Commissioni_attive>> GetCommissioni(Guid uidAtto)
@@ -597,24 +628,33 @@ namespace PortaleRegione.Persistance
                 .ToList();
         }
 
-        public async Task<List<OrganoDto>> GetCommissioniProponenti(Guid uidAtto)
+        public async Task<List<KeyValueDto>> GetCommissioniProponenti(Guid uidAtto)
         {
-            var commissioniProponentiInDb = await PRContext
+            var proponentiInDb = await PRContext
                 .ATTI_PROPONENTI
                 .Where(d => d.UIDAtto == uidAtto)
                 .ToListAsync();
-            var res = new List<OrganoDto>();
-            foreach (var commissione in commissioniProponentiInDb)
+            var res = new List<KeyValueDto>();
+            foreach (var item in proponentiInDb)
             {
-                res.Add(new OrganoDto()
+                if (item.IdOrgano.HasValue)
+                    res.Add(new KeyValueDto()
+                    {
+                        descr = item.DescrizioneOrgano,
+                        id = item.IdOrgano.Value
+                    });
+                else
                 {
-                    tipo_organo = TipoOrganoEnum.COMMISSIONE,
-                    nome_organo = commissione.DescrizioneOrgano,
-                    id_organo = commissione.IdOrgano
-                });
+                    var persona = await PRContext.View_UTENTI.FindAsync(item.UidPersona.Value);
+                    res.Add(new KeyValueDto()
+                    {
+                        descr = $"{persona.cognome} {persona.nome}",
+                        uid = persona.UID_persona.Value.ToString()
+                    });
+                }
             }
 
-            return res;
+            return res.OrderBy(p=>p.descr).ToList();
         }
 
         public void AggiungiAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato)
@@ -717,6 +757,11 @@ namespace PortaleRegione.Persistance
         public void RimuoviDocumento(ATTI_DOCUMENTI doc)
         {
             PRContext.ATTI_DOCUMENTI.Remove(doc);
+        }
+
+        public async Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva)
+        {
+            return await PRContext.DASI.FirstOrDefaultAsync(atto => atto.Etichetta.Equals(etichettaProgressiva));
         }
 
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)
@@ -1241,8 +1286,17 @@ namespace PortaleRegione.Persistance
             }
 
             if (queryExtended.Proponenti.Any())
+            {
+                var proponentiQuery = PRContext
+                    .ATTI_PROPONENTI
+                    .Where(commissione => queryExtended.Proponenti.Contains(commissione.UidPersona.Value))
+                    .Select(commissione => commissione.UIDAtto)
+                    .Distinct();
+
                 query = query
-                    .Where(atto => queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value));
+                    .Where(atto => queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value)
+                        && proponentiQuery.Contains(atto.UIDAtto));
+            }
 
             if (queryExtended.Provvedimenti.Any())
             {
@@ -1289,7 +1343,7 @@ namespace PortaleRegione.Persistance
 
                 var commissioniProponentiQuery = PRContext
                     .ATTI_PROPONENTI
-                    .Where(commissione => queryExtended.Organi.Contains(commissione.IdOrgano))
+                    .Where(commissione => queryExtended.Organi.Contains(commissione.IdOrgano.Value))
                     .Select(commissione => commissione.UIDAtto)
                     .Distinct();
 

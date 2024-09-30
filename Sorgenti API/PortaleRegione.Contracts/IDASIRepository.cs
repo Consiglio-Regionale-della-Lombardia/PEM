@@ -49,7 +49,9 @@ namespace PortaleRegione.Contracts
         Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogabili();
         Task<List<View_Commissioni_attive>> GetCommissioniAttive();
         Task RimuoviCommissioni(Guid UidAtto);
+        Task RimuoviCommissioniProponenti(Guid UidAtto);
         void AggiungiCommissione(Guid UidAtto, int organo);
+        Task AggiungiCommissioneProponente(Guid UidAtto, KeyValueDto organo);
         Task<List<View_Commissioni_attive>> GetCommissioni(Guid uidAtto);
         Task RimuoviSoggetti(Guid UidAtto);
         void AggiungiSoggetto(Guid UidAtto, int soggetto);
@@ -87,7 +89,7 @@ namespace PortaleRegione.Contracts
 
         Task<int> Count(PersonaDto persona, ClientModeEnum clientMode, Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended);
         Task<List<GruppiDto>> GetGruppiDisponibili(int legislaturaId, int page, int size);
-        Task<List<OrganoDto>> GetCommissioniProponenti(Guid uidAtto);
+        Task<List<KeyValueDto>> GetCommissioniProponenti(Guid uidAtto);
         void AggiungiAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato);
         Task<ATTI_ABBINAMENTI> GetAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato);
         void RimuoviAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb);
@@ -105,5 +107,6 @@ namespace PortaleRegione.Contracts
         void AggiungiDocumento(ATTI_DOCUMENTI doc);
         Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid);
         void RimuoviDocumento(ATTI_DOCUMENTI doc);
+        Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva);
     }
 }

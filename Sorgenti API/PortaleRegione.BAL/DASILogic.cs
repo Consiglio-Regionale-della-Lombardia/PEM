@@ -496,6 +496,22 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
+        private async Task GestioneProponentiCommissioni(AttoDASIDto attoDto, bool isUpdate = false)
+        {
+            if (isUpdate) await _unitOfWork.DASI.RimuoviCommissioniProponenti(attoDto.UIDAtto);
+
+            if (!string.IsNullOrEmpty(attoDto.CommissioniProponenti_string))
+            {
+                var commissioniProponenti = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoDto.CommissioniProponenti_string);
+                foreach (var commissioneProponente in commissioniProponenti)
+                {
+                    await _unitOfWork.DASI.AggiungiCommissioneProponente(attoDto.UIDAtto, commissioneProponente);
+                }
+            }
+
+            await _unitOfWork.CompleteAsync();
+        }
+
         private async Task GestioneCommissioni(AttoDASIDto attoDto, bool isUpdate = false)
         {
             if (isUpdate) await _unitOfWork.DASI.RimuoviCommissioni(attoDto.UIDAtto);
@@ -903,34 +919,48 @@ namespace PortaleRegione.API.Controllers
 
             var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
-            dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
             dto.DisplayTipo = Utility.GetText_Tipo(attoInDb.Tipo);
-            dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
-            dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} {dto.NAtto}";
+
+            if (dto.Tipo == (int)TipoAttoEnum.RIS)
+            {
+                if (!string.IsNullOrEmpty(dto.NAtto))
+                {
+                    dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
+                    dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
+                    dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} {dto.NAtto}";
+                }
+            }
+            else
+            {
+                dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
+                
+                dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
+                dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} {dto.NAtto}";
+                dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
+                dto.Firmato_Dal_Proponente =
+                    await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
+                dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
+
+                if (dto.id_gruppo > 0)
+                    dto.gruppi_politici =
+                        Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                            await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+
+                if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
+                    dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
+            }
+
+            
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
             dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
+            dto.DisplayTipoMozione = Utility.GetText_TipoMOZDASI(dto.TipoMOZ);
+
             if (attoInDb.TipoChiusuraIter.HasValue)
                 dto.DisplayTipoChiusuraIter = Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.Value);
             if (attoInDb.TipoVotazioneIter.HasValue)
                 dto.DisplayTipoVotazioneIter = Utility.GetText_TipoVotazioneDASI(attoInDb.TipoVotazioneIter.Value);
-
-            dto.DisplayTipoMozione = Utility.GetText_TipoMOZDASI(dto.TipoMOZ);
-
-            dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
-            dto.Firmato_Dal_Proponente =
-                await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
-
-            dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
-
-            if (dto.id_gruppo > 0)
-                dto.gruppi_politici =
-                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                        await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
-
-            if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
-                dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
-
+            
             if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                 dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
             if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
@@ -3303,42 +3333,67 @@ namespace PortaleRegione.API.Controllers
 
         public async Task RichiestaPresentazioneCartacea(PresentazioneCartaceaModel model, PersonaDto currentUser)
         {
-            var contatore = await _unitOfWork.DASI.GetContatore(model.Tipo, model.TipoRisposta);
-            _unitOfWork.DASI.IncrementaContatore(contatore, model.Salto);
-            await _unitOfWork.CompleteAsync();
 
-            // Matteo Cattapan #520 - Inserimento di atti presentati in forma cartacea
-            var data_presentazione = DateTime.Now;
             var atti_cartacei = new List<ATTI_DASI>();
+            var data_presentazione = DateTime.Now;
             var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
             var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
 
-            for (var i = 0; i < model.Salto; i++)
+            if (model.Tipo == (int)TipoAttoEnum.RIS)
             {
-                var contatore_progressivo = contatore.Inizio + (contatore.Contatore - (model.Salto - i));
-                var etichetta_progressiva =
-                    $"{Utility.GetText_Tipo(model.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
-                var etichetta_encrypt =
-                    BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
-
-                atti_cartacei.Add(new ATTI_DASI
+                for (var i = 0; i < model.Salto; i++)
                 {
-                    IDStato = (int)StatiAttoEnum.BOZZA_CARTACEA,
-                    Tipo = model.Tipo,
-                    IDTipo_Risposta = model.TipoRisposta,
-                    UIDAtto = Guid.NewGuid(),
-                    UID_QRCode = Guid.NewGuid(),
-                    Timestamp = data_presentazione,
-                    DataPresentazione = BALHelper.EncryptString(data_presentazione.ToString("dd/MM/yyyy HH:mm:ss"),
-                        AppSettingsConfiguration.masterKey),
-                    NAtto_search = contatore_progressivo,
-                    OrdineVisualizzazione = contatore_progressivo,
-                    Etichetta = etichetta_progressiva,
-                    NAtto = etichetta_encrypt,
-                    DataCreazione = data_presentazione,
-                    UIDPersonaCreazione = currentUser.UID_persona,
-                    Legislatura = legislatura.id_legislatura
-                });
+                    atti_cartacei.Add(new ATTI_DASI
+                    {
+                        IDStato = (int)StatiAttoEnum.BOZZA_CARTACEA,
+                        Tipo = model.Tipo,
+                        UIDAtto = Guid.NewGuid(),
+                        UID_QRCode = Guid.NewGuid(),
+                        Timestamp = data_presentazione,
+                        DataPresentazione = BALHelper.EncryptString(data_presentazione.ToString("dd/MM/yyyy HH:mm:ss"),
+                            AppSettingsConfiguration.masterKey),
+                        DataCreazione = data_presentazione,
+                        UIDPersonaCreazione = currentUser.UID_persona,
+                        Legislatura = legislatura.id_legislatura,
+                        idRuoloCreazione = (int)currentUser.CurrentRole
+                    });
+                }
+            }
+            else
+            {
+                var contatore = await _unitOfWork.DASI.GetContatore(model.Tipo, model.TipoRisposta);
+                _unitOfWork.DASI.IncrementaContatore(contatore, model.Salto);
+                await _unitOfWork.CompleteAsync();
+
+                // Matteo Cattapan #520 - Inserimento di atti presentati in forma cartacea
+                for (var i = 0; i < model.Salto; i++)
+                {
+                    var contatore_progressivo = contatore.Inizio + (contatore.Contatore - (model.Salto - i));
+                    var etichetta_progressiva =
+                        $"{Utility.GetText_Tipo(model.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
+                    var etichetta_encrypt =
+                        BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
+
+                    atti_cartacei.Add(new ATTI_DASI
+                    {
+                        IDStato = (int)StatiAttoEnum.BOZZA_CARTACEA,
+                        Tipo = model.Tipo,
+                        IDTipo_Risposta = model.TipoRisposta,
+                        UIDAtto = Guid.NewGuid(),
+                        UID_QRCode = Guid.NewGuid(),
+                        Timestamp = data_presentazione,
+                        DataPresentazione = BALHelper.EncryptString(data_presentazione.ToString("dd/MM/yyyy HH:mm:ss"),
+                            AppSettingsConfiguration.masterKey),
+                        NAtto_search = contatore_progressivo,
+                        OrdineVisualizzazione = contatore_progressivo,
+                        Etichetta = etichetta_progressiva,
+                        NAtto = etichetta_encrypt,
+                        DataCreazione = data_presentazione,
+                        UIDPersonaCreazione = currentUser.UID_persona,
+                        Legislatura = legislatura.id_legislatura,
+                        idRuoloCreazione = (int)currentUser.CurrentRole
+                    });
+                }
             }
 
             if (atti_cartacei.Any())
@@ -3470,11 +3525,14 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
-            attoInDb.UIDPersonaProponente = attoDto.UIDPersonaProponente;
-            if (attoInDb.id_gruppo <= 0 && attoInDb.UIDPersonaProponente.HasValue)
+            if (attoDto.Tipo != (int)TipoAttoEnum.RIS)
             {
-                var gruppo = await _logicPersona.GetGruppoAttualePersona(attoInDb.UIDPersonaProponente.Value, false);
-                attoInDb.id_gruppo = gruppo.id_gruppo;
+                attoInDb.UIDPersonaProponente = attoDto.UIDPersonaProponente;
+                if (attoInDb.id_gruppo <= 0 && attoInDb.UIDPersonaProponente.HasValue)
+                {
+                    var gruppo = await _logicPersona.GetGruppoAttualePersona(attoInDb.UIDPersonaProponente.Value, false);
+                    attoInDb.id_gruppo = gruppo.id_gruppo;
+                }
             }
 
             if (attoDto.Tipo == (int)TipoAttoEnum.MOZ)
@@ -3482,6 +3540,28 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.TipoMOZ = attoDto.TipoMOZ;
                 attoInDb.UID_MOZ_Abbinata =
                     attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA ? attoDto.UID_MOZ_Abbinata : null;
+            }
+
+            if (attoDto.Tipo == (int)TipoAttoEnum.RIS && !attoInDb.Progressivo.Equals(attoDto.Progressivo))
+            {
+                var legislatura = await _unitOfWork.Legislature.Get(attoInDb.Legislatura);
+                var contatore_progressivo = attoDto.Progressivo;
+                var etichetta_progressiva =
+                    $"{Utility.GetText_Tipo(attoDto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
+                var etichetta_encrypt =
+                    BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
+
+                attoInDb.NAtto_search = contatore_progressivo;
+                attoInDb.OrdineVisualizzazione = contatore_progressivo;
+                attoInDb.Etichetta = etichetta_progressiva;
+                attoInDb.NAtto = etichetta_encrypt;
+                attoInDb.Progressivo = contatore_progressivo;
+
+                var controlloEtichetta = await _unitOfWork.DASI.GetByEtichetta(etichetta_progressiva);
+                if (controlloEtichetta != null)
+                {
+                    throw new InvalidOperationException("Numero atto già occupato.");
+                }
             }
 
             if (attoDto.Tipo == (int)TipoAttoEnum.ODG)
@@ -3518,6 +3598,7 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
             await GestioneCommissioni(attoDto, true);
+            await GestioneProponentiCommissioni(attoDto, true);
 
             if (attoDto.IDStato == (int)StatiAttoEnum.PRESENTATO)
             {
@@ -3529,28 +3610,36 @@ namespace PortaleRegione.API.Controllers
 
         private async Task PresentaCartaceo(ATTI_DASI atto, AttoDASIDto dto)
         {
-            if (!dto.FirmeCartacee.Any())
-                throw new InvalidOperationException(
-                    "Inserire i firmatari.");
+            if (atto.Tipo == (int)TipoAttoEnum.RIS)
+            {
+                // ignored
+            }
+            else
+            {
+                if (!dto.FirmeCartacee.Any())
+                    throw new InvalidOperationException(
+                        "Inserire i firmatari.");
 
-            if (dto.FirmeCartacee.First().uid != dto.UIDPersonaProponente.Value.ToString())
-                throw new InvalidOperationException(
-                    "Il proponente deve essere anche il primo firmatario.");
+                if (dto.FirmeCartacee.First().uid != dto.UIDPersonaProponente.Value.ToString())
+                    throw new InvalidOperationException(
+                        "Il proponente deve essere anche il primo firmatario.");
 
-            await FirmaAttoUfficio(dto);
-            var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
-            if (dto.Tipo == (int)TipoAttoEnum.IQT
-                && string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
-                throw new Exception(
-                    $"Requisiti presentazione: {nameof(AttoDASIDto.DataRichiestaIscrizioneSeduta)} non specificato.");
+                await FirmaAttoUfficio(dto);
+                var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
+                if (dto.Tipo == (int)TipoAttoEnum.IQT
+                    && string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
+                    throw new Exception(
+                        $"Requisiti presentazione: {nameof(AttoDASIDto.DataRichiestaIscrizioneSeduta)} non specificato.");
 
-            var controllo_firme = await ControlloFirmePresentazione(dto, count_firme);
+                var controllo_firme = await ControlloFirmePresentazione(dto, count_firme);
 
-            if (!string.IsNullOrEmpty(controllo_firme)) throw new Exception(controllo_firme);
+                if (!string.IsNullOrEmpty(controllo_firme)) throw new Exception(controllo_firme);
+
+                atto.chkf = count_firme.ToString();
+                atto.UIDPersonaPresentazione = atto.UIDPersonaProponente;
+            }
 
             atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
-            atto.chkf = count_firme.ToString();
-            atto.UIDPersonaPresentazione = atto.UIDPersonaProponente;
 
             await _unitOfWork.CompleteAsync();
         }
@@ -4175,7 +4264,7 @@ namespace PortaleRegione.API.Controllers
             {
                 if (!atto.CommissioniProponenti.Any()) return "--";
 
-                return atto.CommissioniProponenti.Select(c => c.nome_organo).Aggregate((i, j) => i + "; " + j);
+                return atto.CommissioniProponenti.Select(c => c.descr).Aggregate((i, j) => i + "; " + j);
             }
 
             if (propertyName.Equals(nameof(AttoDASIDto.Note)))

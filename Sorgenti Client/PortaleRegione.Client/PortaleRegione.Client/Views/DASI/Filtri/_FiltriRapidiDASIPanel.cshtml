@@ -825,44 +825,6 @@ function CreaTabella() {
 			row.appendChild(td);
 		});
 
-		@*row.innerHTML = `
-            <td style="width: 1%;">
-				<p>
-                    <label>
-                        <input type="checkbox" id="chk_Atto_${result.UIDAtto}" onclick="AbilitaComandiMassivi_DASI('${result.UIDAtto}');"/>
-                        <span></span>
-                    </label>
-                </p>
-            </td>
-			<td style="width: 10%;"><div class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')" data-text='${result.Display}' data-id='${result.UIDAtto}'>${result.Display}${iconChipAggiuntiva}</div></td>
-            <td style="width: 8%;">${colonnaTipo}</td>
-            <td>${result.Oggetto}</td>
-            <td>${htmlFirme}</td>
-            <td>${stato}</td>
-            <td></td>
-			<td style="width: 1%;">
-			    <label class="tooltipped" data-tooltip="Protocollo: ${result.Protocollo}">
-                    <input type="checkbox" ${haveProtocollo} onclick="return false;"/>
-                    <span></span>
-                </label>
-			</td>
-			<td style="width: 1%;">
-                <label class="tooltipped" data-tooltip="Pubblicato">
-                    <input type="checkbox" ${isPubblicato} onclick="return false;"/>
-                    <span></span>
-                </label>
-            </td>
-            <td style="width: 1%;">
-                <label class="tooltipped" data-tooltip="Sollecito">
-                    <input type="checkbox" ${isSollecito} onclick="return false;"/>
-                    <span></span>
-                </label>
-            </td>
-            <td style="width: 10%;" class="center">
-
-			</td>
-        `;*@
-
 		const tdCommandsValue = document.createElement('td');
 		tdCommandsValue.classList.add('center');
 		tdCommandsValue.style.width = '10%';

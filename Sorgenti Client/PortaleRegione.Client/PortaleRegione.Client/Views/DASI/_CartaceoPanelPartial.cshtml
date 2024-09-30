@@ -65,7 +65,10 @@
 		table.append('<li class="collection-item"><div class="input-field col s6"><input placeholder="Cerca" type="text" onkeyup="SearchCartacei(this);"></div></li>');
 
 		$.each(atti_cartacei, function (index, item) {
-			var text = item.Display;
+			var text = item.DisplayTipo;
+            if (item.Display) {
+                text = item.Display;
+            }
 			var url = item.UIDAtto + "/edit";
 			table.append('<li id="row_' + item.UIDAtto + '" class="collection-item"><div>' + text + '<a class="secondary-content" href="' + url + '" target="_blank"><i class="material-icons blue-text">edit</i></a></div></li>');
 		});

@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.Common
+﻿@using Newtonsoft.Json
+@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.DASIFormModel
 
@@ -75,9 +76,16 @@
 			<div class="row">
 				<div class="col s12 center">
 					<h5>
-						<b>
-							<span>@PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
-						</b>
+                        <b>
+							@if (string.IsNullOrEmpty(Model.Atto.Etichetta) && Model.Atto.Tipo == (int)TipoAttoEnum.RIS)
+                            {
+                                <span>@Model.Atto.DisplayTipo</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Atto.Display</span>
+                            }
+                        </b>
 					</h5>
 				</div>
 			</div>
@@ -88,10 +96,8 @@
 						@Html.AntiForgeryToken()
 
 						@Html.HiddenFor(m => m.Atto.UIDAtto)
-						@Html.HiddenFor(m => m.Atto.UIDPersonaProponente)
 						@Html.HiddenFor(m => m.Atto.UIDPersonaCreazione)
 						@Html.HiddenFor(m => m.Atto.idRuoloCreazione)
-						@Html.HiddenFor(m => m.Atto.Progressivo)
 						@Html.HiddenFor(m => m.Atto.IDStato)
 						@Html.HiddenFor(m => m.Atto.id_gruppo)
 						@Html.HiddenFor(m => m.Atto.DataCreazione)
@@ -99,13 +105,81 @@
 						@Html.HiddenFor(m => m.Atto.UIDPersonaModifica)
 						@Html.HiddenFor(m => m.Atto.UID_QRCode)
 						@Html.HiddenFor(m => m.Atto.Tipo)
+						
+                        if (Model.Atto.Tipo == (int)TipoAttoEnum.RIS)
+                        {
+                            <div class="form-group">
+                                @Html.LabelFor(s => s.Atto.NAtto)
+                                @Html.TextBoxFor(model => model.Atto.Progressivo, new { @class = "form-control" })
+                            </div>
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Proponenti: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control", multiple = "multiple" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Commissioni proponenti: </label>
+                                    @Html.DropDownListFor(m => m.Atto.CommissioniProponenti, new SelectList(Model.CommissioniAttive, "id_organo", "nome_organo"), "Seleziona commissione proponente", new { @class = "form-control", multiple = "multiple" })
+                                </div>
+                            </div>
 
-						<div class="row">
-							<div class="col s12 form-group">
-								<label>Proponente: </label>
-								@Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
-							</div>
-						</div>
+							<script>
+								 $(document).ready(function () {
+									// Ottieni l'array di oggetti dalla proprietà del modello
+									 var commissioniProponentiString = `@(Html.Raw(JsonConvert.SerializeObject(Model.Atto.CommissioniProponenti.ToArray())))`;
+									 var commissioniProponenti = JSON.parse(commissioniProponentiString);
+
+									// Ottieni le select
+									var ddlProponenti = document.getElementById("Atto_UIDPersonaProponente");
+									var ddlCommissioni = document.getElementById("Atto_CommissioniProponenti");
+
+									// Array per memorizzare gli id da selezionare
+									var proponentiIds = [];
+									var commissioniIds = [];
+
+									// Itera sugli oggetti e seleziona le liste appropriate
+									commissioniProponenti.forEach(function (item) {
+										if (item.id > 0) {
+											commissioniIds.push(item.id);
+										} else {
+											proponentiIds.push(item.uid);
+										}
+									});
+
+									 console.log("commissioniIds",commissioniIds)
+									 console.log("proponentiIds", proponentiIds)
+
+									// Seleziona i valori corrispondenti nella select "Commissioni proponenti"
+									Array.from(ddlCommissioni.options).forEach(function (option) {
+										if (commissioniIds.includes(parseInt(option.value))) {
+											option.selected = true;
+										}
+									});
+									 $('#Atto_CommissioniProponenti').formSelect();
+									 console.log("Array.from(ddlProponenti.options)", ddlProponenti.options)
+									// Seleziona i valori corrispondenti nella select "Proponenti"
+									Array.from(ddlProponenti.options).forEach(function (option) {
+										if (proponentiIds.includes(option.value)) {
+											option.selected = true;
+										}
+									});
+
+									 $('#Atto_UIDPersonaProponente').formSelect();
+								});
+
+							</script>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Proponente: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        }
 
 						@Html.Partial("_TipoMOZPartial", Model)
 						@Html.Partial("_TipoODGPartial", Model)
@@ -248,8 +322,11 @@
 									</div>
 								</div>
 							}
-
-							@Html.Partial("_FirmatariUfficioPanel", Model)
+                            
+                            if (Model.Atto.Tipo != (int)TipoAttoEnum.RIS)
+                            {
+                                @Html.Partial("_FirmatariUfficioPanel", Model)
+                            }
 						}
 					}
 

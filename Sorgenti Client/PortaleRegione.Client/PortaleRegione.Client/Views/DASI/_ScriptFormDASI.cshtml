@@ -130,11 +130,31 @@
                 form_data.append("DocAllegatoGenerico", inputFileAllegatoGenerico.files[0]);
         }
 
-        var firme_cartacee = GetFirmeCartacee();
-        form_data.append("FirmeCartacee_string", JSON.stringify(firme_cartacee));
-
         if (presenta) {
             form_data.append("IDStato", @((int)StatiAttoEnum.PRESENTATO));
+        }
+
+        if ($("#Atto_Tipo").val() == @((int)TipoAttoEnum.RIS)) {
+            var selectedOptionsProponenti = document.querySelectorAll('#Atto_UIDPersonaProponente option:checked');
+			var valuesProponenti = Array.from(selectedOptionsProponenti).map(option => option.value);
+            var commissioniProponenti = [];
+			for (var i = 0; i < valuesProponenti.length; i++) {
+				var item = valuesProponenti[i];
+				commissioniProponenti.push({uid: item});
+			}
+
+			var selectedOptionsCommissioni = document.querySelectorAll('#Atto_CommissioniProponenti option:checked');
+			var valuesCommissioni = Array.from(selectedOptionsCommissioni).map(option => option.value);
+			for (var i = 0; i < valuesCommissioni.length; i++) {
+				var item = valuesCommissioni[i];
+				commissioniProponenti.push({ id: item });
+			}
+			form_data.append("CommissioniProponenti_string", JSON.stringify(commissioniProponenti));
+
+			form_data.append("Progressivo", $('#Atto_Progressivo').val());
+        } else {
+			var firme_cartacee = GetFirmeCartacee();
+			form_data.append("FirmeCartacee_string", JSON.stringify(firme_cartacee));
         }
 
         $.ajax({
