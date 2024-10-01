@@ -264,22 +264,36 @@
 									<label for="Atto_RispostaRichiesta">Risposta richiesta</label>
 								</div>
 							</div>
-							<div class="row">
-								<div class="input-field col s12 m12 l6">
-									<p>
-										<label>
-											<input type="checkbox" value="true" name="Atto.Pubblicato" @Html.Raw(Model.Atto.Pubblicato ? "checked=\"checked\"" : "") />
-											<span>Pubblicato</span>
-										</label>
-									</p>
+                            <div class="row">
+                                <div class="input-field col s12 m12 l6">
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" value="true" name="Atto.Pubblicato" @Html.Raw(Model.Atto.Pubblicato ? "checked=\"checked\"" : "") />
+                                            <span>Pubblicato</span>
+                                        </label>
+                                    </p>
+                                </div>
+                                <div class="input-field col s12 m12 l6">
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="Atto.Sollecito" value="true" @Html.Raw(Model.Atto.Sollecito ? "checked=\"checked\"" : "") />
+                                            <span>Sollecito</span>
+                                        </label>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+								<div class="input-field col s12 m12 l4">
+                                    <label class="active">Relatore primario: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore1, new SelectList(Model.ListaConsiglieriPublic, "uid", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
 								</div>
-								<div class="input-field col s12 m12 l6">
-									<p>
-										<label>
-											<input type="checkbox" name="Atto.Sollecito" value="true" @Html.Raw(Model.Atto.Sollecito ? "checked=\"checked\"" : "") />
-											<span>Sollecito</span>
-										</label>
-									</p>
+                                <div class="input-field col s12 m12 l4">
+                                    <label class="active">Relatore secondario: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore2, new SelectList(Model.ListaConsiglieriPublic, "uid", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
+                                </div>
+                                <div class="input-field col s12 m12 l4">
+                                    <label class="active">Relatore minoranza: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatoreMinoranza, new SelectList(Model.ListaConsiglieriPublic, "uid", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
 								</div>
 							</div>
 							<div class="row">
@@ -1098,8 +1112,14 @@
                     AreaPolitica: document.getElementById('Atto_AreaPolitica').value,
                     RispostaRichiesta: document.getElementById('Atto_RispostaRichiesta').value,
                     Pubblicato: document.querySelector('input[name="Atto.Pubblicato"]').checked,
-                    Sollecito: document.querySelector('input[name="Atto.Sollecito"]').checked
+                    Sollecito: document.querySelector('input[name="Atto.Sollecito"]').checked					
                 };
+
+				if (@Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.RIS)){
+					data.UIDPersonaRelatore1 = $('select[id="Atto_UIDPersonaRelatore1"]').children("option:selected").val();
+					data.UIDPersonaRelatore2= $('select[id="Atto_UIDPersonaRelatore2"]').children("option:selected").val();
+					data.UIDPersonaRelatoreMinoranza= $('select[id="Atto_UIDPersonaRelatoreMinoranza"]').children("option:selected").val();
+				}
 
                 var url = '@Url.Action("Salva_InformazioniGeneraliAtto", "DASI")';
                 // Send the data using fetch

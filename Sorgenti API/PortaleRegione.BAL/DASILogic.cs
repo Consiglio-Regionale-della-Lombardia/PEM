@@ -284,6 +284,13 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.DataAnnunzio = request.DataAnnunzio;
             attoInDb.Pubblicato = request.Pubblicato;
             attoInDb.Sollecito = request.Sollecito;
+            
+            if(attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+            {
+                attoInDb.UIDPersonaRelatore1 = request.UIDPersonaRelatore1;
+                attoInDb.UIDPersonaRelatore2 = request.UIDPersonaRelatore2;
+                attoInDb.UIDPersonaRelatoreMinoranza = request.UIDPersonaRelatoreMinoranza;
+            }
 
             await _unitOfWork.CompleteAsync();
         }
@@ -1172,7 +1179,10 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 {
                     dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
-                    dto.Relatori = await _unitOfWork.Atti.GetRelatori(attoInDb.UIDAtto);
+                    
+                    dto.PersonaRelatore1 = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaRelatore1);
+                    dto.PersonaRelatore2 = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaRelatore2);
+                    dto.PersonaRelatoreMinoranza = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaRelatoreMinoranza);
                 }
 
                 return dto;

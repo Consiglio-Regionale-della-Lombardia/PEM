@@ -335,12 +335,22 @@ namespace PortaleRegione.Client.Controllers
                 if (!atto.IsChiuso)
                     atto.Destinatari =
                         await Helpers.Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
+                
 
                 var result = new DASIFormModel
                 {
                     CurrentUser = currentUser,
                     Atto = atto
                 };
+                if(atto.Tipo == (int)TipoAttoEnum.RIS)
+                {
+                    var consiglieriPublic = await apiGateway.Persone.GetProponentiFirmatari(atto.Legislatura.ToString());
+                    
+                    if (consiglieriPublic.Any())
+                    {
+                        result.ListaConsiglieriPublic = consiglieriPublic;
+                    }
+                }
 
                 if (currentUser.IsSegreteriaAssemblea)
                 {

@@ -139,5 +139,9 @@ namespace PortaleRegione.Domain
         public string ImpegniScadenze { get; set; }
         public string StatoAttuazione { get; set; }
         public string CompetenzaMonitoraggio { get; set; }
+
+        public Guid? UIDPersonaRelatore1 { get; set; }
+        public Guid? UIDPersonaRelatore2 { get; set; }
+        public Guid? UIDPersonaRelatoreMinoranza { get; set; }
     }
 }

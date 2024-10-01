@@ -388,13 +388,61 @@ namespace PortaleRegione.BAL
             {
                 body = body.Replace("{PROPONENTI_COMMENTO_START}", "");
                 body = body.Replace("{PROPONENTI_COMMENTO_END}", "");
-
                 body = body.Replace("{lblProponentiATTOView}", atto.CommissioniProponenti.Select(s=>s.descr).Aggregate((i,j)=>i + "<br>" + j));
+
+                if (atto.UIDPersonaRelatore1.HasValue)
+                {
+                    body = body.Replace("{RELATORE1_COMMENTO_START}", "");
+                    body = body.Replace("{RELATORE1_COMMENTO_END}", "");
+                    body = body.Replace("{RELATORE1}", atto.PersonaRelatore1.DisplayName);
+                }
+                else
+                {
+                    body = body.Replace("{RELATORE1_COMMENTO_START}", "<!--");
+                    body = body.Replace("{RELATORE1_COMMENTO_END}", "-->");
+                }
+                
+                if (atto.UIDPersonaRelatore2.HasValue)
+                {
+                    body = body.Replace("{RELATORE2_COMMENTO_START}", "");
+                    body = body.Replace("{RELATORE2_COMMENTO_END}", "");
+                    body = body.Replace("{RELATORE2}", atto.PersonaRelatore2.DisplayName);
+                }
+                else
+                {
+                    body = body.Replace("{RELATORE2_COMMENTO_START}", "<!--");
+                    body = body.Replace("{RELATORE2_COMMENTO_END}", "-->");
+                }
+                
+                if (atto.UIDPersonaRelatoreMinoranza.HasValue)
+                {
+                    body = body.Replace("{RELATOREMINORANZA_COMMENTO_START}", "");
+                    body = body.Replace("{RELATOREMINORANZA_COMMENTO_END}", "");
+                    body = body.Replace("{RELATOREMINORANZA}", atto.PersonaRelatoreMinoranza.DisplayName);
+                }
+                else
+                {
+                    body = body.Replace("{RELATOREMINORANZA_COMMENTO_START}", "<!--");
+                    body = body.Replace("{RELATOREMINORANZA_COMMENTO_END}", "-->");
+                }
+
+                body = body.Replace("{DEFAULT_INTESTAZIONE}", "");
+                body = body.Replace("{DEFAULT_INTESTAZIONE_ALIGN}", "center");
             }
             else
             {
                 body = body.Replace("{PROPONENTI_COMMENTO_START}", "<!--");
                 body = body.Replace("{PROPONENTI_COMMENTO_END}", "-->");
+                
+                body = body.Replace("{RELATORE1_COMMENTO_START}", "<!--");
+                body = body.Replace("{RELATORE1_COMMENTO_END}", "-->");
+                body = body.Replace("{RELATORE2_COMMENTO_START}", "<!--");
+                body = body.Replace("{RELATORE2_COMMENTO_END}", "-->");
+                body = body.Replace("{RELATOREMINORANZA_COMMENTO_START}", "<!--");
+                body = body.Replace("{RELATOREMINORANZA_COMMENTO_END}", "-->");
+
+                body = body.Replace("{DEFAULT_INTESTAZIONE}", "Al Presidente del Consiglio regionale della Lombardia");
+                body = body.Replace("{DEFAULT_INTESTAZIONE_ALIGN}", "right-align");
             }
 
             if (atto.Tipo == (int)TipoAttoEnum.MOZ
@@ -640,7 +688,15 @@ namespace PortaleRegione.BAL
             if (atto.Non_Passaggio_In_Esame) title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
 
             body = body.Replace("{lblTitoloATTOView}", title);
-            body = body.Replace("{GRUPPO_POLITICO}", atto.id_gruppo > 0 ? atto.gruppi_politici.nome_gruppo : "");
+            if (atto.Tipo == (int)TipoAttoEnum.RIS)
+            {
+                body = body.Replace("{GRUPPO_POLITICO}", $"{atto.GetLegislatura()} LEGISLATURA <br> {atto.Protocollo}");
+            }
+            else
+            {
+                body = body.Replace("{GRUPPO_POLITICO}", atto.id_gruppo > 0 ? atto.gruppi_politici.nome_gruppo : "");
+            }
+            
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
             body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
 

@@ -90,6 +90,9 @@
 
     function SalvaAttoCartaceo(presenta) {
         var proponente = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").val();
+        var relatore1 = $('select[id="Atto_UIDPersonaRelatore1"]').children("option:selected").val();
+        var relatore2 = $('select[id="Atto_UIDPersonaRelatore2"]').children("option:selected").val();
+        var relatoreMinoranza = $('select[id="Atto_UIDPersonaRelatoreMinoranza"]').children("option:selected").val();
 
         var container_premesse = $("#Atto_Premesse").parent();
         var editor_premesse = $(container_premesse).find(".trumbowyg-editor");
@@ -152,6 +155,10 @@
 			form_data.append("CommissioniProponenti_string", JSON.stringify(commissioniProponenti));
 
 			form_data.append("Progressivo", $('#Atto_Progressivo').val());
+
+			form_data.append("UIDPersonaRelatore1", relatore1);
+			form_data.append("UIDPersonaRelatore2", relatore2);
+			form_data.append("UIDPersonaRelatoreMinoranza", relatoreMinoranza);
         } else {
 			var firme_cartacee = GetFirmeCartacee();
 			form_data.append("FirmeCartacee_string", JSON.stringify(firme_cartacee));

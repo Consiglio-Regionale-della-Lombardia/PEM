@@ -32,4 +32,7 @@ public class AttoDASI_InformazioniGeneraliDto
     public int RispostaRichiesta { get; set; } // ID del tipo di risposta richiesta (Orale, Scritta, Commissione, etc.)
     public bool Pubblicato { get; set; }       // Stato di pubblicazione
     public bool Sollecito { get; set; }        // Stato di sollecito
+    public Guid? UIDPersonaRelatore1 { get; set; }
+    public Guid? UIDPersonaRelatore2 { get; set; }
+    public Guid? UIDPersonaRelatoreMinoranza { get; set; }
 }

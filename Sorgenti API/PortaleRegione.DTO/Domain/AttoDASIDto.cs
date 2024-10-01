@@ -413,6 +413,11 @@ public class AttoDASIDto
     [DisplayName("Impegni scadenze")] public string ImpegniScadenze { get; set; }
     [DisplayName("Stato attuazione")] public string StatoAttuazione { get; set; }
     [DisplayName("Competenza monitoraggio")] public string CompetenzaMonitoraggio { get; set; }
-    public IEnumerable<PersonaLightDto> Relatori { get; set; } = new List<PersonaLightDto>();
     public string CommissioniProponenti_string { get; set; }
+    public Guid? UIDPersonaRelatore1 { get; set; }
+    public Guid? UIDPersonaRelatore2 { get; set; }
+    public Guid? UIDPersonaRelatoreMinoranza { get; set; }
+    public PersonaLightDto PersonaRelatore1 { get; set; }
+    public PersonaLightDto PersonaRelatore2 { get; set; }
+    public PersonaLightDto PersonaRelatoreMinoranza { get; set; }
 }

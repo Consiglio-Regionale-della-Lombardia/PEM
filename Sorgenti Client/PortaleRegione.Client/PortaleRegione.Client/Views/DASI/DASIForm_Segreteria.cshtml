@@ -124,6 +124,24 @@
                                     @Html.DropDownListFor(m => m.Atto.CommissioniProponenti, new SelectList(Model.CommissioniAttive, "id_organo", "nome_organo"), "Seleziona commissione proponente", new { @class = "form-control", multiple = "multiple" })
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Relatore primario: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore1, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Relatore secondario: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore2, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Relatore di minoranza: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatoreMinoranza, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona relatore di minoranza", new { @class = "form-control" })
+                                </div>
+                            </div>
 
 							<script>
 								 $(document).ready(function () {
@@ -148,9 +166,6 @@
 										}
 									});
 
-									 console.log("commissioniIds",commissioniIds)
-									 console.log("proponentiIds", proponentiIds)
-
 									// Seleziona i valori corrispondenti nella select "Commissioni proponenti"
 									Array.from(ddlCommissioni.options).forEach(function (option) {
 										if (commissioniIds.includes(parseInt(option.value))) {
@@ -158,7 +173,7 @@
 										}
 									});
 									 $('#Atto_CommissioniProponenti').formSelect();
-									 console.log("Array.from(ddlProponenti.options)", ddlProponenti.options)
+
 									// Seleziona i valori corrispondenti nella select "Proponenti"
 									Array.from(ddlProponenti.options).forEach(function (option) {
 										if (proponentiIds.includes(option.value)) {
