@@ -1,6 +1,3 @@
-USE [dbEmendamenti_test]
-GO
-
 /****** Object:  Table [dbo].[FILTRI]    Script Date: 07/05/2024 15:39:51 ******/
 SET ANSI_NULLS ON
 GO

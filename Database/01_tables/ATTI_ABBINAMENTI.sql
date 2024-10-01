@@ -1,6 +1,3 @@
-USE [dbEmendamenti_test]
-GO
-
 /****** Object:  Table [dbo].[ATTI_ABBINAMENTI]    Script Date: 11/06/2024 09:29:09 ******/
 SET ANSI_NULLS ON
 GO
