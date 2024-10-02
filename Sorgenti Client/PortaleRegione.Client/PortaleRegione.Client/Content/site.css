@@ -601,10 +601,10 @@ div.input-field > label { line-height: initial; }
 	min-width: unset !important;
 }
 
-.badgeRIS{
+.badgeRIS {
 	background-color: white;
-	border: 1px solid #ff5722;
-	border-left: 1em solid #ff5722;
+	border: 1px solid #69f0ae;
+	border-left: 1em solid #69f0ae;
 	color: black;
 	font-weight: bold;
 	min-width: unset !important;
