@@ -1014,7 +1014,8 @@ namespace PortaleRegione.API.Controllers
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona)
         {
             var attoInDb = await _unitOfWork.DASI.Get(attoUid);
-
+            if (attoInDb == null)
+                return null;
             var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
             dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);

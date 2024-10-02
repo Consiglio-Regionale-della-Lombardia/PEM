@@ -138,6 +138,8 @@ namespace PortaleRegione.BAL
                 if (notifica.UIDEM == Guid.Empty)
                 {
                     var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser);
+                    if (atto_dasi == null)
+                        continue;
                     notifica.ATTO_DASI = atto_dasi;
                     idGruppo = notifica.ATTO_DASI.id_gruppo;
                 }

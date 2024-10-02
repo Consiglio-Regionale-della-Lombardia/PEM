@@ -282,20 +282,23 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="row">
-								<div class="input-field col s12 m12 l4">
-                                    <label class="active">Relatore primario: </label>
-                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore1, new SelectList(Model.ListaConsiglieriPublic, "uid", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
-								</div>
-                                <div class="input-field col s12 m12 l4">
-                                    <label class="active">Relatore secondario: </label>
-                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore2, new SelectList(Model.ListaConsiglieriPublic, "uid", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
+							@if (Model.Atto.Tipo == (int)TipoAttoEnum.RIS)
+                            {
+                                <div class="row">
+                                    <div class="input-field col s12 m12 l4">
+                                        <label class="active">Relatore primario: </label>
+                                        @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore1, new SelectList(Model.ListaConsiglieriPublic, "uid", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
+                                    </div>
+                                    <div class="input-field col s12 m12 l4">
+                                        <label class="active">Relatore secondario: </label>
+                                        @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore2, new SelectList(Model.ListaConsiglieriPublic, "uid", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
+                                    </div>
+                                    <div class="input-field col s12 m12 l4">
+                                        <label class="active">Relatore minoranza: </label>
+                                        @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatoreMinoranza, new SelectList(Model.ListaConsiglieriPublic, "uid", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
+                                    </div>
                                 </div>
-                                <div class="input-field col s12 m12 l4">
-                                    <label class="active">Relatore minoranza: </label>
-                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatoreMinoranza, new SelectList(Model.ListaConsiglieriPublic, "uid", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
-								</div>
-							</div>
+                            }
 							<div class="row">
 								<div class="col s12">
 									<a id="btnSalva_InformazioniGenerali" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
