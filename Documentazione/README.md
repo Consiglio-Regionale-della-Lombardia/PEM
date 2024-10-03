@@ -578,6 +578,8 @@ Il sistema permetterà di iscrivere tutti gli OdG depositati, a prescindere dall
 
 Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto depositato dell’OdG.
 
+INSERIRE PARTE RIS
+
 # Amministrazione del sistema
 
 L'area amministrativa del sistema è comune ad entrambi moduli e consente di gestire gli utenti della piattaform e i relativi permessi, sfruttando un'integrazione con l'Active Directory di dominio.
