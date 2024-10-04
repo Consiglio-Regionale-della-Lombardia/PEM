@@ -578,7 +578,7 @@ Il sistema permetterà di iscrivere tutti gli OdG depositati, a prescindere dall
 
 Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto depositato dell’OdG.
 
-INSERIRE PARTE RIS
+>>> INSERIRE PARTE RIS
 
 # Amministrazione del sistema
 
