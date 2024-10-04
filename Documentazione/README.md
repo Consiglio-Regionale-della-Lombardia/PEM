@@ -578,7 +578,47 @@ Il sistema permetterà di iscrivere tutti gli OdG depositati, a prescindere dall
 
 Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto depositato dell’OdG.
 
->>> INSERIRE PARTE RIS
+DA_COMPLETARE: INSERIRE PARTE RIS
+
+# Gestione degli atti
+
+In questa sezione saranno descritte le principali funzionalità di gestione degli atti all'interno del sistema, quindi la loro ricerca, la possibilità di estrarre reportistiche e di effettuare modifiche massive alle liste ricercate, e le funzionalità di visualizzazione e aggiornamento dei dati legati al singolo atto. Quanto trattato di seguito è accessibile dal modulo DASI
+
+DA_COMPLETARE: INSERIRE "DASI principale"
+
+## Filtraggio
+
+E' possibile fintrare la lista degli atti presenti a sistema indicando una serie di criteri di ricerca. Questi possono essere configurati formando un filtraggio complesso che può essere memorizzato per essere poi usato più volte, richiamandolo dal pannello di selezione. 
+
+Per aggiungere un filtro è possibile cliccare sull'icona "lente di ingrandimento" in alto a destra, ricercare e selezionare il filtro desiderato, inserire le informazioni richieste e dare conferma.
+
+DA_COMPLETARE: INSERIRE "DASI nuovo filtro"
+
+A questo punto il filtro sarà aggiunto alla lista di quelli attivi e la lista sottostante sarà aggiornata con gli atti che soddisferanno i requisiti di ricerca. Per salvare i criteri di filtraggio con cui si sta lavorando, premere l'apposito pulsante, definire un nome e dare conferma. Quanto memorizzato sarà poi disponibile nel pannello filtri e potrà essere richiamato per un utilizzo successivo.
+
+DA_COMPLETARE: INSERIRE "DASI salvataggio filtro"
+
+## Reportistica
+
+Il sistema permette di generare report sugli atti memorizzati. Le informazioni relative agli atti vengono riversate in un documento (excel, word o PDF), nella procedura di generazione è possibile selezionare diverse modalità di disposizione dei dati e le colonne da includere. Dalla schermata di generazione del report è anche possibile scaricare un archivio (.zip) degli atti cercati.
+
+Il pannello di generazione è accessibile dal pulsante "Genera report". Come parametri di ricerca verranno utilizzati quelli attivi al momento, che saranno riportati nella schermata. Una volta stabilito il formato e le colonne, si può aggiungere un nome e salvare per poi richiamare il report successivamente dal pannello laterale, raggiungibile dall'icona "lente di ingrandimento".
+
+DA_COMPLETARE: INSERIRE "DASI nuovo report"
+
+Il modo in cui sono stati realizzati i report consente di configurare una serie di reportistiche "ricorrenti" in modo da renderne l'utilizzo immediato, mantenendo la possibilità di configurare richieste ad-hoc che possono servire in casi eccezionali.
+
+## Operazioni massive
+
+Per modificare più atti in un'unica azione, selezionare gli atti dalla tabella, premere il pulsante "Comandi massivi" in basso a destra, appena comparso, e poi "Modifica massiva dati". Verrà esposta una schermata con una sezione dedicata al riepologo degli atti coinvolti nella modifica e un'altra dove si potranno abilitare e riempire i campi che saranno poi modificati alla conferma.
+
+DA_COMPLETARE: INSERIRE "DASI modifiche massive"
+
+## Gestione dati del singolo atto
+
+
+
+DA_COMPLETARE: INSERIRE Singolo atto CRUD
 
 # Amministrazione del sistema
 
@@ -596,7 +636,6 @@ L'area amministrativa mette a disposizione degli ads tutti gli strumenti per eff
 Gli amministratori del sistema PEM-DASI gestiscono inoltre tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
 
 ![PEM_11](/Documentazione/Screenshot/PEM_11.jpg)
-
 
 ## Dettagli della licenza
 La documentazione di PEM-DASI è rilasciata con licenza Creative Commons Attribution-ShareAlike 4.0 International
