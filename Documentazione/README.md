@@ -578,7 +578,32 @@ Il sistema permetterà di iscrivere tutti gli OdG depositati, a prescindere dall
 
 Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto depositato dell’OdG.
 
-DA_COMPLETARE: INSERIRE PARTE RIS
+### Risoluzione (RIS)
+
+Le Risoluzioni rientrano nella tipologia degli atti di indirizzo e sono il frutto del dibattito e dell’elaborazione in commissione consiliare di un tema specifico a contenuto settoriale.
+
+L’atto viene approvato in commissione senza numerazione. Solo dopo l’approvazione, l’atto viene trasmesso dalla commissione al Protocollo che provvede ad assegnare una numerazione progressiva per Legislatura e apre contestualmente il fascicolo (flusso extra GEDASI). La commissione trasmette la risoluzione (e il relativo fascicolo) al Servizio Segreteria dell’Assemblea. L’atto numerato viene così inserito in GEDASI riportando alcune informazioni generali della fase in trattazione.
+
+Diversamente dagli altri Atti, le risoluzioni, non essendo proposte da consiglieri, non sono presentate in modalità dematerializzata; pertanto, l‘inserimento in GEDASI avverrà ad opera dell’utente Operatore.
+
+Per caricare una Risoluzione, premere il pulsante "Visualizza atti cartacei" in alto a destra e il pulsante "+" in basso a destra. Selezionare quindi "RIS" e la quantità delle Risoluzioni presentate. 
+
+![DASI_aggiunta_ris](/Documentazione/Screenshot/DASI_aggiunta_ris.png)
+
+I nuovi atti verranno disposti nel pannello laterale per poter essere modificati, completando quindi l'inserimento.
+
+![DASI_modifica_ris](/Documentazione/Screenshot/DASI_modifica_ris.png)
+
+Alla modifica potranno essere definiti i seguenti campi:
+- Numero atto
+- Proponenti
+- Commissioni proponenti
+- Relatore primario
+- Relatore secondario
+- Relatore di minoranza
+- Oggetto
+- Premesse
+e potranno essere caricati allegati.
 
 # Gestione degli atti
 
