@@ -584,6 +584,7 @@ DA_COMPLETARE: INSERIRE PARTE RIS
 
 In questa sezione saranno descritte le principali funzionalità di gestione degli atti all'interno del sistema, quindi la loro ricerca, la possibilità di estrarre reportistiche e di effettuare modifiche massive alle liste ricercate, e le funzionalità di visualizzazione e aggiornamento dei dati legati al singolo atto. Quanto trattato di seguito è accessibile dal modulo DASI
 
+![DASI - principale](/Documentazione/Screenshot/DASI - principale.png)
 DA_COMPLETARE: INSERIRE "DASI principale"
 
 ## Filtraggio
@@ -592,11 +593,11 @@ E' possibile fintrare la lista degli atti presenti a sistema indicando una serie
 
 Per aggiungere un filtro è possibile cliccare sull'icona "lente di ingrandimento" in alto a destra, ricercare e selezionare il filtro desiderato, inserire le informazioni richieste e dare conferma.
 
-DA_COMPLETARE: INSERIRE "DASI nuovo filtro"
+![DASI - nuovo filtro](/Documentazione/Screenshot/DASI - nuovo filtro.png)
 
 A questo punto il filtro sarà aggiunto alla lista di quelli attivi e la lista sottostante sarà aggiornata con gli atti che soddisferanno i requisiti di ricerca. Per salvare i criteri di filtraggio con cui si sta lavorando, premere l'apposito pulsante, definire un nome e dare conferma. Quanto memorizzato sarà poi disponibile nel pannello filtri e potrà essere richiamato per un utilizzo successivo.
 
-DA_COMPLETARE: INSERIRE "DASI salvataggio filtro"
+![DASI - salvataggio filtro](/Documentazione/Screenshot/DASI - salvataggio filtro.png)
 
 ## Reportistica
 
@@ -604,7 +605,7 @@ Il sistema permette di generare report sugli atti memorizzati. Le informazioni r
 
 Il pannello di generazione è accessibile dal pulsante "Genera report". Come parametri di ricerca verranno utilizzati quelli attivi al momento, che saranno riportati nella schermata. Una volta stabilito il formato e le colonne, si può aggiungere un nome e salvare per poi richiamare il report successivamente dal pannello laterale, raggiungibile dall'icona "lente di ingrandimento".
 
-DA_COMPLETARE: INSERIRE "DASI nuovo report"
+![DASI - nuovo report](/Documentazione/Screenshot/DASI - nuovo report.png)
 
 Il modo in cui sono stati realizzati i report consente di configurare una serie di reportistiche "ricorrenti" in modo da renderne l'utilizzo immediato, mantenendo la possibilità di configurare richieste ad-hoc che possono servire in casi eccezionali.
 
@@ -612,7 +613,7 @@ Il modo in cui sono stati realizzati i report consente di configurare una serie 
 
 Per modificare più atti in un'unica azione, selezionare gli atti dalla tabella, premere il pulsante "Comandi massivi" in basso a destra, appena comparso, e poi "Modifica massiva dati". Verrà esposta una schermata con una sezione dedicata al riepologo degli atti coinvolti nella modifica e un'altra dove si potranno abilitare e riempire i campi che saranno poi modificati alla conferma.
 
-DA_COMPLETARE: INSERIRE "DASI modifiche massive"
+![DASI - modifiche massive](/Documentazione/Screenshot/DASI - modifiche massive.png)
 
 ## Gestione dati del singolo atto
 
