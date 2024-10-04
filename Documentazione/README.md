@@ -618,7 +618,7 @@ Per modificare più atti in un'unica azione, selezionare gli atti dalla tabella,
 
 Selezionando un atto dalla griglia si accede alla sua pagina di riepilogo.
 
-
+![DASI_dettaglio_atto](/Documentazione/Screenshot/DASI_dettaglio_atto.png)
 
 In questa schermata sono presenti le seguenti sezioni:
 - Testo atto: il testo dell'atto con un link per scaricare il documento e la lista dei firmatari
