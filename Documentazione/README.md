@@ -585,7 +585,6 @@ DA_COMPLETARE: INSERIRE PARTE RIS
 In questa sezione saranno descritte le principali funzionalità di gestione degli atti all'interno del sistema, quindi la loro ricerca, la possibilità di estrarre reportistiche e di effettuare modifiche massive alle liste ricercate, e le funzionalità di visualizzazione e aggiornamento dei dati legati al singolo atto. Quanto trattato di seguito è accessibile dal modulo DASI
 
 ![DASI_principale](/Documentazione/Screenshot/DASI_principale.png)
-DA_COMPLETARE: INSERIRE "DASI principale"
 
 ## Filtraggio
 
@@ -617,9 +616,18 @@ Per modificare più atti in un'unica azione, selezionare gli atti dalla tabella,
 
 ## Gestione dati del singolo atto
 
+Selezionando un atto dalla griglia si accede alla sua pagina di riepilogo.
 
+![DASI_dettaglio_atto](/Documentazione/Screenshot/DASI_dettaglio_atto.png)
 
-DA_COMPLETARE: INSERIRE Singolo atto CRUD
+In questa schermata sono presenti le seguenti sezioni:
+- Testo atto: il testo dell'atto con un link per scaricare il documento e la lista dei firmatari
+- Informazioni generali: i metadati dell'atto, con la possibilità di modificarli e di aggiungere allegati
+- Abbinamenti: la lista degli abbinamenti per quell'atto, con la possibilità di aggiungere o rimuovere abbinamenti
+- Trattazione: la lista delle risposte e la possibilità di aggiungere o eliminare risposte e/o allegati
+- Chiusura iter: i metadati relativi alla chiusura dell'iter amministrativo dell'atto, con la possibilità di modificarli e di aggiungere allegati
+- Note: l'elenco delle note associate all'atto, con la possibilità di aggiungere e/o eliminare note
+- Privacy: la configurazione dei marcatori privacy, con la possibilità di aggiornarli
 
 # Amministrazione del sistema
 
