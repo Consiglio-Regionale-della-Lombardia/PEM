@@ -311,8 +311,9 @@ namespace PortaleRegione.BAL
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        throw new Exception("Errore salvataggio a database", e); //#984
                     }
+
                     // #954
                     bodyMail +=
                         $@"[{atto.Display}] (proponente {atto.PersonaProponente.DisplayName} - {atto.gruppi_politici.codice_gruppo}) - {atto.OggettoView()}
@@ -418,7 +419,7 @@ namespace PortaleRegione.BAL
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        throw new Exception("Errore salvataggio a database", e); //#984
                     }
 
                     var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
