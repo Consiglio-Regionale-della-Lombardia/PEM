@@ -397,7 +397,7 @@
 				 || Model.CurrentUser.IsSegreteriaAssemblea)
 			{
 				<a class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
-					Visualizza priorita
+					Gestisci priorità e ordinamento firme @*#987*@
 					<i class="material-icons right pink-text">low_priority</i>
 				</a>
 				<br />
@@ -413,13 +413,14 @@
 						<label>Firmato il @firme.Timestamp.ToString("dd/MM/yyyy")</label>
 						@if (Model.CurrentUser.UID_persona.Equals(firme.UID_persona))
 						{
+                            @*#986*@
 							if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
 							{
-								<a class='btn-floating red center white-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset;margin-top:-16px" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+								<a class='btn-floating center white-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset;margin-top:-16px" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
 							}
 							else
 							{
-								<a class='btn-floating red center white-text secondary-content' style="min-width:unset;margin-top:-16px" onclick="EliminaFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+								<a class='btn-floating center white-text secondary-content' style="min-width:unset;margin-top:-16px" onclick="EliminaFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
 							}
 						}
 					</li>
@@ -449,8 +450,8 @@
 		<div class="row" id="pnlPrioritaFirme" style="display: none;">
 			<div class="col s12">
 				<a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
-					Visualizza griglia
-					<i class="material-icons right pink-text">grid_on</i>
+					Termina gestione firme @*#987*@
+					<i class="material-icons right pink-text">playlist_add_check</i>
 				</a>
 				<br />
 
