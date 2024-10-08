@@ -57,8 +57,6 @@
         data_preload = [];
         persone = [];
         var personeInDB = await GetPersonePerInvitiDASI(tipo);
-        console.log(personeInDB)
-
         for (let [key, value] of Object.entries(personeInDB)) {
             persone.push({
                 tag: value,
@@ -118,6 +116,7 @@
 
     async function NotificaADASI(attoUId, tipo) {
         waiting(true);
+		setListaAtti([]);
         await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
         $("#modalDASINotificaA").modal("open");
 		waiting(false);
@@ -138,6 +137,7 @@
                 var type = Model.GetType();
                 if (type == typeof(AttoDASIDto))
                 {
+                    @Html.Raw($"listaAtti = [];")
                     @Html.Raw($"listaAtti.push('{Model.UIDAtto}');")
                 }
             }

@@ -211,11 +211,8 @@ namespace PortaleRegione.Client.Controllers
                 em.BodyEM = em.EM_Certificato;
 
             em.Firme = await Utility.GetFirmatari(
-                await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
-                CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, Token);
-            em.Firme_dopo_deposito = await Utility.GetFirmatari(
-                await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
-                CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, Token);
+                await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.TUTTE),
+                CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, Token);
             if (em.IDStato <= (int)StatiEnum.Depositato)
                 em.Destinatari =
                     await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(id), Token);

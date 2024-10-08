@@ -30,196 +30,225 @@
     <script src="~/Scripts/moment.js"></script>
 </head>
 <body>
-<script>
+
+	<div id="loader-wrapper">
+		<div id="loader"></div>
+		<div class="loader-section section-left"></div>
+		<div class="loader-section section-right"></div>
+	</div>
+
+<div id="waiting" class="modal" style="height: 120px">
+    <div class="modal-content center">
+        <div class="preloader-wrapper active">
+            <div class="spinner-layer spinner-blue-only">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="gap-patch">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="waiting_info_message"></div>
+    </div>
+</div>
+
+	<script>
 		$(document).ready(function () {
 			$('#btnSearch').hide();
 		});
 	</script>
-<style>
-    .trumbowyg-editor > p > ul {
-        list-style-type: disc !important;
-        padding-left: 30px !important;
-    }
+	<style>
+		.trumbowyg-editor > p > ul {
+			list-style-type: disc !important;
+			padding-left: 30px !important;
+		}
 
-    .trumbowyg-editor > p > ul > li { list-style-type: disc !important; }
-</style>
+			.trumbowyg-editor > p > ul > li {
+				list-style-type: disc !important;
+			}
+	</style>
 
-<div class="row">
-    <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
-            <i class="material-icons">close</i>
-        </a>
-    </div>
-    <div class="col l11 s10">
-        <h4>
-            <b>
-                <span>@ViewBag.Title</span>
-                <input id="hfIsNew" type="hidden" value="@isNew"/>
-            </b>
-        </h4>
-    </div>
-</div>
+	<div class="row">
+		<div class="col l1 s2">
+			<a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
+				<i class="material-icons">close</i>
+			</a>
+		</div>
+		<div class="col l11 s10">
+			<h4>
+				<b>
+					<span>@ViewBag.Title</span>
+					<input id="hfIsNew" type="hidden" value="@isNew" />
+				</b>
+			</h4>
+		</div>
+	</div>
 
-<div class="card">
-    <div class="card-content">
-        <div class="row">
-            <div class="col s12 center">
-                <h5>
-                    <b>
-                        <span>@Utility.GetText_Tipo(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
-                    </b>
-                </h5>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                @using (Html.BeginForm("SalvaAtto", "DASI", FormMethod.Post, new { id = "formDASI" }))
-                {
-                    @Html.AntiForgeryToken()
+	<div class="card">
+		<div class="card-content">
+			<div class="row">
+				<div class="col s12 center">
+					<h5>
+						<b>
+							<span>@Utility.GetText_Tipo(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
+						</b>
+					</h5>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col s12">
+					@using (Html.BeginForm("SalvaAtto", "DASI", FormMethod.Post, new { id = "formDASI" }))
+					{
+						@Html.AntiForgeryToken()
 
-                    @Html.HiddenFor(m => m.Atto.UIDAtto)
-                    @Html.HiddenFor(m => m.Atto.UIDPersonaProponente)
-                    @Html.HiddenFor(m => m.Atto.UIDPersonaCreazione)
-                    @Html.HiddenFor(m => m.Atto.idRuoloCreazione)
-                    @Html.HiddenFor(m => m.Atto.Progressivo)
-                    @Html.HiddenFor(m => m.Atto.IDStato)
-                    @Html.HiddenFor(m => m.Atto.id_gruppo)
-                    @Html.HiddenFor(m => m.Atto.DataCreazione)
-                    @Html.HiddenFor(m => m.Atto.DataModifica)
-                    @Html.HiddenFor(m => m.Atto.UIDPersonaModifica)
-                    @Html.HiddenFor(m => m.Atto.UID_QRCode)
-                    @Html.HiddenFor(m => m.Atto.Tipo)
+						@Html.HiddenFor(m => m.Atto.UIDAtto)
+						@Html.HiddenFor(m => m.Atto.UIDPersonaProponente)
+						@Html.HiddenFor(m => m.Atto.UIDPersonaCreazione)
+						@Html.HiddenFor(m => m.Atto.idRuoloCreazione)
+						@Html.HiddenFor(m => m.Atto.Progressivo)
+						@Html.HiddenFor(m => m.Atto.IDStato)
+						@Html.HiddenFor(m => m.Atto.id_gruppo)
+						@Html.HiddenFor(m => m.Atto.DataCreazione)
+						@Html.HiddenFor(m => m.Atto.DataModifica)
+						@Html.HiddenFor(m => m.Atto.UIDPersonaModifica)
+						@Html.HiddenFor(m => m.Atto.UID_QRCode)
+						@Html.HiddenFor(m => m.Atto.Tipo)
 
-                    @Html.Partial("_TipoMOZPartial", Model)
-                    @Html.Partial("_TipoODGPartial", Model)
-                    @Html.Partial("_TipoRispostaPartial", Model)
+						@Html.Partial("_TipoMOZPartial", Model)
+						@Html.Partial("_TipoODGPartial", Model)
+						@Html.Partial("_TipoRispostaPartial", Model)
 
-                    <div class="form-group" style="padding-top: 10px">
-                        @Html.LabelFor(s => s.Atto.Oggetto)
-                        @if (!_disabled)
-                        {
-                            @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
-                        }
-                        else
-                        {
-                            @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control", @readonly = _disabled })
-                        }
-                    </div>
-                    <div class="form-group" style="padding-top: 10px">
-                        @Html.LabelFor(s => s.Atto.Premesse)
-                        @if (!_disabled)
-                        {
-                            @Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg" })
-                        }
-                        else
-                        {
-                            @Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg", disabled = _disabled })
-                        }
+						<div class="form-group" style="padding-top: 10px">
+							@Html.LabelFor(s => s.Atto.Oggetto)
+							@if (!_disabled)
+							{
+								@Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
+							}
+							else
+							{
+								@Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control", @readonly = _disabled })
+							}
+						</div>
+						<div class="form-group" style="padding-top: 10px">
+							@Html.LabelFor(s => s.Atto.Premesse)
+							@if (!_disabled)
+							{
+								@Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg" })
+							}
+							else
+							{
+								@Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg", disabled = _disabled })
+							}
 
-                    </div>
-                    if (isNew)
-                    {
-                        if (Model.Atto.Tipo == (int)TipoAttoEnum.IQT)
-                        {
-                            <div class="row">
-                                <div class="col s12">
-                                    <label class="black-text" style="margin-left: 20px">
-                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)" onchange="TipoRichiesta_OnChange(this)"/>
-                                        <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)</span>
-                                    </label>
-                                </div>
-                            </div>
-                        }
-                        else if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
-                                 && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
-                        {
-                            <div class="row">
-                                <div class="col s12">
-                                    <label class="black-text" style="margin-left: 20px">
-                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)" onchange="TipoRichiesta_OnChange(this)"/>
-                                        <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)</span>
-                                    </label>
-                                    <label class="black-text" style="margin-left: 20px">
-                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)" onchange="TipoRichiesta_OnChange(this)"/>
-                                        <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)</span>
-                                    </label>
-                                    <label class="black-text" style="margin-left: 20px">
-                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)" onchange="TipoRichiesta_OnChange(this)"/>
-                                        <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)</span>
-                                    </label>
-                                </div>
-                            </div>
-                        }
+						</div>
+						if (isNew)
+						{
+							if (Model.Atto.Tipo == (int)TipoAttoEnum.IQT)
+							{
+								<div class="row">
+									<div class="col s12">
+										<label class="black-text" style="margin-left: 20px">
+											<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)" onchange="TipoRichiesta_OnChange(this)" />
+											<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)</span>
+										</label>
+									</div>
+								</div>
+							}
+							else if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
+									 && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
+							{
+								<div class="row">
+									<div class="col s12">
+										<label class="black-text" style="margin-left: 20px">
+											<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)" onchange="TipoRichiesta_OnChange(this)" />
+											<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)</span>
+										</label>
+										<label class="black-text" style="margin-left: 20px">
+											<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)" onchange="TipoRichiesta_OnChange(this)" />
+											<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)</span>
+										</label>
+										<label class="black-text" style="margin-left: 20px">
+											<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)" onchange="TipoRichiesta_OnChange(this)" />
+											<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)</span>
+										</label>
+									</div>
+								</div>
+							}
 
-                        <div class="input-field">
-                            <p>
-                                <label>
-                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)" onchange="TipoRichiestaDest_OnChange(this)"/>
-                                    <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)</span>
-                                </label>
-                            </p>
-                            <p>
-                                <label>
-                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)" onchange="TipoRichiestaDest_OnChange(this)"/>
-                                    <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)</span>
-                                </label>
-                            </p>
-                            <p>
-                                <label>
-                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)" onchange="TipoRichiestaDest_OnChange(this)"/>
-                                    <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)</span>
-                                </label>
-                            </p>
-                            <p>
-                                <label>
-                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)" onchange="TipoRichiestaDest_OnChange(this)"/>
-                                    <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)</span>
-                                </label>
-                            </p>
-                        </div>
-                    }
+							<div class="input-field">
+								<p>
+									<label>
+										<input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)" onchange="TipoRichiestaDest_OnChange(this)" />
+										<span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)</span>
+									</label>
+								</p>
+								<p>
+									<label>
+										<input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)" onchange="TipoRichiestaDest_OnChange(this)" />
+										<span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)</span>
+									</label>
+								</p>
+								<p>
+									<label>
+										<input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)" onchange="TipoRichiestaDest_OnChange(this)" />
+										<span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)</span>
+									</label>
+								</p>
+								<p>
+									<label>
+										<input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)" onchange="TipoRichiestaDest_OnChange(this)" />
+										<span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)</span>
+									</label>
+								</p>
+							</div>
+						}
 
-                    <div class="form-group" style="padding-top: 10px">
-                        @if (!_disabled)
-                        {
-                            @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
-                        }
-                        else
-                        {
-                            @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg", disabled = _disabled })
-                        }
+						<div class="form-group" style="padding-top: 10px">
+							@if (!_disabled)
+							{
+								@Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
+							}
+							else
+							{
+								@Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg", disabled = _disabled })
+							}
 
-                    </div>
+						</div>
 
-                    @Html.Partial("_DocsPanel", Model)
+						@Html.Partial("_DocsPanel", Model)
 
-                    if (Model.Atto.Tipo == (int)TipoAttoEnum.ODG)
-                    {
-                        <div class="form-group">
-                            <p>
-                                <label>
-                                    <input id="Atto_Non_Passaggio_In_Esame" type="checkbox" value="true"
-                                           @Html.Raw(Model.Atto.Non_Passaggio_In_Esame ? "checked=\"checked\"" : "")>
-                                    <span>ODG di NON passaggio in esame</span>
-                                </label>
-                            </p>
-                        </div>
-                    }
-                }
+						if (Model.Atto.Tipo == (int)TipoAttoEnum.ODG)
+						{
+							<div class="form-group">
+								<p>
+									<label>
+										<input id="Atto_Non_Passaggio_In_Esame" type="checkbox" value="true"
+											   @Html.Raw(Model.Atto.Non_Passaggio_In_Esame ? "checked=\"checked\"" : "")>
+										<span>ODG di NON passaggio in esame</span>
+									</label>
+								</p>
+							</div>
+						}
+					}
 
-                <div class="fixed-action-btn">
-                    <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva atto">
-                        <i class="large material-icons">save</i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+					<div class="fixed-action-btn">
+						<button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva atto">
+							<i class="large material-icons">save</i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-@Html.Partial("_ScriptFormDASI")
+	@Html.Partial("_ScriptFormDASI")
 
-<script>
+	<script>
 
 		function TipoRichiesta_OnChange(ctrl) {
 			var container_testo_richiesta = $("#Atto_Richiesta").parent();

@@ -87,6 +87,7 @@
         });
 
     function SalvaAttoCartaceo(presenta) {
+        waiting(true)
         var proponente = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").val();
 
         var container_premesse = $("#Atto_Premesse").parent();
@@ -142,6 +143,7 @@
             processData: false,
             contentType: false
         }).done(function(data) {
+			waiting(false)
             if (data.message) {
                 swal({
                     title: "Errore",
@@ -165,6 +167,7 @@
                 });
             }
         }).fail(function(err) {
+			waiting(false)
             console.log("error", err);
             Error(err);
         });
@@ -174,7 +177,7 @@
         e.preventDefault();
     }).validate({
         submitHandler: function(form) {
-
+			waiting(true)
             var proponente;
             if ($('input[name="Atto.UIDPersonaProponente"]').val())
                 proponente = $('input[name="Atto.UIDPersonaProponente"]').val();
@@ -228,7 +231,7 @@
                 processData: false,
                 contentType: false
             }).done(function(data) {
-                console.log(data);
+				waiting(false)
                 if (data.message) {
                     swal({
                         title: "Errore",
@@ -245,6 +248,7 @@
                     });
                 }
             }).fail(function(err) {
+				waiting(false)
                 console.log("error", err);
                 Error(err);
             });

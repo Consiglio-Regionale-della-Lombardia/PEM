@@ -480,11 +480,11 @@
 
 									@if (atto.UIDPersonaProponente != firme.UID_persona) // Controllo aggiuntivo per il primo firmatario
 									{
-                                        if ((Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+                                        if ((Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
                                             || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                                                                               && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+                                                                               && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
                                             || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                                                                                                   && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+                                                                                                   && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
                                             || (Model.CurrentUser.IsSegreteriaAssemblea && !atto.IsChiuso)) 
                                         {
                                             <i class="material-icons black-text arrow-up" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, -1)">arrow_upward</i>
@@ -518,11 +518,11 @@
 
                                     @if (atto.UIDPersonaProponente != firme.UID_persona) // Controllo aggiuntivo per il primo firmatario
                                     {
-                                        if ((Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+                                        if ((Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
                                             || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                                                                               && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+                                                                               && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
                                             || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                                                                                                   && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+                                                                                                   && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
                                             || (Model.CurrentUser.IsSegreteriaAssemblea && !atto.IsChiuso)) 
                                         {
                                             <i class="material-icons black-text arrow-up" style="margin-left: 5px;" onclick="CambioOrdineVisualizzazione(this, -1)">arrow_upward</i>
