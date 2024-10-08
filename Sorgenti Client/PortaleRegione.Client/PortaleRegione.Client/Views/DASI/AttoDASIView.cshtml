@@ -416,11 +416,11 @@
                             @*#986*@
 							if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
 							{
-								<a class='btn-floating center white-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset;margin-top:-16px" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+								<a class='center red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
 							}
 							else
 							{
-								<a class='btn-floating center white-text secondary-content' style="min-width:unset;margin-top:-16px" onclick="EliminaFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+								<a class='center red-text secondary-content' style="min-width:unset;" onclick="EliminaFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
 							}
 						}
 					</li>
