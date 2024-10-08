@@ -406,22 +406,33 @@
 			<ul class="collection" id="pnlFirme">
 				@foreach (var firme in firmeGroup)
 				{
+					//#985
+
 					<li class="collection-item" data-uid-persona="@firme.UID_persona" data-uid-atto="@firme.UIDAtto" data-ordine="@firme.OrdineVisualizzazione" data-dopo-deposito="@(firme.Timestamp > atto.Timestamp && !atto.IsBozza)">
-						<span @Html.Raw(firme.Prioritario ? "class='bold-text'" : "")>
-							@firme.FirmaCert
-						</span>
-						<label>Firmato il @firme.Timestamp.ToString("dd/MM/yyyy")</label>
+                        <span @Html.Raw(firme.Prioritario ? "class='bold-text'" : "") @Html.Raw(!string.IsNullOrEmpty(firme.Data_ritirofirma) ? "style='text-decoration:line-through!important'" : "")>
+                            @firme.FirmaCert
+                            <label>Firmato il @firme.Timestamp.ToString("dd/MM/yyyy")</label>
+							
+                            @if (!string.IsNullOrEmpty(firme.Data_ritirofirma))
+                            {
+                                <label>(@firme.Data_ritirofirma)</label>
+                            }
+                        </span>
+                        
 						@if (Model.CurrentUser.UID_persona.Equals(firme.UID_persona))
 						{
-                            @*#986*@
-							if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
-							{
-								<a class='center red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
-							}
-							else
-							{
-								<a class='center red-text secondary-content' style="min-width:unset;" onclick="EliminaFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
-							}
+                            if (string.IsNullOrEmpty(firme.Data_ritirofirma))
+                            {
+                                @*#986*@
+                                if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                                {
+                                    <a class='center red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+                                }
+                                else
+                                {
+                                    <a class='center red-text secondary-content' style="min-width:unset;" onclick="EliminaFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+                                }
+                            }
 						}
 					</li>
 				}
