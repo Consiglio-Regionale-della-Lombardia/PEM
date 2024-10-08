@@ -1501,7 +1501,7 @@ namespace PortaleRegione.BAL
             catch (Exception e)
             {
                 Log.Error("Logic - GetEM_DTO", e);
-                throw e;
+                return null;
             }
         }
 
@@ -1636,11 +1636,6 @@ namespace PortaleRegione.BAL
             try
             {
                 var queryFilter = new Filter<EM>();
-                foreach (var filterStatement in model.filtro.Where(filterStatement =>
-                             filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
-                    filterStatement.Value =
-                        BALHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
-
                 var tags = new List<TagDto>();
                 var tags_request = new FilterStatement<EmendamentiDto>();
                 if (model.filtro.Any(statement => statement.PropertyId == "Tags"))
