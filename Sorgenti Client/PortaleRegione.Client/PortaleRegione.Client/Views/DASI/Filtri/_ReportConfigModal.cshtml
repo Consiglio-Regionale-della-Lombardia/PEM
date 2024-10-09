@@ -20,12 +20,12 @@
 					<option value="@Html.Raw((int)ExportFormatEnum.EXCEL)">EXCEL</option>
 					<option value="@Html.Raw((int)ExportFormatEnum.PDF)">PDF</option>
 					<option value="@Html.Raw((int)ExportFormatEnum.WORD)">WORD</option>
-					<option value="@Html.Raw((int)ExportFormatEnum.EXCEL_SITUAZIONE)">EXCEL + SITUAZIONE</option>
-					<option value="@Html.Raw((int)ExportFormatEnum.EXCEL_COMMISSIONI)">EXCEL + COMMISSIONI</option>
+                    <option value="@Html.Raw((int)ExportFormatEnum.EXCEL_SITUAZIONE)">CONTEGGIO RISPOSTE ATTI ISPETTIVI (xlsx)</option>
+					<option value="@Html.Raw((int)ExportFormatEnum.EXCEL_COMMISSIONI)">CONTEGGIO ATTI IN COMMISSIONE (xlsx)</option>
 				</select>
                 <label>Formato esportazione</label>
             </div>
-            <div class="input-field col s6">
+            <div class="input-field col s6" id="columns-select-panel">
                 <select name="columns" id="columns-select" multiple>
                     <option value="" disabled selected>Scegli colonne</option>
                     @foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
@@ -46,7 +46,7 @@
                 </p>
             </div>
         </div>
-        <div class="row" id="extraOptions" style="display: none;">
+        <div class="row" id="extraOptions-panel" style="display: none;">
             <div class="input-field col s6">
                 <select name="coverType">
                     <option value="" selected>Scegli la copertina</option>
@@ -84,13 +84,21 @@
 
 	 function exportFormat_onChange(ctrl) {
         var exportFormat = $(ctrl).val();
-        var extraOptions = document.getElementById('extraOptions');
+        var extraOptions = document.getElementById('extraOptions-panel');
 		 if (exportFormat == '@Html.Raw((int)ExportFormatEnum.PDF)'
-		|| exportFormat == '@Html.Raw((int)ExportFormatEnum.WORD)' ) {
-            extraOptions.style.display = 'block';
-        } else {
-            extraOptions.style.display = 'none';
-        }
+			|| exportFormat == '@Html.Raw((int)ExportFormatEnum.WORD)' ) {
+				extraOptions.style.display = 'block';
+			} else {
+				extraOptions.style.display = 'none';
+			}
+
+		var columnsOptions = document.getElementById('columns-select-panel');
+		if (exportFormat == '@Html.Raw((int)ExportFormatEnum.EXCEL_SITUAZIONE)'
+			|| exportFormat == '@Html.Raw((int)ExportFormatEnum.EXCEL_COMMISSIONI)' ) {
+				columnsOptions.style.display = 'none';
+			} else {
+				columnsOptions.style.display = 'block';
+			}
     }
 
 	function dataViewType_onChange(ctrl){
@@ -261,7 +269,7 @@
 	async function openModalWithContent_Report(name, filters) {
 		waiting(true);
 		$('#select-all-columns').prop('checked', false);
-		document.getElementById('extraOptions').style.display = 'none';
+		document.getElementById('extraOptions-panel').style.display = 'none';
 		document.getElementById('panelDataViewType_Templates').style.display = 'none';
 
 		var cardTemplates = await GetCardTemplates();
@@ -307,7 +315,7 @@
 			$('select[name="columns"]').formSelect();
 
 			if (selectedReport.exportformat != '@Html.Raw((int)ExportFormatEnum.EXCEL)'){
-				document.getElementById('extraOptions').style.display = 'block';
+				document.getElementById('extraOptions-panel').style.display = 'block';
 			}
 			if (selectedReport.dataviewtype == '@Html.Raw((int)DataViewTypeEnum.TEMPLATE)'){
 				document.getElementById('panelDataViewType_Templates').style.display = 'block';
