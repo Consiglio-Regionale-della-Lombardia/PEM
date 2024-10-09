@@ -52,7 +52,7 @@ public class AttoDASIReportDto
 
     [DisplayName("Commissioni proponenti")] public List<OrganoDto> CommissioniProponenti { get; set; }
 
-    [DisplayName("Gruppo")] public int id_gruppo { get; set; }
+    [DisplayName("Gruppo politico")] public int id_gruppo { get; set; }  // #1021
     [DisplayName("Stato")] public int IDStato { get; set; }
     [DisplayName("Protocollo")] public string Protocollo { get; set; }
     [DisplayName("Codice materia")] public string CodiceMateria { get; set; }

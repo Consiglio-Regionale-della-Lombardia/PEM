@@ -4342,7 +4342,7 @@ namespace PortaleRegione.API.Controllers
             {
                 if (atto.Tipo == (int)TipoAttoEnum.RIS)
                     return "--";
-                return atto.PersonaProponente.DisplayName;
+                return $"{atto.PersonaProponente.DisplayName} ({atto.gruppi_politici.codice_gruppo})"; // #1021
             }
 
             if (propertyName.Equals(nameof(AttoDASIDto.id_gruppo)))
@@ -4352,9 +4352,10 @@ namespace PortaleRegione.API.Controllers
                 return "--";
             }
             
+            // #1021
             if (propertyName.Equals(nameof(AttoDASIDto.Legislatura)))
             {
-                return atto.GetLegislatura();
+                return atto.GetLegislatura(); 
             }
 
             var propertyInfo = typeof(AttoDASIDto).GetProperty(propertyName);
