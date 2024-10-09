@@ -4357,6 +4357,14 @@ namespace PortaleRegione.API.Controllers
             {
                 return atto.GetLegislatura(); 
             }
+            
+            // #1021
+            if (propertyName.Equals(nameof(AttoDASIDto.UID_QRCode)))
+            {
+                var qrLink =
+                    $"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}";
+                return qrLink; 
+            }
 
             var propertyInfo = typeof(AttoDASIDto).GetProperty(propertyName);
             if (propertyInfo == null) return "--";

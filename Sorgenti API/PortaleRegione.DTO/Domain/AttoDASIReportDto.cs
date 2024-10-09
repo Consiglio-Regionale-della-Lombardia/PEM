@@ -73,7 +73,7 @@ public class AttoDASIReportDto
     [DisplayName("Data seduta")] public Guid? UIDSeduta { get; set; }
     [DisplayName("Area politica")] public int AreaPolitica { get; set; }
     [DisplayName("Legislatura")] public int Legislatura { get; set; }
-    [DisplayName("QR code")] public Guid UID_QRCode { get; set; }
+    [DisplayName("Link pubblico")] public Guid UID_QRCode { get; set; }
     [DisplayName("Non passaggio in esame")]
     public bool Non_Passaggio_In_Esame { get; set; } = false;
 
