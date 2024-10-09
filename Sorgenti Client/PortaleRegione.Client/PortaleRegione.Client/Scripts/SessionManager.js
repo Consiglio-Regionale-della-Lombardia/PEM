@@ -61,8 +61,7 @@ function setListaPersone(lista) {
 }
 
 function getClientMode() {
-    var session_raw = localStorage.getItem("CLIENT_MODE");
-    return JSON.parse(session_raw);
+    return 1;
 }
 
 function setClientMode(mode) {
