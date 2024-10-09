@@ -269,6 +269,7 @@
 	async function openModalWithContent_Report(name, filters) {
 		waiting(true);
 		$('#select-all-columns').prop('checked', false);
+		document.getElementById('columns-select-panel').style.display = 'block';
 		document.getElementById('extraOptions-panel').style.display = 'none';
 		document.getElementById('panelDataViewType_Templates').style.display = 'none';
 
