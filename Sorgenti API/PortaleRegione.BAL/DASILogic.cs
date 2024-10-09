@@ -284,8 +284,8 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.DataAnnunzio = request.DataAnnunzio;
             attoInDb.Pubblicato = request.Pubblicato;
             attoInDb.Sollecito = request.Sollecito;
-            
-            if(attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+
+            if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
             {
                 attoInDb.UIDPersonaRelatore1 = request.UIDPersonaRelatore1;
                 attoInDb.UIDPersonaRelatore2 = request.UIDPersonaRelatore2;
@@ -509,7 +509,8 @@ namespace PortaleRegione.API.Controllers
 
             if (!string.IsNullOrEmpty(attoDto.CommissioniProponenti_string))
             {
-                var commissioniProponenti = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoDto.CommissioniProponenti_string);
+                var commissioniProponenti =
+                    JsonConvert.DeserializeObject<List<KeyValueDto>>(attoDto.CommissioniProponenti_string);
                 foreach (var commissioneProponente in commissioniProponenti)
                 {
                     await _unitOfWork.DASI.AggiungiCommissioneProponente(attoDto.UIDAtto, commissioneProponente);
@@ -940,7 +941,7 @@ namespace PortaleRegione.API.Controllers
             else
             {
                 dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
-                
+
                 dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
                 dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} {dto.NAtto}";
                 dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
@@ -957,7 +958,7 @@ namespace PortaleRegione.API.Controllers
                     dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
             }
 
-            
+
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
             dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
@@ -967,7 +968,7 @@ namespace PortaleRegione.API.Controllers
                 dto.DisplayTipoChiusuraIter = Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.Value);
             if (attoInDb.TipoVotazioneIter.HasValue)
                 dto.DisplayTipoVotazioneIter = Utility.GetText_TipoVotazioneDASI(attoInDb.TipoVotazioneIter.Value);
-            
+
             if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                 dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
             if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
@@ -1180,10 +1181,11 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 {
                     dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
-                    
+
                     dto.PersonaRelatore1 = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaRelatore1);
                     dto.PersonaRelatore2 = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaRelatore2);
-                    dto.PersonaRelatoreMinoranza = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaRelatoreMinoranza);
+                    dto.PersonaRelatoreMinoranza =
+                        Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaRelatoreMinoranza);
                 }
 
                 return dto;
@@ -3365,7 +3367,6 @@ namespace PortaleRegione.API.Controllers
 
         public async Task RichiestaPresentazioneCartacea(PresentazioneCartaceaModel model, PersonaDto currentUser)
         {
-
             var atti_cartacei = new List<ATTI_DASI>();
             var data_presentazione = DateTime.Now;
             var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
@@ -3578,7 +3579,8 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.UIDPersonaProponente = attoDto.UIDPersonaProponente;
                 if (attoInDb.id_gruppo <= 0 && attoInDb.UIDPersonaProponente.HasValue)
                 {
-                    var gruppo = await _logicPersona.GetGruppoAttualePersona(attoInDb.UIDPersonaProponente.Value, false);
+                    var gruppo =
+                        await _logicPersona.GetGruppoAttualePersona(attoInDb.UIDPersonaProponente.Value, false);
                     attoInDb.id_gruppo = gruppo.id_gruppo;
                 }
             }
@@ -4319,7 +4321,14 @@ namespace PortaleRegione.API.Controllers
             {
                 if (!atto.Note.Any())
                     return "--";
-                return atto.Note.Select(a => $"{a.Tipo} - {a.Nota}").Aggregate((i, j) => i + ", " + j);
+                // #1018
+                var note = atto.Note.Where(a => a.TipoEnum != TipoNotaEnum.GENERALE_PRIVATA).ToList();
+                if (note.Any())
+                {
+                    return note.Select(a => $"{a.Tipo} - {a.Nota}").Aggregate((i, j) => i + ", " + j);
+                }
+
+                return "";
             }
 
             if (propertyName.Equals(nameof(AttoDASIDto.IDStato))) return atto.DisplayStato;
@@ -4351,19 +4360,19 @@ namespace PortaleRegione.API.Controllers
                     return atto.gruppi_politici.codice_gruppo;
                 return "--";
             }
-            
+
             // #1021
             if (propertyName.Equals(nameof(AttoDASIDto.Legislatura)))
             {
-                return atto.GetLegislatura(); 
+                return atto.GetLegislatura();
             }
-            
+
             // #1021
             if (propertyName.Equals(nameof(AttoDASIDto.UID_QRCode)))
             {
                 var qrLink =
                     $"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}";
-                return qrLink; 
+                return qrLink;
             }
 
             var propertyInfo = typeof(AttoDASIDto).GetProperty(propertyName);
