@@ -3027,7 +3027,6 @@ namespace PortaleRegione.API.Controllers
                     .GetAll(persona
                         , model.page
                         , model.size
-                        , model.ordine
                         , ClientModeEnum.GRUPPI
                         , filtro
                         , new QueryExtendedRequest());

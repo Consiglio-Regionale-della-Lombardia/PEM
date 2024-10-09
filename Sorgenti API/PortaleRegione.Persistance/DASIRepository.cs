@@ -494,9 +494,7 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.Where(item => item.DataIscrizioneSeduta.HasValue
-                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
             }
 
             if (stati.Any())

@@ -1609,6 +1609,19 @@ namespace PortaleRegione.Client.Controllers
         [HttpPost]
         [Route("cambia-ordine-visualizzazione-firme")]
         public async Task<ActionResult> UpdateOrdineVisualizzazione(List<AttiFirmeDto> updatedList)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.CambiaOrdineVisualizzazioneFirme(updatedList);
+                return Json("", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         /// <summary>
         ///     Controller per scaricare il documento pdf dell'atto
         /// </summary>
@@ -1638,8 +1651,6 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.CambiaOrdineVisualizzazioneFirme(updatedList);
-                return Json("", JsonRequestBehavior.AllowGet);
                 await apiGateway.DASI.SalvaReport(report);
                 return Json("OK");
             }
