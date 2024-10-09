@@ -27,7 +27,7 @@
     }
     var url = Url.Action("Index", "Home");
     var data_seduta = "";
-    if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
+    if (Model.ClientMode == ClientModeEnum.TRATTAZIONE && Model.Data.Paging.Entities > 0)
     {
         var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
         url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
@@ -39,15 +39,6 @@
     var textTitoloRicerca = filtri_attivi ? " - Ricerca" : string.Empty;
 
 }
-
-<script>
-    $(document).ready(function() {
-        var modeCache = @Html.Raw((int)Model.ClientMode);
-        if (mode != modeCache) {
-            setClientMode(modeCache);
-        }
-    });
-</script>
 
 <div class="row" style="margin-bottom: unset !important">
     <div class="col s12">

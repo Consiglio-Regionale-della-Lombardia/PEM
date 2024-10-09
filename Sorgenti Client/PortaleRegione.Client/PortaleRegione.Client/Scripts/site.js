@@ -8,10 +8,6 @@ document.addEventListener("DOMContentLoaded",
     function() {
         // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/
         M.AutoInit();
-
-        var mode = getClientMode();
-        if (mode == null)
-            setClientMode(1);
         loaderView(false);
     });
 
@@ -46,10 +42,6 @@ var trattazione_theme = "";
 function AggiornaPosizioneTemi(baseUrl) {
     gruppi_theme = baseUrl + "/Content/gruppi-theme.css";
     trattazione_theme = baseUrl + "/Content/trattazione-theme.css";
-}
-
-function Reset_ClientMode() {
-    setClientMode(1);
 }
 
 // Gestione apertura navigazione laterale DX (Ricerche/Filtri)
@@ -327,37 +319,6 @@ async function GetAtto(attoUId) {
     });
 }
 
-function go(link, switchMode) {
-    var mode = getClientMode();
-    if (switchMode == true) {
-        if (!link) return;
-        if (link.includes("mode=1")) {
-            link = link.replace("mode=1", "mode=2");
-        } else if (link.includes("mode=2")) {
-            link = link.replace("mode=2", "mode=1");
-        } else if (link.includes("?")) {
-            link = link + "&mode=" + mode;
-        } else {
-            link = link + "?mode=" + mode;
-        }
-    } else {
-        if (!link) return;
-        if (link.includes("mode")) {
-            //esco
-        } else if (link.includes("?")) {
-            link = link + "&mode=" + mode;
-        } else {
-            link = link + "?mode=" + mode;
-        }
-    }
-
-    setTimeout(function() {
-            $("body").removeClass("loaded");
-        },
-        200);
-    document.location = link;
-}
-
 function goIntoOtherTab(link) {
     window.open(link, '_blank').focus();
 }
@@ -369,9 +330,30 @@ function goIntoOtherTabWithName(link, name, codice_gruppo) {
     window.open(link, '_blank').focus();
 }
 
+function go(link, switchMode) {
+    if (switchMode == true) {
+        if (!link) return;
+        if (link.includes("mode=1")) {
+            link = link.replace("mode=1", "mode=2");
+        } else if (link.includes("mode=2")) {
+            link = link.replace("mode=2", "mode=1");
+        } 
+    } else {
+        if (!link) return;
+        if (link.includes("mode")) {
+            //esco
+        }
+    }
+
+    setTimeout(function() {
+            $("body").removeClass("loaded");
+        },
+        200);
+    document.location = link;
+}
+
 async function AbilitaTrattazione(mode) {
     if (mode == 2) {
-        setClientMode(2);
         var data = await GetSeduteAttiveDashboard();
         if (data.Results.length > 0) {
             var seduta = data.Results[0];
@@ -380,7 +362,6 @@ async function AbilitaTrattazione(mode) {
             go("/attitrattazione/archivio");
         }
     } else {
-        setClientMode(1);
         go("/home");
     }
 }

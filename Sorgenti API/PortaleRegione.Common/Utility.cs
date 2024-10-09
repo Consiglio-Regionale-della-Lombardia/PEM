@@ -520,6 +520,7 @@ namespace PortaleRegione.Common
         public static void AddFilter_ByNUM(ref BaseRequest<EmendamentiDto> model, string numero_em)
         {
             if (!string.IsNullOrEmpty(numero_em))
+            {
                 model.filtro.Add(new FilterStatement<EmendamentiDto>
                 {
                     PropertyId = nameof(EmendamentiDto.N_EM),
@@ -527,6 +528,7 @@ namespace PortaleRegione.Common
                     Value = numero_em,
                     Connector = FilterStatementConnector.And
                 });
+            }
         }
 
         /// <summary>

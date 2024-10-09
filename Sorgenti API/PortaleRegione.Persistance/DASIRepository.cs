@@ -77,8 +77,6 @@ namespace PortaleRegione.Persistance
                 {
                     if (page > 0 && size > 0)
                         return await query
-                            .OrderBy(item => item.Tipo)
-                            .ThenByDescending(item => item.DataCreazione)
                             .Select(item => item.UIDAtto)
                             .Skip((page - 1) * size)
                             .Take(size)
@@ -124,8 +122,6 @@ namespace PortaleRegione.Persistance
                     .ToListAsync();
 
             return await query
-                .OrderBy(item => item.Tipo)
-                .ThenByDescending(item => item.NAtto_search)
                 .Select(item => item.UIDAtto)
                 .ToListAsync();
         }
@@ -498,7 +494,9 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue
+                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
             }
 
             if (stati.Any())

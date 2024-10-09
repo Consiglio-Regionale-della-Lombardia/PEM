@@ -22,6 +22,8 @@ namespace PortaleRegione.DTO.Enum
     {
         Presentazione = 1,
         Votazione = 2,
-        Default
+        Default = 3,
+        Crescente = 4,
+        Decrescente = 5
     }
 }

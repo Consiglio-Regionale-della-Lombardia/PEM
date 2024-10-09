@@ -521,6 +521,26 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per cambiare l'ordine di visualizzazione delle firme
+        /// </summary>
+        /// <param name="firme"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.CambiaOrdineVisualizzazioneFirme)]
+        public async Task<IHttpActionResult> UpdateOrdineVisualizzazione(List<AttiFirmeDto> firme)
+        {
+            try
+            {
+                await _dasiLogic.CambiaOrdineVisualizzazione(firme);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere le inforazioni dell'atto archiviato
         /// </summary>
         /// <param name="id"></param>

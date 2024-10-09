@@ -55,6 +55,8 @@ namespace PortaleRegione.GestioneStampe
                 var Renderer = SetupRender();
                 if (!string.IsNullOrEmpty(nome_documento))
                     Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" + " Pagina {page} di {total-pages}";
+                else
+                    Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
                 using (var pdf = await Renderer.RenderHtmlAsPdfAsync(body))
                 {
                     if (attachments != null)
@@ -199,41 +201,58 @@ namespace PortaleRegione.GestioneStampe
 
         public void MergedPDFWithRetry(string path, List<string> docs)
         {
-            var batchSize = 1000;
+            var batchSize = 250;
             var maxRetryAttempts = 3;
-            var mergedBatchList = new List<PdfDocument> { new PdfDocument(path) };
 
-            for (var i = 0; i < docs.Count; i += batchSize)
-            {
-                var retryCount = 0;
-                var success = false;
-                while (retryCount < maxRetryAttempts && success == false)
-                    try
-                    {
-                        var batch = docs.Skip(i).Take(batchSize).ToList();
-                        var listPdf = batch.Select(p => new PdfDocument(p)).ToList();
-                        mergedBatchList.Add(PdfDocument.Merge(listPdf));
-                        foreach (var doc in listPdf) doc.Dispose();
-
-                        success = true;
-                    }
-                    catch (Exception)
-                    {
-                        retryCount++;
-                    }
-
-                if (!success) throw new Exception("Max retry attempts reached. Unable to process the batch.");
-            }
+            var mergedBatchList = new List<PdfDocument>();
+            PdfDocument finalDocument = null;
 
             try
             {
-                PdfDocument.Merge(mergedBatchList).SaveAs(path);
-                foreach (var doc in mergedBatchList) doc.Dispose();
+                for (var i = 0; i < docs.Count; i += batchSize)
+                {
+                    var retryCount = 0;
+                    var success = false;
+                    while (retryCount < maxRetryAttempts && success == false)
+                    {
+                        try
+                        {
+                            var batch = docs.Skip(i).Take(batchSize).ToList();
+                            var listPdf = batch.Select(p => new PdfDocument(p)).ToList();
+                            var mergedBatch = PdfDocument.Merge(listPdf);
+
+                            mergedBatchList.Add(mergedBatch);
+
+                            // Dispose individual PDFs to free memory
+                            foreach (var doc in listPdf) doc.Dispose();
+
+                            success = true;
+                        }
+                        catch (Exception)
+                        {
+                            retryCount++;
+                        }
+                    }
+
+                    if (!success)
+                        throw new Exception("Max retry attempts reached. Unable to process the batch.");
+                }
+
+                // Merge all batches into the final document
+                finalDocument = PdfDocument.Merge(mergedBatchList);
+                finalDocument.SaveAs(path);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw;
+            }
+            finally
+            {
+                // Dispose merged batch documents to free memory
+                foreach (var doc in mergedBatchList) doc.Dispose();
+                // Dispose the final merged document
+                finalDocument?.Dispose();
             }
         }
 

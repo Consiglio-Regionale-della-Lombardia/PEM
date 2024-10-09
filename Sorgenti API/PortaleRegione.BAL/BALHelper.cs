@@ -81,7 +81,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static string EncryptString(string InString, string Key)
+        public static string EncryptString(string InString, string Key)
         {
             try
             {

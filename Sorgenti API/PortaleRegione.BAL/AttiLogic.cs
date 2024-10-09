@@ -168,6 +168,12 @@ namespace PortaleRegione.BAL
                     attoInDb.Data_chiusura = null;
                 }
 
+                // #981
+                if (!attoModel.UIDAssessoreRiferimento.HasValue)
+                {
+                    attoInDb.UIDAssessoreRiferimento = null;
+                }
+
                 await _unitOfWork.CompleteAsync();
 
                 if (attoModel.DocAtto_Stream != null)

@@ -248,7 +248,7 @@
             } else {
                 $('.menuItem_Home').addClass("active");
             }
-            var mode = getClientMode();
+            var mode = @Html.Raw(viewFromCache);
             if (mode == 2) {
                 $('#pnlLogout').hide();
                 var data = await GetSeduteAttiveDashboard();
@@ -384,7 +384,6 @@
     }
 
     function logout() {
-        setClientMode(1);
         $('#formLogout').submit();
     }
 

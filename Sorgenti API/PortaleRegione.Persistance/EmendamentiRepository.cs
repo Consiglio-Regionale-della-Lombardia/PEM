@@ -16,7 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
+using Newtonsoft.Json;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
@@ -24,11 +30,6 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -83,6 +84,22 @@ namespace PortaleRegione.Persistance
                         em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
             }
 
+            // #956
+            if (filtro != null)
+            {
+                if (filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(EM.N_EM)) != null)
+                {
+                    var filter_n_em_value = Convert.ToInt32(filtro.Statements.First(item => item.PropertyId == nameof(EM.N_EM)).Value);
+                    var encryt_nem = BALHelper.EncryptString(Convert.ToString(filter_n_em_value),
+                        AppSettingsConfiguration.masterKey);
+                    query = query.Where(e => (!e.Timestamp.HasValue && e.Progressivo == filter_n_em_value)
+                                             || e.N_EM == encryt_nem);
+
+                    var n_em_request = filtro._statements.First(statement => statement.PropertyId == nameof(EM.N_EM));
+                    filtro._statements.Remove(n_em_request);
+                }
+            }
+
             filtro?.BuildExpression(ref query);
 
             if (firmatari != null)
@@ -135,9 +152,9 @@ namespace PortaleRegione.Persistance
             switch (counter_emendamenti)
             {
                 case CounterEmendamentiEnum.NONE:
-                    {
-                        return await query.CountAsync();
-                    }
+                {
+                    return await query.CountAsync();
+                }
                 case CounterEmendamentiEnum.EM:
                     if (persona.IsSegreteriaAssemblea)
                         return await query.CountAsync(e =>
@@ -336,6 +353,22 @@ namespace PortaleRegione.Persistance
                     query = query.Where(em =>
                         !string.IsNullOrEmpty(em.DataDeposito) ||
                         em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
+            }
+
+            // #956
+            if (filtro != null)
+            {
+                if (filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(EM.N_EM)) != null)
+                {
+                    var filter_n_em_value = Convert.ToInt32(filtro.Statements.First(item => item.PropertyId == nameof(EM.N_EM)).Value);
+                    var encryt_nem = BALHelper.EncryptString(Convert.ToString(filter_n_em_value),
+                        AppSettingsConfiguration.masterKey);
+                    query = query.Where(e => (!e.Timestamp.HasValue && e.Progressivo == filter_n_em_value)
+                                             || e.N_EM == encryt_nem);
+
+                    var n_em_request = filtro._statements.First(statement => statement.PropertyId == nameof(EM.N_EM));
+                    filtro._statements.Remove(n_em_request);
+                }
             }
 
             filtro?.BuildExpression(ref query);

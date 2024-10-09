@@ -226,7 +226,7 @@
             $("#pnlNuovoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();
-            var mode = getClientMode();
+            var mode = @Html.Raw(mode);
             if (mode == @((int)ClientModeEnum.GRUPPI)) {
                 $("#pnlNuovoDASI").show();
             } else {
@@ -235,14 +235,6 @@
             }
         }
     }
-
-    $("#checkAll").click(function() {
-        console.log("sel.tutti", this.checked)
-        setSelezionaTutti_DASI(this.checked);
-        setListaAtti([]);
-        $('input[id^="chk_Atto_"]').not(this).prop('checked', this.checked);
-        AbilitaComandiMassivi_DASI(null);
-    });
 
     function resetGridSelection() {
         $("#checkAll").prop("checked", false);

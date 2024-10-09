@@ -123,7 +123,11 @@ namespace PortaleRegione.API
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<EM, EmendamentoExtraLightDto>()
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<EmendamentiDto, EmendamentoExtraLightDto>()
+                .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<EmendamentoExtraLightDto, EM>()
+                .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<EmendamentoExtraLightDto, EmendamentiDto>()
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<EmendamentiDto, EmendamentoLightDto>()
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));

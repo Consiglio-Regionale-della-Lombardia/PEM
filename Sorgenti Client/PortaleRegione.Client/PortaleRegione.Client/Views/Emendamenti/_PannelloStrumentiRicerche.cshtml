@@ -521,17 +521,11 @@
     }
 
     async function GetGruppi() {
-        var gruppi = get_Gruppi();
-        if (gruppi.length > 0) {
-            return gruppi;
-        }
-
-        return new Promise(async function(resolve, reject) {
+       return new Promise(async function(resolve, reject) {
             $.ajax({
                 url: baseUrl + "/persone/gruppi-politici",
                 type: "GET"
             }).done(function(result) {
-                set_Gruppi(result);
                 resolve(result);
             }).fail(function(err) {
                 console.log("query - GetGruppiPolitici - error", err);

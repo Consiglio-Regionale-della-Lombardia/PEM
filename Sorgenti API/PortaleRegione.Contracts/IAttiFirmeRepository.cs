@@ -32,7 +32,8 @@ namespace PortaleRegione.Contracts
             bool primoFirmatario = false,
             bool valida = true,
             bool capogruppo = false,
-            bool prioritario = true);
+            bool prioritario = true,
+            int ordine = 0);
         Task<int> CountFirme(Guid attoUId);
         Task<int> CountFirmePrioritarie(Guid attoUId);
         Task<IEnumerable<ATTI_FIRME>> GetFirmatari(ATTI_DASI atto, FirmeTipoEnum tipo);

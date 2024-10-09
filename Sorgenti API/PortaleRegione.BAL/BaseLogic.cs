@@ -558,14 +558,6 @@ namespace PortaleRegione.BAL
                                 {firme}
                             </div>
                         </div>";
-            var TemplatefirmePOST = @"<div>
-                             <div style='width:100%;'>
-                                      <h6>Firmatari dopo il deposito</h6>
-                              </div>
-                              <div style='text-align:left'>
-                                {firme}
-                            </div>
-                        </div>";
 
             if (emendamento.IDStato >= (int)StatiEnum.Depositato)
             {
@@ -575,8 +567,7 @@ namespace PortaleRegione.BAL
                         ? "Emendamento Presentato d'ufficio"
                         : $"Emendamento Presentato il {emendamento.Timestamp:dd/MM/yyyy HH:mm}");
 
-                var firmeAnte = firme.Where(f => f.Timestamp <= emendamento.Timestamp).Select(i => (AttiFirmeDto)i);
-                var firmePost = firme.Where(f => f.Timestamp > emendamento.Timestamp).Select(i => (AttiFirmeDto)i);
+                var firmeAnte = firme.Select(i => (AttiFirmeDto)i).ToList();
 
                 if (firmeAnte.Any())
                     body = body.Replace("{radGridFirmeView}",
@@ -587,14 +578,8 @@ namespace PortaleRegione.BAL
                     body = body.Replace("{radGridFirmePostView}", string.Empty)
                         .Replace("{FIRMEANTE_COMMENTO_START}", "<!--").Replace("{FIRMEANTE_COMMENTO_END}", "-->");
 
-                if (firmePost.Any())
-                    body = body.Replace("{radGridFirmePostView}",
-                            TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost, "dd/MM/yyyy HH:mm")))
-                        .Replace("{FIRME_COMMENTO_START}", string.Empty)
-                        .Replace("{FIRME_COMMENTO_END}", string.Empty);
-                else
-                    body = body.Replace("{radGridFirmePostView}", string.Empty)
-                        .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
+                body = body.Replace("{radGridFirmePostView}", string.Empty)
+                    .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
             }
             else
             {
@@ -722,37 +707,16 @@ namespace PortaleRegione.BAL
                                 {firme}
                             </div>
                         </div>";
-            var TemplatefirmePOST = @"<div>
-                             <div style='width:100%;'>
-                                      <h6>Firmatari dopo la presentazione</h6>
-                              </div>
-                              <div style='text-align:left'>
-                                {firme}
-                            </div>
-                        </div>";
 
             if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
             {
                 //DEPOSITATO
-                if(atto.Tipo != (int)TipoAttoEnum.RIS)
-                    body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
-                else
-                    body = body.Replace("{lblDepositoATTOView}", string.Empty);
-
-                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= atto.Timestamp);
-                var firmePost = firmeDtos.Where(f => f.Timestamp > atto.Timestamp);
-
-                if (firmeAnte.Any())
+                body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
+                
+                if (firmeDtos.Any())
                     body = body.Replace("{radGridFirmeView}",
-                        TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte)));
-                else
-                    body = body.Replace("{radGridFirmeView}", string.Empty);
-
-                if (firmePost.Any())
-                    body = body.Replace("{radGridFirmePostView}",
-                        TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost)));
-                else
-                    body = body.Replace("{radGridFirmePostView}", string.Empty);
+                        TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeDtos)));
+                body = body.Replace("{radGridFirmePostView}", string.Empty);
             }
             else
             {

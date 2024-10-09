@@ -16,6 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
 using AutoMapper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
@@ -27,13 +32,8 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Routes;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Http;
-using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -65,9 +65,11 @@ namespace PortaleRegione.API.Controllers
         public AttiController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
-            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic,
+            StampeLogic stampeLogic,
             UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
-            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic,
+            notificheLogic,
             esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
         }
@@ -606,27 +608,37 @@ namespace PortaleRegione.API.Controllers
                 await _attiLogic.PubblicaFascicolo(attoInDb, model, user);
 
                 if (model.Abilita)
-                    await _stampeLogic.InserisciStampa(new BaseRequest<EmendamentiDto, StampaDto>
+                {
+                    var request = new BaseRequest<EmendamentiDto>
                     {
-                        entity = new StampaDto
-                        {
-                            UIDAtto = model.Id,
-                            Da = 0,
-                            A = 0,
-                            Ordine = (int)model.Ordinamento
-                        },
+                        id = model.Id,
+                        page = 1,
+                        size = 100000,
                         ordine = model.Ordinamento,
-                        param = new Dictionary<string, object> { { "CLIENT_MODE", model.ClientMode } },
-                        filtro = new List<FilterStatement<EmendamentiDto>>
+                        filtro = new List<FilterStatement<EmendamentiDto>>()
                         {
-                            new FilterStatement<EmendamentiDto>
+                            new FilterStatement<EmendamentiDto>()
                             {
-                                PropertyId = nameof(EmendamentiDto.UIDAtto),
                                 Operation = Operation.EqualTo,
-                                Value = model.Id
+                                Value = model.Id,
+                                PropertyId = nameof(EmendamentiDto.UIDAtto)
                             }
                         }
-                    }, user);
+                    };
+
+                    var list = new List<Guid>();
+                    list = await _emendamentiLogic.GetEmendamentiSoloIds(request, CurrentUser, model.ClientMode);
+
+                    await _stampeLogic.InserisciStampa(new NuovaStampaRequest()
+                    {
+                        Da = 0,
+                        A = 0,
+                        Lista = list,
+                        Modulo = ModuloStampaEnum.PEM,
+                        Ordinamento = model.Ordinamento,
+                        UIDAtto = model.Id
+                    }, CurrentUser);
+                }
 
                 return Ok();
             }

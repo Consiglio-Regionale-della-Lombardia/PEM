@@ -7,7 +7,7 @@ for details on configuring this project to bundle and minify static web assets. 
 	src: url('../fonts/text-security-disc.eot?#iefix') format('embedded-opentype'), url('../fonts/text-security-disc.woff') format('woff'), url('../fonts/text-security-disc.ttf') format('truetype'), url('images/text-security-disc.svg#text-security') format('svg');
 }
 
-input.password { font-family: 'text-security-disc'; }
+input.password { font-family: 'text-security-disc'!important; }
 
 header, main, footer {
 	padding-left: 320px;
@@ -35,6 +35,13 @@ main { margin-bottom: 150px; }
 	z-index: 1000;
 }
 
+.bold-text {
+	font-weight: bold!important;
+}
+
+.btn-flat {
+	font-weight: bold !important;
+}
 .btn-flat { font-weight: bold !important; }
 
 .btn-flat.black-text {
@@ -550,6 +557,11 @@ div.input-field > label { line-height: initial; }
 /*----------------------------------------
     DASI
 ------------------------------------------*/
+
+.badgePostStamp {
+	border: 1px solid lightgray;
+	border-left: 1em solid lightgray;
+}
 
 .badgeBody {
 	color: black;

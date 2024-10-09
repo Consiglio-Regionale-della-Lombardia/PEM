@@ -1369,7 +1369,9 @@ namespace PortaleRegione.API.Controllers
                     var valida = !(id_gruppo != attoInDb.id_gruppo && destinatario_notifica == null && !firmaUfficio);
                     var prioritario = true;
                     if (atto.Tipo == (int)TipoAttoEnum.IQT
-                        && atto.UIDPersonaProponente.Value != persona.UID_persona)
+                        && atto.UIDPersonaProponente.Value != persona.UID_persona
+                        && (atto.IDStato == (int)StatiAttoEnum.BOZZA ||
+                            atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA))
                     {
                         var sedutaRichiesta =
                             await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta));
@@ -1394,10 +1396,18 @@ namespace PortaleRegione.API.Controllers
                         if (iqt_firmatari.Any(f => f.UID_persona == persona.UID_persona && f.Prioritario))
                             prioritario = false;
                     }
+                    else if (atto.Tipo == (int)TipoAttoEnum.IQT
+                             && atto.UIDPersonaProponente.Value != persona.UID_persona
+                             && atto.IDStato != (int)StatiAttoEnum.BOZZA
+                             && atto.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
+                    {
+                        // #976
+                        prioritario = false;
+                    }
 
                     await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
                         timestampFirma,
-                        firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo, prioritario);
+                        firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo, prioritario, countFirme);
 
                     if (destinatario_notifica != null)
                     {
@@ -1856,6 +1866,7 @@ namespace PortaleRegione.API.Controllers
                                                   && (a.IDStato == (int)StatiAttoEnum.COMPLETATO
                                                       || a.IDStato == (int)StatiAttoEnum.PRESENTATO
                                                       || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
+                        .Distinct()
                         .ToList();
 
                     //Jolly attivo limite impostato {MassimoODG_Jolly}
@@ -2035,7 +2046,7 @@ namespace PortaleRegione.API.Controllers
                 //#864 Notifiche per responsabili di segreteria
                 var responsabili = await _logicPersona.GetSegreteriaPolitica(id_gruppo, false, true);
                 var destinatari = AppSettingsConfiguration.EmailInvioDASI;
-                if (!responsabili.Any())
+                if (responsabili.Any())
                     destinatari += ";" + responsabili.Select(p => p.email).Aggregate((i, j) => i + ";" + j);
 
                 var mailModel = new MailModel
@@ -2256,6 +2267,13 @@ namespace PortaleRegione.API.Controllers
             if (atto.DataIscrizioneSeduta.HasValue)
                 throw new InvalidOperationException(
                     "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
+
+            if (!string.IsNullOrEmpty(atto.DataPresentazione))
+            {
+                // #977
+                throw new InvalidOperationException(
+                    "L'atto è già stato presentato. Puoi solamente effettuare il ritiro.");
+            }
 
             atto.Eliminato = true;
             atto.DataElimina = DateTime.Now;
@@ -3009,6 +3027,7 @@ namespace PortaleRegione.API.Controllers
                     .GetAll(persona
                         , model.page
                         , model.size
+                        , model.ordine
                         , ClientModeEnum.GRUPPI
                         , filtro
                         , new QueryExtendedRequest());
@@ -3525,6 +3544,22 @@ namespace PortaleRegione.API.Controllers
 
                 throw new Exception(res);
             }
+        }
+
+        public async Task CambiaOrdineVisualizzazione(List<AttiFirmeDto> firme)
+        {
+            var uidAtto = firme.First().UIDAtto;
+            var firmeInDb = await _unitOfWork
+                .Atti_Firme
+                .GetFirmatari(uidAtto);
+
+            foreach (var attiFirmeDto in firme)
+            {
+                var firmaInDb = firmeInDb.First(f => f.UID_persona.Equals(attiFirmeDto.UID_persona));
+                firmaInDb.OrdineVisualizzazione = attiFirmeDto.OrdineVisualizzazione;
+            }
+
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task SalvaCartaceo(AttoDASIDto attoDto, PersonaDto currentUser)

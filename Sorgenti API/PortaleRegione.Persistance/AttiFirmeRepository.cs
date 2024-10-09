@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Contracts;
-using PortaleRegione.DataBase;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.Contracts;
+using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Persistance
 {
@@ -52,9 +52,10 @@ namespace PortaleRegione.Persistance
         /// <param name="em"></param>
         public async Task Firma(Guid attoUId, Guid personaUId, int id_gruppo, string firmaCert,
             string dataFirmaCert, DateTime timestamp,
-            bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false, bool prioritario = true)
+            bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false,
+            bool prioritario = true,
+            int ordine = 0)
         {
-
             PRContext
                 .ATTI_FIRME
                 .Add(new ATTI_FIRME
@@ -69,7 +70,8 @@ namespace PortaleRegione.Persistance
                     id_gruppo = id_gruppo,
                     Valida = valida,
                     Capogruppo = capogruppo,
-                    Prioritario = prioritario
+                    Prioritario = prioritario,
+                    OrdineVisualizzazione = ordine
                 });
             await PRContext.SaveChangesAsync();
         }
@@ -95,7 +97,8 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext
                 .ATTI_FIRME
-                .CountAsync(f => f.UIDAtto == attoUId && string.IsNullOrEmpty(f.Data_ritirofirma) && f.Valida && f.Prioritario);
+                .CountAsync(f =>
+                    f.UIDAtto == attoUId && string.IsNullOrEmpty(f.Data_ritirofirma) && f.Valida && f.Prioritario);
         }
 
         /// <summary>
@@ -108,10 +111,11 @@ namespace PortaleRegione.Persistance
             var result = await PRContext
                 .ATTI_FIRME
                 .Where(f => f.UIDAtto == attoUId && f.Valida)
-                .OrderBy(f => f.Timestamp)
                 .ToListAsync();
-
-            return result;
+            //#983
+            return result.OrderBy(f => DbFunctions.TruncateTime(f.Timestamp))
+                .ThenBy(f => f.OrdineVisualizzazione)
+                .ToList();
         }
 
         public async Task<List<ATTI_FIRME>> GetFirmatari(List<Guid> guids, int max_result)
@@ -123,8 +127,12 @@ namespace PortaleRegione.Persistance
                     .ATTI_FIRME
                     .Where(f => guid == f.UIDAtto && f.Valida && string.IsNullOrEmpty(f.Data_ritirofirma) &&
                                 f.Prioritario)
-                    .OrderBy(f => f.Timestamp)
                     .ToListAsync();
+                //#983
+                result = result.OrderBy(f => DbFunctions.TruncateTime(f.Timestamp))
+                    .ThenBy(f => f.OrdineVisualizzazione)
+                    .ToList();
+
                 result.AddRange(res.Take(max_result));
             }
 
@@ -157,9 +165,9 @@ namespace PortaleRegione.Persistance
             if (atto.DataIscrizioneSeduta.HasValue) return false;
             if (atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
                 && (atto.Tipo == (int)TipoAttoEnum.ITL
-                 && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
-                 || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA
-                || atto.Tipo == (int)TipoAttoEnum.ITR
+                    && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
+                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA
+                    || atto.Tipo == (int)TipoAttoEnum.ITR
                     && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
                     || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA))
             {
@@ -241,7 +249,9 @@ namespace PortaleRegione.Persistance
                     throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
             }
 
-            query = query.OrderBy(f => f.Timestamp);
+            // #955
+            query = query.OrderBy(f =>  DbFunctions.TruncateTime(f.Timestamp))
+                .ThenBy(f => f.OrdineVisualizzazione);
 
             var lst = await query
                 .ToListAsync();

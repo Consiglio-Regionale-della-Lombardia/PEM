@@ -156,7 +156,7 @@ else
         {
             <td style="width: 8%;">
                 <span>
-                    <a class="blue-text" style="text-decoration: underline;" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</a>
+                    <a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</a>
                     <a class="btn-flat red-text tooltipped"
                        data-tooltip="Rimuovi abbinamento"
                        onclick="DeclassaMozione('@item.UIDAtto')">

@@ -41,7 +41,8 @@ namespace PortaleRegione.Client.Controllers
     /// </summary>
     [Authorize]
     [RoutePrefix("dasi")]
-    public class DASIController : BaseController
+    public class 
+        DASIController : BaseController
     {
         /// <summary>
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
@@ -57,8 +58,9 @@ namespace PortaleRegione.Client.Controllers
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             var apiGateway = new ApiGateway(Token);
+            var currentLegislatura = await apiGateway.Legislature.GetLegislaturaAttuale();
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo,
-                currentUser.CurrentRole, view_require_my_sign);
+                currentUser.CurrentRole, currentLegislatura, view_require_my_sign);
             model.CurrentUser = currentUser;
             SetCache(page, size, tipo, stato, view);
             if (view == (int)ViewModeEnum.PREVIEW)
@@ -443,7 +445,7 @@ namespace PortaleRegione.Client.Controllers
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = modelInCache.Data.Paging.Page,
+                        page = 1,
                         size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
@@ -1156,6 +1158,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("filtra")]
         public async Task<ActionResult> Filtri_Riepilogo()
         {
+            int.TryParse(Request.Form["reset"], out var reset_enabled);
             var apiGateway = new ApiGateway(Token);
             var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
             if (modelInCache == null)
@@ -1248,20 +1251,74 @@ namespace PortaleRegione.Client.Controllers
                 }
             }
 
-            Session["RiepilogoDASI"] = null;
-            int.TryParse(Request.Form["reset"], out var reset_enabled);
             var modeCache = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
             var mode = modeCache != 0 ? (ClientModeEnum)modeCache : ClientModeEnum.GRUPPI;
+            
+            if (mode == ClientModeEnum.TRATTAZIONE)
+            {
+                if (reset_enabled == 1)
+                {
+                    modelInCache.Data.Paging.Page = 1;
+                    var listaAppoggio = modelInCache.Data.Filters.ToList();
+                    foreach (var filterStatement in listaAppoggio)
+                    {
+                        if (filterStatement.PropertyId.Equals(nameof(AttoDASIDto.UID_Atto_ODG))
+                            || filterStatement.PropertyId.Equals(nameof(AttoDASIDto.UIDSeduta))
+                            || filterStatement.PropertyId.Equals(nameof(AttoDASIDto.Tipo)))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            modelInCache.Data.Filters.Remove(filterStatement);
+                        }
+                    }
+                }
+                else
+                {
+                    var modelTrattazione = await ElaboraFiltri();
+                    foreach (var filterStatement in modelTrattazione.filtro)
+                    {
+                        if (modelInCache.Data.Filters.Any(f => f.PropertyId.Equals(filterStatement.PropertyId)))
+                        {
+                            continue;
+                        }
 
+                        modelInCache.Data.Filters.Add(filterStatement);
+                    }
+                }
+
+                int.TryParse(Request.Form["page"], out var filtro_page);
+                int.TryParse(Request.Form["size"], out var filtro_size);
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = filtro_page,
+                    size = filtro_size,
+                    filtro = modelInCache.Data.Filters,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
+                };
+
+                var resultGrid = await apiGateway.DASI.Get(request);
+                resultGrid.CurrentUser = CurrentUser;
+                resultGrid.ClientMode = modelInCache.ClientMode;
+                SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo,
+                    (int)resultGrid.Stato,
+                    Convert.ToInt16(view));
+
+                Session["RiepilogoDASI"] = resultGrid;
+
+                if (CanAccess(new List<RuoliIntEnum>
+                        { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                    return View("RiepilogoDASI_Admin", resultGrid);
+
+                return View("RiepilogoDASI", resultGrid);
+            }
+
+            Session["RiepilogoDASI"] = null;
+            
             if (reset_enabled == 1)
             {
-                if (mode == ClientModeEnum.GRUPPI)
-                    return RedirectToAction("RiepilogoDASI", "DASI");
-
-                var filtro_tipo_trattazione = Request.Form["Tipo"];
-                var filtro_seduta = Request.Form["UIDSeduta"];
-                return RedirectToAction("RiepilogoDASI_BySeduta", "DASI",
-                    new { id = filtro_seduta, tipo = filtro_tipo_trattazione });
+                return RedirectToAction("RiepilogoDASI", "DASI");
             }
 
             var model = await ElaboraFiltri();
@@ -1443,7 +1500,21 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                return Json(await apiGateway.DASI.GetStati(), JsonRequestBehavior.AllowGet);
+                var resFromDb = await apiGateway.DASI.GetStati();
+                var resList = resFromDb.ToList();
+                var clientMode = (ClientModeEnum)HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
+                if (clientMode == ClientModeEnum.TRATTAZIONE)
+                {
+                    var removeStatusList = new List<int>
+                    {
+                        (int)StatiAttoEnum.TUTTI,
+                        (int)StatiAttoEnum.BOZZA,
+                        (int)StatiAttoEnum.BOZZA_RISERVATA
+                    };
+                    resList.RemoveAll(res => removeStatusList.Contains(res.IDStato));
+                }
+
+                return Json(resList, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -1535,6 +1606,9 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("cambia-ordine-visualizzazione-firme")]
+        public async Task<ActionResult> UpdateOrdineVisualizzazione(List<AttiFirmeDto> updatedList)
         /// <summary>
         ///     Controller per scaricare il documento pdf dell'atto
         /// </summary>
@@ -1564,6 +1638,8 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.CambiaOrdineVisualizzazioneFirme(updatedList);
+                return Json("", JsonRequestBehavior.AllowGet);
                 await apiGateway.DASI.SalvaReport(report);
                 return Json("OK");
             }

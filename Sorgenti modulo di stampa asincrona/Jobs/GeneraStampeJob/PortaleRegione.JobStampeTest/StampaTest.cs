@@ -10,7 +10,18 @@ namespace PortaleRegione.JobStampeTest
     {
         [Test]
         [TestCase("matteo.c", "Opencast88!")]
-        public async Task Stampa(string username, string password)
+        public async Task GetStampe(string username, string password)
+        {
+            await Init(username, password);
+
+            var stampa = await apiGateway.Stampe.JobGetStampe(1,1);
+
+            Assert.IsNotNull(stampa);
+        }
+
+        [Test]
+        [TestCase("matteo.c", "Opencast88!", "a8906779-da61-4628-910b-5e830d9f04c3")]
+        public async Task Stampa(string username, string password, string uidStampa)
         {
             await Init(username, password);
             try

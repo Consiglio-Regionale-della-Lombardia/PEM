@@ -150,6 +150,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string Edit = Base + "/edit";
                 public const string GetAll = Base + "/all";
                 public const string GetAllSoloIds = Base + "/all/solo-ids";
+                public const string GetByJson = Base + "/all-by-json";
                 public const string GetAllRichiestaPropriaFirma = Base + "/all/richiesta-firma";
                 public const string DownloadDoc = Base + "/scarica-documento";
 
@@ -257,6 +258,9 @@ namespace PortaleRegione.DTO.Routes
             public const string StampaImmediata = Base + "/{id}/stampa-immediata";
             public const string StampaImmediataPrivacy = Base + "/{id}/stampa-immediata-privacy";
             public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
+            public const string SaveCartaceo = Base + "/save-draft";
+            public const string CambiaPrioritaFirma = Base + "/change-signature-priority";
+            public const string CambiaOrdineVisualizzazioneFirme = Base + "/change-signature-order-view";
             public const string SaveCartaceo = Base + "/salva-bozza-cartacea";
             public const string CambiaPrioritaFirma = Base + "/cambia-priorità-firma";
             public const string SalvaFiltriPreferiti = Base + "/filters/salva";

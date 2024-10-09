@@ -20,6 +20,7 @@ using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -28,6 +29,7 @@ using PortaleRegione.DTO.Routes;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
@@ -393,6 +395,16 @@ namespace PortaleRegione.Gateway
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.StampaImmediata.Replace("{id}", id.ToString())}";
             var lst = await GetFile(requestUrl, _token);
             return lst;
+        }
+
+        public async Task<Dictionary<Guid, string>> GetByJson(Guid uidStampa)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetByJson}";
+            var bodyObject = new BaseRequest<StampaDto>();
+            bodyObject.id = uidStampa;
+            var body = JsonConvert.SerializeObject(bodyObject);
+            var res = await Post(requestUrl, body, _token);
+            return JsonConvert.DeserializeObject<Dictionary<Guid, string>>(res);
         }
 
         public async Task DOWN_EM_TRATTAZIONE(Guid id)
