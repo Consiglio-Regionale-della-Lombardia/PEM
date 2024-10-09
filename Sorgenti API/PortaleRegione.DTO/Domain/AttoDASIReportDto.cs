@@ -100,7 +100,7 @@ public class AttoDASIReportDto
     public bool Privacy_Dati_Personali_Semplici { get; set; }
 
     [DisplayName("Privacy")] public bool Privacy { get; set; }
-    [DisplayName("Documenti")] public string Documenti { get; set; }
+    [DisplayName("Allegati dell’atto")] public string Documenti { get; set; } // #1021
     [DisplayName("Note")] public string Note { get; set; }
     [DisplayName("Iter multiplo")] public bool IterMultiplo { get; set; } = false;
 
