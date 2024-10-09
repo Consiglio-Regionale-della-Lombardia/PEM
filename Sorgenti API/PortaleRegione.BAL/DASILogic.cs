@@ -4351,6 +4351,11 @@ namespace PortaleRegione.API.Controllers
                     return atto.gruppi_politici.codice_gruppo;
                 return "--";
             }
+            
+            if (propertyName.Equals(nameof(AttoDASIDto.Legislatura)))
+            {
+                return atto.GetLegislatura();
+            }
 
             var propertyInfo = typeof(AttoDASIDto).GetProperty(propertyName);
             if (propertyInfo == null) return "--";
