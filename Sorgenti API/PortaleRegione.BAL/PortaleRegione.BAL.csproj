@@ -280,5 +280,6 @@
   <ItemGroup>
     <None Include="Web References\proxyAd\proxyad.disco" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

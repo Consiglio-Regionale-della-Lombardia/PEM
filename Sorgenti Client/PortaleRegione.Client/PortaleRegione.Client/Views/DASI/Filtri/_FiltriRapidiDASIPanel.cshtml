@@ -32,7 +32,7 @@
 <script>
 var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))", id: "@nameof(AttoDASIDto.Legislatura)"},
-	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))", id: "@nameof(AttoDASIDto.IDStato)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIReportDto), nameof(AttoDASIReportDto.IDStato))", id: "@nameof(AttoDASIDto.IDStato)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "@nameof(AttoDASIDto.Tipo)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDTipo_Risposta))", id: "@nameof(AttoDASIDto.IDTipo_Risposta)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.NAtto))", id: "@nameof(AttoDASIDto.NAtto)"},
@@ -52,10 +52,10 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.CodiceMateria))", id: "@nameof(AttoDASIDto.CodiceMateria)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Emendato))", id: "@nameof(AttoDASIDto.Emendato)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoVotazioneIter))", id: "@nameof(AttoDASIDto.TipoVotazioneIter)"},
-	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoChiusuraIter))", id: "@nameof(AttoDASIDto.TipoChiusuraIter)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIReportDto), nameof(AttoDASIReportDto.TipoChiusuraIter))", id: "@nameof(AttoDASIDto.TipoChiusuraIter)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DCR))", id: "@nameof(AttoDASIDto.DCR)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataChiusuraIter))", id: "@nameof(AttoDASIDto.DataChiusuraIter)"},
-	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Documenti))", id: "@nameof(AttoDASIDto.Documenti)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIReportDto), nameof(AttoDASIReportDto.Documenti))", id: "@nameof(AttoDASIDto.Documenti)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Risposte))", id: "@nameof(AttoDASIDto.Risposte)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi))", id: "@nameof(AttoDASIDto.Organi)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataTrasmissione))", id: "@nameof(AttoDASIDto.DataTrasmissione)"},
@@ -1121,9 +1121,16 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			selectHTML += `<p>
                   <label>
                     <input id="chkDocumentiMancanti" type="checkbox" />
-                    <span>Cerca documenti mancanti</span>
+                    <span>Cerca allegati mancanti</span>
                   </label>
-                </p>`;
+                </p>
+				 <div class="card blue lighten-5">
+					 <div class="card-content black-text">
+						 <span class="card-title">Informazioni</span>
+						 <p>La ricerca verifica la presenza o meno di un allegato
+						 </p>
+					 </div>
+				 </div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 	        M.FormSelect.init(document.querySelectorAll('select'));
             break;
