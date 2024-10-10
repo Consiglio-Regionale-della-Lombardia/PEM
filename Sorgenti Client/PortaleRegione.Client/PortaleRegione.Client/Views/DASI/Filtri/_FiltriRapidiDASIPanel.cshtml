@@ -1148,7 +1148,14 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			    var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
 			    selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
 	        });
-	        selectHTML += '</select>';
+			selectHTML += `</select>
+			  <div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>Lasciare il campo vuoto per cercare atti senza riposta
+					</p>
+				</div>
+			</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 	        M.FormSelect.init(document.querySelectorAll('select'));
             break;
