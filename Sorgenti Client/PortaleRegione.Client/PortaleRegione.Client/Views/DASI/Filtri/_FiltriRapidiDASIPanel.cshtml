@@ -1214,7 +1214,13 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
             var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
             selectHTML = `<div class="input-field col s12">
                 <input id="note" type="text" ${currentValueFormatted}/>
-            </div>`;
+            </div>
+			<div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>Ricerca full-text effettuata su tutte le note</p>
+				</div>
+			</div>`;
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.CodiceMateria)':
