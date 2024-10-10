@@ -1799,7 +1799,14 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                 <input type="text" id="organi-autocomplete" class="autocomplete">
 
 		        <div id="organi-selected"></div>
-             </div>`;
+             </div>
+			  <div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>La ricerca è effettuata sulle commissioni consiliari e sugli organi di Giunta
+					</p>
+				</div>
+			</div>`;
 
 				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 				var data = [];
