@@ -113,7 +113,7 @@ namespace PortaleRegione.Persistance
                 .Where(f => f.UIDAtto == attoUId && f.Valida)
                 .ToListAsync();
             //#983
-            return result.OrderBy(f => DbFunctions.TruncateTime(f.Timestamp))
+            return result.OrderBy(f => f.Timestamp.Date)
                 .ThenBy(f => f.OrdineVisualizzazione)
                 .ToList();
         }
