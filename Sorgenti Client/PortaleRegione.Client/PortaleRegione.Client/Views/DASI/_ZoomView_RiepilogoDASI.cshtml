@@ -1,4 +1,5 @@
 ﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -76,8 +77,33 @@ else
                     @* FIRME *@
                     <div class="row" id="pnlStandardFirme">
                         <div class="col s12">
-
-                            @Html.Raw(item.Firme)
+							
+                            @{
+                                // #1023
+                                var firmeGroup = new List<AttiFirmeDto>();
+                                firmeGroup.AddRange(item.FirmeAnte);
+                                firmeGroup.AddRange(item.FirmePost);
+                                firmeGroup = firmeGroup
+                                    .OrderBy(f => f.OrdineVisualizzazione)
+                                    .ToList();
+                            }
+							
+                            <ul class="collection" id="pnlFirme_@item.UIDAtto">
+                                @foreach (var firme in firmeGroup)
+                                {
+                                    <li class="collection-item">
+                                        <span @Html.Raw(firme.Prioritario ? "class='bold-text'" : "") @Html.Raw(!string.IsNullOrEmpty(firme.Data_ritirofirma) ? "style='text-decoration:line-through!important'" : "")>
+                                            @firme.FirmaCert
+                                            <label>Firmato il @firme.Timestamp.ToString("dd/MM/yyyy")</label>
+				
+                                            @if (!string.IsNullOrEmpty(firme.Data_ritirofirma))
+                                            {
+                                                <label>(@firme.Data_ritirofirma)</label>
+                                            }
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
 
                             @if (!string.IsNullOrEmpty(item.DataPresentazione))
                             {
@@ -86,11 +112,6 @@ else
                                 <label class="black-text">
                                     <b>@testoDeposito il @Html.Raw(item.DataPresentazione)</b>
                                 </label>
-                            }
-
-                            @if (!string.IsNullOrEmpty(item.Firme_dopo_deposito))
-                            {
-                                @Html.Raw(item.Firme_dopo_deposito)
                             }
                         </div>
                     </div>
