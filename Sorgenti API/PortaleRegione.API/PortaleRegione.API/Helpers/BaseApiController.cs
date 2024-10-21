@@ -161,7 +161,6 @@ namespace PortaleRegione.API.Helpers
                 if (e.InnerException.Source == "EntityFramework")
                     message = e.InnerException.InnerException.Message;
 
-            Console.WriteLine(message);
             return BadRequest(message);
         }
 

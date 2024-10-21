@@ -256,6 +256,11 @@ namespace PortaleRegione.Persistance
             var lst = await query
                 .ToListAsync();
 
+            if (lst.All(f => f.OrdineVisualizzazione.Equals(0)))
+            {
+                lst = lst.OrderBy(f => f.Timestamp).ToList();
+            }
+
             if (firmaProponente != null && tipo != FirmeTipoEnum.DOPO_DEPOSITO) lst.Insert(0, firmaProponente);
 
             return lst;
