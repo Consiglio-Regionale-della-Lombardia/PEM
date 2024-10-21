@@ -1315,7 +1315,7 @@ namespace PortaleRegione.API.Controllers
                 if (atto.UIDPersonaProponente == persona.UID_persona
                     && string.IsNullOrEmpty(result_check))
                 {
-                    var firma = firme.First(f => string.IsNullOrEmpty(f.Data_ritirofirma) && f.Prioritario);
+                    var firma = firme.First(f => string.IsNullOrEmpty(f.Data_ritirofirma) && f.Prioritario && f.UID_persona != miaFirma.UID_persona);
                     atto.UIDPersonaProponente = firma.UID_persona;
                     if (firma.id_gruppo != atto.id_gruppo) atto.id_gruppo = firma.id_gruppo;
 
