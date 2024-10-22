@@ -72,8 +72,12 @@
                         <a class="btn-floating white black-text tooltipped activator" data-tooltip="Conteggi" data-position="left">
                             <i class="material-icons">insert_chart</i>
                         </a>
-                        <a class="btn-floating white black-text tooltipped" data-tooltip="Esporta report" data-position="left">
-                            <i class="material-icons">import_export</i>
+                        @* #994 *@
+                        <a id="btnExportXLS" class="btn-floating white black-text tooltipped" data-tooltip="Estrazione rapida in excel" data-href="@Url.Action("EsportaXLSRapido", "DASI")">
+                            <i class="icon material-icons left">grid_on</i>
+                        </a>
+                        <a id="btnExportZip" class="btn-floating white black-text tooltipped" data-tooltip="Estrazione zip" data-href="@Url.Action("EsportaZipRapido", "DASI")">
+                            <i class="icon material-icons left">archive</i>
                         </a>
                         <a class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
                             <i class="material-icons">print</i>

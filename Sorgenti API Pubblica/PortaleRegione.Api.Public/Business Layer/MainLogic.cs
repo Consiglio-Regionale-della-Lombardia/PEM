@@ -271,7 +271,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             var note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
 
             var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
-            var firme = await GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+            var firme = await GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
 
             var attoDto = new AttoDasiPublicDto
             {

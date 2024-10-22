@@ -64,6 +64,123 @@
         });
     }
 
+	$('#btnExportXLS').on("click", async function () {
+		waiting(true);
+
+		var url = $('#btnExportXLS').data("href");
+		var request = {};
+		var chipsData = [];
+		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
+			if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
+				chipsData.push({
+					property: chip.getAttribute('data-filterby'),
+					value: '',
+					not_empty: true
+				});
+			}
+			else {
+				chipsData.push({
+					property: chip.getAttribute('data-filterby'),
+					value: chip.getAttribute('data-val')
+				});
+			}
+		});
+
+		try {
+			request.filters = chipsData;
+			request.page = 1;
+			request.size = 999999;
+
+			// Invia la richiesta al server
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(request),
+			});
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			responseData = await response.json();
+			if (responseData.message){
+				waiting(false);	
+				ErrorAlert(responseData.message);					
+				return;
+			}
+			waiting(false);		
+			var a = document.createElement("a");
+			a.href = responseData;
+			document.body.appendChild(a);
+			a.click();
+		
+		} catch (error) {
+			waiting(false);
+			console.error('Errore: ', error);
+			ErrorAlert('Errore: ' + error.message);		
+		}	
+	});
+
+	$('#btnExportZip').on("click", function () {
+		waiting(true);
+		var url = $('#btnExportZip').data("href");
+		var request = {};
+		var chipsData = [];
+		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
+			if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
+				chipsData.push({
+					property: chip.getAttribute('data-filterby'),
+					value: '',
+					not_empty: true
+				});
+			}
+			else {
+				chipsData.push({
+					property: chip.getAttribute('data-filterby'),
+					value: chip.getAttribute('data-val')
+				});
+			}
+		});
+
+		try {
+			request.filters = chipsData;
+			request.page = 1;
+			request.size = 999999;
+
+			// Invia la richiesta al server
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(request),
+			});
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			responseData = await response.json();
+			if (responseData.message) {
+				waiting(false);
+				ErrorAlert(responseData.message);
+				return;
+			}
+			waiting(false);
+			var a = document.createElement("a");
+			a.href = responseData;
+			document.body.appendChild(a);
+			a.click();
+
+		} catch (error) {
+			waiting(false);
+			console.error('Errore: ', error);
+			ErrorAlert('Errore: ' + error.message);
+		}	
+	});
+
     window.addEventListener("message", (event) => {
 	    // Controlla l'origine del messaggio per motivi di sicurezza
 	    if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") { // sostituisci con il tuo dominio

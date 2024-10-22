@@ -598,7 +598,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _dasiLogic.GetSoloIds(request, CurrentUser, Request.RequestUri));
+                var result = await _dasiLogic.GetSoloIds(request, CurrentUser, Request.RequestUri);
+                return Ok(result);
             }
             catch (Exception e)
             {

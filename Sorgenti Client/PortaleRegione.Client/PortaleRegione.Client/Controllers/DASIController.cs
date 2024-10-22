@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1045,6 +1046,116 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
+        /// <summary>
+        ///     Controller per esportare gli atti
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("excel-rapido")]
+        public async Task<ActionResult> EsportaXLSRapido(FilterRequest model)
+        {
+            try
+            {
+                // #994
+                
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = 20,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+                };
+
+                if (model == null)
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                if (!model.filters.Any())
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                request.page = model.page;
+                request.size = model.size;
+
+                var apiGateway = new ApiGateway(Token);
+
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
+
+                var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                var file = await apiGateway.Esporta.EsportaXLSDASI(soloIds);
+
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per esportare gli atti
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("zip-rapido")]
+        public async Task<ActionResult> EsportaZipRapido(FilterRequest model)
+        {
+            try
+            {
+                // #994
+                
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = 20,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+                };
+
+                if (model == null)
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                if (!model.filters.Any())
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                request.page = model.page;
+                request.size = model.size;
+
+                var apiGateway = new ApiGateway(Token);
+
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
+
+                var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                var file = await apiGateway.Esporta.EsportaZipDASI(soloIds);
+
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
         /// <summary>
         ///     Controller per esportare gli atti
         /// </summary>

@@ -16,6 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Web;
 using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -36,15 +45,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using System.Web;
 using Color = System.Drawing.Color;
 
 namespace PortaleRegione.BAL
@@ -139,6 +139,7 @@ namespace PortaleRegione.BAL
                             $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)}-{model.Atto.NAtto}-{legislatura.num_legislatura}",
                             ref columnIndex);
                     }
+
                     SetColumnValue(ref row, excelSheet, em.N_EM, ref columnIndex);
                     SetColumnValue(ref row, excelSheet, em.DataDeposito, ref columnIndex);
                     SetColumnValue(ref row, excelSheet,
@@ -282,8 +283,8 @@ namespace PortaleRegione.BAL
                 using (var package = new ExcelPackage())
                 {
                     var emList = await _logicEm.ScaricaEmendamenti(model, persona);
-                    var emGroup = emList.Where(em => !em.Rif_UIDEM.HasValue).OrderBy(em=>em.OrdinePresentazione);
-                    var subemGroup = emList.Where(em => em.Rif_UIDEM.HasValue).OrderBy(em=>em.OrdinePresentazione);
+                    var emGroup = emList.Where(em => !em.Rif_UIDEM.HasValue).OrderBy(em => em.OrdinePresentazione);
+                    var subemGroup = emList.Where(em => em.Rif_UIDEM.HasValue).OrderBy(em => em.OrdinePresentazione);
                     var groupProgressivo = new List<EmendamentiDto>();
                     groupProgressivo.AddRange(emGroup);
                     groupProgressivo.AddRange(subemGroup);
@@ -292,7 +293,8 @@ namespace PortaleRegione.BAL
                         .OrderBy(em => em.OrdineVotazione));
                     await NewSheet(package, nameof(ReportType.PCR), model.Atto.UIDAtto, ReportType.PCR, emList
                         .OrderBy(em => em.OrdineVotazione));
-                    await NewSheet(package, nameof(ReportType.PROGRESSIVO), model.Atto.UIDAtto, ReportType.PROGRESSIVO, groupProgressivo);
+                    await NewSheet(package, nameof(ReportType.PROGRESSIVO), model.Atto.UIDAtto, ReportType.PROGRESSIVO,
+                        groupProgressivo);
 
                     // Imposta il percorso della cartella temporanea sul server
                     var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
@@ -563,7 +565,6 @@ namespace PortaleRegione.BAL
                 sheet.Cells[2, 1].Value = "Numero massimo atti da importare:";
                 sheet.Cells[2, 2].Value = 1000;
                 sheet.Cells[2, 2].Style.Numberformat.Format = "0";
-
             }
             catch (Exception e)
             {
@@ -585,7 +586,7 @@ namespace PortaleRegione.BAL
                 sheet.Cells[1, 6].Value = "DATA RITIRO FIRMA";
                 sheet.Cells[1, 7].Value = "PRIMO FIRMATARIO";
 
-                int row = 2;
+                var row = 2;
                 foreach (var firma in firmatariList)
                 {
                     try
@@ -601,7 +602,8 @@ namespace PortaleRegione.BAL
                         var indiceParentesiApertura = firmacert.IndexOf('(');
                         firmacert = firmacert.Remove(indiceParentesiApertura - 1);
                         sheet.Cells[row, 3].Value = firmacert;
-                        sheet.Cells[row, 4].Value = gruppo_firmatario.codice_gruppo; // #862 fix: codice gruppo per firmatario
+                        sheet.Cells[row, 4].Value =
+                            gruppo_firmatario.codice_gruppo; // #862 fix: codice gruppo per firmatario
                         sheet.Cells[row, 5].Value = new DateTime(
                             firma.Timestamp.Year,
                             firma.Timestamp.Month,
@@ -639,6 +641,8 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                // #994
+
                 //HEADER
                 var headerRow = 2;
                 sheet.Cells[headerRow, 1].Value = "TIPO ATTO";
@@ -682,55 +686,52 @@ namespace PortaleRegione.BAL
                 sheet.Cells[headerRow, 39].Value = "STATO DI ATTUAZIONE";
                 sheet.Cells[headerRow, 40].Value = "CONCLUSO";
 
-                int row = 3;
+                var row = 3;
                 foreach (var atto in attiList)
                 {
-                    sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
-                    var tipoMozione = "";
-                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
-                    {
-                        tipoMozione = Utility.GetText_TipoMOZDASI(atto.TipoMOZ);
-
-                    }
-
-                    sheet.Cells[row, 2].Value = tipoMozione;
+                    // Popolamento delle celle
+                    sheet.Cells[row, 1].Value = atto.DisplayTipo;
+                    sheet.Cells[row, 2].Value = atto.IsMOZ() ? atto.DisplayTipoMozione : "";
                     sheet.Cells[row, 3].Value = Convert.ToInt32(atto.NAtto);
                     sheet.Cells[row, 3].Style.Numberformat.Format = "0";
+                    sheet.Cells[row, 4].Value = atto.DisplayStato;
+                    sheet.Cells[row, 5].Value = atto.Protocollo;
+                    sheet.Cells[row, 6].Value = atto.CodiceMateria;
+                    sheet.Cells[row, 7].Value = atto.Timestamp?.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 8].Value = atto.OggettoView();
+                    sheet.Cells[row, 9].Value = atto.Oggetto; // Presentato
+                    sheet.Cells[row, 10].Value = ""; // Assemblea
+                    sheet.Cells[row, 11].Value = atto.DisplayTipoRispostaRichiesta;
+                    sheet.Cells[row, 12].Value = atto.DisplayAreaPolitica;
+                    sheet.Cells[row, 13].Value = atto.DataAnnunzio?.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 14].Value = atto.Pubblicato ? "Sì" : "No";
+                    sheet.Cells[row, 15].Value = ""; // Risposta fornita (potrebbe richiedere logica aggiuntiva)
+                    sheet.Cells[row, 16].Value = atto.IterMultiplo ? "Sì" : "No";
+                    sheet.Cells[row, 17].Value = atto.Note_Pubbliche;
+                    sheet.Cells[row, 18].Value = ""; // Annotazioni
+                    sheet.Cells[row, 19].Value = atto.DisplayTipoChiusuraIter;
+                    sheet.Cells[row, 20].Value = atto.DataChiusuraIter?.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 21].Value = atto.Note_Private;
+                    sheet.Cells[row, 22].Value = "";
+                    sheet.Cells[row, 23].Value = atto.DataTrasmissione?.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 24].Value = atto.TipoChiusuraIter;
+                    sheet.Cells[row, 25].Value = atto.DataChiusuraIter?.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 26].Value = atto.Note_Private;
+                    sheet.Cells[row, 27].Value = atto.DisplayTipoVotazioneIter;
+                    sheet.Cells[row, 28].Value = atto.DCR;
+                    sheet.Cells[row, 29].Value = atto.DCRL;
+                    sheet.Cells[row, 30].Value = atto.DCCR;
+                    sheet.Cells[row, 31].Value = atto.BURL;
+                    sheet.Cells[row, 32].Value = atto.Emendato ? "Sì" : "No";
+                    sheet.Cells[row, 33].Value = atto.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 34].Value = atto.AreaTematica;
+                    sheet.Cells[row, 35].Value = atto.DataTrasmissione?.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 36].Value = atto.AltriSoggetti;
+                    sheet.Cells[row, 37].Value = atto.CompetenzaMonitoraggio;
+                    sheet.Cells[row, 38].Value = atto.ImpegniScadenze;
+                    sheet.Cells[row, 39].Value = atto.StatoAttuazione;
+                    sheet.Cells[row, 40].Value = atto.IsChiuso ? "Sì" : "No";
 
-                    sheet.Cells[row, 4].Value = Utility.GetText_StatoDASI(atto.IDStato, true);
-                    sheet.Cells[row, 5].Value = "";
-                    sheet.Cells[row, 6].Value = "";
-                    sheet.Cells[row, 7].Value = new DateTime(
-                        atto.Timestamp.Value.Year,
-                        atto.Timestamp.Value.Month,
-                        atto.Timestamp.Value.Day);
-                    sheet.Cells[row, 7].Style.Numberformat.Format = "dd/MM/yyyy";
-
-                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT
-                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
-                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITL)
-                    {
-                        sheet.Cells[row, 8].Value = atto.Oggetto;
-                    }
-                    else
-                    {
-                        sheet.Cells[row, 8].Value = "";
-                    }
-
-                    //Matteo Cattapan #500 / #676
-                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.MOZ
-                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ODG)
-                    {
-                        sheet.Cells[row, 9].Value = atto.Oggetto; // oggetto presentato / oggetto commissione 
-                        sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
-                    }
-                    else
-                    {
-                        sheet.Cells[row, 9].Value = ""; // oggetto presentato / oggetto commissione 
-                        sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
-                    }
-
-                    sheet.Cells[row, 11].Value = Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta, true); // risposta
                     row++;
                 }
             }
@@ -740,6 +741,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
+
 
         public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode,
             PersonaDto persona)

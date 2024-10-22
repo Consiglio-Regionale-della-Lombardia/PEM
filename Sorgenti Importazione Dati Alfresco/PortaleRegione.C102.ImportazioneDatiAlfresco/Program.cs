@@ -205,8 +205,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                             var tipoAttoFromAlfresco = Convert.ToString(cellsAtti[row, 4].Value);
                             var legislaturaFromAlfresco = Convert.ToString(cellsAtti[row, 47].Value);
 
-                            if (legislaturaFromAlfresco == "33")
-                                continue;
+                            //if (legislaturaFromAlfresco == "33")
+                            //    continue;
 
                             var numeroAtto = Convert.ToString(cellsAtti[row, 19].Value);
 
