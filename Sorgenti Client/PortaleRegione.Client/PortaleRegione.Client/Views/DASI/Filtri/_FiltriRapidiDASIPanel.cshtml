@@ -807,6 +807,14 @@ function CreaTabella() {
 				});
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Firme)') {
 				td.innerHTML = htmlFirme;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
+				if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.RIS)') {
+					result.CommissioniProponenti.forEach(prop => {
+						td.innerHTML += `${prop.descr}<br>`;		
+					});
+				} else {
+					td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;				
+				}
 			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDSeduta)') {
 
 				if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.ITR)'
