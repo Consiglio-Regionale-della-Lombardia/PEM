@@ -7,6 +7,7 @@
         public int IQT { get; set; } = 0;
         public int MOZ { get; set; } = 0;
         public int ODG { get; set; } = 0;
+        public int RIS { get; set; } = 0;
         public int TUTTI { get; set; } = 0;
         public int BOZZE { get; set; } = 0;
         public int PRESENTATI { get; set; } = 0;

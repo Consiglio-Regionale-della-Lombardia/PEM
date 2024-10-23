@@ -911,9 +911,11 @@ namespace PortaleRegione.Persistance
                 .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
-            if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo.Equals((int)tipo));
+            queryExtended.Tipi.Clear();
 
             query = ApplyFilters(query, queryFilter.Statements, queryExtended, clientMode, currentUser, ref userOrder);
+
+            if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo.Equals((int)tipo));
 
             return await query
                 .CountAsync();
@@ -928,9 +930,10 @@ namespace PortaleRegione.Persistance
                 .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
-            if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato.Equals((int)stato));
+            queryExtended.Stati.Clear();
 
             query = ApplyFilters(query, queryFilter.Statements, queryExtended, clientMode, currentUser, ref userOrder);
+            if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato.Equals((int)stato));
 
             return await query
                 .CountAsync();

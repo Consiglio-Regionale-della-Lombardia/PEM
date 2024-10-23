@@ -883,6 +883,10 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ODG, clientMode, filtro, queryExtended),
+                RIS = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.RIS, clientMode, filtro, queryExtended),
                 TUTTI = await _unitOfWork
                     .DASI
                     .Count(persona,
