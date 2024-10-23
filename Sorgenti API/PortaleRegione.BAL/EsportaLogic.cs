@@ -668,23 +668,20 @@ namespace PortaleRegione.BAL
                 sheet.Cells[headerRow, 21].Value = "NOTE CHIUSURA ITER";
                 sheet.Cells[headerRow, 22].Value = "RISULTATO VOTAZIONE";
                 sheet.Cells[headerRow, 23].Value = "DATA TRASMISSIONE";
-                sheet.Cells[headerRow, 24].Value = "TIPO CHIUSURA ITER";
-                sheet.Cells[headerRow, 25].Value = "DATA CHIUSURA ITER";
-                sheet.Cells[headerRow, 26].Value = "NOTE CHIUSURA ITER";
-                sheet.Cells[headerRow, 27].Value = "TIPO VOTAZIONE";
-                sheet.Cells[headerRow, 28].Value = "DCR";
-                sheet.Cells[headerRow, 29].Value = "NUMERO DCR";
-                sheet.Cells[headerRow, 30].Value = "NUMERO DCRC";
-                sheet.Cells[headerRow, 31].Value = "BURL";
-                sheet.Cells[headerRow, 32].Value = "EMENDATO";
-                sheet.Cells[headerRow, 33].Value = "DATA COMUNICAZIONE ASSEMBLEA";
-                sheet.Cells[headerRow, 34].Value = "AREA TEMATICA";
-                sheet.Cells[headerRow, 35].Value = "DATA TRASMISSIONE";
-                sheet.Cells[headerRow, 36].Value = "ALTRI SOGGETTI";
-                sheet.Cells[headerRow, 37].Value = "COMPETENZA";
-                sheet.Cells[headerRow, 38].Value = "IMPEGNI E SCADENZE";
-                sheet.Cells[headerRow, 39].Value = "STATO DI ATTUAZIONE";
-                sheet.Cells[headerRow, 40].Value = "CONCLUSO";
+                sheet.Cells[headerRow, 24].Value = "TIPO VOTAZIONE";
+                sheet.Cells[headerRow, 25].Value = "DCR";
+                sheet.Cells[headerRow, 26].Value = "NUMERO DCR";
+                sheet.Cells[headerRow, 27].Value = "NUMERO DCRC";
+                sheet.Cells[headerRow, 28].Value = "BURL";
+                sheet.Cells[headerRow, 29].Value = "EMENDATO";
+                sheet.Cells[headerRow, 30].Value = "DATA COMUNICAZIONE ASSEMBLEA";
+                sheet.Cells[headerRow, 31].Value = "AREA TEMATICA";
+                sheet.Cells[headerRow, 32].Value = "DATA TRASMISSIONE";
+                sheet.Cells[headerRow, 33].Value = "ALTRI SOGGETTI";
+                sheet.Cells[headerRow, 34].Value = "COMPETENZA";
+                sheet.Cells[headerRow, 35].Value = "IMPEGNI E SCADENZE";
+                sheet.Cells[headerRow, 36].Value = "STATO DI ATTUAZIONE";
+                sheet.Cells[headerRow, 37].Value = "CONCLUSO";
 
                 var row = 3;
                 foreach (var atto in attiList)
@@ -714,23 +711,20 @@ namespace PortaleRegione.BAL
                     sheet.Cells[row, 21].Value = atto.Note_Private;
                     sheet.Cells[row, 22].Value = "";
                     sheet.Cells[row, 23].Value = atto.DataTrasmissione?.ToString("dd/MM/yyyy");
-                    sheet.Cells[row, 24].Value = atto.TipoChiusuraIter;
-                    sheet.Cells[row, 25].Value = atto.DataChiusuraIter?.ToString("dd/MM/yyyy");
-                    sheet.Cells[row, 26].Value = atto.Note_Private;
-                    sheet.Cells[row, 27].Value = atto.DisplayTipoVotazioneIter;
-                    sheet.Cells[row, 28].Value = atto.DCR;
-                    sheet.Cells[row, 29].Value = atto.DCRL;
-                    sheet.Cells[row, 30].Value = atto.DCCR;
-                    sheet.Cells[row, 31].Value = atto.BURL;
-                    sheet.Cells[row, 32].Value = atto.Emendato ? "Sì" : "No";
-                    sheet.Cells[row, 33].Value = atto.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy");
-                    sheet.Cells[row, 34].Value = atto.AreaTematica;
-                    sheet.Cells[row, 35].Value = atto.DataTrasmissione?.ToString("dd/MM/yyyy");
-                    sheet.Cells[row, 36].Value = atto.AltriSoggetti;
-                    sheet.Cells[row, 37].Value = atto.CompetenzaMonitoraggio;
-                    sheet.Cells[row, 38].Value = atto.ImpegniScadenze;
-                    sheet.Cells[row, 39].Value = atto.StatoAttuazione;
-                    sheet.Cells[row, 40].Value = atto.IsChiuso ? "Sì" : "No";
+                    sheet.Cells[row, 24].Value = atto.DisplayTipoVotazioneIter;
+                    sheet.Cells[row, 25].Value = atto.DCR;
+                    sheet.Cells[row, 26].Value = atto.DCRL;
+                    sheet.Cells[row, 27].Value = atto.DCCR;
+                    sheet.Cells[row, 28].Value = atto.BURL;
+                    sheet.Cells[row, 29].Value = atto.Emendato ? "Sì" : "No";
+                    sheet.Cells[row, 30].Value = atto.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 31].Value = atto.AreaTematica;
+                    sheet.Cells[row, 32].Value = atto.DataTrasmissione?.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 33].Value = atto.AltriSoggetti;
+                    sheet.Cells[row, 34].Value = atto.CompetenzaMonitoraggio;
+                    sheet.Cells[row, 35].Value = atto.ImpegniScadenze;
+                    sheet.Cells[row, 36].Value = atto.StatoAttuazione;
+                    sheet.Cells[row, 37].Value = atto.IsChiuso ? "Sì" : "No";
 
                     row++;
                 }
@@ -741,7 +735,6 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-
 
         public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode,
             PersonaDto persona)

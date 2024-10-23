@@ -1105,7 +1105,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per esportare gli atti
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         [Route("zip-rapido")]
         public async Task<ActionResult> EsportaZipRapido(FilterRequest model)
         {
