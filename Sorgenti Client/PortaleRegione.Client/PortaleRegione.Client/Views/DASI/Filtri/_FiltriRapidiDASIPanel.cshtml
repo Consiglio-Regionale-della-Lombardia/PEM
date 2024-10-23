@@ -719,10 +719,6 @@ function CreaTabella() {
 </a>`
 		}
 
-		var isPubblicato = result.Pubblicato ? 'checked="checked"' : '';
-		var isSollecito = result.Sollecito ? 'checked="checked"' : '';
-		var haveProtocollo = result.Protocollo ? 'checked="checked"' : '';
-
 		var iconChipAggiuntiva = "";
 		if (result.Abbinamenti.length > 0){
 			iconChipAggiuntiva = `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>`;
@@ -760,6 +756,102 @@ function CreaTabella() {
 				} else {
 					td.textContent = "";
 				}
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Pubblicato)') {
+				var isPubblicato = result.Pubblicato ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPubblicato}/>
+		<span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Sollecito)') {
+				var isSollecito = result.Sollecito ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isSollecito}/>
+		<span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Emendato)') {
+				var isEmendato = result.Emendato ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isEmendato}/>
+		 <span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Privacy)') {
+				var isPrivacy = result.Privacy ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy}/>
+		 <span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)') {
+				var isPrivacy_Dati_Personali_Semplici = result.Privacy_Dati_Personali_Semplici ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Dati_Personali_Semplici}/>
+		 <span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)') {
+				var isPrivacy_Divieto_Pubblicazione_Altri = result.Privacy_Divieto_Pubblicazione_Altri ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Divieto_Pubblicazione_Altri}/>
+		 <span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)') {
+				var isPrivacy_Dati_Personali_Sensibili = result.Privacy_Dati_Personali_Sensibili ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Dati_Personali_Sensibili}/>
+		 <span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)') {
+				var isPrivacy_Divieto_Pubblicazione = result.Privacy_Divieto_Pubblicazione ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Divieto_Pubblicazione}/>
+		 <span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)') {
+				var isPrivacy_Divieto_Pubblicazione_Vita_Sessuale = result.Privacy_Divieto_Pubblicazione_Vita_Sessuale ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Divieto_Pubblicazione_Vita_Sessuale}/>
+		 <span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)') {
+				var isPrivacy_Divieto_Pubblicazione_Salute = result.Privacy_Divieto_Pubblicazione_Salute ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Divieto_Pubblicazione_Salute}/>
+		 <span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)') {
+				var isPrivacy_Dati_Personali_Giudiziari = result.Privacy_Dati_Personali_Giudiziari ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Dati_Personali_Giudiziari}/>
+		 <span></span>
+      </label>
+    </p>`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.IterMultiplo)') {
+				var isIterMultiplo = result.IterMultiplo ? 'checked="checked"' : '';
+				td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isIterMultiplo}/>
+		 <span></span>
+      </label>
+    </p>`;
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Tipo)') {
 				td.textContent = result.DisplayTipo;
 			}else if (col.propertyName === '@nameof(AttoDASIDto.TipoMOZ)') {
@@ -810,10 +902,10 @@ function CreaTabella() {
 			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
 				if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.RIS)') {
 					result.CommissioniProponenti.forEach(prop => {
-						td.innerHTML += `${prop.descr}<br>`;		
+						td.innerHTML += `${prop.descr}<br>`;
 					});
 				} else {
-					td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;				
+					td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
 				}
 			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDSeduta)') {
 
