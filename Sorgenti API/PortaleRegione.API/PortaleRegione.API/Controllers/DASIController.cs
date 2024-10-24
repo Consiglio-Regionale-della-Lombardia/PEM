@@ -425,7 +425,7 @@ namespace PortaleRegione.API.Controllers
         [HttpPost]
         [Route(ApiRoutes.DASI.Remove_Document)]
         public async Task<IHttpActionResult> Rimuovi_Documento(AttiDocumentiDto request)
-        {
+        {   
             try
             {
                 await _dasiLogic.Rimuovi_Documento(request, CurrentUser);
@@ -433,7 +433,28 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Salva documento atto DASI", e);
+                Log.Error("Rimuovi documento atto DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per pubblicare o rimuovere dalla pubblicazione un documento1
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Public_Document)]
+        public async Task<IHttpActionResult> Pubblica_Documento(AttiDocumentiDto request)
+        {   
+            try
+            {
+                await _dasiLogic.Pubblica_Documento(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Pubblica documento atto DASI", e);
                 return ErrorHandler(e);
             }
         }

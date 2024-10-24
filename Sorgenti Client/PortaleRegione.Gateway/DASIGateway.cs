@@ -161,6 +161,12 @@ namespace PortaleRegione.Gateway
             var body = JsonConvert.SerializeObject(request);
             await Post(requestUrl, body, _token);
         }
+        public async Task Pubblica_Documento(AttiDocumentiDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Public_Document}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
 
         public async Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request)
         {

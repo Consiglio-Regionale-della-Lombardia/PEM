@@ -972,7 +972,54 @@
 							</div>
 						</div>
 					</li>
-					<li>
+                    <li>
+                        <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">content_copy</i>Documenti</div>
+                        <div class="collapsible-body">
+                            <div class="row">
+                                <div class="col s12">
+                                    <table>
+                                        <thead>
+                                        <tr>
+                                            <td>Tipo</td>
+                                            <td>Documento</td>
+                                            <td>Pubblico</td>
+                                            <td>Scarica</td>
+                                            <td></td>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var doc in atto.Documenti)
+                                        {
+                                            <tr>
+                                                <td>@doc.Tipo</td>
+                                                <td>@doc.Titolo</td>
+                                                <td>
+                                                    <p>
+                                                        <label>
+                                                            <input type="checkbox" @Html.Raw(doc.Pubblico ? "checked=\"checked\"" : "") onclick='pubblicaDocumento(this, "@doc.Uid")'/>
+                                                            <span></span>
+                                                        </label>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <a href="@doc.Link" target="_blank">
+                                                        <i class="material-icons icon">link</i>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+                                                        <i class="material-icons">close</i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
 						<div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe</div>
 						<div class="collapsible-body">
 							<span>Lorem ipsum dolor sit amet.</span>
@@ -1987,6 +2034,43 @@
             alert("Input file non trovato.");
         }
     }
+
+	async function pubblicaDocumento(ctrl, uid) {
+		waiting(true);
+
+		var isChecked = ctrl.checked;
+		var statusMessage = isChecked ? "Documento pubblicato" : "Documento rimosso dalla pubblicazione";
+
+		// Simula la richiesta al server per rimuovere i dati
+		var url = '@Url.Action("Salva_PubblicaDocumento", "DASI")';
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ Uid: uid })
+		});
+
+		if (!response.ok) {
+			waiting(false);
+			throw new Error('Network response was not ok');
+		}
+
+		try {
+			const errorData = await response.json();
+						if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+		} catch (error) {
+			// ignored
+			waiting(false);
+		}
+		waiting(false);
+		M.toast({
+			html: `<span>${statusMessage}</span>`,
+			classes: 'rounded',
+			displayLength: 5000
+		});
+	}
 
 	function rimuoviDocumento(ctrl, titolo, uid) {
 	    swal({

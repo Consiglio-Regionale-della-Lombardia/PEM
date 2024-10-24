@@ -2249,6 +2249,27 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per pubblicare un documento dall'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("pubblica-documento")]
+        public async Task<ActionResult> Salva_PubblicaDocumento(AttiDocumentiDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Pubblica_Documento(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per salvare massivamente i dati di una lista di atti

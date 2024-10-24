@@ -1278,13 +1278,7 @@ namespace PortaleRegione.Persistance
                     .Distinct()
                     .ToList();
 
-                query = query
-                    .Join(
-                        documentQuery,
-                        atto => atto.UIDAtto,
-                        doc => doc,
-                        (atto, doc) => atto
-                    );
+                query = query.Where(atto => documentQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.RispostaMancante)
@@ -1294,12 +1288,7 @@ namespace PortaleRegione.Persistance
                     .Distinct()
                     .ToList();
 
-                query = query.GroupJoin(risposteQuery,
-                        atto => atto.UIDAtto,
-                        risp => risp,
-                        (atto, risp) => new { atto, risp })
-                    .Where(g => !g.risp.Any())
-                    .Select(g => g.atto);
+                query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
             }
             else if (queryExtended.Risposte.Any())
             {
@@ -1309,10 +1298,7 @@ namespace PortaleRegione.Persistance
                     .Distinct()
                     .ToList();
 
-                query = query.Join(risposteEffettiveQuery,
-                    atto => atto.UIDAtto,
-                    risp => risp,
-                    (atto, risp) => atto);
+                query = query.Where(atto => risposteEffettiveQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.Proponenti.Any())
@@ -1349,13 +1335,7 @@ namespace PortaleRegione.Persistance
                     .Select(f => f.UIDAtto)
                     .Distinct()
                     .ToList();
-
-                query = query.GroupJoin(commissioniQuery,
-                        atto => atto.UIDAtto,
-                        commissione => commissione,
-                        (atto, commissione) => new { atto, commissione })
-                    .Where(g => !g.commissione.Any())
-                    .Select(g => g.atto);
+                query = query.Where(atto => commissioniQuery.Contains(atto.UIDAtto));
             }
             else if (queryExtended.Organi.Any())
             {
@@ -1613,7 +1593,6 @@ namespace PortaleRegione.Persistance
 
             #endregion
 
-            var sql = query.ToTraceQuery();
             return query;
         }
     }

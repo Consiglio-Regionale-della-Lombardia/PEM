@@ -4685,6 +4685,13 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task Pubblica_Documento(AttiDocumentiDto request, PersonaDto currentUser)
+        {
+            var doc = await _unitOfWork.DASI.GetDocumento(request.Uid);
+            doc.Pubblica = !doc.Pubblica;
+            await _unitOfWork.CompleteAsync();
+        }
+
         public async Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request, PersonaDto currentUser)
         {
             foreach (var datiInline in request.Lista)
