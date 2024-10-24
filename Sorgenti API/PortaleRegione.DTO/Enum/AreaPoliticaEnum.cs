@@ -29,6 +29,7 @@ namespace PortaleRegione.DTO.Enum
         public const string Misto_Maggioranza = "Misto-maggioranza";
         public const string Misto_Minoranza = "Misto-minoranza";
         public const string Misto = "Misto";
+        public const string Misto_Maggioranza_Minoranza = "MISTO maggioranza/minoranza";
 
         public static ICollection<KeyValueDto> GetItems()
         {
@@ -46,6 +47,7 @@ namespace PortaleRegione.DTO.Enum
         Minoranza = 2,
         Misto_Maggioranza = 3,
         Misto_Minoranza = 4,
+        Misto_Maggioranza_Minoranza = 5,
         Misto = 0
     }
 }
