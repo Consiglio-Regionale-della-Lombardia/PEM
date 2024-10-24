@@ -486,6 +486,8 @@ namespace PortaleRegione.Common
                         return "Chiusura iter";
                     case TipoNotaEnum.RISPOSTA:
                         return "Risposta";
+                    case TipoNotaEnum.PRIVACY:
+                        return "Privacy";
                     default:
                         throw new ArgumentOutOfRangeException(nameof(tipoNota),
                             tipoNota, null);

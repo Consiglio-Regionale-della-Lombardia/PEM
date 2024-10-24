@@ -23,6 +23,7 @@ namespace PortaleRegione.DTO.Enum
         GENERALE_PRIVATA = 1,
         RISPOSTA = 2,
         CHIUSURA_ITER = 3,
-        GENERALE_PUBBLICA = 4
+        GENERALE_PUBBLICA = 4,
+        PRIVACY = 5
     }
 }
