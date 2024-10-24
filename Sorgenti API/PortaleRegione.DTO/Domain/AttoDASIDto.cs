@@ -404,7 +404,7 @@ public class AttoDASIDto
 
     [DisplayName("Data comunicazione assemblea")]public DateTime? DataComunicazioneAssemblea { get; set; }
     [DisplayName("Data risposta")]public DateTime? DataRisposta { get; set; }
-    [DisplayName("Data trattazione risposta")]public DateTime? DataTrattazione { get; set; }
+    [DisplayName("Data trattazione")]public DateTime? DataTrattazione { get; set; }
     [DisplayName("Iter multiplo")]public bool IterMultiplo { get; set; } = false;
 
     [DisplayName("Commissioni proponenti")]
