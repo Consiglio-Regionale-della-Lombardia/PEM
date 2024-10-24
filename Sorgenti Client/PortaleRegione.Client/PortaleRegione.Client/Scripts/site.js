@@ -939,7 +939,7 @@ function CambioStatoMassivoDASI(stato, descr) {
     var text = "";
     var listaAtti = getListaAtti();
     var selezionaTutti = getSelezionaTutti_DASI();
-    var text_counter = GetCounterAlert(listaAtti, selezionaTutti);
+    var text_counter = GetCounterAlertStampa(listaAtti, selezionaTutti);
     text = "Cambia stato di " + text_counter + " atti in " + descr;
 
     swal(text,

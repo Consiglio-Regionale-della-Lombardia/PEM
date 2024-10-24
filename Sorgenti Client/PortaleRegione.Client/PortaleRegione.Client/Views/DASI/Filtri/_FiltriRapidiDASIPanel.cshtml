@@ -1092,7 +1092,9 @@ function creaPaginazione(data) {
     dropdownHTML_top += `</ul></div>`;
     dropdownHTML_bottom += `</ul></div>`;
 
-    var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/><input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>`;
+    var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/>
+	<input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>
+	<input id="hdTotaleDocumenti" type="hidden" value="${totaleRisultati}"/>`;
 
     // Inserisci l'HTML nel DOM
     document.getElementById('paginazione-container-top').innerHTML = paginationHTML + dropdownHTML_top;

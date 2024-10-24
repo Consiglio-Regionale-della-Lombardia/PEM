@@ -12,17 +12,17 @@
         </li>
         
         <li>
-            <a class="btn-floating btn-large tooltipped depositato" data-position="left" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@StatiAttoEnum.PRESENTATO')">
+            <a class="btn-floating btn-large tooltipped depositato" data-position="left" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))')">
                 <i class="material-icons">lock</i>
             </a>
         </li>
         <li>
-            <a class="btn-floating btn-large tooltipped trattazione" data-position="left" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@StatiAttoEnum.IN_TRATTAZIONE')">
+            <a class="btn-floating btn-large tooltipped trattazione" data-position="left" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))')">
                 <i class="material-icons">settings_input_antenna</i>
             </a>
         </li>
         <li>
-            <a class="btn-floating btn-large tooltipped chiuso" data-position="left" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.COMPLETATO), '@StatiAttoEnum.COMPLETATO')">
+            <a class="btn-floating btn-large tooltipped chiuso" data-position="left" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.COMPLETATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.COMPLETATO))')">
                 <i class="material-icons">storage</i>
             </a>
         </li>
