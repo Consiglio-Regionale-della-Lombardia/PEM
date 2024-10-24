@@ -1177,6 +1177,8 @@ namespace PortaleRegione.Persistance
 
             filtro2.BuildExpression(ref query);
 
+            #region Filtri semplici
+
             if (mode == ClientModeEnum.GRUPPI)
             {
                 query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
@@ -1199,24 +1201,6 @@ namespace PortaleRegione.Persistance
             if (queryExtended.GruppiProponenti.Any())
                 query = query.Where(i => queryExtended.GruppiProponenti.Contains(i.id_gruppo));
 
-            if (queryExtended.GruppiFirmatari.Any())
-            {
-                var firmeQuery = PRContext.ATTI_FIRME
-                    .Where(firma => queryExtended.GruppiFirmatari.Contains(firma.id_gruppo))
-                    .Select(firma => firma.UIDAtto);
-
-                query = query.Where(atto => firmeQuery.Contains(atto.UIDAtto));
-            }
-
-            if (queryExtended.Firmatari.Any())
-            {
-                var firmeQuery = PRContext.ATTI_FIRME
-                    .Where(firma => queryExtended.Firmatari.Contains(firma.UID_persona))
-                    .Select(firma => firma.UIDAtto);
-
-                query = query.Where(atto => firmeQuery.Contains(atto.UIDAtto));
-            }
-
             if (queryExtended.AreaPolitica.Any())
                 query = query.Where(i => queryExtended.AreaPolitica.Contains(i.AreaPolitica));
 
@@ -1229,9 +1213,53 @@ namespace PortaleRegione.Persistance
             if (queryExtended.TipiChiusura.Any())
                 query = query.Where(i => queryExtended.TipiChiusura.Contains(i.TipoChiusuraIter.Value));
 
-
             if (queryExtended.TipiVotazione.Any())
                 query = query.Where(i => queryExtended.TipiVotazione.Contains(i.TipoVotazioneIter.Value));
+
+            if (queryExtended.DataChiusuraIterIsNull)
+                query = query
+                    .Where(atto => atto.DataChiusuraIter == null);
+
+            if (queryExtended.DataComunicazioneAssembleaIsNull)
+                query = query
+                    .Where(atto => atto.DataComunicazioneAssemblea == null);
+
+            if (queryExtended.DataPresentazioneIsNull)
+                query = query
+                    .Where(atto => atto.Timestamp == null);
+
+            if (queryExtended.DataAnnunzioIsNull)
+                query = query
+                    .Where(atto => atto.DataAnnunzio == null);
+
+            if (queryExtended.AttiDaFirmare.Any())
+                query = query.Where(i => queryExtended.AttiDaFirmare.Contains(i.UIDAtto));
+
+            #endregion
+
+            #region Filtri complessi
+
+            if (queryExtended.GruppiFirmatari.Any())
+            {
+                var firmeQuery = PRContext.ATTI_FIRME
+                    .Where(firma => queryExtended.GruppiFirmatari.Contains(firma.id_gruppo))
+                    .Select(firma => firma.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => firmeQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.Firmatari.Any())
+            {
+                var firmeQuery = PRContext.ATTI_FIRME
+                    .Where(firma => queryExtended.Firmatari.Contains(firma.UID_persona))
+                    .Select(firma => firma.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => firmeQuery.Contains(atto.UIDAtto));
+            }
 
             if (queryExtended.DocumentiMancanti && queryExtended.TipiDocumento.Any())
             {
@@ -1247,7 +1275,8 @@ namespace PortaleRegione.Persistance
                 var documentQuery = PRContext.ATTI_DOCUMENTI
                     .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
                     .Select(f => f.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 query = query
                     .Join(
@@ -1262,7 +1291,8 @@ namespace PortaleRegione.Persistance
             {
                 var risposteQuery = PRContext.ATTI_RISPOSTE
                     .Select(f => f.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 query = query.GroupJoin(risposteQuery,
                         atto => atto.UIDAtto,
@@ -1276,7 +1306,8 @@ namespace PortaleRegione.Persistance
                 var risposteEffettiveQuery = PRContext.ATTI_RISPOSTE
                     .Where(f => queryExtended.Risposte.Contains(f.Tipo))
                     .Select(f => f.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 query = query.Join(risposteEffettiveQuery,
                     atto => atto.UIDAtto,
@@ -1290,11 +1321,12 @@ namespace PortaleRegione.Persistance
                     .ATTI_PROPONENTI
                     .Where(commissione => queryExtended.Proponenti.Contains(commissione.UidPersona.Value))
                     .Select(commissione => commissione.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 query = query
                     .Where(atto => queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value)
-                        && proponentiQuery.Contains(atto.UIDAtto));
+                                   && proponentiQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.Provvedimenti.Any())
@@ -1302,7 +1334,8 @@ namespace PortaleRegione.Persistance
                 var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
                     .Where(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value))
                     .Select(abb => abb.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 query = query
                     .Where(atto =>
@@ -1314,7 +1347,8 @@ namespace PortaleRegione.Persistance
             {
                 var commissioniQuery = PRContext.ATTI_COMMISSIONI
                     .Select(f => f.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 query = query.GroupJoin(commissioniQuery,
                         atto => atto.UIDAtto,
@@ -1328,23 +1362,27 @@ namespace PortaleRegione.Persistance
                 var organiQuery = PRContext.ATTI_COMMISSIONI
                     .Where(organo => queryExtended.Organi.Contains(organo.id_organo))
                     .Select(organo => organo.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 var risposteQuery = PRContext.ATTI_RISPOSTE
                     .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
                     .Select(organo => organo.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 var monitoraggioQuery = PRContext.ATTI_MONITORAGGIO
                     .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
                     .Select(organo => organo.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 var commissioniProponentiQuery = PRContext
                     .ATTI_PROPONENTI
                     .Where(commissione => queryExtended.Organi.Contains(commissione.IdOrgano.Value))
                     .Select(commissione => commissione.UIDAtto)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
                 query = query.Where(atto => organiQuery.Contains(atto.UIDAtto)
                                             || risposteQuery.Contains(atto.UIDAtto)
@@ -1362,7 +1400,9 @@ namespace PortaleRegione.Persistance
                     var seduteQuery = PRContext
                         .SEDUTE
                         .Where(seduta => seduta.Data_seduta >= startDate && seduta.Data_seduta <= endDate)
-                        .Select(seduta => seduta.UIDSeduta);
+                        .Select(seduta => seduta.UIDSeduta)
+                        .Distinct()
+                        .ToList();
 
                     query = query
                         .Where(atto => seduteQuery.Contains(atto.UIDSeduta.Value));
@@ -1374,7 +1414,9 @@ namespace PortaleRegione.Persistance
                     var seduteQuery = PRContext
                         .SEDUTE
                         .Where(seduta => singleDate.Date == seduta.Data_seduta.Date)
-                        .Select(seduta => seduta.UIDSeduta);
+                        .Select(seduta => seduta.UIDSeduta)
+                        .Distinct()
+                        .ToList();
 
                     query = query
                         .Where(atto => seduteQuery.Contains(atto.UIDSeduta.Value));
@@ -1391,7 +1433,9 @@ namespace PortaleRegione.Persistance
                     var risposteTrasmesseQuery = PRContext.ATTI_RISPOSTE
                         .Where(risposta => risposta.DataTrasmissione >= startDate
                                            && risposta.DataTrasmissione <= endDate)
-                        .Select(risposta => risposta.UIDAtto);
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct()
+                        .ToList();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1403,7 +1447,9 @@ namespace PortaleRegione.Persistance
                     var risposteTrasmesseQuery = PRContext.ATTI_RISPOSTE
                         .Where(risposta =>
                             singleDate.Date == risposta.DataTrasmissione.Value.Date)
-                        .Select(risposta => risposta.UIDAtto);
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct()
+                        .ToList();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1414,7 +1460,9 @@ namespace PortaleRegione.Persistance
             {
                 var risposteTrasmesseNulleQuery = PRContext.ATTI_RISPOSTE
                     .Where(risposta => risposta.DataTrasmissione == null)
-                    .Select(risposta => risposta.UIDAtto);
+                    .Select(risposta => risposta.UIDAtto)
+                    .Distinct()
+                    .ToList();
 
                 query = query
                     .Where(atto => risposteTrasmesseNulleQuery.Contains(atto.UIDAtto));
@@ -1430,7 +1478,9 @@ namespace PortaleRegione.Persistance
                     var risposteTrasmesseQuery = PRContext.ATTI_RISPOSTE
                         .Where(risposta => risposta.DataTrattazione >= startDate
                                            && risposta.DataTrattazione <= endDate)
-                        .Select(risposta => risposta.UIDAtto);
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct()
+                        .ToList();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1442,7 +1492,9 @@ namespace PortaleRegione.Persistance
                     var risposteTrasmesseQuery = PRContext.ATTI_RISPOSTE
                         .Where(risposta =>
                             singleDate.Date == risposta.DataTrattazione.Value.Date)
-                        .Select(risposta => risposta.UIDAtto);
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct()
+                        .ToList();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1477,10 +1529,6 @@ namespace PortaleRegione.Persistance
                 }
             }
 
-            if (queryExtended.DataChiusuraIterIsNull)
-                query = query
-                    .Where(atto => atto.DataChiusuraIter == null);
-
             if (queryExtended.DataComunicazioneAssemblea.Any())
             {
                 if (queryExtended.DataComunicazioneAssemblea.Count > 1)
@@ -1499,10 +1547,6 @@ namespace PortaleRegione.Persistance
                 }
             }
 
-            if (queryExtended.DataComunicazioneAssembleaIsNull)
-                query = query
-                    .Where(atto => atto.DataComunicazioneAssemblea == null);
-
             if (queryExtended.DataPresentazione.Any())
             {
                 if (queryExtended.DataPresentazione.Count > 1)
@@ -1519,10 +1563,6 @@ namespace PortaleRegione.Persistance
                         .Where(atto => singleDate.Date == atto.Timestamp.Value.Date);
                 }
             }
-
-            if (queryExtended.DataPresentazioneIsNull)
-                query = query
-                    .Where(atto => atto.Timestamp == null);
 
             if (queryExtended.DataAnnunzio.Any())
             {
@@ -1541,10 +1581,6 @@ namespace PortaleRegione.Persistance
                         .Where(atto => singleDate.Date == atto.DataAnnunzio.Value.Date);
                 }
             }
-
-            if (queryExtended.DataAnnunzioIsNull)
-                query = query
-                    .Where(atto => atto.DataAnnunzio == null);
 
             if (queryExtended.DataRisposta.Any())
             {
@@ -1575,8 +1611,7 @@ namespace PortaleRegione.Persistance
                 }
             }
 
-            if (queryExtended.AttiDaFirmare.Any())
-                query = query.Where(i => queryExtended.AttiDaFirmare.Contains(i.UIDAtto));
+            #endregion
 
             var sql = query.ToTraceQuery();
             return query;
