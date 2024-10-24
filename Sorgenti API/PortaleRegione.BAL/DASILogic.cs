@@ -1032,7 +1032,7 @@ namespace PortaleRegione.API.Controllers
             dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
             dto.DisplayTipo = Utility.GetText_Tipo(attoInDb.Tipo);
             dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
-            dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} {dto.NAtto}";
+            dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} n. {dto.NAtto}"; // #1039
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
             dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
