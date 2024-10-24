@@ -369,12 +369,18 @@ namespace PortaleRegione.API.Controllers
                 throw new InvalidOperationException("Atto non trovato");
 
             var notaInDb = await _unitOfWork.DASI.GetNota(request.UIDAtto, request.TipoEnum);
+            if (notaInDb == null)
+                return;
             _unitOfWork.DASI.RimuoviNota(notaInDb);
             await _unitOfWork.CompleteAsync();
         }
 
         public async Task Salva_Nota(NoteDto request, PersonaDto currentUser)
         {
+            if (request.TipoEnum == 0)
+                throw new InvalidOperationException("Tipo nota non impostato");
+            if (string.IsNullOrEmpty(request.Nota))
+                throw new InvalidOperationException("Non è possibile inserire una nota vuota");
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");

@@ -867,70 +867,103 @@
 						<div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">security</i>Privacy</div>
 						<div class="collapsible-body">
 							<div class="row">
-								<div class="input-field col s12 m12 l12">
-									<p>
-										<label>
-											<input type="checkbox" name="Atto.Privacy" value="true" @Html.Raw(Model.Atto.Privacy ? "checked=\"checked\"" : "") />
-											<span>Privacy</span>
-										</label>
-									</p>
-								</div>
-								<div class="input-field col s12 m12 l12">
-									<p>
-										<label>
-											<input type="checkbox" name="Atto.Privacy_Dati_Personali_Semplici" value="true" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Semplici ? "checked=\"checked\"" : "") />
-											<span>Privacy - dati personali semplici</span>
-										</label>
-									</p>
-								</div>
-								<div class="input-field col s12 m12 l12">
-									<p>
-										<label>
-											<input type="checkbox" value="true" name="Atto.Privacy_Dati_Personali_Sensibili" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Sensibili ? "checked=\"checked\"" : "") />
-											<span>Privacy - dati sensibili</span>
-										</label>
-									</p>
-								</div>
-								<div class="input-field col s12 m12 l12">
-									<p>
-										<label>
-											<input type="checkbox" value="true" name="Atto.Privacy_Dati_Personali_Giudiziari" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Giudiziari ? "checked=\"checked\"" : "") />
-											<span>Privacy - dati giudiziari</span>
-										</label>
-									</p>
-								</div>
-								<div class="input-field col s12 m12 l12">
-									<p>
-										<label>
-											<input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione ? "checked=\"checked\"" : "") />
-											<span>Privacy - divieto di pubblicazione</span>
-										</label>
-									</p>
-								</div>
-								<div class="input-field col s12 m12 l12">
-									<p>
-										<label>
-											<input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Salute" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Salute ? "checked=\"checked\"" : "") />
-											<span>Privacy - dati sanitari</span>
-										</label>
-									</p>
-								</div>
-								<div class="input-field col s12 m12 l12">
-									<p>
-										<label>
-											<input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale ? "checked=\"checked\"" : "") />
-											<span>Privacy - dati di natura sessuale</span>
-										</label>
-									</p>
-								</div>
-								<div class="input-field col s12 m12 l12">
-									<p>
-										<label>
-											<input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Altri" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Altri ? "checked=\"checked\"" : "") />
-											<span>Privicy - altri motivi</span>
-										</label>
-									</p>
-								</div>
+                                <div class="input-field col s6 m6 l6">
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="Atto.Privacy" value="true" @Html.Raw(Model.Atto.Privacy ? "checked=\"checked\"" : "") />
+                                            <span>Privacy</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="Atto.Privacy_Dati_Personali_Semplici" value="true" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Semplici ? "checked=\"checked\"" : "") />
+                                            <span>Privacy - dati personali semplici</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" value="true" name="Atto.Privacy_Dati_Personali_Sensibili" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Sensibili ? "checked=\"checked\"" : "") />
+                                            <span>Privacy - dati sensibili</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" value="true" name="Atto.Privacy_Dati_Personali_Giudiziari" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Giudiziari ? "checked=\"checked\"" : "") />
+                                            <span>Privacy - dati giudiziari</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione ? "checked=\"checked\"" : "") />
+                                            <span>Privacy - divieto di pubblicazione</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Salute" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Salute ? "checked=\"checked\"" : "") />
+                                            <span>Privacy - dati sanitari</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale ? "checked=\"checked\"" : "") />
+                                            <span>Privacy - dati di natura sessuale</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione_Altri" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione_Altri ? "checked=\"checked\"" : "") />
+                                            <span>Privicy - altri motivi</span>
+                                        </label>
+                                    </p>
+                                </div>
+                                <div class="input-field col s6 m6 l6">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <a id="btnAggiungiNota_Privacy" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi nota</a>
+                                        </div>
+                                    </div>
+                                    <h6>
+                                        <b>Note per privacy</b>
+                                    </h6>
+                                    <hr />
+                                    <table id="tableNote_Privacy">
+                                        <thead>
+                                        <tr>
+                                            <th>Nota</th>
+                                            <th>Utente</th>
+                                            <th></th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        @foreach (var nota in atto.Note.Where(n=>n.TipoEnum==TipoNotaEnum.PRIVACY))
+                                        {
+                                            <tr>
+                                                <td>@Html.Raw(nota.Nota)</td>
+                                                <td>@Html.Raw(nota.Persona.DisplayName)</td>
+                                                <td>
+                                                    <a onclick="modificaNota(this)">
+                                                        <i class="material-icons">edit</i>
+                                                    </a>
+                                                    <a class="red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                                        <i class="material-icons">close</i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+
+                                    @if (atto.Note.All(n => n.TipoEnum != TipoNotaEnum.PRIVACY))
+                                    {
+                                        <div id="empty-note-privacy" class="card-panel panel-warning center">
+                                            <span class="center">
+                                                <p>Nessuna nota</p>
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
 							</div>
 							<div class="row">
 								<div class="col s12">
@@ -1143,7 +1176,7 @@
                     AreaPolitica: document.getElementById('Atto_AreaPolitica').value,
                     RispostaRichiesta: document.getElementById('Atto_RispostaRichiesta').value,
                     Pubblicato: document.querySelector('input[name="Atto.Pubblicato"]').checked,
-                    Sollecito: document.querySelector('input[name="Atto.Sollecito"]').checked					
+                    Sollecito: document.querySelector('input[name="Atto.Sollecito"]').checked
                 };
 
 				if (@Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.RIS)){
@@ -2004,7 +2037,28 @@
 	document.getElementById('btnAggiungiNota').addEventListener('click', async function () {
 		waiting(true);
 		$("#txtNota_Testo").val("")
+		$('#tipi-nota-select option').each(function () {
+			$(this).prop('disabled', false);
+		});
 		$('#tipi-nota-select').val($('#tipi-nota-select option:first').val());
+		$('#tipi-nota-select').formSelect();
+		waiting(false);
+		$('#modalNota').modal("open");
+	});
+
+	document.getElementById('btnAggiungiNota_Privacy').addEventListener('click', async function () {
+		waiting(true);
+		$("#txtNota_Testo").val("")
+		let selectedValue = @((int)TipoNotaEnum.PRIVACY);
+		$('#tipi-nota-select option').each(function() {
+			// Disabilita tutti gli elementi della lista
+			$(this).prop('disabled', true);
+			// Abilita solo l'elemento con il valore desiderato
+			if ($(this).val() == selectedValue) {
+				$(this).prop('disabled', false);
+			}
+		});
+		$('#tipi-nota-select').val(selectedValue);
 		$('#tipi-nota-select').formSelect();
 		waiting(false);
 		$('#modalNota').modal("open");
@@ -2013,9 +2067,16 @@
 	async function btnSalvaNota() {
 		// Ottieni i dati dalla modale
 		var tipoNotaValue = $('#tipi-nota-select').val();
+		if (tipoNotaValue == 0) {
+			ErrorAlert("Impostare il tipo di nota.");
+			return;
+		}
 		var tipoNotaText = $('#tipi-nota-select option:selected').text();
 		var nota_testo = $('#txtNota_Testo').val();
-
+		if (nota_testo == "") {
+			ErrorAlert("Non è possibile inserire una nota vuota..");
+			return;
+		}
 		// Prepara i dati per il salvataggio
 		var requestData = {
 			UIDAtto: '@Model.Atto.UIDAtto',
@@ -2024,6 +2085,7 @@
 		};
 
 		var url = '@Url.Action("Salva_Nota", "DASI")';
+		waiting(true);
 
 		const response = await fetch(url, {
 			method: 'POST',
@@ -2034,15 +2096,17 @@
 		});
 
 		if (!response.ok) {
+			waiting(false);
 			throw new Error('Network response was not ok');
 		}
 
 		try {
+			waiting(false);
 			const errorData = await response.json();
 			if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
 
 		} catch (error) {
-			// ignored
+			waiting(false);
 		}
 
 		var row = $('#tableNoteGenerali tbody tr').filter(function () {
@@ -2069,7 +2133,32 @@
 
 			document.querySelector('#tableNoteGenerali tbody').appendChild(newRow);
 		}
+		if (tipoNotaValue == @((int)TipoNotaEnum.PRIVACY)) {
+			var privacyRow = $('#tableNote_Privacy tbody tr').filter(function () {
+				return $(this).find('td:eq(0)').text().trim() === tipoNotaText;
+			});
 
+			if (privacyRow.length > 0) {
+				// Aggiorna la riga esistente nella tabella Privacy
+				privacyRow.find('td:eq(0)').text(nota_testo);
+				privacyRow.find('td:eq(1)').text('@Html.Raw(Model.CurrentUser.DisplayName)');
+			} else {
+				// Aggiungi una nuova riga se non esiste nella tabella Privacy
+				var newPrivacyRow = document.createElement('tr');
+				newPrivacyRow.innerHTML = `
+					<td>${nota_testo}</td>
+					<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
+					<td>
+						<a onclick="modificaNota(this)"><i class="material-icons">edit</i></a>
+						<a class="red-text" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></a>
+					</td>
+				`;
+				document.querySelector('#tableNote_Privacy tbody').appendChild(newPrivacyRow);
+			}
+
+			$('#empty-note-privacy').hide();
+		}
+		waiting(false);
 		$('#empty-note').hide();
 		M.toast({
 			html: `<span>Nota salvata con successo</span>`,
@@ -2094,6 +2183,7 @@
 			if (answer) {
 				// Simula la richiesta al server per rimuovere i dati
 				var url = '@Url.Action("Salva_RimuoviNota", "DASI")';
+				waiting(true);
 				const response = await fetch(url, {
 					method: 'POST',
 					headers: {
@@ -2103,22 +2193,25 @@
 				});
 
 				if (!response.ok) {
+					waiting(false);
 					throw new Error('Network response was not ok');
 				}
 
 				try {
+					waiting(false);
 					const errorData = await response.json();
 					if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
 
 				} catch (error) {
-					// ignored
+					waiting(false);
 				}
 
+				waiting(false);
 				// Rimuovi la riga dalla tabella
 				row.remove();
 
 				M.toast({
-					html: `<span>Nota rimossa con successo</span>`,
+					html: `<span>Nota rimossa con successo. Aggiorna la pagina per vedere le modifiche aggiornate.</span>`,
 					classes: 'rounded',
 					displayLength: 5000
 				});
