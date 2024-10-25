@@ -82,7 +82,20 @@ Di seguito sono riportati i ruouli ricoperti dagli utenti all'interno dei moduli
 - Segreterie particolari dei componenti dell’Ufficio di presidenza (PEM-DASI)
 
 ## Integrazione con altri applicativi presenti nel Consiglio regionale della Lombardia
-Sotto il profilo degli applicativi, nell’iter di ciascun ATTO intervengono principalmente la banca dati GEASI, (banca dati per la Gestione degli atti di sindacato e di indirizzo), dinamicamente correlata alle pagine web del sito istituzionale, e la piattaforma EDMA (sistema documentale e di protocollazione) per la gestione delle comunicazioni elettroniche relative a ciascun atto. Queste integrazioni possono essere disabilitate tramite opportuni parametri di configurazione.
+Sotto il profilo degli applicativi, nell’iter di ciascun ATTO interviene la piattaforma EDMA (sistema documentale e di protocollazione) per la gestione delle comunicazioni elettroniche relative a ciascun atto. Questa integrazione può essere disabilitata tramite opportuni parametri di configurazione.
+
+Il sito istituzionale del Consiglio Regionale acquisisce i dati relativi agli atti dal WebService esposto da GeDASI e li presenta all'interno del proprio spazio. Il WebService è uno strumento di sola lettura, appositamente sviluppato per l'esposizione degli atti al pubblico.
+Di seguito un elenco delle chiamate esposte:
+- GetLegislature: ritorna l'elenco delle legislature disponibili
+- GetTipi: ritorna l'elenco dei tipi di atto disponibili
+- GetTipiRisposta: ritorna l'elenco dei tipi di risposta disponibili
+- GetFirmatari: ritorna l'elenco dei firmatari in base alla legislatura
+- GetGruppi: ritorna l'elenco dei gruppi per legislatura
+- GetCaricheGiunta: ritorna l'elenco delle cariche di giunta disponibili per legislatura
+- GetCommissioni: ritorna l'elenco delle commissioni disponibili per legislatura
+- GetStati: ritorna l'elenco degli stati disponibili
+- Search: restituisce una lista di atti paginati opportunamente filtrati
+- GetAtto: restituisce le informazioni complete dell'atto
 
 Altro applicativo con cui i moduli PEM-DASI dialogano è Ge.CO. disponibile su gitHub all’url https://github.com/Consiglio-Regionale-della-Lombardia/GeCo. L’applicazione GeCo (GEstione COnsiglieri) permette la gestione e consultazione delle informazioni istituzionali relative ai Consiglieri e agli Assessori regionali. Attraverso questa integrazione la piattaforma PEM-DASI “recupera” tutte le informazioni relative a:
 - Anagrafica dei consiglieri regionali
