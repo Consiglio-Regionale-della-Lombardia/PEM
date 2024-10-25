@@ -388,6 +388,8 @@ Gli atti di indirizzo e di sindacato ispettivo sono atti, tipici della tradizion
 Gli strumenti di indirizzo politico, denominati ATTI DI INDIRIZZO, previsti dal Regolamento generale sono mozioni, ordini del giorno e risoluzioni.
 La funzione di controllo invece, come definita a livello parlamentare, si estrinseca (anche) nell’attività di sindacato ispettivo (ATTI DI SINDACATO ISPETTIVO), e viene tradizionalmente esercitata attraverso gli strumenti tipici dell’interpellanza (ITL), dell’interrogazione (ITR) e dell’interrogazione a risposta immediata (IQT).
 
+A questo modulo, nella terza fase di sviluppo del progetto, sono state poi aggiunte tutte le funzionalità per la gestione del ciclo di vita degli atti di indirizzo e di sindacato ispettivo per UOLA.
+
 - [Introduzione Modulo DASI](#Introduzione-Modulo-DASI)
 - [Modalità di digitalizzazione degli Atti](#Modalità-di-digitalizzazione-degli-Atti)
 - [Caratteristiche peculiari delle diverse tipologie degli atti](#Caratteristiche-peculiari-delle-diverse-tipologie-degli-atti)
@@ -398,6 +400,7 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
   - [Atti di indirizzo](#Atti-di-indirizzo):
     - [Mozione (MOZ)](#Mozione-(MOZ))
     - [Ordine del Giorno (OdG)](#Ordine-del-Giorno-(OdG))
+    - [Risoluzioni (RIS)](#Risoluzioni-(RIS))
     
 ## Introduzione Modulo DASI 
 L'obiettivo del Portale DASI è mettere a disposizione strumenti e procedure atte a consentire ai Consiglieri la presentazione in forma dematerializzata degli atti di sindacato ispettivo e di indirizzo. 
