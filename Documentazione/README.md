@@ -650,7 +650,14 @@ Il pannello di generazione è accessibile dal pulsante "Genera report". Come par
 
 ![DASI_nuovo_report](/Documentazione/Screenshot/DASI_nuovo_report.png)
 
-Il modo in cui sono stati realizzati i report consente di configurare una serie di reportistiche "ricorrenti" in modo da renderne l'utilizzo immediato, mantenendo la possibilità di configurare richieste ad-hoc che possono servire in casi eccezionali.
+Il modo in cui sono stati realizzati i report basa il funzionamento sui filtri messi a disposizione e sulla possibilità di aggiungere o togliere criteri di selezione e sulla loro memorizzazione. In questo modo è possibile preparare una serie di report "ricorrenti" che possono essere richiamati dall'interfaccia e, allo stesso tempo, avvalersi della possibilità di configurare richieste ad-hoc che possono servire in casi eccezionali. Dei report è possibile configurare:
+- il formato di estrazione dei dati (word, excel, pdf),
+- la modalità di visualizzazione dati (tabellare, a lista o template),
+- quali informazioni visualizzare ovvero la possibilità di definire i campi da riportare all'interno delle stampe.
+
+Le stampe che possono essere prodotte sfruttando i report sono realizzate partendo da un modello, o template, completamente configurabile nell'apposita interfaccia di gestione. Questa funzionalità può essere acceduta solamente dagli utenti amministratori, e consente di disporre i dati provenienti dalla selezione degli atti, all'interno di un testo tramite il riferimento ad una serie di variabili, che vengono disposte all'interno del tempalte.
+
+![DASI_template](/Documentazione/Screenshot/DASI_template.png)
 
 ## Operazioni massive
 
