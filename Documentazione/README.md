@@ -46,7 +46,7 @@ E' inoltre prevista per l’Amministratore del Sistema una funzionalità che per
 
 ### Modalità di utilizzo del PIN dispositivo
 
-Per gestire il requisito di immodificabilità del numero e del testo degli ATTI firmati, della data e ora, nonché delle firme, si utilizza la crittografia. Attraverso la crittografia tutte le informazioni che non devono poter essere modificate sono rese “trattabili” solo attraverso il Sistema PEM-DASI.
+Per gestire il requisito di immodificabilità del numero e del testo degli ATTI firmati, della data e ora, nonché delle firme, si utilizza la crittografia. Attraverso la crittografia tutte le informazioni che non devono poter essere modificate sono rese “trattabili” solo attraverso il Sistema GeDASI.
 L’utilizzo dei PIN dispositivi avverrà e sarà regolato come descritto successivamente.
 
 1. FIRMA DI UN ATTO DA PARTE DEL TITOLARE DELL’INIZIATIVA
@@ -69,17 +69,17 @@ Utilizzando la chiave embedded crittografa e memorizza i dati relativi al ritiro
 ## Ruoli degli utenti
 Di seguito sono riportati i ruouli ricoperti dagli utenti all'interno dei moduli PEM e DASI, fatto salvo per gli utenti della Giunta regionale i quali possono operare solo all'interno del modulo PEM:
 
-- Servizio Segreteria Dell’assemblea (PEM-DASI)
-- Segreteria Dei Diversi Gruppi Consiliari (PEM-DASI)
-- Responsabile Di Segreteria Dei Diversi Gruppi Consiliari (PEM-DASI)
-- Consiglieri Regionali (PEM-DASI)
+- Servizio Segreteria Dell’assemblea (PEM e DASI)
+- Segreteria Dei Diversi Gruppi Consiliari (PEM e DASI)
+- Responsabile Di Segreteria Dei Diversi Gruppi Consiliari (PEM e DASI)
+- Consiglieri Regionali (PEM e DASI)
 - Presidente Della Giunta Regionale (PEM)
 - Assessori E Sottosegretari Regionali (PEM)
 - Segreterie Di Presidente/Assessori/Sottosegretari (PEM)
 - Responsabili Di Segreteria Di Presidente/Assessori/Sottosegretari (PEM)
 - Amministratori Di Giunta (PEM)
-- Amministratori del sistema (PEM-DASI)
-- Segreterie particolari dei componenti dell’Ufficio di presidenza (PEM-DASI)
+- Amministratori del sistema (PEM e DASI)
+- Segreterie particolari dei componenti dell’Ufficio di presidenza (PEM e DASI)
 
 ## Integrazione con altri applicativi presenti nel Consiglio regionale della Lombardia
 Sotto il profilo degli applicativi, nell’iter di ciascun ATTO interviene la piattaforma EDMA (sistema documentale e di protocollazione) per la gestione delle comunicazioni elettroniche relative a ciascun atto. Questa integrazione può essere disabilitata tramite opportuni parametri di configurazione.
@@ -97,7 +97,7 @@ Di seguito un elenco delle chiamate esposte:
 - Search: restituisce una lista di atti paginati opportunamente filtrati
 - GetAtto: restituisce le informazioni complete dell'atto
 
-Altro applicativo con cui i moduli PEM-DASI dialogano è Ge.CO. disponibile su gitHub all’url https://github.com/Consiglio-Regionale-della-Lombardia/GeCo. L’applicazione GeCo (GEstione COnsiglieri) permette la gestione e consultazione delle informazioni istituzionali relative ai Consiglieri e agli Assessori regionali. Attraverso questa integrazione la piattaforma PEM-DASI “recupera” tutte le informazioni relative a:
+Altro applicativo con cui i moduli di GeDASI dialogano è Ge.CO. disponibile su gitHub all’url https://github.com/Consiglio-Regionale-della-Lombardia/GeCo. L’applicazione GeCo (GEstione COnsiglieri) permette la gestione e consultazione delle informazioni istituzionali relative ai Consiglieri e agli Assessori regionali. Attraverso questa integrazione la piattaforma GeDASI “recupera” tutte le informazioni relative a:
 - Anagrafica dei consiglieri regionali
 -	Anagrafica degli assessori e sottosegretari
 -	Anagrafica e composizione dei gruppi politici
@@ -693,12 +693,12 @@ L'area amministrativa mette a disposizione degli ads tutti gli strumenti per eff
 - generazione, ma non visibilità, di nuovi PIN: il PIN generato viene notificato all’interessato, che dovrà modificarlo obbligatoriamente al primo accesso al sistema;
 - assegnazione, utilizzando un’apposita funzionalità web d’interfacciamento con i gruppi Active directory, delle diverse visibilità sulle aree del sistema.
 
-Gli amministratori del sistema PEM-DASI gestiscono inoltre tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
+Gli amministratori del sistema GeDASI gestiscono inoltre tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
 
 ![PEM_11](/Documentazione/Screenshot/PEM_11.jpg)
 
 ## Dettagli della licenza
-La documentazione di PEM-DASI è rilasciata con licenza Creative Commons Attribution-ShareAlike 4.0 International
+La documentazione di GeDASI è rilasciata con licenza Creative Commons Attribution-ShareAlike 4.0 International
 
 Salvo diversamente indicato dalla legge applicabile o concordato per iscritto, la documentazione rilasciata secondo i termini della Licenza è distribuita "TAL QUALE", SENZA GARANZIE O CONDIZIONI DI ALCUN TIPO, esplicite o implicite.
 
