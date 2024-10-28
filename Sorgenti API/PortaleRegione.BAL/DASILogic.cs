@@ -551,6 +551,9 @@ namespace PortaleRegione.API.Controllers
 
         public async Task<RiepilogoDASIModel> Get(BaseRequest<AttoDASIDto> model, PersonaDto persona, Uri uri)
         {
+            var requestStato = GetResponseStatusFromFilters(model.filtro);
+            var requestTipo = GetResponseTypeFromFilters(model.filtro);
+
             var queryExtended = CreateQueryExtendedRequest(model);
 
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
@@ -571,6 +574,8 @@ namespace PortaleRegione.API.Controllers
                     GetClientMode(model.param["CLIENT_MODE"]), queryExtended);
                 return new RiepilogoDASIModel
                 {
+                    Stato = requestStato,
+                    Tipo = requestTipo,
                     Data = new BaseResponse<AttoDASIDto>(model.page, model.size, new List<AttoDASIDto>(), model.filtro,
                         0, uri),
                     CountBarData = await GetResponseCountBar(persona, GetClientMode(CLIENT_MODE),
@@ -585,6 +590,8 @@ namespace PortaleRegione.API.Controllers
             queryFilter.ImportStatements(model.filtro);
             return new RiepilogoDASIModel
             {
+                Stato = requestStato,
+                Tipo = requestTipo,
                 Data = new BaseResponse<AttoDASIDto>(model.page, model.size, result, model.filtro, totaleAtti, uri),
                 CountBarData = await GetResponseCountBar(persona, GetClientMode(CLIENT_MODE),
                     queryFilter, queryExtended),
@@ -4014,7 +4021,28 @@ namespace PortaleRegione.API.Controllers
                     {
                         var column = columns[colIndex];
                         var cellValue = GetPropertyValue(atto, column, ExportFormatEnum.EXCEL);
-                        worksheet.Cells[rowIndex + 2, colIndex + 1].Value = cellValue;
+                        var cell = worksheet.Cells[rowIndex + 2, colIndex + 1];
+
+                        // Imposta il formato della cella in base al tipo di dato
+                        if (cellValue == null)
+                        {
+                            cell.Value = "";
+                        }
+                        else if (DateTime.TryParse(cellValue.ToString(), out var resDate))
+                        {
+                            // Prova un formato che Excel riconosce come "Data" standard
+                            cell.Style.Numberformat.Format = "dd/mm/yyyy"; // formato data senza orario
+                            cell.Value = resDate;
+                        }
+                        else if (int.TryParse(cellValue.ToString(), out var resInt))
+                        {
+                            cell.Style.Numberformat.Format = "#,##0"; // formato numerico intero
+                            cell.Value = resInt;
+                        }
+                        else
+                        {
+                            cell.Value = cellValue;
+                        }
                     }
                 }
 

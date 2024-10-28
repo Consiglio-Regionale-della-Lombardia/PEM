@@ -1490,7 +1490,7 @@ namespace PortaleRegione.Client.Controllers
             util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
             util.AddFilter_ByStato(ref model, filtro_stato, CurrentUser);
             util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
-            util.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
+            util.AddFilter_ByTipo(ref model, filtro_tipo_trattazione, mode);
             util.AddFilter_ByMozioneUrgente(ref model, filtro_mozione_urgente);
             util.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
             util.AddFilter_BySeduta(ref model, filtro_seduta);

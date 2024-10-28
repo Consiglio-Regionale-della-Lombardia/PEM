@@ -77,6 +77,8 @@ namespace PortaleRegione.Persistance
                 {
                     if (page > 0 && size > 0)
                         return await query
+                            .OrderBy(item => item.Tipo)
+                            .ThenByDescending(item => item.DataCreazione)
                             .Select(item => item.UIDAtto)
                             .Skip((page - 1) * size)
                             .Take(size)

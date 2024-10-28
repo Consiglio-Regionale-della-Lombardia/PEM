@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -70,6 +71,8 @@ public class AttoDASIReportDto
     [DisplayName("Area tematica")] public string AreaTematica { get; set; }
     [DisplayName("Altri soggetti")] public string AltriSoggetti { get; set; }
     [DisplayName("DCR/DCCR")] public int? DCR { get; set; }
+    [DisplayName("Data richiesta iscrizione in seduta")] public string DataRichiestaIscrizioneSeduta { get; set; }
+    [DisplayName("Data iscrizione in seduta")] public DateTime? DataIscrizioneSeduta { get; set; }
     [DisplayName("Data seduta")] public Guid? UIDSeduta { get; set; }
     [DisplayName("Area politica")] public int AreaPolitica { get; set; }
     [DisplayName("Legislatura")] public int Legislatura { get; set; }

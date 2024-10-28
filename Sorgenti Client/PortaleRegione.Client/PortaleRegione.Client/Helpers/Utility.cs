@@ -413,49 +413,51 @@ namespace PortaleRegione.Client.Helpers
 
         public void AddFilter_ByStato(ref BaseRequest<AttoDASIDto> model, string filtroStato, PersonaDto currentUser)
         {
-            if (!string.IsNullOrEmpty(filtroStato))
-                if (filtroStato != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
-                {
-                    var operation = Operation.EqualTo;
-                    if (filtroStato == Convert.ToInt32(StatiAttoEnum.PRESENTATO).ToString())
-                    {
-                        if (currentUser.IsSegreteriaAssemblea)
-                            operation = Operation.EqualTo;
-                        else
-                            operation = Operation.GreaterThanOrEqualTo;
-                    }
+            if (string.IsNullOrEmpty(filtroStato))
+                filtroStato = Convert.ToInt32(StatiAttoEnum.TUTTI).ToString();
 
+            if (filtroStato != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
+            {
+                var operation = Operation.EqualTo;
+                if (filtroStato == Convert.ToInt32(StatiAttoEnum.PRESENTATO).ToString())
+                {
+                    if (currentUser.IsSegreteriaAssemblea)
+                        operation = Operation.EqualTo;
+                    else
+                        operation = Operation.GreaterThanOrEqualTo;
+                }
+
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.IDStato),
+                    Operation = operation,
+                    Value = filtroStato,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+            else
+            {
+                if (currentUser.IsSegreteriaAssemblea)
+                {
                     model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
                         PropertyId = nameof(AttoDASIDto.IDStato),
-                        Operation = operation,
-                        Value = filtroStato,
+                        Operation = Operation.EqualTo,
+                        Value = ((int)StatiAttoEnum.PRESENTATO).ToString(),
                         Connector = FilterStatementConnector.And
                     });
                 }
                 else
                 {
-                    if (currentUser.IsSegreteriaAssemblea)
+                    model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
-                        model.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = nameof(AttoDASIDto.IDStato),
-                            Operation = Operation.EqualTo,
-                            Value = ((int)StatiAttoEnum.PRESENTATO).ToString(),
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
-                    else
-                    {
-                        model.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = nameof(AttoDASIDto.IDStato),
-                            Operation = Operation.EqualTo,
-                            Value = ((int)StatiAttoEnum.BOZZA).ToString(),
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
+                        PropertyId = nameof(AttoDASIDto.IDStato),
+                        Operation = Operation.EqualTo,
+                        Value = ((int)StatiAttoEnum.BOZZA).ToString(),
+                        Connector = FilterStatementConnector.And
+                    });
                 }
+            }
         }
 
         public void AddFilter_ByTipoRisposta(ref BaseRequest<AttoDASIDto> model, string filtroTipoRisposta)
@@ -507,24 +509,16 @@ namespace PortaleRegione.Client.Helpers
             }
         }
 
-        public void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model, string filtroTipo,
+        public void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model,
             string filtroTipoTrattazione, ClientModeEnum mode)
         {
-            if (filtroTipoTrattazione != "0" && mode == ClientModeEnum.TRATTAZIONE)
-                model.filtro.Add(new FilterStatement<AttoDASIDto>
-                {
-                    PropertyId = nameof(AttoDASIDto.Tipo),
-                    Operation = Operation.EqualTo,
-                    Value = filtroTipoTrattazione,
-                    Connector = FilterStatementConnector.And
-                });
-            else if (filtroTipo != "0" && mode == ClientModeEnum.GRUPPI)
-                if (filtroTipo != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
+            if (filtroTipoTrattazione != "0")
+                if (filtroTipoTrattazione != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
                     model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
                         PropertyId = nameof(AttoDASIDto.Tipo),
                         Operation = Operation.EqualTo,
-                        Value = filtroTipo,
+                        Value = filtroTipoTrattazione,
                         Connector = FilterStatementConnector.And
                     });
         }
