@@ -170,16 +170,8 @@
 		<div class="row">
 			<div class="input-field col s12">
                 <select name="columns-grid" id="columns-grid-select" multiple> 
-                    @foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
+                    @foreach (var prop in typeof(AttiDASIColums).GetProperties())
                     {
-                        if (prop.Name == nameof(AttoDASIReportDto.Tipo)
-                            || prop.Name == nameof(AttoDASIReportDto.NAtto)
-                            || prop.Name == nameof(AttoDASIReportDto.DisplayExtended)
-                            || prop.Name == nameof(AttoDASIReportDto.Display))
-                        {
-                            continue;
-                        }
-
                         var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
                             .Cast<DisplayNameAttribute>()
                             .FirstOrDefault()?.DisplayName ?? prop.Name;

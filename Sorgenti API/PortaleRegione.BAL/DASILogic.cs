@@ -4023,6 +4023,7 @@ namespace PortaleRegione.API.Controllers
                         var cellValue = GetPropertyValue(atto, column, ExportFormatEnum.EXCEL);
                         var cell = worksheet.Cells[rowIndex + 2, colIndex + 1];
 
+                        // #1019
                         // Imposta il formato della cella in base al tipo di dato
                         if (cellValue == null)
                         {

@@ -70,6 +70,7 @@
     <Compile Include="Domain\ArticoliDto.cs" />
     <Compile Include="Domain\AssessoreInCaricaDto.cs" />
     <Compile Include="Domain\AttiAbbinamentoDto.cs" />
+    <Compile Include="Domain\AttiDASIColums.cs" />
     <Compile Include="Domain\AttiDocumentiDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />
