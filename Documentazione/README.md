@@ -1,14 +1,17 @@
 # Portale digitalizzazione atti - Manuale per gli utenti
 
 ## Introduzione 
-Il portale PEM-DASI è stato realizzato per digitalizzare e gestire a distanza la fase di presentazioni degli Atti di iniziativa dei consiglieri regionali ed automatizzare alcune fasi del loro iter. 
-Il portale è stato inizialmente studiato per digitalizzare la presentazione degli emendamenti/subemendamenti ai progetti di legge (modulo PEM) e, a seguito del riscontro positivo da parte degli utilizzatori, è stato esteso alla presentazione degli atti di indirizzo e sindacato ispettivo, realizzando il modulo DASI.
+Il progetto GeDASI è il risultato di diverse fasi di sviluppo che hanno portato alla costruzione di uno stack tecnologico, che comprende:
+- il modulo PEM, per la presentazione degli Emendamenti ai progetti di legge, nell’ambiente quindi legato a una specifica seduta e attivato in concomitanza della stessa.
+- il modulo DASI, per la presentazione e la gestione degli ATTI di indirizzo e sindacato ispettivo, non necessariamente legato a una specifica seduta del Consiglio.
 
-Il modulo DASI e il modulo PEM sono ospitati nella medesima piattaforma, ci sarà quindi un doppio canale di accesso: 
-1) un canale per la presentazione degli Emendamenti ai progetti di legge, nell’ambiente quindi legato a una specifica seduta e attivato in concomitanza della stessa;
-2) un canale per la presentazione degli ATTI di indirizzo e sindacato ispettivo, non necessariamente legato a una specifica seduta del Consiglio.
+Il portale è stato inizialmente studiato per digitalizzare la presentazione degli emendamenti/subemendamenti ai progetti di legge (modulo PEM) e, a seguito del riscontro positivo da parte degli utilizzatori, è stato esteso alla presentazione degli atti di indirizzo e sindacato ispettivo, realizzando il modulo DASI. In una terza fase il modulo DASI è stato esteso con una serie di funzionalità, dedicate al personale del Servizio Segreteria dell’Assemblea consiliare, che consento di gestire tutte le informazioni correlate agli atti di indirizzo e di sindacato ispettivo (ad esempio date di trattazione, note, ecc) e memorizzare i documenti relativi al fascicolo che compone la vita dell’atto (ad esempio le risposte fornite dalla Giunta in merito ad una interrogazione o interpellanza di un consigliere). A seguito di questa terza fase di sviluppo la piattaforma ha preso il nome di GeDASI.
 
-Va puntualizzato che, per i due canali di accesso, la categoria di utenti non è coincidente: gli assessori, in quanto non sono consiglieri o sono sospesi dalla carica, non accederanno al canale DASI.
+A differenza degli emendamenti che si concludono con la votazione (approvato/respinto), gli atti di indirizzo e sindacato ispettivo hanno un iter complesso che si sviluppa in una serie di passaggi, da tracciare, e di documenti da generare e memorizzare. 
+
+Per chiarezza espositiva tratteremo separatamente il modulo per la presentazione dematerializzata degli emendamenti (PEM) il modulo per la presentazione dematerializzata degli atti di indirizzo e di sindacato ispettivo (DASI) e il terzo modulo che consente la gestione di questi ultimi.
+
+L’accesso al portale è rimasto comunque unico per tutti i moduli, le varie sezioni sono visibili solo ai profili autorizzati. Il nuovo sviluppo per la gestione degli atti di indirizzo e di sindacato ispettivo è accessibile solo al personale del Servizio Segreteria dell’Assemblea. Va puntualizzato che, per i due canali di accesso, la categoria di utenti non è coincidente: gli assessori, in quanto non sono consiglieri o sono sospesi dalla carica, non accederanno al canale DASI.
 
 ![00_login](/Documentazione/Screenshot/00_login.jpg)
 
@@ -43,7 +46,7 @@ E' inoltre prevista per l’Amministratore del Sistema una funzionalità che per
 
 ### Modalità di utilizzo del PIN dispositivo
 
-Per gestire il requisito di immodificabilità del numero e del testo degli ATTI firmati, della data e ora, nonché delle firme, si utilizza la crittografia. Attraverso la crittografia tutte le informazioni che non devono poter essere modificate sono rese “trattabili” solo attraverso il Sistema PEM-DASI.
+Per gestire il requisito di immodificabilità del numero e del testo degli ATTI firmati, della data e ora, nonché delle firme, si utilizza la crittografia. Attraverso la crittografia tutte le informazioni che non devono poter essere modificate sono rese “trattabili” solo attraverso il Sistema GeDASI.
 L’utilizzo dei PIN dispositivi avverrà e sarà regolato come descritto successivamente.
 
 1. FIRMA DI UN ATTO DA PARTE DEL TITOLARE DELL’INIZIATIVA
@@ -66,22 +69,35 @@ Utilizzando la chiave embedded crittografa e memorizza i dati relativi al ritiro
 ## Ruoli degli utenti
 Di seguito sono riportati i ruouli ricoperti dagli utenti all'interno dei moduli PEM e DASI, fatto salvo per gli utenti della Giunta regionale i quali possono operare solo all'interno del modulo PEM:
 
-- Servizio Segreteria Dell’assemblea (PEM-DASI)
-- Segreteria Dei Diversi Gruppi Consiliari (PEM-DASI)
-- Responsabile Di Segreteria Dei Diversi Gruppi Consiliari (PEM-DASI)
-- Consiglieri Regionali (PEM-DASI)
+- Servizio Segreteria Dell’assemblea (PEM e DASI)
+- Segreteria Dei Diversi Gruppi Consiliari (PEM e DASI)
+- Responsabile Di Segreteria Dei Diversi Gruppi Consiliari (PEM e DASI)
+- Consiglieri Regionali (PEM e DASI)
 - Presidente Della Giunta Regionale (PEM)
 - Assessori E Sottosegretari Regionali (PEM)
 - Segreterie Di Presidente/Assessori/Sottosegretari (PEM)
 - Responsabili Di Segreteria Di Presidente/Assessori/Sottosegretari (PEM)
 - Amministratori Di Giunta (PEM)
-- Amministratori del sistema (PEM-DASI)
-- Segreterie particolari dei componenti dell’Ufficio di presidenza (PEM-DASI)
+- Amministratori del sistema (PEM e DASI)
+- Segreterie particolari dei componenti dell’Ufficio di presidenza (PEM e DASI)
 
 ## Integrazione con altri applicativi presenti nel Consiglio regionale della Lombardia
-Sotto il profilo degli applicativi, nell’iter di ciascun ATTO intervengono principalmente la banca dati GEASI, (banca dati per la Gestione degli atti di sindacato e di indirizzo), dinamicamente correlata alle pagine web del sito istituzionale, e la piattaforma EDMA (sistema documentale e di protocollazione) per la gestione delle comunicazioni elettroniche relative a ciascun atto. Queste integrazioni possono essere disabilitate tramite opportuni parametri di configurazione.
+Sotto il profilo degli applicativi, nell’iter di ciascun ATTO interviene la piattaforma EDMA (sistema documentale e di protocollazione) per la gestione delle comunicazioni elettroniche relative a ciascun atto. Questa integrazione può essere disabilitata tramite opportuni parametri di configurazione.
 
-Altro applicativo con cui i moduli PEM-DASI dialogano è Ge.CO. disponibile su gitHub all’url https://github.com/Consiglio-Regionale-della-Lombardia/GeCo. L’applicazione GeCo (GEstione COnsiglieri) permette la gestione e consultazione delle informazioni istituzionali relative ai Consiglieri e agli Assessori regionali. Attraverso questa integrazione la piattaforma PEM-DASI “recupera” tutte le informazioni relative a:
+Il sito istituzionale del Consiglio Regionale acquisisce i dati relativi agli atti dal WebService esposto da GeDASI e li presenta all'interno del proprio spazio. Il WebService è uno strumento di sola lettura, appositamente sviluppato per l'esposizione degli atti al pubblico.
+Di seguito un elenco delle chiamate esposte:
+- GetLegislature: ritorna l'elenco delle legislature disponibili
+- GetTipi: ritorna l'elenco dei tipi di atto disponibili
+- GetTipiRisposta: ritorna l'elenco dei tipi di risposta disponibili
+- GetFirmatari: ritorna l'elenco dei firmatari in base alla legislatura
+- GetGruppi: ritorna l'elenco dei gruppi per legislatura
+- GetCaricheGiunta: ritorna l'elenco delle cariche di giunta disponibili per legislatura
+- GetCommissioni: ritorna l'elenco delle commissioni disponibili per legislatura
+- GetStati: ritorna l'elenco degli stati disponibili
+- Search: restituisce una lista di atti paginati opportunamente filtrati
+- GetAtto: restituisce le informazioni complete dell'atto
+
+Altro applicativo con cui i moduli di GeDASI dialogano è Ge.CO. disponibile su gitHub all’url https://github.com/Consiglio-Regionale-della-Lombardia/GeCo. L’applicazione GeCo (GEstione COnsiglieri) permette la gestione e consultazione delle informazioni istituzionali relative ai Consiglieri e agli Assessori regionali. Attraverso questa integrazione la piattaforma GeDASI “recupera” tutte le informazioni relative a:
 - Anagrafica dei consiglieri regionali
 -	Anagrafica degli assessori e sottosegretari
 -	Anagrafica e composizione dei gruppi politici
@@ -372,6 +388,8 @@ Gli atti di indirizzo e di sindacato ispettivo sono atti, tipici della tradizion
 Gli strumenti di indirizzo politico, denominati ATTI DI INDIRIZZO, previsti dal Regolamento generale sono mozioni, ordini del giorno e risoluzioni.
 La funzione di controllo invece, come definita a livello parlamentare, si estrinseca (anche) nell’attività di sindacato ispettivo (ATTI DI SINDACATO ISPETTIVO), e viene tradizionalmente esercitata attraverso gli strumenti tipici dell’interpellanza (ITL), dell’interrogazione (ITR) e dell’interrogazione a risposta immediata (IQT).
 
+A questo modulo, nella terza fase di sviluppo del progetto, sono state poi aggiunte tutte le funzionalità per la gestione del ciclo di vita degli atti di indirizzo e di sindacato ispettivo per UOLA.
+
 - [Introduzione Modulo DASI](#Introduzione-Modulo-DASI)
 - [Modalità di digitalizzazione degli Atti](#Modalità-di-digitalizzazione-degli-Atti)
 - [Caratteristiche peculiari delle diverse tipologie degli atti](#Caratteristiche-peculiari-delle-diverse-tipologie-degli-atti)
@@ -382,6 +400,7 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
   - [Atti di indirizzo](#Atti-di-indirizzo):
     - [Mozione (MOZ)](#Mozione-(MOZ))
     - [Ordine del Giorno (OdG)](#Ordine-del-Giorno-(OdG))
+    - [Risoluzioni (RIS)](#Risoluzioni-(RIS))
     
 ## Introduzione Modulo DASI 
 L'obiettivo del Portale DASI è mettere a disposizione strumenti e procedure atte a consentire ai Consiglieri la presentazione in forma dematerializzata degli atti di sindacato ispettivo e di indirizzo. 
@@ -631,7 +650,14 @@ Il pannello di generazione è accessibile dal pulsante "Genera report". Come par
 
 ![DASI_nuovo_report](/Documentazione/Screenshot/DASI_nuovo_report.png)
 
-Il modo in cui sono stati realizzati i report consente di configurare una serie di reportistiche "ricorrenti" in modo da renderne l'utilizzo immediato, mantenendo la possibilità di configurare richieste ad-hoc che possono servire in casi eccezionali.
+Il modo in cui sono stati realizzati i report basa il funzionamento sui filtri messi a disposizione e sulla possibilità di aggiungere o togliere criteri di selezione e sulla loro memorizzazione. In questo modo è possibile preparare una serie di report "ricorrenti" che possono essere richiamati dall'interfaccia e, allo stesso tempo, avvalersi della possibilità di configurare richieste ad-hoc che possono servire in casi eccezionali. Dei report è possibile configurare:
+- il formato di estrazione dei dati (word, excel, pdf),
+- la modalità di visualizzazione dati (tabellare, a lista o template),
+- quali informazioni visualizzare ovvero la possibilità di definire i campi da riportare all'interno delle stampe.
+
+Le stampe che possono essere prodotte sfruttando i report sono realizzate partendo da un modello, o template, completamente configurabile nell'apposita interfaccia di gestione. Questa funzionalità può essere acceduta solamente dagli utenti amministratori, e consente di disporre i dati provenienti dalla selezione degli atti, all'interno di un testo tramite il riferimento ad una serie di variabili, che vengono disposte all'interno del tempalte.
+
+![DASI_template](/Documentazione/Screenshot/DASI_template.png)
 
 ## Operazioni massive
 
@@ -667,12 +693,12 @@ L'area amministrativa mette a disposizione degli ads tutti gli strumenti per eff
 - generazione, ma non visibilità, di nuovi PIN: il PIN generato viene notificato all’interessato, che dovrà modificarlo obbligatoriamente al primo accesso al sistema;
 - assegnazione, utilizzando un’apposita funzionalità web d’interfacciamento con i gruppi Active directory, delle diverse visibilità sulle aree del sistema.
 
-Gli amministratori del sistema PEM-DASI gestiscono inoltre tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
+Gli amministratori del sistema GeDASI gestiscono inoltre tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
 
 ![PEM_11](/Documentazione/Screenshot/PEM_11.jpg)
 
 ## Dettagli della licenza
-La documentazione di PEM-DASI è rilasciata con licenza Creative Commons Attribution-ShareAlike 4.0 International
+La documentazione di GeDASI è rilasciata con licenza Creative Commons Attribution-ShareAlike 4.0 International
 
 Salvo diversamente indicato dalla legge applicabile o concordato per iscritto, la documentazione rilasciata secondo i termini della Licenza è distribuita "TAL QUALE", SENZA GARANZIE O CONDIZIONI DI ALCUN TIPO, esplicite o implicite.
 
