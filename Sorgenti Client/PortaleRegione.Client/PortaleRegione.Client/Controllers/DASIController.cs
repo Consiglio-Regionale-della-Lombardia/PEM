@@ -112,6 +112,12 @@ namespace PortaleRegione.Client.Controllers
                     return Json(resEmpty);
                 }
 
+                // #990
+                if (model.sort_settings.Any())
+                {
+                    request.dettagliOrdinamento = model.sort_settings;
+                }
+
                 request.page = model.page;
                 request.size = model.size;
 

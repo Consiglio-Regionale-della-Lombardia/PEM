@@ -61,7 +61,8 @@ namespace PortaleRegione.Persistance
             int size,
             ClientModeEnum mode,
             Filter<ATTI_DASI> filtro,
-            QueryExtendedRequest queryExtended)
+            QueryExtendedRequest queryExtended,
+            Dictionary<string, int> dettaglioOrdinamento)
         {
             var ordinamento_numero_atto = filtro.Statements.Any(f => f.PropertyId == nameof(ATTI_DASI.NAtto));
             List<int> userOrder = null;
@@ -71,6 +72,55 @@ namespace PortaleRegione.Persistance
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
             query = ApplyFilters(query, filtro.Statements, queryExtended, mode, currentUser, ref userOrder);
+
+            // #990
+            if (dettaglioOrdinamento != null && dettaglioOrdinamento.Any())
+            {
+                var properties = typeof(AttiDASIColums).GetProperties();
+                IOrderedQueryable<ATTI_DASI> orderedQuery = null;
+
+                foreach (var dettaglio in dettaglioOrdinamento)
+                {
+                    // Cercare la proprietà corrispondente
+                    var propertyInfo = properties.FirstOrDefault(p => p.Name == dettaglio.Key);
+                    if (propertyInfo != null)
+                    {
+                        var parameter = Expression.Parameter(typeof(ATTI_DASI), "item");
+                        var property = Expression.Property(parameter, dettaglio.Key);
+                        var lambda = Expression.Lambda(property, parameter);
+
+                        // Ordinamento crescente o decrescente
+                        if (dettaglio.Value == 1) // Crescente
+                        {
+                            orderedQuery = orderedQuery == null 
+                                ? Queryable.OrderBy((dynamic)query, (dynamic)lambda) 
+                                : Queryable.ThenBy((dynamic)orderedQuery, (dynamic)lambda);
+                        }
+                        else // Decrescente
+                        {
+                            orderedQuery = orderedQuery == null 
+                                ? Queryable.OrderByDescending((dynamic)query, (dynamic)lambda) 
+                                : Queryable.ThenByDescending((dynamic)orderedQuery, (dynamic)lambda);
+                        }
+                    }
+                }
+
+                if (orderedQuery != null)
+                {
+                    query = orderedQuery;
+
+                    if (page > 0 && size > 0)
+                        return await query
+                            .Select(item => item.UIDAtto)
+                            .Skip((page - 1) * size)
+                            .Take(size)
+                            .ToListAsync();
+
+                    return await query
+                        .Select(item => item.UIDAtto)
+                        .ToListAsync();
+                }
+            }
 
             if (queryExtended.Stati.Any())
                 if (queryExtended.Stati.Any(item => item.Equals((int)StatiAttoEnum.BOZZA)))
@@ -333,7 +383,7 @@ namespace PortaleRegione.Persistance
                 Uid = Guid.NewGuid(),
                 UIDAtto = UidAtto
             };
-            
+
             if (organo.id > 0)
             {
                 newObject.IdOrgano = organo.id;
@@ -652,7 +702,7 @@ namespace PortaleRegione.Persistance
                 }
             }
 
-            return res.OrderBy(p=>p.descr).ToList();
+            return res.OrderBy(p => p.descr).ToList();
         }
 
         public void AggiungiAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato)

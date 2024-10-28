@@ -23,6 +23,7 @@ namespace PortaleRegione.DTO.Domain;
 
 public class AttiDASIColums
 {
+    [DisplayName("Tipo atto")] public int Tipo { get; set; }
     [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;
     [DisplayName("Etichetta")] public string Etichetta { get; set; }
 
@@ -68,16 +69,11 @@ public class AttiDASIColums
     [DisplayName("Area politica")] public int AreaPolitica { get; set; }
     [DisplayName("Legislatura")] public int Legislatura { get; set; }
     [DisplayName("Non passaggio in esame")] public bool Non_Passaggio_In_Esame { get; set; } = false;
-
-
-    [DisplayName("Privacy - divieto di pubblicazione")]
-    public bool Privacy_Divieto_Pubblicazione { get; set; }
-
+    [DisplayName("Privacy - divieto di pubblicazione")] public bool Privacy_Divieto_Pubblicazione { get; set; }
     [DisplayName("Privacy")] public bool Privacy { get; set; }
     [DisplayName("Allegati dell’atto")] public string Documenti { get; set; } // #1021
     [DisplayName("Note")] public string Note { get; set; }
     [DisplayName("Iter multiplo")] public bool IterMultiplo { get; set; } = false;
-
     [DisplayName("Presentato oltre i termini")] public bool PresentatoOltreITermini { get; set; } = false;
     public string BURL { get; set; }
     [DisplayName("UIDAtto")] public Guid UIDAtto { get; set; }

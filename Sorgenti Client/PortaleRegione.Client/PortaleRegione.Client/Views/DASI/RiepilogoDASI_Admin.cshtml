@@ -66,10 +66,13 @@
                     </div>
                     <div class="col l6 s6 right-align">
 
-                        <a class="btn-floating white black-text tooltipped" data-tooltip="Colonne griglia" data-position="left" id="btnSelezionaColonne">
+                        <a class="btn-floating white black-text tooltipped" data-tooltip="Ordinamento risultati" id="btnOrdinamentoRisultati">
+							<i class="material-icons">sort_by_alpha</i>
+                        </a>
+                        <a class="btn-floating white black-text tooltipped" data-tooltip="Colonne griglia" id="btnSelezionaColonne">
                             <i class="material-icons">apps</i>
                         </a>
-                        <a class="btn-floating white black-text tooltipped activator" data-tooltip="Conteggi" data-position="left">
+                        <a class="btn-floating white black-text tooltipped activator" data-tooltip="Conteggi">
                             <i class="material-icons">insert_chart</i>
                         </a>
                         @* #994 *@
@@ -164,6 +167,45 @@
 	Html.RenderPartial("_ScriptRiepilogoDASI", Model);
 }
 
+<div id="modalOrdinamentoRisultati" class="modal">
+    <div class="modal-content">
+        <h4>Seleziona le colonne della griglia da ordinare</h4>
+        <div class="row">
+            <div class="input-field col s12">
+                <select name="sort-columns-grid" id="sort-columns-grid-select" onchange="handleSortColumnChange()">
+                    <option value="" disabled selected>Seleziona</option>
+                    @foreach (var prop in typeof(AttiDASIColums).GetProperties())
+                    {
+                        var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                            .Cast<DisplayNameAttribute>()
+                            .FirstOrDefault()?.DisplayName ?? prop.Name;
+
+                        <option value="@prop.Name">@displayName</option>
+                    }
+                </select>
+            </div>
+            <div class="col s12">
+                <table class="highlight">
+                    <thead>
+                    <tr>
+                        <th>Colonna</th>
+                        <th>Ordinamento</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="sort-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+        <a onclick="btnResetOrdinamentoColonneGriglia()" class="red-text waves-effect waves-green btn-flat">Reset</a>
+        <a onclick="btnSalvaOrdinamentoColonneGriglia()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+    </div>
+</div>
+
 <div id="modalColonneGriglia" class="modal">
 	<div class="modal-content">
 		<h4>Seleziona le colonne della griglia</h4>
@@ -210,6 +252,91 @@
 		waiting(false);
 		$('#modalColonneGriglia').modal("open");
 	});
+	
+	document.getElementById('btnOrdinamentoRisultati').addEventListener('click', function () {
+		const savedColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+
+		const sortList = document.getElementById('sort-list');
+		sortList.innerHTML = ''; // Svuota la lista corrente
+
+		savedColumns.forEach(item => {
+			// Crea una riga per ciascuna colonna salvata
+			const row = document.createElement("tr");
+
+			row.innerHTML = `
+            <td>${item.displayText}</td>
+            <td>
+                <select data-column="${item.propertyName}" onchange="updateSortDirection('${item.propertyName}', this.value)">
+                    <option value="1" ${item.sortDirection === "1" ? "selected" : ""}>Crescente</option>
+                    <option value="-1" ${item.sortDirection === "-1" ? "selected" : ""}>Decrescente</option>
+                </select>
+            </td>
+            <td>
+                <a onclick="removeSortColumn('${item.propertyName}', this)" class="red-text">Rimuovi</a>
+            </td>
+        `;
+
+			// Aggiunge la riga alla tabella
+			sortList.appendChild(row);
+		});
+
+		// Inizializza i selettori di Materialize (se necessario)
+		$("select").formSelect();
+
+		$('#modalOrdinamentoRisultati').modal("open");
+	});
+
+	function handleSortColumnChange() {
+		const select = document.getElementById("sort-columns-grid-select");
+		const selectedColumn = select.options[select.selectedIndex].value;
+		const displayText = select.options[select.selectedIndex].text;
+
+		// Controlla se la colonna è già presente nella lista
+		if (!selectedSortColumns.includes(selectedColumn)) {
+			selectedSortColumns.push(selectedColumn);
+
+			// Crea una nuova riga per la colonna selezionata con l'opzione di ordinamento
+			const sortList = document.getElementById("sort-list");
+			const row = document.createElement("tr");
+
+			// Imposta il contenuto della riga
+			row.innerHTML = `
+            <td>${displayText}</td>
+            <td>
+                <select data-column="${selectedColumn}" onchange="updateSortDirection('${selectedColumn}', this.value)">
+                    <option value="1">Crescente</option>
+                    <option value="-1">Decrescente</option>
+                </select>
+            </td>
+            <td>
+                <a onclick="removeSortColumn('${selectedColumn}', this)" class="red-text">Rimuovi</a>
+            </td>
+        `;
+
+			// Aggiungi la nuova riga alla tabella
+			sortList.appendChild(row);
+
+			// Reinizializza il selettore per Materialize
+			$("select").formSelect();
+		}
+	}
+
+	// Funzione per aggiornare la direzione dell’ordinamento
+	function updateSortDirection(column, direction) {
+		selectedSortColumns = selectedSortColumns.map(item =>
+			item === column ? { column, direction: parseInt(direction) } : item
+		);
+	}
+
+	// Funzione per rimuovere la colonna di ordinamento
+	function removeSortColumn(column, element) {
+		// Rimuovi la colonna dalla lista
+		selectedSortColumns = selectedSortColumns.filter(item => item.column !== column);
+
+		// Rimuovi la riga dalla tabella
+		const row = element.closest("tr");
+		row.remove();
+	}
 
     function btnResetColonneGriglia() {
 		localStorage.setItem('selectedColumns', JSON.stringify([]));
@@ -241,4 +368,36 @@
 		// Chiudi la modale
 		$('#modalColonneGriglia').modal('close');		
     }
+
+	// Salva l'ordinamento selezionato
+	function btnSalvaOrdinamentoColonneGriglia() {
+		const selectedColumns = Array.from(document.querySelectorAll('#sort-list tr')).map(row => {
+			const propertyName = row.querySelector('select').getAttribute('data-column');
+			const displayText = row.querySelector('td:first-child').innerText;
+			const sortDirection = row.querySelector('select').value; // Direzione ordinamento
+
+			return {
+				propertyName: propertyName,
+				displayText: displayText,
+				sortDirection: sortDirection
+			};
+		});
+
+		// Salva le colonne selezionate con l'ordinamento nel local storage
+		localStorage.setItem('selectedSortColumns', JSON.stringify(selectedColumns));
+        		
+		location.reload();
+	}
+
+	function btnResetOrdinamentoColonneGriglia() {
+		// Cancella l'ordinamento salvato dal local storage
+		localStorage.removeItem('selectedSortColumns');
+
+		// Ripristina l'elenco delle colonne e aggiorna la tabella
+		selectedSortColumns = [];
+
+		// Svuota l'elemento di visualizzazione dell'ordinamento
+		document.getElementById('sort-list').innerHTML = '';
+		location.reload();
+	}
 </script>

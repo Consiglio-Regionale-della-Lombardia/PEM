@@ -45,6 +45,7 @@ namespace PortaleRegione.DTO.Request
         public BaseRequest()
         {
             filtro = new List<FilterStatement<T>>();
+            dettagliOrdinamento = new Dictionary<string, int>();
         }
 
         public Guid id { get; set; }
@@ -59,5 +60,7 @@ namespace PortaleRegione.DTO.Request
         public OrdinamentoEnum ordine { get; set; } = OrdinamentoEnum.Default;
         
         public IDictionary<string, object> param { get; set; }
+        
+        public Dictionary<string, int> dettagliOrdinamento { get; set; }
     }
 }

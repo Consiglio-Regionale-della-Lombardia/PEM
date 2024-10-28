@@ -30,6 +30,8 @@
 
 <!-- Modal Structure -->
 <script>
+	var selectedSortColumns = [];
+
 var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))", id: "@nameof(AttoDASIDto.Legislatura)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIReportDto), nameof(AttoDASIReportDto.IDStato))", id: "@nameof(AttoDASIDto.IDStato)"},
@@ -613,6 +615,17 @@ async function inviaDatiChips(page, size) {
 		request.filters = chipsData;
 		request.page = page;
 		request.size = size;
+
+		const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+		const sortSettings = {};
+
+		// Crea il dictionary con nome proprietà e direzione ordinamento
+		savedSortColumns.forEach(column => {
+			sortSettings[column.propertyName] = parseInt(column.sortDirection, 10); // 1 per crescente, -1 per decrescente
+		});
+
+		// Aggiungi le impostazioni di ordinamento alla richiesta
+		request.sort_settings = sortSettings;
 
 		// Invia la richiesta al server
 		const response = await fetch('@Url.Action("Riepilogo")', {

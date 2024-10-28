@@ -492,7 +492,7 @@ namespace PortaleRegione.API.Controllers
                 var queryFilter = new Filter<ATTI_DASI>();
                 queryFilter.ImportStatements(query);
                 var res = await _unitOfWork.DASI.GetAll(currentUser, 1, 1, ClientModeEnum.GRUPPI, queryFilter,
-                    new QueryExtendedRequest());
+                    new QueryExtendedRequest(), new Dictionary<string, int>());
 
                 if (res.Any()) throw new InvalidOperationException("DCR/DCCR già presente a sistema.");
 
@@ -555,7 +555,7 @@ namespace PortaleRegione.API.Controllers
             var requestTipo = GetResponseTypeFromFilters(model.filtro);
 
             var queryExtended = CreateQueryExtendedRequest(model);
-
+            
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
             model.param.TryGetValue("RequireMySign", out var RequireMySign); // #539
             if (RequireMySign == null)
@@ -566,7 +566,7 @@ namespace PortaleRegione.API.Controllers
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(model.filtro);
             var atti_in_db = await _unitOfWork.DASI.GetAll(persona, model.page, model.size, GetClientMode(CLIENT_MODE),
-                queryFilter, queryExtended);
+                queryFilter, queryExtended, model.dettagliOrdinamento);
 
             if (!atti_in_db.Any())
             {
@@ -935,7 +935,7 @@ namespace PortaleRegione.API.Controllers
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(model.filtro);
             return await _unitOfWork.DASI.GetAll(persona, model.page, model.size, GetClientMode(CLIENT_MODE),
-                queryFilter, queryExtended);
+                queryFilter, queryExtended, model.dettagliOrdinamento);
         }
 
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid)
@@ -3048,7 +3048,8 @@ namespace PortaleRegione.API.Controllers
                         , model.size
                         , ClientModeEnum.GRUPPI
                         , filtro
-                        , new QueryExtendedRequest());
+                        , new QueryExtendedRequest()
+                        , new Dictionary<string, int>());
                 return atti_in_db;
             }
             catch (Exception e)
@@ -4763,7 +4764,7 @@ namespace PortaleRegione.API.Controllers
                     var queryFilter = new Filter<ATTI_DASI>();
                     queryFilter.ImportStatements(query);
                     var res = await _unitOfWork.DASI.GetAll(currentUser, 1, 1, ClientModeEnum.GRUPPI, queryFilter,
-                        new QueryExtendedRequest());
+                        new QueryExtendedRequest(), new Dictionary<string, int>());
 
                     if (res.Any()) continue;
 
