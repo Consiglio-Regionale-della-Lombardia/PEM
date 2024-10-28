@@ -69,7 +69,7 @@ Utilizzando la chiave embedded crittografa e memorizza i dati relativi al ritiro
 ## Ruoli degli utenti
 Di seguito sono riportati i ruouli ricoperti dagli utenti all'interno dei moduli PEM e DASI, fatto salvo per gli utenti della Giunta regionale i quali possono operare solo all'interno del modulo PEM:
 
-- Servizio Segreteria Dell’assemblea (PEM e DASI)
+- Servizio Segreteria Dell’assemblea (PEM e DASI/GeDASI)
 - Segreteria Dei Diversi Gruppi Consiliari (PEM e DASI)
 - Responsabile Di Segreteria Dei Diversi Gruppi Consiliari (PEM e DASI)
 - Consiglieri Regionali (PEM e DASI)
@@ -78,7 +78,7 @@ Di seguito sono riportati i ruouli ricoperti dagli utenti all'interno dei moduli
 - Segreterie Di Presidente/Assessori/Sottosegretari (PEM)
 - Responsabili Di Segreteria Di Presidente/Assessori/Sottosegretari (PEM)
 - Amministratori Di Giunta (PEM)
-- Amministratori del sistema (PEM e DASI)
+- Amministratori del sistema (PEM e DASI/GeDASI)
 - Segreterie particolari dei componenti dell’Ufficio di presidenza (PEM e DASI)
 
 ## Integrazione con altri applicativi presenti nel Consiglio regionale della Lombardia
