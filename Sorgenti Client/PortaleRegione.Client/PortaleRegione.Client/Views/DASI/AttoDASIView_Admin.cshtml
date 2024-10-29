@@ -257,25 +257,31 @@
 								</div>
 							</div>
 							<div class="row">
-								<div class="input-field col s12 m12 l6">
-									<select id="Atto_AreaPolitica">
-										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)</option>
-										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza)</option>
-										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)</option>
-										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)</option>
-										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)</option>
-										<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)</option>
-									</select>
-									<label for="Atto_AreaPolitica">Area politica</label>
-								</div>
-								<div class="input-field col s12 m12 l6">
-									<select id="Atto_RispostaRichiesta">
-										<option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
-										<option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
-										<option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
-									</select>
-									<label for="Atto_RispostaRichiesta">Risposta richiesta</label>
-								</div>
+                                <div class="input-field col s12 m12 l6">
+                                    <select id="Atto_AreaPolitica">
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)</option>
+                                    </select>
+                                    <label for="Atto_AreaPolitica">Area politica</label>
+                                </div>
+                                @if (Model.Atto.Tipo != (int)TipoAttoEnum.MOZ
+                                     && Model.Atto.Tipo != (int)TipoAttoEnum.ODG
+                                     && Model.Atto.Tipo != (int)TipoAttoEnum.RIS)
+                                {
+									// #1056
+                                    <div class="input-field col s12 m12 l6">
+                                        <select id="Atto_RispostaRichiesta">
+                                            <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                                            <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+                                            <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                                        </select>
+                                        <label for="Atto_RispostaRichiesta">Risposta richiesta</label>
+                                    </div>
+                                }
 							</div>
                             <div class="row">
                                 <div class="input-field col s12 m12 l6">
