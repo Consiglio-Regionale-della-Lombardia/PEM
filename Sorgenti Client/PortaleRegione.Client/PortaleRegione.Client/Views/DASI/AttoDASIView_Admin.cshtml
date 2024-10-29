@@ -356,7 +356,6 @@
 											<table>
 												<thead>
 													<tr>
-														<td>Tipo</td>
 														<td>Documento</td>
 														<td>Scarica</td>
 														<td></td>
@@ -366,7 +365,6 @@
 													@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.AGGIUNTIVO))
 													{
 														<tr>
-															<td>@doc.Tipo</td>
 															<td>@doc.Titolo</td>
 															<td>
 																<a href="@doc.Link" target="_blank">
@@ -526,7 +524,6 @@
 									<table>
 										<thead>
 											<tr>
-												<td>Tipo</td>
 												<td>Documento</td>
 												<td>Scarica</td>
 												<td></td>
@@ -536,7 +533,6 @@
 											@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.RISPOSTA))
 											{
 												<tr>
-													<td>@doc.Tipo</td>
 													<td>@doc.Titolo</td>
 													<td>
 														<a href="@doc.Link" target="_blank">
@@ -647,7 +643,6 @@
 											<table>
 												<thead>
 													<tr>
-														<td>Tipo</td>
 														<td>Documento</td>
 														<td>Scarica</td>
 														<td></td>
@@ -657,7 +652,6 @@
 													@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
 													{
 														<tr>
-															<td>@doc.Tipo</td>
 															<td>@doc.Titolo</td>
 															<td>
 																<a href="@doc.Link" target="_blank">
@@ -778,7 +772,6 @@
 											<table>
 												<thead>
 													<tr>
-														<td>Tipo</td>
 														<td>Documento</td>
 														<td>Scarica</td>
 														<td></td>
@@ -789,7 +782,6 @@
 																								   || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE))
 													{
 														<tr>
-															<td>@doc.Tipo</td>
 															<td>@doc.Titolo</td>
 															<td>
 																<a href="@doc.Link" target="_blank">
