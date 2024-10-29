@@ -73,7 +73,7 @@
 	</div>
 
 
-	<div class="row" style="left: 10px; margin-bottom: unset !important; position: absolute; top: 12px;">
+	<div class="row" style="left: 10px; margin-bottom: unset !important; position: absolute; top: -18px;">
 		<div class="col s12">
 			<a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
 				<i class="material-icons">close</i>
@@ -81,28 +81,13 @@
 
 		</div>
 	</div>
-	<div class="row" style="margin-bottom: unset !important; position: absolute; right: 10px; top: 25px;">
+	<div class="row" style="right: 50px; margin-bottom: unset !important; position: absolute; top: -5px;">
 		<div class="col s12">
 			<div class="chip @Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset;">@PortaleRegione.Common.Utility.GetText_StatoDASI(atto.IDStato)</div>
 		</div>
 	</div>
-	
-        <div class="row valign-wrapper">
-            <div class="col s12 center">
-                <h4>
-                    @if (atto.Tipo != (int)TipoAttoEnum.RIS)
-                    {
-                        <b>@atto.gruppi_politici.nome_gruppo</b>
-                    }
-                    else
-                    {
-                        <b>&nbsp;</b>
-                    }
-                </h4>
-            </div>
-        </div>
     
-		<div class="row">
+		<div class="row" style="padding-top:35px">
 			<div class="col s12">
 				<ul class="collapsible expandable">
 					<li class="active">

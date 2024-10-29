@@ -963,6 +963,7 @@ function CambioStatoMassivoDASI(stato, descr) {
                 dataType: "json"
             }).done(function(data) {
                 waiting(false);
+                setListaAtti([])
                 DeselectALLEM();
                 location.reload();
             }).fail(function(err) {
