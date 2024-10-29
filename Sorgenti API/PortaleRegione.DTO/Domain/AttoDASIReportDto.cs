@@ -47,8 +47,7 @@ public class AttoDASIReportDto
     [DisplayName("Impegni e scadenze")] public string ImpegniScadenze { get; set; } // #1021
     [DisplayName("Stato attuazione")] public string StatoAttuazione { get; set; }
     [DisplayName("Competenza monitoraggio")] public string CompetenzaMonitoraggio { get; set; }
-    [DisplayName("Proponente")] public Guid? UIDPersonaProponente { get; set; }
-    [DisplayName("Altri firmatari")] public string Firme { get; set; }
+    [DisplayName("Firmatari")] public string Firme { get; set; }
     [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
 
     [DisplayName("Commissioni proponenti")] public List<OrganoDto> CommissioniProponenti { get; set; }
