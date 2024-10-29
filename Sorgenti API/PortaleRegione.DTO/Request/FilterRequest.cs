@@ -26,6 +26,6 @@ namespace PortaleRegione.DTO.Request
         public List<FilterItem> filters { get; set; } = new List<FilterItem>();
         public int page { get; set; }
         public int size { get; set; }
-        public Dictionary<string, int> sort_settings { get; set; } = new Dictionary<string, int>();
+        public List<SortingInfo> sort_settings { get; set; } = new List<SortingInfo>();
     }
 }

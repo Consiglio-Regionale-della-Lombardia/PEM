@@ -16,16 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Domain;
+namespace PortaleRegione.DTO.Request;
 
-public class ReportDto
+public class SortingInfo
 {
-    public string reportname { get; set; }
-    public string covertype { get; set; }
-    public int dataviewtype { get; set; }
-    public string dataviewtype_template { get; set; }
-    public string columns { get; set; }
-    public int exportformat { get; set; }
-    public string filters { get; set; }
-    public string sorting { get; set; }
+    public string displayText { get; set; }
+    public string propertyName { get; set; }
+    public int sortDirection { get; set; }
 }

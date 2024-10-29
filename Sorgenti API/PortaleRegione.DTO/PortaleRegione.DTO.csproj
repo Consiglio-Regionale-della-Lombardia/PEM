@@ -71,6 +71,7 @@
     <Compile Include="Domain\AssessoreInCaricaDto.cs" />
     <Compile Include="Domain\AttiAbbinamentoDto.cs" />
     <Compile Include="Domain\AttiDASIColums.cs" />
+    <Compile Include="Domain\AttiDASISorting.cs" />
     <Compile Include="Domain\AttiDocumentiDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />
@@ -207,6 +208,7 @@
     <Compile Include="Request\SalvaComandoMassivoRequest.cs" />
     <Compile Include="Request\SalvaDocumentoRequest.cs" />
     <Compile Include="Request\SalvaGruppoRequest.cs" />
+    <Compile Include="Request\SortingInfo.cs" />
     <Compile Include="Request\StampaRequest.cs" />
     <Compile Include="Enum\TipoRispostaEnum.cs" />
     <Compile Include="Response\BaseResponse.cs" />

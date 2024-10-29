@@ -7,6 +7,9 @@
         <div id="chips-container-report-config">
 
         </div>
+        <div id="chips-container-report-sort">
+
+        </div>
 
         <div class="row">
             <div class="input-field col s12">
@@ -129,6 +132,8 @@
 		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
 		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
 
+		request.sorting = localStorage.getItem('selectedSortColumns');
+
         var url = '@Url.Action("SalvaReport", "DASI")';
 		const response = await fetch(url, {
             method: 'POST',
@@ -179,6 +184,7 @@
 
         });
 		request.filters = JSON.stringify(filtriList);
+		request.sorting = localStorage.getItem('selectedSortColumns');
 		request.reportname = document.getElementById('report_name').value;
 		request.covertype = document.querySelector('select[name="coverType"]').value;
 		request.dataviewtype = document.querySelector('select[name="dataViewType"]').value;
@@ -293,6 +299,7 @@
 		coverTypeSelect.formSelect();
 
 		$('#chips-container-report-config').empty();
+		$('#chips-container-report-sort').empty();
 
 		var existingChip = document.querySelector(`.chip[data-selected-report]`);
 		if (existingChip) {
@@ -337,6 +344,13 @@
 			});
 		}
 
+		const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+		if (savedSortColumns.length > 0) {
+			savedSortColumns.forEach(function (sortInfo) {
+				addChipReportSorting('Ordinato per ' + sortInfo.displayText + ' ' + (sortInfo.sortDirection == 1 ? "Crescente": "Decrescente"));
+			});
+		}
+
 		$('#modalReportConfig').modal("open");
 		waiting(false);
 	}
@@ -345,6 +359,15 @@
 		var chipsContainer = document.getElementById('chips-container-report-config');
 		var newChip = document.createElement('div');
 		newChip.classList.add('chip', 'yellow', 'black-text');
+		newChip.textContent = chipText;
+
+		chipsContainer.appendChild(newChip);
+	}
+	
+	function addChipReportSorting(chipText) {
+		var chipsContainer = document.getElementById('chips-container-report-sort');
+		var newChip = document.createElement('div');
+		newChip.classList.add('chip', 'amber', 'black-text');
 		newChip.textContent = chipText;
 
 		chipsContainer.appendChild(newChip);
@@ -359,92 +382,93 @@
 	}
 
     function creaPannelloReportLaterale() {
-    var collection = document.getElementById('data-collection-report');
-    $('#data-collection-report').empty();
-    reportsArray.forEach(function (item) {
-        var li = document.createElement('li');
-		li.className = 'collection-item';
-		li.textContent = item.reportname;
+		var collection = document.getElementById('data-collection-report');
+		$('#data-collection-report').empty();
+		reportsArray.forEach(function (item) {
+			var li = document.createElement('li');
+			li.className = 'collection-item';
+			li.textContent = item.reportname;
 
-        var addIcon = document.createElement('i');
-	    addIcon.className = 'material-icons secondary-content';
-	    addIcon.textContent = 'add_circle';
+			var addIcon = document.createElement('i');
+			addIcon.className = 'material-icons secondary-content';
+			addIcon.textContent = 'add_circle';
 
-	    addIcon.onclick = function (event) {
-            event.stopPropagation();
-			resetSelezionePreferiti();
-			localStorage.setItem('filtriDasi', item.filters);
-			chipsKeys = [];
-			$('#chips-container').empty();
-			ripristinaFiltri();
+			addIcon.onclick = function (event) {
+				event.stopPropagation();
+				resetSelezionePreferiti();
+				localStorage.setItem('selectedSortColumns', item.sorting)
+				localStorage.setItem('filtriDasi', item.filters);
+				chipsKeys = [];
+				$('#chips-container').empty();
+				ripristinaFiltri();			
 
-			$('#chips-container-selected-report').empty();
-			var chipsContainer = document.getElementById('chips-container-selected-report');
-			var selectedReportChip = document.createElement('div');
-			selectedReportChip.classList.add('chip', 'pink', 'black-text');
-			selectedReportChip.textContent = item.reportname;
-			selectedReportChip.setAttribute('data-selected-report', item.reportname);
+				$('#chips-container-selected-report').empty();
+				var chipsContainer = document.getElementById('chips-container-selected-report');
+				var selectedReportChip = document.createElement('div');
+				selectedReportChip.classList.add('chip', 'pink', 'black-text');
+				selectedReportChip.textContent = item.reportname;
+				selectedReportChip.setAttribute('data-selected-report', item.reportname);
 
-			var removeSelectedReportIcon = document.createElement('i');
-			removeSelectedReportIcon.className = 'material-icons secondary-content black-text tiny';
-			removeSelectedReportIcon.style.marginLeft = '10px';
-			removeSelectedReportIcon.style.top = '9px';
-			removeSelectedReportIcon.textContent = 'close';
-			removeSelectedReportIcon.onclick = async function (event) {
-				selectedReportChip.remove();
+				var removeSelectedReportIcon = document.createElement('i');
+				removeSelectedReportIcon.className = 'material-icons secondary-content black-text tiny';
+				removeSelectedReportIcon.style.marginLeft = '10px';
+				removeSelectedReportIcon.style.top = '9px';
+				removeSelectedReportIcon.textContent = 'close';
+				removeSelectedReportIcon.onclick = async function (event) {
+					selectedReportChip.remove();
+				};
+				selectedReportChip.appendChild(removeSelectedReportIcon);
+				chipsContainer.appendChild(selectedReportChip);
 			};
-			selectedReportChip.appendChild(removeSelectedReportIcon);
-			chipsContainer.appendChild(selectedReportChip);
-        };
 
-        li.appendChild(addIcon);
+			li.appendChild(addIcon);
 
-	    var deleteIcon = document.createElement('i');
-	    deleteIcon.className = 'material-icons secondary-content';
-	    deleteIcon.style.marginRight = '10px';
-	    deleteIcon.textContent = 'delete';
-	    deleteIcon.classList.add('red-text');
-	    deleteIcon.onclick = async function (event) {
-		    event.stopPropagation();
-		    swal(`Sei sicuro di voler eliminare il report "${item.reportname}"?`, {
-			    buttons: ["No", "Si"],
-		    }).then(async (value) => {
-			    if (value == true){
-				    try {
-					    var deleteUrl = '@Url.Action("EliminaReport", "DASI")';
-						deleteUrl = `${deleteUrl}?nomeReport=${encodeURIComponent(item.reportname)}`;
-					    let response = await fetch(deleteUrl, {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            }
-                        });
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
+			var deleteIcon = document.createElement('i');
+			deleteIcon.className = 'material-icons secondary-content';
+			deleteIcon.style.marginRight = '10px';
+			deleteIcon.textContent = 'delete';
+			deleteIcon.classList.add('red-text');
+			deleteIcon.onclick = async function (event) {
+				event.stopPropagation();
+				swal(`Sei sicuro di voler eliminare il report "${item.reportname}"?`, {
+					buttons: ["No", "Si"],
+				}).then(async (value) => {
+					if (value == true){
+						try {
+							var deleteUrl = '@Url.Action("EliminaReport", "DASI")';
+							deleteUrl = `${deleteUrl}?nomeReport=${encodeURIComponent(item.reportname)}`;
+							let response = await fetch(deleteUrl, {
+								method: 'GET',
+								headers: {
+									'Content-Type': 'application/json',
+								}
+							});
+							if (!response.ok) {
+								throw new Error('Network response was not ok');
+							}
 
-                        let data = await response.json();
-                        if(data.message){
-                            ErrorAlert(data.message);
-                            return;
-                        }
+							let data = await response.json();
+							if(data.message){
+								ErrorAlert(data.message);
+								return;
+							}
 
-					    M.toast({
-						    html: `<span><b class="yellow-text">${item.reportname}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
+							M.toast({
+								html: `<span><b class="yellow-text">${item.reportname}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
 
-					    li.remove();
-						var indexToRemove = reportsArray.findIndex(el => el.reportname === item.reportname);
+							li.remove();
+							var indexToRemove = reportsArray.findIndex(el => el.reportname === item.reportname);
 
-					    if (indexToRemove !== -1) {
-							reportsArray.splice(indexToRemove, 1);
-					    }
-				    } catch (error) {
-					    console.error('Errore di fetch:', error);
-					    ErrorAlert(error.message);
-				    }
-			    }
-		    });
-	    };
+							if (indexToRemove !== -1) {
+								reportsArray.splice(indexToRemove, 1);
+							}
+						} catch (error) {
+							console.error('Errore di fetch:', error);
+							ErrorAlert(error.message);
+						}
+					}
+				});
+			};
 	    li.appendChild(deleteIcon);
         collection.appendChild(li);
     });

@@ -492,7 +492,7 @@ namespace PortaleRegione.API.Controllers
                 var queryFilter = new Filter<ATTI_DASI>();
                 queryFilter.ImportStatements(query);
                 var res = await _unitOfWork.DASI.GetAll(currentUser, 1, 1, ClientModeEnum.GRUPPI, queryFilter,
-                    new QueryExtendedRequest(), new Dictionary<string, int>());
+                    new QueryExtendedRequest(), new List<SortingInfo>());
 
                 if (res.Any()) throw new InvalidOperationException("DCR/DCCR già presente a sistema.");
 
@@ -3049,7 +3049,7 @@ namespace PortaleRegione.API.Controllers
                         , ClientModeEnum.GRUPPI
                         , filtro
                         , new QueryExtendedRequest()
-                        , new Dictionary<string, int>());
+                        , new List<SortingInfo>());
                 return atti_in_db;
             }
             catch (Exception e)
@@ -3758,7 +3758,8 @@ namespace PortaleRegione.API.Controllers
                     FormatoEsportazione = report.exportformat,
                     TipoCopertina = report.covertype,
                     TipoVisualizzazione = report.dataviewtype,
-                    TipoVisualizzazione_Card_Template = report.dataviewtype_template
+                    TipoVisualizzazione_Card_Template = report.dataviewtype_template,
+                    DettagliOrdinamento = report.sorting
                 };
 
                 _unitOfWork.Reports.Add(item);
@@ -3771,6 +3772,7 @@ namespace PortaleRegione.API.Controllers
                 reportInDb.TipoCopertina = report.covertype;
                 reportInDb.TipoVisualizzazione = report.dataviewtype;
                 reportInDb.TipoVisualizzazione_Card_Template = report.dataviewtype_template;
+                reportInDb.DettagliOrdinamento = report.sorting;
             }
 
             await _unitOfWork.CompleteAsync();
@@ -3828,7 +3830,8 @@ namespace PortaleRegione.API.Controllers
                     covertype = f.TipoCopertina,
                     dataviewtype = f.TipoVisualizzazione,
                     dataviewtype_template = f.TipoVisualizzazione_Card_Template,
-                    exportformat = f.FormatoEsportazione
+                    exportformat = f.FormatoEsportazione,
+                    sorting = f.DettagliOrdinamento
                 });
 
             return res;
@@ -3988,6 +3991,12 @@ namespace PortaleRegione.API.Controllers
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
             };
 
+            if (!string.IsNullOrEmpty(model.sorting))
+            {
+                var ordinamento = JsonConvert.DeserializeObject<List<SortingInfo>>(model.sorting);
+                request.dettagliOrdinamento = ordinamento;
+            }
+
             var idsList = await GetSoloIds(request, currentUser, null);
 
             using (var package = new ExcelPackage())
@@ -4062,6 +4071,12 @@ namespace PortaleRegione.API.Controllers
                 filtro = filterStatements,
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
             };
+
+            if (!string.IsNullOrEmpty(model.sorting))
+            {
+                var ordinamento = JsonConvert.DeserializeObject<List<SortingInfo>>(model.sorting);
+                request.dettagliOrdinamento = ordinamento;
+            }
 
             var idsList = await GetSoloIds(request, currentUser, null);
 
@@ -4207,6 +4222,12 @@ namespace PortaleRegione.API.Controllers
                 filtro = filterStatements,
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
             };
+
+            if (!string.IsNullOrEmpty(model.sorting))
+            {
+                var ordinamento = JsonConvert.DeserializeObject<List<SortingInfo>>(model.sorting);
+                request.dettagliOrdinamento = ordinamento;
+            }
 
             var idsList = await GetSoloIds(request, currentUser, null);
 
@@ -4438,6 +4459,12 @@ namespace PortaleRegione.API.Controllers
                 filtro = filterStatements,
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
             };
+
+            if (!string.IsNullOrEmpty(model.sorting))
+            {
+                var ordinamento = JsonConvert.DeserializeObject<List<SortingInfo>>(model.sorting);
+                request.dettagliOrdinamento = ordinamento;
+            }
 
             // get dati dal database
             var idsList = await GetSoloIds(request, currentUser, null);
@@ -4764,7 +4791,7 @@ namespace PortaleRegione.API.Controllers
                     var queryFilter = new Filter<ATTI_DASI>();
                     queryFilter.ImportStatements(query);
                     var res = await _unitOfWork.DASI.GetAll(currentUser, 1, 1, ClientModeEnum.GRUPPI, queryFilter,
-                        new QueryExtendedRequest(), new Dictionary<string, int>());
+                        new QueryExtendedRequest(), new List<SortingInfo>());
 
                     if (res.Any()) continue;
 

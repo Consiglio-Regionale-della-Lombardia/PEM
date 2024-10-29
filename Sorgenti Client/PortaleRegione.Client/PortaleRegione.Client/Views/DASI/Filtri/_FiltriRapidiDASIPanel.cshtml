@@ -617,15 +617,9 @@ async function inviaDatiChips(page, size) {
 		request.size = size;
 
 		const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
-		const sortSettings = {};
-
-		// Crea il dictionary con nome proprietà e direzione ordinamento
-		savedSortColumns.forEach(column => {
-			sortSettings[column.propertyName] = parseInt(column.sortDirection, 10); // 1 per crescente, -1 per decrescente
-		});
 
 		// Aggiungi le impostazioni di ordinamento alla richiesta
-		request.sort_settings = sortSettings;
+		request.sort_settings = savedSortColumns;
 
 		// Invia la richiesta al server
 		const response = await fetch('@Url.Action("Riepilogo")', {
@@ -766,7 +760,7 @@ function CreaTabella() {
 				if (result.DCR > 0) {
 					td.textContent = `${result.DCRL}/${result.DCR}`;
 					if (result.DCCR > 0) {
-						td.textContent += `${result.DCCR}`
+						td.textContent += `/${result.DCCR}`
 					}
 				} else {
 					td.textContent = "";

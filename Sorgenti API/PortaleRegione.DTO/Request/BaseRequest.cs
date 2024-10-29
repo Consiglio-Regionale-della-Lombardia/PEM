@@ -45,7 +45,7 @@ namespace PortaleRegione.DTO.Request
         public BaseRequest()
         {
             filtro = new List<FilterStatement<T>>();
-            dettagliOrdinamento = new Dictionary<string, int>();
+            dettagliOrdinamento = new List<SortingInfo>();
         }
 
         public Guid id { get; set; }
@@ -61,6 +61,6 @@ namespace PortaleRegione.DTO.Request
         
         public IDictionary<string, object> param { get; set; }
         
-        public Dictionary<string, int> dettagliOrdinamento { get; set; }
+        public List<SortingInfo> dettagliOrdinamento { get; set; }
     }
 }

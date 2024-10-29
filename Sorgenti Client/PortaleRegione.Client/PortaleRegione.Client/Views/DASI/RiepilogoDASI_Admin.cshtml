@@ -174,7 +174,7 @@
             <div class="input-field col s12">
                 <select name="sort-columns-grid" id="sort-columns-grid-select" onchange="handleSortColumnChange()">
                     <option value="" disabled selected>Seleziona</option>
-                    @foreach (var prop in typeof(AttiDASIColums).GetProperties())
+                    @foreach (var prop in typeof(AttiDASISorting).GetProperties())
                     {
                         var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
                             .Cast<DisplayNameAttribute>()

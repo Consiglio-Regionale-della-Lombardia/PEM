@@ -55,14 +55,13 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<List<Guid>> GetAll(
-            PersonaDto currentUser,
+        public async Task<List<Guid>> GetAll(PersonaDto currentUser,
             int page,
             int size,
             ClientModeEnum mode,
             Filter<ATTI_DASI> filtro,
             QueryExtendedRequest queryExtended,
-            Dictionary<string, int> dettaglioOrdinamento)
+            List<SortingInfo> dettaglioOrdinamento)
         {
             var ordinamento_numero_atto = filtro.Statements.Any(f => f.PropertyId == nameof(ATTI_DASI.NAtto));
             List<int> userOrder = null;
@@ -76,21 +75,21 @@ namespace PortaleRegione.Persistance
             // #990
             if (dettaglioOrdinamento != null && dettaglioOrdinamento.Any())
             {
-                var properties = typeof(AttiDASIColums).GetProperties();
+                var properties = typeof(AttiDASISorting).GetProperties();
                 IOrderedQueryable<ATTI_DASI> orderedQuery = null;
 
                 foreach (var dettaglio in dettaglioOrdinamento)
                 {
                     // Cercare la proprietà corrispondente
-                    var propertyInfo = properties.FirstOrDefault(p => p.Name == dettaglio.Key);
+                    var propertyInfo = properties.FirstOrDefault(p => p.Name == dettaglio.propertyName);
                     if (propertyInfo != null)
                     {
                         var parameter = Expression.Parameter(typeof(ATTI_DASI), "item");
-                        var property = Expression.Property(parameter, dettaglio.Key);
+                        var property = Expression.Property(parameter, dettaglio.propertyName);
                         var lambda = Expression.Lambda(property, parameter);
 
                         // Ordinamento crescente o decrescente
-                        if (dettaglio.Value == 1) // Crescente
+                        if (dettaglio.sortDirection == 1) // Crescente
                         {
                             orderedQuery = orderedQuery == null 
                                 ? Queryable.OrderBy((dynamic)query, (dynamic)lambda) 
@@ -101,6 +100,22 @@ namespace PortaleRegione.Persistance
                             orderedQuery = orderedQuery == null 
                                 ? Queryable.OrderByDescending((dynamic)query, (dynamic)lambda) 
                                 : Queryable.ThenByDescending((dynamic)orderedQuery, (dynamic)lambda);
+                        }
+
+                        // Se la proprietà corrente è "DCR", aggiungi l'ordinamento su "DCCR"
+                        if (dettaglio.propertyName == nameof(ATTI_DASI.DCR))
+                        {
+                            var secondaryProperty = Expression.Property(parameter, nameof(ATTI_DASI.DCCR));
+                            var secondaryLambda = Expression.Lambda(secondaryProperty, parameter);
+
+                            if (dettaglio.sortDirection == 1) // Crescente
+                            {
+                                orderedQuery = Queryable.ThenBy((dynamic)orderedQuery, (dynamic)secondaryLambda);
+                            }
+                            else // Decrescente
+                            {
+                                orderedQuery = Queryable.ThenByDescending((dynamic)orderedQuery, (dynamic)secondaryLambda);
+                            }
                         }
                     }
                 }

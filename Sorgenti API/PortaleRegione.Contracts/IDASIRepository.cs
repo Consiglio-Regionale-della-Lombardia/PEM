@@ -34,7 +34,7 @@ namespace PortaleRegione.Contracts
         Task<ATTI_DASI> Get(Guid attoUId);
 
         Task<List<Guid>> GetAll(PersonaDto currentUser, int page, int size, ClientModeEnum mode,
-            Filter<ATTI_DASI> filtro, QueryExtendedRequest queryExtended, Dictionary<string, int> dettaglioOrdinamento);
+            Filter<ATTI_DASI> filtro, QueryExtendedRequest queryExtended, List<SortingInfo> dettaglioOrdinamento);
 
         Task<int> Count(Filter<ATTI_DASI> queryFilter);
 
