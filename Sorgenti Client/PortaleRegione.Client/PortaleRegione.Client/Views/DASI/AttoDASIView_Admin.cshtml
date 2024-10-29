@@ -301,14 +301,20 @@
                                         </label>
                                     </p>
                                 </div>
-                                <div class="input-field col s12 m12 l6">
-                                    <p>
-                                        <label>
-                                            <input type="checkbox" name="Atto.Sollecito" value="true" @Html.Raw(Model.Atto.Sollecito ? "checked=\"checked\"" : "") />
-                                            <span>Sollecito</span>
-                                        </label>
-                                    </p>
-                                </div>
+								@if (Model.Atto.Tipo != (int)TipoAttoEnum.MOZ
+									&& Model.Atto.Tipo != (int)TipoAttoEnum.ODG
+									&& Model.Atto.Tipo != (int)TipoAttoEnum.RIS)
+								{
+									// #1057
+                                    <div class="input-field col s12 m12 l6">
+                                        <p>
+                                            <label>
+                                                <input type="checkbox" name="Atto.Sollecito" value="true" @Html.Raw(Model.Atto.Sollecito ? "checked=\"checked\"" : "") />
+                                                <span>Sollecito</span>
+                                            </label>
+                                        </p>
+                                    </div>
+                                }
                             </div>
 							@if (Model.Atto.Tipo == (int)TipoAttoEnum.RIS)
                             {
