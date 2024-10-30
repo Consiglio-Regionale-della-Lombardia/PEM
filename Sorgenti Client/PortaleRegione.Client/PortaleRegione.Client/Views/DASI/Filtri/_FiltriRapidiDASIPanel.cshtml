@@ -2076,7 +2076,13 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="presentato-oltre-i-termini" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card blue lighten-5">
+		<div class="card-content black-text">
+			<span class="card-title">Informazioni</span>
+			<p>Spuntare per trovare tutti gli atti presentati oltre i termini. Lasciare vuoto per trovare tutti gli atti che non sono presentati oltre i termini.
+			</p>
+		</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 			break;
 		case '@nameof(AttoDASIDto.IterMultiplo)':
@@ -2087,7 +2093,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="iter-multiplo" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti che hanno l'iter multiplo. Lasciare vuoto per trovare tutti gli atti che non hanno l'iter multiplo.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 			break;
 		case '@nameof(AttoDASIDto.Sollecito)':
@@ -2098,7 +2109,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="sollecito" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con sollecito. Lasciare vuoto per trovare tutti gli atti che non hanno il sollecito.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Pubblicato)':
@@ -2109,7 +2125,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="pubblicato" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti pubblicati. Lasciare vuoto per trovare tutti gli atti che non sono pubblicati.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Emendato)':
@@ -2120,7 +2141,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="emendato" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti emendati. Lasciare vuoto per trovare tutti gli atti che non sono emendati.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy)':
@@ -2131,7 +2157,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="privacy" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy. Lasciare vuoto per trovare tutti gli atti senza privacy.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)':
@@ -2142,7 +2173,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="privacy_giudiziari" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con dati personali giudiziari. Lasciare vuoto per trovare tutti gli atti senza privacy.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)':
@@ -2153,7 +2189,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="privacy_semplici" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con dati personali semplici. Lasciare vuoto per trovare tutti gli atti senza privacy.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)':
@@ -2164,7 +2205,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="privacy_sensibili" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+								<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con dati personali sensibili. Lasciare vuoto per trovare tutti gli atti senza privacy.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)':
@@ -2175,7 +2221,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="privacy_pubblicazione" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>				
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione. Lasciare vuoto per trovare tutti gli atti senza divieto.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)':
@@ -2186,7 +2237,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="privacy_pubblicazione_altri" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione altro. Lasciare vuoto per trovare tutti gli atti senza divieto.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)':
@@ -2197,7 +2253,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="privacy_pubblicazione_salute" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione per motivi sanitari. Lasciare vuoto per trovare tutti gli atti senza divieto.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)':
@@ -2208,7 +2269,12 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
                         <input id="privacy_pubblicazione_sessuale" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>`;
+                </div>
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione per motivi sessuali. Lasciare vuoto per trovare tutti gli atti senza divieto.
+	</p>
+</div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.DCR)':
