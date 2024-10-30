@@ -473,7 +473,7 @@ namespace PortaleRegione.Common
                 return " ";
             }
         }
-        
+
         public static string GetText_TipoNotaDASI(int tipoNota)
         {
             try
@@ -1090,7 +1090,7 @@ namespace PortaleRegione.Common
                                 Value = 0,
                                 Connector = FilterStatementConnector.And
                             });
-                            
+
                             result.Add(new FilterStatement<AttoDASIDto>
                             {
                                 PropertyId = nameof(AttoDASIDto.DCCR),
@@ -1114,7 +1114,9 @@ namespace PortaleRegione.Common
                 }
 
                 var values = filterItem.value.Split(',');
-                if (values.Length > 1 && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto)))
+                if (values.Length > 1
+                    && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto))
+                    && !filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
                 {
                     if (IsDateProperty(filterItem.property))
                     {

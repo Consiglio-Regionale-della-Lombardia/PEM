@@ -91,14 +91,14 @@ namespace PortaleRegione.Persistance
                         // Ordinamento crescente o decrescente
                         if (dettaglio.sortDirection == 1) // Crescente
                         {
-                            orderedQuery = orderedQuery == null 
-                                ? Queryable.OrderBy((dynamic)query, (dynamic)lambda) 
+                            orderedQuery = orderedQuery == null
+                                ? Queryable.OrderBy((dynamic)query, (dynamic)lambda)
                                 : Queryable.ThenBy((dynamic)orderedQuery, (dynamic)lambda);
                         }
                         else // Decrescente
                         {
-                            orderedQuery = orderedQuery == null 
-                                ? Queryable.OrderByDescending((dynamic)query, (dynamic)lambda) 
+                            orderedQuery = orderedQuery == null
+                                ? Queryable.OrderByDescending((dynamic)query, (dynamic)lambda)
                                 : Queryable.ThenByDescending((dynamic)orderedQuery, (dynamic)lambda);
                         }
 
@@ -114,7 +114,8 @@ namespace PortaleRegione.Persistance
                             }
                             else // Decrescente
                             {
-                                orderedQuery = Queryable.ThenByDescending((dynamic)orderedQuery, (dynamic)secondaryLambda);
+                                orderedQuery =
+                                    Queryable.ThenByDescending((dynamic)orderedQuery, (dynamic)secondaryLambda);
                             }
                         }
                     }
@@ -1239,6 +1240,91 @@ namespace PortaleRegione.Persistance
                     if (combinedRangePredicate != null)
                         query = query.Where(combinedRangePredicate);
                 }
+                else if (f.PropertyId == nameof(ATTI_DASI.DCR) || f.PropertyId == nameof(ATTI_DASI.DCCR))
+                {
+                    var values = f.Value.ToString().Split(';');
+                    var dcrFilters = values.Length > 0 ? values[0].Split(',') : Array.Empty<string>();
+                    var dccrFilters = values.Length > 1 ? values[1].Split(',') : Array.Empty<string>();
+
+                    // Creiamo i predicati per DCR
+                    Expression<Func<ATTI_DASI, bool>> dcrPredicate = null;
+                    var dcrSingleNumbers = new List<int>();
+
+                    foreach (var filter in dcrFilters)
+                    {
+                        if (string.IsNullOrEmpty(filter)) continue;
+
+                        if (filter.Contains('-'))
+                        {
+                            var rangeParts = filter.Split('-').Select(int.Parse).ToArray();
+                            var start = Math.Min(rangeParts[0], rangeParts[1]);
+                            var end = Math.Max(rangeParts[0], rangeParts[1]);
+
+                            Expression<Func<ATTI_DASI, bool>> rangePredicate = item =>
+                                item.DCR >= start && item.DCR <= end;
+
+                            dcrPredicate = dcrPredicate == null
+                                ? rangePredicate
+                                : ExpressionExtensions.CombineExpressions(dcrPredicate, rangePredicate);
+                        }
+                        else
+                        {
+                            dcrSingleNumbers.Add(int.Parse(filter));
+                        }
+                    }
+
+                    if (dcrSingleNumbers.Any())
+                    {
+                        Expression<Func<ATTI_DASI, bool>> singlePredicate = item =>
+                            dcrSingleNumbers.Contains((int)item.DCR);
+                        dcrPredicate = dcrPredicate == null
+                            ? singlePredicate
+                            : ExpressionExtensions.CombineExpressions(dcrPredicate, singlePredicate);
+                    }
+
+                    if (dcrPredicate != null)
+                        query = query.Where(dcrPredicate);
+
+                    // Creiamo i predicati per DCCR
+                    Expression<Func<ATTI_DASI, bool>> dccrPredicate = null;
+                    var dccrSingleNumbers = new List<int>();
+
+                    foreach (var filter in dccrFilters)
+                    {
+                        if (string.IsNullOrEmpty(filter)) continue;
+
+                        if (filter.Contains('-'))
+                        {
+                            var rangeParts = filter.Split('-').Select(int.Parse).ToArray();
+                            var start = Math.Min(rangeParts[0], rangeParts[1]);
+                            var end = Math.Max(rangeParts[0], rangeParts[1]);
+
+                            Expression<Func<ATTI_DASI, bool>> rangePredicate = item =>
+                                item.DCCR >= start && item.DCCR <= end;
+
+                            dccrPredicate = dccrPredicate == null
+                                ? rangePredicate
+                                : ExpressionExtensions.CombineExpressions(dccrPredicate, rangePredicate);
+                        }
+                        else
+                        {
+                            dccrSingleNumbers.Add(int.Parse(filter));
+                        }
+                    }
+
+                    if (dccrSingleNumbers.Any())
+                    {
+                        Expression<Func<ATTI_DASI, bool>> singlePredicate = item =>
+                            dccrSingleNumbers.Contains((int)item.DCCR);
+                        dccrPredicate = dccrPredicate == null
+                            ? singlePredicate
+                            : ExpressionExtensions.CombineExpressions(dccrPredicate, singlePredicate);
+                    }
+
+                    if (dccrPredicate != null)
+                        query = query.Where(dccrPredicate);
+                }
+
                 else
                 {
                     filtro2._statements.Add(f);

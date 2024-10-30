@@ -125,13 +125,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 			if (nonEmptyChecked) {
 				val = 'Non vuoto';
 			}else if (dcrcValue !== "0") {
-				val = dcrValue + (dcrValue ? ', ' : '') + dcrcValue;
+				val = dcrValue + (dcrValue ? '; ' : '') + dcrcValue;
 			} else {
 				val = dcrValue;
 			}
 
 			text = val;
-			chipText = keyLabel + ": " + text;
+			chipText = "DCR: " + dcrValue + "; DCCR: " + dcrcValue;
 		} else if (key === "@nameof(AttoDASIDto.IDStato)") {
 			var selectedOptions = document.querySelectorAll('#stati-select option:checked');
 			var values = Array.from(selectedOptions).map(option => option.value);
@@ -2344,19 +2344,32 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 
 			selectHTML = `
 		<div class="input-field col s6">
-			<input id="dcr" type="text" ${dcrValue}/>
+			<input id="dcr" type="text" ${dcrValue} placeholder="Es. 100, 150-200"/>
 			<label for="dcr" class="active">DCR</label>
 		</div>
 		<div class="input-field col s6">
-			<input id="dcrc" type="text" ${dcrcValue}/>
+			<input id="dcrc" type="text" ${dcrcValue} placeholder="Es. 100, 150-200"/>
 			<label for="dcrc" class="active">DCCR</label>
 		</div>
 		<div class="input-field col s12">
+		<p>
 			<label>
 				<input id="dcr_non_empty" type="checkbox" ${nonEmptyChecked}/>
 				<span>Non vuoti</span>
 			</label>
-		</div>`;
+			</p>
+		</div>
+		<div class="card blue lighten-5">
+        <div class="card-content black-text">
+            <span class="card-title">Informazioni</span>
+            <p>È possibile filtrare nei seguenti modi:
+            <ul style="padding-left:40px">
+                <li style="list-style-type: disc;">Singolo numero: 100</li>
+                <li style="list-style-type: disc;">Intervallo: 150-200</li>
+            </ul>
+            </p>
+        </div>
+    </div>`;
 
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 			break;
