@@ -952,7 +952,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
                     dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
-                    dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} {dto.NAtto}";
+                    dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} n. {dto.NAtto}";
                 }
             }
             else
@@ -960,7 +960,7 @@ namespace PortaleRegione.API.Controllers
                 dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
 
                 dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
-                dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} {dto.NAtto}";
+                dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} n. {dto.NAtto}";
                 dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
                 dto.Firmato_Dal_Proponente =
                     await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
@@ -974,7 +974,6 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
                     dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
             }
-
 
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
@@ -998,6 +997,7 @@ namespace PortaleRegione.API.Controllers
                 dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
 
             dto.Risposte = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+            dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
             dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
             dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
             dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
@@ -4369,6 +4369,25 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 return bodyRisposte;
+            }
+            
+            if (propertyName.Equals(nameof(AttoDASIDto.Monitoraggi)))
+            {
+                var bodyMonitoraggio = string.Empty;
+                if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
+                    bodyMonitoraggio += "<ul>";
+                foreach (var monitoraggio in atto.Monitoraggi)
+                {
+                    if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
+                        bodyMonitoraggio += $"<li>{monitoraggio.DescrizioneOrgano}</li>";
+                    else
+                        bodyMonitoraggio += $"{monitoraggio.DescrizioneOrgano}; ";
+                }
+
+                if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
+                    bodyMonitoraggio += "</ul>";
+
+                return bodyMonitoraggio;
             }
 
             if (propertyName.Equals(nameof(AttoDASIDto.CommissioniProponenti)))

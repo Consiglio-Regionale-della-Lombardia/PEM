@@ -879,6 +879,7 @@ function CreaTabella() {
 				const parts = result.Etichetta.split('_');
 				td.textContent = parts[parts.length - 1];
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Risposte)') {
+				td.innerHTML += "<ul>";
 				result.Risposte.forEach(abb => {
 					var dataRisposta = ``;
 					if (abb.Data) {
@@ -892,8 +893,15 @@ function CreaTabella() {
 						const year = date.getFullYear();
 						dataRisposta = `<br><b>${day}/${month}/${year}<b>`;
 					}
-					td.innerHTML += `<p>${abb.DisplayTipo} - ${abb.DescrizioneOrgano}${dataRisposta}</p>`;
+					td.innerHTML += `<li>${abb.DescrizioneOrgano}${dataRisposta}</li>`;
 				});
+				td.innerHTML += "</ul>";
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Monitoraggi)') {
+				td.innerHTML += "<ul>";
+				result.Monitoraggi.forEach(monitoraggio => {
+					td.innerHTML += `<li>${monitoraggio.DescrizioneOrgano}</li>`;
+				});
+				td.innerHTML += "</ul>";
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Abbinamenti)') {
 				result.Abbinamenti.forEach(abb => {
 					td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UidAttoAbbinato}')">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</a></p>`;

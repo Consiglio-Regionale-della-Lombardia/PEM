@@ -62,6 +62,7 @@ public class AttoDASIReportDto
 
     [DisplayName("Abbinamenti")] public string Abbinamenti { get; set; }
     [DisplayName("Informazioni risposte")] public string Risposte { get; set; }
+    [DisplayName("Informazioni monitoraggio")] public string Monitoraggi { get; set; }
     [DisplayName("Motivo chiusura iter")] public int? TipoChiusuraIter { get; set; } // #1021
     [DisplayName("Tipo votazione")] public int? TipoVotazioneIter { get; set; }
     [DisplayName("Emendato")] public bool Emendato { get; set; }

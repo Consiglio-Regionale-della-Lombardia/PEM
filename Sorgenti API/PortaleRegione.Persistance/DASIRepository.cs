@@ -189,6 +189,8 @@ namespace PortaleRegione.Persistance
                     .ToListAsync();
 
             return await query
+                .OrderBy(item => item.Tipo)
+                .ThenByDescending(item => item.NAtto_search)
                 .Select(item => item.UIDAtto)
                 .ToListAsync();
         }
