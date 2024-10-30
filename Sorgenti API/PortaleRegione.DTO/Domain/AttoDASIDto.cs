@@ -279,6 +279,11 @@ public class AttoDASIDto
     {
         return Tipo == (int)TipoAttoEnum.ODG;
     }
+    
+    public bool IsRIS()
+    {
+        return Tipo == (int)TipoAttoEnum.RIS;
+    }
 
     // #558
 

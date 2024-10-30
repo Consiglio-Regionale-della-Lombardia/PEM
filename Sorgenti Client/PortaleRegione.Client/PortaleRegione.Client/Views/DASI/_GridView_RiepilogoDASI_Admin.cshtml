@@ -113,10 +113,10 @@ else
                 }
             </div>
         </td>
-        @if (item.Tipo != (int)TipoAttoEnum.MOZ)
+        @if (!item.IsMOZ())
         {
             <td style="width: 8%;">
-                @if (item.Tipo == (int)TipoAttoEnum.ODG)
+                @if (item.IsODG())
                 {
                     <label class="black-text">@item.ODG_Atto_PEM</label>
                 }

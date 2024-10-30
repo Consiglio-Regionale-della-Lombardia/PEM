@@ -100,8 +100,8 @@
 							</div>
 							<div class="row" id="pnlStandardFirme">
 								<div class="col s12">
-									@if (atto.Tipo == (int)TipoAttoEnum.IQT
-										 || atto.Tipo == (int)TipoAttoEnum.MOZ)
+									@if (atto.IsIQT()
+										 || atto.IsMOZ())
 									{
 										if ((firmeGroup.Any()
 											 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
@@ -152,7 +152,7 @@
                                     }
                                     </ul>
 
-									@if (!string.IsNullOrEmpty(atto.DataPresentazione) && atto.Tipo != (int)TipoAttoEnum.RIS)
+									@if (!string.IsNullOrEmpty(atto.DataPresentazione) && !atto.IsRIS())
 									{
 										var testoDeposito = "Atto presentato";
 
@@ -162,8 +162,8 @@
 									}
 								</div>
 							</div>
-							@if (atto.Tipo == (int)TipoAttoEnum.IQT
-								 || atto.Tipo == (int)TipoAttoEnum.MOZ)
+							@if (atto.IsIQT()
+								 || atto.IsMOZ())
 							{
 								if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
 									|| Model.CurrentUser.IsSegreteriaAssemblea
@@ -268,9 +268,9 @@
                                     </select>
                                     <label for="Atto_AreaPolitica">Area politica</label>
                                 </div>
-                                @if (Model.Atto.Tipo != (int)TipoAttoEnum.MOZ
-                                     && Model.Atto.Tipo != (int)TipoAttoEnum.ODG
-                                     && Model.Atto.Tipo != (int)TipoAttoEnum.RIS)
+                                @if (!Model.Atto.IsMOZ()
+                                     && !Model.Atto.IsODG()
+                                     && !Model.Atto.IsRIS())
                                 {
 									// #1056
                                     <div class="input-field col s12 m12 l6">
@@ -292,9 +292,9 @@
                                         </label>
                                     </p>
                                 </div>
-								@if (Model.Atto.Tipo != (int)TipoAttoEnum.MOZ
-									&& Model.Atto.Tipo != (int)TipoAttoEnum.ODG
-									&& Model.Atto.Tipo != (int)TipoAttoEnum.RIS)
+								@if (!Model.Atto.IsMOZ()
+									 && !Model.Atto.IsODG()
+									 && !Model.Atto.IsRIS())
 								{
 									// #1057
                                     <div class="input-field col s12 m12 l6">
@@ -429,12 +429,31 @@
 					</li>
 					<li>
 						<div class="collapsible-header collection-header-custom @cssClass">
-							<i class="material-icons">event_note</i>Trattazione
+                            <i class="material-icons">event_note</i>
+							@* #1065 *@
+                            @if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
+                            {
+                                @Html.Raw("Informazioni risposta");
+                            }
+                            else
+                            {
+                                @Html.Raw("Trattazione");
+                            }
+                            
 							@if (atto.Risposte.Any())
 							{
-								<div style="left: 160px; position: absolute;">
-									<i class="material-icons icon right green-text">check_circle</i>
-								</div>
+                                if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
+                                {
+                                    <div style="left: 220px; position: absolute;">
+                                        <i class="material-icons icon right green-text">check_circle</i>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div style="left: 160px; position: absolute;">
+                                        <i class="material-icons icon right green-text">check_circle</i>
+                                    </div>
+                                }
 							}
 							else
 							{
@@ -545,10 +564,10 @@
 					</li>
 
 					@{
-						var monitoraggio_visibile = atto.Tipo == (int)TipoAttoEnum.MOZ
-													|| atto.Tipo == (int)TipoAttoEnum.IQT
-													|| atto.Tipo == (int)TipoAttoEnum.ODG
-													|| atto.Tipo == (int)TipoAttoEnum.RIS;
+						var monitoraggio_visibile = atto.IsMOZ()
+													|| atto.IsIQT()
+													|| atto.IsODG()
+													|| atto.IsRIS();
 					}
 
 					<li style="@Html.Raw(monitoraggio_visibile ? "display: block;" : "display: none;")">

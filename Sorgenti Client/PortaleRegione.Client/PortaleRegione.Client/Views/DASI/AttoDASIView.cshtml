@@ -212,13 +212,13 @@
 	@*### MOZ e ODG ###*@
 
 
-	@if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE && !string.IsNullOrEmpty(atto.DataPresentazione_MOZ_URGENTE))
+	@if (atto.IsMOZ() && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE && !string.IsNullOrEmpty(atto.DataPresentazione_MOZ_URGENTE))
 	{
 		<label>Richiesta di mozione urgente effettuata il </label>
 		<span>
 			<b>@atto.DataPresentazione_MOZ_URGENTE</b>
 		</span>
-		if (Model.Atto.Tipo == (int)TipoAttoEnum.MOZ
+		if (Model.Atto.IsMOZ()
 			&& (Model.CurrentUser.IsCapoGruppo
 				|| Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 			&& Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
@@ -228,13 +228,13 @@
 			</div>
 		}
 	}
-	else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.ABBINATA && !string.IsNullOrEmpty(atto.DataPresentazione_MOZ_ABBINATA))
+	else if (atto.IsMOZ() && atto.TipoMOZ == (int)TipoMOZEnum.ABBINATA && !string.IsNullOrEmpty(atto.DataPresentazione_MOZ_ABBINATA))
 	{
 		<label>Richiesta di mozione abbinata effettuata il </label>
 		<span>
 			<b>@atto.DataPresentazione_MOZ_ABBINATA</b>
 		</span>
-		if (Model.Atto.Tipo == (int)TipoAttoEnum.MOZ
+		if (Model.Atto.IsMOZ()
 			&& (Model.CurrentUser.IsCapoGruppo
 				|| Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 			&& Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
@@ -244,7 +244,7 @@
 			</div>
 		}
 	}
-	@if (atto.Tipo == (int)TipoAttoEnum.MOZ
+	@if (atto.IsMOZ()
 		 && atto.TipoMOZ == (int)TipoMOZEnum.ORDINARIA
 		 && (atto.IDStato == (int)StatiAttoEnum.PRESENTATO
 			 || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE)
@@ -274,8 +274,8 @@
 		</div>
 	}
 
-	@if ((atto.Tipo == (int)TipoAttoEnum.MOZ && (atto.IDStato == (int)StatiAttoEnum.PRESENTATO || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
-		 || atto.Tipo == (int)TipoAttoEnum.ODG)
+	@if ((atto.IsMOZ() && (atto.IDStato == (int)StatiAttoEnum.PRESENTATO || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
+		 || atto.IsODG())
 	{
 		if (string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta)
 			&& (Model.CurrentUser.IsCapoGruppo
@@ -300,7 +300,7 @@
 		else if (!string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
 		{
 			<br />
-			if (Model.Atto.Tipo == (int)TipoAttoEnum.MOZ)
+			if (Model.Atto.IsMOZ())
 			{
 				<label>
 					Richiesta iscrizione alla seduta del
@@ -319,7 +319,7 @@
 				</span>
 			}
 
-			if (Model.Atto.Tipo == (int)TipoAttoEnum.MOZ
+			if (Model.Atto.IsMOZ()
 				&& (Model.CurrentUser.IsCapoGruppo
 					|| Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 				&& Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
@@ -332,7 +332,7 @@
 		}
 	}
 
-	@if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.ORDINARIA && !string.IsNullOrEmpty(atto.DataPresentazione_MOZ))
+	@if (atto.IsMOZ() && atto.TipoMOZ == (int)TipoMOZEnum.ORDINARIA && !string.IsNullOrEmpty(atto.DataPresentazione_MOZ))
 	{
 		<br />
 		<label>Richiesta di iscrizione effettuata il </label>

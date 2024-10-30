@@ -190,7 +190,7 @@ else
 
                 <br/>
 
-                @if (item.Tipo != (int)TipoAttoEnum.MOZ && item.Tipo != (int)TipoAttoEnum.ODG)
+                @if (!item.IsMOZ() && !item.IsODG())
                 {
                     <label>Tipo Risposta:</label>
                     <span>
@@ -265,7 +265,7 @@ else
                     }
 
 
-                    if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA && !string.IsNullOrEmpty(item.DataPresentazione_MOZ))
+                    if (item.IsMOZ() && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA && !string.IsNullOrEmpty(item.DataPresentazione_MOZ))
                     {
                         <br />
                         <label>Richiesta di iscrizione effettuata il </label>
@@ -273,7 +273,7 @@ else
                             <b>@item.DataPresentazione_MOZ</b>
                         </span>
                     }
-                    else if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.URGENTE && !string.IsNullOrEmpty(item.DataPresentazione_MOZ_URGENTE))
+                    else if (item.IsMOZ() && item.TipoMOZ == (int)TipoMOZEnum.URGENTE && !string.IsNullOrEmpty(item.DataPresentazione_MOZ_URGENTE))
                     {
                         <br />
                         <label>Richiesta di iscrizione effettuata il </label>
@@ -281,7 +281,7 @@ else
                             <b>@item.DataPresentazione_MOZ_URGENTE</b>
                         </span>
                     }
-                    else if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ABBINATA && !string.IsNullOrEmpty(item.DataPresentazione_MOZ_ABBINATA))
+                    else if (item.IsMOZ() && item.TipoMOZ == (int)TipoMOZEnum.ABBINATA && !string.IsNullOrEmpty(item.DataPresentazione_MOZ_ABBINATA))
                     {
                         <br />
                         <label>Richiesta di iscrizione effettuata il </label>
@@ -296,17 +296,17 @@ else
             <div class="col s12 right-align">
                 <hr/>
                 @{
-                    if (item.Tipo == (int)TipoAttoEnum.MOZ
+                    if (item.IsMOZ()
                     && (!Model.CurrentUser.IsCapoGruppo && !Model.CurrentUser.IsResponsabileSegreteriaPolitica))
                     {
                     }
                     else if (item.IDStato < (int)StatiAttoEnum.COMPLETATO 
                         && ((!item.DataIscrizioneSeduta.HasValue
-                              && item.Tipo != (int)TipoAttoEnum.ITL
-                              && item.Tipo != (int)TipoAttoEnum.ITR
-                              && item.Tipo != (int)TipoAttoEnum.ODG
-                              && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica)) || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
-                             || (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA)))
+                              && !item.IsITL()
+                              && !item.IsITR()
+                              && !item.IsODG()
+                              && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica)) || (item.IsIQT() && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
+                             || (item.IsMOZ() && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA)))
                     {
                         <a class='btn-floating white black-text dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto' style="margin-right: 5px;">
                             <i class="icon material-icons black-text">settings</i>
@@ -314,7 +314,7 @@ else
 
                         <!-- Dropdown Structure -->
                         <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
-                            @if (item.Tipo == (int)TipoAttoEnum.MOZ 
+                            @if (item.IsMOZ()
                                  && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA 
                                 && item.IDStato > (int)StatiAttoEnum.BOZZA
                                  && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica))
@@ -332,15 +332,15 @@ else
                             }
 
                             @if ((item.IDStato > (int)StatiAttoEnum.BOZZA
-                                  || item.Tipo is (int)TipoAttoEnum.ODG
-                                  || item.Tipo is (int)TipoAttoEnum.MOZ
-                                  || item.Tipo is (int)TipoAttoEnum.IQT)
+                                  || item.IsODG()
+                                  || item.IsMOZ()
+                                  || item.IsIQT())
                                  && !item.IsChiuso)
                             {
-                                if ((item.Tipo is (int)TipoAttoEnum.IQT
+                                if ((item.IsIQT()
                                      && ((Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica)
                                          || (item.UIDPersonaProponente.HasValue && item.UIDPersonaProponente.Value == Model.CurrentUser.UID_persona)))
-                                    || (item.Tipo is (int)TipoAttoEnum.MOZ && item.IDStato > (int)StatiAttoEnum.BOZZA))
+                                    || (item.IsMOZ() && item.IDStato > (int)StatiAttoEnum.BOZZA))
                                 {
                                     <li>
                                         <a onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)', @Html.Raw(item.Tipo), @Html.Raw(item.TipoMOZ))">
