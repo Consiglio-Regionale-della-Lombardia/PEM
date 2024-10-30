@@ -1021,105 +1021,111 @@ function CreaTabella() {
 	var instances = M.Tooltip.init(elems, {});
 }
 
-function creaPaginazione(data) {
-    if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
-	    document.getElementById('paginazione-container-top').innerHTML = "";
-	    document.getElementById('paginazione-container-bottom').innerHTML = "";
-	    return;
-    }
-    // Dati della paginazione ottenuti dalla risposta JSON
-    var totalePagine = data.Data.Paging.Last_Page;
-    var paginaCorrente = data.Data.Paging.Page;
-    var totaleRisultati = data.Data.Paging.Total;
-    var risultatiPerPagina = data.Data.Paging.Limit; // Aggiunto per gestire i tagli di paginazione
+	function creaPaginazione(data) {
+		if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
+			document.getElementById('paginazione-container-top').innerHTML = "";
+			document.getElementById('paginazione-container-bottom').innerHTML = "";
+			return;
+		}
 
-    // Elemento HTML per la paginazione
-    var paginationHTML = `<ul class="pagination">`;
-    // Aggiungi controlli di navigazione se necessario
-    if (data.Data.Paging.Has_Prev) {
-	    paginationHTML += `
-            <li class="waves-effect" style="margin-top: -4px;">
-            <a onclick="filterByPage(1)">
-            <i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina">
-                first_page
-            </i>
-            </a>
+		// Dati della paginazione ottenuti dalla risposta JSON
+		var totalePagine = data.Data.Paging.Last_Page;
+		var paginaCorrente = data.Data.Paging.Page;
+		var totaleRisultati = data.Data.Paging.Total;
+		var risultatiPerPagina = data.Data.Paging.Limit;
+
+		// Elemento HTML per la paginazione
+		var paginationHTML = `<ul class="pagination">`;
+
+		// Aggiungi controlli di navigazione se necessario
+		if (data.Data.Paging.Has_Prev) {
+			paginationHTML += `
+            <li class="waves-effect" style="margin-top: 7px;">
+                <a onclick="filterByPage(1)">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina">first_page</i>
+                </a>
             </li>
-            <li class="waves-effect" style="margin-top: -4px;">
-            <a onclick="filterByPage(${paginaCorrente - 1})">
-            <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">
-                chevron_left
-            </i>
-            </a>
+            <li class="waves-effect" style="margin-top: 7px;">
+                <a onclick="filterByPage(${paginaCorrente - 1})">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">chevron_left</i>
+                </a>
             </li>`;
-    }
+		}
 
-    // Aggiungi informazioni sulla pagina corrente e il totale delle pagine
-    paginationHTML += `
+		// Informazioni sulla pagina corrente e input per selezione diretta della pagina
+		paginationHTML += `
     <li class="waves-effect">
-    <span class="badge tooltipped" data-tooltip="Seleziona pagina" data-position="top" onclick="ShowHidePaginationTabs()">
-        Pagina ${paginaCorrente} di ${totalePagine}
-    </span>
+        <div style="margin-top: -2px;">
+            Pagina <input type="number" id="page-input" min="1" max="${totalePagine}" value="${paginaCorrente}" style="width: 50px; text-align: center;" onchange="goToPage(this.value, ${totalePagine})">
+            di ${totalePagine}
+        </div>
     </li>
-    <li class="waves-effect">
-    <span>
-        ${totaleRisultati} risultati
-    </span>
+    <li class="waves-effect" style="margin-top:10px">
+        <span>${totaleRisultati} risultati</span>
     </li>`;
 
-    // Aggiungi controlli di navigazione se necessario
-    if (data.Data.Paging.Has_Next) {
-	    paginationHTML += `
-            <li class="waves-effect" style="margin-top: -4px;">
+		// Aggiungi controlli di navigazione se necessario
+		if (data.Data.Paging.Has_Next) {
+			paginationHTML += `
+            <li class="waves-effect" style="margin-top: 7px;">
                 <a onclick="filterByPage(${paginaCorrente + 1})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">
-                        chevron_right
-                    </i>
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">chevron_right</i>
                 </a>
             </li>
-            <li class="waves-effect" style="margin-top: -4px;">
+            <li class="waves-effect" style="margin-top: 7px;">
                 <a onclick="filterByPage(${totalePagine})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
-                        last_page
-                    </i>
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">last_page</i>
                 </a>
             </li>`;
-    }
+		}
 
-    paginationHTML += `</ul>`;
+		paginationHTML += `</ul>`;
 
-    // Costruzione del selettore per i tagli di paginazione
-    var tagliPaginazione = [20, 50, 100, 250]; // Definisci i tagli di paginazione disponibili
-    var dropdownHTML_top = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
+		// Costruzione del selettore per i tagli di paginazione
+		var tagliPaginazione = [20, 50, 100, 250];
+		var dropdownHTML_top = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
         Paginazione
         <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
         <ul id="ddlPaginazione-top" class="dropdown-content" style="width: 100px !important">`;
-    var dropdownHTML_bottom = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
+		var dropdownHTML_bottom = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
         Paginazione
         <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione-bottom" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
         <ul id="ddlPaginazione-bottom" class="dropdown-content" style="width: 100px !important">`;
 
-    tagliPaginazione.forEach(function (limite) {
-	    dropdownHTML_top += `<li><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
-	    dropdownHTML_bottom += `<li><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
-    });
+		tagliPaginazione.forEach(function (limite) {
+			// Verifica se il limite corrente è uguale al valore selezionato per aggiungere la classe "selected"
+			var selectedClass = risultatiPerPagina == limite ? 'class="selected"' : '';
 
-    dropdownHTML_top += `</ul></div>`;
-    dropdownHTML_bottom += `</ul></div>`;
+			dropdownHTML_top += `<li ${selectedClass}><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+			dropdownHTML_bottom += `<li ${selectedClass}><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+		});
 
-    var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/>
-	<input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>
-	<input id="hdTotaleDocumenti" type="hidden" value="${totaleRisultati}"/>`;
+		dropdownHTML_top += `</ul></div>`;
+		dropdownHTML_bottom += `</ul></div>`;
+		console.log("risultatiPerPagina", risultatiPerPagina)
+		var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/>
+    <input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>
+    <input id="hdTotaleDocumenti" type="hidden" value="${totaleRisultati}"/>`;
 
-    // Inserisci l'HTML nel DOM
-    document.getElementById('paginazione-container-top').innerHTML = paginationHTML + dropdownHTML_top;
-    document.getElementById('paginazione-container-bottom').innerHTML = paginationHTML + dropdownHTML_bottom + hiddenHTML;
+		// Inserisci l'HTML nel DOM
+		document.getElementById('paginazione-container-top').innerHTML = paginationHTML + dropdownHTML_top;
+		document.getElementById('paginazione-container-bottom').innerHTML = paginationHTML + dropdownHTML_bottom + hiddenHTML;
 
-    // Inizializza il dropdown con Materialize
-	var elems = document.querySelectorAll('.dropdown-trigger.chip.grey.white-text');
-	console.log("elems:", elems);
-	var instances = M.Dropdown.init(elems, { constrainWidth: false });
-}
+		// Inizializza il dropdown con Materialize
+		var elems = document.querySelectorAll('.dropdown-trigger.chip.grey.white-text');
+		var instances = M.Dropdown.init(elems, { constrainWidth: false });
+	}
+
+	// Funzione per andare alla pagina specificata dall'utente
+	function goToPage(pageNumber, totalePagine) {
+		var page = parseInt(pageNumber);
+		if (!isNaN(page) && page > 0 && page <= totalePagine) {
+			filterByPage(page);
+		} else {
+			ErrorAlert("Inserisci un numero di pagina valido tra 1 e " + totalePagine);
+		}
+	}
+
 
 function AggiornaContatori(responseData) {
 	aggiornaConteggi('li.collection-item div', "TOTALE", responseData.CountBarData.TUTTI);
