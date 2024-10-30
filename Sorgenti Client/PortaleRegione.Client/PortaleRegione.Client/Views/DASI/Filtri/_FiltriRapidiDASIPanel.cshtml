@@ -588,6 +588,12 @@ async function inviaDatiChips(page, size) {
 	if (!size){
 		size = 20;
 	}
+
+	var paging = {};
+	paging.page = page;
+	paging.size = size;
+	localStorage.setItem('pagingDasi', JSON.stringify(paging));
+
 	document.getElementById('tableResults').innerHTML = "";
 	document.getElementById('paginazione-container-top').innerHTML = "";
 	document.getElementById('paginazione-container-bottom').innerHTML = "";
@@ -2483,7 +2489,12 @@ function ripristinaFiltri(){
 		filtri.forEach(function (filtro) {
 			addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
 		});
-		inviaDatiChips(1, 20);
+		const paging = JSON.parse(localStorage.getItem('pagingDasi'));
+		if (paging) {
+			inviaDatiChips(paging.page, paging.size);
+		} else {
+			inviaDatiChips(1, 20);
+		}		
 	}
 }
 
