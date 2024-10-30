@@ -2082,199 +2082,235 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			<span class="card-title">Informazioni</span>
 			<p>Spuntare per trovare tutti gli atti presentati oltre i termini. Lasciare vuoto per trovare tutti gli atti che non sono presentati oltre i termini.
 			</p>
-		</div>`;
+		</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 			break;
 		case '@nameof(AttoDASIDto.IterMultiplo)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="iter-multiplo" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti che hanno l'iter multiplo. Lasciare vuoto per trovare tutti gli atti che non hanno l'iter multiplo.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 			break;
 		case '@nameof(AttoDASIDto.Sollecito)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="sollecito" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti con sollecito. Lasciare vuoto per trovare tutti gli atti che non hanno il sollecito.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Pubblicato)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="pubblicato" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti pubblicati. Lasciare vuoto per trovare tutti gli atti che non sono pubblicati.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Emendato)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="emendato" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti emendati. Lasciare vuoto per trovare tutti gli atti che non sono emendati.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="privacy" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti con privacy. Lasciare vuoto per trovare tutti gli atti senza privacy.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="privacy_giudiziari" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti con privacy con dati personali giudiziari. Lasciare vuoto per trovare tutti gli atti senza privacy.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="privacy_semplici" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 <div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti con privacy con dati personali semplici. Lasciare vuoto per trovare tutti gli atti senza privacy.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="privacy_sensibili" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 								<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti con privacy con dati personali sensibili. Lasciare vuoto per trovare tutti gli atti senza privacy.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="privacy_pubblicazione" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
-                </div>				
+					</p>
+                </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione. Lasciare vuoto per trovare tutti gli atti senza divieto.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="privacy_pubblicazione_altri" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione altro. Lasciare vuoto per trovare tutti gli atti senza divieto.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="privacy_pubblicazione_salute" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione per motivi sanitari. Lasciare vuoto per trovare tutti gli atti senza divieto.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)':
 			var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
 			selectHTML = `
                 <div class="input-field col s12">
+				<p>
                     <label>
                         <input id="privacy_pubblicazione_sessuale" type="checkbox" ${isChecked}/>
                         <span>Si / No</span>
                     </label>
+					</p>
                 </div>
+				<div class="card blue lighten-5">
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione per motivi sessuali. Lasciare vuoto per trovare tutti gli atti senza divieto.
 	</p>
-</div>`;
+</div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.DCR)':
