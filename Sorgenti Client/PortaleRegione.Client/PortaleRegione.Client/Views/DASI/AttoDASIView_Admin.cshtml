@@ -586,8 +586,7 @@
 									<table id="tableMonitoraggio">
 										<thead>
 											<tr>
-												<th>Tipo organo monitorato</th>
-												<th>Organo monitorato</th>
+												<th>Organo che effettua il monitoraggio</th>
 												<th></th>
 											</tr>
 										</thead>
@@ -596,7 +595,6 @@
 											@foreach (var monitoraggio in atto.Monitoraggi)
 											{
 												<tr>
-													<td>@Html.Raw(monitoraggio.DisplayTipoOrgano)</td>
 													<td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
 													<td>
 														<a href="#!" class="red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
