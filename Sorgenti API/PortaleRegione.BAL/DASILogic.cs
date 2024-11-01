@@ -4628,6 +4628,15 @@ namespace PortaleRegione.API.Controllers
 
             foreach (var column in columns)
             {
+                if (column.Equals(nameof(AttoDASIDto.Emendato)))
+                {
+                    if (dto.IsIQT() || dto.IsITL() || dto.IsITR())
+                    {
+                        // #1043
+                        continue;
+                    }
+                }
+                
                 var value = GetPropertyValueForHtml(dto, column);
                 if (!string.IsNullOrEmpty(value)) sb.AppendLine(value);
             }
