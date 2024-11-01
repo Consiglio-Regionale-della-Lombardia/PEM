@@ -41,6 +41,7 @@ public class AttiDASIColums
     [DisplayName("Stato attuazione")] public string StatoAttuazione { get; set; }
     [DisplayName("Competenza monitoraggio")] public string CompetenzaMonitoraggio { get; set; }
     [DisplayName("Firmatari")] public string Firme { get; set; }
+    [DisplayName("Firme dopo il deposito")] public string Firme_dopo_deposito { get; set; } // #1049
     [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
 
     [DisplayName("Commissioni proponenti")] public List<OrganoDto> CommissioniProponenti { get; set; }

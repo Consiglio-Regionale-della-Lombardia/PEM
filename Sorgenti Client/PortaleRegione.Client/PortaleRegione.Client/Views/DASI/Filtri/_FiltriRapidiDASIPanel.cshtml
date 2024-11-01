@@ -922,6 +922,8 @@ function CreaTabella() {
 				});
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Firme)') {
 				td.innerHTML = htmlFirme;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Firme_dopo_deposito)') {
+				td.innerHTML = result.Firme_dopo_deposito;
 			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
 				if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.RIS)') {
 					result.CommissioniProponenti.forEach(prop => {

@@ -1003,9 +1003,7 @@ namespace PortaleRegione.API.Controllers
             dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
             if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
-
-            dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
-
+            
             if (dto.ConteggioFirme > 1)
             {
                 var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
@@ -1076,22 +1074,32 @@ namespace PortaleRegione.API.Controllers
                 if (dto.UIDPersonaModifica.HasValue)
                     dto.PersonaModifica =
                         Users.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
-
-                dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
-
-                if (dto.ConteggioFirme > 1)
+                
+                if (!dto.IsRIS())
                 {
-                    var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
-                    dto.Firme = firme
-                        .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
-                        .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
-                        .Aggregate((i, j) => i + "<br>" + j);
-                }
+                    dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
+                    if (dto.ConteggioFirme > 1)
+                    {
+                        var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+                        dto.Firme = firme
+                            .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
+                            .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                            .Aggregate((i, j) => i + "<br>" + j);
+                    }
 
-                if (dto.Tipo != (int)TipoAttoEnum.RIS)
+                    // #1049
+                    var firme_dopo_deposito = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.DOPO_DEPOSITO);
+                    if(firme_dopo_deposito.Any())
+                    {
+                        dto.Firme_dopo_deposito = firme_dopo_deposito
+                            .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                            .Aggregate((i, j) => i + "<br>" + j);
+                    }
+
                     dto.gruppi_politici =
                         Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                             await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+                }
 
                 if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
                     dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
