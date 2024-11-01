@@ -245,6 +245,9 @@ namespace PortaleRegione.Persistance
                 case FirmeTipoEnum.ATTIVI:
                     query = query.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
                     break;
+                case FirmeTipoEnum.RITIRATI:
+                    query = query.Where(f => !string.IsNullOrEmpty(f.Data_ritirofirma));
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
             }
@@ -256,7 +259,10 @@ namespace PortaleRegione.Persistance
             var lst = await query
                 .ToListAsync();
 
-            if (firmaProponente != null && tipo != FirmeTipoEnum.DOPO_DEPOSITO) lst.Insert(0, firmaProponente);
+            if (firmaProponente != null 
+                && tipo != FirmeTipoEnum.DOPO_DEPOSITO
+                && tipo != FirmeTipoEnum.RITIRATI) 
+                lst.Insert(0, firmaProponente);
 
             return lst;
         }

@@ -1095,6 +1095,15 @@ namespace PortaleRegione.API.Controllers
                             .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
                             .Aggregate((i, j) => i + "<br>" + j);
                     }
+                    
+                    // #1048
+                    var firme_ritirate = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.RITIRATI);
+                    if(firme_ritirate.Any())
+                    {
+                        dto.Firme_ritirate = firme_ritirate
+                            .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                            .Aggregate((i, j) => i + "<br>" + j);
+                    }
 
                     dto.gruppi_politici =
                         Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(

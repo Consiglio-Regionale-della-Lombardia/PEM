@@ -161,7 +161,10 @@ public class AttoDASIDto
     [DisplayName("Data presentazione")] public DateTime? Timestamp { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Firme_dopo_deposito { get; set; }
+    [DisplayName("Firme dopo il deposito")]
+    public string Firme_dopo_deposito { get; set; } // #1049
+
+    [DisplayName("Firme ritirate")] public string Firme_ritirate{ get; set; } // #1048
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Destinatari { get; set; }
