@@ -3599,17 +3599,21 @@ namespace PortaleRegione.API.Controllers
 
         public async Task SalvaCartaceo(AttoDASIDto attoDto, PersonaDto currentUser)
         {
-            if (!attoDto.UIDPersonaProponente.HasValue)
-                throw new InvalidOperationException("Indicare un proponente");
-            if (attoDto.UIDPersonaProponente.Value == Guid.Empty)
-                throw new InvalidOperationException("Indicare un proponente");
+            // #1083
+            if(!attoDto.IsRIS())
+            {
+                if (!attoDto.UIDPersonaProponente.HasValue)
+                    throw new InvalidOperationException("Indicare un proponente");
+                if (attoDto.UIDPersonaProponente.Value == Guid.Empty)
+                    throw new InvalidOperationException("Indicare un proponente");
+            }
 
             //Modifica
             var attoInDb = await _unitOfWork.DASI.Get(attoDto.UIDAtto);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
-            if (attoDto.Tipo != (int)TipoAttoEnum.RIS)
+            if (!attoDto.IsRIS())
             {
                 attoInDb.UIDPersonaProponente = attoDto.UIDPersonaProponente;
                 if (attoInDb.id_gruppo <= 0 && attoInDb.UIDPersonaProponente.HasValue)
@@ -3620,14 +3624,14 @@ namespace PortaleRegione.API.Controllers
                 }
             }
 
-            if (attoDto.Tipo == (int)TipoAttoEnum.MOZ)
+            if (attoDto.IsMOZ())
             {
                 attoInDb.TipoMOZ = attoDto.TipoMOZ;
                 attoInDb.UID_MOZ_Abbinata =
                     attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA ? attoDto.UID_MOZ_Abbinata : null;
             }
 
-            if (attoDto.Tipo == (int)TipoAttoEnum.RIS && !attoInDb.Progressivo.Equals(attoDto.Progressivo))
+            if (attoDto.IsRIS() && !attoInDb.Progressivo.Equals(attoDto.Progressivo))
             {
                 var legislatura = await _unitOfWork.Legislature.Get(attoInDb.Legislatura);
                 var contatore_progressivo = attoDto.Progressivo;
@@ -3649,7 +3653,7 @@ namespace PortaleRegione.API.Controllers
                 }
             }
 
-            if (attoDto.Tipo == (int)TipoAttoEnum.ODG)
+            if (attoDto.IsODG())
             {
                 if (!attoDto.UID_Atto_ODG.HasValue || attoDto.UID_Atto_ODG == Guid.Empty)
                     throw new InvalidOperationException(
