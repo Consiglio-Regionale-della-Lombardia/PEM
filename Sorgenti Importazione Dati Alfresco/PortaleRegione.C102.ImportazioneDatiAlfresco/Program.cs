@@ -925,6 +925,11 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var competenzaMonitoraggio = Convert.ToString(cellsAtti[row, 68].Value);
                                 var noteImpegni_e_scadenze = Convert.ToString(cellsAtti[row, 69].Value);
                                 var statoAttuazione = Convert.ToString(cellsAtti[row, 70].Value);
+                                var dataTrasmissioneMonitoraggio = Convert.ToString(cellsAtti[row, 73].Value);
+                                var conclusoMonitoraggioFromAlfresco = Convert.ToString(cellsAtti[row, 74].Value);
+                                var monitoraggioConcluso = !string.IsNullOrEmpty(conclusoMonitoraggioFromAlfresco)
+                                    ? conclusoMonitoraggioFromAlfresco.Equals("1")
+                                    : false;
 
                                 var privacy_dati_personali_giudiziari_sn = Convert.ToBoolean(cellsAtti[row, 53].Value);
                                 var privacy_divieto_pubblicazione_salute_sn =
@@ -945,14 +950,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
 {FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, BURL, DCR, DCCR, DCRL, AreaTematica, AltriSoggetti, ImpegniScadenze, StatoAttuazione, CompetenzaMonitoraggio, Privacy_Dati_Personali_Giudiziari,
 Privacy_Divieto_Pubblicazione_Salute, Privacy_Divieto_Pubblicazione_Vita_Sessuale, Privacy_Divieto_Pubblicazione, Privacy_Dati_Personali_Sensibili, Privacy_Divieto_Pubblicazione_Altri, Privacy_Dati_Personali_Semplici, 
-Privacy{FIELD_DATA_DataComunicazioneAssemblea}, IterMultiplo, Proietta, Firma_su_invito, Eliminato) 
+Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}, IterMultiplo, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
 {PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @BURL, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, @ImpegniScadenze, @StatoAttuazione, @CompetenzaMonitoraggio, @Privacy_Dati_Personali_Giudiziari,
 @Privacy_Divieto_Pubblicazione_Salute, @Privacy_Divieto_Pubblicazione_Vita_Sessuale, @Privacy_Divieto_Pubblicazione, @Privacy_Dati_Personali_Sensibili, @Privacy_Divieto_Pubblicazione_Altri, @Privacy_Dati_Personali_Semplici, 
-@Privacy{PARAM_DATA_DataComunicazioneAssemblea}, @IterMultiplo, 0, 0, 0)";
+@Privacy{PARAM_DATA_DataComunicazioneAssemblea}, @MonitoraggioConcluso{PARAM_DATA_TRASMISSIONE_MONITORAGGIO}, @IterMultiplo, 0, 0, 0)";
 
                                 if (string.IsNullOrEmpty(dataAnnunzio))
                                     query = query
@@ -962,6 +967,15 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, IterMultiplo, Proietta, Firma_su
                                     query = query
                                         .Replace("{FIELD_DATA_ANNUNZIO}", ", DataAnnunzio")
                                         .Replace("{PARAM_DATA_ANNUNZIO}", ", @DataAnnunzio");
+
+                                if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio))
+                                    query = query
+                                        .Replace("{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}", "")
+                                        .Replace("{PARAM_DATA_TRASMISSIONE_MONITORAGGIO}", "");
+                                else
+                                    query = query
+                                        .Replace("{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}", ", DataTrasmissioneMonitoraggio")
+                                        .Replace("{PARAM_DATA_TRASMISSIONE_MONITORAGGIO}", ", @DataTrasmissioneMonitoraggio");
 
                                 if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
                                     query = query
@@ -1042,6 +1056,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, IterMultiplo, Proietta, Firma_su
                                 command.Parameters.AddWithValue("@ImpegniScadenze", noteImpegni_e_scadenze);
                                 command.Parameters.AddWithValue("@StatoAttuazione", statoAttuazione);
                                 command.Parameters.AddWithValue("@CompetenzaMonitoraggio", competenzaMonitoraggio);
+                                command.Parameters.AddWithValue("@MonitoraggioConcluso", monitoraggioConcluso);
                                 command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
 
                                 command.Parameters.AddWithValue("@Privacy_Dati_Personali_Giudiziari",
@@ -1067,6 +1082,15 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, IterMultiplo, Proietta, Firma_su
                                 else
                                 {
                                     command.Parameters.AddWithValue("@DataAnnunzio", Convert.ToDateTime(dataAnnunzio));
+                                }
+                                
+                                if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio))
+                                {
+                                    // Ignored
+                                }
+                                else
+                                {
+                                    command.Parameters.AddWithValue("@DataTrasmissioneMonitoraggio", Convert.ToDateTime(dataTrasmissioneMonitoraggio));
                                 }
 
                                 if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
