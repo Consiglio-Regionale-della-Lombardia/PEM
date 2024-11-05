@@ -88,17 +88,21 @@ namespace PortaleRegione.Api.Public.Business_Layer
         ///     Recupera un elenco di legislature disponibili dal database.
         /// </summary>
         /// <returns>Una task che, al suo completamento, restituisce una lista di KeyValueDto con le legislature.</returns>
-        public async Task<List<KeyValueDto>> GetLegislature()
+        public async Task<List<LegislaturaDto>> GetLegislature()
         {
             var legislature = await _unitOfWork.Legislature.GetLegislature();
 
-            var result = new List<KeyValueDto>();
+            // #1089
+            var result = new List<LegislaturaDto>();
             foreach (var legislatura in legislature)
             {
-                result.Add(new KeyValueDto
+                result.Add(new LegislaturaDto
                 {
-                    id = legislatura.id_legislatura,
-                    descr = legislatura.num_legislatura
+                    id_legislatura = legislatura.id_legislatura,
+                    num_legislatura = legislatura.num_legislatura,
+                    attiva = legislatura.attiva,
+                    durata_legislatura_da = legislatura.durata_legislatura_da,
+                    durata_legislatura_a = legislatura.durata_legislatura_a
                 });
             }
 
