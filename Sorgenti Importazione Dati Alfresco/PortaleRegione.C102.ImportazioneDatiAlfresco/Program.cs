@@ -386,6 +386,35 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 }
 
                                 #endregion
+                                
+                                #region NOTE ANNOTAZIONI
+
+                                // #1029
+                                var noteAnnotazioni = Convert.ToString(cellsAtti[row, 26].Value);
+
+                                if (string.IsNullOrEmpty(noteAnnotazioni))
+                                {
+                                    // Ignored
+                                }
+                                else
+                                {
+                                    var queryInsertNoteAnnotazioni =
+                                        @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                                    VALUES
+                                                (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                    var commandInsertNoteAnnotazioni =
+                                        new SqlCommand(queryInsertNoteAnnotazioni, connection);
+                                    commandInsertNoteAnnotazioni.Parameters.AddWithValue("@UIDAtto",
+                                        attoImportato.UidAtto);
+                                    commandInsertNoteAnnotazioni.Parameters.AddWithValue("@UIDPersona",
+                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                    commandInsertNoteAnnotazioni.Parameters.AddWithValue("@Tipo",
+                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                    commandInsertNoteAnnotazioni.Parameters.AddWithValue("@Nota", noteAnnotazioni);
+                                    commandInsertNoteAnnotazioni.ExecuteNonQuery();
+                                }
+
+                                #endregion
 
                                 #region NOTE PRIVACY privacy_dati_personali_sensibili_note
 
