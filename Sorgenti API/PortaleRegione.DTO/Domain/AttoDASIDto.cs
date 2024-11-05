@@ -421,6 +421,9 @@ public class AttoDASIDto
     [DisplayName("Impegni scadenze")] public string ImpegniScadenze { get; set; }
     [DisplayName("Stato attuazione")] public string StatoAttuazione { get; set; }
     [DisplayName("Competenza monitoraggio")] public string CompetenzaMonitoraggio { get; set; }
+    [DisplayName("Monitoraggio concluso")] public bool MonitoraggioConcluso { get; set; }
+    [DisplayName("Data trasmissione monitoraggio")] public DateTime? DataTrasmissioneMonitoraggio { get; set; }
+
     public string CommissioniProponenti_string { get; set; }
     public Guid? UIDPersonaRelatore1 { get; set; }
     public Guid? UIDPersonaRelatore2 { get; set; }

@@ -1,4 +1,7 @@
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 01/10/2024 19:04:41 ******/
+USE [dbEmendamenti_test]
+GO
+
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 05/11/2024 10:08:46 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -57,7 +60,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[UIDPersonaElimina] [uniqueidentifier] NULL,
 	[DataElimina] [datetime] NULL,
 	[chkf] [varchar](255) NULL,
-	[Timestamp] [datetime] NOT NULL,
+	[Timestamp] [datetime] NULL,
 	[Atto_Certificato] [varchar](max) NULL,
 	[Legislatura] [int] NOT NULL,
 	[UIDSeduta] [uniqueidentifier] NULL,
@@ -100,6 +103,8 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[ImpegniScadenze] [varchar](max) NULL,
 	[StatoAttuazione] [varchar](max) NULL,
 	[CompetenzaMonitoraggio] [varchar](max) NULL,
+	[MonitoraggioConcluso] [bit] NOT NULL,
+	[DataTrasmissioneMonitoraggio] [datetime] NULL,
 	[IterMultiplo] [bit] NOT NULL,
 	[UIDPersonaRelatore1] [uniqueidentifier] NULL,
 	[UIDPersonaRelatore2] [uniqueidentifier] NULL,
@@ -175,6 +180,9 @@ ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy_Dati_Persona
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy]  DEFAULT ((0)) FOR [Privacy]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_MonitoraggioConcluso]  DEFAULT ((0)) FOR [MonitoraggioConcluso]
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_IterMultiplo]  DEFAULT ((0)) FOR [IterMultiplo]

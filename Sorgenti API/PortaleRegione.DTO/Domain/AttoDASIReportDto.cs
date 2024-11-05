@@ -62,14 +62,16 @@ public class AttoDASIReportDto
 
     [DisplayName("Abbinamenti")] public string Abbinamenti { get; set; }
     [DisplayName("Informazioni risposte")] public string Risposte { get; set; }
-    [DisplayName("Informazioni monitoraggio")] public string Monitoraggi { get; set; }
     [DisplayName("Motivo chiusura iter")] public int? TipoChiusuraIter { get; set; } // #1021
     [DisplayName("Tipo votazione")] public int? TipoVotazioneIter { get; set; }
     [DisplayName("Emendato")] public bool Emendato { get; set; }
     [DisplayName("Pubblicato")] public bool Pubblicato { get; set; }
     [DisplayName("Sollecito")] public bool Sollecito { get; set; }
+    [DisplayName("Informazioni monitoraggio")] public string Monitoraggi { get; set; }
     [DisplayName("Area tematica")] public string AreaTematica { get; set; }
     [DisplayName("Altri soggetti")] public string AltriSoggetti { get; set; }
+    [DisplayName("Monitoraggio concluso")] public bool MonitoraggioConcluso { get; set; }
+    [DisplayName("Data trasmissione monitoraggio")] public DateTime? DataTrasmissioneMonitoraggio { get; set; }
     [DisplayName("DCR/DCCR")] public int? DCR { get; set; }
     [DisplayName("Data richiesta iscrizione in seduta")] public string DataRichiestaIscrizioneSeduta { get; set; }
     [DisplayName("Data iscrizione in seduta")] public DateTime? DataIscrizioneSeduta { get; set; }

@@ -578,108 +578,160 @@
 								<div class="chip" style="left: 195px; margin-top: -4px; position: absolute;">@atto.Monitoraggi.Count</div>
 							}
 						</div>
-						<div class="collapsible-body">
-							<div class="row">
-								<div class="input-field col s12 m12 l6">
-									@Html.TextBoxFor(model => model.Atto.AreaTematica, new { @class = "form-control" })
-									@Html.LabelFor(s => s.Atto.AreaTematica)
-								</div>
-								<div class="input-field col s12 m12 l6">
-									@Html.TextBoxFor(model => model.Atto.AltriSoggetti, new { @class = "form-control" })
-									@Html.LabelFor(s => s.Atto.AltriSoggetti)
-								</div>
-							</div>
-							<div class="row">
-								<div class="col s12">
-									<a id="btnSalva_InformazioniAggiuntiveMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva informazioni monitoraggio</a>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col s12">
-									<a id="btnAggiungiMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi monitoraggio</a>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s12">
+						<div class="collapsible-body grey lighten-4">
+                            <div class="row">
+                                <div class="col s12 m12 l12 form-group">
+                                    @Html.LabelFor(s => s.Atto.AreaTematica)
+                                    @Html.TextAreaFor(model => model.Atto.AreaTematica, new { @class = "form-control trumbowyg" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12 m12 l12">
+                                    <div class="card">
+                                        <div class="card-content">
+                                            <span class="card-title">Testo inviato</span>
+                                            <hr/>
+                                            <div class="row">
+                                                <div class="input-field col s12">
+                                                    @Html.TextBoxFor(s => s.Atto.DataTrasmissioneMonitoraggio, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                                                    @Html.LabelFor(s => s.Atto.DataTrasmissioneMonitoraggio, new { @class = "active" })
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col s12">
+                                                    <a id="btnAggiungiMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi monitoraggio</a>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="input-field col s12">
+                                                    <table id="tableMonitoraggio">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>Organo che effettua il monitoraggio</th>
+                                                            <th></th>
+                                                        </tr>
+                                                        </thead>
 
-									<table id="tableMonitoraggio">
-										<thead>
-											<tr>
-												<th>Organo che effettua il monitoraggio</th>
-												<th></th>
-											</tr>
-										</thead>
+                                                        <tbody>
+                                                        @foreach (var monitoraggio in atto.Monitoraggi)
+                                                        {
+                                                            <tr>
+                                                                <td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
+                                                                <td>
+                                                                    <a href="#!" class="red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
+                                                                        <i class="material-icons">close</i>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                        </tbody>
+                                                    </table>
 
-										<tbody>
-											@foreach (var monitoraggio in atto.Monitoraggi)
-											{
-												<tr>
-													<td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
-													<td>
-														<a href="#!" class="red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
-															<i class="material-icons">close</i>
-														</a>
-													</td>
-												</tr>
-											}
-										</tbody>
-									</table>
+                                                    @if (!atto.Monitoraggi.Any())
+                                                    {
+                                                        <div id="empty-monitoraggio" class="card-panel panel-warning center">
+                                                            <span class="center">
+                                                                <p>Nessun monitoraggio</p>
+                                                            </span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="form-group col s12 m12 l12">
+                                                    @Html.LabelFor(s => s.Atto.AltriSoggetti)
+                                                    @Html.TextAreaFor(model => model.Atto.AltriSoggetti, new { @class = "form-control trumbowyg" })
+                                                </div>
+                                            </div>
 
-									@if (!atto.Monitoraggi.Any())
-									{
-										<div id="empty-monitoraggio" class="card-panel panel-warning center">
-											<span class="center">
-												<p>Nessuna monitoraggio</p>
-											</span>
-										</div>
-									}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col s12 m12 l12">
+                                    @Html.LabelFor(s => s.Atto.CompetenzaMonitoraggio)
+                                    @Html.TextAreaFor(model => model.Atto.CompetenzaMonitoraggio, new { @class = "form-control trumbowyg" })
+                                </div>
+                                <div class="form-group col s12 m12 l12">
+                                    @Html.LabelFor(s => s.Atto.ImpegniScadenze)
+                                    @Html.TextAreaFor(model => model.Atto.ImpegniScadenze, new { @class = "form-control trumbowyg" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12 m12 l12">
+                                    <div class="card">
+                                        <div class="card-content input-field">
+                                            <span class="card-title">Documenti di monitoraggio</span>
+                                            <hr/>
+                                            <div class="row">
+                                                <div class="col s12">
+                                                    <a id="btnAggiungiDocumento_Monitoraggio" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
+                                                </div>
+                                            </div>
 
-									<div class="row">
-										<div class="col s12">
-											<a id="btnAggiungiDocumento_Monitoraggio" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
-										</div>
-									</div>
+                                            @if (atto.Documenti.Any())
+                                            {
+                                                if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
+                                                {
+                                                    <h6>
+                                                        <b>Documenti monitoraggio</b>
+                                                    </h6>
+                                                    <hr/>
+                                                    <table>
+                                                        <thead>
+                                                        <tr>
+                                                            <td>Documento</td>
+                                                            <td>Scarica</td>
+                                                            <td></td>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        @foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
+                                                        {
+                                                            <tr>
+                                                                <td>@doc.Titolo</td>
+                                                                <td>
+                                                                    <a href="@doc.Link" target="_blank">
+                                                                        <i class="material-icons icon">link</i>
+                                                                    </a>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+                                                                        <i class="material-icons">close</i>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
 
-									@if (atto.Documenti.Any())
-									{
-										if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
-										{
-											<h6>
-												<b>Documenti monitoraggio</b>
-											</h6>
-											<hr />
-											<table>
-												<thead>
-													<tr>
-														<td>Documento</td>
-														<td>Scarica</td>
-														<td></td>
-													</tr>
-												</thead>
-												<tbody>
-													@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
-													{
-														<tr>
-															<td>@doc.Titolo</td>
-															<td>
-																<a href="@doc.Link" target="_blank">
-																	<i class="material-icons icon">link</i>
-																</a>
-															</td>
-															<td>
-																<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-																	<i class="material-icons">close</i>
-																</a>
-															</td>
-														</tr>
-													}
-												</tbody>
-											</table>
-										}
-									}
-								</div>
-							</div>
-						</div>
+                                </div>
+                            </div>
+							
+                            <div class="row">
+                                <div class="form-group col s12 m12 l12">
+                                    @Html.LabelFor(s => s.Atto.StatoAttuazione)
+                                    @Html.TextAreaFor(model => model.Atto.StatoAttuazione, new { @class = "form-control trumbowyg" })
+                                </div>
+                                <div class="input-field col s12 m12 l12">
+                                    <p>
+                                        <label>
+                                            <input name="Atto.MonitoraggioConcluso" type="checkbox" value="true" @Html.Raw(Model.Atto.MonitoraggioConcluso ? "checked=\"checked\"" : "") />
+                                            <span>Concluso</span>
+                                        </label>
+                                    </p>
+                                </div>
+                            </div>
+							
+                            <div class="row">
+				                <div class="col s12">
+								    <a id="btnSalva_InformazioniAggiuntiveMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva informazioni monitoraggio</a>
+				                </div>
+                            </div>
+                        </div>
 					</li>
 					<li>
 						<div class="collapsible-header collection-header-custom @cssClass">
@@ -1204,6 +1256,32 @@
 		</div>
 
 		<script>
+			$('.trumbowyg').trumbowyg({
+				lang: 'it',
+				btns: [
+					['viewHTML'],
+					['formatting'],
+					['strong', 'em', 'del'],
+					['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+					['unorderedList', 'orderedList'],
+					['indent', 'outdent'],
+					['table'],
+					['link'],
+					['fontfamily'],
+					['fontsize'],
+					['removeformat'],
+					['fullscreen']
+				],
+				plugins: {
+					fontfamily: {
+						fontList: [
+							{ name: 'Arial', family: 'Arial, Helvetica, sans-serif' },
+							{ name: 'Open Sans', family: '\'Open Sans\', sans-serif' }
+						]
+					}
+				}
+			});
+
 	document.addEventListener('DOMContentLoaded', async function () {
 	    var elem = document.querySelector('.collapsible.expandable');
 	    var instance = M.Collapsible.init(elem, {

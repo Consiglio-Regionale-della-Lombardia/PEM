@@ -74,7 +74,7 @@ namespace PortaleRegione.API.Controllers
             GetGroupsInDb();
         }
 
-        public async Task<ATTI_DASI> Salva(AttoDASIDto attoDto, PersonaDto persona)
+        public async Task<ATTI_DASI> Salva(AttoDASIDto attoDto, PersonaDto currentUser)
         {
             if (attoDto.UIDPersonaProponente == Guid.Empty)
                 throw new InvalidOperationException("Indicare un proponente");
@@ -105,7 +105,7 @@ namespace PortaleRegione.API.Controllers
                     result.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(
                         seduta.Data_seduta.ToString("dd/MM/yyyy"),
                         AppSettingsConfiguration.masterKey);
-                    result.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+                    result.UIDPersonaRichiestaIscrizione = currentUser.UID_persona;
 
                     result.Non_Passaggio_In_Esame = attoDto.Non_Passaggio_In_Esame;
                 }
@@ -113,31 +113,31 @@ namespace PortaleRegione.API.Controllers
                 var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
                 result.Legislatura = legislatura;
                 var progressivo =
-                    await _unitOfWork.DASI.GetProgressivo((TipoAttoEnum)attoDto.Tipo, persona.Gruppo.id_gruppo,
+                    await _unitOfWork.DASI.GetProgressivo((TipoAttoEnum)attoDto.Tipo, currentUser.Gruppo.id_gruppo,
                         legislatura);
                 result.Progressivo = progressivo;
 
-                if (persona.IsSegreteriaAssemblea
-                    || persona.IsPresidente)
+                if (currentUser.IsSegreteriaAssemblea
+                    || currentUser.IsPresidente)
                     result.IDStato = (int)StatiAttoEnum.BOZZA;
                 else
-                    result.IDStato = persona.Gruppo.abilita_em_privati
+                    result.IDStato = currentUser.Gruppo.abilita_em_privati
                         ? (int)StatiAttoEnum.BOZZA_RISERVATA
                         : (int)StatiAttoEnum.BOZZA;
 
-                if (persona.IsConsigliereRegionale ||
-                    persona.IsAssessore)
-                    result.UIDPersonaProponente = persona.UID_persona;
+                if (currentUser.IsConsigliereRegionale ||
+                    currentUser.IsAssessore)
+                    result.UIDPersonaProponente = currentUser.UID_persona;
                 else
                     result.UIDPersonaProponente = attoDto.UIDPersonaProponente;
 
-                result.UIDPersonaCreazione = persona.UID_persona;
+                result.UIDPersonaCreazione = currentUser.UID_persona;
                 result.DataCreazione = DateTime.Now;
-                result.idRuoloCreazione = (int)persona.CurrentRole;
-                if (!persona.IsSegreteriaAssemblea
-                    && !persona.IsPresidente)
+                result.idRuoloCreazione = (int)currentUser.CurrentRole;
+                if (!currentUser.IsSegreteriaAssemblea
+                    && !currentUser.IsPresidente)
                 {
-                    result.id_gruppo = persona.Gruppo.id_gruppo;
+                    result.id_gruppo = currentUser.Gruppo.id_gruppo;
                 }
                 else
                 {
@@ -155,9 +155,13 @@ namespace PortaleRegione.API.Controllers
 
                 if (attoDto.DocAllegatoGenerico_Stream != null)
                 {
-                    var path = ByteArrayToFile(attoDto.DocAllegatoGenerico_Stream);
-                    result.PATH_AllegatoGenerico =
-                        Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
+                    await Salva_Documento(new SalvaDocumentoRequest
+                    {
+                        Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
+                        Contenuto = attoDto.DocAllegatoGenerico_Stream,
+                        UIDAtto = result.UIDAtto,
+                        Nome = ""
+                    }, currentUser);
                 }
 
                 _unitOfWork.DASI.Add(result);
@@ -192,11 +196,11 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(
                     seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
-                attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+                attoInDb.UIDPersonaRichiestaIscrizione = currentUser.UID_persona;
                 attoInDb.Non_Passaggio_In_Esame = attoDto.Non_Passaggio_In_Esame;
             }
 
-            attoInDb.UIDPersonaModifica = persona.UID_persona;
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
             attoInDb.Oggetto = attoDto.Oggetto;
             attoInDb.Premesse = attoDto.Premesse;
@@ -205,9 +209,13 @@ namespace PortaleRegione.API.Controllers
 
             if (attoDto.DocAllegatoGenerico_Stream != null)
             {
-                var path = ByteArrayToFile(attoDto.DocAllegatoGenerico_Stream);
-                attoInDb.PATH_AllegatoGenerico =
-                    Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
+                await Salva_Documento(new SalvaDocumentoRequest
+                {
+                    Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
+                    Contenuto = attoDto.DocAllegatoGenerico_Stream,
+                    UIDAtto = attoInDb.UIDAtto,
+                    Nome = ""
+                }, currentUser);
             }
 
             await _unitOfWork.CompleteAsync();
@@ -219,10 +227,10 @@ namespace PortaleRegione.API.Controllers
                 // Quando un atto in bozza è già stato firmato da altri consiglieri e viene modificato dal proponente,
                 // il sistema deve invalidare le firme ed inviare una notifica ad ogni firmatario
                 var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
-                if (firme.Count(i => i.UID_persona != persona.UID_persona) > 0)
+                if (firme.Count(i => i.UID_persona != currentUser.UID_persona) > 0)
                 {
                     var firmatari = new List<string>();
-                    foreach (var firma in firme.Where(i => i.UID_persona != persona.UID_persona))
+                    foreach (var firma in firme.Where(i => i.UID_persona != currentUser.UID_persona))
                     {
                         var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
                         firmatari.Add(firmatario.email);
@@ -235,12 +243,12 @@ namespace PortaleRegione.API.Controllers
                             var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
                             var mailModel = new MailModel
                             {
-                                DA = persona.email,
+                                DA = currentUser.email,
                                 A = firmatari.Aggregate((i, j) => i + ";" + j),
                                 OGGETTO =
                                     $"Atto {nome_atto} modificato dal consigliere proponente",
                                 MESSAGGIO =
-                                    $"{persona.DisplayName_GruppoCode} ha modificato l'atto {nome_atto} con oggetto {attoInDb.Oggetto}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. <br> Contatta il proponente per firmare nuovamente l’atto. {GetBodyFooterMail()}"
+                                    $"{currentUser.DisplayName_GruppoCode} ha modificato l'atto {nome_atto} con oggetto {attoInDb.Oggetto}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. <br> Contatta il proponente per firmare nuovamente l’atto. {GetBodyFooterMail()}"
                             };
                             await _logicUtil.InvioMail(mailModel);
                         }
@@ -255,7 +263,7 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 //re-crypt del testo certificato
-                var body = await GetBodyDASI(attoInDb, null, persona,
+                var body = await GetBodyDASI(attoInDb, null, currentUser,
                     TemplateTypeEnum.FIRMA);
                 var body_encrypt = BALHelper.EncryptString(body, BALHelper.Decrypt(attoInDb.Hash));
 
@@ -3680,9 +3688,13 @@ namespace PortaleRegione.API.Controllers
 
             if (attoDto.DocAllegatoGenerico_Stream != null)
             {
-                var path = ByteArrayToFile(attoDto.DocAllegatoGenerico_Stream);
-                attoInDb.PATH_AllegatoGenerico =
-                    Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
+                await Salva_Documento(new SalvaDocumentoRequest
+                {
+                    Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
+                    Contenuto = attoDto.DocAllegatoGenerico_Stream,
+                    UIDAtto = attoInDb.UIDAtto,
+                    Nome = ""
+                }, currentUser);
             }
 
             await _unitOfWork.CompleteAsync();
