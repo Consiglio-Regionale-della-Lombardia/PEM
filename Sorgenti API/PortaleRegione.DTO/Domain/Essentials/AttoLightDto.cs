@@ -74,5 +74,6 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string burl { get; set; }
         public string data_chiusura_iter { get; set; }
         public List<NoteDto> note { get; set; } = new List<NoteDto>();
+        public string data_comunicazione_assemblea { get; set; }
     }
 }

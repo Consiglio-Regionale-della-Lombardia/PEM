@@ -292,6 +292,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
                 data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
                 data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
+                data_comunicazione_assemblea = attoInDb.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy"), // #1088
                 stato_iter =
                     Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue ? attoInDb.TipoChiusuraIter.Value : 0),
                 gruppo = gruppo,
