@@ -1321,11 +1321,11 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, IterMultiplo, Proietta, Firma_su
                 {
                     return (int)TipoChiusuraIterEnum.DECADUTO;
                 }
-                case "comunicazione":
+                case "comunicazione all'assemblea": // #1086
                 {
                     return (int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA;
                 }
-                case "trattazione":
+                case "trattazione in assemblea": // #1086
                 {
                     return (int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA;
                 }
