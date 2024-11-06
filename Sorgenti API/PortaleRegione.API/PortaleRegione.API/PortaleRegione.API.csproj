@@ -193,7 +193,7 @@
     <Compile Include="Controllers\AttiController.cs" />
     <Compile Include="Controllers\DASIController.cs" />
     <Compile Include="Controllers\EmendamentiController.cs" />
-    <Compile Include="Controllers\EMPublicController.cs" />
+    <Compile Include="Controllers\PublicController.cs" />
     <Compile Include="Controllers\EsportaController.cs" />
     <Compile Include="Controllers\JobController.cs" />
     <Compile Include="Controllers\LegislatureController.cs" />

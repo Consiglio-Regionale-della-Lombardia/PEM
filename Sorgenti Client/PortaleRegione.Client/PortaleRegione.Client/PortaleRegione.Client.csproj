@@ -125,6 +125,7 @@
     <Compile Include="Controllers\AutenticazioneController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\DASIController.cs" />
+    <Compile Include="Controllers\DASIPublicController.cs" />
     <Compile Include="Controllers\EMPublicController.cs" />
     <Compile Include="Controllers\GEASIController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -496,6 +497,7 @@
     <Content Include="Views\Template\View.cshtml" />
     <Content Include="Views\Template\TemplateForm.cshtml" />
     <Content Include="Views\AdminPanel\RiepilogoSessioni.cshtml" />
+    <Content Include="Views\DASIPublic\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

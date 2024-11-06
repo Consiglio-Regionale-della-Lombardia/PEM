@@ -108,5 +108,6 @@ namespace PortaleRegione.Contracts
         Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid);
         void RimuoviDocumento(ATTI_DOCUMENTI doc);
         Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva);
+        Task<Guid> GetByQR(Guid id);
     }
 }

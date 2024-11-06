@@ -2254,7 +2254,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         public async Task<string> GetBodyDASI(ATTI_DASI atto, IEnumerable<AttiFirmeDto> firme, PersonaDto persona,
-            TemplateTypeEnum template, bool privacy = false)
+            TemplateTypeEnum template, bool privacy = false, bool enableQr = true)
         {
             try
             {
@@ -2262,8 +2262,6 @@ namespace PortaleRegione.API.Controllers
 
                 try
                 {
-                    var tipo = Utility.GetText_Tipo(dto);
-
                     var body = GetTemplate(template, true);
 
                     body =
@@ -2274,13 +2272,13 @@ namespace PortaleRegione.API.Controllers
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
-                            GetBody(dto, tipo, firme, persona, false, privacy, ref body);
+                            GetBody(dto, firme, persona, false, privacy, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            GetBody(dto, tipo, firme, persona, true, privacy, ref body);
+                            GetBody(dto, firme, persona, enableQr, privacy, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
-                            GetBody(dto, tipo, firme, persona, false, true, ref body);
+                            GetBody(dto, firme, persona, false, true, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
                             GetBodyTemporaneo(dto, privacy, ref body);
@@ -4930,6 +4928,15 @@ namespace PortaleRegione.API.Controllers
 
                 await _unitOfWork.CompleteAsync();
             }
+        }
+
+        public async Task<ATTI_DASI> Get_ByQR(Guid id)
+        {
+            var uidAtto = await _unitOfWork
+                .DASI
+                .GetByQR(id);
+
+            return await Get(uidAtto);
         }
     }
 }

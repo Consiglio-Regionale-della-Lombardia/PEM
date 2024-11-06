@@ -8,6 +8,7 @@
         {
             Persone = new PersoneGateway();
             Emendamento_Pubblico = new EMGateway_Pubblico();
+            DASI_Pubblico = new DASIGateway_Pubblico();
         }
 
         public ApiGateway(string token)
@@ -38,6 +39,7 @@
         public IStampeGateway Stampe { get; }
         public IEsportaGateway Esporta { get; }
         public IEMGateway_Pubblico Emendamento_Pubblico { get; }
+        public IDASIGateway_Pubblico DASI_Pubblico { get; }
         public IEMGateway Emendamento { get; }
         public IAttiGateway Atti { get; }
         public IAdminGateway Admin { get; }

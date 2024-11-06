@@ -464,9 +464,12 @@ namespace PortaleRegione.BAL
             var premesse = atto.Premesse;
             var richieste = atto.Richiesta;
 
-            if (!string.IsNullOrEmpty(atto.Oggetto_Privacy) && privacy) oggetto = atto.Oggetto_Privacy; //#631
-            if (!string.IsNullOrEmpty(atto.Premesse_Modificato) && privacy) premesse = atto.Premesse_Modificato;
-            if (!string.IsNullOrEmpty(atto.Richiesta_Modificata) && privacy) richieste = atto.Richiesta_Modificata;
+            if (privacy)
+            {
+                oggetto = atto.OggettoView();
+                if (!string.IsNullOrEmpty(atto.Premesse_Modificato)) premesse = atto.Premesse_Modificato;
+                if (!string.IsNullOrEmpty(atto.Richiesta_Modificata)) richieste = atto.Richiesta_Modificata;
+            }
 
             body = body.Replace("{lblSubTitoloATTOView}", oggetto);
             body = body.Replace("{lblPremesseATTOView}", premesse);
@@ -662,7 +665,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{QRCode}", textQr);
         }
 
-        public void GetBody(AttoDASIDto atto, string tipoAtto, IEnumerable<AttiFirmeDto> firme,
+        public void GetBody(AttoDASIDto atto, IEnumerable<AttiFirmeDto> firme,
             PersonaDto currentUser,
             bool enableQrCode,
             bool privacy,

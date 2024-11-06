@@ -32,10 +32,10 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire gli emendamenti pubblici
     /// </summary>
     [AllowAnonymous]
-    public class EMPublicController : BaseApiController
+    public class PublicController : BaseApiController
     {
         /// <summary>
-        ///     Endpoint per visualizzare il corpo dell'emendamento
+        ///     Endpoint per visualizzare il corpo dell'emendamento pubblico
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -55,6 +55,44 @@ namespace PortaleRegione.API.Controllers
 
                     var body = await _publicLogic.GetBody(em
                         , await _firmeLogic.GetFirme(em, FirmeTipoEnum.TUTTE));
+
+                    return Ok(body);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("GetBody", e);
+                    return ErrorHandler(e);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per visualizzare il corpo dell'atto pubblico
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.Public.ViewDASI)]
+        public async Task<IHttpActionResult> ViewDASI(Guid id, bool approvato)
+        {
+            try
+            {
+                try
+                {
+                    var atto = await _dasiLogic.Get_ByQR(id);
+                    if (atto == null)
+                    {
+                        return NotFound();
+                    }
+
+                    var currentUser = CurrentUser;
+                    var firme = await _attiFirmeLogic.GetFirme(atto, FirmeTipoEnum.TUTTE);
+                    var body = await _dasiLogic.GetBodyDASI(atto, firme, currentUser, TemplateTypeEnum.PDF, approvato, false);
 
                     return Ok(body);
                 }
@@ -90,7 +128,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="stampeLogic"></param>
         /// <param name="utilsLogic"></param>
         /// <param name="adminLogic"></param>
-        public EMPublicController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+        public PublicController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,

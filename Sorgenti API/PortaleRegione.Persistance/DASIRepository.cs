@@ -830,6 +830,15 @@ namespace PortaleRegione.Persistance
             return await PRContext.DASI.FirstOrDefaultAsync(atto => atto.Etichetta.Equals(etichettaProgressiva));
         }
 
+        public async Task<Guid> GetByQR(Guid id)
+        {
+            var res = await PRContext
+                .DASI
+                .FirstAsync(atto => atto.UID_QRCode == id);
+
+            return res.UIDAtto;
+        }
+
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)
         {
             var noteInDB = await PRContext
