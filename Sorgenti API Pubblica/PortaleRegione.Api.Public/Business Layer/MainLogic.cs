@@ -37,7 +37,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request.Public;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
-using WebGrease.Configuration;
 
 namespace PortaleRegione.Api.Public.Business_Layer
 {
@@ -161,7 +160,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             return result;
         }
-        
+
         /// <summary>
         ///     Recupera un elenco di stati di chiusura.
         /// </summary>
@@ -241,7 +240,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             {
                 gruppo = await _unitOfWork.Persone.GetGruppo(attoInDb.id_gruppo);
             }
-            
+
             var proponente = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaProponente.Value);
             //if (proponente.DisplayName.Contains("(--)"))
             //{
@@ -250,7 +249,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (gruppo != null)
                 proponente.DisplayName += $" ({gruppo.sigla.Trim()})";
-                
+
             var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);
             var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
             var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
@@ -277,6 +276,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
             var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
             var firme = await GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
 
+            var linkTestoOriginale = $"{AppSettingsConfigurationHelper.urlDASI_Originale.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+            var linkTestoApprovato = $"{AppSettingsConfigurationHelper.urlDASI_Approvato.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+
             var attoDto = new AttoDasiPublicDto
             {
                 uidAtto = attoInDb.UIDAtto,
@@ -298,7 +300,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
                 data_comunicazione_assemblea = attoInDb.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy"), // #1088
                 stato_iter =
-                    Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue ? attoInDb.TipoChiusuraIter.Value : 0),
+                    Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue
+                        ? attoInDb.TipoChiusuraIter.Value
+                        : 0),
                 gruppo = gruppo,
                 uid_proponente = attoInDb.UIDPersonaProponente.Value,
                 proponente = proponente,
@@ -311,7 +315,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 dcrc = attoInDb.DCCR,
                 firme = firme,
                 burl = attoInDb.BURL,
-                note = note
+                note = note,
+                testo_presentato = linkTestoOriginale,
+                testo_approvato = linkTestoApprovato
             };
 
             return attoDto;
@@ -383,7 +389,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 request);
             var tot = await _unitOfWork.DASI.Count(filtroBase,
                 request);
-            
+
             return new BaseResponse<AttoLightDto>(
                 request.page,
                 request.size,
@@ -403,7 +409,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
         private List<FilterStatement<AttoLightDto>> GetFiltroCercaFromRequest(CercaRequest request)
         {
             var res = new List<FilterStatement<AttoLightDto>>();
-            
+
             if (request.id_legislatura.HasValue && request.id_legislatura > 0)
             {
                 res.Add(new FilterStatement<AttoLightDto>
@@ -485,7 +491,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Connector = FilterStatementConnector.And
                 });
             }
-            
+
             if (!string.IsNullOrEmpty(request.burl))
             {
                 res.Add(new FilterStatement<AttoLightDto>
@@ -496,7 +502,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Connector = FilterStatementConnector.And
                 });
             }
-            
+
             if (request.dcr.HasValue)
             {
                 res.Add(new FilterStatement<AttoLightDto>
@@ -507,7 +513,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Connector = FilterStatementConnector.And
                 });
             }
-            
+
             if (request.dccr.HasValue)
             {
                 res.Add(new FilterStatement<AttoLightDto>

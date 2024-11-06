@@ -39,5 +39,15 @@ namespace PortaleRegione.Api.Public.Helpers
         ///     dell'applicazione.
         /// </summary>
         public static string PercorsoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PercorsoCompatibilitaDocumenti"];
+
+        /// <summary>
+        ///     Url atto pubblico in formato originale
+        /// </summary>
+        public static string urlDASI_Originale => ConfigurationManager.AppSettings["urlDASI_Originale"];
+
+        /// <summary>
+        ///     Url atto pubblico con testo approvato
+        /// </summary>
+        public static string urlDASI_Approvato => ConfigurationManager.AppSettings["urlDASI_Approvato"];
     }
 }
