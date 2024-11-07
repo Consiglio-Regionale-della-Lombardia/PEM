@@ -1107,7 +1107,17 @@
 <li>
     <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe</div>
     <div class="collapsible-body">
-        <span>Lorem ipsum dolor sit amet.</span>
+        <ul class="collection">
+            <li class="collection-item">
+                <a class="black-text tooltipped"
+                   data-position="left"
+                   data-tooltip="Stampa documento DCR"
+                   data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto })"
+                   onclick="StampaDCR(this)">
+                    Stampa DCR
+                </a>
+            </li>
+        </ul>
     </div>
 </li>
 </ul>

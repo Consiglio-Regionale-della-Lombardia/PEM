@@ -1532,6 +1532,36 @@ function StampaUOLA(ctrl) {
             }
         });
     }
+    
+    function StampaDCR(ctrl) {
+        var url = $(ctrl).data("url");
+        $.ajax({
+            url: url,
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function() {
+                console.log("RICHIESTA INVIATA");
+                waiting(true, "Elaborazione in corso...");
+            },
+            success: function (response) {
+                console.log("Risposta ricevuta", response);
+                var a = document.createElement("a");
+                a.href = response;
+				a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            },
+            error: function(xhr, status, error) {
+                console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                waiting(false);
+            },
+            complete: function() {
+                console.log("Chiamata completata");
+                waiting(false);
+            }
+        });
+    }
 
 // NOTIFICATION SWEETALERT.JS
 

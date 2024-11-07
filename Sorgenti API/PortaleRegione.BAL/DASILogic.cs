@@ -4535,7 +4535,6 @@ namespace PortaleRegione.API.Controllers
             templateHeader = templateHeader.Replace("{{TOTALE_ATTI}}", idsList.Count.ToString());
             body += templateHeader;
 
-            var columns = JsonConvert.DeserializeObject<List<string>>(model.columns);
             var properties = typeof(AttoDASIReportDto).GetProperties();
 
             switch ((DataViewTypeEnum)model.dataviewtype)
@@ -4543,7 +4542,7 @@ namespace PortaleRegione.API.Controllers
                 case DataViewTypeEnum.GRID:
                     body += "<table>";
                     body += "<tr>";
-
+                    var columns = JsonConvert.DeserializeObject<List<string>>(model.columns);
                     foreach (var column in columns)
                     {
                         var prop = properties.FirstOrDefault(p => p.Name == column);

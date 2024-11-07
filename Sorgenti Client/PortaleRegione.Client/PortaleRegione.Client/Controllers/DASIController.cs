@@ -26,6 +26,7 @@ using System.Web.Caching;
 using System.Web.Mvc;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -1735,6 +1736,44 @@ namespace PortaleRegione.Client.Controllers
             }
             catch (Exception e)
             {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per generare la dcr dell'atto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-dcr")]
+        public async Task<ActionResult> GeneraReportDcr(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    dataviewtype_template = AppSettingsConfiguration.UIDTemplateReportDCR
+                };
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
