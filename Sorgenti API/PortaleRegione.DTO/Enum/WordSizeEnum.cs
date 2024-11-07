@@ -16,19 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Enum;
+namespace PortaleRegione.DTO.Enum;
 
-namespace PortaleRegione.DTO.Domain;
-
-public class ReportDto
+public enum WordSizeEnum
 {
-    public string reportname { get; set; }
-    public string covertype { get; set; }
-    public int dataviewtype { get; set; }
-    public string dataviewtype_template { get; set; }
-    public string columns { get; set; }
-    public int exportformat { get; set; }
-    public string filters { get; set; }
-    public string sorting { get; set; }
-    public int wordsize { get; set; }
+    A4,
+    A3
 }

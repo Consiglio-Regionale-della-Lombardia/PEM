@@ -1113,10 +1113,30 @@
                    data-position="left"
                    data-tooltip="Stampa documento DCR"
                    data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto })"
-                   onclick="StampaDCR(this)">
+                   onclick="StampaReportRapido(this)">
                     Stampa DCR
                 </a>
             </li>
+            <li class="collection-item">
+                <a class="black-text tooltipped"
+                   data-position="left"
+                   data-tooltip="Stampa copertina presidente"
+                   data-url="@Url.Action("GeneraReportCopertinaPresidente", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo })"
+                   onclick="StampaReportRapido(this)">
+                    Stampa copertina presidente
+                </a>
+            </li>
+            <li class="collection-item">
+                <a class="black-text tooltipped"
+                   data-position="left"
+                   data-tooltip="Stampa copertina ufficio"
+                   data-url="@Url.Action("GeneraReportCopertinaUfficio", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo })"
+                   onclick="StampaReportRapido(this)">
+                    Stampa copertina ufficio
+                </a>
+            </li>
+            
+
         </ul>
     </div>
 </li>

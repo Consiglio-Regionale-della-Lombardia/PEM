@@ -1779,6 +1779,140 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     Controller per generare la copertina per il presidente
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-copertina-presidente")]
+        public async Task<ActionResult> GeneraReportCopertinaPresidente(Guid id, int tipo)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    wordsize = (int)WordSizeEnum.A3
+                };
+
+                switch ((TipoAttoEnum)tipo)
+                {
+                    case TipoAttoEnum.ITL:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ITL_UIDTemplateReportCopertinaPresidente;
+                        break;
+                    case TipoAttoEnum.ITR:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ITR_UIDTemplateReportCopertinaPresidente;
+                        break;
+                    case TipoAttoEnum.IQT:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.IQT_UIDTemplateReportCopertinaPresidente;
+                        break;
+                    case TipoAttoEnum.MOZ:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.MOZ_UIDTemplateReportCopertinaPresidente;
+                        break;
+                    case TipoAttoEnum.ODG:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ODG_UIDTemplateReportCopertinaPresidente;
+                        break;
+                    case TipoAttoEnum.RIS:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.RIS_UIDTemplateReportCopertinaPresidente;
+                        break;
+                }
+
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per generare la copertina per l'ufficio
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-copertina-ufficio")]
+        public async Task<ActionResult> GeneraReportCopertinaUfficio(Guid id, int tipo)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    wordsize = (int)WordSizeEnum.A3
+                };
+
+                switch ((TipoAttoEnum)tipo)
+                {
+                    case TipoAttoEnum.ITL:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ITL_UIDTemplateReportCopertinaUfficio;
+                        break;
+                    case TipoAttoEnum.ITR:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ITR_UIDTemplateReportCopertinaUfficio;
+                        break;
+                    case TipoAttoEnum.IQT:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.IQT_UIDTemplateReportCopertinaUfficio;
+                        break;
+                    case TipoAttoEnum.MOZ:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.MOZ_UIDTemplateReportCopertinaUfficio;
+                        break;
+                    case TipoAttoEnum.ODG:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ODG_UIDTemplateReportCopertinaUfficio;
+                        break;
+                    case TipoAttoEnum.RIS:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.RIS_UIDTemplateReportCopertinaUfficio;
+                        break;
+                }
+
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
         ///     Controller per scaricare il documento pdf dell'atto
         /// </summary>
         /// <param name="id"></param>

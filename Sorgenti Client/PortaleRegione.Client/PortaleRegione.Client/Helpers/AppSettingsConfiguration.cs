@@ -31,7 +31,6 @@ namespace PortaleRegione.Client.Helpers
         public static string LimiteDocumentiDaProcessare => ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"];
         public static string URL_CLIENT => ConfigurationManager.AppSettings["URL_CLIENT"];
         public static string URL_API => ConfigurationManager.AppSettings["URL_API"];
-        public static string UIDTemplateReportDCR => ConfigurationManager.AppSettings["UIDTemplateReportDCR"];
         public static string GEASI_URL => ConfigurationManager.AppSettings["GEASI_URL"];
         public static string GEASI_USERNAME => ConfigurationManager.AppSettings["GEASI_USERNAME"];
         public static string GEASI_PASSWORD => ConfigurationManager.AppSettings["GEASI_PASSWORD"];
@@ -43,5 +42,24 @@ namespace PortaleRegione.Client.Helpers
         public static bool EnableIQT => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["IQT"]));
         public static bool EnableMOZ => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["MOZ"]));
         public static bool EnableODG => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["ODG"]));
+
+
+        #region REPORT
+
+        public static string UIDTemplateReportDCR => ConfigurationManager.AppSettings["UIDTemplateReportDCR"];
+        public static string ITL_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITL_UIDTemplateReportCopertinaPresidente"];
+        public static string ITL_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITL_UIDTemplateReportCopertinaUfficio"];
+        public static string ITR_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITR_UIDTemplateReportCopertinaPresidente"];
+        public static string ITR_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITR_UIDTemplateReportCopertinaUfficio"];
+        public static string IQT_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["IQT_UIDTemplateReportCopertinaPresidente"];
+        public static string IQT_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["IQT_UIDTemplateReportCopertinaUfficio"];
+        public static string MOZ_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["MOZ_UIDTemplateReportCopertinaPresidente"];
+        public static string MOZ_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["MOZ_UIDTemplateReportCopertinaUfficio"];
+        public static string ODG_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ODG_UIDTemplateReportCopertinaPresidente"];
+        public static string ODG_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ODG_UIDTemplateReportCopertinaUfficio"];
+        public static string RIS_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["RIS_UIDTemplateReportCopertinaPresidente"];
+        public static string RIS_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["RIS_UIDTemplateReportCopertinaUfficio"];
+
+        #endregion
     }
 }

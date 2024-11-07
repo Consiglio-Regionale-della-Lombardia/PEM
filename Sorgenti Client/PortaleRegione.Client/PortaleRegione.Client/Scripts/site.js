@@ -1533,7 +1533,7 @@ function StampaUOLA(ctrl) {
         });
     }
     
-    function StampaDCR(ctrl) {
+    function StampaReportRapido(ctrl) {
         var url = $(ctrl).data("url");
         $.ajax({
             url: url,

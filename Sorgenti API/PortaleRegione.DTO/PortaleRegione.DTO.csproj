@@ -131,6 +131,7 @@
     <Compile Include="Enum\TipoRichiestaEnum.cs" />
     <Compile Include="Enum\TipoRichiestaDestEnum.cs" />
     <Compile Include="Enum\TipoVotazioneIterEnum.cs" />
+    <Compile Include="Enum\WordSizeEnum.cs" />
     <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\AllegatoMail.cs" />

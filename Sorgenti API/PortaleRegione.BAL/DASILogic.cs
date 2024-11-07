@@ -3894,7 +3894,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         filePath += ".docx";
                         var bodyWord = await ComposeReportBodyFromTemplate(model, currentUser);
-                        CreateWordReport(filePath, bodyWord);
+                        CreateWordReport(filePath, bodyWord, (WordSizeEnum)model.wordsize);
                     }
                     catch (Exception e)
                     {
@@ -4629,16 +4629,35 @@ namespace PortaleRegione.API.Controllers
             return body;
         }
 
-        private void CreateWordReport(string filePath, string body)
+        private void CreateWordReport(string filePath, string body, WordSizeEnum wordSize = WordSizeEnum.A4)
         {
             using var document = WordprocessingDocument.Create(filePath, WordprocessingDocumentType.Document);
             var mainPart = document.MainDocumentPart;
+    
             if (mainPart == null)
             {
                 mainPart = document.AddMainDocumentPart();
                 new Document(new Body()).Save(mainPart);
             }
 
+            // Configura la dimensione della pagina
+            var pageSize = new PageSize();
+            if (wordSize == WordSizeEnum.A3)
+            {
+                pageSize.Width = 16840;  // Dimensione in twips per A3 (297 mm x 420 mm)
+                pageSize.Height = 11900;
+            }
+            else
+            {
+                pageSize.Width = 11900;  // Dimensione in twips per A4 (210 mm x 297 mm)
+                pageSize.Height = 16840;
+            }
+
+            var sectionProps = new SectionProperties();
+            sectionProps.Append(pageSize);
+            mainPart.Document.Body.Append(sectionProps);
+
+            // Converti l'HTML in contenuto Word e aggiungilo al documento
             var converter = new HtmlConverter(mainPart);
             converter.ParseHtml(body);
 
