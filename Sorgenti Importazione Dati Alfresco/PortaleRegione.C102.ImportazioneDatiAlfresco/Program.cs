@@ -13,7 +13,6 @@ using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Gateway;
 
 namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 {
@@ -40,10 +39,9 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
             var foglioAssociazione_Gea = args[9];
             var foglioAssociazione_Altro = args[8];
             var foglioProponentiCommissioni = args[10];
-
-            var auth = AutenticazioneAPI();
-
-            var legislatureFromApi = GetLegislatureFromAPI(auth);
+            
+            var legislatureFromDatabase = GetLegislatureFromDataBase();
+            var proponenteId = GetDefaultIdFromDatabase();
 
             using (var package = new ExcelPackage(new FileInfo(percorsoXLS)))
             {
@@ -150,7 +148,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                         var command = new SqlCommand(insertSeduta, connection);
                         var uidSeduta = Guid.NewGuid();
                         var legislaturaSeduta =
-                            legislatureFromApi.First(l => l.id_legislatura.Equals(int.Parse(item.Legislatura)));
+                            legislatureFromDatabase.First(l => l.id_legislatura.Equals(int.Parse(item.Legislatura)));
                         // Assegna i valori dei parametri
                         command.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
                         command.Parameters.AddWithValue("@Data_seduta", legislaturaSeduta.durata_legislatura_da);
@@ -216,7 +214,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                             try
                             {
-                                var proponenteId = auth.id;
                                 var chkf = 0;
                                 var id_gruppo = 0;
                                 // nodeid alfresco 
@@ -234,7 +231,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     throw new Exception("Legislatura non valida");
 
                                 var legislatura =
-                                    legislatureFromApi.FirstOrDefault(i =>
+                                    legislatureFromDatabase.FirstOrDefault(i =>
                                         i.id_legislatura.Equals(Convert.ToInt16(legislaturaFromAlfresco)));
 
                                 if (legislatura == null)
@@ -540,7 +537,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         var commandGetPersona = new SqlCommand(queryGetPersona, connection);
                                         commandGetPersona.Parameters.AddWithValue("@id_persona", id_persona);
                                         var find_uid_persona = commandGetPersona.ExecuteScalar();
-                                        if (find_uid_persona == DBNull.Value)
+                                        if (!Guid.TryParse(Convert.ToString(find_uid_persona), out var guid))
                                         {
                                             find_uid_persona = Guid.NewGuid();
                                             var queryInsertPersona =
@@ -973,7 +970,10 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                             .Replace("{FIELD_DATA_ANNUNZIO}", ", DataAnnunzio")
                                             .Replace("{PARAM_DATA_ANNUNZIO}", ", @DataAnnunzio");
 
-                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio))
+                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio) 
+                                        || tipoAttoEnum == TipoAttoEnum.ITL
+                                        || tipoAttoEnum == TipoAttoEnum.ITR
+                                        || tipoAttoEnum == TipoAttoEnum.IQT)
                                         query = query
                                             .Replace("{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}", "")
                                             .Replace("{PARAM_DATA_TRASMISSIONE_MONITORAGGIO}", "");
@@ -1092,7 +1092,10 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                             Convert.ToDateTime(dataAnnunzio));
                                     }
 
-                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio))
+                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio)
+                                        || tipoAttoEnum == TipoAttoEnum.ITL
+                                        || tipoAttoEnum == TipoAttoEnum.ITR
+                                        || tipoAttoEnum == TipoAttoEnum.IQT)
                                     {
                                         // Ignored
                                     }
@@ -1163,7 +1166,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         Emendato = @Emendato, 
                                         BURL = @BURL, 
                                         DCR = @DCR, 
-                                        DCRC = @DCRC, 
+                                        DCCR = @DCRC, 
                                         DCRL = @DCRL, 
                                         AreaTematica = @AreaTematica, 
                                         AltriSoggetti = @AltriSoggetti, 
@@ -1190,7 +1193,10 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         query = query.Replace("{FIELD_DATA_ANNUNZIO}",
                                             ", DataAnnunzio = @DataAnnunzio");
 
-                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio))
+                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio) 
+                                        || tipoAttoEnum == TipoAttoEnum.ITL 
+                                        || tipoAttoEnum == TipoAttoEnum.ITR 
+                                        || tipoAttoEnum == TipoAttoEnum.IQT)
                                         query = query.Replace("{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}", "")
                                             .Replace("{PARAM_DATA_TRASMISSIONE_MONITORAGGIO}", "");
                                     else
@@ -1273,7 +1279,10 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                             Convert.ToDateTime(dataAnnunzio));
                                     }
 
-                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio))
+                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio)
+                                        || tipoAttoEnum == TipoAttoEnum.ITL 
+                                        || tipoAttoEnum == TipoAttoEnum.ITR 
+                                        || tipoAttoEnum == TipoAttoEnum.IQT)
                                     {
                                         // Ignored
                                     }
@@ -1448,6 +1457,89 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
             }
         }
 
+        private static Guid GetDefaultIdFromDatabase()
+        {
+            Guid result = Guid.Empty;
+            string connectionString = AppsettingsConfiguration.CONNECTIONSTRING;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = @"
+            SELECT UID_persona 
+            FROM View_UTENTI 
+            WHERE userAD LIKE '%max.pagliaro'";
+
+                SqlCommand command = new SqlCommand(query, connection);
+
+                try
+                {
+                    connection.Open();
+                    object uid = command.ExecuteScalar();
+                    if (uid != null && uid != DBNull.Value)
+                    {
+                        result = (Guid)uid;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Errore durante l'accesso al database: " + ex.Message);
+                }
+            }
+
+            return result;
+        }
+
+
+        private static List<LegislaturaDto> GetLegislatureFromDataBase()
+        {
+            var result = new List<LegislaturaDto>();
+            string connectionString = AppsettingsConfiguration.CONNECTIONSTRING;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = @"
+            SELECT 
+                id_legislatura, 
+                num_legislatura, 
+                durata_legislatura_da, 
+                durata_legislatura_a, 
+                attiva, 
+                id_causa_fine 
+            FROM 
+                legislature";
+
+                SqlCommand command = new SqlCommand(query, connection);
+
+                try
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var legislatura = new LegislaturaDto
+                            {
+                                id_legislatura = reader.GetInt32(0),
+                                num_legislatura = reader.GetString(1),
+                                durata_legislatura_da = reader.GetDateTime(2),
+                                durata_legislatura_a = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3),
+                                attiva = reader.GetBoolean(4),
+                                id_causa_fine = reader.IsDBNull(5) ? (int?)null : reader.GetInt32(5)
+                            };
+                            result.Add(legislatura);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Errore durante l'accesso al database: " + ex.Message);
+                }
+            }
+
+            return result;
+        }
+
+
         private static int ParseDescr2Enum_TipoMozione(string tipoMozioneDescr)
         {
             switch (tipoMozioneDescr.ToLower())
@@ -1597,28 +1689,6 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                 default:
                     return 0;
             }
-        }
-
-        private static LoginResponse AutenticazioneAPI()
-        {
-            BaseGateway.apiUrl = AppsettingsConfiguration.URL_API;
-            var api = new ApiGateway();
-
-            var task = Task.Run(async () => await api.Persone.Login(new LoginRequest
-            {
-                Username = AppsettingsConfiguration.USER_API,
-                Password = AppsettingsConfiguration.PASSWORD_API
-            }));
-
-            return task.Result;
-        }
-
-        private static List<LegislaturaDto> GetLegislatureFromAPI(LoginResponse auth)
-        {
-            var api = new ApiGateway(auth.jwt);
-            var task = Task.Run(async () => await api.Legislature.GetLegislature());
-
-            return task.Result.ToList();
         }
 
         private static int ConvertToIntTipoRisposta(string tipoRispostaFromAlfresco)

@@ -131,10 +131,6 @@
       <Project>{a7ada419-a178-40da-85cc-63f6875e5793}</Project>
       <Name>PortaleRegione.DTO</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Sorgenti Client\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj">
-      <Project>{34C5C26E-50BD-49F3-8500-62A8C209273B}</Project>
-      <Name>PortaleRegione.Gateway</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.txt" />
