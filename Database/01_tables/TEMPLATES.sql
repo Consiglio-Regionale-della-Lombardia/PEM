@@ -1,0 +1,32 @@
+/****** Object:  Table [dbo].[TEMPLATES]    Script Date: 08/11/2024 11:25:10 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TEMPLATES](
+	[Uid] [uniqueidentifier] NOT NULL,
+	[Nome] [varchar](50) NULL,
+	[Testata] [varchar](max) NULL,
+	[Corpo] [varchar](max) NULL,
+	[Tipo] [int] NOT NULL,
+	[DataCreazione] [datetime] NOT NULL,
+	[Eliminato] [bit] NOT NULL,
+ CONSTRAINT [PK_TEMPLATES] PRIMARY KEY CLUSTERED 
+(
+	[Uid] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[TEMPLATES] ADD  CONSTRAINT [DF_TEMPLATES_Uid]  DEFAULT (newid()) FOR [Uid]
+GO
+
+ALTER TABLE [dbo].[TEMPLATES] ADD  CONSTRAINT [DF_TEMPLATES_DataCreazione]  DEFAULT (getdate()) FOR [DataCreazione]
+GO
+
+ALTER TABLE [dbo].[TEMPLATES] ADD  CONSTRAINT [DF_TEMPLATES_Eliminato]  DEFAULT ((0)) FOR [Eliminato]
+GO
+
+

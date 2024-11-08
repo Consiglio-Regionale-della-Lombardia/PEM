@@ -1,13 +1,3 @@
-USE [dbEmendamenti_test]
-GO
-
-/****** Object:  Table [dbo].[REPORTS]    Script Date: 29/10/2024 09:53:06 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 CREATE TABLE [dbo].[REPORTS](
 	[Id] [uniqueidentifier] NOT NULL,
 	[UId_persona] [uniqueidentifier] NOT NULL,

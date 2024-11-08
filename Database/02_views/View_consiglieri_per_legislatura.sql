@@ -1,6 +1,3 @@
-USE [dbEmendamenti_test]
-GO
-
 /****** Object:  View [dbo].[View_consiglieri_per_legislatura]    Script Date: 16/04/2024 10:17:05 ******/
 SET ANSI_NULLS ON
 GO
