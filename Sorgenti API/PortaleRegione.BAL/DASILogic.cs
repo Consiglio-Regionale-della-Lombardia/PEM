@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -340,8 +341,16 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
-            _unitOfWork.DASI.AggiungiRisposta(request.UIDAtto, request.IdOrgano, request.DescrizioneOrgano,
-                request.TipoOrgano);
+            var risposta = new ATTI_RISPOSTE
+            {
+                UIDAtto = request.UIDAtto,
+                DescrizioneOrgano = request.DescrizioneOrgano,
+                Tipo = request.Tipo,
+                IdOrgano = request.IdOrgano,
+                TipoOrgano = request.TipoOrgano
+            };
+
+            _unitOfWork.DASI.AggiungiRisposta(risposta);
 
             await _unitOfWork.CompleteAsync();
         }
@@ -361,11 +370,12 @@ namespace PortaleRegione.API.Controllers
 
         public async Task Salva_RimuoviRisposta(AttiRisposteDto request)
         {
-            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
-            if (attoInDb == null)
-                throw new InvalidOperationException("Atto non trovato");
+            var risposteInDb = await _unitOfWork.DASI.GetRisposta(request.Uid);
+            if (risposteInDb == null)
+            {
+                throw new InvalidOperationException("Risposta non trovata");
+            }
 
-            var risposteInDb = await _unitOfWork.DASI.GetRisposta(request.UIDAtto, request.IdOrgano);
             _unitOfWork.DASI.RimuoviRisposta(risposteInDb);
             await _unitOfWork.CompleteAsync();
         }
@@ -420,12 +430,12 @@ namespace PortaleRegione.API.Controllers
 
         public async Task Salva_DettagliRisposta(AttiRisposteDto request)
         {
-            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
-            if (attoInDb == null)
-                throw new InvalidOperationException("Atto non trovato");
+            var risposteInDb = await _unitOfWork.DASI.GetRisposta(request.Uid);
+            if (risposteInDb == null)
+            {
+                throw new InvalidOperationException("Risposta non trovata");
+            }
 
-            var risposteInDb = await _unitOfWork.DASI.GetRisposta(request.UIDAtto, request.IdOrgano);
-            risposteInDb.Tipo = request.Tipo;
             risposteInDb.Data = request.Data;
             risposteInDb.DataTrasmissione = request.DataTrasmissione;
             risposteInDb.DataTrattazione = request.DataTrattazione;
@@ -438,7 +448,7 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
-            var monitoraggioInDb = await _unitOfWork.DASI.GetMonitoraggio(request.UIDAtto, request.IdOrgano);
+            var monitoraggioInDb = await _unitOfWork.DASI.GetMonitoraggio(request.Uid);
             _unitOfWork.DASI.RimuoviMonitoraggio(monitoraggioInDb);
             await _unitOfWork.CompleteAsync();
         }
@@ -449,8 +459,15 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
-            _unitOfWork.DASI.AggiungiMonitoraggio(request.UIDAtto, request.IdOrgano, request.DescrizioneOrgano,
-                request.TipoOrgano);
+            var monitoraggio = new ATTI_MONITORAGGIO
+            {
+                Uid = Guid.NewGuid(),
+                UIDAtto = request.UIDAtto,
+                IdOrgano = request.IdOrgano,
+                TipoOrgano = request.TipoOrgano,
+                DescrizioneOrgano = request.DescrizioneOrgano
+            };
+            _unitOfWork.DASI.AggiungiMonitoraggio(monitoraggio);
 
             await _unitOfWork.CompleteAsync();
         }
@@ -3355,70 +3372,97 @@ namespace PortaleRegione.API.Controllers
 
         private bool IsOutdate(AttoDASIDto atto)
         {
-            if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO) return false;
-            var result = false;
-            switch ((TipoAttoEnum)atto.Tipo)
+            try
             {
-                case TipoAttoEnum.IQT:
+                if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO) return false;
+                if (atto.Seduta == null) return false;
+                var result = false;
+                switch ((TipoAttoEnum)atto.Tipo)
                 {
-                    if (atto.Seduta.DataScadenzaPresentazioneIQT == null)
-                        break;
-                    if (atto.Seduta.DataScadenzaPresentazioneIQT.HasValue)
-                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT)
-                            result = true;
-                    break;
-                }
-                case TipoAttoEnum.MOZ:
-                {
-                    switch ((TipoMOZEnum)atto.TipoMOZ)
+                    case TipoAttoEnum.IQT:
                     {
-                        case TipoMOZEnum.URGENTE:
-                        {
-                            if (atto.Seduta.DataScadenzaPresentazioneMOZU == null)
-                                break;
-                            if (atto.Seduta.DataScadenzaPresentazioneMOZU.HasValue)
-                                if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
-                                    atto.Seduta.DataScadenzaPresentazioneMOZU)
-                                    result = true;
+                        if (atto.Seduta.DataScadenzaPresentazioneIQT == null)
                             break;
-                        }
-                        case TipoMOZEnum.ABBINATA:
-                        {
-                            if (atto.Seduta.DataScadenzaPresentazioneMOZA == null)
-                                break;
-                            if (atto.Seduta.DataScadenzaPresentazioneMOZA.HasValue)
-                                if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
-                                    atto.Seduta.DataScadenzaPresentazioneMOZA)
-                                    result = true;
-                            break;
-                        }
-                        case TipoMOZEnum.ORDINARIA:
-                        {
-                            if (atto.Seduta.DataScadenzaPresentazioneMOZ == null)
-                                break;
-                            if (atto.Seduta.DataScadenzaPresentazioneMOZ.HasValue)
-                                if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
-                                    atto.Seduta.DataScadenzaPresentazioneMOZ)
-                                    result = true;
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-                case TipoAttoEnum.ODG:
-                {
-                    if (atto.CapogruppoNeiTermini) break;
-                    if (atto.Seduta.DataScadenzaPresentazioneODG == null)
+                        if (atto.Seduta.DataScadenzaPresentazioneIQT.HasValue)
+                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT)
+                                result = true;
                         break;
-                    if (atto.Seduta.DataScadenzaPresentazioneODG.HasValue)
-                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG)
-                            result = true;
-                    break;
-                }
-            }
+                    }
+                    case TipoAttoEnum.MOZ:
+                    {
+                        switch ((TipoMOZEnum)atto.TipoMOZ)
+                        {
+                            case TipoMOZEnum.URGENTE:
+                            {
+                                if (atto.Seduta.DataScadenzaPresentazioneMOZU == null)
+                                    break;
+                                if (DateTime.TryParseExact(
+                                        atto.DataPresentazione_MOZ_URGENTE,
+                                        "dd/MM/yyyy HH:mm:ss",
+                                        CultureInfo.InvariantCulture,
+                                        DateTimeStyles.None,
+                                        out DateTime dataPresentazioneUrgente) &&
+                                    dataPresentazioneUrgente > atto.Seduta.DataScadenzaPresentazioneMOZU)
+                                {
+                                    result = true;
+                                }
+                                break;
+                            }
+                            case TipoMOZEnum.ABBINATA:
+                            {
+                                if (atto.Seduta.DataScadenzaPresentazioneMOZA == null)
+                                    break;
+                                if (DateTime.TryParseExact(
+                                        atto.DataPresentazione_MOZ_ABBINATA,
+                                        "dd/MM/yyyy HH:mm:ss",
+                                        CultureInfo.InvariantCulture,
+                                        DateTimeStyles.None,
+                                        out DateTime dataPresentazioneAbbinata) &&
+                                    dataPresentazioneAbbinata > atto.Seduta.DataScadenzaPresentazioneMOZA)
+                                {
+                                    result = true;
+                                }
+                                break;
+                            }
+                            case TipoMOZEnum.ORDINARIA:
+                            {
+                                if (atto.Seduta.DataScadenzaPresentazioneMOZ == null)
+                                    break;
+                                if (DateTime.TryParseExact(
+                                        atto.DataPresentazione_MOZ,
+                                        "dd/MM/yyyy HH:mm:ss",
+                                        CultureInfo.InvariantCulture,
+                                        DateTimeStyles.None,
+                                        out DateTime dataPresentazioneMoz) &&
+                                    dataPresentazioneMoz > atto.Seduta.DataScadenzaPresentazioneMOZ)
+                                {
+                                    result = true;
+                                }
+                                break;
+                            }
+                        }
 
-            return result;
+                        break;
+                    }
+                    case TipoAttoEnum.ODG:
+                    {
+                        if (atto.CapogruppoNeiTermini) break;
+                        if (atto.Seduta.DataScadenzaPresentazioneODG == null)
+                            break;
+                        if (atto.Seduta.DataScadenzaPresentazioneODG.HasValue)
+                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG)
+                                result = true;
+                        break;
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Errore Presentato oltre i termini - {atto.Etichetta}", e);
+                throw;
+            }
         }
 
         public async Task RichiestaPresentazioneCartacea(PresentazioneCartaceaModel model, PersonaDto currentUser)

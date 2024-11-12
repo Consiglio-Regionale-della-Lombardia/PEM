@@ -746,17 +746,9 @@ namespace PortaleRegione.Persistance
             PRContext.ATTI_ABBINAMENTI.Remove(abbinamentoInDb);
         }
 
-        public void AggiungiRisposta(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano,
-            int requestTipoOrgano)
+        public void AggiungiRisposta(ATTI_RISPOSTE risposta)
         {
-            PRContext.ATTI_RISPOSTE.Add(new ATTI_RISPOSTE
-            {
-                Uid = Guid.NewGuid(),
-                UIDAtto = requestUidAtto,
-                IdOrgano = requestIdOrgano,
-                DescrizioneOrgano = requestDescrizioneOrgano,
-                TipoOrgano = requestTipoOrgano
-            });
+            PRContext.ATTI_RISPOSTE.Add(risposta);
         }
 
         public void RimuoviRisposta(ATTI_RISPOSTE risposta)
@@ -764,29 +756,19 @@ namespace PortaleRegione.Persistance
             PRContext.ATTI_RISPOSTE.Remove(risposta);
         }
 
-        public async Task<ATTI_RISPOSTE> GetRisposta(Guid requestUidAtto, int requestIdOrgano)
+        public async Task<ATTI_RISPOSTE> GetRisposta(Guid requestUid)
         {
-            return await PRContext.ATTI_RISPOSTE.FirstOrDefaultAsync(r => r.UIDAtto == requestUidAtto
-                                                                          && r.IdOrgano == requestIdOrgano);
+            return await PRContext.ATTI_RISPOSTE.FirstOrDefaultAsync(r => r.Uid == requestUid);
         }
 
-        public async Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUidAtto, int requestIdOrgano)
+        public async Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUid)
         {
-            return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.UIDAtto == requestUidAtto
-                                                                              && m.IdOrgano == requestIdOrgano);
+            return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.Uid == requestUid);
         }
 
-        public void AggiungiMonitoraggio(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano,
-            int requestTipoOrgano)
+        public void AggiungiMonitoraggio(ATTI_MONITORAGGIO monitoraggio)
         {
-            PRContext.ATTI_MONITORAGGIO.Add(new ATTI_MONITORAGGIO
-            {
-                Uid = Guid.NewGuid(),
-                UIDAtto = requestUidAtto,
-                IdOrgano = requestIdOrgano,
-                TipoOrgano = requestTipoOrgano,
-                DescrizioneOrgano = requestDescrizioneOrgano
-            });
+            PRContext.ATTI_MONITORAGGIO.Add(monitoraggio);
         }
 
         public void RimuoviMonitoraggio(ATTI_MONITORAGGIO monitoraggioInDb)

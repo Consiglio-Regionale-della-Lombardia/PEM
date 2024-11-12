@@ -24,12 +24,12 @@ public class AttiRisposteDto
 {
     public Guid Uid { get; set; }
     public Guid UIDAtto { get; set; }
-    public int TipoOrgano { get; set; }
-    public int Tipo { get; set; }
+    public int TipoOrgano { get; set; } = 0;
+    public int Tipo { get; set; } = 0;
     public DateTime? Data { get; set; }
     public DateTime? DataTrasmissione { get; set; }
     public DateTime? DataTrattazione { get; set; }
-    public int IdOrgano { get; set; }
+    public int IdOrgano { get; set; } = 0;
     public string DescrizioneOrgano { get; set; }
     public string DisplayTipo { get; set; }
     public string DisplayTipoOrgano { get; set; }

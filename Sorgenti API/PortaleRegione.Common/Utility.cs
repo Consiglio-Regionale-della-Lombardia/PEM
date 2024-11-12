@@ -236,7 +236,7 @@ namespace PortaleRegione.Common
                 case TipoOrganoEnum.GIUNTA:
                     return "Giunta";
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(tipoOrgano), tipoOrgano, null);
+                    return string.Empty;
             }
         }
 
@@ -379,7 +379,7 @@ namespace PortaleRegione.Common
                     return "Iter in assemblea + commissione";
                 }
                 default:
-                    return "";
+                    return string.Empty;
             }
         }
 

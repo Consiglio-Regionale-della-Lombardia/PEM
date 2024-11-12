@@ -475,12 +475,12 @@
         <table id="tableRisposte">
             <thead>
             <tr>
-                <th>Tipo risposta fornita</th>
-                <th>Data risposta</th>
-                <th>Tipo organo</th>
-                <th>Organo</th>
+                <th>Commissioni</th>
                 <th>Data trasmissione</th>
+                <th>Data risposta</th>
                 <th>Data trattazione</th>
+                <th>Informazioni risposta</th>
+                <th>Testo</th>
                 <th></th>
             </tr>
             </thead>
@@ -488,18 +488,28 @@
             <tbody>
             @foreach (var risposta in atto.Risposte)
             {
-                <tr>
-                    <td>@Html.Raw(risposta.DisplayTipo)</td>
-                    <td>@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
-                    <td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
+                <tr id="@risposta.Uid">
                     <td>@Html.Raw(risposta.DescrizioneOrgano)</td>
                     <td>@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
+                    <td>@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
                     <td>@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
+
                     <td>
-                        <a onclick="modificaDettagliRisposta(this, @risposta.IdOrgano)">
+                        @* Informazioni risposta *@
+                        <ul class="collection" id="collectionRisposte_@risposta.Uid">
+                            <li class="collection-item">
+                                <div><a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this)"><i class="material-icons">add</i></a></div></li>
+                        </ul>
+                    </td>
+
+                    <td>
+                        @* Testo risposta *@
+                    </td>
+                    <td>
+                        <a onclick="modificaDettagliRisposta(this, '@risposta.Uid')">
                             <i class="material-icons">edit</i>
                         </a>
-                        <a href="#!" class="red-text" onclick="rimuoviRisposta(this, @risposta.IdOrgano)">
+                        <a href="#!" class="red-text" onclick="rimuoviRisposta(this, '@risposta.Uid')">
                             <i class="material-icons">close</i>
                         </a>
                     </td>
@@ -1186,8 +1196,19 @@
 <div id="modalRisposte" class="modal">
     <div class="modal-content">
         <h4>Risposte</h4>
-        <p>Ricerca organi di risposta all'atto @Model.Atto.Display</p>
+        <p>Ricerca organi di commissione per l'atto @Model.Atto.Display</p>
         <div class="row">
+			<div class="input-field col s12">
+				<select id="tipo-risposta-select" onchange="togglePnlSearchOrganiCommissione()">
+					<option value="" disabled selected>Seleziona</option>
+					<option value="1">Scritta</option>
+					<option value="2">Orale</option>
+					<option value="3">In commissione</option>
+				</select>
+				<label>Tipo risposta</label>
+			</div>
+        </div>
+        <div class="row" id="pnlSearchOrganiCommissioneRisposta" style="display:none;">
             <div class="input-field col s12">
                 <i class="material-icons prefix">search</i>
                 <input type="text" id="organi-autocomplete" class="autocomplete">
@@ -1195,23 +1216,16 @@
         </div>
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+        <a id="btnInserisciRisposta" href="#!" class="blue-text waves-effect waves-green btn-flat" onclick="InserisciRisposta()">Inserisci</a>
     </div>
 </div>
 
 <div id="modalDettaglioRisposta" class="modal">
     <div class="modal-content">
+        <h4>Date risposta</h4>
+        <hr/>
         <div class="row">
-            <div class="input-field col s12 m12 l12">
-                <select id="tipi-risposta-select">
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
-                </select>
-                <label>Tipo risposta</label>
-            </div>
             <div class="input-field col s12 m12 l12">
                 <input id="dataRisposta" type="date"/>
                 <label>Data risposta</label>
@@ -1226,13 +1240,42 @@
             </div>
         </div>
 
-        <input id="idOrganoDettaglioRisposta" type="hidden"/>
-        <input id="descrizioneOrganoDettaglioRisposta" type="hidden"/>
+        <input id="idRisposta" type="hidden"/>
 
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
         <a onclick="btnSalvaDettagliRisposta()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+    </div>
+</div>
+
+<div id="modalInformazioniRisposta" class="modal">
+    <div class="modal-content">
+        <h4>Informazioni risposta</h4>
+        <hr/>
+        <div class="row">
+            <div class="input-field col s12 m12 l12">
+                <select id="tipi-risposta-select">
+                    <option value="">Seleziona</option>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)</option>
+                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
+                </select>
+                <label>Tipo risposta</label>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-informazioni-risposta-autocomplete" class="autocomplete">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
     </div>
 </div>
 
@@ -1743,9 +1786,8 @@
 		$('#modalRisposte').modal("open");
 	});
 
-	function rimuoviRisposta(ctrl, organoId) {
+	function rimuoviRisposta(ctrl, uid) {
 			var row = $(ctrl).closest('tr');
-			var id = organoId;
 
 			swal({
 				title: "Rimuovi risposta",
@@ -1761,7 +1803,7 @@
 						headers: {
 							'Content-Type': 'application/json'
 						},
-						body: JSON.stringify({ IdOrgano: id, UIDAtto: '@Model.Atto.UIDAtto' })
+						body: JSON.stringify({ uid: uid })
 					});
 
 					if (!response.ok) {
@@ -1788,32 +1830,21 @@
 			});
 	}
 
-	function modificaDettagliRisposta(ctrl, organoId) {
+	function modificaDettagliRisposta(ctrl, uid) {
 		// Ottieni la riga selezionata
 		var row = $(ctrl).closest('tr');
 
 		// Ottieni i dati dalla riga
-		var tipoRisposta = row.find('td:eq(0)').text().trim(); // Primo TD
-		var dataRisposta = row.find('td:eq(1)').text().trim(); // Secondo TD
-		var tipoOrgano = row.find('td:eq(2)').text().trim(); // Terzo TD
-		var descrizioneOrgano = row.find('td:eq(3)').text().trim(); // Quarto TD
-		var dataTrasmissione = row.find('td:eq(4)').text().trim(); // Quinto TD
-		var dataTrattazione = row.find('td:eq(5)').text().trim(); // Sesto TD
-
-		var tipoRispostaValue = null;
-		$('#tipi-risposta-select option').each(function () {
-			if ($(this).text().trim() === tipoRisposta) {
-				tipoRispostaValue = $(this).val();
-			}
-		});
+		var dataRisposta = row.find('td:eq(2)').text().trim();
+		var descrizioneOrgano = row.find('td:eq(0)').text().trim();
+		var dataTrasmissione = row.find('td:eq(1)').text().trim();
+		var dataTrattazione = row.find('td:eq(3)').text().trim();
 
 		// Precompila i controlli nella modale
-		$('#tipi-risposta-select').val(tipoRispostaValue).formSelect(); // Seleziona il valore nel select
 		$('#dataRisposta').val(formatDateForInput(dataRisposta)); // Setta la data risposta
 		$('#dataTrasmissione').val(formatDateForInput(dataTrasmissione)); // Setta la data trasmissione
 		$('#dataTrattazione').val(formatDateForInput(dataTrattazione)); // Setta la data trattazione
-		$('#idOrganoDettaglioRisposta').val(organoId); // Setta l'organo
-		$('#descrizioneOrganoDettaglioRisposta').val(descrizioneOrgano); // Setta la descrizione dell' organo
+		$('#idRisposta').val(uid);
 
 		// Apri la modale
 		$('#modalDettaglioRisposta').modal('open');
@@ -2009,19 +2040,14 @@
 
 	async function btnSalvaDettagliRisposta() {
 		// Ottieni i dati dalla modale
-		var tipoRispostaValue = $('#tipi-risposta-select').val();
-		var tipoRispostaText = $('#tipi-risposta-select option:selected').text();
 		var dataRisposta = $('#dataRisposta').val();
 		var dataTrasmissione = $('#dataTrasmissione').val();
 		var dataTrattazione = $('#dataTrattazione').val();
-		var organoId = $('#idOrganoDettaglioRisposta').val();
-		var organoDescrizione = $('#descrizioneOrganoDettaglioRisposta').val();
+		var uid_risposta = $('#idRisposta').val();
 
 		// Prepara i dati per il salvataggio
 		var requestData = {
-			UIDAtto: '@Model.Atto.UIDAtto',
-			IdOrgano: organoId,
-			Tipo: tipoRispostaValue,
+			Uid: uid_risposta,
 			Data: dataRisposta,
 			DataTrasmissione: dataTrasmissione,
 			DataTrattazione: dataTrattazione
@@ -2049,15 +2075,12 @@
 			// ignored
 		}
 
-		// Aggiorna la riga nella tabella
-		var row = $('table tbody tr').filter(function () {
-			return $(this).find('td:eq(3)').text().trim() === organoDescrizione;
-		});
+		var row = $(`table tbody tr[id="${uid_risposta}"]`);
 
-		row.find('td:eq(0)').text(tipoRispostaText);
-		row.find('td:eq(1)').text(formatDateForDisplay(dataRisposta));
-		row.find('td:eq(4)').text(formatDateForDisplay(dataTrasmissione));
-		row.find('td:eq(5)').text(formatDateForDisplay(dataTrattazione));
+		//row.find('td:eq(0)').text(tipoRispostaText);
+		row.find('td:eq(2)').text(formatDateForDisplay(dataRisposta));
+		row.find('td:eq(1)').text(formatDateForDisplay(dataTrasmissione));
+		row.find('td:eq(3)').text(formatDateForDisplay(dataTrattazione));
 
 		M.toast({
 			html: `<span>Dettagli della risposta salvati con successo</span>`,
@@ -2621,6 +2644,124 @@
             cache: false,
             processData: false
         });
+    }
+
+	async function AggiungiInformazioneRisposta(element) {
+        waiting(true);
+
+        var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+        var data = [];
+        organi.forEach(function (item) {
+	        data.push({
+		        tag: `${item.nome_organo}`,
+		        id: `${item.id_organo}`
+	        });
+        });
+		var elems = document.querySelectorAll('#organi-informazioni-risposta-autocomplete');
+        var instances = M.Autocomplete.init(elems, {
+	        data: data,
+	        limit: 20,
+	        minLength: 2,
+	        onAutocomplete: function (txt, key) {
+		        swal({
+			        title: "Inserimento nuovo organo",
+			        text: "Sei sicuro di voler inserire " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+			        icon: "warning",
+			        buttons: ["Annulla", "Inserisci"]
+		        }).then(async (answer) => {
+
+			        if (answer) {
+
+				        let tipoOrgano;
+				        let displayTipoOrgano;
+
+				        if (txt.includes("Commissione")) {
+					        tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+					        displayTipoOrgano = "Commissione";
+				        } else {
+					        tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+					        displayTipoOrgano = "Giunta";
+				        }
+
+						var tipoRispostaValue = $('#tipi-risposta-select').val();
+						var tipoRispostaText = $('#tipi-risposta-select option:selected').text();
+
+						 //Seleziona la lista `ul` di cui fa parte il pulsante cliccato
+						const collection = element.closest("ul");
+
+						// Crea un nuovo elemento di lista
+						const newItem = document.createElement("li");
+						newItem.className = "collection-item";
+
+						// Aggiungi il contenuto desiderato al nuovo item
+						newItem.innerHTML = `
+						      <div>
+						          ${txt}
+						          <a href="#!" class="secondary-content red-text"><i class="material-icons">close</i></a>
+						      </div>
+						  `;
+
+						// Inserisci il nuovo item subito prima dell'ultimo elemento (il pulsante "add")
+						collection.insertBefore(newItem, collection.lastElementChild);
+
+					        M.toast({
+						        html: `<span>${txt} inserito con successo all'atto @Html.Raw(Model.Atto.Display)</span>`,
+						        classes: 'rounded',
+						        displayLength: 5000
+					        });
+				        }
+					    document.getElementById('organi-informazioni-risposta-autocomplete').value = "";
+					    $('#modalInformazioniRisposta').modal("close");
+			        });
+		        }
+	        });
+        waiting(false);
+
+		$('#modalInformazioniRisposta').modal("open");
+	}
+
+	function togglePnlSearchOrganiCommissione() {
+		const select = document.getElementById('tipo-risposta-select');
+		const panel = document.getElementById('pnlSearchOrganiCommissioneRisposta');
+
+		// Mostra il pannello solo se l'opzione "In commissione" è selezionata
+		if (select.value == '3') {
+			panel.style.display = 'block';
+		} else {
+			panel.style.display = 'none';
+		}
+	}
+
+    async function InserisciRisposta() {
+        waiting(true);
+        // Simula la richiesta al server per salvare i dati
+        var request = {
+			UIDAtto: '@Model.Atto.UIDAtto'
+        }
+
+        var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+        // Send the data using fetch
+        const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(request)
+        });
+
+        if (!response.ok) {
+			throw new Error('Network response was not ok');
+        }
+
+        try {
+			const errorData = await response.json();
+			if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+        } catch (error) {
+			// ignored
+        }
+
+        location.reload();
     }
 
 </script>

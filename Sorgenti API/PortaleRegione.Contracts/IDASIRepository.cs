@@ -93,13 +93,11 @@ namespace PortaleRegione.Contracts
         void AggiungiAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato);
         Task<ATTI_ABBINAMENTI> GetAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato);
         void RimuoviAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb);
-        void AggiungiRisposta(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano,
-            int requestTipoOrgano);
-
+        void AggiungiRisposta(ATTI_RISPOSTE risposta);
         void RimuoviRisposta(ATTI_RISPOSTE risposta);
-        Task<ATTI_RISPOSTE> GetRisposta(Guid requestUidAtto, int requestIdOrgano);
-        Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUidAtto, int requestIdOrgano);
-        void AggiungiMonitoraggio(Guid requestUidAtto, int requestIdOrgano, string requestDescrizioneOrgano, int requestTipoOrgano);
+        Task<ATTI_RISPOSTE> GetRisposta(Guid requestUid);
+        Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUid);
+        void AggiungiMonitoraggio(ATTI_MONITORAGGIO monitoraggio);
         void RimuoviMonitoraggio(ATTI_MONITORAGGIO monitoraggioInDb);
         Task<ATTI_NOTE> GetNota(Guid requestUidAtto, TipoNotaEnum requestTipoEnum);
         void RimuoviNota(ATTI_NOTE notaInDb);
