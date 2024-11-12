@@ -778,6 +778,21 @@ namespace PortaleRegione.API.Controllers
                 return;
             }
 
+            if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                              && propertyId == nameof(AttoDASIDto.UIDSeduta)))
+            {
+                var statementUIDSeduta = model.filtro
+                    .Where(statement => statement.PropertyId == propertyId).ToList();
+
+                foreach (var statement in statementUIDSeduta)
+                {
+                    if (Guid.TryParse(statement.Value.ToString(), out var guid))
+                    {
+                        return;
+                    }
+                }
+            }
+
             if (model.filtro.Any(statement => (statement.PropertyId == propertyId
                                                && statement.Operation == Operation.IsNull) ||
                                               statement.Operation == Operation.IsNullOrWhiteSpace))

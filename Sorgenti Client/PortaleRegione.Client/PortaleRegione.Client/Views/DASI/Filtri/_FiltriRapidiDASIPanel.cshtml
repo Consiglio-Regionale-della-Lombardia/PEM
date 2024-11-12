@@ -966,22 +966,14 @@ function CreaTabella() {
 						<i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi">close</i>
 					</span>`;
 				} else if (result.DataRichiestaIscrizioneSeduta != null){
-					const matchDataSeduta = result.DataRichiestaIscrizioneSeduta.match(dateRegex);
-					const timestampDataSeduta = parseInt(matchDataSeduta[1], 10);
-					const dateDataSeduta = new Date(timestampDataSeduta);
-
-					// Formattare la data in un formato leggibile (dd/MM/yyyy)
-					const dayDataSeduta = String(dateDataSeduta.getDate()).padStart(2, '0');
-					const monthDataSeduta = String(dateDataSeduta.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
-					const yearDataSeduta = dateDataSeduta.getFullYear();
-					var textSeduta = `<b>Seduta del ${dayDataSeduta}/${monthDataSeduta}/${yearDataSeduta}<b>`;
+					var textSeduta = `<b>Seduta del ${result.DataRichiestaIscrizioneSeduta}<b>`;
 					var tooltipSeduta = `Richiesta in attesa di elaborazione`;
 					td.innerHTML = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.DisplayAtto}')">
 				<b>${textSeduta}</b>
 				<i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi">check</i>
 </span>`;
 				}
-				else if (result.DataRichiestaIscrizioneSeduta == null){
+				else if (result.DataIscrizioneSeduta == null){
 					td.innerHTML = ` <div class="chip hoverable badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.DisplayAtto}')">
      Iscrivi
  </div>`;
