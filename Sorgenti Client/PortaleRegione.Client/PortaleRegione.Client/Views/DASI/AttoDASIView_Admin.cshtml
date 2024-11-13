@@ -432,12 +432,10 @@
         @if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
         {
             @Html.Raw("Informazioni risposta")
-            ;
         }
         else
         {
             @Html.Raw("Trattazione")
-            ;
         }
 
         @if (atto.Risposte.Any())
@@ -457,9 +455,18 @@
         }
         else
         {
-            <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
-                <i class="material-icons icon right red-text">remove_circle</i>
-            </div>
+            if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
+            {
+                <div class="tooltipped" style="left: 220px; position: absolute;" data-tooltip="Nessuna risposta">
+                    <i class="material-icons icon right red-text">remove_circle</i>
+                </div>
+            }
+            else
+            {
+                <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
+                    <i class="material-icons icon right red-text">remove_circle</i>
+                </div>
+            }
         }
     </div>
     <div class="collapsible-body">
@@ -1117,15 +1124,20 @@
     <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe</div>
     <div class="collapsible-body">
         <ul class="collection">
-            <li class="collection-item">
-                <a class="black-text tooltipped"
-                   data-position="left"
-                   data-tooltip="Stampa documento DCR"
-                   data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto })"
-                   onclick="StampaReportRapido(this)">
-                    Stampa DCR
-                </a>
-            </li>
+            @if (atto.IsODG()
+                 || atto.IsMOZ()
+                 || atto.IsRIS())
+            {
+                <li class="collection-item">
+                    <a class="black-text tooltipped"
+                       data-position="left"
+                       data-tooltip="Stampa documento DCR"
+                       data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto })"
+                       onclick="StampaReportRapido(this)">
+                        Stampa DCR
+                    </a>
+                </li>
+            }
             <li class="collection-item">
                 <a class="black-text tooltipped"
                    data-position="left"
