@@ -1158,7 +1158,7 @@
     </div>
 </li>
 <li>
-    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe</div>
+    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe e lettere</div>
     <div class="collapsible-body">
         <div class="card">
             <div class="card-content">
@@ -1168,9 +1168,7 @@
                          || atto.IsRIS())
                     {
                         <li class="collection-item">
-                            <a class="black-text tooltipped"
-                               data-position="left"
-                               data-tooltip="Stampa documento DCR"
+                            <a style="text-decoration:underline"
                                data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto })"
                                onclick="StampaReportRapido(this)">
                                 Stampa DCR
@@ -1178,18 +1176,14 @@
                         </li>
                     }
                     <li class="collection-item">
-                        <a class="black-text tooltipped"
-                           data-position="left"
-                           data-tooltip="Stampa copertina presidente"
+                        <a style="text-decoration:underline"
                            data-url="@Url.Action("GeneraReportCopertinaPresidente", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo })"
                            onclick="StampaReportRapido(this)">
                             Stampa copertina presidente
                         </a>
                     </li>
                     <li class="collection-item">
-                        <a class="black-text tooltipped"
-                           data-position="left"
-                           data-tooltip="Stampa copertina ufficio"
+                        <a style="text-decoration:underline"
                            data-url="@Url.Action("GeneraReportCopertinaUfficio", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo })"
                            onclick="StampaReportRapido(this)">
                             Stampa copertina ufficio
