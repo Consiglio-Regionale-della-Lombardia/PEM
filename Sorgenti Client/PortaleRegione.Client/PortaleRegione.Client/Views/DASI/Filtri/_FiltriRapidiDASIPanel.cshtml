@@ -1061,9 +1061,6 @@ function CreaTabella() {
             Pagina <input type="number" id="page-input" min="1" max="${totalePagine}" value="${paginaCorrente}" style="width: 50px; text-align: center;" onchange="goToPage(this.value, ${totalePagine})">
             di ${totalePagine}
         </div>
-    </li>
-    <li class="waves-effect" style="margin-top:5px;padding-left:10px">
-        <span class="chip deep-purple lighten-5">${totaleRisultati} risultati</span>
     </li>`;
 
 		// Aggiungi controlli di navigazione se necessario
@@ -1080,6 +1077,11 @@ function CreaTabella() {
                 </a>
             </li>`;
 		}
+
+		paginationHTML += `
+<li class="waves-effect" style="margin-top:5px;padding-left:10px">
+    <span class="chip deep-purple lighten-5">${totaleRisultati} risultati</span>
+</li>`;
 
 		paginationHTML += `</ul>`;
 
