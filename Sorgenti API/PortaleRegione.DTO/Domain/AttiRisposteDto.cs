@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace PortaleRegione.DTO.Domain;
 
@@ -33,6 +34,8 @@ public class AttiRisposteDto
     public string DescrizioneOrgano { get; set; }
     public string DisplayTipo { get; set; }
     public string DisplayTipoOrgano { get; set; }
+    public Guid? UIDDocumento { get; set; }
+    public List<AttiRisposteDto> RisposteAssociate { get; set; } = new List<AttiRisposteDto>();
 }
 
 public class AttiRispostePublicDto

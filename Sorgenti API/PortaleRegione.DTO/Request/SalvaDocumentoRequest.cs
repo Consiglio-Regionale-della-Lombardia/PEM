@@ -22,6 +22,7 @@ namespace PortaleRegione.DTO.Request;
 
 public class SalvaDocumentoRequest
 {
+    public Guid? Uid { get; set; }
     public Guid UIDAtto { get; set; }
     public string Nome { get; set; }
     public byte[] Contenuto { get; set; }

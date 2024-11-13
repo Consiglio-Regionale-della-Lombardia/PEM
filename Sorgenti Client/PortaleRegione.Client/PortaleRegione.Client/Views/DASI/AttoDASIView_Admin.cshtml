@@ -483,11 +483,6 @@
     <div class="collapsible-body">
         <div class="card">
 			<div class="card-content">
-				<div class="row">
-					<div class="col s12">
-						<a id="btnAggiungiRisposta" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi risposta</a>
-					</div>
-				</div>
 				<h6>
 					<b>Risposte fornite</b>
 				</h6>
@@ -501,7 +496,11 @@
 							<th>Data trattazione</th>
 							<th>Informazioni risposta</th>
 							<th>Testo</th>
-							<th></th>
+                            <th>
+                                <a id="btnAggiungiRisposta" class="btn-floating blue">
+                                    <i class="material-icons">add</i>
+                                </a>
+                            </th>
 						</tr>
 					</thead>
 
@@ -509,27 +508,97 @@
 						@foreach (var risposta in atto.Risposte)
 						{
 							<tr id="@risposta.Uid">
-								<td>@Html.Raw(risposta.DescrizioneOrgano)</td>
-								<td>@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
-								<td>@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
-								<td>@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
+                                <td>
+                                    @Html.Raw(risposta.DescrizioneOrgano)
+                                </td>
+                                <td class="center">
+                                    <div class="row">
+                                        <div class="col s6">
+                                            @Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")
+                                        </div>
+                                        <div class="col s6">
+                                            <a class="black-text" onclick="modificaDettagliRisposta(this, '@risposta.Uid', '@risposta.Data', '@risposta.DataTrasmissione', '@risposta.DataTrattazione')">
+                                                <i class="material-icons">edit</i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="center">
+                                    <div class="row">
+                                        <div class="col s6">
+                                            @Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
+                                        </div>
+                                        <div class="col s6">
+											<a class="black-text" onclick="modificaDettagliRisposta(this, '@risposta.Uid', '@risposta.Data', '@risposta.DataTrasmissione', '@risposta.DataTrattazione')">
+												<i class="material-icons">edit</i>
+											</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="center">
+                                    <div class="row">
+										<div class="col s6">
+											@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")
+										</div>
+                                        <div class="col s6">
+											<a class="black-text" onclick="modificaDettagliRisposta(this, '@risposta.Uid', '@risposta.Data', '@risposta.DataTrasmissione', '@risposta.DataTrattazione')">
+												<i class="material-icons">edit</i>
+											</a>
+                                        </div>
+                                    </div>
+                                </td>
 
 								<td>
 									@* Informazioni risposta *@
-									<ul class="collection" id="collectionRisposte_@risposta.Uid">
-										<li class="collection-item">
-											<div><a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this)"><i class="material-icons">add</i></a></div>
-										</li>
-									</ul>
+                                    <ul class="collection" id="collectionRisposte_@risposta.Uid">
+										@foreach (var rispostaAssociata in risposta.RisposteAssociate)
+                                        {
+                                            <li class="collection-item">
+                                                <div>@rispostaAssociata.DescrizioneOrgano<a href="#!" class="secondary-content red-text" onclick="rimuoviRisposta(this, '@rispostaAssociata.Uid')"><i class="material-icons">close</i></a></div>
+                                            </li>
+                                        }
+                                        <li class="collection-item">
+                                            <div><a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '@risposta.Uid')"><i class="material-icons">add</i></a></div>
+                                        </li>
+                                    </ul>
 								</td>
 
 								<td>
-									@* Testo risposta *@
+                                    @* Testo risposta *@
+                                    @{
+                                        var haveDocument = false;
+                                        AttiDocumentiDto documentoRisposta = null;
+										if (risposta.UIDDocumento.HasValue)
+                                        {
+                                            var uidDocumentoRisposta = risposta.UIDDocumento.Value;
+                                            if (uidDocumentoRisposta != null)
+                                            {
+                                                documentoRisposta = atto.Documenti.FirstOrDefault(doc => doc.Uid == uidDocumentoRisposta);
+                                                if (documentoRisposta != null)
+                                                {
+                                                    haveDocument = true;
+                                                }
+                                            }
+										}
+                                    }
+									
+									@if (haveDocument)
+                                    {
+                                        <a href="@documentoRisposta.Link" target="_blank" style="text-decoration: underline">
+                                            @documentoRisposta.Titolo
+                                        </a>
+                                        <a href="#!" class="red-text" onclick="rimuoviDocumento(this, '@documentoRisposta.Titolo', '@risposta.Uid')">
+                                            <i class="material-icons">close</i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="#!" onclick="AggiungiDocumento_Risposta(this, '@risposta.Uid')" style="text-decoration: underline;">
+                                            Carica
+                                        </a>
+                                    }
 								</td>
 								<td>
-									<a onclick="modificaDettagliRisposta(this, '@risposta.Uid')">
-										<i class="material-icons">edit</i>
-									</a>
 									<a href="#!" class="red-text" onclick="rimuoviRisposta(this, '@risposta.Uid')">
 										<i class="material-icons">close</i>
 									</a>
@@ -547,43 +616,6 @@
 						</span>
 					</div>
 				}
-
-				<div class="row">
-					<div class="col s12">
-						<a id="btnAggiungiDocumento_Risposta" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
-					</div>
-				</div>
-				<h6>
-					<b>Documenti risposte</b>
-				</h6>
-				<hr />
-				<table>
-					<thead>
-						<tr>
-							<td>Documento</td>
-							<td>Scarica</td>
-							<td></td>
-						</tr>
-					</thead>
-					<tbody>
-						@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.RISPOSTA))
-						{
-							<tr>
-								<td>@doc.Titolo</td>
-								<td>
-									<a href="@doc.Link" target="_blank">
-										<i class="material-icons icon">link</i>
-									</a>
-								</td>
-								<td>
-									<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-										<i class="material-icons">close</i>
-									</a>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
 			</div>
         </div>
     </div>
@@ -1866,27 +1898,12 @@
 					}
 
 					// Rimuovi la riga dalla tabella
-					row.remove();
-
-					M.toast({
-						html: `<span>Risposta rimossa con successo</span>`,
-						classes: 'rounded',
-						displayLength: 5000
-					});
+					location.reload();
 				}
 			});
 	}
 
-	function modificaDettagliRisposta(ctrl, uid) {
-		// Ottieni la riga selezionata
-		var row = $(ctrl).closest('tr');
-
-		// Ottieni i dati dalla riga
-		var dataRisposta = row.find('td:eq(2)').text().trim();
-		var descrizioneOrgano = row.find('td:eq(0)').text().trim();
-		var dataTrasmissione = row.find('td:eq(1)').text().trim();
-		var dataTrattazione = row.find('td:eq(3)').text().trim();
-
+	function modificaDettagliRisposta(ctrl, uid, dataRisposta, dataTrasmissione, dataTrattazione) {
 		// Precompila i controlli nella modale
 		$('#dataRisposta').val(formatDateForInput(dataRisposta)); // Setta la data risposta
 		$('#dataTrasmissione').val(formatDateForInput(dataTrasmissione)); // Setta la data trasmissione
@@ -2077,9 +2094,11 @@
     });
 
 	function formatDateForInput(dateStr) {
-		// Converti la data in formato "dd/MM/yyyy" a "yyyy-MM-dd" per gli input di tipo date
+		// Converti la data in formato "dd/MM/yyyy HH:mm:ss" a "yyyy-MM-dd" per gli input di tipo date
 		if (dateStr) {
-			var parts = dateStr.split('/');
+			// Estrai solo la parte della data, ignorando l'orario
+			var dateOnly = dateStr.split(' ')[0];
+			var parts = dateOnly.split('/');
 			return `${parts[2]}-${parts[1]}-${parts[0]}`;
 		}
 		return '';
@@ -2220,15 +2239,18 @@
 		$('#modalDocumento').modal("open");
 	});
 
-	document.getElementById('btnAggiungiDocumento_Risposta').addEventListener('click', function () {
+	function AggiungiDocumento_Risposta(ctrl, uid) {
 		waiting(true);
 		$('#tipi-documento-select').empty();
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.RISPOSTA)">Risposta</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
 		$('#tipi-documento-select').formSelect();
+
+		$('#idRisposta').val(uid);
+
 		waiting(false);
 		$('#modalDocumento').modal("open");
-	});
+	}
 
 	document.getElementById('btnAggiungiDocumento_InformazioniGenerali').addEventListener('click', function () {
 		waiting(true);
@@ -2260,6 +2282,12 @@
                 formData.append("UIDAtto", '@Html.Raw(Model.Atto.UIDAtto)');
                 formData.append("TipoDocumento", tipoDocumentoValue); // Invia il tipo di documento selezionato
                 formData.append("Documento", inputFileAllegatoGenerico.files[0]); // Aggiungi il file PDF
+
+				var uidRisposta = $('#idRisposta').val();
+				if (uidRisposta) {
+					formData.append("Uid", uidRisposta);
+					$('#idRisposta').val("");
+				}
 
                 var url = '@Url.Action("Salva_Documento", "DASI")';
 
@@ -2693,7 +2721,7 @@
         });
     }
 
-	async function AggiungiInformazioneRisposta(element) {
+	async function AggiungiInformazioneRisposta(element, idRisposta) {
         waiting(true);
 
         var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
@@ -2732,6 +2760,39 @@
 
 						var tipoRispostaValue = $('#tipi-risposta-select').val();
 						var tipoRispostaText = $('#tipi-risposta-select option:selected').text();
+
+						// Simula la richiesta al server per salvare i dati
+						var request = {
+							UIDAtto: '@Model.Atto.UIDAtto',
+							IdOrgano: `${key}`,
+							Tipo: tipoRispostaValue,
+							TipoOrgano: tipoOrgano,
+							DisplayTipoOrgano: displayTipoOrgano,
+							DescrizioneOrgano: txt,
+							Uid: idRisposta
+						}
+
+						var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+						// Send the data using fetch
+						const response = await fetch(url, {
+										method: 'POST',
+										headers: {
+											'Content-Type': 'application/json'
+										},
+										body: JSON.stringify(request)
+						});
+
+						if (!response.ok) {
+										throw new Error('Network response was not ok');
+						}
+
+						try {
+										const errorData = await response.json();
+										if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+						} catch (error) {
+										// ignored
+						}
 
 						 //Seleziona la lista `ul` di cui fa parte il pulsante cliccato
 						const collection = element.closest("ul");

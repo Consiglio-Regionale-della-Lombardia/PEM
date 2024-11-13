@@ -347,7 +347,8 @@ namespace PortaleRegione.API.Controllers
                 DescrizioneOrgano = request.DescrizioneOrgano,
                 Tipo = request.Tipo,
                 IdOrgano = request.IdOrgano,
-                TipoOrgano = request.TipoOrgano
+                TipoOrgano = request.TipoOrgano,
+                UIDRispostaAssociata = request.Uid
             };
 
             _unitOfWork.DASI.AggiungiRisposta(risposta);
@@ -4850,10 +4851,39 @@ namespace PortaleRegione.API.Controllers
                 Path = Path.Combine($"{dir}", nomeFile),
                 Pubblica = false,
                 Tipo = request.Tipo,
-                Titolo = request.Nome,
-                Uid = Guid.NewGuid()
+                Titolo = request.Nome
             };
             _unitOfWork.DASI.AggiungiDocumento(doc);
+
+            if (request.Uid.HasValue)
+            {
+                switch ((TipoDocumentoEnum)request.Tipo)
+                {
+                    case TipoDocumentoEnum.TESTO_ALLEGATO:
+                        break;
+                    case TipoDocumentoEnum.AGGIUNTIVO:
+                        break;
+                    case TipoDocumentoEnum.MONITORAGGIO:
+                        break;
+                    case TipoDocumentoEnum.ABBINAMENTO:
+                        break;
+                    case TipoDocumentoEnum.CHIUSURA_ITER:
+                        break;
+                    case TipoDocumentoEnum.RISPOSTA:
+                    {
+                        var risposta = await _unitOfWork.DASI.GetRisposta(request.Uid.Value);
+                        risposta.UIDDocumento = doc.Uid;
+                        break;
+                    }
+                    case TipoDocumentoEnum.TESTO_PRIVACY:
+                        break;
+                    case TipoDocumentoEnum.VERBALE_VOTAZIONE:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
             await _unitOfWork.CompleteAsync();
         }
 
@@ -4861,6 +4891,39 @@ namespace PortaleRegione.API.Controllers
         {
             var doc = await _unitOfWork.DASI.GetDocumento(request.Uid);
             _unitOfWork.DASI.RimuoviDocumento(doc);
+            switch ((TipoDocumentoEnum)doc.Tipo)
+            {
+                case TipoDocumentoEnum.TESTO_ALLEGATO:
+                    break;
+                case TipoDocumentoEnum.AGGIUNTIVO:
+                    break;
+                case TipoDocumentoEnum.MONITORAGGIO:
+                    break;
+                case TipoDocumentoEnum.ABBINAMENTO:
+                    break;
+                case TipoDocumentoEnum.CHIUSURA_ITER:
+                    break;
+                case TipoDocumentoEnum.RISPOSTA:
+                {
+                    var risposte = await _unitOfWork.DASI.GetRisposte(doc.UIDAtto);
+                    if (risposte.Any(risp => risp.UIDDocumento == doc.Uid))
+                    {
+                        foreach (var risposta in risposte.Where(risp => risp.UIDDocumento == doc.Uid))
+                        {
+                            var rispostaInDb = await _unitOfWork.DASI.GetRisposta(risposta.Uid);
+                            rispostaInDb.UIDDocumento = null;
+                        }
+                    }
+                    break;
+                }
+                case TipoDocumentoEnum.TESTO_PRIVACY:
+                    break;
+                case TipoDocumentoEnum.VERBALE_VOTAZIONE:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             await _unitOfWork.CompleteAsync();
 
             var pathFile = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{doc.Path}";

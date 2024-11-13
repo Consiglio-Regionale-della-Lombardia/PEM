@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
@@ -2395,6 +2396,11 @@ namespace PortaleRegione.Client.Controllers
                     Nome = file.FileName,
                     Contenuto = fileData
                 };
+
+                if (!string.IsNullOrEmpty(Request.Form["Uid"]))
+                {
+                    request.Uid = Guid.Parse(Request.Form["Uid"]);
+                }
 
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.DASI.Salva_DocumentoAtto(request);

@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Interfaces;
@@ -640,20 +641,49 @@ namespace PortaleRegione.Persistance
                 .Where(r => r.UIDAtto == uidAtto)
                 .ToListAsync();
 
-            return dataFromDb.Select(r => new AttiRisposteDto
+            var res = new List<AttiRisposteDto>();
+            foreach (var r in dataFromDb.Where(risp=>!risp.UIDRispostaAssociata.HasValue))
             {
-                UIDAtto = r.UIDAtto,
-                Data = r.Data,
-                DataTrasmissione = r.DataTrasmissione,
-                DataTrattazione = r.DataTrattazione,
-                DescrizioneOrgano = r.DescrizioneOrgano,
-                IdOrgano = r.IdOrgano,
-                Uid = r.Uid,
-                Tipo = r.Tipo,
-                DisplayTipo = Utility.GetText_TipoRispostaDASI(r.Tipo),
-                TipoOrgano = r.TipoOrgano,
-                DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
-            }).ToList();
+                var risposta = new AttiRisposteDto
+                {
+                    UIDAtto = r.UIDAtto,
+                    Data = r.Data,
+                    DataTrasmissione = r.DataTrasmissione,
+                    DataTrattazione = r.DataTrattazione,
+                    DescrizioneOrgano = r.DescrizioneOrgano,
+                    IdOrgano = r.IdOrgano,
+                    Uid = r.Uid,
+                    Tipo = r.Tipo,
+                    DisplayTipo = Utility.GetText_TipoRispostaDASI(r.Tipo),
+                    TipoOrgano = r.TipoOrgano,
+                    DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(r.TipoOrgano),
+                    UIDDocumento = r.UIDDocumento
+                };
+
+                var risposteAssociate = dataFromDb.Where(risp => risp.UIDRispostaAssociata == r.Uid).ToList();
+
+                if (risposteAssociate.Any())
+                {
+                    foreach (var rispostaAssociata in risposteAssociate)
+                    {
+                        risposta.RisposteAssociate.Add(new AttiRisposteDto
+                        {
+                            UIDAtto = rispostaAssociata.UIDAtto,
+                            DescrizioneOrgano = rispostaAssociata.DescrizioneOrgano,
+                            IdOrgano = rispostaAssociata.IdOrgano,
+                            Uid = rispostaAssociata.Uid,
+                            Tipo = rispostaAssociata.Tipo,
+                            DisplayTipo = Utility.GetText_TipoRispostaDASI(rispostaAssociata.Tipo),
+                            TipoOrgano = rispostaAssociata.TipoOrgano,
+                            DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(rispostaAssociata.TipoOrgano),
+                        });    
+                    }
+                }
+
+                res.Add(risposta);
+            }
+
+            return res;
         }
 
         public async Task<List<AttiMonitoraggioDto>> GetMonitoraggi(Guid uidAtto)

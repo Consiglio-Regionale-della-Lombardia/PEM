@@ -29,6 +29,7 @@ namespace PortaleRegione.Domain
         [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ATTI_DOCUMENTI()
         {
+            Uid = Guid.NewGuid();
         }
 
         [Key] public Guid Uid { get; set; }

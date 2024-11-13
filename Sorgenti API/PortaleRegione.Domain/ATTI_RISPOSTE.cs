@@ -41,5 +41,8 @@ namespace PortaleRegione.Domain
         public DateTime? DataTrattazione { get; set; }
         public int IdOrgano { get; set; } = 0;
         public string DescrizioneOrgano { get; set; }
+        public Guid? UIDDocumento { get; set; }
+        public Guid? UIDRispostaAssociata { get; set; }
+
     }
 }
