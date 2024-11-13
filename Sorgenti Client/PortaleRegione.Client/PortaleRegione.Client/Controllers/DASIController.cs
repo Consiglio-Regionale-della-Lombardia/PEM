@@ -123,7 +123,6 @@ namespace PortaleRegione.Client.Controllers
                 request.size = model.size;
 
                 var apiGateway = new ApiGateway(Token);
-
                 request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
 
                 var res = await apiGateway.DASI.Get(request);
