@@ -206,6 +206,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Save_AddAnswer = Base + "/save/add-answer";
             public const string Remove_Answer = Base + "/save/remove-answer";
             public const string Save_DetailAnswer = Base + "/save/detail-answer";
+            public const string Save_InfoAnswer = Base + "/save/information-answer";
             public const string Save_AddMonitoring = Base + "/save/add-monitoring";
             public const string Remove_Monitoring = Base + "/save/remove-monitoring";
             public const string Save_InfoMonitoring = Base + "/save/info-monitoring";

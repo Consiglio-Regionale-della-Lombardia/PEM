@@ -431,4 +431,5 @@ public class AttoDASIDto
     public PersonaLightDto PersonaRelatore1 { get; set; }
     public PersonaLightDto PersonaRelatore2 { get; set; }
     public PersonaLightDto PersonaRelatoreMinoranza { get; set; }
+    [DisplayName("Data seduta")] public DateTime? DataSedutaRisposta { get; set; }
 }

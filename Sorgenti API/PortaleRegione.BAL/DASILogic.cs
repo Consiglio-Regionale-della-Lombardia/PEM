@@ -371,13 +371,32 @@ namespace PortaleRegione.API.Controllers
 
         public async Task Salva_RimuoviRisposta(AttiRisposteDto request)
         {
-            var risposteInDb = await _unitOfWork.DASI.GetRisposta(request.Uid);
-            if (risposteInDb == null)
+            var rispostaInDb = await _unitOfWork.DASI.GetRisposta(request.Uid);
+            if (rispostaInDb == null)
             {
                 throw new InvalidOperationException("Risposta non trovata");
             }
 
-            _unitOfWork.DASI.RimuoviRisposta(risposteInDb);
+            var risposteAtto = await _unitOfWork.DASI.GetRisposte(rispostaInDb.UIDAtto);
+            var rispostaDto = risposteAtto.FirstOrDefault(risp => risp.Uid == request.Uid);
+            if (rispostaDto != null)
+            {
+                if (rispostaDto.RisposteAssociate.Any())
+                {
+                    foreach (var rispostaAssociata in rispostaDto.RisposteAssociate)
+                    {
+                        await Salva_RimuoviRisposta(rispostaAssociata);
+                    }
+                }
+            }
+
+            _unitOfWork.DASI.RimuoviRisposta(rispostaInDb);
+
+            if (rispostaInDb.UIDDocumento.HasValue)
+            {
+                await Rimuovi_Documento(new AttiDocumentiDto(rispostaInDb.UIDDocumento.Value));
+            }
+
             await _unitOfWork.CompleteAsync();
         }
 
@@ -440,6 +459,21 @@ namespace PortaleRegione.API.Controllers
             risposteInDb.Data = request.Data;
             risposteInDb.DataTrasmissione = request.DataTrasmissione;
             risposteInDb.DataTrattazione = request.DataTrattazione;
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task Salva_InformazioniRisposta(AttoDASIDto request)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
+            if (attoInDb == null)
+            {
+                throw new InvalidOperationException("Atto non trovato");
+            }
+
+            attoInDb.IDTipo_Risposta_Effettiva = request.IDTipo_Risposta_Effettiva;
+            attoInDb.DataSedutaRisposta = request.DataSedutaRisposta;
+            attoInDb.DataComunicazioneAssemblea = request.DataComunicazioneAssemblea;
+
             await _unitOfWork.CompleteAsync();
         }
 
@@ -4887,7 +4921,7 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Rimuovi_Documento(AttiDocumentiDto request, PersonaDto currentUser)
+        public async Task Rimuovi_Documento(AttiDocumentiDto request)
         {
             var doc = await _unitOfWork.DASI.GetDocumento(request.Uid);
             _unitOfWork.DASI.RimuoviDocumento(doc);
@@ -4920,8 +4954,6 @@ namespace PortaleRegione.API.Controllers
                     break;
                 case TipoDocumentoEnum.VERBALE_VOTAZIONE:
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
 
             await _unitOfWork.CompleteAsync();

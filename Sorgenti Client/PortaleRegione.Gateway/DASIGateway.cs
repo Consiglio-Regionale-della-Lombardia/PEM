@@ -91,6 +91,13 @@ namespace PortaleRegione.Gateway
             var body = JsonConvert.SerializeObject(request);
             await Post(requestUrl, body, _token);
         }
+        
+        public async Task Salva_InformazioniRisposta(AttoDASIDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_InfoAnswer}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
 
         public async Task Salva_NuovoMonitoraggio(AttiRisposteDto request)
         {

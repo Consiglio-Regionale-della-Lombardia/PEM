@@ -269,6 +269,27 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per salvare le informazioni di una risposta ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_InfoAnswer)]
+        public async Task<IHttpActionResult> Salva_InformazioniRisposta(AttoDASIDto request)
+        {
+            try
+            {
+                await _dasiLogic.Salva_InformazioniRisposta(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi abbinamento DASI", e);
+                return ErrorHandler(e);
+            }
+        }
         
         /// <summary>
         ///     Endpoint per aggiungere un monitoraggio ad un atto
@@ -428,7 +449,7 @@ namespace PortaleRegione.API.Controllers
         {   
             try
             {
-                await _dasiLogic.Rimuovi_Documento(request, CurrentUser);
+                await _dasiLogic.Rimuovi_Documento(request);
                 return Ok();
             }
             catch (Exception e)

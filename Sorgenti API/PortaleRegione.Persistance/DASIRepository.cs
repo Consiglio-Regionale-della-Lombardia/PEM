@@ -642,7 +642,7 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
 
             var res = new List<AttiRisposteDto>();
-            foreach (var r in dataFromDb.Where(risp=>!risp.UIDRispostaAssociata.HasValue))
+            foreach (var r in dataFromDb.Where(risp=> !risp.UIDRispostaAssociata.HasValue || risp.UIDRispostaAssociata == Guid.Empty))
             {
                 var risposta = new AttiRisposteDto
                 {
@@ -650,6 +650,7 @@ namespace PortaleRegione.Persistance
                     Data = r.Data,
                     DataTrasmissione = r.DataTrasmissione,
                     DataTrattazione = r.DataTrattazione,
+                    DataRevoca = r.DataRevoca,
                     DescrizioneOrgano = r.DescrizioneOrgano,
                     IdOrgano = r.IdOrgano,
                     Uid = r.Uid,
@@ -657,7 +658,8 @@ namespace PortaleRegione.Persistance
                     DisplayTipo = Utility.GetText_TipoRispostaDASI(r.Tipo),
                     TipoOrgano = r.TipoOrgano,
                     DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(r.TipoOrgano),
-                    UIDDocumento = r.UIDDocumento
+                    UIDDocumento = r.UIDDocumento,
+                    UIDRispostaAssociata = r.UIDRispostaAssociata
                 };
 
                 var risposteAssociate = dataFromDb.Where(risp => risp.UIDRispostaAssociata == r.Uid).ToList();

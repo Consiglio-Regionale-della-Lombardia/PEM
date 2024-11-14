@@ -145,5 +145,6 @@ namespace PortaleRegione.Domain
         public Guid? UIDPersonaRelatore1 { get; set; }
         public Guid? UIDPersonaRelatore2 { get; set; }
         public Guid? UIDPersonaRelatoreMinoranza { get; set; }
+        public DateTime? DataSedutaRisposta { get; set; }
     }
 }

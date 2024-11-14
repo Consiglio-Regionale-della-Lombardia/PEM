@@ -2204,6 +2204,27 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per salvare le informazioni di una risposta all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-informazioni-risposta")]
+        public async Task<ActionResult> Salva_InformazioniRisposta(AttoDASIDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_InformazioniRisposta(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per aggiungere un organo monitorato all'atto

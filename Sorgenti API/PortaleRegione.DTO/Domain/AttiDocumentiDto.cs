@@ -23,6 +23,16 @@ namespace PortaleRegione.DTO.Domain;
 
 public class AttiDocumentiDto
 {
+    public AttiDocumentiDto()
+    {
+        
+    }
+
+    public AttiDocumentiDto(Guid uid)
+    {
+        Uid = uid;
+    }
+
     public Guid Uid { get; set; }
     public string Tipo { get; set; }
     public string Titolo { get; set; }

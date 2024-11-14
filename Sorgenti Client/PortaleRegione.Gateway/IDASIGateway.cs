@@ -96,6 +96,7 @@ namespace PortaleRegione.Gateway
         Task Salva_NuovaRisposta(AttiRisposteDto request);
         Task Rimuovi_Risposta(AttiRisposteDto request);
         Task Salva_DettagliRisposta(AttiRisposteDto request);
+        Task Salva_InformazioniRisposta(AttoDASIDto request);
         Task Salva_NuovoMonitoraggio(AttiRisposteDto request);
         Task Rimuovi_Monitoraggio(AttiRisposteDto request);
         Task Salva_InfoMonitoraggio(AttoDASIDto request);

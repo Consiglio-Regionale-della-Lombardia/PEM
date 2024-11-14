@@ -36,6 +36,8 @@ public class AttiRisposteDto
     public string DisplayTipoOrgano { get; set; }
     public Guid? UIDDocumento { get; set; }
     public List<AttiRisposteDto> RisposteAssociate { get; set; } = new List<AttiRisposteDto>();
+    public DateTime? DataRevoca { get; set; }
+    public Guid? UIDRispostaAssociata { get; set; }
 }
 
 public class AttiRispostePublicDto
@@ -45,6 +47,7 @@ public class AttiRispostePublicDto
     public DateTime? data { get; set; }
     public DateTime? data_trasmissione { get; set; }
     public DateTime? data_trattazione { get; set; }
+    public DateTime? data_revoca { get; set; }
     public int id_organo { get; set; }
     public string organo { get; set; }
 }

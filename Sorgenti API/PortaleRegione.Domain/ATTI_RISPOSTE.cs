@@ -43,6 +43,6 @@ namespace PortaleRegione.Domain
         public string DescrizioneOrgano { get; set; }
         public Guid? UIDDocumento { get; set; }
         public Guid? UIDRispostaAssociata { get; set; }
-
+        public DateTime? DataRevoca { get; set; }
     }
 }
