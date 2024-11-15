@@ -926,14 +926,16 @@ function CreaTabella() {
 				td.innerHTML = result.Firme_dopo_deposito;
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Firme_ritirate)') {
 				td.innerHTML = result.Firme_ritirate;
-			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
+			}else if (col.propertyName === '@nameof(AttoDASIDto.CommissioniProponenti)') {
 				if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.RIS)') {
+					td.innerHTML += "<ul>";
 					result.CommissioniProponenti.forEach(prop => {
-						td.innerHTML += `${prop.descr}<br>`;
+						td.innerHTML += `<li>${prop.descr}</li>`;
 					});
-				} else {
-					td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
+					td.innerHTML += "</ul>";
 				}
+			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
+				td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
 			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDSeduta)') {
 
 				if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.ITR)'
@@ -1309,7 +1311,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				 <div class="card blue lighten-5">
 					 <div class="card-content black-text">
 						 <span class="card-title">Informazioni</span>
-						 <p>La ricerca verifica la presenza o meno di un allegato: seleziona una o più tipologie per ricercare gli atti dove è presente l'allegato della tipologia selezionata. 
+						 <p>La ricerca verifica la presenza o meno di un allegato: seleziona una o più tipologie per ricercare gli atti dove è presente l'allegato della tipologia selezionata.
 						 Spuntando "Cerca allegati mancanti" verranno estratti gli atti dove non sono stati caricati documenti della tipologia selezionata.
 						 </p>
 					 </div>
@@ -2492,7 +2494,7 @@ function ripristinaFiltri(){
 			inviaDatiChips(paging.page, paging.size);
 		} else {
 			inviaDatiChips(1, 20);
-		}		
+		}
 	}
 }
 
