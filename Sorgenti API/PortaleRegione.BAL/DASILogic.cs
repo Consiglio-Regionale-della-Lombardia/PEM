@@ -160,8 +160,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
                         Contenuto = attoDto.DocAllegatoGenerico_Stream,
-                        UIDAtto = result.UIDAtto,
-                        Nome = "Allegato parte integrante dell'atto.pdf"
+                        UIDAtto = result.UIDAtto
                     }, currentUser);
                 }
 
@@ -214,8 +213,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
                     Contenuto = attoDto.DocAllegatoGenerico_Stream,
-                    UIDAtto = attoInDb.UIDAtto,
-                    Nome = "Allegato parte integrante dell'atto.pdf"
+                    UIDAtto = attoInDb.UIDAtto
                 }, currentUser);
             }
 
@@ -3810,8 +3808,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
                     Contenuto = attoDto.DocAllegatoGenerico_Stream,
-                    UIDAtto = attoInDb.UIDAtto,
-                    Nome = "Allegato parte integrante dell'atto.pdf"
+                    UIDAtto = attoInDb.UIDAtto
                 }, currentUser);
             }
 
@@ -4891,6 +4888,40 @@ namespace PortaleRegione.API.Controllers
             var atto = await GetAttoDto(request.UIDAtto, currentUser);
             if (atto == null)
                 throw new Exception("Atto non trovato");
+
+            switch ((TipoDocumentoEnum)request.Tipo)
+            {
+                case TipoDocumentoEnum.TESTO_ALLEGATO:
+                {
+                    request.Nome = "Allegato parte integrante dell'atto.pdf";
+                    break;
+                }
+                case TipoDocumentoEnum.AGGIUNTIVO:
+                    break;
+                case TipoDocumentoEnum.MONITORAGGIO:
+                    break;
+                case TipoDocumentoEnum.ABBINAMENTO:
+                    break;
+                case TipoDocumentoEnum.CHIUSURA_ITER:
+                {
+                    request.Nome = "Testo dell'atto approvato.pdf";
+                    break;
+                }
+                case TipoDocumentoEnum.RISPOSTA:
+                {
+                    request.Nome = "Testo della risposta.pdf";
+                    break;
+                }
+                case TipoDocumentoEnum.TESTO_PRIVACY:
+                    break;
+                case TipoDocumentoEnum.VERBALE_VOTAZIONE:
+                {
+                    request.Nome = "Verbale di votazione.pdf";
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             
             var dir = $"{atto.GetLegislatura()}/{Utility.GetText_Tipo(atto.Tipo)}/{atto.Etichetta}";
             var pathRepository = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{dir}";
