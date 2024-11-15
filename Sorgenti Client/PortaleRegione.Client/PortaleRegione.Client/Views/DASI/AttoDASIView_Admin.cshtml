@@ -549,7 +549,7 @@
                                             }
                                             else
                                             {
-                                                <th>Commissioni</th>
+                                                <th>Organi</th>
                                             }
 
                                             @if (atto.IsMOZ())
@@ -560,6 +560,11 @@
                                             }
                                             else if (atto.IsIQT())
                                             {
+                                                <th>Data risposta</th>
+                                            }
+                                            else if (atto.IsITR() || atto.IsITL())
+                                            {
+                                                <th>Data trasmissione</th>
                                                 <th>Data risposta</th>
                                             }
                                             else
@@ -591,166 +596,193 @@
                                         @foreach (var risposta in atto.Risposte)
                                         {
                                             var jsonRisposta = HttpUtility.HtmlAttributeEncode(JsonConvert.SerializeObject(risposta));
-                                            <tr id="@risposta.Uid">
-                                                <td>
-                                                    @Html.Raw(risposta.DescrizioneOrgano)
-                                                </td>
-                                                @if (atto.IsMOZ())
-                                                {
-                                                    <td class="center">
-                                                        <div class="row">
-                                                            <div class="col s6">
-                                                                @Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")
-                                                            </div>
-                                                            <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
-                                                                    <i class="material-icons">edit</i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="center">
-                                                        <div class="row">
-                                                            <div class="col s6">
-                                                                @Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")
-                                                            </div>
-                                                            <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
-                                                                    <i class="material-icons">edit</i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="center">
-                                                        <div class="row">
-                                                            <div class="col s6">
-                                                                @Html.Raw(risposta.DataRevoca.HasValue ? risposta.DataRevoca.Value.ToString("dd/MM/yyyy") : "")
-                                                            </div>
-                                                            <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
-                                                                    <i class="material-icons">edit</i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                }
-                                                else if (atto.IsIQT())
-                                                {
-                                                    <td class="center">
-                                                        <div class="row">
-                                                            <div class="col s6">
-                                                                @Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
-                                                            </div>
-                                                            <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
-                                                                    <i class="material-icons">edit</i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                }
-                                                else
-                                                {
-                                                    <td class="center">
-                                                        <div class="row">
-                                                            <div class="col s6">
-                                                                @Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")
-                                                            </div>
-                                                            <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
-                                                                    <i class="material-icons">edit</i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="center">
-                                                        <div class="row">
-                                                            <div class="col s6">
-                                                                @Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
-                                                            </div>
-                                                            <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
-                                                                    <i class="material-icons">edit</i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="center">
-                                                        <div class="row">
-                                                            <div class="col s6">
-                                                                @Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")
-                                                            </div>
-                                                            <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
-                                                                    <i class="material-icons">edit</i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                }
+											<tr id="@risposta.Uid">
+												<td>
+													@Html.Raw(risposta.DescrizioneOrgano)
+												</td>
+												@if (atto.IsMOZ())
+												{
+													<td class="center">
+														<div class="row">
+															<div class="col s6">
+																@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")
+															</div>
+															<div class="col s6">
+																<a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+																	<i class="material-icons">edit</i>
+																</a>
+															</div>
+														</div>
+													</td>
+													<td class="center">
+														<div class="row">
+															<div class="col s6">
+																@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")
+															</div>
+															<div class="col s6">
+																<a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+																	<i class="material-icons">edit</i>
+																</a>
+															</div>
+														</div>
+													</td>
+													<td class="center">
+														<div class="row">
+															<div class="col s6">
+																@Html.Raw(risposta.DataRevoca.HasValue ? risposta.DataRevoca.Value.ToString("dd/MM/yyyy") : "")
+															</div>
+															<div class="col s6">
+																<a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+																	<i class="material-icons">edit</i>
+																</a>
+															</div>
+														</div>
+													</td>
+												}
+												else if (atto.IsIQT())
+												{
+													<td class="center">
+														<div class="row">
+															<div class="col s6">
+																@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
+															</div>
+															<div class="col s6">
+																<a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+																	<i class="material-icons">edit</i>
+																</a>
+															</div>
+														</div>
+													</td>
+												}
+												else if (atto.IsITL() || atto.IsITR())
+												{
+													<td class="center">
+														<div class="row">
+															<div class="col s6">
+																@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")
+															</div>
+															<div class="col s6">
+																<a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+																	<i class="material-icons">edit</i>
+																</a>
+															</div>
+														</div>
+													</td>
+													<td class="center">
+														<div class="row">
+															<div class="col s6">
+																@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
+															</div>
+															<div class="col s6">
+																<a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+																	<i class="material-icons">edit</i>
+																</a>
+															</div>
+														</div>
+													</td>
+												}
+												else
+												{
+													<td class="center">
+														<div class="row">
+															<div class="col s6">
+																@Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")
+															</div>
+															<div class="col s6">
+																<a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+																	<i class="material-icons">edit</i>
+																</a>
+															</div>
+														</div>
+													</td>
+													<td class="center">
+														<div class="row">
+															<div class="col s6">
+																@Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
+															</div>
+															<div class="col s6">
+																<a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+																	<i class="material-icons">edit</i>
+																</a>
+															</div>
+														</div>
+													</td>
+													<td class="center">
+														<div class="row">
+															<div class="col s6">
+																@Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")
+															</div>
+															<div class="col s6">
+																<a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+																	<i class="material-icons">edit</i>
+																</a>
+															</div>
+														</div>
+													</td>
+												}
 
-                                                @if (atto.IsIQT())
-                                                {
-                                                }
-                                                else
-                                                {
-                                                    <td>
-                                                        @* Informazioni risposta *@
-                                                        <ul class="collection" id="collectionRisposte_@risposta.Uid">
-                                                            @foreach (var rispostaAssociata in risposta.RisposteAssociate)
-                                                            {
-                                                                <li class="collection-item">
-                                                                    <div>@rispostaAssociata.DisplayTipo: @rispostaAssociata.DescrizioneOrgano<a href="#!" class="secondary-content red-text" onclick="rimuoviRisposta(this, '@rispostaAssociata.Uid')"><i class="material-icons">close</i></a></div>
-                                                                </li>
-                                                            }
-                                                            <li class="collection-item">
-                                                                <div><a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '@risposta.Uid')"><i class="material-icons">add</i></a></div>
-                                                            </li>
-                                                        </ul>
-                                                    </td>
-                                                }
+												@if (atto.IsIQT())
+												{
+												}
+												else
+												{
+													<td>
+														@* Informazioni risposta *@
+														<ul class="collection" id="collectionRisposte_@risposta.Uid">
+															@foreach (var rispostaAssociata in risposta.RisposteAssociate)
+															{
+																<li class="collection-item">
+                                                                    <div>@rispostaAssociata.DescrizioneOrgano<a href="#!" class="secondary-content red-text" onclick="rimuoviRisposta(this, '@rispostaAssociata.Uid')"><i class="material-icons">close</i></a></div>
+																</li>
+															}
+															<li class="collection-item">
+																<div><a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '@risposta.Uid')"><i class="material-icons">add</i></a></div>
+															</li>
+														</ul>
+													</td>
+												}
 
-                                                <td>
-                                                    @* Testo risposta *@
-                                                    @{
-                                                        var haveDocument = false;
-                                                        AttiDocumentiDto documentoRisposta = null;
-                                                        if (risposta.UIDDocumento.HasValue)
-                                                        {
-                                                            var uidDocumentoRisposta = risposta.UIDDocumento.Value;
-                                                            if (uidDocumentoRisposta != null)
-                                                            {
-                                                                documentoRisposta = atto.Documenti.FirstOrDefault(doc => doc.Uid == uidDocumentoRisposta);
-                                                                if (documentoRisposta != null)
-                                                                {
-                                                                    haveDocument = true;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
+												<td>
+													@* Testo risposta *@
+													@{
+														var haveDocument = false;
+														AttiDocumentiDto documentoRisposta = null;
+														if (risposta.UIDDocumento.HasValue)
+														{
+															var uidDocumentoRisposta = risposta.UIDDocumento.Value;
+															if (uidDocumentoRisposta != null)
+															{
+																documentoRisposta = atto.Documenti.FirstOrDefault(doc => doc.Uid == uidDocumentoRisposta);
+																if (documentoRisposta != null)
+																{
+																	haveDocument = true;
+																}
+															}
+														}
+													}
 
-                                                    @if (haveDocument)
-                                                    {
-                                                        <a href="@documentoRisposta.Link" target="_blank" style="text-decoration: underline">
-                                                            @documentoRisposta.Titolo
-                                                        </a>
-                                                        <a href="#!" class="red-text" onclick="rimuoviDocumento(this, '@documentoRisposta.Titolo', '@risposta.Uid')">
-                                                            <i class="material-icons">close</i>
-                                                        </a>
-                                                    }
-                                                    else
-                                                    {
-                                                        <a href="#!" onclick="AggiungiDocumento_Risposta(this, '@risposta.Uid')" style="text-decoration: underline;">
-                                                            Carica
-                                                        </a>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <a href="#!" class="red-text" onclick="rimuoviRisposta(this, '@risposta.Uid')">
-                                                        <i class="material-icons">close</i>
-                                                    </a>
-                                                </td>
-                                            </tr>
+													@if (haveDocument)
+													{
+														<a href="@documentoRisposta.Link" target="_blank" style="text-decoration: underline">
+															@documentoRisposta.Titolo
+														</a>
+														<a href="#!" class="red-text" onclick="rimuoviDocumento(this, '@documentoRisposta.Titolo', '@risposta.Uid')">
+															<i class="material-icons">close</i>
+														</a>
+													}
+													else
+													{
+														<a href="#!" onclick="AggiungiDocumento_Risposta(this, '@risposta.Uid')" style="text-decoration: underline;">
+															Carica
+														</a>
+													}
+												</td>
+												<td>
+													<a href="#!" class="red-text" onclick="rimuoviRisposta(this, '@risposta.Uid')">
+														<i class="material-icons">close</i>
+													</a>
+												</td>
+											</tr>
                                         }
                                         </tbody>
                                     </table>
@@ -1460,7 +1492,7 @@
     <div class="modal-content">
         <h4>Risposte</h4>
         <p>Inserisci risposta per l'atto @Model.Atto.Display</p>
-        <div class="row">
+        @*<div class="row">
 			<div class="input-field col s12">
 				<select id="tipo-risposta-select">
                     <option value="" disabled selected>Seleziona</option>
@@ -1481,7 +1513,7 @@
                 </select>
 				<label>Tipo risposta</label>
 			</div>
-        </div>
+        </div>*@
         <div class="row" id="pnlSearchOrganiCommissioneRisposta">
             <div class="input-field col s12">
                 <i class="material-icons prefix">search</i>
@@ -1508,7 +1540,7 @@
                 <input id="dataTrasmissione" type="date"/>
                 <label>Data trasmissione</label>
             </div>
-            <div class="input-field col s12 m12 l12" style="display: @((atto.IsIQT())? "none":"block")">
+            <div class="input-field col s12 m12 l12" style="display: @((atto.IsIQT() || atto.IsITL() || atto.IsITR())? "none":"block")">
                 <input id="dataTrattazione" type="date"/>
                 <label>Data trattazione</label>
             </div>
@@ -1531,24 +1563,6 @@
     <div class="modal-content">
         <h4>Informazioni risposta</h4>
         <hr/>
-        <div class="row">
-            <div class="input-field col s12 m12 l12">
-                <select id="tipi-risposta-select">
-                    <option value="">Seleziona</option>
-					@if (atto.IsIQT())
-                    {
-                        <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
-                    }
-                    else
-                    {
-                        <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
-                        <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
-                    }
-                </select>
-                <label>Tipo risposta</label>
-            </div>
-
-        </div>
         <div class="row">
             <div class="input-field col s12">
                 <i class="material-icons prefix">search</i>
