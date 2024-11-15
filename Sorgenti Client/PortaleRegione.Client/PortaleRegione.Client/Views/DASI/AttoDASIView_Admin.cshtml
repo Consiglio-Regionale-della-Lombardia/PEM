@@ -688,7 +688,7 @@
                                                             @foreach (var rispostaAssociata in risposta.RisposteAssociate)
                                                             {
                                                                 <li class="collection-item">
-                                                                    <div>@rispostaAssociata.DescrizioneOrgano<a href="#!" class="secondary-content red-text" onclick="rimuoviRisposta(this, '@rispostaAssociata.Uid')"><i class="material-icons">close</i></a></div>
+                                                                    <div>@rispostaAssociata.DisplayTipo: @rispostaAssociata.DescrizioneOrgano<a href="#!" class="secondary-content red-text" onclick="rimuoviRisposta(this, '@rispostaAssociata.Uid')"><i class="material-icons">close</i></a></div>
                                                                 </li>
                                                             }
                                                             <li class="collection-item">
@@ -754,7 +754,8 @@
                                 </div>
                             </div>
 							@if (atto.Note.Any(n => n.TipoEnum == TipoNotaEnum.RISPOSTA))
-                            {
+							{
+								// #1106
                                 <div class="row">
                                     <div class="col s12 m12 l12">
                                         <h6>
@@ -1526,7 +1527,6 @@
                     {
                         <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
                         <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
-                        <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
                     }
                 </select>
                 <label>Tipo risposta</label>
@@ -1728,7 +1728,9 @@
 			} else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)) {
 				pnlDateRispostaMozione.style.display = 'block';
 				pnlRisposteFornite.style.display = 'block';
-			}else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ORALE)) {
+			}else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ORALE)
+			|| selectedValue == @Html.Raw((int)TipoRispostaEnum.SCRITTA)
+			|| selectedValue == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)) {
 				pnlRisposteFornite.style.display = 'block';
 			} else {
 				if (pnlDateRispostaMozione) {
