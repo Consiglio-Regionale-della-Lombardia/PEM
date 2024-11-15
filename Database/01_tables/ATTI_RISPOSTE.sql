@@ -1,7 +1,4 @@
-USE [dbEmendamenti_TestImport]
-GO
-
-/****** Object:  Table [dbo].[ATTI_RISPOSTE]    Script Date: 13/11/2024 17:05:52 ******/
+/****** Object:  Table [dbo].[ATTI_RISPOSTE]    Script Date: 14/11/2024 11:38:27 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -20,6 +17,7 @@ CREATE TABLE [dbo].[ATTI_RISPOSTE](
 	[IdOrgano] [int] NOT NULL,
 	[UIDDocumento] [uniqueidentifier] NULL,
 	[UIDRispostaAssociata] [uniqueidentifier] NULL,
+	[DataRevoca] [datetime] NULL,
  CONSTRAINT [PK__ATTI_RIS__EBA6C886C13BAA3C] PRIMARY KEY CLUSTERED 
 (
 	[Uid] ASC

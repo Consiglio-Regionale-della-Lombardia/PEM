@@ -1,7 +1,4 @@
-USE [dbEmendamenti_test]
-GO
-
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 05/11/2024 10:08:46 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 14/11/2024 11:37:40 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -60,7 +57,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[UIDPersonaElimina] [uniqueidentifier] NULL,
 	[DataElimina] [datetime] NULL,
 	[chkf] [varchar](255) NULL,
-	[Timestamp] [datetime] NULL,
+	[Timestamp] [datetime] NOT NULL,
 	[Atto_Certificato] [varchar](max) NULL,
 	[Legislatura] [int] NOT NULL,
 	[UIDSeduta] [uniqueidentifier] NULL,
@@ -74,12 +71,11 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[CapogruppoNeiTermini] [bit] NOT NULL,
 	[MOZU_Capigruppo] [bit] NOT NULL,
 	[FirmeCartacee] [varchar](max) NULL,
-	[Pubblicato] [bit] NOT NULL,
-	[Sollecito] [bit] NOT NULL,
-	[IDTipo_Risposta_Effettiva] [int] NULL,
+	[DataAnnunzio] [datetime] NULL,
 	[Protocollo] [varchar](150) NULL,
 	[CodiceMateria] [varchar](150) NULL,
-	[DataAnnunzio] [datetime] NULL,
+	[Pubblicato] [bit] NOT NULL,
+	[Sollecito] [bit] NOT NULL,
 	[TipoChiusuraIter] [int] NULL,
 	[DataChiusuraIter] [datetime] NULL,
 	[NoteChiusuraIter] [varchar](max) NULL,
@@ -109,6 +105,8 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[UIDPersonaRelatore1] [uniqueidentifier] NULL,
 	[UIDPersonaRelatore2] [uniqueidentifier] NULL,
 	[UIDPersonaRelatoreMinoranza] [uniqueidentifier] NULL,
+	[IDTipo_Risposta_Effettiva] [int] NULL,
+	[DataSedutaRisposta] [datetime] NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -128,15 +126,6 @@ GO
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiestaDestinatario]  DEFAULT ((0)) FOR [TipoRichiestaDestinatario]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Proietta]  DEFAULT ((0)) FOR [Proietta]
-GO
-
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Firma_su_invito]  DEFAULT ((0)) FOR [Firma_su_invito]
-GO
-
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Eliminato]  DEFAULT ((0)) FOR [Eliminato]
-GO
-
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Non_Passaggio_In_Esame]  DEFAULT ((0)) FOR [Non_Passaggio_In_Esame]
 GO
 
@@ -149,42 +138,42 @@ GO
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_MOZU_Capigruppo]  DEFAULT ((0)) FOR [MOZU_Capigruppo]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Pubblicato]  DEFAULT ((0)) FOR [Pubblicato]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Pubblicato]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Sollecito]  DEFAULT ((0)) FOR [Sollecito]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Sollecito]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Emendato]  DEFAULT ((0)) FOR [Emendato]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Emendato]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy_Dati_Personali_Giudiziari]  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Giudiziari]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Giudiziari]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy_Divieto_Pubblicazione_Salute]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Salute]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Salute]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy_Divieto_Pubblicazione_Vita_Sessuale]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Vita_Sessuale]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Vita_Sessuale]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy_Divieto_Pubblicazione]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy_Dati_Personali_Sensibili]  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Sensibili]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Sensibili]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy_Divieto_Pubblicazione_Altri]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Altri]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Altri]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy_Dati_Personali_Semplici]  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Semplici]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Semplici]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Privacy]  DEFAULT ((0)) FOR [Privacy]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [Privacy]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_MonitoraggioConcluso]  DEFAULT ((0)) FOR [MonitoraggioConcluso]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [MonitoraggioConcluso]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_IterMultiplo]  DEFAULT ((0)) FOR [IterMultiplo]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  DEFAULT ((0)) FOR [IterMultiplo]
 GO
 

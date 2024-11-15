@@ -493,6 +493,10 @@
                                 <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)</option>
                                 <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
                             }
+							else if (atto.IsIQT())
+                            {
+                                <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                            }
                             else
                             {
                                 <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
@@ -525,13 +529,24 @@
                         <table id="tableRisposte">
                             <thead>
                             <tr>
-                                <th>Commissioni</th>
+								@if (atto.IsIQT())
+                                {
+                                    <th>Giunta</th>
+	                            }
+                                else
+                                {
+                                    <th>Commissioni</th>
+                                }
 
-								@if (atto.IsMOZ())
+                                @if (atto.IsMOZ())
                                 {
                                     <th>Data trasmissione</th>
                                     <th>Data trattazione</th>
                                     <th>Data revoca</th>
+                                }
+                                else if(atto.IsIQT())
+                                {
+                                    <th>Data risposta</th>
                                 }
                                 else
                                 {
@@ -539,8 +554,16 @@
                                     <th>Data risposta</th>
                                     <th>Data trattazione</th>
                                 }
+								
+								@if (atto.IsIQT())
+                                {
 
-                                <th>Informazioni risposta</th>
+                                }
+                                else
+                                {
+                                    <th>Informazioni risposta</th>
+                                }
+                                
                                 <th>Testo</th>
                                 <th>
                                     <a id="btnAggiungiRisposta" class="btn-floating blue">
@@ -597,6 +620,21 @@
                                             </div>
                                         </td>
                                     }
+									else if (atto.IsIQT())
+                                    {
+                                        <td class="center">
+                                            <div class="row">
+                                                <div class="col s6">
+                                                    @Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
+                                                </div>
+                                                <div class="col s6">
+                                                    <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                        <i class="material-icons">edit</i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    }
                                     else
                                     {
                                         <td class="center">
@@ -636,21 +674,27 @@
                                             </div>
                                         </td>
                                     }
-
-                                    <td>
-                                        @* Informazioni risposta *@
-                                        <ul class="collection" id="collectionRisposte_@risposta.Uid">
-                                            @foreach (var rispostaAssociata in risposta.RisposteAssociate)
-                                            {
+									
+									@if (atto.IsIQT())
+                                    {
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            @* Informazioni risposta *@
+                                            <ul class="collection" id="collectionRisposte_@risposta.Uid">
+                                                @foreach (var rispostaAssociata in risposta.RisposteAssociate)
+                                                {
+                                                    <li class="collection-item">
+                                                        <div>@rispostaAssociata.DescrizioneOrgano<a href="#!" class="secondary-content red-text" onclick="rimuoviRisposta(this, '@rispostaAssociata.Uid')"><i class="material-icons">close</i></a></div>
+                                                    </li>
+                                                }
                                                 <li class="collection-item">
-                                                    <div>@rispostaAssociata.DescrizioneOrgano<a href="#!" class="secondary-content red-text" onclick="rimuoviRisposta(this, '@rispostaAssociata.Uid')"><i class="material-icons">close</i></a></div>
+                                                    <div><a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '@risposta.Uid')"><i class="material-icons">add</i></a></div>
                                                 </li>
-                                            }
-                                            <li class="collection-item">
-                                                <div><a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '@risposta.Uid')"><i class="material-icons">add</i></a></div>
-                                            </li>
-                                        </ul>
-                                    </td>
+                                            </ul>
+                                        </td>
+                                    }
 
                                     <td>
                                         @* Testo risposta *@
@@ -1370,11 +1414,15 @@
         <p>Inserisci risposta per l'atto @Model.Atto.Display</p>
         <div class="row">
 			<div class="input-field col s12">
-				<select id="tipo-risposta-select" onchange="togglePnlSearchOrganiCommissione()">
+				<select id="tipo-risposta-select">
                     <option value="" disabled selected>Seleziona</option>
 					@if (atto.IsMOZ())
                     {
                         <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                    }
+					else if (atto.IsIQT())
+                    {
+				        <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
                     }
                     else
                     {
@@ -1386,7 +1434,7 @@
 				<label>Tipo risposta</label>
 			</div>
         </div>
-        <div class="row" id="pnlSearchOrganiCommissioneRisposta" style="display:none;">
+        <div class="row" id="pnlSearchOrganiCommissioneRisposta">
             <div class="input-field col s12">
                 <i class="material-icons prefix">search</i>
                 <input type="text" id="organi-autocomplete" class="autocomplete">
@@ -1408,15 +1456,15 @@
                 <input id="dataRisposta" type="date"/>
                 <label>Data risposta</label>
             </div>
-            <div class="input-field col s12 m12 l12">
+            <div class="input-field col s12 m12 l12" style="display: @((atto.IsIQT())? "none":"block")">
                 <input id="dataTrasmissione" type="date"/>
                 <label>Data trasmissione</label>
             </div>
-            <div class="input-field col s12 m12 l12">
+            <div class="input-field col s12 m12 l12" style="display: @((atto.IsIQT())? "none":"block")">
                 <input id="dataTrattazione" type="date"/>
                 <label>Data trattazione</label>
             </div>
-            <div class="input-field col s12 m12 l12">
+            <div class="input-field col s12 m12 l12" style="display: @((atto.IsMOZ())? "block":"none")">
                 <input id="dataRevoca" type="date"/>
                 <label>Data revoca</label>
             </div>
@@ -1439,11 +1487,16 @@
             <div class="input-field col s12 m12 l12">
                 <select id="tipi-risposta-select">
                     <option value="">Seleziona</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)</option>
-                    <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
+					@if (atto.IsIQT())
+                    {
+                        <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                    }
+                    else
+                    {
+                        <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                        <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+                        <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                    }
                 </select>
                 <label>Tipo risposta</label>
             </div>
@@ -1644,9 +1697,14 @@
 			} else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)) {
 				pnlDateRispostaMozione.style.display = 'block';
 				pnlRisposteFornite.style.display = 'block';
+			}else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ORALE)) {
+				pnlRisposteFornite.style.display = 'block';
 			} else {
-				pnlDateRispostaMozione.style.display = 'none';
+				if (pnlDateRispostaMozione) {
+					pnlDateRispostaMozione.style.display = 'none';
+				}
 				pnlRisposteFornite.style.display = 'none';
+				
 			}
 		}
 
@@ -1702,7 +1760,7 @@
 		if (dateSeduta) dateSeduta.addEventListener('change', salvaInformazioni);
 		if (dateComunicazione) dateComunicazione.addEventListener('change', salvaInformazioni);
 
-		var initialTipoRispostaFornita = @Html.Raw(atto.IDTipo_Risposta_Effettiva);
+		var initialTipoRispostaFornita = @Html.Raw((atto.IDTipo_Risposta_Effettiva.HasValue) ? atto.IDTipo_Risposta_Effettiva.Value.ToString() : "null");
 		if (initialTipoRispostaFornita != null) {
 			$('#tipi-risposta-fornita-select').val(initialTipoRispostaFornita);
 			$('#tipi-risposta-fornita-select').formSelect();
@@ -2987,17 +3045,17 @@
 		$('#modalInformazioniRisposta').modal("open");
 	}
 
-	function togglePnlSearchOrganiCommissione() {
+	@*function togglePnlSearchOrganiCommissione() {
 		const select = document.getElementById('tipo-risposta-select');
 		const panel = document.getElementById('pnlSearchOrganiCommissioneRisposta');
 
 		// Mostra il pannello solo se l'opzione "In commissione" è selezionata
-		if (select.value == '3') {
+		if (select.value == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)) {
 			panel.style.display = 'block';
 		} else {
 			panel.style.display = 'none';
 		}
-	}
+	}*@
 
     async function InserisciRisposta() {
         waiting(true);
