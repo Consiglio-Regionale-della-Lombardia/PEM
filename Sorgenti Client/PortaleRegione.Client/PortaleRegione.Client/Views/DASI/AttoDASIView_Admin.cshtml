@@ -356,11 +356,6 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="col s12">
-								<a id="btnAggiungiDocumento_InformazioniGenerali" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
-							</div>
-						</div>
-						<div class="row">
 							<div class="input-field col s12">
 								<h6>
 									<b>Documenti aggiuntivi</b>
@@ -369,9 +364,13 @@
 								<table>
 									<thead>
 										<tr>
-											<td>Documento</td>
-											<td>Scarica</td>
-											<td></td>
+											<th>Documento</th>
+											<th>Scarica</th>
+                                            <th>
+                                                <a id="btnAggiungiDocumento_InformazioniGenerali" class="btn-floating blue">
+                                                    <i class="material-icons">add</i>
+                                                </a>
+                                            </th>
 										</tr>
 									</thead>
 									<tbody>
@@ -411,16 +410,13 @@
 				<div class="card">
 					<div class="card-content">
 						<div class="row">
-							<div class="col s12">
-								<a id="btnAggiungiAbbinamento" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi abbinamento</a>
-							</div>
-						</div>
-						<div class="row">
 							<div class="input-field col s12 m12 l12">
-
-								<h6>
-									<b>Lista abbinamenti</b>
-								</h6>
+                                <h6>
+                                    <b>Lista abbinamenti</b>
+                                </h6>
+                                <a id="btnAggiungiAbbinamento" class="btn-floating blue" style="position:absolute; right:10px; top:-10px;">
+                                    <i class="material-icons">add</i>
+                                </a>
 								<hr />
 								<ul id="lstAbbinamentiAtto" class="collection">
 									@foreach (var abb in atto.Abbinamenti)
@@ -438,15 +434,6 @@
 										</li>
 									}
 								</ul>
-
-								@if (!atto.Abbinamenti.Any())
-								{
-									<div id="empty-abbinamenti" class="card-panel panel-warning center">
-										<span class="center">
-											<p>Nessun abbinamento</p>
-										</span>
-									</div>
-								}
 							</div>
 						</div>
 					</div>
@@ -874,7 +861,9 @@
 						</div>
 						<div class="row">
 							<div class="col s12 m12 l12">
-								<h4>Testo inviato</h4>
+                                <h6>
+									<b>Testo inviato</b>
+                                </h6>
 								<hr />
 								<div class="row">
 									<div class="input-field col s12">
@@ -883,17 +872,16 @@
 									</div>
 								</div>
 								<div class="row">
-									<div class="col s12">
-										<a id="btnAggiungiMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi monitoraggio</a>
-									</div>
-								</div>
-								<div class="row">
 									<div class="input-field col s12">
 										<table id="tableMonitoraggio">
 											<thead>
 												<tr>
 													<th>Organo che effettua il monitoraggio</th>
-													<th></th>
+                                                    <th>
+                                                        <a id="btnAggiungiMonitoraggio" class="btn-floating blue">
+                                                            <i class="material-icons">add</i>
+                                                        </a>
+                                                    </th>
 												</tr>
 											</thead>
 
@@ -911,15 +899,6 @@
 												}
 											</tbody>
 										</table>
-
-										@if (!atto.Monitoraggi.Any())
-										{
-											<div id="empty-monitoraggio" class="card-panel panel-warning center">
-												<span class="center">
-													<p>Nessun monitoraggio</p>
-												</span>
-											</div>
-										}
 									</div>
 									<div class="form-group col s12 m12 l12">
 										@Html.LabelFor(s => s.Atto.AltriSoggetti)
@@ -945,13 +924,6 @@
 						</div>
 						<div class="row">
 							<div class="s12 m12 l12">
-								<h4>Documenti di monitoraggio</h4>
-								<hr />
-								<div class="row">
-									<div class="col s12">
-										<a id="btnAggiungiDocumento_Monitoraggio" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
-									</div>
-								</div>
 								<h6>
 									<b>Documenti monitoraggio</b>
 								</h6>
@@ -959,9 +931,13 @@
 								<table>
 									<thead>
 										<tr>
-											<td>Documento</td>
-											<td>Scarica</td>
-											<td></td>
+											<th>Documento</th>
+											<th>Scarica</th>
+                                            <th>
+                                                <a id="btnAggiungiDocumento_Monitoraggio" class="btn-floating blue">
+                                                    <i class="material-icons">add</i>
+                                                </a>
+                                            </th>
 										</tr>
 									</thead>
 									<tbody>
@@ -1110,21 +1086,20 @@
 						</div>
 						<div class="row" id="pnlNote_ChiusuraIter">
 							<div class="col s12 m12 l12">
-								<span class="card-title">
-									Note chiusura iter
-								</span>
-								<hr />
-								<div class="row">
-									<div class="col s12">
-										<a id="btnAggiungiNota_ChiusuraIter" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi nota</a>
-									</div>
-								</div>
+								<h6>
+									<b>Note chiusura iter</b>
+								</h6>
+                                <hr />
 								<table id="tableNote_ChiusuraIter">
 									<thead>
 										<tr>
 											<th>Nota</th>
 											<th>Utente</th>
-											<th></th>
+                                            <th>
+                                                <a id="btnAggiungiNota_ChiusuraIter" class="btn-floating blue">
+                                                    <i class="material-icons">add</i>
+                                                </a>
+                                            </th>
 										</tr>
 									</thead>
 
@@ -1150,21 +1125,20 @@
 						</div>
 						<div class="row" id="pnlDocumenti_ChiusuraIter">
 							<div class="col s12 m12 l12">
-								<span class="card-title">
-									Documenti di chiusura iter
-								</span>
+								<h6>
+									<b>Documenti di chiusura iter</b>
+								</h6>
 								<hr />
-								<div class="row">
-									<div class="col s12">
-										<a id="btnAggiungiDocumento_ChiusuraIter" class="btn pink-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi documento</a>
-									</div>
-								</div>
 								<table>
 									<thead>
 										<tr>
-											<td>Documento</td>
-											<td>Scarica</td>
-											<td></td>
+											<th>Documento</th>
+											<th>Scarica</th>
+                                            <th>
+                                                <a id="btnAggiungiDocumento_ChiusuraIter" class="btn-floating blue">
+                                                    <i class="material-icons">add</i>
+                                                </a>
+                                            </th>
 										</tr>
 									</thead>
 									<tbody>
@@ -1205,11 +1179,6 @@
 
 				<div class="card">
 					<div class="card-content">
-						<div class="row">
-							<div class="col s12">
-								<a id="btnAggiungiNota" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi nota</a>
-							</div>
-						</div>
 						<h6>
 							<b>Note dell'atto</b>
 						</h6>
@@ -1220,7 +1189,11 @@
 									<th>Tipo nota</th>
 									<th>Nota</th>
 									<th>Utente</th>
-									<th></th>
+                                    <th>
+                                        <a id="btnAggiungiNota" class="btn-floating blue">
+                                            <i class="material-icons">add</i>
+                                        </a>
+                                    </th>
 								</tr>
 							</thead>
 
@@ -1243,15 +1216,6 @@
 								}
 							</tbody>
 						</table>
-
-						@if (!atto.Note.Any())
-						{
-							<div id="empty-note" class="card-panel panel-warning center">
-								<span class="center">
-									<p>Nessuna nota</p>
-								</span>
-							</div>
-						}
 					</div>
 				</div>
 
@@ -1302,11 +1266,6 @@
 								</p>
 							</div>
 							<div class="input-field col s6 m6 l6">
-								<div class="row">
-									<div class="col s12">
-										<a id="btnAggiungiNota_Privacy" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Aggiungi nota</a>
-									</div>
-								</div>
 								<h6>
 									<b>Note per privacy</b>
 								</h6>
@@ -1316,7 +1275,11 @@
 										<tr>
 											<th>Nota</th>
 											<th>Utente</th>
-											<th></th>
+                                            <th>
+                                                <a id="btnAggiungiNota_Privacy" class="btn-floating blue">
+                                                    <i class="material-icons">add</i>
+                                                </a>
+                                            </th>
 										</tr>
 									</thead>
 
@@ -1338,15 +1301,6 @@
 										}
 									</tbody>
 								</table>
-
-								@if (atto.Note.All(n => n.TipoEnum != TipoNotaEnum.PRIVACY))
-								{
-									<div id="empty-note-privacy" class="card-panel panel-warning center">
-										<span class="center">
-											<p>Nessuna nota</p>
-										</span>
-									</div>
-								}
 							</div>
 						</div>
 						<div class="row">
@@ -1368,11 +1322,15 @@
 								<table>
 									<thead>
 										<tr>
-											<td>Tipo</td>
-											<td>Documento</td>
-											<td>Pubblico</td>
-											<td>Scarica</td>
-											<td></td>
+											<th>Tipo</th>
+											<th>Documento</th>
+											<th>Pubblico</th>
+											<th>Scarica</th>
+                                            <th>
+                                                <a id="btnAggiungiDocumento_Pubblicazione" class="btn-floating blue">
+                                                    <i class="material-icons">add</i>
+                                                </a>
+                                            </th>
 										</tr>
 									</thead>
 									<tbody>
@@ -1755,6 +1713,10 @@
 		const pnlRisposteFornite = document.getElementById('pnlRisposteFornite');
 
 		function togglePanels_Trattazione() {
+			if (!selectElementRispostaFornita) {
+				return;
+			}
+
 			const selectedValue = selectElementRispostaFornita.value;
 			if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)) {
 				pnlDateRispostaMozione.style.display = 'none';
@@ -1771,7 +1733,7 @@
 					pnlDateRispostaMozione.style.display = 'none';
 				}
 				pnlRisposteFornite.style.display = 'none';
-				
+
 			}
 		}
 
@@ -1779,7 +1741,9 @@
 		togglePanels_Trattazione();
 
 		// Aggiungi l'evento onchange per il cambio di selezione
-		selectElementRispostaFornita.addEventListener('change', togglePanels_Trattazione);
+		if (selectElementRispostaFornita) {
+			selectElementRispostaFornita.addEventListener('change', togglePanels_Trattazione);
+		}
 
 		const dateSeduta = document.querySelector('input[name="Atto.DataSedutaRisposta"]');
 		const dateComunicazione = document.querySelector('input[name="Atto.DataComunicazioneAssemblea"]');
@@ -1823,7 +1787,10 @@
 		}
 
 		// Aggiungi l'evento onchange per la select e per le date
-		selectElementRispostaFornita.addEventListener('change', salvaInformazioni);
+		if (selectElementRispostaFornita) {
+			selectElementRispostaFornita.addEventListener('change', salvaInformazioni);
+		}
+
 		if (dateSeduta) dateSeduta.addEventListener('change', salvaInformazioni);
 		if (dateComunicazione) dateComunicazione.addEventListener('change', salvaInformazioni);
 
@@ -2028,8 +1995,6 @@
 							classes: 'rounded',
 							displayLength: 5000
 						});
-
-						$('#empty-abbinamenti').hide();
 					}
 					document.getElementById('abbinamenti-autocomplete').value = "";
 				});
@@ -2085,7 +2050,8 @@
 		});
 	}
 
-	document.getElementById('btnAggiungiRisposta').addEventListener('click', async function () {
+	if (document.getElementById('btnAggiungiRisposta')) {
+		document.getElementById('btnAggiungiRisposta').addEventListener('click', async function () {
 		waiting(true);
 
 		var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
@@ -2158,9 +2124,11 @@
 					});
 				}
 			});
-		waiting(false);
-		$('#modalRisposte').modal("open");
-	});
+			waiting(false);
+			$('#modalRisposte').modal("open");
+		});
+	}
+
 
 	function rimuoviRisposta(ctrl, uid) {
 			var row = $(ctrl).closest('tr');
@@ -2202,8 +2170,8 @@
 
 	/*function modificaDettagliRisposta(ctrl, uid, dataRisposta, dataTrasmissione, dataTrattazione) {*/
 	function modificaDettagliRisposta(ctrl) {
-		var risp = ctrl.getAttribute('data-risposta'); 
-		var risposta = JSON.parse(risp); 
+		var risp = ctrl.getAttribute('data-risposta');
+		var risposta = JSON.parse(risp);
 
 		// Precompila i controlli nella modale
 		$('#dataRisposta').val(formatDateForInput(risposta.Data)); // Setta la data risposta
@@ -2293,8 +2261,6 @@
 								classes: 'rounded',
 								displayLength: 5000
 							});
-
-							$('#empty-monitoraggio').hide();
 						}
 						document.getElementById('organi-monitoraggio-autocomplete').value = "";
 					});
@@ -2523,6 +2489,22 @@
 	document.getElementById('btnAggiungiDocumento_ChiusuraIter').addEventListener('click', function () {
 		waiting(true);
 		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">Chiusura Iter</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	});
+	
+	document.getElementById('btnAggiungiDocumento_Pubblicazione').addEventListener('click', function () {
+		waiting(true);
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_ALLEGATO)">Testo cartaceo</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_PRIVACY)">Testo privacy</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.ABBINAMENTO)">Abbinamento</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.AGGIUNTIVO)">Aggiuntivo</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)">Monitoraggio</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">Chiusura Iter</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
