@@ -312,14 +312,40 @@ namespace PortaleRegione.API.Controllers
 
             attoInDb.UIDPersonaModifica = persona.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
-            attoInDb.Privacy = request.Privacy;
+            
             attoInDb.Privacy_Dati_Personali_Giudiziari = request.Privacy_Dati_Personali_Giudiziari;
             attoInDb.Privacy_Dati_Personali_Semplici = request.Privacy_Dati_Personali_Semplici;
             attoInDb.Privacy_Dati_Personali_Sensibili = request.Privacy_Dati_Personali_Sensibili;
-            attoInDb.Privacy_Divieto_Pubblicazione = request.Privacy_Divieto_Pubblicazione;
+
             attoInDb.Privacy_Divieto_Pubblicazione_Altri = request.Privacy_Divieto_Pubblicazione_Altri;
             attoInDb.Privacy_Divieto_Pubblicazione_Salute = request.Privacy_Divieto_Pubblicazione_Salute;
             attoInDb.Privacy_Divieto_Pubblicazione_Vita_Sessuale = request.Privacy_Divieto_Pubblicazione_Vita_Sessuale;
+
+            // #998
+            if (request.Privacy_Dati_Personali_Giudiziari
+                || request.Privacy_Dati_Personali_Semplici
+                || request.Privacy_Dati_Personali_Sensibili
+                || request.Privacy_Divieto_Pubblicazione_Vita_Sessuale
+                || request.Privacy_Divieto_Pubblicazione_Altri
+                || request.Privacy_Divieto_Pubblicazione_Salute)
+            {
+                attoInDb.Privacy = true;
+            }
+            else
+            {
+                attoInDb.Privacy = false;
+            }
+
+            if (request.Privacy_Divieto_Pubblicazione_Vita_Sessuale
+                || request.Privacy_Divieto_Pubblicazione_Altri
+                || request.Privacy_Divieto_Pubblicazione_Salute)
+            {
+                attoInDb.Privacy_Divieto_Pubblicazione = true;
+            }
+            else
+            {
+                attoInDb.Privacy_Divieto_Pubblicazione = false;
+            }
 
             await _unitOfWork.CompleteAsync();
         }

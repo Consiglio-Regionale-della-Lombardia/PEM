@@ -23,6 +23,7 @@
     firmeGroup = firmeGroup
         .OrderBy(f => f.OrdineVisualizzazione)
         .ToList();
+}
 <!DOCTYPE html>
 <html>
 <head>
@@ -116,7 +117,7 @@
                             <div class="col s12">
 								@if (string.IsNullOrEmpty(atto.Protocollo))
                                 {
-                                    @if (atto.IsIQT()
+                                    if (atto.IsIQT()
                                          || atto.IsMOZ())
                                     {
                                         if ((firmeGroup.Any()
@@ -1265,12 +1266,6 @@
 							<div class="input-field col s6 m6 l6">
 								<p>
 									<label>
-										<input type="checkbox" name="Atto.Privacy" value="true" @Html.Raw(Model.Atto.Privacy ? "checked=\"checked\"" : "") />
-										<span>Privacy</span>
-									</label>
-								</p>
-								<p>
-									<label>
 										<input type="checkbox" name="Atto.Privacy_Dati_Personali_Semplici" value="true" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Semplici ? "checked=\"checked\"" : "") />
 										<span>Privacy - dati personali semplici</span>
 									</label>
@@ -1285,12 +1280,6 @@
 									<label>
 										<input type="checkbox" value="true" name="Atto.Privacy_Dati_Personali_Giudiziari" @Html.Raw(Model.Atto.Privacy_Dati_Personali_Giudiziari ? "checked=\"checked\"" : "") />
 										<span>Privacy - dati giudiziari</span>
-									</label>
-								</p>
-								<p>
-									<label>
-										<input type="checkbox" value="true" name="Atto.Privacy_Divieto_Pubblicazione" @Html.Raw(Model.Atto.Privacy_Divieto_Pubblicazione ? "checked=\"checked\"" : "") />
-										<span>Privacy - divieto di pubblicazione</span>
 									</label>
 								</p>
 								<p>
@@ -1940,11 +1929,9 @@
 					Privacy_Dati_Personali_Giudiziari: document.querySelector('input[name="Atto.Privacy_Dati_Personali_Giudiziari"]').checked,
 					Privacy_Divieto_Pubblicazione_Salute: document.querySelector('input[name="Atto.Privacy_Divieto_Pubblicazione_Salute"]').checked,
 					Privacy_Divieto_Pubblicazione_Vita_Sessuale: document.querySelector('input[name="Atto.Privacy_Divieto_Pubblicazione_Vita_Sessuale"]').checked,
-					Privacy_Divieto_Pubblicazione: document.querySelector('input[name="Atto.Privacy_Divieto_Pubblicazione"]').checked,
 					Privacy_Dati_Personali_Sensibili: document.querySelector('input[name="Atto.Privacy_Dati_Personali_Sensibili"]').checked,
 					Privacy_Divieto_Pubblicazione_Altri: document.querySelector('input[name="Atto.Privacy_Divieto_Pubblicazione_Altri"]').checked,
 					Privacy_Dati_Personali_Semplici: document.querySelector('input[name="Atto.Privacy_Dati_Personali_Semplici"]').checked,
-					Privacy: document.querySelector('input[name="Atto.Privacy"]').checked
                 };
 
                 var url = '@Url.Action("Salva_PrivacyAtto", "DASI")';

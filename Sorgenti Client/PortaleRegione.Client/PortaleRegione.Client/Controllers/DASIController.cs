@@ -44,8 +44,7 @@ namespace PortaleRegione.Client.Controllers
     /// </summary>
     [Authorize]
     [RoutePrefix("dasi")]
-    public class 
-        DASIController : BaseController
+    public class DASIController : BaseController
     {
         /// <summary>
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
