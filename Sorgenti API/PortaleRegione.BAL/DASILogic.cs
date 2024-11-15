@@ -154,14 +154,14 @@ namespace PortaleRegione.API.Controllers
                 result.Richiesta = attoDto.Richiesta;
                 result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
 
-                if (attoDto.DocAllegatoGenerico_Stream != null)
+                if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
                 {
                     await Salva_Documento(new SalvaDocumentoRequest
                     {
                         Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
                         Contenuto = attoDto.DocAllegatoGenerico_Stream,
                         UIDAtto = result.UIDAtto,
-                        Nome = ""
+                        Nome = "Allegato parte integrante dell'atto.pdf"
                     }, currentUser);
                 }
 
@@ -207,15 +207,15 @@ namespace PortaleRegione.API.Controllers
             attoInDb.Premesse = attoDto.Premesse;
             attoInDb.Richiesta = attoDto.Richiesta;
             attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
-
-            if (attoDto.DocAllegatoGenerico_Stream != null)
+            
+            if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
             {
                 await Salva_Documento(new SalvaDocumentoRequest
                 {
                     Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
                     Contenuto = attoDto.DocAllegatoGenerico_Stream,
                     UIDAtto = attoInDb.UIDAtto,
-                    Nome = ""
+                    Nome = "Allegato parte integrante dell'atto.pdf"
                 }, currentUser);
             }
 
@@ -3804,14 +3804,14 @@ namespace PortaleRegione.API.Controllers
             attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
             attoInDb.FirmeCartacee = attoDto.FirmeCartacee_string;
 
-            if (attoDto.DocAllegatoGenerico_Stream != null)
+            if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
             {
                 await Salva_Documento(new SalvaDocumentoRequest
                 {
                     Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
                     Contenuto = attoDto.DocAllegatoGenerico_Stream,
                     UIDAtto = attoInDb.UIDAtto,
-                    Nome = ""
+                    Nome = "Allegato parte integrante dell'atto.pdf"
                 }, currentUser);
             }
 
@@ -4891,7 +4891,7 @@ namespace PortaleRegione.API.Controllers
             var atto = await GetAttoDto(request.UIDAtto, currentUser);
             if (atto == null)
                 throw new Exception("Atto non trovato");
-
+            
             var dir = $"{atto.GetLegislatura()}/{Utility.GetText_Tipo(atto.Tipo)}/{atto.Etichetta}";
             var pathRepository = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{dir}";
 
@@ -4903,7 +4903,6 @@ namespace PortaleRegione.API.Controllers
 
             var destinazioneDeposito = Path.Combine(pathRepository, nomeFile);
             File.WriteAllBytes(destinazioneDeposito, request.Contenuto);
-
             var doc = new ATTI_DOCUMENTI
             {
                 UIDAtto = atto.UIDAtto,
