@@ -283,9 +283,11 @@
 		var cardTemplatesTypeSelect = $('select[name="dataViewType_Templates"]');
 		cardTemplatesTypeSelect.empty();
 		cardTemplatesTypeSelect.append('<option value="" selected>Scegli il template</option>');
-		cardTemplates.forEach(function (template) {
-			cardTemplatesTypeSelect.append(`<option value="${template.Uid}">${template.Nome}</option>`);
-		});
+		if (cardTemplates.length > 0) {
+			cardTemplates.forEach(function (template) {
+				cardTemplatesTypeSelect.append(`<option value="${template.Uid}">${template.Nome}</option>`);
+			});
+		}		
 		cardTemplatesTypeSelect.formSelect();
 
 		var copertine = await GetCopertine();
@@ -293,9 +295,12 @@
 		coverTypeSelect.empty();
 
 		coverTypeSelect.append('<option value="" selected>Scegli la copertina</option>');
-		copertine.forEach(function (copertina) {
-			coverTypeSelect.append(`<option value="${copertina.Uid}">${copertina.Nome}</option>`);
-		});
+		if (copertine.length > 0) {
+			copertine.forEach(function (copertina) {
+				coverTypeSelect.append(`<option value="${copertina.Uid}">${copertina.Nome}</option>`);
+			});
+		}
+		
 		coverTypeSelect.formSelect();
 
 		$('#chips-container-report-config').empty();
@@ -388,12 +393,7 @@
 			var li = document.createElement('li');
 			li.className = 'collection-item';
 			li.textContent = item.reportname;
-
-			var addIcon = document.createElement('i');
-			addIcon.className = 'material-icons secondary-content';
-			addIcon.textContent = 'add_circle';
-
-			addIcon.onclick = function (event) {
+			li.onclick = function (event) {
 				event.stopPropagation();
 				resetSelezionePreferiti();
 				localStorage.setItem('selectedSortColumns', item.sorting)
@@ -403,25 +403,27 @@
 				ripristinaFiltri();			
 
 				$('#chips-container-selected-report').empty();
+				var btnGeneraReport = document.getElementById('btnReportConfig');
+				btnGeneraReport.textContent = "Genera report: " + item.reportname;
+
 				var chipsContainer = document.getElementById('chips-container-selected-report');
 				var selectedReportChip = document.createElement('div');
-				selectedReportChip.classList.add('chip', 'pink', 'black-text');
-				selectedReportChip.textContent = item.reportname;
+				selectedReportChip.classList.add('red-text');
+				selectedReportChip.textContent = "Deseleziona report";
 				selectedReportChip.setAttribute('data-selected-report', item.reportname);
 
 				var removeSelectedReportIcon = document.createElement('i');
-				removeSelectedReportIcon.className = 'material-icons secondary-content black-text tiny';
+				removeSelectedReportIcon.className = 'material-icons secondary-content red-text tiny';
 				removeSelectedReportIcon.style.marginLeft = '10px';
-				removeSelectedReportIcon.style.top = '9px';
+				removeSelectedReportIcon.style.marginTop = '4px';
 				removeSelectedReportIcon.textContent = 'close';
-				removeSelectedReportIcon.onclick = async function (event) {
+				selectedReportChip.onclick = async function (event) {
+					btnGeneraReport.textContent = "Genera report"
 					selectedReportChip.remove();
 				};
 				selectedReportChip.appendChild(removeSelectedReportIcon);
 				chipsContainer.appendChild(selectedReportChip);
 			};
-
-			li.appendChild(addIcon);
 
 			var deleteIcon = document.createElement('i');
 			deleteIcon.className = 'material-icons secondary-content';
