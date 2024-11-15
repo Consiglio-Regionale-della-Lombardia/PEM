@@ -45,7 +45,7 @@ public class AttiDASIColums
     [DisplayName("Firme ritirate")] public string Firme_ritirate{ get; set; } // #1048
     [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
 
-    [DisplayName("Commissioni proponenti")] public List<OrganoDto> CommissioniProponenti { get; set; }
+    [DisplayName("Commissioni proponenti RIS")] public List<OrganoDto> CommissioniProponenti { get; set; }
 
     [DisplayName("Gruppo politico")] public int id_gruppo { get; set; }  // #1021
     [DisplayName("Stato dell’atto")] public int IDStato { get; set; } // #1021

@@ -415,7 +415,7 @@ public class AttoDASIDto
     [DisplayName("Data trattazione")]public DateTime? DataTrattazione { get; set; }
     [DisplayName("Iter multiplo")]public bool IterMultiplo { get; set; } = false;
 
-    [DisplayName("Commissioni proponenti")]
+    [DisplayName("Commissioni proponenti RIS")]
     public List<KeyValueDto> CommissioniProponenti { get; set; } = new List<KeyValueDto>();
 
     [DisplayName("Impegni scadenze")] public string ImpegniScadenze { get; set; }
