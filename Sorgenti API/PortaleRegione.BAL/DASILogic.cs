@@ -4798,7 +4798,7 @@ namespace PortaleRegione.API.Controllers
                 default:
                     var displayName = GetPropertyDisplayName(typeof(AttoDASIReportDto), propertyName);
                     var value = GetPropertyValue(dto, propertyName, ExportFormatEnum.PDF);
-                    return value != null ? $"<p><b>{displayName}:</b> {value}</p>" : null;
+                    return value != null ? $"<b>{displayName}:</b> {value}</br>" : null; // #1094
             }
         }
 
