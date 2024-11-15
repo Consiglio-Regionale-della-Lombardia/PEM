@@ -146,12 +146,7 @@
 		    }
 
 	        li.textContent = item.name;
-
-	        var addIcon = document.createElement('i');
-		    addIcon.className = 'material-icons secondary-content';
-		    addIcon.textContent = 'add_circle';
-
-		    addIcon.onclick = function (event) {
+		    li.onclick = function (event) {
                 event.stopPropagation();
 
 			    if (item.favourite){
@@ -164,8 +159,6 @@
 				    ripristinaFiltri();
 			    }
             };
-
-            li.appendChild(addIcon);
 
 		    var deleteIcon = document.createElement('i');
 		    deleteIcon.className = 'material-icons secondary-content';
@@ -223,16 +216,10 @@
 	        li.className = 'collection-item';
 	        li.textContent = item.tag;
 
-	        // Crea il secondary-content con un'icona per aggiungere la chip
-	        var addIcon = document.createElement('i');
-	        addIcon.className = 'material-icons secondary-content';
-	        addIcon.textContent = 'add_circle';
-	        addIcon.onclick = async function (event) {
+	        li.onclick = async function (event) {
 		        event.stopPropagation();
 		        await openModalWithContent(item.id, item.tag, false, 0);
 	        };
-
-	        li.appendChild(addIcon);
 	        collection.appendChild(li);
         });
     }
