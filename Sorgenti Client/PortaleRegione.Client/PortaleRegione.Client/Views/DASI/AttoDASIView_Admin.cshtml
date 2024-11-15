@@ -525,7 +525,19 @@
                             <div class="row" id="pnlRisposteFornite">
                                 <div class="col s12">
                                     <h6>
-                                        <b>Risposte fornite</b>
+										@if (atto.IsMOZ())
+                                        {
+											// #1107
+                                            <b>
+                                                Tipo di iter
+                                            </b>
+                                        }
+                                        else
+                                        {
+                                            <b>
+                                                Risposte fornite
+                                            </b>
+                                        }
                                     </h6>
                                     <hr />
                                     <table id="tableRisposte">
