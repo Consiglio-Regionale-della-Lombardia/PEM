@@ -1076,16 +1076,16 @@
                             <div class="input-field col s12 m12 l4">
                                 <div class="row">
                                     <div class="input-field col s12 m12 l4">
-                                        <label>DCR</label>
+                                        <label id="labelDCR">DCR</label>
                                         @Html.TextBoxFor(model => model.Atto.DCRL, new { @class = "form-control" })
                                     </div>
                                     <div class="input-field col s12 m12 l4">
                                         <label> </label>
-                                        @Html.TextBoxFor(model => model.Atto.DCR, new { @class = "form-control" })
+                                        @Html.TextBoxFor(model => model.Atto.DCR, new { @class = "form-control", id = "txtDCR" })
                                     </div>
                                     <div class="input-field col s12 m12 l4">
                                         <label> </label>
-                                        @Html.TextBoxFor(model => model.Atto.DCCR, new { @class = "form-control" })
+                                        @Html.TextBoxFor(model => model.Atto.DCCR, new { @class = "form-control", id = "txtDCCR" })
                                     </div>
                                 </div>
                             </div>
@@ -1838,6 +1838,26 @@
 			$('#tipi-risposta-fornita-select').formSelect();
 			togglePanels_Trattazione();
 		}
+
+		function updateLabelsDCR() {
+			const dcrValue = parseFloat(document.getElementById("txtDCR").value) || 0;
+			const dccrValue = parseFloat(document.getElementById("txtDCCR").value) || 0;
+
+			const labelDCR = document.getElementById("labelDCR");
+
+			if (dcrValue > 0 && dccrValue > 0) {
+				labelDCR.textContent = "DCCR";
+			} else {
+				labelDCR.textContent = "DCR";
+			}
+		}
+
+		// Aggiorna etichette al caricamento della pagina della DCR/DCCR
+		updateLabelsDCR();
+
+		// Aggiorna etichette durante la modifica
+		document.getElementById("txtDCR").addEventListener("input", updateLabelsDCR);
+		document.getElementById("txtDCCR").addEventListener("input", updateLabelsDCR);
     });
 
 
