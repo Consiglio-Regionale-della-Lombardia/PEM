@@ -912,3 +912,8 @@ span.highlight { background-color: yellow; }
 .pagination-container .chip {
 	margin: 0; /* Opzionale: Rimuove margini predefiniti dal chip se necessario */
 }
+
+.modal .select-dropdown.dropdown-content {
+	max-height: 300px;
+	overflow-y: auto;
+}
