@@ -83,7 +83,16 @@
 </div>
 <div class="row" style="right: 50px; margin-bottom: unset !important; position: absolute; top: -5px;">
     <div class="col s12">
-        <div class="chip @Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset;">@PortaleRegione.Common.Utility.GetText_StatoDASI(atto.IDStato)</div>
+        @{
+			// #1111
+            var labelStato = PortaleRegione.Common.Utility.GetText_StatoDASI(atto.IDStato);
+
+            if (atto.TipoChiusuraIter.HasValue && atto.TipoChiusuraIter > 0)
+            {
+                labelStato += $" {PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI(atto.TipoChiusuraIter)}";
+            }
+        }
+        <div class="chip @Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset;">@labelStato</div>
     </div>
 </div>
 
