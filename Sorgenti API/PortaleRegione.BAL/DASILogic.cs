@@ -4889,6 +4889,7 @@ namespace PortaleRegione.API.Controllers
             if (atto == null)
                 throw new Exception("Atto non trovato");
 
+            // #1031
             switch ((TipoDocumentoEnum)request.Tipo)
             {
                 case TipoDocumentoEnum.TESTO_ALLEGATO:
