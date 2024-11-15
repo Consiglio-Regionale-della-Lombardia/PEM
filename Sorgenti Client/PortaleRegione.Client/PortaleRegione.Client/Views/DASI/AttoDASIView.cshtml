@@ -42,6 +42,9 @@
     var firmeGroup = new List<AttiFirmeDto>();
     firmeGroup.AddRange(atto.FirmeAnte);
     firmeGroup.AddRange(atto.FirmePost);
+    firmeGroup = firmeGroup
+        .OrderBy(f => f.OrdineVisualizzazione)
+        .ToList();
 }
 
 <!DOCTYPE html>
