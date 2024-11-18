@@ -432,4 +432,10 @@ public class AttoDASIDto
     public PersonaLightDto PersonaRelatore2 { get; set; }
     public PersonaLightDto PersonaRelatoreMinoranza { get; set; }
     [DisplayName("Data seduta")] public DateTime? DataSedutaRisposta { get; set; }
+    [DisplayName("Data comunicazione assemblea risposta")] public DateTime? DataComunicazioneAssembleaRisposta { get; set; }
+    [DisplayName("Data proposta")]public DateTime? DataProposta { get; set; }
+    [DisplayName("Tipo chiusura iter commissione")]public int? TipoChiusuraIterCommissione { get; set; }
+    [DisplayName("Data chiusura iter commissione")]public DateTime? DataChiusuraIterCommissione { get; set; }
+    [DisplayName("Tipo chiusura iter commissione")]public int? TipoVotazioneIterCommissione { get; set; }
+    [DisplayName("Risultato votazione commissione")]public int? RisultatoVotazioneIterCommissione { get; set; }
 }

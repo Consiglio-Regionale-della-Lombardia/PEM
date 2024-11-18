@@ -409,6 +409,30 @@ namespace PortaleRegione.Common
             }
         }
 
+        public static string GetText_RisultatoVotazioneDASI(int? risultatoVotazioneIter)
+        {
+            try
+            {
+                if (!risultatoVotazioneIter.HasValue) return "";
+
+                switch ((RisultatoVotazioneIterEnum)risultatoVotazioneIter)
+                {
+                    case RisultatoVotazioneIterEnum.NESSUNO:
+                        return string.Empty;
+                    case RisultatoVotazioneIterEnum.MAGGIORNAZA:
+                        return "A maggioranza";
+                    case RisultatoVotazioneIterEnum.UNANIMITÀ:
+                        return "All'unanimità";
+                    default:
+                        return string.Empty;
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
         public static string GetText_TipoRichiestaDASI(int tipoRichiesta)
         {
             try

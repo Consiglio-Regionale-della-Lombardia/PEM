@@ -114,6 +114,7 @@
     <Compile Include="Enum\ModuloStampaEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />
     <Compile Include="Enum\ReportTypeEnum.cs" />
+    <Compile Include="Enum\RisultatoVotazioneIterEnum.cs" />
     <Compile Include="Enum\StatiAttoCSSConst.cs" />
     <Compile Include="Enum\StatiAttoEnum.cs" />
     <Compile Include="Enum\StatoPinEnum.cs" />

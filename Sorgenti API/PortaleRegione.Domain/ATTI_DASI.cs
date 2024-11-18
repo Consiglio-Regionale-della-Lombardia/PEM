@@ -18,6 +18,7 @@
 
 using PortaleRegione.DTO.Enum;
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -146,5 +147,12 @@ namespace PortaleRegione.Domain
         public Guid? UIDPersonaRelatore2 { get; set; }
         public Guid? UIDPersonaRelatoreMinoranza { get; set; }
         public DateTime? DataSedutaRisposta { get; set; }
+        public DateTime? DataComunicazioneAssembleaRisposta { get; set; }
+        public DateTime? DataProposta { get; set; }
+        public DateTime? DataTrasmissione { get; set; }
+        public int? TipoChiusuraIterCommissione { get; set; }
+        public DateTime? DataChiusuraIterCommissione { get; set; }
+        public int? TipoVotazioneIterCommissione { get; set; }
+        public int? RisultatoVotazioneIterCommissione { get; set; }
     }
 }
