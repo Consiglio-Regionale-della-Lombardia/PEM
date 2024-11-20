@@ -1777,13 +1777,11 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                 sb.AppendLine(
                                     $"{foglio}, {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}, {e.Message}");
                             }
+                        }
 
-                            // Scrivi il messaggio dell'eccezione nel file
-                            using (var sw = File.AppendText(filePath))
-                            {
-                                sw.WriteLine(sb.ToString());
-                                sb.Clear();
-                            }
+                        using (var sw = File.AppendText(filePath))
+                        {
+                            sw.WriteLine(sb.ToString());
                         }
 
                         Console.WriteLine("Complete!");
