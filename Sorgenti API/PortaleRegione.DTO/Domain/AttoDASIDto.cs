@@ -418,9 +418,9 @@ public class AttoDASIDto
     [DisplayName("Commissioni proponenti RIS")]
     public List<KeyValueDto> CommissioniProponenti { get; set; } = new List<KeyValueDto>();
 
-    [DisplayName("Impegni scadenze")] public string ImpegniScadenze { get; set; }
-    [DisplayName("Stato attuazione")] public string StatoAttuazione { get; set; }
-    [DisplayName("Competenza monitoraggio")] public string CompetenzaMonitoraggio { get; set; }
+    [DisplayName("Impegni scadenze")][AllowHtml] public string ImpegniScadenze { get; set; }
+    [DisplayName("Stato attuazione")][AllowHtml] public string StatoAttuazione { get; set; }
+    [DisplayName("Competenza monitoraggio")][AllowHtml] public string CompetenzaMonitoraggio { get; set; }
     [DisplayName("Monitoraggio concluso")] public bool MonitoraggioConcluso { get; set; }
     [DisplayName("Data trasmissione monitoraggio")] public DateTime? DataTrasmissioneMonitoraggio { get; set; }
 

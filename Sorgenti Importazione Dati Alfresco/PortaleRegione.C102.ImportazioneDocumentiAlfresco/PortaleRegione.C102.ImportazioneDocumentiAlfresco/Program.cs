@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using log4net;
 using log4net.Config;
+using OfficeOpenXml;
 using PortaleRegione.Common;
 using PortaleRegione.DTO.Enum;
 
@@ -18,9 +19,23 @@ internal class Program
     private static void Main(string[] args)
     {
         XmlConfigurator.Configure();
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
         try
         {
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Specificare il path del file Excel.");
+                return;
+            }
+
+            var excelPath = args[0]; // Path al file Excel passato come argomento
+            if (!File.Exists(excelPath))
+            {
+                Console.WriteLine("Il file Excel specificato non esiste.");
+                return;
+            }
+
             var basePath = ConfigurationManager.AppSettings["root"];
             var destinationPath = ConfigurationManager.AppSettings["destination"];
 
@@ -29,57 +44,132 @@ internal class Program
 
             var files = Directory.GetFiles(basePath, "*.*", SearchOption.AllDirectories);
             var sb = new StringBuilder();
-            foreach (var filePath in files)
+
+            using (var package = new ExcelPackage(new FileInfo(excelPath)))
             {
-                var fileName = Path.GetFileName(filePath);
-                var match = Regex.Match(fileName, @"(?:CHIUSURA_ITER_|testo_privacy_)?atto_(\w+)_Id_Leg_Rif_(\d+)_Numero_Atto_(\d+)");
-
-                if (match.Success)
+                foreach (var filePath in files)
                 {
-                    var tipo = match.Groups[1].Value;
-                    var legislatura = match.Groups[2].Value;
-                    var numeroAtto = match.Groups[3].Value;
+                    var fileName = Path.GetFileName(filePath);
+                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
+                    // Estrazione delle informazioni dal nome del file
+                    var legislatura = ExtractLegislatura(fileNameWithoutExtension);
+                    var numeroAtto = ExtractNumeroAtto(fileNameWithoutExtension);
+                    var tipoDocumento = ParseTipoDocumento(fileNameWithoutExtension);
                     var tipoAtto = ParseTipoAtto(filePath);
-                    var tipoDocumento = ParseTipoDocumento(fileName);
+                    var uidDocumento = ExtractUidFromFileName(fileNameWithoutExtension);
+                    var pubblicato = true;
+                    var idOrgano = string.Empty;
+                    var newId = Guid.NewGuid();
 
-                    Debug(
-                        $"Tipo Documento: {tipoAtto}[{tipoDocumento}], Legislatura: {legislatura}, Numero Atto: {numeroAtto}");
-                    
+                    // Nome standard del documento basato sul tipo
+                    var nomeDocumento = GetNomeDocumentoStandard(tipoDocumento);
+
+                    if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.AGGIUNTIVO
+                        || (TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.MONITORAGGIO
+                        || (TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.RISPOSTA)
+                    {
+                        var worksheetName = tipoDocumento switch
+                        {
+                            (int)TipoDocumentoEnum.AGGIUNTIVO => "atto_documento_aggiuntivo",
+                            (int)TipoDocumentoEnum.MONITORAGGIO => "atto_documento_monitoraggio",
+                            (int)TipoDocumentoEnum.RISPOSTA => "risposta_giunta",
+                            _ => null
+                        };
+
+                        if (worksheetName == null)
+                        {
+                            Debug($"Foglio non trovato per il tipo documento: {fileName}");
+                            sb.AppendLine($"{fileName},foglio_non_trovato");
+                            continue;
+                        }
+
+                        var worksheet = package.Workbook.Worksheets[worksheetName];
+                        if (worksheet == null)
+                        {
+                            Debug($"Foglio {worksheetName} non trovato nel file Excel.");
+                            sb.AppendLine($"{fileName},foglio_non_trovato");
+                            continue;
+                        }
+
+                        for (var row = 2; row <= worksheet.Dimension.End.Row; row++) // Salta la riga di intestazione
+                        {
+                            var colonnaName = 9;
+                            if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.RISPOSTA)
+                            {
+                                colonnaName = 4;
+                            }
+
+                            var guidInSheet = worksheet.Cells[row, colonnaName].Text.Trim();
+                            if (string.Equals(guidInSheet, uidDocumento, StringComparison.OrdinalIgnoreCase))
+                            {
+                                if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.MONITORAGGIO)
+                                {
+                                    nomeDocumento = worksheet.Cells[row, 11].Text.Trim() + Path.GetExtension(filePath);
+                                    pubblicato = worksheet.Cells[row, 10].Text.Trim() == "1";
+                                    break;
+                                }
+                                if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.AGGIUNTIVO)
+                                {
+                                    nomeDocumento = worksheet.Cells[row, 13].Text.Trim() + Path.GetExtension(filePath);
+                                    pubblicato = worksheet.Cells[row, 12].Text.Trim() == "1";
+                                    break;
+                                }
+                                if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.RISPOSTA)
+                                {
+                                    idOrgano = worksheet.Cells[row, 6].Text;
+                                }
+                            }
+                        }
+                    }
+
+                    Debug($"Elaborazione documento: {fileName}");
+
                     var connectionString = ConfigurationManager.AppSettings["connection_string"];
                     using (var connection = new SqlConnection(connectionString))
                     {
                         connection.Open();
 
+                        // Cerca l'atto nel database
                         var atto = GetAtto(connection, legislatura, numeroAtto, tipoAtto);
                         if (atto == null)
                         {
-                            Debug($"Atto non trovato nel database [{fileName}]. Legislatura: {legislatura}, Numero Atto: {numeroAtto}, Tipo Atto: {tipoAtto}");
+                            Debug($"Atto non trovato nel database [{fileName}].");
                             sb.AppendLine($"{fileName},atto_non_trovato");
                             continue;
                         }
-                        
-                        var newDirectoryPath = Path.Combine(destinationPath, legislatura, Utility.GetText_Tipo(tipoAtto), atto.Etichetta);
+
+                        var newDirectoryPath = Path.Combine(destinationPath, atto.GetLegislatura(),
+                            Utility.GetText_Tipo(tipoAtto), atto.Etichetta);
                         var newPath = Path.Combine(newDirectoryPath, fileName);
-                        
+
                         var sql = @"
-        INSERT INTO ATTI_DOCUMENTI (Uid, UIDAtto, Tipo, Data, Path, Titolo, Pubblica)
-        VALUES (NEWID(), @UIDAtto, @TipoDocumento, GETDATE(), @PercorsoFile, @Titolo, @Pubblica)";
+INSERT INTO ATTI_DOCUMENTI (Uid, UIDAtto, Tipo, Data, Path, Titolo, Pubblica)
+VALUES (@Uid, @UIDAtto, @TipoDocumento, GETDATE(), @PercorsoFile, @Titolo, @Pubblica);";
+                        if (!string.IsNullOrEmpty(idOrgano))
+                        {
+                            if (int.TryParse(idOrgano, out var organo))
+                            {
+                                sql +=
+                                    $"UPDATE ATTI_RISPOSTE SET UIDDocumento='{newId}' WHERE UIDAtto='{atto.UIDAtto}' AND IdOrgano={organo};";
+                            }
+                        }
+
                         var command = new SqlCommand(sql, connection);
                         command.Parameters.AddWithValue("@PercorsoFile",
-                            Path.Combine(legislatura, Utility.GetText_Tipo(tipoAtto), atto.Etichetta, fileName));
-
+                            Path.Combine(atto.GetLegislatura(), Utility.GetText_Tipo(tipoAtto), atto.Etichetta,
+                                fileName));
                         command.Parameters.AddWithValue("@TipoDocumento", tipoDocumento);
-                        command.Parameters.AddWithValue("@Titolo", fileName);
-                        command.Parameters.AddWithValue("@Pubblica", true);
+                        command.Parameters.AddWithValue("@Titolo", nomeDocumento); // Nome standard
+                        command.Parameters.AddWithValue("@Pubblica", pubblicato);
                         command.Parameters.AddWithValue("@UIDAtto", atto.UIDAtto);
+                        command.Parameters.AddWithValue("@Uid", newId);
 
                         var stato = command.ExecuteNonQuery();
-                        Debug($"Stato: {stato}");
-                        
+                        Debug($"Stato inserimento: {stato}");
+
                         connection.Close();
 
-                        sb.AppendLine(
-                            $"{fileName},{tipoDocumento},{numeroAtto},{legislatura},OK");
+                        sb.AppendLine($"{fileName},{tipoDocumento},{numeroAtto},{atto.GetLegislatura()},OK");
 
                         if (!Directory.Exists(newDirectoryPath))
                             Directory.CreateDirectory(newDirectoryPath);
@@ -88,16 +178,11 @@ internal class Program
                         Debug($"Percorso del nuovo file: {newPath}");
                     }
                 }
-                else
-                {
-                    sb.AppendLine($"{fileName},anomalia");
-                }
             }
 
             var reportName = "docs_report.txt";
             var elaborationTicks = DateTime.Now.Ticks;
-            var errorFolderPath =
-                Path.Combine(Environment.CurrentDirectory, $"errore_{elaborationTicks}");
+            var errorFolderPath = Path.Combine(Environment.CurrentDirectory, $"errore_{elaborationTicks}");
             Directory.CreateDirectory(errorFolderPath);
 
             var reportPath = Path.Combine(errorFolderPath, reportName);
@@ -113,7 +198,79 @@ internal class Program
         Debug("Operazione completata.");
         Console.ReadLine();
     }
-    
+
+    private static string ExtractLegislatura(string fileName)
+    {
+        // Supponendo che "Legislatura" sia dopo "_Id_Leg_Rif_"
+        var parts = fileName.Split('_');
+        for (var i = 0; i < parts.Length; i++)
+        {
+            if (parts[i].Equals("Id", StringComparison.OrdinalIgnoreCase) &&
+                i + 2 < parts.Length && parts[i + 1].Equals("Leg", StringComparison.OrdinalIgnoreCase))
+            {
+                return parts[i + 3]; // Restituisce il valore dopo "Id_Leg_Rif_"
+            }
+        }
+
+        return "UNKNOWN";
+    }
+
+    private static string ExtractNumeroAtto(string fileName)
+    {
+        // Supponendo che "Numero Atto" sia dopo "_Numero_Atto_"
+        var parts = fileName.Split('_');
+        for (var i = 0; i < parts.Length; i++)
+        {
+            if (parts[i].Equals("Numero", StringComparison.OrdinalIgnoreCase) &&
+                i + 2 < parts.Length && parts[i + 1].Equals("Atto", StringComparison.OrdinalIgnoreCase))
+            {
+                return parts[i + 2]; // Restituisce il valore dopo "Numero_Atto_"
+            }
+        }
+
+        return "UNKNOWN";
+    }
+
+    private static string ExtractUidFromFileName(string fileName)
+    {
+        // Cerca l'UID nel nome del file usando un GUID pattern
+        var match = Regex.Match(fileName,
+            @"([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})");
+        if (match.Success)
+        {
+            return match.Groups[1].Value;
+        }
+
+        return "UNKNOWN";
+    }
+
+    private static string GetNomeDocumentoStandard(int tipoDocumento)
+    {
+        switch ((TipoDocumentoEnum)tipoDocumento)
+        {
+            case TipoDocumentoEnum.TESTO_ALLEGATO:
+                return "Allegato parte integrante dell'atto.pdf";
+            case TipoDocumentoEnum.AGGIUNTIVO:
+                return "Documento aggiuntivo.pdf";
+            case TipoDocumentoEnum.MONITORAGGIO:
+                return "Documento di monitoraggio.pdf";
+            case TipoDocumentoEnum.ABBINAMENTO:
+                return "Documento di abbinamento.pdf";
+            case TipoDocumentoEnum.CHIUSURA_ITER:
+                return "Testo dell'atto approvato.pdf";
+            case TipoDocumentoEnum.RISPOSTA:
+            case TipoDocumentoEnum.TESTO_RISPOSTA:
+                return "Testo della risposta.pdf";
+            case TipoDocumentoEnum.TESTO_PRIVACY:
+                return "Documento privacy.pdf";
+            case TipoDocumentoEnum.VERBALE_VOTAZIONE:
+                return "Verbale di votazione.pdf";
+            default:
+                throw new ArgumentOutOfRangeException($"Tipo documento non riconosciuto: {tipoDocumento}");
+        }
+    }
+
+
     private static Atto GetAtto(SqlConnection connection, string legislatura, string numeroAtto, int tipoAtto)
     {
         var sql = @"
@@ -170,7 +327,8 @@ AND Tipo = @TipoAtto";
         else if (lowerTipoDocumento.Contains("ordine_del_giorno"))
         {
             return (int)TipoAttoEnum.ODG;
-        } else if (lowerTipoDocumento.Contains("risoluzione"))
+        }
+        else if (lowerTipoDocumento.Contains("risoluzione"))
         {
             return (int)TipoAttoEnum.RIS;
         }
@@ -198,7 +356,11 @@ AND Tipo = @TipoAtto";
         {
             return (int)TipoDocumentoEnum.CHIUSURA_ITER;
         }
-        else if (lowerTipoDocumento.Contains("risposta"))
+        else if (lowerTipoDocumento.Contains("testo_risposta"))
+        {
+            return (int)TipoDocumentoEnum.TESTO_RISPOSTA;
+        }
+        else if (lowerTipoDocumento.Contains("risposta_associata"))
         {
             return (int)TipoDocumentoEnum.RISPOSTA;
         }
@@ -220,5 +382,17 @@ AND Tipo = @TipoAtto";
     {
         public Guid UIDAtto { get; set; }
         public string Etichetta { get; set; }
+
+        public string GetLegislatura()
+        {
+            if (!string.IsNullOrEmpty(Etichetta))
+            {
+                var parti = Etichetta.Split('_');
+                if (parti.Length > 0)
+                    return parti[parti.Length - 1];
+            }
+
+            return string.Empty;
+        }
     }
 }

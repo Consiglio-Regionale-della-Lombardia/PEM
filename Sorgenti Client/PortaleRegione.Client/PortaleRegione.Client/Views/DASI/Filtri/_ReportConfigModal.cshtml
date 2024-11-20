@@ -306,7 +306,7 @@
 		$('#chips-container-report-config').empty();
 		$('#chips-container-report-sort').empty();
 
-		var existingChip = document.querySelector(`.chip[data-selected-report]`);
+		var existingChip = document.querySelector(`div[data-selected-report]`);
 		if (existingChip) {
 			var report_name = $(existingChip).data("selected-report");
 			var index = reportsArray.findIndex(el => el.reportname === report_name);

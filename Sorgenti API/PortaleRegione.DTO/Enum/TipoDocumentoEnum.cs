@@ -27,5 +27,6 @@ public enum TipoDocumentoEnum
     CHIUSURA_ITER = 4,
     RISPOSTA = 5,
     TESTO_PRIVACY = 6,
-    VERBALE_VOTAZIONE = 7
+    VERBALE_VOTAZIONE = 7,
+    TESTO_RISPOSTA = 8
 }

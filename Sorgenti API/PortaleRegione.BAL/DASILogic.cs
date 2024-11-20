@@ -4815,13 +4815,13 @@ namespace PortaleRegione.API.Controllers
             switch (propertyName)
             {
                 case nameof(AttoDASIReportDto.Display):
-                    return $"<b>{dto.Display}</b>";
+                    return $"<b>{dto.Display}</b><br>";
                 case nameof(AttoDASIReportDto.DisplayExtended):
-                    return $"<b>{dto.DisplayExtended}</b>";
+                    return $"<b>{dto.DisplayExtended}</b><br>";
                 default:
                     var displayName = GetPropertyDisplayName(typeof(AttoDASIReportDto), propertyName);
                     var value = GetPropertyValue(dto, propertyName, ExportFormatEnum.PDF);
-                    return value != null ? $"<b>{displayName}:</b> {value}</br>" : null; // #1094
+                    return value != null ? $"<b>{displayName}:</b> {value}<br>" : null; // #1094
             }
         }
 

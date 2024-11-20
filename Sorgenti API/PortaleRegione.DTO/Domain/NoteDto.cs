@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Web.Mvc;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 
@@ -30,5 +31,5 @@ public class NoteDto
     public TipoNotaEnum TipoEnum { get; set; }
     public string Tipo { get; set; }
     public DateTime Data { get; set; }
-    public string Nota { get; set; }
+    [AllowHtml] public string Nota { get; set; }
 }

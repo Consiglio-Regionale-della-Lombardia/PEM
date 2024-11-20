@@ -1490,14 +1490,14 @@ namespace PortaleRegione.Persistance
             {
                 var proponentiQuery = PRContext
                     .ATTI_PROPONENTI
-                    .Where(commissione => queryExtended.Proponenti.Contains(commissione.UidPersona.Value))
-                    .Select(commissione => commissione.UIDAtto)
+                    .Where(proponenteRIS => queryExtended.Proponenti.Contains(proponenteRIS.UidPersona.Value))
+                    .Select(proponente => proponente.UIDAtto)
                     .Distinct()
                     .ToList();
 
                 query = query
                     .Where(atto => queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value)
-                                   && proponentiQuery.Contains(atto.UIDAtto));
+                                   || proponentiQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.Provvedimenti.Any())

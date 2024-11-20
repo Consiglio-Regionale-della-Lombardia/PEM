@@ -181,6 +181,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     Path.Combine(Environment.CurrentDirectory, $"errore_{elaborationTicks}");
                 // Crea la cartella "errori" se non esiste già
                 Directory.CreateDirectory(errorFolderPath);
+                var fileName = "dati_report.txt";
+                var filePath = Path.Combine(errorFolderPath, fileName);
 
                 var attiImportati = new Dictionary<string, AttoImportato>();
                 foreach (var foglio in foglioAtti)
@@ -630,6 +632,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     var sub_query =
                                         @"(SELECT TOP(1) nome_organo FROM dbo.organi WHERE id_organo = @IdOrgano)";
                                     var tipoRispostaAssociata = cellsRisposteAssociate[rowRA, 10]?.Value?.ToString();
+                                    var tipoRispostaAssociataInt = ConvertToIntTipoRisposta(tipoRispostaAssociata);
                                     var dataRispostaAssociata = cellsRisposteAssociate[rowRA, 12]?.Value;
                                     var dataTrasmissioneRispostaAssociata = cellsRisposteAssociate[rowRA, 13]?.Value;
                                     var dataTrattazioneRispostaAssociata = cellsRisposteAssociate[rowRA, 14]?.Value;
@@ -639,15 +642,53 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         ? Convert.ToInt32(idCommissioneRispostaAssociata)
                                         : (int?)null;
 
-                                    // Inserimento del record principale
-                                    var uidRisposta = InsertRispostaRecord(connection, attoImportato.UidAtto,
-                                        tipoRispostaAssociata,
-                                        tipoOrgano, dataRispostaAssociata, dataTrasmissioneRispostaAssociata,
-                                        dataTrattazioneRispostaAssociata, idOrgano, sub_query);
-
-                                    // Gestione delle risposte associate se idOrgano è null
-                                    if (idOrgano == null)
+                                    if ((TipoRispostaEnum)tipoRispostaAssociataInt == TipoRispostaEnum.SCRITTA
+                                        || (TipoRispostaEnum)tipoRispostaAssociataInt == TipoRispostaEnum.ORALE)
                                     {
+                                        var nodeIdRispostaMadre = cellsRisposteAssociate[rowRA, 7]?.Value?.ToString();
+                                        for (var rowRG = 2; rowRG <= rowCountRG; rowRG++)
+                                        {
+                                            var valoreCellaRiferimento =
+                                                cellsRisposteGiunta[rowRG, 2]?.Value?.ToString();
+                                            if (valoreCellaRiferimento == null ||
+                                                valoreCellaRiferimento != nodeIdRispostaMadre) continue;
+
+                                            var idCommissioneGiunta = cellsRisposteGiunta[rowRG, 6]?.Value;
+                                            tipoOrgano = (int)TipoOrganoEnum.GIUNTA;
+                                            sub_query =
+                                                @"(SELECT TOP (1) dbo.cariche.nome_carica
+                  FROM dbo.join_persona_organo_carica AS jpoc 
+                  INNER JOIN dbo.cariche ON jpoc.id_carica = dbo.cariche.id_carica 
+                  WHERE dbo.cariche.id_carica = @IdOrgano)";
+
+                                            var idOrganoGiunta = idCommissioneGiunta != null
+                                                ? Convert.ToInt32(idCommissioneGiunta)
+                                                : (int?)null;
+
+                                            // Inserimento risposta associata
+                                            InsertRispostaRecord(connection
+                                                , attoImportato.UidAtto
+                                                , tipoRispostaAssociata
+                                                , tipoOrgano
+                                                , dataRispostaAssociata
+                                                , dataTrasmissioneRispostaAssociata
+                                                , dataTrattazioneRispostaAssociata
+                                                , idOrganoGiunta
+                                                , sub_query);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Inserimento del record principale
+                                        var uidRisposta = InsertRispostaRecord(connection, attoImportato.UidAtto,
+                                            tipoRispostaAssociata,
+                                            tipoOrgano, dataRispostaAssociata, dataTrasmissioneRispostaAssociata,
+                                            dataTrattazioneRispostaAssociata, idOrgano, sub_query);
+
+                                        if (attoImportato.UidAtto == Guid.Parse("d0d0d957-b98f-4786-bd47-52dfec695846"))
+                                        {
+                                           
+                                        }
                                         var nodeIdRispostaMadre = cellsRisposteAssociate[rowRA, 7]?.Value?.ToString();
                                         for (var rowRG = 2; rowRG <= rowCountRG; rowRG++)
                                         {
@@ -795,7 +836,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var tipoRispostaRichiestaAttoFromAlfresco = Convert.ToString(cellsAtti[row, 20].Value);
                                 var tipoRispostaRichiestaAttoInt =
                                     ConvertToIntTipoRisposta(tipoRispostaRichiestaAttoFromAlfresco);
-                                
+
                                 //tipo risposta effettiva
                                 var tipoRispostaEffettivaAttoFromAlfresco = Convert.ToString(cellsAtti[row, 11].Value);
                                 var tipoRispostaEffettivaAttoInt =
@@ -873,37 +914,43 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var idRelatore = Convert.ToString(cellsAtti[row, 109].Value);
                                 var idRelatore2 = Convert.ToString(cellsAtti[row, 105].Value);
                                 var idRelatoreMinoranza = Convert.ToString(cellsAtti[row, 104].Value);
-                                Guid relatore1 = Guid.Empty;
-                                Guid relatore2 = Guid.Empty;
-                                Guid relatoreMinoranza = Guid.Empty;
+                                var relatore1 = Guid.Empty;
+                                var relatore2 = Guid.Empty;
+                                var relatoreMinoranza = Guid.Empty;
                                 if (!string.IsNullOrEmpty(idRelatore))
                                 {
                                     var find_uid_persona_relatore = GetUidPersona(connection, int.Parse(idRelatore));
 
-                                    if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore), out var guid_relatore))
+                                    if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore),
+                                            out var guid_relatore))
                                     {
                                         relatore1 = guid_relatore;
                                     }
                                 }
+
                                 if (!string.IsNullOrEmpty(idRelatore2))
                                 {
                                     var find_uid_persona_relatore2 = GetUidPersona(connection, int.Parse(idRelatore2));
 
-                                    if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore2), out var guid_relatore2))
+                                    if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore2),
+                                            out var guid_relatore2))
                                     {
                                         relatore2 = guid_relatore2;
                                     }
                                 }
+
                                 if (!string.IsNullOrEmpty(idRelatoreMinoranza))
                                 {
-                                    var find_uid_persona_relatore_minoranza = GetUidPersona(connection, int.Parse(idRelatoreMinoranza));
+                                    var find_uid_persona_relatore_minoranza =
+                                        GetUidPersona(connection, int.Parse(idRelatoreMinoranza));
 
-                                    if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore_minoranza), out var guid_relatore_minoranza))
+                                    if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore_minoranza),
+                                            out var guid_relatore_minoranza))
                                     {
                                         relatoreMinoranza = guid_relatore_minoranza;
                                     }
                                 }
-                                
+
                                 var tipoChiusuraIterCommissione = Convert.ToString(cellsAtti[row, 111].Value);
                                 var tipoVotazioneIterCommissione = Convert.ToString(cellsAtti[row, 113].Value);
                                 var risultatoVotazioneIterCommissione = Convert.ToString(cellsAtti[row, 116].Value);
@@ -960,7 +1007,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                                 ", DataComunicazioneAssemblea")
                                             .Replace("{PARAM_DATA_DataComunicazioneAssemblea}",
                                                 ", @DataComunicazioneAssemblea");
-                                    
+
                                     if (string.IsNullOrEmpty(dataTrasmissione))
                                         query = query
                                             .Replace("{FIELD_DATA_TRASMISSIONE}", "")
@@ -971,7 +1018,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                                 ", DataTrasmissione")
                                             .Replace("{PARAM_DATA_TRASMISSIONE}",
                                                 ", @DataTrasmissione");
-                                    
+
                                     if (string.IsNullOrEmpty(dataSedutaRisposta))
                                         query = query
                                             .Replace("{FIELD_DATA_SEDUTA_RISPOSTA}", "")
@@ -982,7 +1029,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                                 ", DataSedutaRisposta")
                                             .Replace("{PARAM_DATA_SEDUTA_RISPOSTA}",
                                                 ", @DataSedutaRisposta");
-                                    
+
                                     if (string.IsNullOrEmpty(dataProposta))
                                         query = query
                                             .Replace("{FIELD_DATA_PROPOSTA}", "")
@@ -993,7 +1040,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                                 ", DataProposta")
                                             .Replace("{PARAM_DATA_PROPOSTA}",
                                                 ", @DataProposta");
-                                    
+
                                     if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
                                         query = query
                                             .Replace("{FIELD_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}", "")
@@ -1013,15 +1060,17 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         query = query
                                             .Replace("{FIELD_TIPO_CHIUSURA_ITER}", ", TipoChiusuraIter")
                                             .Replace("{PARAM_TIPO_CHIUSURA_ITER}", ", @TipoChiusuraIter");
-                                    
+
                                     if (string.IsNullOrEmpty(tipoChiusuraIterCommissione))
                                         query = query
                                             .Replace("{FIELD_TIPO_CHIUSURA_ITER_COMMISSIONE}", "")
                                             .Replace("{PARAM_TIPO_CHIUSURA_ITER_COMMISSIONE}", "");
                                     else
                                         query = query
-                                            .Replace("{FIELD_TIPO_CHIUSURA_ITER_COMMISSIONE}", ", TipoChiusuraIterCommissione")
-                                            .Replace("{PARAM_TIPO_CHIUSURA_ITER_COMMISSIONE}", ", @TipoChiusuraIterCommissione");
+                                            .Replace("{FIELD_TIPO_CHIUSURA_ITER_COMMISSIONE}",
+                                                ", TipoChiusuraIterCommissione")
+                                            .Replace("{PARAM_TIPO_CHIUSURA_ITER_COMMISSIONE}",
+                                                ", @TipoChiusuraIterCommissione");
 
                                     if (string.IsNullOrEmpty(dataChiusuraIter))
                                         query = query
@@ -1031,15 +1080,17 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         query = query
                                             .Replace("{FIELD_DATA_CHIUSURA_ITER}", ", DataChiusuraIter")
                                             .Replace("{PARAM_DATA_CHIUSURA_ITER}", ", @DataChiusuraIter");
-                                    
+
                                     if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
                                         query = query
                                             .Replace("{FIELD_DATA_CHIUSURA_ITER_COMMISSIONE}", "")
                                             .Replace("{PARAM_DATA_CHIUSURA_ITER_COMMISSIONE}", "");
                                     else
                                         query = query
-                                            .Replace("{FIELD_DATA_CHIUSURA_ITER_COMMISSIONE}", ", DataChiusuraIterCommissione")
-                                            .Replace("{PARAM_DATA_CHIUSURA_ITER_COMMISSIONE}", ", @DataChiusuraIterCommissione");
+                                            .Replace("{FIELD_DATA_CHIUSURA_ITER_COMMISSIONE}",
+                                                ", DataChiusuraIterCommissione")
+                                            .Replace("{PARAM_DATA_CHIUSURA_ITER_COMMISSIONE}",
+                                                ", @DataChiusuraIterCommissione");
 
                                     if (string.IsNullOrEmpty(tipoVotazione))
                                         query = query
@@ -1049,24 +1100,28 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         query = query
                                             .Replace("{FIELD_TIPO_VOTAZIONE_ITER}", ", TipoVotazioneIter")
                                             .Replace("{PARAM_TIPO_VOTAZIONE_ITER}", ", @TipoVotazioneIter");
-                                    
+
                                     if (string.IsNullOrEmpty(tipoVotazioneIterCommissione))
                                         query = query
                                             .Replace("{FIELD_TIPO_VOTAZIONE_ITER_COMMISSIONE}", "")
                                             .Replace("{PARAM_TIPO_VOTAZIONE_ITER_COMMISSIONE}", "");
                                     else
                                         query = query
-                                            .Replace("{FIELD_TIPO_VOTAZIONE_ITER_COMMISSIONE}", ", TipoVotazioneIterCommissione")
-                                            .Replace("{PARAM_TIPO_VOTAZIONE_ITER_COMMISSIONE}", ", @TipoVotazioneIterCommissione");
-                                    
+                                            .Replace("{FIELD_TIPO_VOTAZIONE_ITER_COMMISSIONE}",
+                                                ", TipoVotazioneIterCommissione")
+                                            .Replace("{PARAM_TIPO_VOTAZIONE_ITER_COMMISSIONE}",
+                                                ", @TipoVotazioneIterCommissione");
+
                                     if (string.IsNullOrEmpty(risultatoVotazioneIterCommissione))
                                         query = query
                                             .Replace("{FIELD_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}", "")
                                             .Replace("{PARAM_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}", "");
                                     else
                                         query = query
-                                            .Replace("{FIELD_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}", ", RisultatoVotazioneIterCommissione")
-                                            .Replace("{PARAM_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}", ", @RisultatoVotazioneIterCommissione");
+                                            .Replace("{FIELD_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}",
+                                                ", RisultatoVotazioneIterCommissione")
+                                            .Replace("{PARAM_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}",
+                                                ", @RisultatoVotazioneIterCommissione");
 
                                     if (string.IsNullOrEmpty(idRelatore))
                                         query = query
@@ -1076,7 +1131,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         query = query
                                             .Replace("{FIELD_REL_1}", ", UIDPersonaRelatore1")
                                             .Replace("{PARAM_REL_1}", ", @UIDPersonaRelatore1");
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatore2))
                                         query = query
                                             .Replace("{FIELD_REL_2}", "")
@@ -1085,7 +1140,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         query = query
                                             .Replace("{FIELD_REL_2}", ", UIDPersonaRelatore2")
                                             .Replace("{PARAM_REL_2}", ", @UIDPersonaRelatore2");
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatoreMinoranza))
                                         query = query
                                             .Replace("{FIELD_REL_MINORANZA}", "")
@@ -1104,10 +1159,11 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     command.Parameters.AddWithValue("@NAtto", etichettaAtto_Cifrata);
                                     command.Parameters.AddWithValue("@Etichetta", etichettaAtto);
                                     command.Parameters.AddWithValue("@NAtto_search", numeroAtto);
-                                    command.Parameters.AddWithValue("@Oggetto", oggetto);
-                                    command.Parameters.AddWithValue("@Premesse", premesse);
+                                    command.Parameters.AddWithValue("@Oggetto", CleanHtmlTags(oggetto));
+                                    command.Parameters.AddWithValue("@Premesse", CleanHtmlTags(premesse));
                                     command.Parameters.AddWithValue("@IDTipo_Risposta", tipoRispostaRichiestaAttoInt);
-                                    command.Parameters.AddWithValue("@IDTipo_Risposta_Effettiva", tipoRispostaEffettivaAttoInt);
+                                    command.Parameters.AddWithValue("@IDTipo_Risposta_Effettiva",
+                                        tipoRispostaEffettivaAttoInt);
                                     command.Parameters.AddWithValue("@DataPresentazione", dataPresentazione_Cifrata);
                                     command.Parameters.AddWithValue("@IDStato", statoId);
                                     command.Parameters.AddWithValue("@Legislatura", legislatura.id_legislatura);
@@ -1132,11 +1188,11 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     command.Parameters.AddWithValue("@DCR", dcr);
                                     command.Parameters.AddWithValue("@DCRC", dcrc);
                                     command.Parameters.AddWithValue("@DCRL", dcrl);
-                                    command.Parameters.AddWithValue("@AreaTematica", areaTematica);
-                                    command.Parameters.AddWithValue("@AltriSoggetti", altriSoggetti);
-                                    command.Parameters.AddWithValue("@ImpegniScadenze", noteImpegni_e_scadenze);
-                                    command.Parameters.AddWithValue("@StatoAttuazione", statoAttuazione);
-                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio", competenzaMonitoraggio);
+                                    command.Parameters.AddWithValue("@AreaTematica", CleanHtmlTags(areaTematica));
+                                    command.Parameters.AddWithValue("@AltriSoggetti", CleanHtmlTags(altriSoggetti));
+                                    command.Parameters.AddWithValue("@ImpegniScadenze", CleanHtmlTags(noteImpegni_e_scadenze));
+                                    command.Parameters.AddWithValue("@StatoAttuazione", CleanHtmlTags(statoAttuazione));
+                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio", CleanHtmlTags(competenzaMonitoraggio));
                                     command.Parameters.AddWithValue("@MonitoraggioConcluso", monitoraggioConcluso);
                                     command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
 
@@ -1188,7 +1244,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@DataComunicazioneAssemblea",
                                             Convert.ToDateTime(dataComunicazioneAssemblea));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(dataTrasmissione))
                                     {
                                         // ignored
@@ -1208,7 +1264,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@DataSedutaRisposta",
                                             Convert.ToDateTime(dataSedutaRisposta));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
                                     {
                                         // ignored
@@ -1218,7 +1274,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@DataComunicazioneAssembleaRisposta",
                                             Convert.ToDateTime(dataComunicazioneAssembleaRisposta));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(dataProposta))
                                     {
                                         // ignored
@@ -1238,7 +1294,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@TipoChiusuraIter",
                                             ParseDescr2Enum_ChiusuraIter(tipoChiusuraIter));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(tipoChiusuraIterCommissione))
                                     {
                                         // Ignored
@@ -1258,7 +1314,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@DataChiusuraIter",
                                             Convert.ToDateTime(dataChiusuraIter));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
                                     {
                                         // Ignored
@@ -1278,7 +1334,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@TipoVotazioneIter",
                                             ParseDescr2Enum_TipoVotazioneIter(tipoVotazione));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(tipoVotazioneIterCommissione))
                                     {
                                         // Ignored
@@ -1288,17 +1344,17 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@TipoVotazioneIterCommissione",
                                             ParseDescr2Enum_TipoVotazioneIter(tipoVotazioneIterCommissione));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(risultatoVotazioneIterCommissione))
                                     {
                                         // Ignored
                                     }
                                     else
                                     {
-                                        command.Parameters.AddWithValue("@TipoVotazioneIterCommissione",
+                                        command.Parameters.AddWithValue("@RisultatoVotazioneIterCommissione",
                                             ParseDescr2Enum_RisultatoVotazioneIter(risultatoVotazioneIterCommissione));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatore))
                                     {
                                         // Ignored
@@ -1308,7 +1364,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@UIDPersonaRelatore1",
                                             relatore1);
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatore2))
                                     {
                                         // Ignored
@@ -1318,7 +1374,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@UIDPersonaRelatore2",
                                             relatore2);
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatoreMinoranza))
                                     {
                                         // Ignored
@@ -1352,6 +1408,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         DCR = @DCR, 
                                         DCCR = @DCRC, 
                                         DCRL = @DCRL, 
+                                        IDTipo_Risposta_Effettiva = @IDTipo_Risposta_Effettiva,
                                         AreaTematica = @AreaTematica, 
                                         AltriSoggetti = @AltriSoggetti, 
                                         ImpegniScadenze = @ImpegniScadenze, 
@@ -1393,28 +1450,28 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                         query = query.Replace("{FIELD_DATA_DataComunicazioneAssemblea}",
                                             ", DataComunicazioneAssemblea = @DataComunicazioneAssemblea");
-                                    
+
                                     if (string.IsNullOrEmpty(dataTrasmissione))
                                         query = query.Replace("{FIELD_DATA_TRASMISSIONE}", "")
                                             .Replace("{PARAM_DATA_TRASMISSIONE}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_TRASMISSIONE}",
                                             ", DataTrasmissione = @DataTrasmissione");
-                                    
+
                                     if (string.IsNullOrEmpty(dataSedutaRisposta))
                                         query = query.Replace("{FIELD_DATA_SEDUTA_RISPOSTA}", "")
                                             .Replace("{PARAM_DATA_SEDUTA_RISPOSTA}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_SEDUTA_RISPOSTA}",
                                             ", DataSedutaRisposta = @DataSedutaRisposta");
-                                    
+
                                     if (string.IsNullOrEmpty(dataProposta))
                                         query = query.Replace("{FIELD_DATA_PROPOSTA}", "")
                                             .Replace("{PARAM_DATA_PROPOSTA}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_PROPOSTA}",
                                             ", DataProposta = @DataProposta");
-                                    
+
                                     if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
                                         query = query.Replace("{FIELD_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}", "")
                                             .Replace("{PARAM_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}", "");
@@ -1428,7 +1485,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                         query = query.Replace("{FIELD_TIPO_CHIUSURA_ITER}",
                                             ", TipoChiusuraIter = @TipoChiusuraIter");
-                                    
+
                                     if (string.IsNullOrEmpty(tipoChiusuraIterCommissione))
                                         query = query.Replace("{FIELD_TIPO_CHIUSURA_ITER_COMMISSIONE}", "")
                                             .Replace("{PARAM_TIPO_CHIUSURA_ITER_COMMISSIONE}", "");
@@ -1442,7 +1499,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                         query = query.Replace("{FIELD_DATA_CHIUSURA_ITER}",
                                             ", DataChiusuraIter = @DataChiusuraIter");
-                                    
+
                                     if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
                                         query = query.Replace("{FIELD_DATA_CHIUSURA_ITER_COMMISSIONE}", "")
                                             .Replace("{PARAM_DATA_CHIUSURA_ITER_COMMISSIONE}", "");
@@ -1463,28 +1520,28 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                         query = query.Replace("{FIELD_TIPO_VOTAZIONE_ITER_COMMISSIONE}",
                                             ", TipoVotazioneIterCommissione = @TipoVotazioneIterCommissione");
-                                    
+
                                     if (string.IsNullOrEmpty(risultatoVotazioneIterCommissione))
                                         query = query.Replace("{FIELD_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}", "")
                                             .Replace("{PARAM_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}", "");
                                     else
                                         query = query.Replace("{FIELD_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}",
                                             ", RisultatoVotazioneIterCommissione = @RisultatoVotazioneIterCommissione");
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatore))
                                         query = query.Replace("{FIELD_REL_1}", "")
                                             .Replace("{PARAM_REL_1}", "");
                                     else
                                         query = query.Replace("{FIELD_REL_1}",
                                             ", UIDPersonaRelatore1 = @UIDPersonaRelatore1");
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatore2))
                                         query = query.Replace("{FIELD_REL_2}", "")
                                             .Replace("{PARAM_REL_2}", "");
                                     else
                                         query = query.Replace("{FIELD_REL_2}",
                                             ", UIDPersonaRelatore2 = @UIDPersonaRelatore2");
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatoreMinoranza))
                                         query = query.Replace("{FIELD_REL_MINORANZA}", "")
                                             .Replace("{PARAM_REL_MINORANZA}", "");
@@ -1506,11 +1563,13 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     command.Parameters.AddWithValue("@DCR", dcr);
                                     command.Parameters.AddWithValue("@DCRC", dcrc);
                                     command.Parameters.AddWithValue("@DCRL", dcrl);
-                                    command.Parameters.AddWithValue("@AreaTematica", areaTematica);
-                                    command.Parameters.AddWithValue("@AltriSoggetti", altriSoggetti);
-                                    command.Parameters.AddWithValue("@ImpegniScadenze", noteImpegni_e_scadenze);
-                                    command.Parameters.AddWithValue("@StatoAttuazione", statoAttuazione);
-                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio", competenzaMonitoraggio);
+                                    command.Parameters.AddWithValue("@AreaTematica", CleanHtmlTags(areaTematica));
+                                    command.Parameters.AddWithValue("@IDTipo_Risposta_Effettiva",
+                                        tipoRispostaEffettivaAttoInt);
+                                    command.Parameters.AddWithValue("@AltriSoggetti", CleanHtmlTags(altriSoggetti));
+                                    command.Parameters.AddWithValue("@ImpegniScadenze", CleanHtmlTags(noteImpegni_e_scadenze));
+                                    command.Parameters.AddWithValue("@StatoAttuazione", CleanHtmlTags(statoAttuazione));
+                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio", CleanHtmlTags(competenzaMonitoraggio));
                                     command.Parameters.AddWithValue("@MonitoraggioConcluso", monitoraggioConcluso);
                                     command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
 
@@ -1562,7 +1621,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@DataComunicazioneAssemblea",
                                             Convert.ToDateTime(dataComunicazioneAssemblea));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(dataTrasmissione))
                                     {
                                         // ignored
@@ -1572,7 +1631,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@DataTrasmissione",
                                             Convert.ToDateTime(dataTrasmissione));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(dataSedutaRisposta))
                                     {
                                         // ignored
@@ -1582,7 +1641,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@DataSedutaRisposta",
                                             Convert.ToDateTime(dataSedutaRisposta));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
                                     {
                                         // ignored
@@ -1592,7 +1651,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@DataComunicazioneAssembleaRisposta",
                                             Convert.ToDateTime(dataComunicazioneAssembleaRisposta));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(dataProposta))
                                     {
                                         // ignored
@@ -1612,7 +1671,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@TipoChiusuraIter",
                                             ParseDescr2Enum_ChiusuraIter(tipoChiusuraIter));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(tipoChiusuraIterCommissione))
                                     {
                                         // Ignored
@@ -1632,7 +1691,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@DataChiusuraIter",
                                             Convert.ToDateTime(dataChiusuraIter));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
                                     {
                                         // Ignored
@@ -1652,7 +1711,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@TipoVotazioneIter",
                                             ParseDescr2Enum_TipoVotazioneIter(tipoVotazione));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(tipoVotazioneIterCommissione))
                                     {
                                         // Ignored
@@ -1662,7 +1721,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@TipoVotazioneIterCommissione",
                                             ParseDescr2Enum_TipoVotazioneIter(tipoVotazioneIterCommissione));
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(risultatoVotazioneIterCommissione))
                                     {
                                         // Ignored
@@ -1682,7 +1741,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@UIDPersonaRelatore1",
                                             relatore1);
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatore2))
                                     {
                                         // Ignored
@@ -1692,7 +1751,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@UIDPersonaRelatore2",
                                             relatore2);
                                     }
-                                    
+
                                     if (string.IsNullOrEmpty(idRelatoreMinoranza))
                                     {
                                         // Ignored
@@ -1718,21 +1777,14 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                 sb.AppendLine(
                                     $"{foglio}, {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}, {e.Message}");
                             }
+
+                            // Scrivi il messaggio dell'eccezione nel file
+                            using (var sw = File.AppendText(filePath))
+                            {
+                                sw.WriteLine(sb.ToString());
+                                sb.Clear();
+                            }
                         }
-
-                        // Costruisci il nome del file usando il timestamp e il numero di riga
-                        var fileName = "dati_report.txt";
-
-                        // Costruisci il percorso completo del file all'interno della cartella "errori"
-                        var filePath = Path.Combine(errorFolderPath, fileName);
-
-                        // Scrivi il messaggio dell'eccezione nel file
-                        using (var sw = File.AppendText(filePath))
-                        {
-                            sw.WriteLine(sb.ToString());
-                        }
-
-                        Console.WriteLine($"Dettagli dell'errore salvati in {filePath}");
 
                         Console.WriteLine("Complete!");
                     }
@@ -1989,7 +2041,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                 }
             }
         }
-        
+
         private static int ParseDescr2Enum_RisultatoVotazioneIter(string risultatoVotazione)
         {
             switch (risultatoVotazione.ToLower())
@@ -2150,8 +2202,9 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
         {
             var guidRisposta = Guid.NewGuid();
             var query =
-                @"INSERT INTO ATTI_RISPOSTE (UIDAtto, Tipo, TipoOrgano, Data, DataTrasmissione, DataTrattazione, IdOrgano, DescrizioneOrgano)
-          VALUES (@UIDAtto, @Tipo, @TipoOrgano, @Data, @DataTrasmissione, @DataTrattazione, @IdOrgano, " + subQuery + ")";
+                @"INSERT INTO ATTI_RISPOSTE (Uid, UIDAtto, Tipo, TipoOrgano, Data, DataTrasmissione, DataTrattazione, IdOrgano, DescrizioneOrgano)
+          VALUES (@Uid, @UIDAtto, @Tipo, @TipoOrgano, @Data, @DataTrasmissione, @DataTrattazione, @IdOrgano, " +
+                subQuery + ")";
             var command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@Uid", guidRisposta);
             command.Parameters.AddWithValue("@UIDAtto", uidAtto);
@@ -2191,6 +2244,18 @@ VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssocia
             commandGetPersona.Parameters.AddWithValue("@id_persona", idPersona);
             var find_uid_persona = commandGetPersona.ExecuteScalar();
             return find_uid_persona;
+        }
+
+        public static string CleanHtmlTags(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            // Sostituisci i tag <b> e </b> con <strong> e </strong>
+            input = input.Replace("<b>", "<strong>").Replace("</b>", "</strong>");
+            input = input.Replace("<i>", "<em>").Replace("</i>", "</em>");
+
+            return input;
         }
 
         public class AttoImportato
