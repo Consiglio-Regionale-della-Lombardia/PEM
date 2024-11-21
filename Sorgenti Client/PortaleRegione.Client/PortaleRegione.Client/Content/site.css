@@ -44,53 +44,61 @@ main { margin-bottom: 150px; }
 }
 .btn-flat { font-weight: bold !important; }
 
-.btn-flat.black-text {
-	border: 1px black solid;
-	border-radius: 5px;
-	color: black !important;
-}
+	.btn-flat.black-text {
+		border: 1px black solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #e0e0e0;
+	}
 
-.btn-flat.yellow-text {
-	border: 1px #ffeb3b solid;
-	border-radius: 5px;
-	color: black !important;
-}
+	.btn-flat.yellow-text {
+		border: 1px #ffeb3b solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #fff176;
+	}
 
-.btn-flat.pink-text {
-	border: 1px #e91e63 solid;
-	border-radius: 5px;
-	color: black !important;
-}
+	.btn-flat.pink-text {
+		border: 1px #ec407a solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #f06292;
+	}
 
-.btn-flat.blue-text {
-	border: 1px #2196F3 solid;
-	border-radius: 5px;
-	color: black !important;
-}
+	.btn-flat.blue-text {
+		border: 1px #2196F3 solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #64b5f6;
+	}
 
-.btn-flat.red-text {
-	border: 1px #F44336 solid;
-	border-radius: 5px;
-	color: black !important;
-}
+	.btn-flat.red-text {
+		border: 1px #F44336 solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #e57373;
+	}
 
-.btn-flat.green-text {
-	border: 1px #4CAF50 solid;
-	border-radius: 5px;
-	color: black !important;
-}
+	.btn-flat.green-text {
+		border: 1px #4CAF50 solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #81c784;
+	}
 
-.btn-flat.purple-text {
-	border: 1px #9c27b0 solid;
-	border-radius: 5px;
-	color: black !important;
-}
+	.btn-flat.purple-text {
+		border: 1px #9c27b0 solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #ce93d8;
+	}
 
-.btn-flat.orange-text {
-	border: 1px #ff9800 solid;
-	border-radius: 5px;
-	color: black !important;
-}
+	.btn-flat.orange-text {
+		border: 1px #ff9800 solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #ffb74d;
+	}
 
 .btn-floating > i { color: unset; }
 
@@ -184,7 +192,15 @@ div.chips.chips-autocomplete > .chip {
 	text-decoration: underline;
 }
 
-.chips > .chip { min-width: unset !important; }
+.chips > .chip { 
+	min-width: unset !important;
+}
+
+.chip {
+	color: black;
+	background-color: #e0e0e0;
+	border: 1px #9e9e9e solid;
+}
 
 div.form-group > .chip { min-width: unset !important; }
 

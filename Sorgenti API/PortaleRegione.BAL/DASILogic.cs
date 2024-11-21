@@ -4422,7 +4422,7 @@ namespace PortaleRegione.API.Controllers
                                 worksheet.Cells[currentRow, 4].Value =
                                     attiRisposteDto.DataTrasmissione.Value.ToString("dd/MM/yyyy");
                             else
-                                worksheet.Cells[currentRow, 4].Value = "--";
+                                worksheet.Cells[currentRow, 4].Value = "";
 
                             if (!commissionCounts.ContainsKey(attiRisposteDto.DescrizioneOrgano))
                                 commissionCounts[attiRisposteDto.DescrizioneOrgano] = 0;
@@ -4456,7 +4456,7 @@ namespace PortaleRegione.API.Controllers
                 || propertyName.Equals(nameof(AttoDASIDto.DCCR))
                 || propertyName.Equals(nameof(AttoDASIDto.DCRL)))
             {
-                if (string.IsNullOrEmpty(atto.DCRL)) return "--";
+                if (string.IsNullOrEmpty(atto.DCRL)) return "";
 
                 if (atto.DCCR > 0)
                     return $"{atto.DCRL}/{atto.DCR}/{atto.DCCR}";
@@ -4465,7 +4465,7 @@ namespace PortaleRegione.API.Controllers
 
             if (propertyName.Equals(nameof(AttoDASIDto.Firme)))
             {
-                if (string.IsNullOrEmpty(atto.Firme)) return "--";
+                if (string.IsNullOrEmpty(atto.Firme)) return "";
                 return atto.Firme.Replace("<br>", "; ");
             }
 
@@ -4475,13 +4475,13 @@ namespace PortaleRegione.API.Controllers
             {
                 if (atto.Seduta != null)
                     return atto.Seduta.Data_seduta.ToString("dd/MM/yyyy");
-                return "--";
+                return "";
             }
 
             if (propertyName.Equals(nameof(AttoDASIDto.Abbinamenti)))
             {
                 if (!atto.Abbinamenti.Any())
-                    return "--";
+                    return "";
                 return atto.Abbinamenti.Select(a => $"{a.TipoAttoAbbinato} {a.NumeroAttoAbbinato}")
                     .Aggregate((i, j) => i + ", " + j);
             }
@@ -4489,7 +4489,7 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.Documenti)))
             {
                 if (!atto.Documenti.Any())
-                    return "--";
+                    return "";
                 if (exportFormat == ExportFormatEnum.PDF)
                     return atto.Documenti.Select(a => $"{a.Tipo} - <a href='{a.Link}' target='_blank'>Download</a>")
                         .Aggregate((i, j) => i + "<br>" + j);
@@ -4500,7 +4500,7 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.Risposte)))
             {
                 if (!atto.Risposte.Any())
-                    return "--";
+                    return "";
 
                 var bodyRisposte = string.Empty;
                 foreach (var attiRisposteDto in atto.Risposte)
@@ -4562,7 +4562,7 @@ namespace PortaleRegione.API.Controllers
 
             if (propertyName.Equals(nameof(AttoDASIDto.CommissioniProponenti)))
             {
-                if (!atto.CommissioniProponenti.Any()) return "--";
+                if (!atto.CommissioniProponenti.Any()) return "";
 
                 return atto.CommissioniProponenti.Select(c => c.descr).Aggregate((i, j) => i + "; " + j);
             }
@@ -4570,7 +4570,7 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.Note)))
             {
                 if (!atto.Note.Any())
-                    return "--";
+                    return "";
                 // #1018
                 var note = atto.Note.Where(a => a.TipoEnum != TipoNotaEnum.GENERALE_PRIVATA).ToList();
                 if (note.Any())
@@ -4600,7 +4600,7 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.UIDPersonaProponente)))
             {
                 if (atto.Tipo == (int)TipoAttoEnum.RIS)
-                    return "--";
+                    return "";
                 return $"{atto.PersonaProponente.DisplayName} ({atto.gruppi_politici.codice_gruppo})"; // #1021
             }
 
@@ -4608,7 +4608,7 @@ namespace PortaleRegione.API.Controllers
             {
                 if (atto.id_gruppo > 0)
                     return atto.gruppi_politici.codice_gruppo;
-                return "--";
+                return "";
             }
 
             // #1021
@@ -4626,11 +4626,11 @@ namespace PortaleRegione.API.Controllers
             }
 
             var propertyInfo = typeof(AttoDASIDto).GetProperty(propertyName);
-            if (propertyInfo == null) return "--";
+            if (propertyInfo == null) return "";
 
             var propValue = propertyInfo.GetValue(atto);
             if (propValue == null)
-                return "--";
+                return "";
 
             if (DateTime.TryParse(propValue.ToString(), out var resDate)) return resDate.ToString("dd/MM/yyyy");
             if (bool.TryParse(propValue.ToString(), out var resBool)) return resBool ? "Si" : "No";

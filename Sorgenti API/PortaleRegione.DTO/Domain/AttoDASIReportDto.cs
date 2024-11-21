@@ -49,7 +49,7 @@ public class AttoDASIReportDto
     [DisplayName("Competenza monitoraggio")] public string CompetenzaMonitoraggio { get; set; }
     [DisplayName("Firmatari")] public string Firme { get; set; }
     [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
-
+    [DisplayName("Proponente")] public Guid? UIDPersonaProponente { get; set; }
     [DisplayName("Commissioni proponenti RIS")] public List<OrganoDto> CommissioniProponenti { get; set; }
 
     [DisplayName("Gruppo politico")] public int id_gruppo { get; set; }  // #1021

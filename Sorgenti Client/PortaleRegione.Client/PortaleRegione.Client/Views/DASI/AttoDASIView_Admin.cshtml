@@ -875,16 +875,16 @@
                 }
             </div>
             <div class="collapsible-body">
-                <div class="card">
-                    <div class="card-content">
-                        <div class="row">
-                            <div class="col s12 m12 l12 form-group">
+                @*<div class="card">
+                    <div class="card-content">*@
+                        <div class="card row">
+                            <div class="card-content col s12 m12 l12 form-group">
                                 @Html.LabelFor(s => s.Atto.AreaTematica)
                                 @Html.TextAreaFor(model => model.Atto.AreaTematica, new { @class = "form-control trumbowyg" })
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col s12 m12 l12">
+                        <div class="card row">
+                            <div class="card-content col s12 m12 l12">
                                 <h6>
                                     <b>Testo inviato</b>
                                 </h6>
@@ -932,8 +932,8 @@
 
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col s12">
+                        <div class="card row">
+                            <div class="card-content col s12">
                                 <div class="row">
                                     <div class="form-group col s12 m12 l12">
                                         @Html.LabelFor(s => s.Atto.CompetenzaMonitoraggio)
@@ -946,8 +946,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="s12 m12 l12">
+                        <div class="card row">
+                            <div class="card-content s12 m12 l12">
                                 <h6>
                                     <b>Documenti monitoraggio</b>
                                 </h6>
@@ -985,9 +985,8 @@
                                 </table>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col s12">
+                        <div class="card row">
+                            <div class="card-content col s12">
                                 <div class="row">
                                     <div class="form-group col s12 m12 l12">
                                         @Html.LabelFor(s => s.Atto.StatoAttuazione)
@@ -1004,14 +1003,13 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col s12">
+                        <div class="card row">
+                            <div class="card-content col s12">
                                 <a id="btnSalva_InformazioniAggiuntiveMonitoraggio" class="btn blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva informazioni monitoraggio</a>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    @*</div>
+                </div>*@
             </div>
         </li>
 		@if (atto.IsRIS())

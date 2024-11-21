@@ -707,7 +707,7 @@ function CreaTabella() {
 	});
 
 	const thCommands = document.createElement('th');
-	thCommands.textContent = '';
+	thCommands.innerHTML = ``;
 	headerRow.appendChild(thCommands);
 
 	thead.appendChild(headerRow);
@@ -976,7 +976,7 @@ function CreaTabella() {
 </span>`;
 				}
 				else if (result.DataIscrizioneSeduta == null){
-					td.innerHTML = ` <div class="chip hoverable badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.DisplayAtto}')">
+					td.innerHTML = ` <div class="btn-flat yellow-text badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.DisplayAtto}')">
      Iscrivi
  </div>`;
 				}
@@ -1082,18 +1082,18 @@ function CreaTabella() {
 
 		paginationHTML += `
 <li class="waves-effect" style="margin-top:5px;padding-left:10px">
-    <span class="chip deep-purple lighten-5">${totaleRisultati} risultati</span>
+    <span class="chip deep-purple lighten-4">${totaleRisultati} risultati</span>
 </li>`;
 
 		paginationHTML += `</ul>`;
 
 		// Costruzione del selettore per i tagli di paginazione
 		var tagliPaginazione = [20, 50, 100, 250];
-		var dropdownHTML_top = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
+		var dropdownHTML_top = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
         Paginazione
         <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
         <ul id="ddlPaginazione-top" class="dropdown-content" style="width: 100px !important">`;
-		var dropdownHTML_bottom = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
+		var dropdownHTML_bottom = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
         Paginazione
         <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione-bottom" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
         <ul id="ddlPaginazione-bottom" class="dropdown-content" style="width: 100px !important">`;
