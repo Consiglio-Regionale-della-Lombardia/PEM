@@ -51,7 +51,6 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
-using static PortaleRegione.DTO.Routes.ApiRoutes.PEM;
 using Color = System.Drawing.Color;
 using Utility = PortaleRegione.Common.Utility;
 
@@ -1108,12 +1107,12 @@ namespace PortaleRegione.API.Controllers
                                     && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
                 {
                     dto.Firme = firme
-                        .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente 
+                        .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente
                                     && string.IsNullOrEmpty(f.Data_ritirofirma))
                         .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
                         .Aggregate((i, j) => i + "<br>" + j);
                 }
-               
+
                 dto.ConteggioFirme = firme.Count(f => string.IsNullOrEmpty(f.Data_ritirofirma));
                 dto.Firmato_Dal_Proponente = firme.Any(f => f.UID_persona.Equals(dto.UIDPersonaProponente));
                 dto.Firma_da_ufficio = firme.Any(f => f.ufficio);
@@ -1175,7 +1174,7 @@ namespace PortaleRegione.API.Controllers
                 if (dto.UIDPersonaModifica.HasValue)
                     dto.PersonaModifica =
                         Users.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
-                
+
                 var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
 
                 if (!dto.IsRIS())
@@ -1187,7 +1186,7 @@ namespace PortaleRegione.API.Controllers
                                             && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
                         {
                             dto.Firme = firme
-                                .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente 
+                                .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente
                                             && string.IsNullOrEmpty(f.Data_ritirofirma))
                                 .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
                                 .Aggregate((i, j) => i + "<br>" + j);
@@ -1202,7 +1201,7 @@ namespace PortaleRegione.API.Controllers
 
                         if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                                                 persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
-                            dto.Firmato_Da_Me = firme.Any(f=> f.UID_persona.Equals(persona.UID_persona));
+                            dto.Firmato_Da_Me = firme.Any(f => f.UID_persona.Equals(persona.UID_persona));
                     }
 
                     // #1049
@@ -4505,41 +4504,54 @@ namespace PortaleRegione.API.Controllers
                 var bodyRisposte = string.Empty;
                 foreach (var attiRisposteDto in atto.Risposte)
                 {
-                    bodyRisposte += $"{attiRisposteDto.DisplayTipo}: {attiRisposteDto.DescrizioneOrgano}";
+                    // Identificazione del tipo di risposta
+                    if (attiRisposteDto.Tipo == (int)TipoRispostaEnum.COMMISSIONE)
+                    {
+                        // Gestione delle risposte associate
+                        if (attiRisposteDto.RisposteAssociate.Any())
+                        {
+                            var assessoriAssociati = string.Join(", ",
+                                attiRisposteDto.RisposteAssociate.Select(assoc => assoc.DescrizioneOrgano));
+                            bodyRisposte +=
+                                $"In commissione: Risposta fornita da {assessoriAssociati} in {attiRisposteDto.DescrizioneOrgano}";
+                        }
+                        else
+                        {
+                            // Nessuna risposta associata
+                            bodyRisposte +=
+                                $"In commissione: Risposta richiesta in {attiRisposteDto.DescrizioneOrgano} non ancora fornita";
+                        }
+                    }
+                    else if (attiRisposteDto.Tipo == (int)TipoRispostaEnum.SCRITTA)
+                    {
+                        // Risposta scritta
+                        bodyRisposte += $"Scritta: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
+                    }
+                    else if (attiRisposteDto.Tipo == (int)TipoRispostaEnum.ORALE)
+                    {
+                        // Risposta orale
+                        bodyRisposte += $"Orale: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
+                    }
 
                     if (attiRisposteDto.Data.HasValue)
                     {
+                        var dataRisposta = attiRisposteDto.Data.Value.ToString("dd/MM/yyyy");
                         if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
-                            bodyRisposte += $" - <b>Data risposta:</b> {attiRisposteDto.Data.Value:dd/MM/yyyy}";
+                            bodyRisposte += $" - <b>Data risposta:</b> {dataRisposta}";
                         else
-                            bodyRisposte += $" - Data risposta: {attiRisposteDto.Data.Value:dd/MM/yyyy}";
+                            bodyRisposte += $" - Data risposta: {dataRisposta}";
                     }
 
-                    if (attiRisposteDto.DataTrasmissione.HasValue)
-                    {
-                        if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
-                            bodyRisposte +=
-                                $" - <b>Trasmessa il</b> {attiRisposteDto.DataTrasmissione.Value:dd/MM/yyyy}";
-                        else
-                            bodyRisposte += $" - Trasmessa il {attiRisposteDto.DataTrasmissione.Value:dd/MM/yyyy}";
-                    }
-
-                    if (attiRisposteDto.DataTrattazione.HasValue)
-                    {
-                        if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
-                            bodyRisposte += $" - <b>Trattata il</b> {attiRisposteDto.DataTrattazione.Value:dd/MM/yyyy}";
-                        else
-                            bodyRisposte += $" - Trattata il {attiRisposteDto.DataTrattazione.Value:dd/MM/yyyy}";
-                    }
-
+                    // Separatore tra risposte
                     if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
                         bodyRisposte += "<br>";
                     else
                         bodyRisposte += "; ";
                 }
 
-                return bodyRisposte;
+                return bodyRisposte.TrimEnd(';', ' ');
             }
+
 
             if (propertyName.Equals(nameof(AttoDASIDto.Monitoraggi)))
             {
