@@ -885,24 +885,57 @@ function CreaTabella() {
 				const parts = result.Etichetta.split('_');
 				td.textContent = parts[parts.length - 1];
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Risposte)') {
-				td.innerHTML += "<ul>";
-				result.Risposte.forEach(abb => {
-					var dataRisposta = ``;
-					if (abb.Data) {
-						const match = abb.Data.match(dateRegex);
-						const timestamp = parseInt(match[1], 10);
-						const date = new Date(timestamp);
+    td.innerHTML += "<ul>";
+    result.Risposte.forEach(abb => {
+        let testo_risposta = ``;
+        let dataRisposta = ``;
 
-						// Formattare la data in un formato leggibile (dd/MM/yyyy)
-						const day = String(date.getDate()).padStart(2, '0');
-						const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
-						const year = date.getFullYear();
-						dataRisposta = `<br><b>${day}/${month}/${year}<b>`;
-					}
-					td.innerHTML += `<li>${abb.DescrizioneOrgano}${dataRisposta}</li>`;
-				});
-				td.innerHTML += "</ul>";
-			}else if (col.propertyName === '@nameof(AttoDASIDto.Monitoraggi)') {
+        // Funzione per formattare la data
+        const formatDate = (data) => {
+            const match = data.match(dateRegex);
+            if (match) {
+                const timestamp = parseInt(match[1], 10);
+                const date = new Date(timestamp);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+            return '';
+        };
+
+        if (abb.Data) {
+            dataRisposta = `<b>${formatDate(abb.Data)}</b>`;
+        }
+
+        // Identificare il tipo di risposta
+        switch (result.IDTipo_Risposta_Effettiva) {
+            case @Html.Raw((int)TipoRispostaEnum.SCRITTA):
+                testo_risposta = `Scritta: Risposta fornita da ${abb.DescrizioneOrgano} il ${dataRisposta}`;
+                break;
+            case @Html.Raw((int)TipoRispostaEnum.ORALE):
+                testo_risposta = `Orale: Risposta fornita da ${abb.DescrizioneOrgano} il ${dataRisposta}`;
+                break;
+            case @Html.Raw((int)TipoRispostaEnum.COMMISSIONE):
+                if (abb.RisposteAssociate?.length > 0) {
+                    const assessori_associati = abb.RisposteAssociate
+                        .map(associazione => associazione.DescrizioneOrgano)
+                        .join(", ");
+                    testo_risposta = `In commissione: Risposta fornita da ${assessori_associati} in ${abb.DescrizioneOrgano} il ${dataRisposta || "non ancora disponibile"}`;
+                } else {
+                    // Se non ci sono risposte associate e mancano dati
+                    testo_risposta = `In commissione: Risposta richiesta in ${abb.DescrizioneOrgano} non ancora fornita`;
+                }
+                break;
+            default:
+                testo_risposta = `Risposta di tipo non specificato da ${abb.DescrizioneOrgano}`;
+        }
+
+        // Aggiungere il testo generato come elemento della lista
+        td.innerHTML += `<li>${testo_risposta}</li>`;
+    });
+    td.innerHTML += "</ul>";
+}else if (col.propertyName === '@nameof(AttoDASIDto.Monitoraggi)') {
 				td.innerHTML += "<ul>";
 				result.Monitoraggi.forEach(monitoraggio => {
 					td.innerHTML += `<li>${monitoraggio.DescrizioneOrgano}</li>`;

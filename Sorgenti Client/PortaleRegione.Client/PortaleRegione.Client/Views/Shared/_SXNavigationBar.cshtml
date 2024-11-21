@@ -134,7 +134,7 @@
 										</ul>
 									}
 
-									<a class='@triggerClass truncate chip black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioRuolo'>
+									<a class='@triggerClass truncate chip black-text' style="background-color: unset; min-width: unset; border-color: unset;" href='#' data-target='ddlCambioRuolo'>
 										@testo @Html.Raw(iconClassSwapRuoli)
 									</a>
 								}
@@ -178,7 +178,7 @@
 
 								if (currentRole != RuoliIntEnum.Segreteria_Assemblea)
 								{
-									<a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;@Html.Raw((persona.IsResponsabileSegreteriaPolitica
+									<a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; border-color: unset; min-width: unset; @Html.Raw((persona.IsResponsabileSegreteriaPolitica
                                                                                                                                                         || persona.IsSegreteriaPolitica)?"display:none;":"")" href='#' data-target='ddlCambioGruppo' data-target-val="@testoGruppo">
 										@testoGruppo @Html.Raw(iconClassSwapGruppi)
 									</a>
