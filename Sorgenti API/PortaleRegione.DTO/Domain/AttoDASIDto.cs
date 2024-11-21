@@ -334,6 +334,7 @@ public class AttoDASIDto
     public string Protocollo { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Tipo risposta fornita")] 
     public int? IDTipo_Risposta_Effettiva { get; set; }
 
     public bool Pubblicato { get; set; }
