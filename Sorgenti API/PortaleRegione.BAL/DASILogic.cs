@@ -51,6 +51,7 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
+using static PortaleRegione.DTO.Routes.ApiRoutes.PEM;
 using Color = System.Drawing.Color;
 using Utility = PortaleRegione.Common.Utility;
 
@@ -206,7 +207,7 @@ namespace PortaleRegione.API.Controllers
             attoInDb.Premesse = attoDto.Premesse;
             attoInDb.Richiesta = attoDto.Richiesta;
             attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
-            
+
             if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
             {
                 await Salva_Documento(new SalvaDocumentoRequest
@@ -310,7 +311,7 @@ namespace PortaleRegione.API.Controllers
 
             attoInDb.UIDPersonaModifica = persona.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
-            
+
             attoInDb.Privacy_Dati_Personali_Giudiziari = request.Privacy_Dati_Personali_Giudiziari;
             attoInDb.Privacy_Dati_Personali_Semplici = request.Privacy_Dati_Personali_Semplici;
             attoInDb.Privacy_Dati_Personali_Sensibili = request.Privacy_Dati_Personali_Sensibili;
@@ -639,7 +640,7 @@ namespace PortaleRegione.API.Controllers
             var requestTipo = GetResponseTypeFromFilters(model.filtro);
 
             var queryExtended = CreateQueryExtendedRequest(model);
-            
+
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
             model.param.TryGetValue("RequireMySign", out var RequireMySign); // #539
             if (RequireMySign == null)
@@ -1060,10 +1061,6 @@ namespace PortaleRegione.API.Controllers
 
                 dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
                 dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} n. {dto.NAtto}";
-                dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
-                dto.Firmato_Dal_Proponente =
-                    await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
-                dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
 
                 if (dto.id_gruppo > 0)
                     dto.gruppi_politici =
@@ -1102,14 +1099,27 @@ namespace PortaleRegione.API.Controllers
             dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
             if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
-            
-            if (dto.ConteggioFirme > 1)
+
+            var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
+            if (firme.Any())
             {
-                var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
-                dto.Firme = firme
-                    .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
-                    .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
-                    .Aggregate((i, j) => i + "<br>" + j);
+                if (firme
+                        .Count(f => f.UID_persona != attoInDb.UIDPersonaProponente
+                                    && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
+                {
+                    dto.Firme = firme
+                        .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente 
+                                    && string.IsNullOrEmpty(f.Data_ritirofirma))
+                        .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                        .Aggregate((i, j) => i + "<br>" + j);
+                }
+               
+                dto.ConteggioFirme = firme.Count(f => string.IsNullOrEmpty(f.Data_ritirofirma));
+                dto.Firmato_Dal_Proponente = firme.Any(f => f.UID_persona.Equals(dto.UIDPersonaProponente));
+                dto.Firma_da_ufficio = firme.Any(f => f.ufficio);
+
+                dto.FirmeAnte = firme.Where(f => f.Timestamp <= dto.Timestamp).ToList();
+                dto.FirmePost = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
             }
 
             dto.PersonaProponente = attoInDb.UIDPersonaProponente != null
@@ -1157,14 +1167,6 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
                     dto.Atto_Certificato = BALHelper.Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
 
-                if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                                        persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
-                    dto.Firmato_Da_Me = await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, persona.UID_persona);
-
-                dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
-                dto.Firmato_Dal_Proponente =
-                    await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
-
                 dto.PersonaCreazione = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
                 dto.PersonaProponente = attoInDb.UIDPersonaProponente != null
                     ? Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente)
@@ -1174,30 +1176,47 @@ namespace PortaleRegione.API.Controllers
                     dto.PersonaModifica =
                         Users.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
                 
+                var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
+
                 if (!dto.IsRIS())
                 {
-                    dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
-                    if (dto.ConteggioFirme > 1)
+                    if (firme.Any())
                     {
-                        var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
-                        dto.Firme = firme
-                            .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
-                            .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
-                            .Aggregate((i, j) => i + "<br>" + j);
+                        if (firme
+                                .Count(f => f.UID_persona != attoInDb.UIDPersonaProponente
+                                            && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
+                        {
+                            dto.Firme = firme
+                                .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente 
+                                            && string.IsNullOrEmpty(f.Data_ritirofirma))
+                                .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                                .Aggregate((i, j) => i + "<br>" + j);
+                        }
+
+                        dto.ConteggioFirme = firme.Count(f => string.IsNullOrEmpty(f.Data_ritirofirma));
+                        dto.Firmato_Dal_Proponente = firme.Any(f => f.UID_persona.Equals(dto.UIDPersonaProponente));
+                        dto.Firma_da_ufficio = firme.Any(f => f.ufficio);
+
+                        dto.FirmeAnte = firme.Where(f => f.Timestamp <= dto.Timestamp).ToList();
+                        dto.FirmePost = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
+
+                        if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
+                                                persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
+                            dto.Firmato_Da_Me = firme.Any(f=> f.UID_persona.Equals(persona.UID_persona));
                     }
 
                     // #1049
-                    var firme_dopo_deposito = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.DOPO_DEPOSITO);
-                    if(firme_dopo_deposito.Any())
+                    var firme_dopo_deposito = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
+                    if (firme_dopo_deposito.Any())
                     {
                         dto.Firme_dopo_deposito = firme_dopo_deposito
                             .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
                             .Aggregate((i, j) => i + "<br>" + j);
                     }
-                    
+
                     // #1048
-                    var firme_ritirate = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.RITIRATI);
-                    if(firme_ritirate.Any())
+                    var firme_ritirate = firme.Where(f => !string.IsNullOrEmpty(f.Data_ritirofirma)).ToList();
+                    if (firme_ritirate.Any())
                     {
                         dto.Firme_ritirate = firme_ritirate
                             .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
@@ -1222,7 +1241,7 @@ namespace PortaleRegione.API.Controllers
 
                     dto.Firmabile = await _unitOfWork
                         .Atti_Firme
-                        .CheckIfFirmabile(dto,
+                        .CheckIfFirmabile(dto, firme,
                             persona);
 
                     if (!dto.DataRitiro.HasValue)
@@ -3460,11 +3479,12 @@ namespace PortaleRegione.API.Controllers
                                         "dd/MM/yyyy HH:mm:ss",
                                         CultureInfo.InvariantCulture,
                                         DateTimeStyles.None,
-                                        out DateTime dataPresentazioneUrgente) &&
+                                        out var dataPresentazioneUrgente) &&
                                     dataPresentazioneUrgente > atto.Seduta.DataScadenzaPresentazioneMOZU)
                                 {
                                     result = true;
                                 }
+
                                 break;
                             }
                             case TipoMOZEnum.ABBINATA:
@@ -3476,11 +3496,12 @@ namespace PortaleRegione.API.Controllers
                                         "dd/MM/yyyy HH:mm:ss",
                                         CultureInfo.InvariantCulture,
                                         DateTimeStyles.None,
-                                        out DateTime dataPresentazioneAbbinata) &&
+                                        out var dataPresentazioneAbbinata) &&
                                     dataPresentazioneAbbinata > atto.Seduta.DataScadenzaPresentazioneMOZA)
                                 {
                                     result = true;
                                 }
+
                                 break;
                             }
                             case TipoMOZEnum.ORDINARIA:
@@ -3492,11 +3513,12 @@ namespace PortaleRegione.API.Controllers
                                         "dd/MM/yyyy HH:mm:ss",
                                         CultureInfo.InvariantCulture,
                                         DateTimeStyles.None,
-                                        out DateTime dataPresentazioneMoz) &&
+                                        out var dataPresentazioneMoz) &&
                                     dataPresentazioneMoz > atto.Seduta.DataScadenzaPresentazioneMOZ)
                                 {
                                     result = true;
                                 }
+
                                 break;
                             }
                         }
@@ -3724,7 +3746,7 @@ namespace PortaleRegione.API.Controllers
         public async Task SalvaCartaceo(AttoDASIDto attoDto, PersonaDto currentUser)
         {
             // #1083
-            if(!attoDto.IsRIS())
+            if (!attoDto.IsRIS())
             {
                 if (!attoDto.UIDPersonaProponente.HasValue)
                     throw new InvalidOperationException("Indicare un proponente");
@@ -4518,7 +4540,7 @@ namespace PortaleRegione.API.Controllers
 
                 return bodyRisposte;
             }
-            
+
             if (propertyName.Equals(nameof(AttoDASIDto.Monitoraggi)))
             {
                 var bodyMonitoraggio = string.Empty;
@@ -4750,7 +4772,7 @@ namespace PortaleRegione.API.Controllers
         {
             using var document = WordprocessingDocument.Create(filePath, WordprocessingDocumentType.Document);
             var mainPart = document.MainDocumentPart;
-    
+
             if (mainPart == null)
             {
                 mainPart = document.AddMainDocumentPart();
@@ -4761,12 +4783,12 @@ namespace PortaleRegione.API.Controllers
             var pageSize = new PageSize();
             if (wordSize == WordSizeEnum.A3)
             {
-                pageSize.Width = 16840;  // Dimensione in twips per A3 (297 mm x 420 mm)
+                pageSize.Width = 16840; // Dimensione in twips per A3 (297 mm x 420 mm)
                 pageSize.Height = 11900;
             }
             else
             {
-                pageSize.Width = 11900;  // Dimensione in twips per A4 (210 mm x 297 mm)
+                pageSize.Width = 11900; // Dimensione in twips per A4 (210 mm x 297 mm)
                 pageSize.Height = 16840;
             }
 
@@ -4802,7 +4824,7 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
                 }
-                
+
                 var value = GetPropertyValueForHtml(dto, column);
                 if (!string.IsNullOrEmpty(value)) sb.AppendLine(value);
             }
@@ -4923,7 +4945,7 @@ namespace PortaleRegione.API.Controllers
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
+
             var dir = $"{atto.GetLegislatura()}/{Utility.GetText_Tipo(atto.Tipo)}/{atto.Etichetta}";
             var pathRepository = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{dir}";
 
@@ -5005,6 +5027,7 @@ namespace PortaleRegione.API.Controllers
                             rispostaInDb.UIDDocumento = null;
                         }
                     }
+
                     break;
                 }
                 case TipoDocumentoEnum.TESTO_PRIVACY:

@@ -52,7 +52,7 @@ namespace PortaleRegione.BAL
     public class EsportaLogic : BaseLogic
     {
         public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, DASILogic logicDASI,
-            FirmeLogic logicFirme, AttiLogic logicAtti, PersoneLogic logicPersona)
+            FirmeLogic logicFirme, AttiLogic logicAtti, AttiFirmeLogic logicFirmeAtti, PersoneLogic logicPersona)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEm;
@@ -60,6 +60,7 @@ namespace PortaleRegione.BAL
             _logicFirme = logicFirme;
             _logicAtti = logicAtti;
             _logicPersona = logicPersona;
+            _logicAttiFirme = logicFirmeAtti;
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
@@ -524,19 +525,29 @@ namespace PortaleRegione.BAL
             using (var package = new ExcelPackage())
             {
                 var attiList = new List<AttoDASIDto>();
+                var firmatariList = new List<AttiFirmeDto>();
                 foreach (var uid in data)
                 {
                     var dto = await _logicDasi.GetAttoDto(uid);
                     if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
                     attiList.Add(dto);
+
+                    if (dto.FirmeAnte.Any())
+                    {
+                        firmatariList.AddRange(dto.FirmeAnte);
+                    }
+                    
+                    if (dto.FirmePost.Any())
+                    {
+                        firmatariList.AddRange(dto.FirmePost);
+                    }
                 }
 
                 var dasiSheet = package.Workbook.Worksheets.Add("Atti");
                 FillSheetDASI_Atti(dasiSheet, attiList);
 
-                var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
                 var firmatariSheet = package.Workbook.Worksheets.Add("Firmatari");
-                await FillSheetDASI_Firmatari(firmatariSheet, firmatariList);
+                FillSheetDASI_Firmatari(firmatariSheet, firmatariList, attiList);
 
                 var controlliSheet = package.Workbook.Worksheets.Add("Controlli");
                 FillSheetDASI_Controlli(controlliSheet);
@@ -573,7 +584,8 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private async Task FillSheetDASI_Firmatari(ExcelWorksheet sheet, List<AttiFirmeDto> firmatariList)
+        private void FillSheetDASI_Firmatari(ExcelWorksheet sheet, List<AttiFirmeDto> firmatariList,
+            List<AttoDASIDto> attiList)
         {
             try
             {
@@ -591,9 +603,7 @@ namespace PortaleRegione.BAL
                 {
                     try
                     {
-                        var gruppo_firmatario = await _logicPersona.GetGruppo(firma.id_gruppo);
-
-                        var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
+                        var atto = attiList.First(a=> a.UIDAtto.Equals(firma.UIDAtto));
                         sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
                         sheet.Cells[row, 2].Value = Convert.ToInt32(atto.NAtto);
                         sheet.Cells[row, 2].Style.Numberformat.Format = "0";
@@ -603,7 +613,7 @@ namespace PortaleRegione.BAL
                         firmacert = firmacert.Remove(indiceParentesiApertura - 1);
                         sheet.Cells[row, 3].Value = firmacert;
                         sheet.Cells[row, 4].Value =
-                            gruppo_firmatario.codice_gruppo; // #862 fix: codice gruppo per firmatario
+                            firma.EstraiGruppo(); // #862 fix: codice gruppo per firmatario, #1074
                         sheet.Cells[row, 5].Value = new DateTime(
                             firma.Timestamp.Year,
                             firma.Timestamp.Month,

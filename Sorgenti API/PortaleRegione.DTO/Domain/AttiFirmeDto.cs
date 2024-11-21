@@ -19,6 +19,7 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.DTO.Domain
@@ -53,6 +54,18 @@ namespace PortaleRegione.DTO.Domain
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public virtual PersonaDto UTENTI_NoCons { get; set; }
+
+        public string EstraiGruppo()
+        {
+            if (string.IsNullOrEmpty(FirmaCert))
+                return string.Empty;
+
+            // Usa una regex per trovare il contenuto tra parentesi tonde
+            Match match = Regex.Match(FirmaCert, @"\(([^)]*)\)");
+
+            // Restituisce il contenuto se trovato, altrimenti una stringa vuota
+            return match.Success ? match.Groups[1].Value : string.Empty;
+        }
 
         public static implicit operator AttiFirmeDto(FirmeDto firma)
         {

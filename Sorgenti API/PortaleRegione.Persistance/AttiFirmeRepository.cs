@@ -182,6 +182,39 @@ namespace PortaleRegione.Persistance
 
             return false;
         }
+        
+        /// <summary>
+        ///     Controlla che l'atto sia firmabile
+        /// </summary>
+        /// <param name="atto"></param>
+        /// <param name="persona"></param>
+        /// <returns></returns>
+        public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, List<AttiFirmeDto> firme, PersonaDto persona, bool firma_ufficio = false)
+        {
+            // #721
+            if (!persona.IsConsigliereRegionale && !firma_ufficio)
+                return false;
+            if (atto.IsChiuso) return false;
+            if (atto.DataIscrizioneSeduta.HasValue) return false;
+            if (atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
+                && (atto.Tipo == (int)TipoAttoEnum.ITL
+                    && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
+                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA
+                    || atto.Tipo == (int)TipoAttoEnum.ITR
+                    && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
+                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA))
+            {
+                return false;
+            }
+
+            var firma_personale = firme.Any(f=> f.UID_persona.Equals(persona.UID_persona));
+            var firma_proponente = atto.Firmato_Dal_Proponente;
+
+            if (firma_personale == false && (firma_proponente || atto.UIDPersonaProponente == persona.UID_persona))
+                return true;
+
+            return false;
+        }
 
         /// <summary>
         ///     Controlla se l'ufficio ha firmato l'atto
