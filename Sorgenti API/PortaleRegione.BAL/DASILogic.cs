@@ -1071,6 +1071,8 @@ namespace PortaleRegione.API.Controllers
             }
 
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
+            if (dto.IDTipo_Risposta_Effettiva.HasValue)
+                dto.DisplayTipoRispostaFornita = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta_Effettiva.Value); // #1052
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
             dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
             dto.DisplayTipoMozione = Utility.GetText_TipoMOZDASI(dto.TipoMOZ);
@@ -1147,6 +1149,8 @@ namespace PortaleRegione.API.Controllers
             dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
             dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} n. {dto.NAtto}"; // #1039
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
+            if (dto.IDTipo_Risposta_Effettiva.HasValue)
+                dto.DisplayTipoRispostaFornita = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta_Effettiva.Value); // #1052
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
             dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
 
@@ -4604,6 +4608,8 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.TipoChiusuraIter))) return atto.DisplayTipoChiusuraIter;
 
             if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta))) return atto.DisplayTipoRispostaRichiesta;
+            
+            if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta_Effettiva))) return atto.DisplayTipoRispostaFornita;
 
             if (propertyName.Equals(nameof(AttoDASIDto.TipoVotazioneIter))) return atto.DisplayTipoVotazioneIter;
 

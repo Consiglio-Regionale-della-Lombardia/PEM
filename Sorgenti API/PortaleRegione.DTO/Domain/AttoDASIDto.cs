@@ -364,6 +364,9 @@ public class AttoDASIDto
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string DisplayTipoRispostaRichiesta { get; set; }
+    
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public string DisplayTipoRispostaFornita { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string DisplayStato { get; set; }

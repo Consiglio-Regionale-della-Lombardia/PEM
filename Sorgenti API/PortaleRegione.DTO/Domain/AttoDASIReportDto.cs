@@ -111,5 +111,7 @@ public class AttoDASIReportDto
 
     [DisplayName("Presentato oltre i termini")] public bool PresentatoOltreITermini { get; set; } = false;
     public string BURL { get; set; }
+
+    [DisplayName("Tipo risposta fornita")] public int? IDTipo_Risposta_Effettiva { get; set; }
     [DisplayName("UIDAtto")] public Guid UIDAtto { get; set; }
 }

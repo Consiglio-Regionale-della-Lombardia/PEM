@@ -873,6 +873,8 @@ function CreaTabella() {
 				td.textContent = result.DisplayTipoMozione;
 			}else if (col.propertyName === '@nameof(AttoDASIDto.IDTipo_Risposta)') {
 				td.textContent = result.DisplayTipoRispostaRichiesta;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.IDTipo_Risposta_Effettiva)') {
+				td.textContent = result.DisplayTipoRispostaFornita;
 			}else if (col.propertyName === '@nameof(AttoDASIDto.TipoChiusuraIter)') {
 				td.textContent = result.DisplayTipoChiusuraIter;
 			}else if (col.propertyName === '@nameof(AttoDASIDto.TipoVotazioneIter)') {
