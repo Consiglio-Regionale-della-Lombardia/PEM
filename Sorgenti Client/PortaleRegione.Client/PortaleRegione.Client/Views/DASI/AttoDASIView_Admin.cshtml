@@ -1090,24 +1090,43 @@
 				<div class="card">
 					<div class="card-content">
                         <div class="row">
+                            <div class="input-field col s12 m12 l3">
+                                <select id="Atto_TipoChiusuraIter">
+                                    <option value="" selected>Seleziona</option>
+                                    @if (!atto.IsITL() && !atto.IsITR() && !atto.IsIQT())
+                                    {
+                                        <option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.APPROVATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
+                                        <option value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RESPINTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
+                                    }
+                                    
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RITIRATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
+									@if (!atto.IsRIS())
+                                    {
+                                        <option value="@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.INAMMISSIBILE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE)</option>
+                                    }
+                                    
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADUTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
+                                    @if (!atto.IsODG() && !atto.IsRIS())
+                                    {
+                                        <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)</option>
+                                    }
+                                    
+                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)</option>
+                                    @if (atto.IsITL() || atto.IsITR())
+                                    {
+                                        <option value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
+                                    }
+                                    @if (atto.IsITL() || atto.IsIQT() && !atto.IsITR())
+                                    {
+                                        <option value="@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)</option>
+                                    }
+                                </select>
+                                <label for="Atto_TipoChiusuraIter">Tipo chiusura iter</label>
+                            </div>
                             <div class="input-field col s12 m12 l3" id="pnlChiusuraIter_DataChiusuraIter">
                                 @Html.TextBoxFor(s => s.Atto.DataChiusuraIter, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
                                 @Html.LabelFor(s => s.Atto.DataChiusuraIter, new { @class = "active" })
-                            </div>
-                            <div class="input-field col s12 m12 l3">
-                                <select id="Atto_TipoChiusuraIter">
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.APPROVATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)</option>
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RESPINTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RITIRATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.INAMMISSIBILE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE)</option>
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADUTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)</option>
-                                    <option value="@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)</option>
-                                </select>
-                                <label for="Atto_TipoChiusuraIter">Tipo chiusura iter</label>
                             </div>
                             <div class="input-field col s12 m12 l3" id="pnlChiusuraIter_TipoVotazione">
                                 <select id="Atto_TipoVotazione">
