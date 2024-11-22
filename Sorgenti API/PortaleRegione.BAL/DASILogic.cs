@@ -1194,7 +1194,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         if (firme
                                 .Count(f => f.UID_persona != attoInDb.UIDPersonaProponente
-                                            && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
+                                            && string.IsNullOrEmpty(f.Data_ritirofirma)) >= 1)
                         {
                             dto.Firme = firme
                                 .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente
