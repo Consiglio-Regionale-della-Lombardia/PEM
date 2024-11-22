@@ -665,13 +665,23 @@ namespace PortaleRegione.BAL
             body = body.Replace("{QRCode}", textQr);
         }
 
-        public void GetBody(AttoDASIDto atto, IEnumerable<AttiFirmeDto> firme,
+        public void GetBody(AttoDASIDto atto,
             PersonaDto currentUser,
             bool enableQrCode,
             bool privacy,
             ref string body)
         {
-            var firmeDtos = firme.ToList();
+            var firmeDtos = new List<AttiFirmeDto>();
+            if (atto.FirmeAnte.Any())
+            {
+                firmeDtos.AddRange(atto.FirmeAnte);
+            }
+
+            if (atto.FirmePost.Any())
+            {
+                firmeDtos.AddRange(atto.FirmePost);
+            }
+
             var title = atto.Display;
             if (atto.Non_Passaggio_In_Esame) title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
 

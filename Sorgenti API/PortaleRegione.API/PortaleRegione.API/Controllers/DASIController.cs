@@ -872,8 +872,7 @@ namespace PortaleRegione.API.Controllers
                 var atto = await _dasiLogic.Get(model.Id);
                 if (atto == null) return NotFound();
 
-                var body = await _dasiLogic.GetBodyDASI(atto
-                    , await _attiFirmeLogic.GetFirme(atto, FirmeTipoEnum.TUTTE)
+                var body = await _dasiLogic.GetBodyDASI(model.Id
                     , CurrentUser
                     , model.Template,
                     model.privacy);

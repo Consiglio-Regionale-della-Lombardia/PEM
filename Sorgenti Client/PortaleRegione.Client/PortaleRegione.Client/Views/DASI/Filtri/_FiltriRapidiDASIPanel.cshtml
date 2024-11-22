@@ -589,6 +589,12 @@ async function inviaDatiChips(page, size) {
 		size = 20;
 	}
 
+	const view = localStorage.getItem('viewModeDasi');
+	if (!view) {
+		localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
+		view = localStorage.getItem('viewModeDasi')
+	}
+
 	var paging = {};
 	paging.page = page;
 	paging.size = size;
@@ -621,6 +627,7 @@ async function inviaDatiChips(page, size) {
 		request.filters = chipsData;
 		request.page = page;
 		request.size = size;
+		request.viewMode = view;
 
 		const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
 
@@ -677,14 +684,33 @@ async function inviaDatiChips(page, size) {
 
 var responseData = {};
 var risultatiTabella = [];
+function createCard(result) {
+	const rowCard = document.createElement('div');
+	rowCard.className = "row card";
+
+	const rowContent = document.createElement('div');
+	rowContent.className = "col s12 card-content";
+	rowContent.innerHTML = result.BodyAtto;
+
+	rowCard.appendChild(rowContent);
+	return rowCard;
+}
 function CreaTabella() {
 	// Recupera le colonne selezionate dal local storage
 	const selectedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
 
+	var viewMode = responseData.ViewMode;
 	risultatiTabella = responseData.Data.Results;
 	// Pulisci i risultati precedenti
 	const tableResults = document.getElementById('tableResults');
 	tableResults.innerHTML = '';
+
+	if (viewMode == @Html.Raw((int)ViewModeEnum.PREVIEW)) {
+		responseData.Data.Results.forEach(result => {
+			tableResults.appendChild(createCard(result));
+		});
+		return;
+	}
 
 	// Crea la struttura della tabella
 	const table = document.createElement('table');
@@ -735,12 +761,12 @@ function CreaTabella() {
 		var iconChipAggiuntiva = "";
 		if (result.Abbinamenti.length > 0) {
 			iconChipAggiuntiva += `<i class="close material-icons blue-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>`;
-		} 
-		
+		}
+
 		if (result.PresentatoOltreITermini == true) {
 			iconChipAggiuntiva += `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini">warning</i>`;
 		}
-		
+
 		if (result.Privacy == true || result.Privacy_Divieto_Pubblicazione) {
 			iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Modificato per privacy">lock</i>`;
 		}
@@ -2553,6 +2579,21 @@ function filterByPage(page){
 function filterBySize(page, size){
     inviaDatiChips(page, size);
 	window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function gotoPreviewModeAdmin(){
+	const view = localStorage.getItem('viewModeDasi');
+	if (view) {
+		if (view == @Html.Raw((int)ViewModeEnum.GRID)) {
+			localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.PREVIEW));
+		} else if (view == @Html.Raw((int)ViewModeEnum.PREVIEW)) {
+			localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
+		}
+	} else {
+		localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
+	}
+
+	inviaDatiChips(1, $("#hdPaginazioneCorrente").val());
 }
 </script>
 

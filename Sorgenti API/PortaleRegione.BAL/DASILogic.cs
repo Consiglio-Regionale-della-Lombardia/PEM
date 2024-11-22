@@ -269,7 +269,7 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 //re-crypt del testo certificato
-                var body = await GetBodyDASI(attoInDb, null, currentUser,
+                var body = await GetBodyDASI(attoInDb.UIDAtto, currentUser,
                     TemplateTypeEnum.FIRMA);
                 var body_encrypt = BALHelper.EncryptString(body, BALHelper.Decrypt(attoInDb.Hash));
 
@@ -652,6 +652,19 @@ namespace PortaleRegione.API.Controllers
             if (RequireMySign == null)
                 RequireMySign = false;
 
+            model.param.TryGetValue(nameof(FilterRequest.viewMode), out var viewModeRequest); // #993
+
+            var viewMode = ViewModeEnum.GRID;
+            if (viewModeRequest == null)
+            {
+                    // ignored
+            }
+            else
+            {
+                var fromRequest = int.Parse(viewModeRequest.ToString());
+                viewMode = (ViewModeEnum)fromRequest;
+            }
+
             await AddRequireMySignData(queryExtended, persona, Convert.ToBoolean(RequireMySign));
 
             var queryFilter = new Filter<ATTI_DASI>();
@@ -670,11 +683,13 @@ namespace PortaleRegione.API.Controllers
                     Data = new BaseResponse<AttoDASIDto>(model.page, model.size, new List<AttoDASIDto>(), model.filtro,
                         0, uri),
                     CountBarData = await GetResponseCountBar(persona, GetClientMode(CLIENT_MODE),
-                        queryFilter, queryExtended)
+                        queryFilter, queryExtended),
+                    ViewMode = viewMode, 
+                    ClientMode = GetClientMode(CLIENT_MODE)
                 };
             }
 
-            var result = await GetAttoDtos(atti_in_db, persona);
+            var result = await GetAttoDtos(atti_in_db, persona, viewMode);
             var totaleAtti = await _unitOfWork.DASI.Count(persona, GetClientMode(CLIENT_MODE),
                 queryFilter, queryExtended);
 
@@ -686,7 +701,9 @@ namespace PortaleRegione.API.Controllers
                 Data = new BaseResponse<AttoDASIDto>(model.page, model.size, result, model.filtro, totaleAtti, uri),
                 CountBarData = await GetResponseCountBar(persona, GetClientMode(CLIENT_MODE),
                     queryFilter, queryExtended),
-                CommissioniAttive = persona.IsSegreteriaAssemblea ? await GetCommissioniAttive() : null
+                CommissioniAttive = persona.IsSegreteriaAssemblea ? await GetCommissioniAttive() : null,
+                ViewMode = viewMode,
+                ClientMode = GetClientMode(CLIENT_MODE)
             };
         }
 
@@ -963,18 +980,27 @@ namespace PortaleRegione.API.Controllers
                 { PropertyId = propertyId, Value = value.ToString() }).ToList();
         }
 
-        private async Task<List<AttoDASIDto>> GetAttoDtos(List<Guid> atti_in_db, PersonaDto persona)
+        private async Task<List<AttoDASIDto>> GetAttoDtos(List<Guid> atti_in_db, PersonaDto persona,
+            ViewModeEnum viewMode)
         {
             var result = new List<AttoDASIDto>();
             foreach (var attoUId in atti_in_db)
             {
+                if (viewMode == ViewModeEnum.PREVIEW)
+                {
+                    result.Add(new AttoDASIDto
+                    {
+                        UIDAtto = attoUId,
+                        BodyAtto = await GetBodyDASI(attoUId, null, TemplateTypeEnum.PDF, false, false)
+                    });
+                    continue;
+                }
                 var dto = await GetAttoDto(attoUId, persona);
                 result.Add(dto);
             }
 
             return result;
         }
-
 
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, ClientModeEnum clientMode,
             Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended)
@@ -1505,18 +1531,7 @@ namespace PortaleRegione.API.Controllers
                             : pin.PIN;
                         attoInDb.UIDPersonaPrimaFirma = persona.UID_persona;
                         attoInDb.DataPrimaFirma = timestampFirma;
-                        var body = await GetBodyDASI(attoInDb, new List<AttiFirmeDto>
-                            {
-                                new AttiFirmeDto
-                                {
-                                    UIDAtto = idGuid,
-                                    UID_persona = persona.UID_persona,
-                                    FirmaCert = firmaCert,
-                                    Data_firma = dataFirma,
-                                    Timestamp = timestampFirma,
-                                    ufficio = firmaUfficio
-                                }
-                            }, persona,
+                        var body = await GetBodyDASI(attoInDb.UIDAtto, persona,
                             TemplateTypeEnum.FIRMA);
                         var body_encrypt = BALHelper.EncryptString(body,
                             firmaUfficio ? AppSettingsConfiguration.MasterPIN : pin.PIN_Decrypt);
@@ -2373,13 +2388,18 @@ namespace PortaleRegione.API.Controllers
             return await ControlloFirmePresentazione(atto, count_firme, seduta_attiva, solo_anomalie);
         }
 
-        public async Task<string> GetBodyDASI(ATTI_DASI atto, IEnumerable<AttiFirmeDto> firme, PersonaDto persona,
+        public async Task<string> GetBodyDASI(Guid uidAtto, PersonaDto persona,
+            TemplateTypeEnum template, bool privacy = false, bool enableQr = true)
+        {
+            var dto = await GetAttoDto(uidAtto, persona);
+            return GetBodyDASI(dto, persona, template, privacy, enableQr);
+        }
+
+        public string GetBodyDASI(AttoDASIDto dto, PersonaDto persona,
             TemplateTypeEnum template, bool privacy = false, bool enableQr = true)
         {
             try
             {
-                var dto = await GetAttoDto(atto.UIDAtto, persona);
-
                 try
                 {
                     var body = GetTemplate(template, true);
@@ -2392,13 +2412,13 @@ namespace PortaleRegione.API.Controllers
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
-                            GetBody(dto, firme, persona, false, privacy, ref body);
+                            GetBody(dto, persona, false, privacy, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            GetBody(dto, firme, persona, enableQr, privacy, ref body);
+                            GetBody(dto, persona, enableQr, privacy, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
-                            GetBody(dto, firme, persona, false, true, ref body);
+                            GetBody(dto, persona, false, true, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
                             GetBodyTemporaneo(dto, privacy, ref body);
@@ -3648,8 +3668,7 @@ namespace PortaleRegione.API.Controllers
                 listAttachments.Add(complete_path);
             }
 
-            var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
-            var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF, privacy);
+            var body = await GetBodyDASI(atto.UIDAtto, persona, TemplateTypeEnum.PDF, privacy);
             var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
             return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}",
                 listAttachments);

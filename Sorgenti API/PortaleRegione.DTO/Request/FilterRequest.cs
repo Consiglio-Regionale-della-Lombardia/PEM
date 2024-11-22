@@ -18,6 +18,7 @@
 
 using PortaleRegione.DTO.Model;
 using System.Collections.Generic;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.DTO.Request
 {
@@ -26,6 +27,7 @@ namespace PortaleRegione.DTO.Request
         public List<FilterItem> filters { get; set; } = new List<FilterItem>();
         public int page { get; set; }
         public int size { get; set; }
+        public int viewMode { get; set; } = (int)ViewModeEnum.GRID;
         public List<SortingInfo> sort_settings { get; set; } = new List<SortingInfo>();
     }
 }

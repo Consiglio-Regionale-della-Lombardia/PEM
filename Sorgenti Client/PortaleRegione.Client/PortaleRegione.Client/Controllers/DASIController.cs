@@ -92,18 +92,9 @@ namespace PortaleRegione.Client.Controllers
                 {
                     page = 1,
                     size = 20,
-                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }, {nameof(FilterRequest.viewMode),model.viewMode} }
                 };
-
-                if (model == null)
-                {
-                    var resEmpty = new RiepilogoDASIModel
-                    {
-                        CurrentUser = CurrentUser
-                    };
-                    return Json(resEmpty);
-                }
-
+                
                 if (!model.filters.Any())
                 {
                     var resEmpty = new RiepilogoDASIModel
