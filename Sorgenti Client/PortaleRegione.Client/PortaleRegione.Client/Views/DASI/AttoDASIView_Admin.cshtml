@@ -1182,7 +1182,7 @@
 						<div class="row" id="pnlNote_ChiusuraIter">
 							<div class="col s12 m12 l12">
 								<h6>
-									<b>Note chiusura iter</b>
+									<b>Note chiusura</b>
 								</h6>
                                 <hr />
 								<table id="tableNote_ChiusuraIter">
@@ -1759,7 +1759,6 @@
         const dcrSection = document.getElementById('pnlChiusuraIter_DCR');
         const emendato = document.getElementById('pnlChiusuraIter_Emendato');
         const burl = document.getElementById('pnlChiusuraIter_Burl');
-        const noteSection = document.getElementById('pnlNote_ChiusuraIter');
         const documentiSection = document.getElementById('pnlDocumenti_ChiusuraIter');
 
         function updateFieldsVisibility() {
@@ -1772,7 +1771,6 @@
             dcrSection.style.display = 'none';
             emendato.style.display = 'none';
             burl.style.display = 'none';
-            noteSection.style.display = 'none';
             documentiSection.style.display = 'none';
 
             switch (selectedValue) {
@@ -1786,7 +1784,6 @@
                     dcrSection.style.display = 'block';
                     emendato.style.display = 'block';
                     burl.style.display = 'block';
-                    noteSection.style.display = 'block';
                     documentiSection.style.display = 'block';
                     break;
                 case '@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)': // Respinto
@@ -1805,7 +1802,6 @@
                 case '@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)': // Chiusura per motivi diversi
                     dataChiusura.style.display = 'block';
                     dataComunicazione.style.display = 'block';
-                    noteSection.style.display = 'block';
                     break;
                 default:
                     break;
