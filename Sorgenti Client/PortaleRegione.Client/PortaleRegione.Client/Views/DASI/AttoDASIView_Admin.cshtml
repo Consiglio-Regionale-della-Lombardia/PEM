@@ -366,9 +366,9 @@
 										<tr>
 											<th>Documento</th>
 											<th>Scarica</th>
-                                            <th>
-                                                <a id="btnAggiungiDocumento_InformazioniGenerali" class="btn-floating blue">
-                                                    <i class="material-icons">add</i>
+                                            <th class="center" width="10%">
+                                                <a id="btnAggiungiDocumento_InformazioniGenerali" class="btn-flat green-text">
+                                                    Aggiungi
                                                 </a>
                                             </th>
 										</tr>
@@ -383,7 +383,7 @@
 														<i class="material-icons icon">link</i>
 													</a>
 												</td>
-												<td>
+												<td class="center">
 													<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
 														<i class="material-icons">close</i>
 													</a>
@@ -414,8 +414,8 @@
                                 <h6>
                                     <b>Lista abbinamenti</b>
                                 </h6>
-                                <a id="btnAggiungiAbbinamento" class="btn-floating blue" style="position:absolute; right:10px; top:-10px;">
-                                    <i class="material-icons">add</i>
+                                <a id="btnAggiungiAbbinamento" class="btn-flat green-text" style="position:absolute; right:10px; top:-10px;">
+                                    Aggiungi
                                 </a>
 								<hr />
 								<ul id="lstAbbinamentiAtto" class="collection">
@@ -587,9 +587,9 @@
                                             }
 
                                             <th>Testo</th>
-                                            <th>
-                                                <a id="btnAggiungiRisposta" class="btn-floating blue">
-                                                    <i class="material-icons">add</i>
+                                            <th class="center" width="10%">
+                                                <a id="btnAggiungiRisposta" class="btn-flat green-text">
+                                                    Aggiungi
                                                 </a>
                                             </th>
                                         </tr>
@@ -769,20 +769,20 @@
                                                         <a href="@documentoRisposta.Link" target="_blank" style="text-decoration: underline">
                                                             @documentoRisposta.Titolo
                                                         </a>
-                                                        <a href="#!" class="red-text" onclick="rimuoviDocumento(this, '@documentoRisposta.Titolo', '@risposta.UIDDocumento')">
-                                                            <i class="material-icons">close</i>
+                                                        <a href="#!" class="btn-flat red-text" onclick="rimuoviDocumento(this, '@documentoRisposta.Titolo', '@risposta.UIDDocumento')">
+                                                            Rimuovi
                                                         </a>
                                                     }
                                                     else
                                                     {
-                                                        <a href="#!" onclick="AggiungiDocumento_Risposta(this, '@risposta.Uid')" style="text-decoration: underline;">
+                                                        <a href="#!" class="btn-flat pink-text" onclick="AggiungiDocumento_Risposta(this, '@risposta.Uid')">
                                                             Carica
                                                         </a>
                                                     }
                                                 </td>
-                                                <td>
-                                                    <a href="#!" class="red-text" onclick="rimuoviRisposta(this, '@risposta.Uid')">
-                                                        <i class="material-icons">close</i>
+                                                <td class="center">
+                                                    <a href="#!" class="btn-flat red-text" onclick="rimuoviRisposta(this, '@risposta.Uid')">
+                                                        Elimina
                                                     </a>
                                                 </td>
                                             </tr>
@@ -901,9 +901,9 @@
                                             <thead>
                                             <tr>
                                                 <th>Organo che effettua il monitoraggio</th>
-                                                <th>
-                                                    <a id="btnAggiungiMonitoraggio" class="btn-floating blue">
-                                                        <i class="material-icons">add</i>
+                                                <th class="center" width="10%">
+                                                    <a id="btnAggiungiMonitoraggio" class="btn-flat green-text">
+                                                        Aggiungi
                                                     </a>
                                                 </th>
                                             </tr>
@@ -914,9 +914,9 @@
                                             {
                                                 <tr>
                                                     <td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
-                                                    <td>
-                                                        <a href="#!" class="red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
-                                                            <i class="material-icons">close</i>
+                                                    <td class="center">
+                                                        <a href="#!" class="btn-flat red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
+                                                            Rimuovi
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -957,9 +957,9 @@
                                     <tr>
                                         <th>Documento</th>
                                         <th>Scarica</th>
-                                        <th>
-                                            <a id="btnAggiungiDocumento_Monitoraggio" class="btn-floating blue">
-                                                <i class="material-icons">add</i>
+                                        <th class="center" width="10%">
+                                            <a id="btnAggiungiDocumento_Monitoraggio" class="btn-flat green-text">
+                                                Aggiungi
                                             </a>
                                         </th>
                                     </tr>
@@ -974,9 +974,9 @@
                                                     <i class="material-icons icon">link</i>
                                                 </a>
                                             </td>
-                                            <td>
-                                                <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                                    <i class="material-icons">close</i>
+                                            <td class="center">
+                                                <a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+                                                   Rimuovi
                                                 </a>
                                             </td>
                                         </tr>
@@ -1189,10 +1189,10 @@
 									<thead>
 										<tr>
 											<th>Nota</th>
-											<th>Utente</th>
-                                            <th>
-                                                <a id="btnAggiungiNota_ChiusuraIter" class="btn-floating blue">
-                                                    <i class="material-icons">add</i>
+                                            <th>Utente</th>
+                                            <th class="center" width="10%">
+                                                <a id="btnAggiungiNota_ChiusuraIter" class="btn-flat green-text">
+                                                    Aggiungi
                                                 </a>
                                             </th>
 										</tr>
@@ -1204,12 +1204,12 @@
 											<tr>
 												<td>@Html.Raw(nota.Nota)</td>
 												<td>@Html.Raw(nota.Persona.DisplayName)</td>
-												<td>
-													<a onclick="modificaNota(this)">
-														<i class="material-icons">edit</i>
+												<td class="center">
+													<a class="btn-flat black-text" onclick="modificaNota(this)">
+														Modifica
 													</a>
-													<a class="red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-														<i class="material-icons">close</i>
+													<a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+														Rimuovi
 													</a>
 												</td>
 											</tr>
@@ -1228,10 +1228,10 @@
 									<thead>
 										<tr>
 											<th>Documento</th>
-											<th>Scarica</th>
-                                            <th>
-                                                <a id="btnAggiungiDocumento_ChiusuraIter" class="btn-floating blue">
-                                                    <i class="material-icons">add</i>
+                                            <th>Scarica</th>
+                                            <th class="center" width="10%">
+                                                <a id="btnAggiungiDocumento_ChiusuraIter" class="btn-flat green-text">
+                                                    Aggiungi
                                                 </a>
                                             </th>
 										</tr>
@@ -1247,9 +1247,9 @@
 														<i class="material-icons icon">link</i>
 													</a>
 												</td>
-												<td>
-													<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-														<i class="material-icons">close</i>
+												<td class="center">
+													<a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+														Rimuovi
 													</a>
 												</td>
 											</tr>
@@ -1283,10 +1283,10 @@
 								<tr>
 									<th>Tipo nota</th>
 									<th>Nota</th>
-									<th>Utente</th>
-                                    <th>
-                                        <a id="btnAggiungiNota" class="btn-floating blue">
-                                            <i class="material-icons">add</i>
+                                    <th>Utente</th>
+                                    <th class="center" width="10%">
+                                        <a id="btnAggiungiNota" class="btn-flat green-text">
+                                            Aggiungi
                                         </a>
                                     </th>
 								</tr>
@@ -1299,12 +1299,12 @@
 										<td>@Html.Raw(nota.Tipo)</td>
 										<td>@Html.Raw(nota.Nota)</td>
 										<td>@Html.Raw(nota.Persona.DisplayName)</td>
-										<td>
-											<a onclick="modificaNota(this)">
-												<i class="material-icons">edit</i>
+										<td class="center">
+											<a class="btn-flat black-text" onclick="modificaNota(this)">
+												Modifica
 											</a>
-											<a class="red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-												<i class="material-icons">close</i>
+											<a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+												Rimuovi
 											</a>
 										</td>
 									</tr>
@@ -1380,9 +1380,9 @@
                                     <tr>
                                         <th>Nota</th>
                                         <th>Utente</th>
-                                        <th>
-                                            <a id="btnAggiungiNota_Privacy" class="btn-floating blue">
-                                                <i class="material-icons">add</i>
+                                        <th class="center" width="10%">
+                                            <a id="btnAggiungiNota_Privacy" class="btn-flat green-text">
+                                                Aggiungi
                                             </a>
                                         </th>
                                     </tr>
@@ -1394,12 +1394,12 @@
                                         <tr>
                                             <td>@Html.Raw(nota.Nota)</td>
                                             <td>@Html.Raw(nota.Persona.DisplayName)</td>
-                                            <td>
-                                                <a onclick="modificaNota(this)">
-                                                    <i class="material-icons">edit</i>
+                                            <td class="center">
+                                                <a class="btn-flat black-text" onclick="modificaNota(this)">
+                                                    Modifica
                                                 </a>
-                                                <a class="red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-                                                    <i class="material-icons">close</i>
+                                                <a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                                    Rimuovi
                                                 </a>
                                             </td>
                                         </tr>
@@ -1430,10 +1430,10 @@
 											<th>Tipo</th>
 											<th>Documento</th>
 											<th>Pubblico</th>
-											<th>Scarica</th>
-                                            <th>
-                                                <a id="btnAggiungiDocumento_Pubblicazione" class="btn-floating blue">
-                                                    <i class="material-icons">add</i>
+                                            <th>Scarica</th>
+                                            <th class="center" width="10%">
+                                                <a id="btnAggiungiDocumento_Pubblicazione" class="btn-flat green-text">
+                                                    Aggiungi
                                                 </a>
                                             </th>
 										</tr>
@@ -1457,9 +1457,9 @@
 														<i class="material-icons icon">link</i>
 													</a>
 												</td>
-												<td>
-													<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-														<i class="material-icons">close</i>
+												<td class="center">
+													<a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+														Rimuovi
 													</a>
 												</td>
 											</tr>
@@ -2245,8 +2245,8 @@
 			var row = $(ctrl).closest('tr');
 
 			swal({
-				title: "Rimuovi risposta",
-				text: "Sei sicuro di voler rimuovere questa risposta?",
+				title: "Elimina risposta",
+				text: "Sei sicuro di voler eliminare questa risposta?",
 				icon: "warning",
 				buttons: ["Annulla", "Rimuovi"]
 			}).then(async (answer) => {
