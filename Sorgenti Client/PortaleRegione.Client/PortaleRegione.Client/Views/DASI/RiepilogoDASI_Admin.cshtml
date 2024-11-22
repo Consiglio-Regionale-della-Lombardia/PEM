@@ -64,28 +64,62 @@
                             </span>
                         </label>
                     </div>
-                    <div class="col l6 s6 right-align">
-                        <a class="btn-floating white black-text tooltipped" data-tooltip="Ordinamento risultati" id="btnOrdinamentoRisultati">
-							<i class="material-icons">sort_by_alpha</i>
-                        </a>
-                        <a class="btn-floating white black-text tooltipped" data-tooltip="Colonne griglia" id="btnSelezionaColonne">
-                            <i class="material-icons">apps</i>
-                        </a>
-                        <a class="btn-floating white black-text tooltipped activator" data-tooltip="Conteggi">
-                            <i class="material-icons">insert_chart</i>
-                        </a>
-                        @* #994 *@
-                        <a id="btnExportXLS" class="btn-floating white black-text tooltipped" data-tooltip="Estrazione rapida in excel" data-href="@Url.Action("EsportaXLSRapido", "DASI")">
-                            <i class="icon material-icons left">grid_on</i>
-                        </a>
-                        <a id="btnExportZip" class="btn-floating white black-text tooltipped" data-tooltip="Estrazione zip" data-href="@Url.Action("EsportaZipRapido", "DASI")">
-                            <i class="icon material-icons left">archive</i>
-                        </a>
-                        <a class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
-                            <i class="material-icons">print</i>
-                        </a>
-                    </div>
-                </div>
+					<div class="col l6 s6 right-align">
+                        <div id="btnComandiAggiuntiviGriglia" class="fixed-action-btn">
+                            <a class="btn-floating white black-text btn-large">
+                                <i class="large material-icons">settings</i>
+                            </a>
+                            <ul>
+                                <li>
+                                    <a class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
+                                        <i class="material-icons">print</i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a id="btnExportZip" class="btn-floating white black-text tooltipped" data-tooltip="Estrazione zip" data-position="left" data-href="@Url.Action("EsportaZipRapido", "DASI")">
+                                        <i class="material-icons">archive</i>
+                                    </a>
+                                </li>
+                                <li>
+                                    @* #994 *@
+                                    <a id="btnExportXLS" class="btn-floating white black-text tooltipped" data-tooltip="Estrazione rapida in excel" data-position="left" data-href="@Url.Action("EsportaXLSRapido", "DASI")">
+                                        <i class="material-icons left">grid_on</i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="btn-floating white black-text tooltipped activator" data-tooltip="Conteggi" data-position="left">
+                                        <i class="material-icons">insert_chart</i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    <a class="btn-floating white black-text tooltipped" data-tooltip="Ordinamento risultati" id="btnOrdinamentoRisultati">
+                        <i class="material-icons">sort_by_alpha</i>
+                    </a>
+                    <a class="btn-floating white black-text tooltipped" data-tooltip="Colonne griglia" id="btnSelezionaColonne">
+                        <i class="material-icons">apps</i>
+                    </a>
+                    @{
+                        var text = "";
+                        var icon = "";
+
+                        if (Model.ViewMode == ViewModeEnum.PREVIEW)
+                        {
+                            text = "Visualizza Atti in griglia";
+                            icon = "developer_board";
+                        }
+                        else if (Model.ViewMode == ViewModeEnum.GRID)
+                        {
+                            text = "Visualizza Atti in preview";
+                            icon = "desktop_windows";
+                        }
+
+                    }
+                    <a class="btn-floating white black-text tooltipped" onclick="gotoPreviewMode()" data-tooltip="@text" data-position="left">
+                        <i class="icon material-icons">@icon</i>
+                    </a>
+					</div>
+				</div>
                 <div class="row">
                     <div class="col s12">
                         <div id="paginazione-container-top" class="pagination-container">
