@@ -734,9 +734,15 @@ function CreaTabella() {
 
 		var iconChipAggiuntiva = "";
 		if (result.Abbinamenti.length > 0) {
-			iconChipAggiuntiva = `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>`;
-		} else if (result.PresentatoOltreITermini == true) {
-			iconChipAggiuntiva = `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini">warning</i>`;
+			iconChipAggiuntiva += `<i class="close material-icons blue-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>`;
+		} 
+		
+		if (result.PresentatoOltreITermini == true) {
+			iconChipAggiuntiva += `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini">warning</i>`;
+		}
+		
+		if (result.Privacy == true || result.Privacy_Divieto_Pubblicazione) {
+			iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Modificato per privacy">lock</i>`;
 		}
 
 		const row = document.createElement('tr');
