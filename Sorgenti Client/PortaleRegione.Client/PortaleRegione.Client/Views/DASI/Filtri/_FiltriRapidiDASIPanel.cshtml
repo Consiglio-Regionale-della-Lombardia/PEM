@@ -949,6 +949,12 @@ function CreaTabella() {
 					td.innerHTML += `<li>${monitoraggio.DescrizioneOrgano}</li>`;
 				});
 				td.innerHTML += "</ul>";
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Organi)') {
+				td.innerHTML += "<ul>";
+				result.Organi.forEach(organo => {
+					td.innerHTML += `<li>${organo.nome_organo}</li>`;
+				});
+				td.innerHTML += "</ul>";
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Abbinamenti)') {
 				result.Abbinamenti.forEach(abb => {
 					td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UidAttoAbbinato}')">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</a></p>`;

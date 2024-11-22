@@ -62,6 +62,7 @@ public class AttiDASIColums
     [DisplayName("Impegni e scadenze")] public string ImpegniScadenze { get; set; } // #1021
     // Mancano le commissioni richieste (itl, itr, iqt)
     [DisplayName("Tipo risposta richiesta")] public int IDTipo_Risposta { get; set; }
+    [DisplayName("Commissioni richieste")] public List<OrganoDto> Organi { get; set; }
     [DisplayName("Tipo risposta fornita")] public int? IDTipo_Risposta_Effettiva { get; set; }
     [DisplayName("Iter multiplo")] public bool IterMultiplo { get; set; } = false;
     // Manca il calcolo dei gg di ritardo
