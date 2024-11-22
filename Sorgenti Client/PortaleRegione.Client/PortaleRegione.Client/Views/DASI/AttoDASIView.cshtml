@@ -123,39 +123,39 @@
             <div class="col s12" style="margin-top: 5px">
                 @if (atto.Firmabile)
                 {
-                    <div class="btn chip hoverable green center white-text" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
-                        <i class="icon material-icons">gavel</i> Firma
-                    </div>
+                    <a class="btn-flat green-text" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                         Firma
+                    </a>
                 }
                 @if (atto.Presentabile)
                 {
-                    <div class="btn chip hoverable purple center white-text" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
-                        <i class="icon material-icons">lock</i> Deposita
-                    </div>
+                    <a class="btn-flat purple-text center" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
+                        Deposita
+                    </a>
                 }
                 @if (atto.Modificabile)
                 {
-                    <div class="btn chip hoverable blue center white-text" onclick="go('@Url.Action("Modifica", new { id = atto.UIDAtto })')">
-                        <i class="icon material-icons">edit</i> Modifica
-                    </div>
+                    <a class="btn-flat blue-text center" onclick="go('@Url.Action("Modifica", new { id = atto.UIDAtto })')">
+                        Modifica
+                    </a>
                 }
                 @if (atto.Invito_Abilitato)
                 {
-                    <div class="btn chip hoverable amber center" onclick="NotificaADASI('@atto.UIDAtto', @atto.Tipo)">
-                        <i class="icon material-icons">share</i> Invita
-                    </div>
+                    <a class="btn-flat yellow-text center" onclick="NotificaADASI('@atto.UIDAtto', @atto.Tipo)">
+                        Invita
+                    </a>
                 }
                 @if (atto.Eliminabile)
                 {
-                    <div class="btn chip hoverable red center white-text" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.ELIMINA))">
-                        <i class="icon material-icons">delete</i> Elimina
-                    </div>
+                    <a class="btn-flat red-text center" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.ELIMINA))">
+                        Elimina
+                    </a>
                 }
                 @if (atto.Ritirabile)
                 {
-                    <div class="btn chip hoverable red white-text center" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.RITIRA))">
-                        <i class="icon material-icons">settings_backup_restore</i> Ritira Atto
-                    </div>
+                    <a class="btn-flat red-text white-text" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.RITIRA))">
+                        Ritira Atto
+                    </a>
                 }
             </div>
         </div>
@@ -1055,8 +1055,8 @@
         <h5 id="attoActionDisplayName"></h5>
         <p id="attoActionMessage"></p>
         <div class="modal-footer" style="position: unset !important;">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaActionDASI" class="btn red" href="#">Elimina</a>
+            <button type="button" class="btn-flat modal-close grey-text">Annulla</button>
+            <a id="btnConfermaActionDASI" class="btn-flat red-text" href="#">Elimina</a>
         </div>
     </div>
 </div>

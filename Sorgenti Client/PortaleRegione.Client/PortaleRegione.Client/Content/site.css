@@ -933,3 +933,7 @@ span.highlight { background-color: yellow; }
 	max-height: 300px;
 	overflow-y: auto;
 }
+
+.swal-button{
+	color: black !important;
+}

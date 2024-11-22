@@ -154,17 +154,21 @@ namespace PortaleRegione.API.Controllers
                 result.Richiesta = attoDto.Richiesta;
                 result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
 
-                if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
-                {
-                    await Salva_Documento(new SalvaDocumentoRequest
-                    {
-                        Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
-                        Contenuto = attoDto.DocAllegatoGenerico_Stream,
-                        UIDAtto = result.UIDAtto
-                    }, currentUser);
-                }
-
                 _unitOfWork.DASI.Add(result);
+                await _unitOfWork.CompleteAsync();
+
+                if (attoDto.DocAllegatoGenerico_Stream != null)
+                {
+                    if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
+                    {
+                        await Salva_Documento(new SalvaDocumentoRequest
+                        {
+                            Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
+                            Contenuto = attoDto.DocAllegatoGenerico_Stream,
+                            UIDAtto = result.UIDAtto
+                        }, currentUser);
+                    }
+                }
 
                 await _unitOfWork.CompleteAsync();
                 await GestioneCommissioni(attoDto);
@@ -207,14 +211,17 @@ namespace PortaleRegione.API.Controllers
             attoInDb.Richiesta = attoDto.Richiesta;
             attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
 
-            if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
+            if (attoDto.DocAllegatoGenerico_Stream != null)
             {
-                await Salva_Documento(new SalvaDocumentoRequest
+                if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
                 {
-                    Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
-                    Contenuto = attoDto.DocAllegatoGenerico_Stream,
-                    UIDAtto = attoInDb.UIDAtto
-                }, currentUser);
+                    await Salva_Documento(new SalvaDocumentoRequest
+                    {
+                        Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
+                        Contenuto = attoDto.DocAllegatoGenerico_Stream,
+                        UIDAtto = attoInDb.UIDAtto
+                    }, currentUser);
+                }
             }
 
             await _unitOfWork.CompleteAsync();
@@ -4470,6 +4477,28 @@ namespace PortaleRegione.API.Controllers
             {
                 if (string.IsNullOrEmpty(atto.Firme)) return "";
                 return atto.Firme.Replace("<br>", "; ");
+            }
+            
+            // #1047
+            if (propertyName.Equals(nameof(AttoDASIReportDto.Iniziativa)))
+            {
+                var firme = new List<string>();
+                if (atto.FirmeAnte.Any())
+                {
+                    firme.AddRange(atto.FirmeAnte.Select(f=> f.FirmaCert));
+                    
+                    if (atto.FirmePost.Any())
+                    {
+                        firme.AddRange(atto.FirmePost.Select(f=> f.FirmaCert));
+                    }
+                }
+
+                if (firme.Any())
+                {
+                    return firme.Aggregate((i, j)=> i + "; " + j);
+                }
+
+                return "";
             }
 
             if (propertyName.Equals(nameof(AttoDASIDto.CodiceMateria))) return atto.CodiceMateria;
