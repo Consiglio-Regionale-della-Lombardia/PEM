@@ -23,7 +23,12 @@ namespace PortaleRegione.DTO.Domain;
 
 public class AttiDASISorting
 {
+    [DisplayName("Legislatura")] public int Legislatura { get; set; }
     [DisplayName("Tipo atto")] public int Tipo { get; set; }
+    [DisplayName("Numero atto")] public string NAtto_search { get; set; }
     [DisplayName("Data presentazione")] public DateTime Timestamp { get; set; }
+    [DisplayName("Data annunzio")] public DateTime? DataAnnunzio { get; set; }
     [DisplayName("DCR/DCCR")] public int? DCR { get; set; }
+    [DisplayName("Data comunicazione assemblea")] public DateTime? DataComunicazioneAssemblea { get; set; }
+
 }
