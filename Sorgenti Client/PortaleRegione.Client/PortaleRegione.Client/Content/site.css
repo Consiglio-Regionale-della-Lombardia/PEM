@@ -937,3 +937,7 @@ span.highlight { background-color: yellow; }
 .swal-button{
 	color: black !important;
 }
+
+a.collection-item{
+	color: black!important;
+}

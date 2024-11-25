@@ -390,7 +390,7 @@
 		var collection = document.getElementById('data-collection-report');
 		$('#data-collection-report').empty();
 		reportsArray.forEach(function (item) {
-			var li = document.createElement('li');
+			var li = document.createElement('a');
 			li.className = 'collection-item';
 			li.textContent = item.reportname;
 			li.onclick = function (event) {
