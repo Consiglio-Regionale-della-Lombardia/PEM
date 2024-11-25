@@ -679,6 +679,7 @@ async function inviaDatiChips(page, size) {
 		console.error('Errore durante l\'invio dei dati delle chips:', error);
 	}
 
+	initPreviewUI();
 	waiting(false);
 }
 
@@ -1181,7 +1182,6 @@ function CreaTabella() {
 
 		dropdownHTML_top += `</ul></div>`;
 		dropdownHTML_bottom += `</ul></div>`;
-		console.log("risultatiPerPagina", risultatiPerPagina)
 		var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/>
     <input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>
     <input id="hdTotaleDocumenti" type="hidden" value="${totaleRisultati}"/>`;
@@ -2501,6 +2501,7 @@ function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh) {
 	salvaFiltri();
 
 	if (refresh) {
+		console.log("refresh")
 		inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
 	}
 }
@@ -2528,6 +2529,7 @@ function addIconsToChip(chip, key, keyLabel, val) {
 		chip.remove();
 		resetSelezionePreferiti();
 		salvaFiltri();
+		console.log("rimuovi chip")
 		inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
 	};
 	chip.appendChild(closeIcon);
@@ -2562,6 +2564,7 @@ function ripristinaFiltri(){
 		filtri.forEach(function (filtro) {
 			addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
 		});
+		console.log("ripristina filtri")
 		const paging = JSON.parse(localStorage.getItem('pagingDasi'));
 		if (paging) {
 			inviaDatiChips(paging.page, paging.size);
@@ -2572,14 +2575,34 @@ function ripristinaFiltri(){
 }
 
 function filterByPage(page){
+	console.log("filterByPage")
     inviaDatiChips(page, $("#hdPaginazioneCorrente").val());
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function filterBySize(page, size){
+	console.log("filterBySIze")
     inviaDatiChips(page, size);
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+	function initPreviewUI() {
+		const view = localStorage.getItem('viewModeDasi');
+		if (view) {
+			$("#btnGoToPreviewAdmin").show();
+			if (view == @Html.Raw((int)ViewModeEnum.GRID)) {
+				$("#btnGoToPreviewAdmin").html('<i class="material-icons">desktop_windows</i>');
+				$("#btnGoToPreviewAdmin").attr('data-tooltip', 'Visualizza Atti in preview');
+			} else if (view == @Html.Raw((int)ViewModeEnum.PREVIEW)) {
+				$("#btnGoToPreviewAdmin").html('<i class="material-icons">developer_board</i>');
+				$("#btnGoToPreviewAdmin").attr('data-tooltip', 'Visualizza Atti in griglia');
+			}
+
+			M.Tooltip.init($("#btnGoToPreviewAdmin"));
+		} else {
+			$("#btnGoToPreviewAdmin").hide();	
+		}
+	}
 
 function gotoPreviewModeAdmin(){
 	const view = localStorage.getItem('viewModeDasi');
@@ -2592,7 +2615,7 @@ function gotoPreviewModeAdmin(){
 	} else {
 		localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
 	}
-
+	console.log("previeMOde")
 	inviaDatiChips(1, $("#hdPaginazioneCorrente").val());
 }
 </script>

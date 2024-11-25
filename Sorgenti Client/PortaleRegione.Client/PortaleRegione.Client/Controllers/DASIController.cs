@@ -55,6 +55,15 @@ namespace PortaleRegione.Client.Controllers
             int stato = (int)StatiAttoEnum.BOZZA, int tipo = (int)TipoAttoEnum.TUTTI)
         {
             var currentUser = CurrentUser;
+            if (CanAccess(new List<RuoliIntEnum>
+                    { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+            {
+                return View("RiepilogoDASI_Admin", new RiepilogoDASIModel
+                {
+                    CurrentUser = currentUser
+                });
+            }
+
             CheckCacheClientMode(ClientModeEnum.GRUPPI);
             await CheckCacheGruppiAdmin(currentUser.CurrentRole);
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
@@ -74,10 +83,6 @@ namespace PortaleRegione.Client.Controllers
             }
 
             Session["RiepilogoDASI"] = model;
-
-            if (CanAccess(new List<RuoliIntEnum>
-                    { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
-                return View("RiepilogoDASI_Admin", model);
 
             return View("RiepilogoDASI", model);
         }

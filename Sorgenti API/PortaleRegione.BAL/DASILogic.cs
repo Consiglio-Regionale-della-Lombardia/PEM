@@ -991,7 +991,7 @@ namespace PortaleRegione.API.Controllers
                     result.Add(new AttoDASIDto
                     {
                         UIDAtto = attoUId,
-                        BodyAtto = await GetBodyDASI(attoUId, null, TemplateTypeEnum.PDF, false, false)
+                        BodyAtto = await GetBodyDASI(attoUId, null, TemplateTypeEnum.PDF, false, false, false)
                     });
                     continue;
                 }
@@ -2389,14 +2389,14 @@ namespace PortaleRegione.API.Controllers
         }
 
         public async Task<string> GetBodyDASI(Guid uidAtto, PersonaDto persona,
-            TemplateTypeEnum template, bool privacy = false, bool enableQr = true)
+            TemplateTypeEnum template, bool privacy = false, bool enableQr = true, bool enableLogo = true)
         {
             var dto = await GetAttoDto(uidAtto, persona);
-            return GetBodyDASI(dto, persona, template, privacy, enableQr);
+            return GetBodyDASI(dto, persona, template, privacy, enableQr, enableLogo);
         }
 
         public string GetBodyDASI(AttoDASIDto dto, PersonaDto persona,
-            TemplateTypeEnum template, bool privacy = false, bool enableQr = true)
+            TemplateTypeEnum template, bool privacy = false, bool enableQr = true, bool enableLogo = true)
         {
             try
             {
@@ -2412,13 +2412,13 @@ namespace PortaleRegione.API.Controllers
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
-                            GetBody(dto, persona, false, privacy, ref body);
+                            GetBody(dto, persona, false, privacy, false, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            GetBody(dto, persona, enableQr, privacy, ref body);
+                            GetBody(dto, persona, enableQr, privacy, enableLogo, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
-                            GetBody(dto, persona, false, true, ref body);
+                            GetBody(dto, persona, false, true, false, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
                             GetBodyTemporaneo(dto, privacy, ref body);

@@ -383,12 +383,13 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_START}", "<!--");
                 body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_END}", "-->");
             }
-            
+
             if (atto.Tipo == (int)TipoAttoEnum.RIS)
             {
                 body = body.Replace("{PROPONENTI_COMMENTO_START}", "");
                 body = body.Replace("{PROPONENTI_COMMENTO_END}", "");
-                body = body.Replace("{lblProponentiATTOView}", atto.CommissioniProponenti.Select(s=>s.descr).Aggregate((i,j)=>i + "<br>" + j));
+                body = body.Replace("{lblProponentiATTOView}",
+                    atto.CommissioniProponenti.Select(s => s.descr).Aggregate((i, j) => i + "<br>" + j));
 
                 if (atto.UIDPersonaRelatore1.HasValue)
                 {
@@ -401,7 +402,7 @@ namespace PortaleRegione.BAL
                     body = body.Replace("{RELATORE1_COMMENTO_START}", "<!--");
                     body = body.Replace("{RELATORE1_COMMENTO_END}", "-->");
                 }
-                
+
                 if (atto.UIDPersonaRelatore2.HasValue)
                 {
                     body = body.Replace("{RELATORE2_COMMENTO_START}", "");
@@ -413,7 +414,7 @@ namespace PortaleRegione.BAL
                     body = body.Replace("{RELATORE2_COMMENTO_START}", "<!--");
                     body = body.Replace("{RELATORE2_COMMENTO_END}", "-->");
                 }
-                
+
                 if (atto.UIDPersonaRelatoreMinoranza.HasValue)
                 {
                     body = body.Replace("{RELATOREMINORANZA_COMMENTO_START}", "");
@@ -433,7 +434,7 @@ namespace PortaleRegione.BAL
             {
                 body = body.Replace("{PROPONENTI_COMMENTO_START}", "<!--");
                 body = body.Replace("{PROPONENTI_COMMENTO_END}", "-->");
-                
+
                 body = body.Replace("{RELATORE1_COMMENTO_START}", "<!--");
                 body = body.Replace("{RELATORE1_COMMENTO_END}", "-->");
                 body = body.Replace("{RELATORE2_COMMENTO_START}", "<!--");
@@ -669,6 +670,7 @@ namespace PortaleRegione.BAL
             PersonaDto currentUser,
             bool enableQrCode,
             bool privacy,
+            bool enableLogo,
             ref string body)
         {
             var firmeDtos = new List<AttiFirmeDto>();
@@ -694,9 +696,20 @@ namespace PortaleRegione.BAL
             {
                 body = body.Replace("{GRUPPO_POLITICO}", atto.id_gruppo > 0 ? atto.gruppi_politici.nome_gruppo : "");
             }
-            
+
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
-            body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
+            if (enableLogo)
+            {
+                body = body.Replace("{LOGO_COMMENTO_START}", "");
+                body = body.Replace("{LOGO_COMMENTO_END}", "");
+
+                body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
+            }
+            else
+            {
+                body = body.Replace("{LOGO_COMMENTO_START}", "<!--");
+                body = body.Replace("{LOGO_COMMENTO_END}", "-->");
+            }
 
             if (privacy || string.IsNullOrEmpty(atto.Atto_Certificato))
             {
@@ -725,7 +738,7 @@ namespace PortaleRegione.BAL
             {
                 //DEPOSITATO
                 body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
-                
+
                 if (firmeDtos.Any())
                     body = body.Replace("{radGridFirmeView}",
                         TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeDtos)));

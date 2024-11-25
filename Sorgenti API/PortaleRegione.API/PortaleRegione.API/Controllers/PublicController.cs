@@ -91,7 +91,7 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     var currentUser = CurrentUser;
-                    var body = await _dasiLogic.GetBodyDASI(atto.UIDAtto, currentUser, TemplateTypeEnum.PDF, approvato, false);
+                    var body = await _dasiLogic.GetBodyDASI(atto.UIDAtto, currentUser, TemplateTypeEnum.PDF, approvato, false, false);
 
                     return Ok(body);
                 }
