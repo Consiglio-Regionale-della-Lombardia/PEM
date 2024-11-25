@@ -787,9 +787,6 @@ function CreaTabella() {
 		tdDisplayValue.innerHTML = `<div class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')" data-text='${result.Display}' data-id='${result.UIDAtto}'>${result.Display}${iconChipAggiuntiva}</div>`;
 		row.appendChild(tdDisplayValue);
 
-		// Verifica se il valore è nel formato /Date(XXXXXXXXXXXX)/
-		const dateRegex = /\/Date\((\d+)\)\//;
-
 		// Aggiungi le colonne selezionate alle righe della tabella
 		selectedColumns.forEach(col => {
 			const td = document.createElement('td');
@@ -924,20 +921,6 @@ function CreaTabella() {
     result.Risposte.forEach(abb => {
         let testo_risposta = ``;
         let dataRisposta = ``;
-
-        // Funzione per formattare la data
-        const formatDate = (data) => {
-            const match = data.match(dateRegex);
-            if (match) {
-                const timestamp = parseInt(match[1], 10);
-                const date = new Date(timestamp);
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
-                const year = date.getFullYear();
-                return `${day}/${month}/${year}`;
-            }
-            return '';
-        };
 
         if (abb.Data) {
             dataRisposta = `<b>${formatDate(abb.Data)}</b>`;
@@ -1900,64 +1883,82 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				var idLegislatura = legislaturaChip.getAttribute('data-val');
 				var gruppi = await GetGruppiByLegislatura(idLegislatura);
 
-				selectHTML = `<div class="input-field col s12">
-                <i class="material-icons prefix">search</i>
-                <input type="text" id="gruppi-autocomplete" class="autocomplete">
+				var selectHTML = '<select id="gruppi-select">';
+				selectHTML += `<option value="0" disabled selected>Seleziona</option>`;
 
-		        <div id="gruppi-selected"></div>
-             </div>
-			 <div class="card blue lighten-5">
-				<div class="card-content black-text">
-					<span class="card-title">Informazioni</span>
-					<p>Digita le prime lettere del gruppo politico per selezionarlo. E’ possibile indicare più gruppi politici</p>
-				</div>
-			</div>`;
-
-				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 				var data = [];
+
 				gruppi.forEach(function (item) {
+					var tagText = `${item.nome_gruppo} (${item.codice_gruppo})`;
+					if (item.data_fine) {
+						tagText += ` fino al ` + formatDate(item.data_fine);;             
+					}
+					selectHTML += `<option value="${item.id_gruppo}">${tagText}</option>`;
+
 					data.push({
-						tag: `${item.nome_gruppo}`,
+						tag: tagText,
 						id: `${item.id_gruppo}`
 					});
 				});
-				var elems = document.querySelectorAll('#gruppi-autocomplete');
-				var instances = M.Autocomplete.init(elems, {
-					data: data,
-					limit: 20,
-					minLength: 2,
-					onAutocomplete: function (txt, key) {
+				selectHTML += `</select>
+					<div id="gruppi-selected"></div>
+					<div class="card blue lighten-5">
+						<div class="card-content black-text">
+							<span class="card-title">Informazioni</span>
+							<p>Digita le prime lettere del gruppo politico per selezionarlo. E’ possibile indicare più gruppi politici</p>
+						</div>
+					</div>`;
+				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 
-						var existingChip = document.querySelector(`.chip[data-gruppo-id="${key}"]`);
-						if (!existingChip) {
-							var chipsContainerGruppi = document.getElementById('gruppi-selected');
-							var newChip = document.createElement('div');
-							newChip.setAttribute('data-gruppo-id', key);
-							newChip.classList.add('chip');
-							newChip.textContent = txt;
+				// Gestione evento di selezione
+				document.getElementById('gruppi-select').addEventListener("change", function (event) {
+					const selectElement = event.target;
+					const selectedOption = selectElement.options[selectElement.selectedIndex];
+					const key = selectedOption.value; // Ottieni l'id del gruppo selezionato
+					const txt = selectedOption.text; // Ottieni il testo del gruppo selezionato
 
-							var closeIcon = document.createElement('i');
-							closeIcon.classList.add('close', 'material-icons');
-							closeIcon.style.setProperty('top', 'unset', 'important');
-							closeIcon.textContent = 'close';
-							closeIcon.onclick = function () {
-								newChip.remove();
-							};
-							newChip.appendChild(closeIcon);
+					var existingChip = document.querySelector(`.chip[data-gruppo-id="${key}"]`);
+					if (!existingChip) {
+						var chipsContainerGruppi = document.getElementById('gruppi-selected');
+						var newChip = document.createElement('div');
+						newChip.setAttribute('data-gruppo-id', key);
+						newChip.classList.add('chip');
+						newChip.textContent = txt;
 
-							chipsContainerGruppi.appendChild(newChip);
-						}
+						var closeIcon = document.createElement('i');
+						closeIcon.classList.add('close', 'material-icons');
+						closeIcon.style.setProperty('top', 'unset', 'important');
+						closeIcon.textContent = 'close';
+						closeIcon.onclick = function () {
+							newChip.remove();
 
-						document.getElementById('gruppi-autocomplete').value = "";
+							// Deseleziona l'opzione corrispondente nella select
+							var option = document.querySelector(`#gruppi-select option[value="${key}"]`);
+							if (option) {
+								option.selected = false;
+							}
+						};
+						newChip.appendChild(closeIcon);
+
+						chipsContainerGruppi.appendChild(newChip);
 					}
+
+					// Resetta la select dopo la selezione
+					selectElement.selectedIndex = 0;
 				});
 
+				M.FormSelect.init(document.querySelectorAll('select'));
+
+				// Gestione dell'editing
 				if (isEditing) {
+					// Assumiamo che `currentValue` sia una stringa separata da virgole con gli ID dei gruppi selezionati
 					var currentValueArray = currentValue.split(',');
 					var chipsContainerGruppi = document.getElementById('gruppi-selected');
+
 					currentValueArray.forEach(function (guid) {
-						var item = data.find(item => item.id === guid);
+						var item = data.find(item => item.id === guid); // Trova l'elemento corrispondente
 						if (item) {
+							// Crea il chip per il gruppo già selezionato
 							var newChip = document.createElement('div');
 							newChip.setAttribute('data-gruppo-id', item.id);
 							newChip.classList.add('chip');
@@ -1968,19 +1969,34 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 							closeIcon.style.setProperty('top', 'unset', 'important');
 							closeIcon.textContent = 'close';
 							closeIcon.onclick = function () {
+								// Rimuove il chip e aggiorna il valore corrente
 								newChip.remove();
+
+								// Aggiorna la select se necessario
+								var option = document.querySelector(`#gruppi-select option[value="${item.id}"]`);
+								if (option) {
+									option.selected = false; // Deseleziona l'opzione
+								}
 							};
 							newChip.appendChild(closeIcon);
 
 							chipsContainerGruppi.appendChild(newChip);
 						}
 					});
+
+					// Aggiorna lo stato della select per riflettere i valori correnti
+					currentValueArray.forEach(function (guid) {
+						var option = document.querySelector(`#gruppi-select option[value="${guid}"]`);
+						if (option) {
+							option.selected = true; // Seleziona le opzioni corrispondenti
+						}
+					});
 				}
-			}else{
+			} else {
 				swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
-				    .then(() => {
+					.then(() => {
 						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
-				    });
+					});
 			}
 			break;
 		case '@nameof(AttoDASIDto.id_gruppo_firmatari)':
@@ -1989,64 +2005,82 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				var idLegislatura = legislaturaChip.getAttribute('data-val');
 				var gruppi = await GetGruppiByLegislatura(idLegislatura);
 
-				selectHTML = `<div class="input-field col s12">
-                <i class="material-icons prefix">search</i>
-                <input type="text" id="gruppi-firmatari-autocomplete" class="autocomplete">
+				var selectHTML = '<select id="gruppi-firmatari-select">';
+				selectHTML += `<option value="0" disabled selected>Seleziona</option>`;
 
-		        <div id="gruppi-firmatari-selected"></div>
-             </div>
-			  <div class="card blue lighten-5">
-				<div class="card-content black-text">
-					<span class="card-title">Informazioni</span>
-					<p>Digita le prime lettere del gruppo politico per selezionarlo. E’ possibile indicare più gruppi politici</p>
-				</div>
-			</div>`;
-
-				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 				var data = [];
+
 				gruppi.forEach(function (item) {
+					var tagText = `${item.nome_gruppo} (${item.codice_gruppo})`;
+					if (item.data_fine) {
+						tagText += ` fino al ` + formatDate(item.data_fine);;
+					}
+					selectHTML += `<option value="${item.id_gruppo}">${tagText}</option>`;
+
 					data.push({
-						tag: `${item.nome_gruppo}`,
+						tag: tagText,
 						id: `${item.id_gruppo}`
 					});
 				});
-				var elems = document.querySelectorAll('#gruppi-firmatari-autocomplete');
-				var instances = M.Autocomplete.init(elems, {
-					data: data,
-					limit: 20,
-					minLength: 2,
-					onAutocomplete: function (txt, key) {
+				selectHTML += `</select>
+				<div id="gruppi-firmatari-selected"></div>
+				<div class="card blue lighten-5">
+					<div class="card-content black-text">
+						<span class="card-title">Informazioni</span>
+						<p>Digita le prime lettere del gruppo politico per selezionarlo. E’ possibile indicare più gruppi politici</p>
+					</div>
+				</div>`;
+				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
 
-						var existingChip = document.querySelector(`.chip[data-gruppo-firmatari-id="${key}"]`);
-						if (!existingChip) {
-							var chipsContainerGruppi = document.getElementById('gruppi-firmatari-selected');
-							var newChip = document.createElement('div');
-							newChip.setAttribute('data-gruppo-firmatari-id', key);
-							newChip.classList.add('chip');
-							newChip.textContent = txt;
+				// Gestione evento di selezione
+				document.getElementById('gruppi-firmatari-select').addEventListener("change", function (event) {
+					const selectElement = event.target;
+					const selectedOption = selectElement.options[selectElement.selectedIndex];
+					const key = selectedOption.value; // Ottieni l'id del gruppo selezionato
+					const txt = selectedOption.text; // Ottieni il testo del gruppo selezionato
 
-							var closeIcon = document.createElement('i');
-							closeIcon.classList.add('close', 'material-icons');
-							closeIcon.style.setProperty('top', 'unset', 'important');
-							closeIcon.textContent = 'close';
-							closeIcon.onclick = function () {
-								newChip.remove();
-							};
-							newChip.appendChild(closeIcon);
+					var existingChip = document.querySelector(`.chip[data-gruppo-firmatari-id="${key}"]`);
+					if (!existingChip) {
+						var chipsContainerGruppi = document.getElementById('gruppi-firmatari-selected');
+						var newChip = document.createElement('div');
+						newChip.setAttribute('data-gruppo-firmatari-id', key);
+						newChip.classList.add('chip');
+						newChip.textContent = txt;
 
-							chipsContainerGruppi.appendChild(newChip);
-						}
+						var closeIcon = document.createElement('i');
+						closeIcon.classList.add('close', 'material-icons');
+						closeIcon.style.setProperty('top', 'unset', 'important');
+						closeIcon.textContent = 'close';
+						closeIcon.onclick = function () {
+							newChip.remove();
 
-						document.getElementById('gruppi-firmatari-autocomplete').value = "";
+							// Deseleziona l'opzione corrispondente nella select
+							var option = document.querySelector(`#gruppi-firmatari-select option[value="${key}"]`);
+							if (option) {
+								option.selected = false;
+							}
+						};
+						newChip.appendChild(closeIcon);
+
+						chipsContainerGruppi.appendChild(newChip);
 					}
+
+					// Resetta la select dopo la selezione
+					selectElement.selectedIndex = 0;
 				});
 
+				M.FormSelect.init(document.querySelectorAll('select'));
+
+				// Gestione dell'editing
 				if (isEditing) {
+					// Assumiamo che `currentValue` sia una stringa separata da virgole con gli ID dei gruppi selezionati
 					var currentValueArray = currentValue.split(',');
 					var chipsContainerGruppi = document.getElementById('gruppi-firmatari-selected');
+
 					currentValueArray.forEach(function (guid) {
-						var item = data.find(item => item.id === guid);
+						var item = data.find(item => item.id === guid); // Trova l'elemento corrispondente
 						if (item) {
+							// Crea il chip per il gruppo già selezionato
 							var newChip = document.createElement('div');
 							newChip.setAttribute('data-gruppo-firmatari-id', item.id);
 							newChip.classList.add('chip');
@@ -2057,11 +2091,26 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 							closeIcon.style.setProperty('top', 'unset', 'important');
 							closeIcon.textContent = 'close';
 							closeIcon.onclick = function () {
+								// Rimuove il chip e aggiorna il valore corrente
 								newChip.remove();
+
+								// Aggiorna la select se necessario
+								var option = document.querySelector(`#gruppi-firmatari-select option[value="${item.id}"]`);
+								if (option) {
+									option.selected = false; // Deseleziona l'opzione
+								}
 							};
 							newChip.appendChild(closeIcon);
 
 							chipsContainerGruppi.appendChild(newChip);
+						}
+					});
+
+					// Aggiorna lo stato della select per riflettere i valori correnti
+					currentValueArray.forEach(function (guid) {
+						var option = document.querySelector(`#gruppi-firmatari-select option[value="${guid}"]`);
+						if (option) {
+							option.selected = true; // Seleziona le opzioni corrispondenti
 						}
 					});
 				}
@@ -2600,7 +2649,7 @@ function filterBySize(page, size){
 
 			M.Tooltip.init($("#btnGoToPreviewAdmin"));
 		} else {
-			$("#btnGoToPreviewAdmin").hide();	
+			$("#btnGoToPreviewAdmin").hide();
 		}
 	}
 

@@ -954,7 +954,10 @@ namespace PortaleRegione.Persistance
                 .Select(a => new GruppiDto()
                 {
                     id_gruppo = a.id_gruppo,
-                    nome_gruppo = a.nome_gruppo
+                    nome_gruppo = a.nome_gruppo,
+                    codice_gruppo = a.codice_gruppo,
+                    data_inizio = a.data_inizio,
+                    data_fine = a.data_fine
                 });
 
             return await query

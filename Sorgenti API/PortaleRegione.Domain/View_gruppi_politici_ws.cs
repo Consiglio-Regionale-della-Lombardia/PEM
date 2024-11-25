@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace PortaleRegione.Domain
@@ -28,5 +29,8 @@ namespace PortaleRegione.Domain
 
         public string codice_gruppo { get; set; }
         public int id_legislatura { get; set; }
+        public DateTime data_inizio { get; set; }
+        public DateTime? data_fine { get; set; }
+        public bool attivo { get; set; }
     }
 }

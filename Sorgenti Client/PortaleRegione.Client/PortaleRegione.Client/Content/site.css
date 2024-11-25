@@ -941,3 +941,11 @@ span.highlight { background-color: yellow; }
 a.collection-item{
 	color: black!important;
 }
+
+.dropdown-content li > a, .dropdown-content li > span{
+	color:black!important;
+}
+
+.material-icons.prefix {
+	color: black !important;
+}

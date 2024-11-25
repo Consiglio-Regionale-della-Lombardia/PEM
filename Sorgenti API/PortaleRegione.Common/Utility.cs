@@ -1063,6 +1063,16 @@ namespace PortaleRegione.Common
             if (clientFilters == null)
                 return result;
 
+            if (clientFilters.Any(f => f.property.Equals(nameof(AttoDASIDto.id_gruppo_firmatari))))
+            {
+                var gruppi_firmatari =
+                    clientFilters.First(f => f.property.Equals(nameof(AttoDASIDto.id_gruppo_firmatari)));
+                if (string.IsNullOrEmpty(gruppi_firmatari.value))
+                {
+                    clientFilters.Remove(gruppi_firmatari);
+                }
+            }
+
             foreach (var filterItem in clientFilters)
             {
                 if (filterItem.not_empty)

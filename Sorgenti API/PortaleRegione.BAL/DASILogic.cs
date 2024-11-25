@@ -770,150 +770,157 @@ namespace PortaleRegione.API.Controllers
         private void ExtractAndAddFilters<T>(BaseRequest<AttoDASIDto> model, string propertyId, List<T> targetList,
             Func<string, T> convertFunc, QueryExtendedRequest query)
         {
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.DataTrasmissione)
-                                              && statement.Operation == Operation.IsNull))
+            try
             {
-                query.DataTrasmissioneIsNull = true;
-                var statementTrasmissione = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
-                foreach (var statement in statementTrasmissione) model.filtro.Remove(statement);
-
-                return;
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.DataTrattazione)
-                                              && statement.Operation == Operation.IsNull))
-            {
-                query.DataTrattazioneIsNull = true;
-                var statementTrattazione = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
-                foreach (var statement in statementTrattazione) model.filtro.Remove(statement);
-
-                return;
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.DataRisposta)
-                                              && statement.Operation == Operation.IsNull))
-            {
-                query.DataRispostaIsNull = true;
-                var statementRisposta = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
-                foreach (var statement in statementRisposta) model.filtro.Remove(statement);
-
-                return;
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.DataAnnunzio)
-                                              && statement.Operation == Operation.IsNull))
-            {
-                query.DataAnnunzioIsNull = true;
-                var statementAnnunzio = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
-                foreach (var statement in statementAnnunzio) model.filtro.Remove(statement);
-
-                return;
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.DataComunicazioneAssemblea)
-                                              && statement.Operation == Operation.IsNull))
-            {
-                query.DataComunicazioneAssembleaIsNull = true;
-                var statementDataComunicazioneAssemblea = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
-                foreach (var statement in statementDataComunicazioneAssemblea) model.filtro.Remove(statement);
-
-                return;
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.DataChiusuraIter)
-                                              && statement.Operation == Operation.IsNull))
-            {
-                query.DataChiusuraIterIsNull = true;
-                var statementDataChiusuraIter = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
-                foreach (var statement in statementDataChiusuraIter) model.filtro.Remove(statement);
-
-                return;
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.Timestamp)
-                                              && statement.Operation == Operation.IsNull))
-            {
-                query.DataPresentazioneIsNull = true;
-                var statementDataChiusuraIter = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
-                foreach (var statement in statementDataChiusuraIter) model.filtro.Remove(statement);
-
-                return;
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.Risposte)
-                                              && statement.Operation == Operation.IsNull))
-            {
-                query.RispostaMancante = true;
-                var statementRisposta = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
-                foreach (var statement in statementRisposta) model.filtro.Remove(statement);
-
-                return;
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.Organi)
-                                              && statement.Operation == Operation.IsNull))
-            {
-                query.OrganiIsNull = true;
-                var statementOrgani = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
-                foreach (var statement in statementOrgani) model.filtro.Remove(statement);
-
-                return;
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId
-                                              && propertyId == nameof(AttoDASIDto.UIDSeduta)))
-            {
-                var statementUIDSeduta = model.filtro
-                    .Where(statement => statement.PropertyId == propertyId).ToList();
-
-                foreach (var statement in statementUIDSeduta)
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.DataTrasmissione)
+                                                  && statement.Operation == Operation.IsNull))
                 {
-                    if (Guid.TryParse(statement.Value.ToString(), out var guid))
+                    query.DataTrasmissioneIsNull = true;
+                    var statementTrasmissione = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementTrasmissione) model.filtro.Remove(statement);
+
+                    return;
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.DataTrattazione)
+                                                  && statement.Operation == Operation.IsNull))
+                {
+                    query.DataTrattazioneIsNull = true;
+                    var statementTrattazione = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementTrattazione) model.filtro.Remove(statement);
+
+                    return;
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.DataRisposta)
+                                                  && statement.Operation == Operation.IsNull))
+                {
+                    query.DataRispostaIsNull = true;
+                    var statementRisposta = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementRisposta) model.filtro.Remove(statement);
+
+                    return;
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.DataAnnunzio)
+                                                  && statement.Operation == Operation.IsNull))
+                {
+                    query.DataAnnunzioIsNull = true;
+                    var statementAnnunzio = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementAnnunzio) model.filtro.Remove(statement);
+
+                    return;
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.DataComunicazioneAssemblea)
+                                                  && statement.Operation == Operation.IsNull))
+                {
+                    query.DataComunicazioneAssembleaIsNull = true;
+                    var statementDataComunicazioneAssemblea = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementDataComunicazioneAssemblea) model.filtro.Remove(statement);
+
+                    return;
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.DataChiusuraIter)
+                                                  && statement.Operation == Operation.IsNull))
+                {
+                    query.DataChiusuraIterIsNull = true;
+                    var statementDataChiusuraIter = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementDataChiusuraIter) model.filtro.Remove(statement);
+
+                    return;
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.Timestamp)
+                                                  && statement.Operation == Operation.IsNull))
+                {
+                    query.DataPresentazioneIsNull = true;
+                    var statementDataChiusuraIter = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementDataChiusuraIter) model.filtro.Remove(statement);
+
+                    return;
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.Risposte)
+                                                  && statement.Operation == Operation.IsNull))
+                {
+                    query.RispostaMancante = true;
+                    var statementRisposta = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementRisposta) model.filtro.Remove(statement);
+
+                    return;
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.Organi)
+                                                  && statement.Operation == Operation.IsNull))
+                {
+                    query.OrganiIsNull = true;
+                    var statementOrgani = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementOrgani) model.filtro.Remove(statement);
+
+                    return;
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.UIDSeduta)))
+                {
+                    var statementUIDSeduta = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId).ToList();
+
+                    foreach (var statement in statementUIDSeduta)
                     {
-                        return;
+                        if (Guid.TryParse(statement.Value.ToString(), out var guid))
+                        {
+                            return;
+                        }
                     }
                 }
+
+                if (model.filtro.Any(statement => (statement.PropertyId == propertyId
+                                                   && statement.Operation == Operation.IsNull) ||
+                                                  statement.Operation == Operation.IsNullOrWhiteSpace))
+                    return;
+
+                var statements = model.filtro
+                    .Where(statement => statement.PropertyId == propertyId
+                                        && !statement.Value.Equals("_NOT_")).ToList();
+                if (statements.Any())
+                {
+                    targetList.AddRange(statements.Select(statement => convertFunc(statement.Value.ToString())));
+                    foreach (var statement in statements) model.filtro.Remove(statement);
+                }
+
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId && statement.Value.Equals("_NOT_")))
+                {
+                    if (propertyId == nameof(AttoDASIDto.Documenti)) query.DocumentiMancanti = true;
+
+                    var statementsNOT = model.filtro.Where(statement =>
+                        statement.PropertyId == propertyId && statement.Value.Equals("_NOT_")).ToList();
+                    foreach (var statement in statementsNOT) model.filtro.Remove(statement);
+                }
             }
-
-            if (model.filtro.Any(statement => (statement.PropertyId == propertyId
-                                               && statement.Operation == Operation.IsNull) ||
-                                              statement.Operation == Operation.IsNullOrWhiteSpace))
-                return;
-
-            var statements = model.filtro
-                .Where(statement => statement.PropertyId == propertyId
-                                    && !statement.Value.Equals("_NOT_")).ToList();
-            if (statements.Any())
+            catch (Exception e)
             {
-                targetList.AddRange(statements.Select(statement => convertFunc(statement.Value.ToString())));
-                foreach (var statement in statements) model.filtro.Remove(statement);
-            }
-
-            if (model.filtro.Any(statement => statement.PropertyId == propertyId && statement.Value.Equals("_NOT_")))
-            {
-                if (propertyId == nameof(AttoDASIDto.Documenti)) query.DocumentiMancanti = true;
-
-                var statementsNOT = model.filtro.Where(statement =>
-                    statement.PropertyId == propertyId && statement.Value.Equals("_NOT_")).ToList();
-                foreach (var statement in statementsNOT) model.filtro.Remove(statement);
+                Log.Error("Error Extract: ", e);
             }
         }
 

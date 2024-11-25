@@ -1668,3 +1668,19 @@ function handleDateValue(currentValue) {
   }
   return { date1: '', date2: '' };
 }
+
+// Verifica se il valore è nel formato /Date(XXXXXXXXXXXX)/
+		const dateRegex = /\/Date\((\d+)\)\//;
+
+const formatDate = (data) => {
+			const match = data.match(dateRegex);
+			if (match) {
+				const timestamp = parseInt(match[1], 10);
+				const date = new Date(timestamp);
+				const day = String(date.getDate()).padStart(2, '0');
+				const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+				const year = date.getFullYear();
+				return `${day}/${month}/${year}`;
+			}
+			return '';
+		};
