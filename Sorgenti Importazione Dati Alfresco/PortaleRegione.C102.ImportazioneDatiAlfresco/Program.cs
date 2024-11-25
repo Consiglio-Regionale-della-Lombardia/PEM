@@ -133,8 +133,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     })
                     .ToList();
 
-                var insertSeduta = @"INSERT INTO SEDUTE (UIDSeduta, Data_seduta, id_legislatura, Note, DataCreazione) 
-                                     VALUES (@UIDSeduta, @Data_seduta, @id_legislatura, @Note, GETDATE())";
+                var insertSeduta = @"INSERT INTO SEDUTE (UIDSeduta, Data_seduta, Data_apertura, Data_effettiva_inizio, Data_effettiva_fine, id_legislatura, Note, DataCreazione) 
+                                     VALUES (@UIDSeduta, @Data_seduta, @Data_apertura, @Data_effettiva_inizio, @Data_effettiva_fine, @id_legislatura, @Note, GETDATE())";
                 using (var connection = new SqlConnection(AppsettingsConfiguration.CONNECTIONSTRING))
                 {
                     connection.Open();
@@ -149,6 +149,9 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                         // Assegna i valori dei parametri
                         command.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
                         command.Parameters.AddWithValue("@Data_seduta", legislaturaSeduta.durata_legislatura_da);
+                        command.Parameters.AddWithValue("@Data_apertura", legislaturaSeduta.durata_legislatura_da);
+                        command.Parameters.AddWithValue("@Data_effettiva_inizio", legislaturaSeduta.durata_legislatura_da);
+                        command.Parameters.AddWithValue("@Data_effettiva_fine", legislaturaSeduta.durata_legislatura_da);
                         command.Parameters.AddWithValue("@id_legislatura", legislaturaSeduta.id_legislatura);
                         command.Parameters.AddWithValue("@Note", "Contenitore atti importati da Alfresco");
 

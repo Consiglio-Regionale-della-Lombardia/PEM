@@ -20,6 +20,7 @@
                 var data = await GetSeduteAttive();
                 sedute = data.Results;
                 var checked = sedute.length == 1;
+				console.log("SEDUTE ATTIVE", sedute)
                 $.each(sedute,
                     function(i, item) {
                         var resultDate = GetFormattedDate(item.Data_seduta);

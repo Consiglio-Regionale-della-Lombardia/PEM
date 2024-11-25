@@ -1020,20 +1020,20 @@ function CreaTabella() {
 					const yearIscrizioneSeduta = dateIscrizioneSeduta.getFullYear();
 
 					var tooltipSeduta = `Iscritto dal ${dayIscrizioneSeduta}/${monthIscrizioneSeduta}/${yearIscrizioneSeduta}`;
-					td.innerHTML = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" onclick="RimuoviSedutaDASI('${result.UIDAtto}', '${result.DisplayAtto}')">
+					td.innerHTML = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" onclick="RimuoviSedutaDASI('${result.UIDAtto}', '${result.Display}')">
 						<b>${textSeduta}</b>
 						<i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi">close</i>
 					</span>`;
 				} else if (result.DataRichiestaIscrizioneSeduta != null){
 					var textSeduta = `<i>Seduta del ${result.DataRichiestaIscrizioneSeduta}<i>`;
 					var tooltipSeduta = `Richiesta in attesa di elaborazione`;
-					td.innerHTML = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.DisplayAtto}')">
+					td.innerHTML = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.Display}')">
 				${textSeduta}
 				<i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi">check</i>
 </span>`;
 				}
 				else if (result.DataIscrizioneSeduta == null){
-					td.innerHTML = ` <div class="btn-flat yellow-text badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.DisplayAtto}')">
+					td.innerHTML = ` <div class="btn-flat yellow-text badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.Display}')">
      Iscrivi
  </div>`;
 				}
