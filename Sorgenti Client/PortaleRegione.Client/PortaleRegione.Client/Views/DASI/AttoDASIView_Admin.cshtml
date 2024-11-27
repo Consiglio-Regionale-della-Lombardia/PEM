@@ -1497,43 +1497,64 @@
 			<div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe e lettere</div>
 			<div class="collapsible-body">
 				<div class="card">
-					<div class="card-content">
-						<ul class="collection">
-							@if (atto.IsODG()
-								 || atto.IsMOZ()
-								 || atto.IsRIS())
-							{
-								<li class="collection-item">
-									<a style="text-decoration:underline"
-									   data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto })"
-									   onclick="StampaReportRapido(this)">
-										Stampa DCR
-									</a>
-								</li>
-							}
-							@{
+                    <div class="card-content">
+                        <h6>
+							<b>Copertine</b>
+                        </h6>
+						<hr/>
+                        <div class="collection">
+                            @if (atto.IsODG()
+                                 || atto.IsMOZ()
+                                 || atto.IsRIS())
+                            {
+                                <a class="collection-item"
+                                   data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto })"
+                                   onclick="StampaReportRapido(this)">
+                                    Stampa DCR
+                                </a>
+                            }
+                            @{
                                 var tipo_risposta = atto.IDTipo_Risposta;
                                 if (atto.IDTipo_Risposta_Effettiva.HasValue)
                                 {
                                     tipo_risposta = atto.IDTipo_Risposta_Effettiva.Value;
                                 }
                             }
-							<li class="collection-item">
-								<a style="text-decoration:underline"
-								   data-url="@Url.Action("GeneraReportCopertinaPresidente", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
-								   onclick="StampaReportRapido(this)">
-									Stampa copertina presidente
-								</a>
-							</li>
-							<li class="collection-item">
-								<a style="text-decoration:underline"
-								   data-url="@Url.Action("GeneraReportCopertinaUfficio", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
-								   onclick="StampaReportRapido(this)">
-									Stampa copertina ufficio
-								</a>
-							</li>
-						</ul>
-					</div>
+                            <a class="collection-item"
+                               data-url="@Url.Action("GeneraReportCopertinaPresidente", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+                               onclick="StampaReportRapido(this)">
+                                Stampa copertina presidente
+                            </a>
+                            <a class="collection-item"
+                               data-url="@Url.Action("GeneraReportCopertinaUfficio", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+                               onclick="StampaReportRapido(this)">
+                                Stampa copertina ufficio
+                            </a>
+                        </div>
+						
+                        <h6>
+							<b>Lettere</b>
+                        </h6>
+                        <hr/>
+                        <div class="collection">
+                            @if (!atto.IsIQT())
+                            {
+                                <a class="collection-item"
+                                   data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+                                   onclick="StampaReportRapido(this)">
+                                    Stampa lettera
+                                </a>
+                            }
+                            @if (atto.IsMOZ())
+                            {
+                                <a class="collection-item"
+                                   data-url="@Url.Action("GeneraReportLetteraAssembleaMOZ", "DASI", new { id = atto.UIDAtto })"
+                                   onclick="StampaReportRapido(this)">
+                                    Stampa lettera da assemblea
+                                </a>
+                            }
+                        </div>
+                    </div>
 				</div>
 			</div>
 		</li>

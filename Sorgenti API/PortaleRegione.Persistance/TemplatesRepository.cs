@@ -37,12 +37,18 @@ namespace PortaleRegione.Persistance
 
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
-        public async Task<List<TEMPLATES>> GetAll()
+        public async Task<List<TEMPLATES>> GetAll(bool viewAll = false)
         {
             PRContext.TEMPLATES.FromCache(DateTimeOffset.Now.AddHours(1)).ToList();
-            return await PRContext
+            var query = PRContext
                 .TEMPLATES
-                .Where(t => t.Eliminato == false)
+                .Where(t => t.Eliminato == false);
+
+            if (!viewAll)
+            {
+                query = query.Where(t => t.Visibile);
+            }
+            return await query
                 .ToListAsync();
         }
 
@@ -53,7 +59,8 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .TEMPLATES
                 .Where(t => t.Eliminato == false
-                && t.Tipo.Equals((int)type))
+                && t.Tipo.Equals((int)type)
+                && t.Visibile)
                 .ToListAsync();
         }
 

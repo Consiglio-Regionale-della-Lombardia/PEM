@@ -26,7 +26,7 @@ namespace PortaleRegione.Contracts
 {
     public interface ITemplatesRepository : IRepository<TEMPLATES>
     {
-        Task<List<TEMPLATES>> GetAll();
+        Task<List<TEMPLATES>> GetAll(bool viewAll = false);
         Task<List<TEMPLATES>> GetAllByType(TemplateTypeEnum type);
         Task<TEMPLATES> Get(Guid uid);
     }

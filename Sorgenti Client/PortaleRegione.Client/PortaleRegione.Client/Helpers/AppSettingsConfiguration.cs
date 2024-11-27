@@ -67,6 +67,17 @@ namespace PortaleRegione.Client.Helpers
         public static string RIS_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["RIS_UIDTemplateReportCopertinaPresidente"];
         public static string RIS_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["RIS_UIDTemplateReportCopertinaUfficio"];
 
+        public static string RIS_UIDTemplateReportLettera => ConfigurationManager.AppSettings["RIS_UIDTemplateReportLettera"];
+        public static string MOZ_UIDTemplateReportLettera => ConfigurationManager.AppSettings["MOZ_UIDTemplateReportLettera"];
+        public static string MOZ_COMMISSIONE_UIDTemplateReportLettera => ConfigurationManager.AppSettings["MOZ_COMMISSIONE_UIDTemplateReportLettera"];
+        public static string ODG_UIDTemplateReportLettera => ConfigurationManager.AppSettings["MOZ_UIDTemplateReportLettera"];
+        public static string ITL_SCRITTA_UIDTemplateReportLettera => ConfigurationManager.AppSettings["ITL_SCRITTA_UIDTemplateReportLettera"];
+        public static string ITL_ORALE_UIDTemplateReportLettera => ConfigurationManager.AppSettings["ITL_ORALE_UIDTemplateReportLettera"];
+        public static string ITL_COMMISSIONE_UIDTemplateReportLettera => ConfigurationManager.AppSettings["ITL_COMMISSIONE_UIDTemplateReportLettera"];
+        public static string ITR_COMMISSIONE_UIDTemplateReportLettera => ConfigurationManager.AppSettings["ITR_COMMISSIONE_UIDTemplateReportLettera"];
+        public static string ITR_SCRITTA_UIDTemplateReportLettera => ConfigurationManager.AppSettings["ITR_SCRITTA_UIDTemplateReportLettera"];
+
+
         #endregion
     }
 }

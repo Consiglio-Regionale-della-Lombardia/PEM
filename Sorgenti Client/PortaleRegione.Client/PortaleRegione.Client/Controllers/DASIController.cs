@@ -17,11 +17,9 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
@@ -97,9 +95,13 @@ namespace PortaleRegione.Client.Controllers
                 {
                     page = 1,
                     size = 20,
-                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }, {nameof(FilterRequest.viewMode),model.viewMode} }
+                    param = new Dictionary<string, object>
+                    {
+                        { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI },
+                        { nameof(FilterRequest.viewMode), model.viewMode }
+                    }
                 };
-                
+
                 if (!model.filters.Any())
                 {
                     var resEmpty = new RiepilogoDASIModel
@@ -340,17 +342,18 @@ namespace PortaleRegione.Client.Controllers
                 if (!atto.IsChiuso)
                     atto.Destinatari =
                         await Helpers.Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
-                
+
 
                 var result = new DASIFormModel
                 {
                     CurrentUser = currentUser,
                     Atto = atto
                 };
-                if(atto.Tipo == (int)TipoAttoEnum.RIS)
+                if (atto.Tipo == (int)TipoAttoEnum.RIS)
                 {
-                    var consiglieriPublic = await apiGateway.Persone.GetProponentiFirmatari(atto.Legislatura.ToString());
-                    
+                    var consiglieriPublic =
+                        await apiGateway.Persone.GetProponentiFirmatari(atto.Legislatura.ToString());
+
                     if (consiglieriPublic.Any())
                     {
                         result.ListaConsiglieriPublic = consiglieriPublic;
@@ -1059,7 +1062,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 // #994
-                
+
                 var request = new BaseRequest<AttoDASIDto>
                 {
                     page = 1,
@@ -1114,7 +1117,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 // #994
-                
+
                 var request = new BaseRequest<AttoDASIDto>
                 {
                     page = 1,
@@ -1157,7 +1160,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Controller per esportare gli atti
         /// </summary>
@@ -1366,7 +1369,7 @@ namespace PortaleRegione.Client.Controllers
 
             var modeCache = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
             var mode = modeCache != 0 ? (ClientModeEnum)modeCache : ClientModeEnum.GRUPPI;
-            
+
             if (mode == ClientModeEnum.TRATTAZIONE)
             {
                 if (reset_enabled == 1)
@@ -1428,7 +1431,7 @@ namespace PortaleRegione.Client.Controllers
             }
 
             Session["RiepilogoDASI"] = null;
-            
+
             if (reset_enabled == 1)
             {
                 return RedirectToAction("RiepilogoDASI", "DASI");
@@ -1810,16 +1813,18 @@ namespace PortaleRegione.Client.Controllers
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITL_SCRITTA_UIDTemplateReportCopertinaPresidente;
-                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITL_ORALE_UIDTemplateReportCopertinaPresidente;
-                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITL_COMMISSIONE_UIDTemplateReportCopertinaPresidente;
                         }
-                        
+
                         break;
                     }
                     case TipoAttoEnum.ITR:
@@ -1828,11 +1833,13 @@ namespace PortaleRegione.Client.Controllers
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITR_SCRITTA_UIDTemplateReportCopertinaPresidente;
-                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITR_COMMISSIONE_UIDTemplateReportCopertinaPresidente;
                         }
+
                         break;
                     }
                     case TipoAttoEnum.IQT:
@@ -1900,15 +1907,18 @@ namespace PortaleRegione.Client.Controllers
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITL_SCRITTA_UIDTemplateReportCopertinaUfficio;
-                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITL_ORALE_UIDTemplateReportCopertinaUfficio;
-                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITL_COMMISSIONE_UIDTemplateReportCopertinaUfficio;
                         }
+
                         break;
                     }
                     case TipoAttoEnum.ITR:
@@ -1917,11 +1927,13 @@ namespace PortaleRegione.Client.Controllers
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITR_SCRITTA_UIDTemplateReportCopertinaUfficio;
-                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
                         {
                             request.dataviewtype_template =
                                 AppSettingsConfiguration.ITR_COMMISSIONE_UIDTemplateReportCopertinaUfficio;
                         }
+
                         break;
                     }
                     case TipoAttoEnum.IQT:
@@ -1941,6 +1953,141 @@ namespace PortaleRegione.Client.Controllers
                             AppSettingsConfiguration.RIS_UIDTemplateReportCopertinaUfficio;
                         break;
                 }
+
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per generare la copertina per l'ufficio
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-lettera")]
+        public async Task<ActionResult> GeneraReportLettera(Guid id, int tipo, int tipo_risposta)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    wordsize = (int)WordSizeEnum.A3
+                };
+
+                switch ((TipoAttoEnum)tipo)
+                {
+                    case TipoAttoEnum.ITL:
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_SCRITTA_UIDTemplateReportLettera;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_ORALE_UIDTemplateReportLettera;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_COMMISSIONE_UIDTemplateReportLettera;
+                        }
+
+                        break;
+                    }
+                    case TipoAttoEnum.ITR:
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_SCRITTA_UIDTemplateReportLettera;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_COMMISSIONE_UIDTemplateReportLettera;
+                        }
+
+                        break;
+                    }
+                    case TipoAttoEnum.MOZ:
+                    {
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.MOZ_UIDTemplateReportLettera;
+
+                        break;
+                    }
+                    case TipoAttoEnum.ODG:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ODG_UIDTemplateReportLettera;
+                        break;
+                    case TipoAttoEnum.RIS:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.RIS_UIDTemplateReportLettera;
+                        break;
+                }
+
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        ///     Controller per generare la copertina per l'ufficio
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-lettera-assemblea-moz")]
+        public async Task<ActionResult> GeneraReportLetteraAssembleaMOZ(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    wordsize = (int)WordSizeEnum.A3
+                };
+
+                request.dataviewtype_template =
+                    AppSettingsConfiguration.MOZ_COMMISSIONE_UIDTemplateReportLettera;
 
                 var file = await apiGateway.DASI.GeneraReport(request);
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
@@ -2037,7 +2184,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("view-gruppi-disponibili")]
         public async Task<ActionResult> GetGruppiDisponibili(int legislaturaId, int page, int size)
@@ -2053,7 +2200,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("view-organi-disponibili")]
         public async Task<ActionResult> GetOrganiDisponibili(int legislaturaId)
@@ -2069,7 +2216,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("view-reports-covers")]
         public async Task<ActionResult> GetReportsCovers()
@@ -2085,7 +2232,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("view-reports-card-templates")]
         public async Task<ActionResult> GetReportsCardTemplates()
@@ -2104,7 +2251,7 @@ namespace PortaleRegione.Client.Controllers
 
         [HttpPost]
         [Route("genera-zip")]
-        public  async Task<ActionResult> GeneraZip(ReportDto report)
+        public async Task<ActionResult> GeneraZip(ReportDto report)
         {
             try
             {
@@ -2160,7 +2307,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per rimuovere un abbinamento all'atto
         /// </summary>
@@ -2202,7 +2349,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per rimuovere una risposta all'atto
         /// </summary>
@@ -2244,7 +2391,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per salvare le informazioni di una risposta all'atto
         /// </summary>
@@ -2286,7 +2433,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per rimuovere il monitoraggio all'atto
         /// </summary>
@@ -2328,7 +2475,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per salvare le informazioni di chiusura iter
         /// </summary>
@@ -2349,7 +2496,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per salvare una nota all'atto
         /// </summary>
@@ -2370,7 +2517,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per rimuovere una nota dall'atto
         /// </summary>
@@ -2391,7 +2538,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per salvare le informazioni riguardanti la privacy dall'atto
         /// </summary>
@@ -2423,7 +2570,8 @@ namespace PortaleRegione.Client.Controllers
         {
             // Verifica che la richiesta contenga dei file
             if (Request.Files == null || Request.Files.Count == 0)
-            {;
+            {
+                ;
                 return Json(new ErrorResponse("Nessun file caricato."), JsonRequestBehavior.AllowGet);
             }
 
@@ -2433,12 +2581,13 @@ namespace PortaleRegione.Client.Controllers
             // Valida il file (es. tipo MIME, dimensione massima)
             if (file.ContentLength <= 0)
             {
-                return Json(new ErrorResponse( "Il file è vuoto."), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse("Il file è vuoto."), JsonRequestBehavior.AllowGet);
             }
 
             if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
             {
-                return Json(new ErrorResponse( "Formato file non valido. Solo PDF accettati."), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse("Formato file non valido. Solo PDF accettati."),
+                    JsonRequestBehavior.AllowGet);
             }
 
             try
@@ -2494,7 +2643,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per pubblicare un documento dall'atto
         /// </summary>

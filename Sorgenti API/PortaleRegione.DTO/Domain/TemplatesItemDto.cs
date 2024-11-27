@@ -27,4 +27,5 @@ public class TemplatesItemDto
     public string Corpo { get; set; }
     public string Testata { get; set; }
     public int Tipo { get; set; }
+    public bool Visibile { get; set; } = true;
 }

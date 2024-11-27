@@ -784,9 +784,9 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<BaseResponse<TemplatesItemDto>> GetTemplates(Uri url)
+        public async Task<BaseResponse<TemplatesItemDto>> GetTemplates(PersonaDto currentUser, Uri url)
         {
-            var resFromDb = await _unitOfWork.Templates.GetAll();
+            var resFromDb = await _unitOfWork.Templates.GetAll(currentUser.IsAmministratorePEM);
             var results = new List<TemplatesItemDto>();
 
             foreach (var item in resFromDb)
@@ -797,13 +797,14 @@ namespace PortaleRegione.BAL
                     Nome = item.Nome,
                     Corpo = item.Corpo,
                     Testata = item.Testata,
-                    Tipo = item.Tipo
+                    Tipo = item.Tipo,
+                    Visibile = item.Visibile
                 });
             }
 
             return new BaseResponse<TemplatesItemDto>(
                 1,
-                99,
+                150,
                 results,
                 null,
                 results.Count,
@@ -819,7 +820,8 @@ namespace PortaleRegione.BAL
                 Nome = item.Nome,
                 Corpo = item.Corpo,
                 Testata = item.Testata,
-                Tipo = item.Tipo
+                Tipo = item.Tipo,
+                Visibile = item.Visibile
             };
         }
 
@@ -840,7 +842,8 @@ namespace PortaleRegione.BAL
                     Nome = request.Nome,
                     Corpo = request.Corpo,
                     Testata = request.Testata,
-                    Tipo = request.Tipo
+                    Tipo = request.Tipo,
+                    Visibile = request.Visibile
                 };
 
                 _unitOfWork.Templates.Add(template);
@@ -856,6 +859,7 @@ namespace PortaleRegione.BAL
             templateInDb.Corpo = request.Corpo;
             templateInDb.Testata = request.Testata;
             templateInDb.Nome = request.Nome;
+            templateInDb.Visibile = request.Visibile;
             
             await _unitOfWork.CompleteAsync();
 

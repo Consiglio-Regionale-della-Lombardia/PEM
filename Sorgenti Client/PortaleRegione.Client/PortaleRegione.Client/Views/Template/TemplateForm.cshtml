@@ -98,6 +98,14 @@
                         @Html.LabelFor(s => s.Corpo)
                         @Html.TextAreaFor(model => model.Corpo, new { @class = "form-control trumbowyg" })
                     </div>
+                    <div class="input-field" style="padding-top: 10px">
+                        <p>
+                            <label>
+                                <input type="checkbox" value="true" name="Template.Visibile" @Html.Raw(Model.Visibile ? "checked=\"checked\"" : "") />
+                                <span>@nameof(TemplatesItemDto.Visibile)</span>
+                            </label>
+                        </p>
+                    </div>
 
                     <div class="fixed-action-btn">
                         <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva template">
@@ -180,6 +188,7 @@
 		 obj.Corpo = editor_corpo.html();
 		 obj.Testata = editor_testata.html();
 		 obj.Tipo = $('select[id="ddlTipo"]').children("option:selected").val();
+		 obj.Visibile = document.querySelector('input[name="Template.Visibile"]').checked;
 
          $.ajax({
              url: '@Url.Action("SaveTemplate")',

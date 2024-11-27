@@ -72,7 +72,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _adminLogic.GetTemplates(Request.RequestUri);
+                var result = await _adminLogic.GetTemplates(CurrentUser, Request.RequestUri);
 
                 return Ok(result);
             }

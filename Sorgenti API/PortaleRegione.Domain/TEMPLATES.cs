@@ -37,5 +37,6 @@ namespace PortaleRegione.Domain
         public string Testata { get; set; }
         public int Tipo { get; set; }
         public bool Eliminato { get; set; } = false;
+        public bool Visibile { get; set; } = true;
     }
 }
