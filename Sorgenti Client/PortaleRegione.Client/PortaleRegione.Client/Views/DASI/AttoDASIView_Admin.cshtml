@@ -1334,7 +1334,17 @@
 			</div>
 		</li>
 		<li>
-			<div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">security</i>Privacy</div>
+            <div class="collapsible-header collection-header-custom @cssClass">
+                <i class="material-icons">security</i>
+                Privacy
+				
+                @if (atto.Privacy || atto.Privacy_Divieto_Pubblicazione)
+                {
+                    <div class="red-text" style="left: 150px; position: absolute;">
+						<i class="material-icons">lock</i>
+                    </div>
+                }
+            </div>
 			<div class="collapsible-body">
 				<div class="card">
 					<div class="card-content">
