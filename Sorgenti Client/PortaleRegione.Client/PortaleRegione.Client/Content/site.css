@@ -950,6 +950,10 @@ a.collection-item{
 	color: black !important;
 }
 
-.btn-flat{
-	text-align: center!important;
+.btn-flat {
+	text-align: center !important;
+	max-width: 90%; /* Evita che il bottone occupi troppo spazio */
+	width: auto;
+	display: inline-block; /* Mantieni il layout flessibile */
+	margin: 5px;
 }

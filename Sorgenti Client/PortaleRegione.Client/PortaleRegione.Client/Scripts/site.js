@@ -9,6 +9,10 @@ document.addEventListener("DOMContentLoaded",
         // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/
         M.AutoInit();
         loaderView(false);
+
+        document.querySelectorAll('.btn-flat').forEach(element => {
+            element.classList.add('truncate');
+        });
     });
 
 function loaderView(enable) {
