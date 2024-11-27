@@ -267,10 +267,17 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="input-field col s12">
-								@Html.TextAreaFor(model => model.Atto.Oggetto, new { @class = "form-control materialize-textarea" })
-								@Html.LabelFor(s => s.Atto.Oggetto)
-							</div>
+                            <div class="input-field col s12">
+                                <h6>
+									<b>Oggetto</b>
+                                </h6>
+                                <hr/>
+                                <blockquote>
+                                    @Html.Raw(atto.OggettoView())
+                                </blockquote>
+
+
+                            </div>
 						</div>
 						<div class="row">
 							<div class="input-field col s12 m12 l6">
@@ -1978,7 +1985,6 @@
                     UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
                     Stato: document.getElementById('Atto_Stato').value,
                     DataAnnunzio: document.querySelector('input[name="Atto.DataAnnunzio"]').value,
-					Oggetto: document.querySelector('textarea[name="Atto.Oggetto"]').value,
                     Protocollo: document.querySelector('input[name="Atto.Protocollo"]').value,
                     CodiceMateria: document.querySelector('input[name="Atto.CodiceMateria"]').value,
                     AreaPolitica: document.getElementById('Atto_AreaPolitica').value,
