@@ -373,7 +373,8 @@ namespace PortaleRegione.Persistance
                 .ATTI_COMMISSIONI
                 .Where(item => item.UIDAtto == UidAtto)
                 .ToListAsync();
-            PRContext.ATTI_COMMISSIONI.RemoveRange(commissioni);
+            if (commissioni.Any())
+                PRContext.ATTI_COMMISSIONI.RemoveRange(commissioni);
         }
 
         public async Task RimuoviCommissioniProponenti(Guid UidAtto)

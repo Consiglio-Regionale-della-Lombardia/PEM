@@ -995,6 +995,14 @@ function CreaTabella() {
 				}
 			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
 				td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
+			}else if (col.propertyName === '@nameof(AttoDASIDto.Oggetto)') {
+				if (result.Oggetto_Approvato != null && result.Oggetto_Approvato != "") {
+					td.innerHTML = `${result.Oggetto_Approvato}`;
+				} else if (result.Oggetto_Modificato != null && result.Oggetto_Modificato != "") {
+					td.innerHTML = `${result.Oggetto_Modificato}`;
+				} else {
+					td.innerHTML = `${result.Oggetto}`;
+				}				
 			}else if (col.propertyName === '@nameof(AttoDASIDto.UIDSeduta)') {
 
 				if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.ITR)'

@@ -54,7 +54,7 @@ public class AttoDASIDto
     public string Oggetto_Modificato { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Oggetto_Privacy { get; set; }
+    public string Oggetto_Approvato { get; set; }
 
     [AllowHtml] public string Premesse { get; set; }
 
@@ -184,7 +184,7 @@ public class AttoDASIDto
     [DisplayName("Gruppo firmatario")]public int id_gruppo_firmatari { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public List<OrganoDto> Organi { get; set; }
+    public List<OrganoDto> Organi { get; set; } = new List<OrganoDto>();
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Commissioni_client { get; set; }
@@ -302,8 +302,8 @@ public class AttoDASIDto
 
     public string OggettoView()
     {
-        if (!string.IsNullOrEmpty(Oggetto_Privacy))
-            return Oggetto_Privacy;
+        if (!string.IsNullOrEmpty(Oggetto_Approvato))
+            return Oggetto_Approvato;
         if (!string.IsNullOrEmpty(Oggetto_Modificato))
             return Oggetto_Modificato;
         return Oggetto;

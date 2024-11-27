@@ -3460,8 +3460,12 @@ namespace PortaleRegione.API.Controllers
                 //caso in cui l'utente voglia tornare allo stato precedente
                 atto.Oggetto_Modificato = string.Empty;
 
-            if (!string.IsNullOrEmpty(model.Oggetto_Privacy) && !model.Oggetto_Privacy.Equals(model.Oggetto))
-                atto.Oggetto_Privacy = model.Oggetto_Privacy;
+            if (!string.IsNullOrEmpty(model.Oggetto_Approvato) && !model.Oggetto_Approvato.Equals(model.Oggetto))
+                atto.Oggetto_Approvato = model.Oggetto_Approvato;
+            else if (string.IsNullOrEmpty(model.Oggetto_Approvato) &&
+                     !string.IsNullOrEmpty(atto.Oggetto_Approvato))
+                //caso in cui l'utente voglia tornare allo stato precedente
+                atto.Oggetto_Approvato = string.Empty;
 
             if (!string.IsNullOrEmpty(model.Premesse_Modificato))
                 atto.Premesse_Modificato = model.Premesse_Modificato;
@@ -3476,7 +3480,7 @@ namespace PortaleRegione.API.Controllers
                      !string.IsNullOrEmpty(atto.Richiesta_Modificata))
                 //caso in cui l'utente voglia tornare allo stato precedente
                 atto.Richiesta_Modificata = string.Empty;
-
+            
             await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
             if (model.Organi.Any(o => o.tipo_organo == TipoOrganoEnum.COMMISSIONE))
                 foreach (var commissioneDto in model.Organi.Where(o => o.tipo_organo == TipoOrganoEnum.COMMISSIONE))

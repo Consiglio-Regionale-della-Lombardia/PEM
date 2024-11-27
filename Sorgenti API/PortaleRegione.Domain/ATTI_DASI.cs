@@ -44,7 +44,7 @@ namespace PortaleRegione.Domain
 
         public string Oggetto { get; set; }
         public string Oggetto_Modificato { get; set; }
-        public string Oggetto_Privacy { get; set; }
+        public string Oggetto_Approvato { get; set; }
         public string Premesse { get; set; }
         public string Premesse_Modificato { get; set; }
         public string Richiesta { get; set; }

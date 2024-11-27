@@ -204,20 +204,9 @@ else
             </div>
             <div class="col s12">
                 <label>Oggetto:</label>
-                <span style="font-weight: normal !important">
-                    @if (!string.IsNullOrEmpty(item.Oggetto_Privacy))
-                    {
-                        @Html.Raw(item.Oggetto_Privacy)
-                    }
-                    else if (string.IsNullOrEmpty(item.Oggetto_Modificato))
-                    {
-                        @Html.Raw(item.Oggetto)
-                    }
-                    else
-                    {
-                        @Html.Raw(item.Oggetto_Modificato)
-                    }
-                </span>
+				<span style="font-weight: normal !important">
+					@Html.Raw(item.OggettoView())
+				</span>
 
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
