@@ -287,6 +287,10 @@
 	});
 	
 	document.getElementById('btnOrdinamentoRisultati').addEventListener('click', function () {
+		openOrdinamentoModal();
+	});
+
+    function openOrdinamentoModal() {
 		const savedColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
 
 		const sortList = document.getElementById('sort-list');
@@ -297,17 +301,17 @@
 			const row = document.createElement("tr");
 
 			row.innerHTML = `
-            <td>${item.displayText}</td>
-            <td>
-                <select data-column="${item.propertyName}" onchange="updateSortDirection('${item.propertyName}', this.value)">
-                    <option value="1" ${item.sortDirection === "1" ? "selected" : ""}>Crescente</option>
-                    <option value="-1" ${item.sortDirection === "-1" ? "selected" : ""}>Decrescente</option>
-                </select>
-            </td>
-            <td>
-                <a onclick="removeSortColumn('${item.propertyName}', this)" class="red-text">Rimuovi</a>
-            </td>
-        `;
+                <td>${item.displayText}</td>
+                <td>
+                    <select data-column="${item.propertyName}" onchange="updateSortDirection('${item.propertyName}', this.value)">
+                        <option value="1" ${item.sortDirection === "1" ? "selected" : ""}>Crescente</option>
+                        <option value="-1" ${item.sortDirection === "-1" ? "selected" : ""}>Decrescente</option>
+                    </select>
+                </td>
+                <td>
+                    <a onclick="removeSortColumn('${item.propertyName}', this)" class="red-text">Rimuovi</a>
+                </td>
+            `;
 
 			// Aggiunge la riga alla tabella
 			sortList.appendChild(row);
@@ -317,7 +321,7 @@
 		$("select").formSelect();
 
 		$('#modalOrdinamentoRisultati').modal("open");
-	});
+    }
 
 	function handleSortColumnChange() {
 		const select = document.getElementById("sort-columns-grid-select");

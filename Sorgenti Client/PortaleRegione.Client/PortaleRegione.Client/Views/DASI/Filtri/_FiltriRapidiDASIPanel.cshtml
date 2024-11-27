@@ -85,6 +85,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 	document.getElementById('loadingSpinner').style.display = 'none';
 
 	ripristinaFiltri();
+	ripristinaOrdinamento();
+
 	await ripristinaPreferiti();
 	await ripristinaReports();
 	creaPannelloFiltriLaterale();
@@ -607,7 +609,7 @@ async function inviaDatiChips(page, size) {
 
 	var request = {};
 	var chipsData = [];
-	document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
+	document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function (chip) {
 		if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
 			chipsData.push({
 				property: chip.getAttribute('data-filterby'),
@@ -2531,6 +2533,7 @@ function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh) {
 	    newChip.setAttribute('data-filterby', key);
 	    newChip.setAttribute('data-filterby-label', keyLabel);
 	    newChip.classList.add('chip');
+	    newChip.classList.add('filter-chip');
 	    newChip.textContent = chipText;
 
 		addIconsToChip(newChip, key, keyLabel, val);
@@ -2586,7 +2589,7 @@ function addIconsToChip(chip, key, keyLabel, val) {
 
 function salvaFiltri() {
 	const filtri = [];
-	document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
+	document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function (chip) {
 		const key = chip.getAttribute('data-filterby');
 		const keyLabel = chip.getAttribute('data-filterby-label');
 		const val = chip.getAttribute('data-val');
@@ -2622,6 +2625,51 @@ function ripristinaFiltri(){
 		}
 	}
 }
+
+	function ripristinaOrdinamento() {
+		const ordinamenti = JSON.parse(localStorage.getItem('selectedSortColumns'));
+		if (ordinamenti) {
+			ordinamenti.forEach(function (ordinamento) {
+				addSortChipIfNotExists(ordinamento.propertyName, ordinamento.sortDirection, ordinamento.displayText);
+			});
+		}
+	}
+
+	function addSortChipIfNotExists(key, sortDirection, chipText) {
+
+		var existingChip = document.querySelector(`.chip[data-orderby="${key}"]`);
+
+		if (!existingChip) {
+			// La chiave non esiste, quindi aggiungi la chip
+			var chipsContainer = document.getElementById('chips-container');
+			var newChip = document.createElement('div');
+			newChip.setAttribute('data-order-direction', sortDirection);
+			newChip.setAttribute('data-orderby', key);
+			newChip.classList.add('chip');
+			newChip.classList.add('order-chip');
+			newChip.classList.add('amber');
+			newChip.classList.add('black-text');
+
+			var directionText = "";
+			if (sortDirection == "-1")
+				directionText = "Decrescente"
+			else
+				directionText = "Crescente"
+
+			newChip.textContent = "Ordinato per " + chipText + " " + directionText;
+
+			newChip.onclick = async function (event) {
+				event.stopPropagation();
+				openOrdinamentoModal();
+			};
+
+			chipsContainer.appendChild(newChip);
+		} else {
+			existingChip.setAttribute('data-order-direction', sortDirection);
+			existingChip.setAttribute('data-orderby', key);
+			existingChip.textContent = chipText;
+		}
+	}
 
 function filterByPage(page){
 	console.log("filterByPage")
