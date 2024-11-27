@@ -1780,7 +1780,7 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("genera-report-copertina-presidente")]
-        public async Task<ActionResult> GeneraReportCopertinaPresidente(Guid id, int tipo)
+        public async Task<ActionResult> GeneraReportCopertinaPresidente(Guid id, int tipo, int tipo_risposta)
         {
             try
             {
@@ -1805,13 +1805,36 @@ namespace PortaleRegione.Client.Controllers
                 switch ((TipoAttoEnum)tipo)
                 {
                     case TipoAttoEnum.ITL:
-                        request.dataviewtype_template =
-                            AppSettingsConfiguration.ITL_UIDTemplateReportCopertinaPresidente;
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_SCRITTA_UIDTemplateReportCopertinaPresidente;
+                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_ORALE_UIDTemplateReportCopertinaPresidente;
+                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_COMMISSIONE_UIDTemplateReportCopertinaPresidente;
+                        }
+                        
                         break;
+                    }
                     case TipoAttoEnum.ITR:
-                        request.dataviewtype_template =
-                            AppSettingsConfiguration.ITR_UIDTemplateReportCopertinaPresidente;
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_SCRITTA_UIDTemplateReportCopertinaPresidente;
+                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_COMMISSIONE_UIDTemplateReportCopertinaPresidente;
+                        }
                         break;
+                    }
                     case TipoAttoEnum.IQT:
                         request.dataviewtype_template =
                             AppSettingsConfiguration.IQT_UIDTemplateReportCopertinaPresidente;
@@ -1847,7 +1870,7 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("genera-report-copertina-ufficio")]
-        public async Task<ActionResult> GeneraReportCopertinaUfficio(Guid id, int tipo)
+        public async Task<ActionResult> GeneraReportCopertinaUfficio(Guid id, int tipo, int tipo_risposta)
         {
             try
             {
@@ -1872,13 +1895,35 @@ namespace PortaleRegione.Client.Controllers
                 switch ((TipoAttoEnum)tipo)
                 {
                     case TipoAttoEnum.ITL:
-                        request.dataviewtype_template =
-                            AppSettingsConfiguration.ITL_UIDTemplateReportCopertinaUfficio;
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_SCRITTA_UIDTemplateReportCopertinaUfficio;
+                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_ORALE_UIDTemplateReportCopertinaUfficio;
+                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_COMMISSIONE_UIDTemplateReportCopertinaUfficio;
+                        }
                         break;
+                    }
                     case TipoAttoEnum.ITR:
-                        request.dataviewtype_template =
-                            AppSettingsConfiguration.ITR_UIDTemplateReportCopertinaUfficio;
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_SCRITTA_UIDTemplateReportCopertinaUfficio;
+                        }else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_COMMISSIONE_UIDTemplateReportCopertinaUfficio;
+                        }
                         break;
+                    }
                     case TipoAttoEnum.IQT:
                         request.dataviewtype_template =
                             AppSettingsConfiguration.IQT_UIDTemplateReportCopertinaUfficio;

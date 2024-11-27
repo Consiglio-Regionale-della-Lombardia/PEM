@@ -949,3 +949,7 @@ a.collection-item{
 .material-icons.prefix {
 	color: black !important;
 }
+
+.btn-flat{
+	text-align: center!important;
+}

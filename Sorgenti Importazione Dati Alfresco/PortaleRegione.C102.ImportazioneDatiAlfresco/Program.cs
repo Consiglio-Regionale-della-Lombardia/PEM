@@ -87,8 +87,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                         idAssociazione = cellsAssociazione_Sind_Ind[rowASind_Ind, 7].Value.ToString()
                     };
 
-                    if (abbinamentoSind_Ind.Legislatura == "33") continue;
-
                     abbinamentiDasi.Add(abbinamentoSind_Ind);
                 }
 
@@ -114,8 +112,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                             Ufficiale = Convert.ToString(cellsAssociazione_Gea[rowAGea, 10].Value)
                         };
 
-                        if (abbinamentoGea.Legislatura == "33") continue;
-
                         if (abbinamentoGea.IsUfficiale())
                             abbinamentiGea.Add(abbinamentoGea);
                     }
@@ -140,8 +136,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     connection.Open();
                     foreach (var item in abbinamentiRaggruppatiPerLegislatura)
                     {
-                        if (item.Legislatura == "33") continue;
-
                         var command = new SqlCommand(insertSeduta, connection);
                         var uidSeduta = Guid.NewGuid();
                         var legislaturaSeduta =
@@ -625,7 +619,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 #region RISPOSTE ASSOCIATE
 
-// Itera attraverso le righe del foglio delle risposte associate
+                                // Itera attraverso le righe del foglio delle risposte associate
                                 for (var rowRA = 2; rowRA <= rowCountRA; rowRA++)
                                 {
                                     var valoreCella = cellsRisposteAssociate[rowRA, 2]?.Value?.ToString();
@@ -660,8 +654,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                             tipoOrgano = (int)TipoOrganoEnum.GIUNTA;
                                             sub_query =
                                                 @"(SELECT TOP (1) dbo.cariche.nome_carica
-                  FROM dbo.join_persona_organo_carica AS jpoc 
-                  INNER JOIN dbo.cariche ON jpoc.id_carica = dbo.cariche.id_carica 
+                  FROM dbo.cariche
                   WHERE dbo.cariche.id_carica = @IdOrgano)";
 
                                             var idOrganoGiunta = idCommissioneGiunta != null
@@ -2146,11 +2139,11 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                 case "in commissione":
                 case "risposta_in_commissione":
                     return (int)TipoRispostaEnum.COMMISSIONE;
-                case "Iter in assemblea + commissione":
-                case "Iter in assemblea e commissione":
+                case "iter in assemblea + commissione":
+                case "iter in assemblea e commissione":
                 case "risposta_iter_in_assemblea_e_commissione":
                     return (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE;
-                case "Iter in assemblea":
+                case "iter in assemblea":
                     return (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA;
                 default:
                     return 0;

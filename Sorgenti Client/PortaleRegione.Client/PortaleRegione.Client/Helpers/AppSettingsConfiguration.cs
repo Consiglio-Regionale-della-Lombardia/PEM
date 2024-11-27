@@ -47,10 +47,17 @@ namespace PortaleRegione.Client.Helpers
         #region REPORT
 
         public static string UIDTemplateReportDCR => ConfigurationManager.AppSettings["UIDTemplateReportDCR"];
-        public static string ITL_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITL_UIDTemplateReportCopertinaPresidente"];
-        public static string ITL_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITL_UIDTemplateReportCopertinaUfficio"];
-        public static string ITR_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITR_UIDTemplateReportCopertinaPresidente"];
-        public static string ITR_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITR_UIDTemplateReportCopertinaUfficio"];
+        
+        public static string ITL_SCRITTA_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITL_SCRITTA_UIDTemplateReportCopertinaPresidente"];
+        public static string ITL_SCRITTA_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITL_SCRITTA_UIDTemplateReportCopertinaUfficio"];
+        public static string ITL_ORALE_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITL_ORALE_UIDTemplateReportCopertinaPresidente"];
+        public static string ITL_ORALE_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITL_ORALE_UIDTemplateReportCopertinaUfficio"];
+        public static string ITL_COMMISSIONE_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITL_COMMISSIONE_UIDTemplateReportCopertinaPresidente"];
+        public static string ITL_COMMISSIONE_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITL_COMMISSIONE_UIDTemplateReportCopertinaUfficio"];
+        public static string ITR_SCRITTA_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITR_SCRITTA_UIDTemplateReportCopertinaPresidente"];
+        public static string ITR_SCRITTA_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITR_SCRITTA_UIDTemplateReportCopertinaUfficio"];
+        public static string ITR_COMMISSIONE_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITR_COMMISSIONE_UIDTemplateReportCopertinaPresidente"];
+        public static string ITR_COMMISSIONE_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITR_COMMISSIONE_UIDTemplateReportCopertinaUfficio"];
         public static string IQT_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["IQT_UIDTemplateReportCopertinaPresidente"];
         public static string IQT_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["IQT_UIDTemplateReportCopertinaUfficio"];
         public static string MOZ_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["MOZ_UIDTemplateReportCopertinaPresidente"];
