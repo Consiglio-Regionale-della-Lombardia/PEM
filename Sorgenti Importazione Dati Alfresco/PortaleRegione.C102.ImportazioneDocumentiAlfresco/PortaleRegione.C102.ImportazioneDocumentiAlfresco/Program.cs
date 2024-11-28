@@ -53,8 +53,12 @@ internal class Program
                     var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
                     // Estrazione delle informazioni dal nome del file
                     var legislatura = ExtractLegislatura(fileNameWithoutExtension);
-                    var numeroAtto = ExtractNumeroAtto(fileNameWithoutExtension);
                     var tipoDocumento = ParseTipoDocumento(fileNameWithoutExtension);
+
+                    if (legislatura == "33" && tipoDocumento ==(int)TipoDocumentoEnum.TESTO_ALLEGATO)
+                        continue; // #1164
+
+                    var numeroAtto = ExtractNumeroAtto(fileNameWithoutExtension);
                     var tipoAtto = ParseTipoAtto(filePath);
                     var uidDocumento = ExtractUidFromFileName(fileNameWithoutExtension);
                     var pubblicato = true;
