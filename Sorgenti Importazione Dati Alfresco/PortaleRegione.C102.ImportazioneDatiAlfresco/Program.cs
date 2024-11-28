@@ -522,7 +522,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         var data_firma = string.Empty;
                                         // Se il valore della cella corrisponde, aggiungi la riga alla lista
                                         if (cellsFirme[rowF, 8].Value != null)
-                                            data_firma = Convert.ToString(cellsFirme[rowF, 8].Value);
+                                            data_firma = ParseDateTime(Convert.ToString(cellsFirme[rowF, 8].Value)).ToString("dd/MM/yyyy HH:mm:ss");
 
                                         var data_ritiro_firma = Convert.ToString(cellsFirme[rowF, 9].Value);
                                         var id_persona = cellsFirme[rowF, 10].Value.ToString();
@@ -585,7 +585,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         else
                                         {
                                             commandInsertFirmatario.Parameters.AddWithValue("@Data_ritirofirma",
-                                                CryptoHelper.EncryptString(data_ritiro_firma,
+                                                CryptoHelper.EncryptString(ParseDateTime(data_ritiro_firma).ToString("dd/MM/yyyy HH:mm:ss"),
                                                     AppsettingsConfiguration.MASTER_KEY));
                                         }
 
@@ -2204,9 +2204,9 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
             command.Parameters.AddWithValue("@UIDAtto", uidAtto);
             command.Parameters.AddWithValue("@Tipo", ConvertToIntTipoRisposta(tipoRispostaAssociata));
             command.Parameters.AddWithValue("@TipoOrgano", tipoOrgano);
-            command.Parameters.Add("@Data", SqlDbType.DateTime).Value = dataRisposta ?? DBNull.Value;
-            command.Parameters.Add("@DataTrasmissione", SqlDbType.DateTime).Value = dataTrasmissione ?? DBNull.Value;
-            command.Parameters.Add("@DataTrattazione", SqlDbType.DateTime).Value = dataTrattazione ?? DBNull.Value;
+            command.Parameters.Add("@Data", SqlDbType.DateTime).Value = ConvertToSqlDateTime(dataRisposta);
+            command.Parameters.Add("@DataTrasmissione", SqlDbType.DateTime).Value = ConvertToSqlDateTime(dataTrasmissione);
+            command.Parameters.Add("@DataTrattazione", SqlDbType.DateTime).Value = ConvertToSqlDateTime(dataTrattazione);
             command.Parameters.AddWithValue("@IdOrgano", idOrgano ?? 0);
 
             command.ExecuteNonQuery();
@@ -2256,6 +2256,29 @@ VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssocia
         {
             var date = DateTime.Parse(dateTime.Substring(0, 19));
             return date;
+        }
+
+        private static object ConvertToSqlDateTime(object dateValue)
+        {
+            if (dateValue == null || dateValue == DBNull.Value)
+            {
+                return DBNull.Value; // Ritorna DBNull se il valore è null
+            }
+
+            // Prova a fare il parsing se il valore è una stringa
+            if (dateValue is string dateString)
+            {
+                try
+                {
+                    return ParseDateTime(dateString).ToString("dd/MM/yyyy HH:mm:ss"); // Parsing robusto della stringa
+                }
+                catch (FormatException)
+                {
+                    throw new ArgumentException($"Formato data non valido: {dateString}");
+                }
+            }
+
+            throw new ArgumentException("Valore data non riconosciuto.");
         }
 
         public class AttoImportato
