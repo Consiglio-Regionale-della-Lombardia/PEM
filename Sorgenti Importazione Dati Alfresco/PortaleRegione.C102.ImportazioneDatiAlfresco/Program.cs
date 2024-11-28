@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -595,7 +596,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         commandInsertFirmatario.Parameters.AddWithValue("@id_gruppo",
                                             id_gruppo_firmatario);
                                         commandInsertFirmatario.Parameters.AddWithValue("@Timestamp",
-                                            DateTime.Parse(data_firma));
+                                            ParseDateTime(data_firma));
                                         commandInsertFirmatario.ExecuteNonQuery(); // Esegui l'inserimento dei dati
 
                                         chkf++;
@@ -842,8 +843,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var dataPresentazioneFromAlfresco = Convert.ToString(cellsAtti[row, 16].Value);
                                 if (string.IsNullOrEmpty(dataPresentazioneFromAlfresco))
                                     throw new Exception("Data presentazione non valida");
-                                var dataPresentazione =
-                                    Convert.ToDateTime(dataPresentazioneFromAlfresco).ToUniversalTime();
+                                var dataPresentazione = ParseDateTime(dataPresentazioneFromAlfresco);
                                 var dataPresentazione_Cifrata = CryptoHelper.EncryptString(
                                     dataPresentazione.ToString("dd/MM/yyyy HH:mm:ss"),
                                     AppsettingsConfiguration.MASTER_KEY);
@@ -1215,7 +1215,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataAnnunzio",
-                                            Convert.ToDateTime(dataAnnunzio));
+                                            ParseDateTime(dataAnnunzio));
                                     }
 
                                     if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio)
@@ -1228,7 +1228,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataTrasmissioneMonitoraggio",
-                                            Convert.ToDateTime(dataTrasmissioneMonitoraggio));
+                                            ParseDateTime(dataTrasmissioneMonitoraggio));
                                     }
 
                                     if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
@@ -1238,7 +1238,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataComunicazioneAssemblea",
-                                            Convert.ToDateTime(dataComunicazioneAssemblea));
+                                            ParseDateTime(dataComunicazioneAssemblea));
                                     }
 
                                     if (string.IsNullOrEmpty(dataTrasmissione))
@@ -1248,7 +1248,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataTrasmissione",
-                                            Convert.ToDateTime(dataTrasmissione));
+                                            ParseDateTime(dataTrasmissione));
                                     }
 
                                     if (string.IsNullOrEmpty(dataSedutaRisposta))
@@ -1258,7 +1258,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataSedutaRisposta",
-                                            Convert.ToDateTime(dataSedutaRisposta));
+                                            ParseDateTime(dataSedutaRisposta));
                                     }
 
                                     if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
@@ -1268,7 +1268,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataComunicazioneAssembleaRisposta",
-                                            Convert.ToDateTime(dataComunicazioneAssembleaRisposta));
+                                            ParseDateTime(dataComunicazioneAssembleaRisposta));
                                     }
 
                                     if (string.IsNullOrEmpty(dataProposta))
@@ -1278,7 +1278,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataProposta",
-                                            Convert.ToDateTime(dataProposta));
+                                            ParseDateTime(dataProposta));
                                     }
 
                                     if (string.IsNullOrEmpty(tipoChiusuraIter))
@@ -1308,7 +1308,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataChiusuraIter",
-                                            Convert.ToDateTime(dataChiusuraIter));
+                                            ParseDateTime(dataChiusuraIter));
                                     }
 
                                     if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
@@ -1318,7 +1318,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataChiusuraIterCommissione",
-                                            Convert.ToDateTime(dataChiusuraIterCommissione));
+                                            ParseDateTime(dataChiusuraIterCommissione));
                                     }
 
                                     if (string.IsNullOrEmpty(tipoVotazione))
@@ -1592,7 +1592,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataAnnunzio",
-                                            Convert.ToDateTime(dataAnnunzio));
+                                            ParseDateTime(dataAnnunzio));
                                     }
 
                                     if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio)
@@ -1605,7 +1605,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataTrasmissioneMonitoraggio",
-                                            Convert.ToDateTime(dataTrasmissioneMonitoraggio));
+                                            ParseDateTime(dataTrasmissioneMonitoraggio));
                                     }
 
                                     if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
@@ -1615,7 +1615,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataComunicazioneAssemblea",
-                                            Convert.ToDateTime(dataComunicazioneAssemblea));
+                                            ParseDateTime(dataComunicazioneAssemblea));
                                     }
 
                                     if (string.IsNullOrEmpty(dataTrasmissione))
@@ -1625,7 +1625,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataTrasmissione",
-                                            Convert.ToDateTime(dataTrasmissione));
+                                            ParseDateTime(dataTrasmissione));
                                     }
 
                                     if (string.IsNullOrEmpty(dataSedutaRisposta))
@@ -1635,7 +1635,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataSedutaRisposta",
-                                            Convert.ToDateTime(dataSedutaRisposta));
+                                            ParseDateTime(dataSedutaRisposta));
                                     }
 
                                     if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
@@ -1645,7 +1645,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataComunicazioneAssembleaRisposta",
-                                            Convert.ToDateTime(dataComunicazioneAssembleaRisposta));
+                                            ParseDateTime(dataComunicazioneAssembleaRisposta));
                                     }
 
                                     if (string.IsNullOrEmpty(dataProposta))
@@ -1655,7 +1655,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataProposta",
-                                            Convert.ToDateTime(dataProposta));
+                                            ParseDateTime(dataProposta));
                                     }
 
                                     if (string.IsNullOrEmpty(tipoChiusuraIter))
@@ -1685,7 +1685,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataChiusuraIter",
-                                            Convert.ToDateTime(dataChiusuraIter));
+                                            ParseDateTime(dataChiusuraIter));
                                     }
 
                                     if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
@@ -1695,7 +1695,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     else
                                     {
                                         command.Parameters.AddWithValue("@DataChiusuraIterCommissione",
-                                            Convert.ToDateTime(dataChiusuraIterCommissione));
+                                            ParseDateTime(dataChiusuraIterCommissione));
                                     }
 
                                     if (string.IsNullOrEmpty(tipoVotazione))
@@ -2250,6 +2250,12 @@ VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssocia
             input = input.Replace("<i>", "<em>").Replace("</i>", "</em>");
 
             return input;
+        }
+
+        public static DateTime ParseDateTime(string dateTime)
+        {
+            var date = DateTime.Parse(dateTime.Substring(0, 19));
+            return date;
         }
 
         public class AttoImportato
