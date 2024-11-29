@@ -350,7 +350,7 @@ namespace PortaleRegione.Common
                 case TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI:
                     return "Chiusura per motivi diversi";
                 default:
-                    return "Chiusura iter non valida";
+                    return "--";
             }
         }
 

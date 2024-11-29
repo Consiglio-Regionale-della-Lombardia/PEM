@@ -243,6 +243,35 @@ namespace PortaleRegione.Persistance.Public
             return res;
         }
 
+        public async Task<List<KeyValueDto>> GetCommissioniProponenti(Guid uidAtto)
+        {
+            var proponentiInDb = await PRContext
+                .ATTI_PROPONENTI
+                .Where(d => d.UIDAtto == uidAtto)
+                .ToListAsync();
+            var res = new List<KeyValueDto>();
+            foreach (var item in proponentiInDb)
+            {
+                if (item.IdOrgano.HasValue)
+                    res.Add(new KeyValueDto()
+                    {
+                        descr = item.DescrizioneOrgano,
+                        id = item.IdOrgano.Value
+                    });
+                else
+                {
+                    var persona = await PRContext.View_UTENTI.FindAsync(item.UidPersona.Value);
+                    res.Add(new KeyValueDto()
+                    {
+                        descr = $"{persona.cognome} {persona.nome}",
+                        uid = persona.UID_persona.Value.ToString()
+                    });
+                }
+            }
+
+            return res.OrderBy(p => p.descr).ToList();
+        }
+
         private async Task<IQueryable<ATTI_DASI>> GetQuery(Filter<ATTI_DASI> filtro,
             CercaRequest request)
         {

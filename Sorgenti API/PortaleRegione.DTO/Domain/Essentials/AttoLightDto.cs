@@ -77,5 +77,9 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string data_comunicazione_assemblea { get; set; }
         public string testo_presentato { get; set; }
         public string testo_approvato { get; set; }
+        public List<KeyValueDto> proponenti { get; set; } = new List<KeyValueDto>();
+        public PersonaPublicDto relatore1 { get; set; }
+        public PersonaPublicDto relatore2 { get; set; }
+        public PersonaPublicDto relatore_minoranza { get; set; }
     }
 }

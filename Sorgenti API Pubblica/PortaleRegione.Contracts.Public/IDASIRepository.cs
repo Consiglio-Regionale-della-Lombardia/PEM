@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request.Public;
@@ -90,5 +91,6 @@ namespace PortaleRegione.Contracts.Public
 
         Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto);
         Task<List<NoteDto>> GetNote(Guid uidAtto);
+        Task<List<KeyValueDto>> GetCommissioniProponenti(Guid uidAtto);
     }
 }

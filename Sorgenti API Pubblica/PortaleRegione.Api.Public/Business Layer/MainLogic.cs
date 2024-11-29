@@ -236,12 +236,28 @@ namespace PortaleRegione.Api.Public.Business_Layer
             if (attoInDb == null)
                 throw new KeyNotFoundException($"Identificativo {uidAtto} non trovato.");
             KeyValueDto gruppo = null;
+            PersonaPublicDto proponente = null;
+            PersonaPublicDto personaRelatore1 = null;
+            PersonaPublicDto personaRelatore2 = null;
+            PersonaPublicDto personaRelatoreMinoranza = null;
+            List<KeyValueDto> proponenti = new List<KeyValueDto>();
             if (attoInDb.Tipo != (int)TipoAttoEnum.RIS)
             {
                 gruppo = await _unitOfWork.Persone.GetGruppo(attoInDb.id_gruppo);
+                proponente = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaProponente.Value);
+            }
+            else
+            {
+                proponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
+
+                if (attoInDb.UIDPersonaRelatore1.HasValue)
+                    personaRelatore1 = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatore1.Value);
+                if (attoInDb.UIDPersonaRelatore2.HasValue)
+                    personaRelatore2 = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatore2.Value);
+                if (attoInDb.UIDPersonaRelatoreMinoranza.HasValue)
+                    personaRelatoreMinoranza = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatoreMinoranza.Value);
             }
 
-            var proponente = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaProponente.Value);
             //if (proponente.DisplayName.Contains("(--)"))
             //{
             //    proponente.DisplayName = proponente.DisplayName.Replace("--", gruppo.sigla.Trim());
@@ -319,6 +335,14 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 testo_presentato = linkTestoOriginale,
                 testo_approvato = linkTestoApprovato
             };
+
+            if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+            {
+                attoDto.proponenti = proponenti;
+                attoDto.relatore1 = personaRelatore1;
+                attoDto.relatore2 = personaRelatore2;
+                attoDto.relatore_minoranza = personaRelatoreMinoranza;
+            }
 
             return attoDto;
         }
