@@ -206,7 +206,7 @@ namespace PortaleRegione.BAL
                     var dest = await _logicPersona.GetPersona(new Guid(destinatario), currentUser.IsGiunta);
                     listaDestinatari.Add(dest);
 
-                    if (dest.IsGiunta)
+                    if (dest.IsGiunta) // #1114
                     {
                         var responsabiliGiunta = await _logicPersona.GetSegreteriaGiuntaRegionale(true, false);
                         foreach (var resp in responsabiliGiunta)
