@@ -100,9 +100,10 @@ namespace PortaleRegione.DTO.Domain
                                 || IsAmministratoreGiunta
                                 || CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
                                 || CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale
-                                || IsAssessore;
+                                || IsAssessore
+                                || (Gruppo != null && Gruppo.id_gruppo >= 10000);
 
-        public bool IsAmministratoreGiunta => CurrentRole == RuoliIntEnum.Amministratore_Giunta;
+        public bool IsAmministratoreGiunta => CurrentRole == RuoliIntEnum.Amministratore_Giunta; 
         public bool IsAmministratorePEM => CurrentRole == RuoliIntEnum.Amministratore_PEM;
 
         public bool IsCapoGruppo { get; set; }
