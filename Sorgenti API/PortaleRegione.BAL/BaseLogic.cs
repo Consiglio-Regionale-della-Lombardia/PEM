@@ -727,7 +727,7 @@ namespace PortaleRegione.BAL
                         if (!attiFirmeDto.ufficio)
                             body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
                         body =
-                            $"<label style='text-decoration:line-through!important;' class='black-text'>{body} ({attiFirmeDto.Data_ritirofirma})</label></br>";
+                            $"<label style='text-decoration:line-through!important;' class='black-text'>{body} Ritirato il {attiFirmeDto.Data_ritirofirma}</label></br>";
                     }
 
                     result.Add(body);
