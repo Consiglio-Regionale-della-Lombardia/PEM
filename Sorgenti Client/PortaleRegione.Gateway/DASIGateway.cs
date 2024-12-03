@@ -127,11 +127,12 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
-        public async Task Salva_NuovaRisposta(AttiRisposteDto request)
+        public async Task<AttiRisposteDto> Salva_NuovaRisposta(AttiRisposteDto request)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_AddAnswer}";
             var body = JsonConvert.SerializeObject(request);
-            await Post(requestUrl, body, _token);
+            var risposta = JsonConvert.DeserializeObject<AttiRisposteDto>(await Post(requestUrl, body, _token));
+            return risposta;
         }
         
         public async Task Salva_Nota(NoteDto request)

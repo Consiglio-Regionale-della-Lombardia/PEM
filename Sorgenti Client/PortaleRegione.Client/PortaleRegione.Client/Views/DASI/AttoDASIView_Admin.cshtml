@@ -1708,12 +1708,6 @@
         <div class="row">
             <div class="input-field col s12">
                 <select id="tipi-nota-select">
-                    <option value="0">Seleziona</option>
-                    @*<option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PRIVATA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA)</option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PUBBLICA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PUBBLICA)</option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.CHIUSURA_ITER)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER)</option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.RISPOSTA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA)</option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.PRIVACY)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.PRIVACY)</option>*@
                 </select>
                 <label>Tipo nota</label>
             </div>
@@ -2225,51 +2219,57 @@
 					buttons: ["Annulla", "Inserisci"]
 				}).then(async (answer) => {
 
-					if (answer) {
+						if (answer) {
 
-						let tipoOrgano;
-						let displayTipoOrgano;
+							let tipoOrgano;
+							let displayTipoOrgano;
 
-						if (txt.includes("Commissione")) {
-							tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
-							displayTipoOrgano = "Commissione";
-						} else {
-							tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
-							displayTipoOrgano = "Giunta";
-						}
+							if (txt.includes("Commissione")) {
+								tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+								displayTipoOrgano = "Commissione";
+							} else {
+								tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+								displayTipoOrgano = "Giunta";
+							}
 
-						// Simula la richiesta al server per salvare i dati
-						var request = {
-							UIDAtto: '@Model.Atto.UIDAtto',
-							IdOrgano: `${key}`,
-							TipoOrgano: tipoOrgano,
-							DisplayTipoOrgano: displayTipoOrgano,
-							DescrizioneOrgano: txt,
-						}
+							// Simula la richiesta al server per salvare i dati
+							var request = {
+								UIDAtto: '@Model.Atto.UIDAtto',
+								IdOrgano: `${key}`,
+								TipoOrgano: tipoOrgano,
+								DisplayTipoOrgano: displayTipoOrgano,
+								DescrizioneOrgano: txt,
+							}
 
-						var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
-						// Send the data using fetch
-						const response = await fetch(url, {
-							method: 'POST',
-							headers: {
-								'Content-Type': 'application/json'
-							},
-							body: JSON.stringify(request)
-						});
+							var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+							// Send the data using fetch
+							const response = await fetch(url, {
+								method: 'POST',
+								headers: {
+									'Content-Type': 'application/json'
+								},
+								body: JSON.stringify(request)
+							});
 
-						if (!response.ok) {
-							throw new Error('Network response was not ok');
-						}
+							if (!response.ok) {
+								throw new Error('Network response was not ok');
+							}
 
-						try {
-							const errorData = await response.json();
-							if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+							try {
+								const errorData = await response.json();
+								if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
 
-						} catch (error) {
-							// ignored
-						}
-
-						location.reload();
+							} catch (error) {
+								// ignored
+							}
+							const atto = @Html.Raw(JsonConvert.SerializeObject(new {
+                                             UIDAtto = Model.Atto.UIDAtto,
+                                             IsMOZ = Model.Atto.IsMOZ(),
+                                             IsIQT = Model.Atto.IsIQT(),
+                                             IsITL = Model.Atto.IsITL(),
+                                             IsITR = Model.Atto.IsITR()
+                                         }));
+							aggiungiRigaAllaTabella(request, atto);
 						}
 					});
 				}
@@ -2861,12 +2861,12 @@
 		waiting(true);
 		$("#txtNota_Testo").val("")
 		$('#tipi-nota-select').empty();
-		$('#tipi-nota-select').append(new Option("Seleziona", 0, true, true)); 
-		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA))", @((int)TipoNotaEnum.GENERALE_PRIVATA), false, false)); 
-		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PUBBLICA))", @((int)TipoNotaEnum.GENERALE_PUBBLICA), false, false)); 
-		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER))", @((int)TipoNotaEnum.CHIUSURA_ITER), false, false)); 
-		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA))", @((int)TipoNotaEnum.RISPOSTA), false, false)); 
-		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.PRIVACY))", @((int)TipoNotaEnum.PRIVACY), false, false)); 
+		$('#tipi-nota-select').append(new Option("Seleziona", 0, true, true));
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA))", @((int)TipoNotaEnum.GENERALE_PRIVATA), false, false));
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PUBBLICA))", @((int)TipoNotaEnum.GENERALE_PUBBLICA), false, false));
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER))", @((int)TipoNotaEnum.CHIUSURA_ITER), false, false));
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA))", @((int)TipoNotaEnum.RISPOSTA), false, false));
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.PRIVACY))", @((int)TipoNotaEnum.PRIVACY), false, false));
 		$('#tipi-nota-select').formSelect();
 		waiting(false);
 		$('#modalNota').modal("open");
@@ -2983,8 +2983,6 @@
 				`;
 				document.querySelector('#tableNote_Privacy tbody').appendChild(newPrivacyRow);
 			}
-
-			$('#empty-note-privacy').hide();
 		}
 
 		if (tipoNotaValue == @((int)TipoNotaEnum.CHIUSURA_ITER)) {
@@ -3011,7 +3009,6 @@
 			}
 		}
 		waiting(false);
-		$('#empty-note').hide();
 		M.toast({
 			html: `<span>Nota salvata con successo</span>`,
 			classes: 'rounded',
@@ -3249,18 +3246,6 @@
 		$('#modalInformazioniRisposta').modal("open");
 	}
 
-	@*function togglePnlSearchOrganiCommissione() {
-		const select = document.getElementById('tipo-risposta-select');
-		const panel = document.getElementById('pnlSearchOrganiCommissioneRisposta');
-
-		// Mostra il pannello solo se l'opzione "In commissione" è selezionata
-		if (select.value == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)) {
-			panel.style.display = 'block';
-		} else {
-			panel.style.display = 'none';
-		}
-	}*@
-
     async function InserisciRisposta() {
         waiting(true);
         // Simula la richiesta al server per salvare i dati
@@ -3283,15 +3268,186 @@
         }
 
         try {
-			const errorData = await response.json();
-			if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+			const data = await response.json();
+			if (data.message) { ErrorAlert(data.message); return; }
+
+			const atto = @Html.Raw(JsonConvert.SerializeObject(new {
+                             UIDAtto = Model.Atto.UIDAtto,
+                             IsMOZ = Model.Atto.IsMOZ(),
+                             IsIQT = Model.Atto.IsIQT(),
+                             IsITL = Model.Atto.IsITL(),
+                             IsITR = Model.Atto.IsITR()
+                         }));
+			aggiungiRigaAllaTabella(data, atto);
 
         } catch (error) {
 			// ignored
         }
-
-        location.reload();
+		
+		waiting(false);
     }
+
+	function aggiungiRigaAllaTabella(risposta, atto) {
+		const tableBody = document.querySelector('#tableRisposte tbody');
+
+		// Costruzione dinamica delle colonne basate sulle condizioni di `atto`
+		let colonneDinamiche = '';
+
+		if (atto.IsMOZ) {
+			colonneDinamiche += `
+            <td class="center">
+                <div class="row">
+                    <div class="col s6">${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}</div>
+                    <div class="col s6">
+                        <a class="black-text" data-risposta='${JSON.stringify(risposta)}' onclick="modificaDettagliRisposta(this)">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+            <td class="center">
+                <div class="row">
+                    <div class="col s6">${risposta.DataTrattazione ? risposta.DataTrattazione : ''}</div>
+                    <div class="col s6">
+                        <a class="black-text" data-risposta='${JSON.stringify(risposta)}' onclick="modificaDettagliRisposta(this)">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+            <td class="center">
+                <div class="row">
+                    <div class="col s6">${risposta.DataRevoca ? risposta.DataRevoca : ''}</div>
+                    <div class="col s6">
+                        <a class="black-text" data-risposta='${JSON.stringify(risposta)}' onclick="modificaDettagliRisposta(this)">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+        `;
+		} else if (atto.IsIQT) {
+			colonneDinamiche += `
+            <td class="center">
+                <div class="row">
+                    <div class="col s6">${risposta.Data ? risposta.Data : ''}</div>
+                    <div class="col s6">
+                        <a class="black-text" data-risposta='${JSON.stringify(risposta)}' onclick="modificaDettagliRisposta(this)">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+        `;
+		} else if (atto.IsITR || atto.IsITL) {
+			colonneDinamiche += `
+            <td class="center">
+                <div class="row">
+                    <div class="col s6">${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}</div>
+                    <div class="col s6">
+                        <a class="black-text" data-risposta='${JSON.stringify(risposta)}' onclick="modificaDettagliRisposta(this)">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+            <td class="center">
+                <div class="row">
+                    <div class="col s6">${risposta.Data ? risposta.Data : ''}</div>
+                    <div class="col s6">
+                        <a class="black-text" data-risposta='${JSON.stringify(risposta)}' onclick="modificaDettagliRisposta(this)">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+        `;
+		} else {
+			colonneDinamiche += `
+            <td class="center">
+                <div class="row">
+                    <div class="col s6">${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}</div>
+                    <div class="col s6">
+                        <a class="black-text" data-risposta='${JSON.stringify(risposta)}' onclick="modificaDettagliRisposta(this)">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+            <td class="center">
+                <div class="row">
+                    <div class="col s6">${risposta.Data ? risposta.Data : ''}</div>
+                    <div class="col s6">
+                        <a class="black-text" data-risposta='${JSON.stringify(risposta)}' onclick="modificaDettagliRisposta(this)">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+            <td class="center">
+                <div class="row">
+                    <div class="col s6">${risposta.DataTrattazione ? risposta.DataTrattazione : ''}</div>
+                    <div class="col s6">
+                        <a class="black-text" data-risposta='${JSON.stringify(risposta)}' onclick="modificaDettagliRisposta(this)">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+        `;
+		}
+
+		// Costruisci l'intera riga con le colonne dinamiche
+		const nuovaRiga = `
+        <tr id="${risposta.Uid}">
+            <td>${risposta.DescrizioneOrgano}</td>
+            ${colonneDinamiche}
+            <td>
+                <ul class="collection">
+                    ${(risposta.RisposteAssociate || []).map(r => `
+                        <li class="collection-item">
+                            <div>${r.DescrizioneOrgano}
+                                <a href="#!" class="secondary-content red-text" onclick="rimuoviRisposta(this, '${r.Uid}')">
+                                    <i class="material-icons">close</i>
+                                </a>
+                            </div>
+                        </li>
+                    `).join('')}
+                    <li class="collection-item">
+                        <div>
+                            <a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '${risposta.Uid}')">
+                                <i class="material-icons">add</i>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </td>
+            <td>
+                ${risposta.UIDDocumento ? `
+                    <a href="${risposta.Link}" target="_blank" style="text-decoration: underline">
+                        ${risposta.Titolo}
+                    </a>
+                    <a href="#!" class="btn-flat red-text" onclick="rimuoviDocumento(this, '${risposta.Titolo}', '${risposta.UIDDocumento}')">
+                        Rimuovi
+                    </a>
+                ` : `
+                    <a href="#!" class="btn-flat pink-text" onclick="AggiungiDocumento_Risposta(this, '${risposta.Uid}')">
+                        Carica
+                    </a>
+                `}
+            </td>
+            <td class="center">
+                <a href="#!" class="btn-flat red-text" onclick="rimuoviRisposta(this, '${risposta.Uid}')">
+                    Elimina
+                </a>
+            </td>
+        </tr>
+    `;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+
 
 </script>
 </body>

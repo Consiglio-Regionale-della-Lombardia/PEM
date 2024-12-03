@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Interfaces;
@@ -640,10 +639,12 @@ namespace PortaleRegione.Persistance
             var dataFromDb = await PRContext
                 .ATTI_RISPOSTE
                 .Where(r => r.UIDAtto == uidAtto)
+                .OrderByDescending(r => r.Data)
                 .ToListAsync();
 
             var res = new List<AttiRisposteDto>();
-            foreach (var r in dataFromDb.Where(risp=> !risp.UIDRispostaAssociata.HasValue || risp.UIDRispostaAssociata == Guid.Empty))
+            foreach (var r in dataFromDb.Where(risp =>
+                         !risp.UIDRispostaAssociata.HasValue || risp.UIDRispostaAssociata == Guid.Empty))
             {
                 var risposta = new AttiRisposteDto
                 {
@@ -678,8 +679,8 @@ namespace PortaleRegione.Persistance
                             Tipo = rispostaAssociata.Tipo,
                             DisplayTipo = Utility.GetText_TipoRispostaDASI(rispostaAssociata.Tipo),
                             TipoOrgano = rispostaAssociata.TipoOrgano,
-                            DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(rispostaAssociata.TipoOrgano),
-                        });    
+                            DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(rispostaAssociata.TipoOrgano)
+                        });
                     }
                 }
 

@@ -2340,8 +2340,8 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.Salva_NuovaRisposta(request);
-                return Json("OK", JsonRequestBehavior.AllowGet);
+                var risposta = await apiGateway.DASI.Salva_NuovaRisposta(request);
+                return Json(risposta, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

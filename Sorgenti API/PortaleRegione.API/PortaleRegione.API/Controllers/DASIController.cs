@@ -176,8 +176,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_NuovaRisposta(request);
-                return Ok();
+                var risposta = await _dasiLogic.Salva_NuovaRisposta(request);
+                return Ok(risposta);
             }
             catch (Exception e)
             {

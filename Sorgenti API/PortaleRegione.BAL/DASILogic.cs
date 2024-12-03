@@ -366,7 +366,7 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_NuovaRisposta(AttiRisposteDto request)
+        public async Task<AttiRisposteDto> Salva_NuovaRisposta(AttiRisposteDto request)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
@@ -375,16 +375,28 @@ namespace PortaleRegione.API.Controllers
             var risposta = new ATTI_RISPOSTE
             {
                 UIDAtto = request.UIDAtto,
-                DescrizioneOrgano = request.DescrizioneOrgano,
+                DescrizioneOrgano = string.IsNullOrEmpty(request.DescrizioneOrgano) ? "" : request.DescrizioneOrgano,
                 Tipo = request.Tipo,
                 IdOrgano = request.IdOrgano,
                 TipoOrgano = request.TipoOrgano,
-                UIDRispostaAssociata = request.Uid
+                UIDRispostaAssociata = request.Uid,
+                Uid = Guid.NewGuid()
             };
 
             _unitOfWork.DASI.AggiungiRisposta(risposta);
 
             await _unitOfWork.CompleteAsync();
+
+            return new AttiRisposteDto
+            {
+                UIDAtto = risposta.UIDAtto,
+                DescrizioneOrgano = risposta.DescrizioneOrgano,
+                Tipo = risposta.Tipo,
+                IdOrgano = risposta.IdOrgano,
+                TipoOrgano = risposta.TipoOrgano,
+                UIDRispostaAssociata = risposta.UIDRispostaAssociata,
+                Uid = risposta.Uid
+            };
         }
 
         public async Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
