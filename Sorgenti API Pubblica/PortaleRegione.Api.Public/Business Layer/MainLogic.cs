@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -232,119 +233,123 @@ namespace PortaleRegione.Api.Public.Business_Layer
         /// <returns>Una task che, al suo completamento, restituisce un AttoDasiPublicDto con i dettagli dell'atto.</returns>
         public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto, string hostUrl)
         {
-            var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
-            if (attoInDb == null)
-                throw new KeyNotFoundException($"Identificativo {uidAtto} non trovato.");
-            KeyValueDto gruppo = null;
-            PersonaPublicDto proponente = null;
-            PersonaPublicDto personaRelatore1 = null;
-            PersonaPublicDto personaRelatore2 = null;
-            PersonaPublicDto personaRelatoreMinoranza = null;
-            List<KeyValueDto> proponenti = new List<KeyValueDto>();
-            if (attoInDb.Tipo != (int)TipoAttoEnum.RIS)
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+            try
             {
-                gruppo = await _unitOfWork.Persone.GetGruppo(attoInDb.id_gruppo);
-                proponente = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaProponente.Value);
+                var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
+                if (attoInDb == null)
+                    throw new KeyNotFoundException($"Identificativo {uidAtto} non trovato.");
+                KeyValueDto gruppo = null;
+                PersonaPublicDto proponente = null;
+                PersonaPublicDto personaRelatore1 = null;
+                PersonaPublicDto personaRelatore2 = null;
+                PersonaPublicDto personaRelatoreMinoranza = null;
+                List<KeyValueDto> proponenti = new List<KeyValueDto>();
+                if (attoInDb.Tipo != (int)TipoAttoEnum.RIS)
+                {
+                    gruppo = await _unitOfWork.Persone.GetGruppo(attoInDb.id_gruppo);
+                    proponente = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaProponente.Value);
+                }
+                else
+                {
+                    proponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
+
+                    if (attoInDb.UIDPersonaRelatore1.HasValue)
+                        personaRelatore1 = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatore1.Value);
+                    if (attoInDb.UIDPersonaRelatore2.HasValue)
+                        personaRelatore2 = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatore2.Value);
+                    if (attoInDb.UIDPersonaRelatoreMinoranza.HasValue)
+                        personaRelatoreMinoranza = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatoreMinoranza.Value);
+                }
+
+                if (gruppo != null)
+                    proponente.DisplayName += $" ({gruppo.sigla.Trim()})";
+
+                var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);
+                var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+                var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
+                {
+                    data = r.Data,
+                    data_trasmissione = r.DataTrasmissione,
+                    data_trattazione = r.DataTrattazione,
+                    organo = r.DescrizioneOrgano,
+                    id_organo = r.IdOrgano,
+                    tipo_risposta = Utility.GetText_TipoRispostaDASI(r.Tipo, false),
+                    tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
+                }).ToList();
+                var documentiInDb = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
+                var documenti = documentiInDb.Select(d => new AttiDocumentiPublicDto
+                {
+                    Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
+                    Titolo = d.Titolo,
+                    Link = $"{hostUrl}/{ApiRoutes.ScaricaDocumento}?path={d.Path}",
+                    TipoEnum = (TipoDocumentoEnum)d.Tipo
+                }).ToList();
+
+                var note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
+
+                var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
+                var firme = await GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
+
+                var linkTestoOriginale = $"{AppSettingsConfigurationHelper.urlDASI_Originale.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+                var linkTestoApprovato = $"{AppSettingsConfigurationHelper.urlDASI_Approvato.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+
+                var attoDto = new AttoDasiPublicDto
+                {
+                    uidAtto = attoInDb.UIDAtto,
+                    oggetto = attoInDb.Oggetto,
+                    display = GetDisplayFromEtichetta(attoInDb.Etichetta),
+                    id_stato = attoInDb.IDStato,
+                    stato = Utility.GetText_StatoDASI(attoInDb.IDStato),
+                    id_tipo = attoInDb.Tipo,
+                    tipo = Utility.GetText_Tipo(attoInDb.Tipo),
+                    tipo_esteso = Utility.GetText_TipoEstesoDASI(attoInDb.Tipo),
+                    n_atto = attoInDb.NAtto_search.ToString(),
+                    data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
+                        AppSettingsConfigurationHelper.masterKey),
+                    premesse = attoInDb.Premesse,
+                    richiesta = attoInDb.Richiesta,
+                    tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
+                    area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
+                    data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
+                    data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
+                    data_comunicazione_assemblea = attoInDb.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy"), // #1088
+                    stato_iter =
+                        Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue
+                            ? attoInDb.TipoChiusuraIter.Value
+                            : 0),
+                    gruppo = gruppo,
+                    uid_proponente = attoInDb.UIDPersonaProponente.Value,
+                    proponente = proponente,
+                    commissioni = commissioni,
+                    risposte = risposte,
+                    documenti = documenti,
+                    abbinamenti = abbinamenti,
+                    dcrl = attoInDb.DCRL,
+                    dcr = attoInDb.DCR,
+                    dcrc = attoInDb.DCCR,
+                    firme = firme,
+                    burl = attoInDb.BURL,
+                    note = note,
+                    testo_presentato = linkTestoOriginale,
+                    testo_approvato = linkTestoApprovato
+                };
+
+                if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+                {
+                    attoDto.proponenti = proponenti;
+                    attoDto.relatore1 = personaRelatore1;
+                    attoDto.relatore2 = personaRelatore2;
+                    attoDto.relatore_minoranza = personaRelatoreMinoranza;
+                }
+
+                return attoDto;
             }
-            else
+            catch (Exception e)
             {
-                proponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
-
-                if (attoInDb.UIDPersonaRelatore1.HasValue)
-                    personaRelatore1 = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatore1.Value);
-                if (attoInDb.UIDPersonaRelatore2.HasValue)
-                    personaRelatore2 = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatore2.Value);
-                if (attoInDb.UIDPersonaRelatoreMinoranza.HasValue)
-                    personaRelatoreMinoranza = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatoreMinoranza.Value);
+                Log.Error(currentMethod, e);
+                throw e;
             }
-
-            //if (proponente.DisplayName.Contains("(--)"))
-            //{
-            //    proponente.DisplayName = proponente.DisplayName.Replace("--", gruppo.sigla.Trim());
-            //}
-
-            if (gruppo != null)
-                proponente.DisplayName += $" ({gruppo.sigla.Trim()})";
-
-            var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);
-            var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
-            var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
-            {
-                data = r.Data,
-                data_trasmissione = r.DataTrasmissione,
-                data_trattazione = r.DataTrattazione,
-                organo = r.DescrizioneOrgano,
-                id_organo = r.IdOrgano,
-                tipo_risposta = Utility.GetText_TipoRispostaDASI(r.Tipo, false),
-                tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
-            }).ToList();
-            var documentiInDb = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
-            var documenti = documentiInDb.Select(d => new AttiDocumentiPublicDto
-            {
-                Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
-                Titolo = d.Titolo,
-                Link = $"{hostUrl}/{ApiRoutes.ScaricaDocumento}?path={d.Path}",
-                TipoEnum = (TipoDocumentoEnum)d.Tipo
-            }).ToList();
-
-            var note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
-
-            var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
-            var firme = await GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
-
-            var linkTestoOriginale = $"{AppSettingsConfigurationHelper.urlDASI_Originale.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
-            var linkTestoApprovato = $"{AppSettingsConfigurationHelper.urlDASI_Approvato.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
-
-            var attoDto = new AttoDasiPublicDto
-            {
-                uidAtto = attoInDb.UIDAtto,
-                oggetto = attoInDb.Oggetto,
-                display = GetDisplayFromEtichetta(attoInDb.Etichetta),
-                id_stato = attoInDb.IDStato,
-                stato = Utility.GetText_StatoDASI(attoInDb.IDStato),
-                id_tipo = attoInDb.Tipo,
-                tipo = Utility.GetText_Tipo(attoInDb.Tipo),
-                tipo_esteso = Utility.GetText_TipoEstesoDASI(attoInDb.Tipo),
-                n_atto = attoInDb.NAtto_search.ToString(),
-                data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
-                    AppSettingsConfigurationHelper.masterKey),
-                premesse = attoInDb.Premesse,
-                richiesta = attoInDb.Richiesta,
-                tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
-                area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
-                data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
-                data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
-                data_comunicazione_assemblea = attoInDb.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy"), // #1088
-                stato_iter =
-                    Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue
-                        ? attoInDb.TipoChiusuraIter.Value
-                        : 0),
-                gruppo = gruppo,
-                uid_proponente = attoInDb.UIDPersonaProponente.Value,
-                proponente = proponente,
-                commissioni = commissioni,
-                risposte = risposte,
-                documenti = documenti,
-                abbinamenti = abbinamenti,
-                dcrl = attoInDb.DCRL,
-                dcr = attoInDb.DCR,
-                dcrc = attoInDb.DCCR,
-                firme = firme,
-                burl = attoInDb.BURL,
-                note = note,
-                testo_presentato = linkTestoOriginale,
-                testo_approvato = linkTestoApprovato
-            };
-
-            if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
-            {
-                attoDto.proponenti = proponenti;
-                attoDto.relatore1 = personaRelatore1;
-                attoDto.relatore2 = personaRelatore2;
-                attoDto.relatore_minoranza = personaRelatoreMinoranza;
-            }
-
-            return attoDto;
         }
 
         private async Task<List<AttiFirmePublicDto>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo)

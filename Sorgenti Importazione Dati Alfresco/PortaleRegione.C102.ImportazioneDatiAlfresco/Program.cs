@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using log4net;
+using log4net.Config;
 using OfficeOpenXml;
 using PortaleRegione.Crypto;
 using PortaleRegione.DTO.Domain;
@@ -16,8 +18,12 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 {
     internal class Program
     {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(Program));
+
         private static void Main(string[] args)
         {
+            XmlConfigurator.Configure();
+
             if (args.Length == 0)
             {
                 Console.WriteLine("Impostare i paramentri per l'esecuzione della console application");
@@ -130,7 +136,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     })
                     .ToList();
 
-                var insertSeduta = @"INSERT INTO SEDUTE (UIDSeduta, Data_seduta, Data_apertura, Data_effettiva_inizio, Data_effettiva_fine, id_legislatura, Note, DataCreazione) 
+                var insertSeduta =
+                    @"INSERT INTO SEDUTE (UIDSeduta, Data_seduta, Data_apertura, Data_effettiva_inizio, Data_effettiva_fine, id_legislatura, Note, DataCreazione) 
                                      VALUES (@UIDSeduta, @Data_seduta, @Data_apertura, @Data_effettiva_inizio, @Data_effettiva_fine, @id_legislatura, @Note, GETDATE())";
                 using (var connection = new SqlConnection(AppsettingsConfiguration.CONNECTIONSTRING))
                 {
@@ -145,8 +152,10 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                         command.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
                         command.Parameters.AddWithValue("@Data_seduta", legislaturaSeduta.durata_legislatura_da);
                         command.Parameters.AddWithValue("@Data_apertura", legislaturaSeduta.durata_legislatura_da);
-                        command.Parameters.AddWithValue("@Data_effettiva_inizio", legislaturaSeduta.durata_legislatura_da);
-                        command.Parameters.AddWithValue("@Data_effettiva_fine", legislaturaSeduta.durata_legislatura_da);
+                        command.Parameters.AddWithValue("@Data_effettiva_inizio",
+                            legislaturaSeduta.durata_legislatura_da);
+                        command.Parameters.AddWithValue("@Data_effettiva_fine",
+                            legislaturaSeduta.durata_legislatura_da);
                         command.Parameters.AddWithValue("@id_legislatura", legislaturaSeduta.id_legislatura);
                         command.Parameters.AddWithValue("@Note", "Contenitore atti importati da Alfresco");
 
@@ -522,7 +531,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         var data_firma = string.Empty;
                                         // Se il valore della cella corrisponde, aggiungi la riga alla lista
                                         if (cellsFirme[rowF, 8].Value != null)
-                                            data_firma = ParseDateTime(Convert.ToString(cellsFirme[rowF, 8].Value)).ToString("dd/MM/yyyy HH:mm:ss");
+                                            data_firma = ParseDateTime(Convert.ToString(cellsFirme[rowF, 8].Value))
+                                                .ToString("dd/MM/yyyy HH:mm:ss");
 
                                         var data_ritiro_firma = Convert.ToString(cellsFirme[rowF, 9].Value);
                                         var id_persona = cellsFirme[rowF, 10].Value.ToString();
@@ -585,7 +595,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         else
                                         {
                                             commandInsertFirmatario.Parameters.AddWithValue("@Data_ritirofirma",
-                                                CryptoHelper.EncryptString(ParseDateTime(data_ritiro_firma).ToString("dd/MM/yyyy HH:mm:ss"),
+                                                CryptoHelper.EncryptString(
+                                                    ParseDateTime(data_ritiro_firma).ToString("dd/MM/yyyy HH:mm:ss"),
                                                     AppsettingsConfiguration.MASTER_KEY));
                                         }
 
@@ -684,8 +695,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                         if (attoImportato.UidAtto == Guid.Parse("d0d0d957-b98f-4786-bd47-52dfec695846"))
                                         {
-                                           
                                         }
+
                                         var nodeIdRispostaMadre = cellsRisposteAssociate[rowRA, 7]?.Value?.ToString();
                                         for (var rowRG = 2; rowRG <= rowCountRG; rowRG++)
                                         {
@@ -1186,9 +1197,11 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     command.Parameters.AddWithValue("@DCRL", dcrl);
                                     command.Parameters.AddWithValue("@AreaTematica", CleanHtmlTags(areaTematica));
                                     command.Parameters.AddWithValue("@AltriSoggetti", CleanHtmlTags(altriSoggetti));
-                                    command.Parameters.AddWithValue("@ImpegniScadenze", CleanHtmlTags(noteImpegni_e_scadenze));
+                                    command.Parameters.AddWithValue("@ImpegniScadenze",
+                                        CleanHtmlTags(noteImpegni_e_scadenze));
                                     command.Parameters.AddWithValue("@StatoAttuazione", CleanHtmlTags(statoAttuazione));
-                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio", CleanHtmlTags(competenzaMonitoraggio));
+                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio",
+                                        CleanHtmlTags(competenzaMonitoraggio));
                                     command.Parameters.AddWithValue("@MonitoraggioConcluso", monitoraggioConcluso);
                                     command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
 
@@ -1563,9 +1576,11 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     command.Parameters.AddWithValue("@IDTipo_Risposta_Effettiva",
                                         tipoRispostaEffettivaAttoInt);
                                     command.Parameters.AddWithValue("@AltriSoggetti", CleanHtmlTags(altriSoggetti));
-                                    command.Parameters.AddWithValue("@ImpegniScadenze", CleanHtmlTags(noteImpegni_e_scadenze));
+                                    command.Parameters.AddWithValue("@ImpegniScadenze",
+                                        CleanHtmlTags(noteImpegni_e_scadenze));
                                     command.Parameters.AddWithValue("@StatoAttuazione", CleanHtmlTags(statoAttuazione));
-                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio", CleanHtmlTags(competenzaMonitoraggio));
+                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio",
+                                        CleanHtmlTags(competenzaMonitoraggio));
                                     command.Parameters.AddWithValue("@MonitoraggioConcluso", monitoraggioConcluso);
                                     command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
 
@@ -1769,7 +1784,8 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine("Errore durante l'elaborazione della riga. Dettagli dell'errore:");
+                                _log.Error($"Errore: {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}", e);
+                                Console.WriteLine("Errore durante l'elaborazione della riga. Dettagli dell'errore: " + e.Message);
                                 sb.AppendLine(
                                     $"{foglio}, {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}, {e.Message}");
                             }
@@ -2205,8 +2221,10 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
             command.Parameters.AddWithValue("@Tipo", ConvertToIntTipoRisposta(tipoRispostaAssociata));
             command.Parameters.AddWithValue("@TipoOrgano", tipoOrgano);
             command.Parameters.Add("@Data", SqlDbType.DateTime).Value = ConvertToSqlDateTime(dataRisposta);
-            command.Parameters.Add("@DataTrasmissione", SqlDbType.DateTime).Value = ConvertToSqlDateTime(dataTrasmissione);
-            command.Parameters.Add("@DataTrattazione", SqlDbType.DateTime).Value = ConvertToSqlDateTime(dataTrattazione);
+            command.Parameters.Add("@DataTrasmissione", SqlDbType.DateTime).Value =
+                ConvertToSqlDateTime(dataTrasmissione);
+            command.Parameters.Add("@DataTrattazione", SqlDbType.DateTime).Value =
+                ConvertToSqlDateTime(dataTrattazione);
             command.Parameters.AddWithValue("@IdOrgano", idOrgano ?? 0);
 
             command.ExecuteNonQuery();
@@ -2254,8 +2272,26 @@ VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssocia
 
         public static DateTime ParseDateTime(string dateTime)
         {
-            var date = DateTime.Parse(dateTime.Substring(0, 19));
-            return date;
+            try
+            {
+                // Definisci una cultura specifica per il parsing (italiano)
+                var italianCulture = new CultureInfo("it-IT");
+
+                if (dateTime.Contains("T"))
+                {
+                    // Parsing con il formato italiano
+                    var dateT = DateTime.ParseExact(dateTime.Substring(0, 19), "yyyy-MM-ddTHH:mm:ss", italianCulture);
+                    return dateT;
+                }
+
+                // Parsing della stringa con la cultura italiana
+                var date = DateTime.Parse(dateTime, italianCulture);
+                return date;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Data in errore: {dateTime}", e);
+            }
         }
 
         private static object ConvertToSqlDateTime(object dateValue)
@@ -2270,7 +2306,7 @@ VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssocia
             {
                 try
                 {
-                    return ParseDateTime(dateString).ToString("dd/MM/yyyy HH:mm:ss"); // Parsing robusto della stringa
+                    return ParseDateTime(dateString); // Parsing robusto della stringa
                 }
                 catch (FormatException)
                 {
