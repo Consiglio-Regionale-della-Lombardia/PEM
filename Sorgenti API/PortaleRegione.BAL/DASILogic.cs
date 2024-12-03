@@ -1227,7 +1227,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         if (firme
                                 .Count(f => f.UID_persona != attoInDb.UIDPersonaProponente
-                                            && string.IsNullOrEmpty(f.Data_ritirofirma)) >= 1)
+                                            && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
                         {
                             dto.Firme = firme
                                 .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente
@@ -1246,24 +1246,24 @@ namespace PortaleRegione.API.Controllers
                         if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                                                 persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
                             dto.Firmato_Da_Me = firme.Any(f => f.UID_persona.Equals(persona.UID_persona));
-                    }
+                        
+                        // #1049
+                        var firme_dopo_deposito = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
+                        if (firme_dopo_deposito.Any())
+                        {
+                            dto.Firme_dopo_deposito = firme_dopo_deposito
+                                .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                                .Aggregate((i, j) => i + "<br>" + j);
+                        }
 
-                    // #1049
-                    var firme_dopo_deposito = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
-                    if (firme_dopo_deposito.Any())
-                    {
-                        dto.Firme_dopo_deposito = firme_dopo_deposito
-                            .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
-                            .Aggregate((i, j) => i + "<br>" + j);
-                    }
-
-                    // #1048
-                    var firme_ritirate = firme.Where(f => !string.IsNullOrEmpty(f.Data_ritirofirma)).ToList();
-                    if (firme_ritirate.Any())
-                    {
-                        dto.Firme_ritirate = firme_ritirate
-                            .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
-                            .Aggregate((i, j) => i + "<br>" + j);
+                        // #1048
+                        var firme_ritirate = firme.Where(f => !string.IsNullOrEmpty(f.Data_ritirofirma)).ToList();
+                        if (firme_ritirate.Any())
+                        {
+                            dto.Firme_ritirate = firme_ritirate
+                                .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                                .Aggregate((i, j) => i + "<br>" + j);
+                        }
                     }
 
                     dto.gruppi_politici =

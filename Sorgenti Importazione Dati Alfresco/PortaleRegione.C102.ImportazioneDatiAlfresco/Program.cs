@@ -13,6 +13,7 @@ using OfficeOpenXml;
 using PortaleRegione.Crypto;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using static log4net.Appender.RollingFileAppender;
 
 namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 {
@@ -2276,16 +2277,28 @@ VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssocia
             {
                 // Definisci una cultura specifica per il parsing (italiano)
                 var italianCulture = new CultureInfo("it-IT");
-
+                string[] supportedFormats = {
+                    "yyyy-MM-dd HH:mm:ss", // Formato ISO senza "T"
+                    "yyyy-MM-ddTHH:mm:ss", // Formato ISO con "T"
+                    "dd/MM/yyyy HH:mm:ss", // Formato italiano standard
+                };
+                
                 if (dateTime.Contains("T"))
                 {
                     // Parsing con il formato italiano
-                    var dateT = DateTime.ParseExact(dateTime.Substring(0, 19), "yyyy-MM-ddTHH:mm:ss", italianCulture);
-                    return dateT;
+                    try
+                    {
+                        var dateT = DateTime.ParseExact(dateTime.Substring(0, 19).Replace("T", " "), supportedFormats, italianCulture, DateTimeStyles.None);
+                        return dateT;
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception($"Data in errore: {dateTime}, modificata in {dateTime.Substring(0, 19).Replace("T", " ")}", e);
+                    }
                 }
 
                 // Parsing della stringa con la cultura italiana
-                var date = DateTime.Parse(dateTime, italianCulture);
+                var date = DateTime.ParseExact(dateTime, supportedFormats, italianCulture, DateTimeStyles.None);
                 return date;
             }
             catch (Exception e)

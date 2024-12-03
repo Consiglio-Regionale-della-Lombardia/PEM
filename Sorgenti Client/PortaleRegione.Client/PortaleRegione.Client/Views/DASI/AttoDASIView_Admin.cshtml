@@ -1708,12 +1708,12 @@
         <div class="row">
             <div class="input-field col s12">
                 <select id="tipi-nota-select">
-                    <option value="0"></option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PRIVATA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA)</option>
+                    <option value="0">Seleziona</option>
+                    @*<option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PRIVATA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA)</option>
                     <option value="@Html.Raw((int)TipoNotaEnum.GENERALE_PUBBLICA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PUBBLICA)</option>
                     <option value="@Html.Raw((int)TipoNotaEnum.CHIUSURA_ITER)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER)</option>
                     <option value="@Html.Raw((int)TipoNotaEnum.RISPOSTA)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA)</option>
-                    <option value="@Html.Raw((int)TipoNotaEnum.PRIVACY)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.PRIVACY)</option>
+                    <option value="@Html.Raw((int)TipoNotaEnum.PRIVACY)">@PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.PRIVACY)</option>*@
                 </select>
                 <label>Tipo nota</label>
             </div>
@@ -2646,7 +2646,7 @@
 		waiting(false);
 		$('#modalDocumento').modal("open");
 	});
-	
+
 	document.getElementById('btnAggiungiDocumento_Pubblicazione').addEventListener('click', function () {
 		waiting(true);
 		$('#tipi-documento-select').empty();
@@ -2860,10 +2860,13 @@
 	document.getElementById('btnAggiungiNota').addEventListener('click', async function () {
 		waiting(true);
 		$("#txtNota_Testo").val("")
-		$('#tipi-nota-select option').each(function () {
-			$(this).prop('disabled', false);
-		});
-		$('#tipi-nota-select').val($('#tipi-nota-select option:first').val());
+		$('#tipi-nota-select').empty();
+		$('#tipi-nota-select').append(new Option("Seleziona", 0, true, true)); 
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA))", @((int)TipoNotaEnum.GENERALE_PRIVATA), false, false)); 
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PUBBLICA))", @((int)TipoNotaEnum.GENERALE_PUBBLICA), false, false)); 
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER))", @((int)TipoNotaEnum.CHIUSURA_ITER), false, false)); 
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA))", @((int)TipoNotaEnum.RISPOSTA), false, false)); 
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.PRIVACY))", @((int)TipoNotaEnum.PRIVACY), false, false)); 
 		$('#tipi-nota-select').formSelect();
 		waiting(false);
 		$('#modalNota').modal("open");
@@ -2872,16 +2875,8 @@
 	document.getElementById('btnAggiungiNota_Privacy').addEventListener('click', async function () {
 		waiting(true);
 		$("#txtNota_Testo").val("")
-		let selectedValue = @((int)TipoNotaEnum.PRIVACY);
-		$('#tipi-nota-select option').each(function() {
-			// Disabilita tutti gli elementi della lista
-			$(this).prop('disabled', true);
-			// Abilita solo l'elemento con il valore desiderato
-			if ($(this).val() == selectedValue) {
-				$(this).prop('disabled', false);
-			}
-		});
-		$('#tipi-nota-select').val(selectedValue);
+		$('#tipi-nota-select').empty();
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.PRIVACY))", @((int)TipoNotaEnum.PRIVACY), true, true)); // Aggiunge e seleziona l'opzione
 		$('#tipi-nota-select').formSelect();
 		waiting(false);
 		$('#modalNota').modal("open");
@@ -2890,16 +2885,8 @@
 	document.getElementById('btnAggiungiNota_ChiusuraIter').addEventListener('click', async function () {
 		waiting(true);
 		$("#txtNota_Testo").val("")
-		let selectedValue = @((int)TipoNotaEnum.CHIUSURA_ITER);
-		$('#tipi-nota-select option').each(function() {
-			// Disabilita tutti gli elementi della lista
-			$(this).prop('disabled', true);
-			// Abilita solo l'elemento con il valore desiderato
-			if ($(this).val() == selectedValue) {
-				$(this).prop('disabled', false);
-			}
-		});
-		$('#tipi-nota-select').val(selectedValue);
+		$('#tipi-nota-select').empty();
+		$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER))", @((int)TipoNotaEnum.CHIUSURA_ITER), true, true)); // Aggiunge e seleziona l'opzione
 		$('#tipi-nota-select').formSelect();
 		waiting(false);
 		$('#modalNota').modal("open");

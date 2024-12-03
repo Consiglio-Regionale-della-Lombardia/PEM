@@ -1372,7 +1372,7 @@ namespace PortaleRegione.Persistance
                     && !currentUser.IsPresidente)
                     query = query.Where(item => item.id_gruppo == currentUser.Gruppo.id_gruppo);
 
-                if (currentUser.IsSegreteriaAssemblea)
+                if (currentUser.IsSegreteriaAssemblea && !queryExtended.Stati.Any())
                 {
                     query = query.Where(atto => atto.IDStato == (int)StatiAttoEnum.PRESENTATO
                                                 || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
