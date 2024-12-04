@@ -498,6 +498,11 @@
     <Content Include="Views\Template\TemplateForm.cshtml" />
     <Content Include="Views\AdminPanel\RiepilogoSessioni.cshtml" />
     <Content Include="Views\DASIPublic\Index.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Risposte.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Note.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Documenti.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Monitoraggio.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Abbinamenti.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

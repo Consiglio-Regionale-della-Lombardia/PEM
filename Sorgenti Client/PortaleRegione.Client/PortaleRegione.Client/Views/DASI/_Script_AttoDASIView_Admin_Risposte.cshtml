@@ -1,0 +1,723 @@
+﻿@using Newtonsoft.Json
+@model PortaleRegione.DTO.Model.DASIFormModel
+
+<div id="modalRisposte" class="modal">
+	<div class="modal-content">
+		<h4>Risposte</h4>
+		<p>Inserisci risposta per l'atto @Model.Atto.Display</p>
+		<div class="row" id="pnlSearchOrganiCommissioneRisposta">
+			<div class="input-field col s12">
+				<i class="material-icons prefix">search</i>
+				<input type="text" id="organi-autocomplete" class="autocomplete">
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+		<a id="btnInserisciRisposta" href="#!" class="blue-text waves-effect waves-green btn-flat" onclick="InserisciRisposta()">Inserisci</a>
+	</div>
+</div>
+
+<div id="modalDettaglioRisposta" class="modal">
+	<div class="modal-content">
+		<h4>Date risposta</h4>
+		<hr />
+		<div class="row">
+			<div class="input-field col s12 m12 l12" style="display: @((Model.Atto.IsMOZ())? "none":"block")">
+				<input id="dataRisposta" type="date" />
+				<label>Data risposta</label>
+			</div>
+			<div class="input-field col s12 m12 l12" style="display: @((Model.Atto.IsIQT())? "none":"block")">
+				<input id="dataTrasmissione" type="date" />
+				<label>Data trasmissione</label>
+			</div>
+			<div class="input-field col s12 m12 l12" style="display: @((Model.Atto.IsIQT() || Model.Atto.IsITL() || Model.Atto.IsITR())? "none":"block")">
+				<input id="dataTrattazione" type="date" />
+				<label>Data trattazione</label>
+			</div>
+			<div class="input-field col s12 m12 l12" style="display: @((Model.Atto.IsMOZ())? "block":"none")">
+				<input id="dataRevoca" type="date" />
+				<label>Data revoca</label>
+			</div>
+		</div>
+
+		<input id="idRisposta" type="hidden" />
+
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+		<a onclick="btnSalvaDettagliRisposta()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+	</div>
+</div>
+
+<div id="modalInformazioniRisposta" class="modal">
+    <div class="modal-content">
+        <h4>Informazioni risposta</h4>
+        <hr />
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-informazioni-risposta-autocomplete" class="autocomplete">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+    </div>
+</div>
+
+<script>
+
+async function AggiungiInformazioneRisposta(element, idRisposta) {
+    waiting(true);
+
+    var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+    var data = [];
+    organi.forEach(function (item) {
+        data.push({
+	        tag: `${item.nome_organo}`,
+	        id: `${item.id_organo}`
+        });
+    });
+	var elems = document.querySelectorAll('#organi-informazioni-risposta-autocomplete');
+    var instances = M.Autocomplete.init(elems, {
+        data: data,
+        limit: 20,
+        minLength: 2,
+        onAutocomplete: function (txt, key) {
+	        swal({
+		        title: "Inserimento nuovo organo",
+		        text: "Sei sicuro di voler inserire " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+		        icon: "warning",
+		        buttons: ["Annulla", "Inserisci"]
+	        }).then(async (answer) => {
+
+		        if (answer) {
+
+			        let tipoOrgano;
+			        let displayTipoOrgano;
+
+			        if (txt.includes("Commissione")) {
+				        tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+				        displayTipoOrgano = "Commissione";
+			        } else {
+				        tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+				        displayTipoOrgano = "Giunta";
+			        }
+
+					var tipoRispostaValue = $('#tipi-risposta-select').val();
+					var tipoRispostaText = $('#tipi-risposta-select option:selected').text();
+
+					// Simula la richiesta al server per salvare i dati
+					var request = {
+						UIDAtto: '@Model.Atto.UIDAtto',
+						IdOrgano: `${key}`,
+						Tipo: tipoRispostaValue,
+						TipoOrgano: tipoOrgano,
+						DisplayTipoOrgano: displayTipoOrgano,
+						DescrizioneOrgano: txt,
+						Uid: idRisposta
+					}
+
+					var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+					// Send the data using fetch
+					const response = await fetch(url, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify(request)
+					});
+
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+
+					try {
+						const data = await response.json();
+						if (data.message) { ErrorAlert(data.message); return; }
+
+						//Seleziona la lista `ul` di cui fa parte il pulsante cliccato
+						const collection = element.closest("ul");
+
+						// Crea un nuovo elemento di lista
+						const newItem = document.createElement("li");
+						newItem.id = data.Uid;
+						newItem.className = "collection-item";
+
+						// Aggiungi il contenuto desiderato al nuovo item
+						newItem.innerHTML = `
+							  <div>
+								  ${txt}
+								  <a href="#!" class="secondary-content red-text" onclick="rimuoviInformazioniRisposta(this, '${data.Uid}')"><i class="material-icons">close</i></a>
+							  </div>
+						  `;
+
+						// Inserisci il nuovo item subito prima dell'ultimo elemento (il pulsante "add")
+						collection.insertBefore(newItem, collection.lastElementChild);
+
+						M.toast({
+							html: `<span>${txt} inserito con successo all'atto @Html.Raw(Model.Atto.Display)</span>`,
+							classes: 'rounded',
+							displayLength: 5000
+						});						
+
+					} catch (error) {
+						// ignored
+					}
+				}
+				document.getElementById('organi-informazioni-risposta-autocomplete').value = "";
+				$('#modalInformazioniRisposta').modal("close");
+		    });
+	    }
+    });
+	waiting(false);
+	$('#modalInformazioniRisposta').modal("open");
+}
+
+async function InserisciRisposta() {
+    waiting(true);
+    // Simula la richiesta al server per salvare i dati
+    var request = {
+		UIDAtto: '@Model.Atto.UIDAtto'
+    }
+
+    var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+    // Send the data using fetch
+    const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+		throw new Error('Network response was not ok');
+    }
+
+    try {
+		const data = await response.json();
+		if (data.message) { ErrorAlert(data.message); return; }
+
+		const atto = @Html.Raw(JsonConvert.SerializeObject(new {
+                         UIDAtto = Model.Atto.UIDAtto,
+                         IsMOZ = Model.Atto.IsMOZ(),
+                         IsIQT = Model.Atto.IsIQT(),
+                         IsITL = Model.Atto.IsITL(),
+                         IsITR = Model.Atto.IsITR()
+                     }));
+		aggiungiRigaAllaTabellaRisposta(data, atto);
+
+    } catch (error) {
+		// ignored
+    }
+
+	waiting(false);
+}
+
+if (document.getElementById('btnAggiungiRisposta')) {
+	document.getElementById('btnAggiungiRisposta').addEventListener('click', async function () {
+	waiting(true);
+
+	var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+	var data = [];
+	organi.forEach(function (item) {
+		data.push({
+			tag: `${item.nome_organo}`,
+			id: `${item.id_organo}`
+		});
+	});
+	var elems = document.querySelectorAll('#organi-autocomplete');
+	var instances = M.Autocomplete.init(elems, {
+		data: data,
+		limit: 20,
+		minLength: 2,
+		onAutocomplete: function (txt, key) {
+			swal({
+				title: "Inserimento nuovo organo",
+				text: "Sei sicuro di voler inserire " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+				icon: "warning",
+				buttons: ["Annulla", "Inserisci"]
+			}).then(async (answer) => {
+
+					if (answer) {
+
+						let tipoOrgano;
+						let displayTipoOrgano;
+
+						if (txt.includes("Commissione")) {
+							tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+							displayTipoOrgano = "Commissione";
+						} else {
+							tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+							displayTipoOrgano = "Giunta";
+						}
+
+						// Simula la richiesta al server per salvare i dati
+						var request = {
+							UIDAtto: '@Model.Atto.UIDAtto',
+							IdOrgano: `${key}`,
+							TipoOrgano: tipoOrgano,
+							DisplayTipoOrgano: displayTipoOrgano,
+							DescrizioneOrgano: txt,
+						}
+
+						var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+						// Send the data using fetch
+						const response = await fetch(url, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify(request)
+						});
+
+						if (!response.ok) {
+							throw new Error('Network response was not ok');
+						}
+
+						try {
+							const data = await response.json();
+							if (data.message) { ErrorAlert(data.message); return; }
+
+							const atto = @Html.Raw(JsonConvert.SerializeObject(new {
+                                             UIDAtto = Model.Atto.UIDAtto,
+                                             IsMOZ = Model.Atto.IsMOZ(),
+                                             IsIQT = Model.Atto.IsIQT(),
+                                             IsITL = Model.Atto.IsITL(),
+                                             IsITR = Model.Atto.IsITR()
+                                         }));
+							aggiungiRigaAllaTabellaRisposta(data, atto);
+
+						} catch (error) {
+							// ignored
+						}					
+
+						document.querySelector('#organi-autocomplete').value = '';
+					}
+				});
+			}
+		});
+		waiting(false);
+		$('#modalRisposte').modal("open");
+	});
+}
+
+function rimuoviRisposta(ctrl, uid) {
+	const row = $(ctrl).closest('tr'); // Trova la riga associata al pulsante cliccato
+
+	swal({
+		title: "Elimina risposta",
+		text: "Sei sicuro di voler eliminare questa risposta?",
+		icon: "warning",
+		buttons: ["Annulla", "Rimuovi"]
+	}).then(async (answer) => {
+		if (answer) {
+			// Simula la richiesta al server per rimuovere i dati
+			const url = '@Url.Action("Salva_RimuoviRisposta", "DASI")';
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ uid: uid })
+			});
+
+			if (!response.ok) {
+				ErrorAlert("Errore durante l'eliminazione della risposta");
+				return;
+			}
+
+			try {
+				const result = await response.json();
+				if (result.message) {
+					ErrorAlert(result.message);
+					return;
+				}
+
+				// Rimuovi la riga dalla tabella
+				row.fadeOut(300, () => {
+					row.remove();
+				});
+
+				M.toast({
+					html: `<span>Risposta eliminata con successo</span>`,
+					classes: 'rounded',
+					displayLength: 5000
+				});
+			} catch (error) {
+				ErrorAlert("Errore durante l'elaborazione della risposta");
+			}
+		}
+	});
+}
+
+function rimuoviInformazioniRisposta(ctrl, uid) {
+
+	// Trova la riga corrispondente al `uid_risposta`
+	const row = document.querySelector(`li[id="${uid}"]`);
+	if (!row) {
+		console.error(`Riga con UID ${uid} non trovata`);
+		return;
+	}
+
+	swal({
+		title: "Elimina risposta",
+		text: "Sei sicuro di voler eliminare questa risposta?",
+		icon: "warning",
+		buttons: ["Annulla", "Rimuovi"]
+	}).then(async (answer) => {
+		if (answer) {
+			// Simula la richiesta al server per rimuovere i dati
+			const url = '@Url.Action("Salva_RimuoviRisposta", "DASI")';
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ uid: uid })
+			});
+
+			if (!response.ok) {
+				ErrorAlert("Errore durante l'eliminazione della risposta");
+				return;
+			}
+
+			try {
+				const result = await response.json();
+				if (result.message) {
+					ErrorAlert(result.message);
+					return;
+				}
+				
+				// Rimuovi la riga dalla tabella
+				row.remove();
+
+				M.toast({
+					html: `<span>Risposta eliminata con successo</span>`,
+					classes: 'rounded',
+					displayLength: 5000
+				});
+			} catch (error) {
+				ErrorAlert("Errore durante l'elaborazione della risposta");
+			}
+		}
+	});
+}
+
+/*function modificaDettagliRisposta(ctrl, uid, dataRisposta, dataTrasmissione, dataTrattazione) {*/
+function modificaDettagliRisposta(ctrl) {
+	var risp = ctrl.getAttribute('data-risposta');
+	var risposta = JSON.parse(risp);
+
+	// Precompila i controlli nella modale
+	$('#dataRisposta').val(formatDateTForInput(risposta.Data)); // Setta la data risposta
+	$('#dataTrasmissione').val(formatDateTForInput(risposta.DataTrasmissione)); // Setta la data trasmissione
+	$('#dataTrattazione').val(formatDateTForInput(risposta.DataTrattazione)); // Setta la data trattazione
+	$('#dataRevoca').val(formatDateTForInput(risposta.DataRevoca)); // Setta la data revoca
+	$('#idRisposta').val(risposta.Uid);
+
+	// Apri la modale
+	$('#modalDettaglioRisposta').modal('open');
+}
+
+	function aggiungiRigaAllaTabellaRisposta(risposta, atto) {
+		const tableBody = document.querySelector('#tableRisposte tbody');
+
+		var rispostaObj = {
+			Uid: risposta.Uid,
+			DataTrasmissione: risposta.DataTrasmissione,
+			DataTrattazione: risposta.DataTrattazione,
+			DataRevoca: risposta.DataRevoca,
+			Data: risposta.Data
+		};
+
+		// Costruzione dinamica delle colonne basate sulle condizioni di `atto`
+		let colonneDinamiche = '';
+
+		if (atto.IsMOZ) {
+			colonneDinamiche += `
+        <td class="center">
+            <div class="row">
+                <div class="col s6">${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}</div>
+                <div class="col s6">
+                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </a>
+                </div>
+            </div>
+        </td>
+        <td class="center">
+            <div class="row">
+                <div class="col s6">${risposta.DataTrattazione ? risposta.DataTrattazione : ''}</div>
+                <div class="col s6">
+                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </a>
+                </div>
+            </div>
+        </td>
+        <td class="center">
+            <div class="row">
+                <div class="col s6">${risposta.DataRevoca ? risposta.DataRevoca : ''}</div>
+                <div class="col s6">
+                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </a>
+                </div>
+            </div>
+        </td>
+    `;
+		} else if (atto.IsIQT) {
+			colonneDinamiche += `
+        <td class="center">
+            <div class="row">
+                <div class="col s6">${risposta.Data ? risposta.Data : ''}</div>
+                <div class="col s6">
+                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </a>
+                </div>
+            </div>
+        </td>
+    `;
+		} else if (atto.IsITR || atto.IsITL) {
+			colonneDinamiche += `
+        <td class="center">
+            <div class="row">
+                <div class="col s6">${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}</div>
+                <div class="col s6">
+                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </a>
+                </div>
+            </div>
+        </td>
+        <td class="center">
+            <div class="row">
+                <div class="col s6">${risposta.Data ? risposta.Data : ''}</div>
+                <div class="col s6">
+                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </a>
+                </div>
+            </div>
+        </td>
+    `;
+		} else {
+			colonneDinamiche += `
+        <td class="center">
+            <div class="row">
+                <div class="col s6">${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}</div>
+                <div class="col s6">
+                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </a>
+                </div>
+            </div>
+        </td>
+        <td class="center">
+            <div class="row">
+                <div class="col s6">${risposta.Data ? risposta.Data : ''}</div>
+                <div class="col s6">
+                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </a>
+                </div>
+            </div>
+        </td>
+        <td class="center">
+            <div class="row">
+                <div class="col s6">${risposta.DataTrattazione ? risposta.DataTrattazione : ''}</div>
+                <div class="col s6">
+                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </a>
+                </div>
+            </div>
+        </td>
+    `;
+		}
+
+		// Costruisci l'intera riga con le colonne dinamiche
+		const nuovaRiga = `
+    <tr id="${risposta.Uid}">
+        <td>${risposta.DescrizioneOrgano}</td>
+        ${colonneDinamiche}
+        <td>
+            <ul class="collection">
+                ${(risposta.RisposteAssociate || []).map(r => `
+                    <li class="collection-item" id="${r.Uid}">
+                        <div>${r.DescrizioneOrgano}
+                            <a href="#!" class="secondary-content red-text" onclick="rimuoviInformazioniRisposta(this, '${r.Uid}')">
+                                <i class="material-icons">close</i>
+                            </a>
+                        </div>
+                    </li>
+                `).join('')}
+                <li class="collection-item">
+                    <div>
+                        <a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '${risposta.Uid}')">
+                            <i class="material-icons">add</i>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </td>
+        <td>
+            ${risposta.UIDDocumento ? `
+                <a href="${risposta.Link}" target="_blank" style="text-decoration: underline">
+                    ${risposta.Titolo}
+                </a>
+                <a href="#!" class="btn-flat red-text" onclick="rimuoviDocumento(this, '${risposta.Titolo}', '${risposta.UIDDocumento}')">
+                    Rimuovi
+                </a>
+            ` : `
+                <a href="#!" class="btn-flat pink-text" onclick="AggiungiDocumento_Risposta(this, '${risposta.Uid}')">
+                    Carica
+                </a>
+            `}
+        </td>
+        <td class="center">
+            <a href="#!" class="btn-flat red-text" onclick="rimuoviRisposta(this, '${risposta.Uid}')">
+                Elimina
+            </a>
+        </td>
+    </tr>
+`;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+
+	function aggiornaDateRigaRisposta(risposta, atto) {
+		// Trova la riga corrispondente al `uid_risposta`
+		const row = document.querySelector(`table tbody tr[id="${risposta.Uid}"]`);
+		if (!row) {
+			console.error(`Riga con UID ${risposta.Uid} non trovata`);
+			return;
+		}
+
+		// Aggiorna le celle specifiche in base alle condizioni di `atto`
+		if (atto.IsMOZ) {
+			const cellDataTrasmissione = row.querySelector('td:nth-child(2) .col.s6:first-child');
+			const cellDataTrattazione = row.querySelector('td:nth-child(3) .col.s6:first-child');
+			const cellDataRevoca = row.querySelector('td:nth-child(4) .col.s6:first-child');
+
+			if (cellDataTrasmissione) {
+				cellDataTrasmissione.textContent = risposta.DataTrasmissione ? formatDateForDisplay(risposta.DataTrasmissione) : '';
+			}
+			if (cellDataTrattazione) {
+				cellDataTrattazione.textContent = risposta.DataTrattazione ? formatDateForDisplay(risposta.DataTrattazione) : '';
+			}
+			if (cellDataRevoca) {
+				cellDataRevoca.textContent = risposta.DataRevoca ? formatDateForDisplay(risposta.DataRevoca) : '';
+			}
+		} else if (atto.IsIQT) {
+			const cellDataRisposta = row.querySelector('td:nth-child(2) .col.s6:first-child');
+			if (cellDataRisposta) {
+				cellDataRisposta.textContent = risposta.Data ? formatDateForDisplay(risposta.Data) : '';
+			}
+		} else if (atto.IsITR || atto.IsITL) {
+			const cellDataTrasmissione = row.querySelector('td:nth-child(2) .col.s6:first-child');
+			const cellDataRisposta = row.querySelector('td:nth-child(3) .col.s6:first-child');
+
+			if (cellDataTrasmissione) {
+				cellDataTrasmissione.textContent = risposta.DataTrasmissione ? formatDateForDisplay(risposta.DataTrasmissione) : '';
+			}
+			if (cellDataRisposta) {
+				cellDataRisposta.textContent = risposta.Data ? formatDateForDisplay(risposta.Data) : '';
+			}
+		} else {
+			const cellDataTrasmissione = row.querySelector('td:nth-child(2) .col.s6:first-child');
+			const cellDataRisposta = row.querySelector('td:nth-child(3) .col.s6:first-child');
+			const cellDataTrattazione = row.querySelector('td:nth-child(4) .col.s6:first-child');
+
+			if (cellDataTrasmissione) {
+				cellDataTrasmissione.textContent = risposta.DataTrasmissione ? formatDateForDisplay(risposta.DataTrasmissione) : '';
+			}
+			if (cellDataRisposta) {
+				cellDataRisposta.textContent = risposta.Data ? formatDateForDisplay(risposta.Data) : '';
+			}
+			if (cellDataTrattazione) {
+				cellDataTrattazione.textContent = risposta.DataTrattazione ? formatDateForDisplay(risposta.DataTrattazione) : '';
+			}
+		}
+
+		const editLinks = row.querySelectorAll('a[data-risposta]');
+		if (editLinks.length > 0) {
+			const rispostaObj = {
+				Uid: risposta.Uid,
+				DataTrasmissione: risposta.DataTrasmissione,
+				DataTrattazione: risposta.DataTrattazione,
+				DataRevoca: risposta.DataRevoca,
+				Data: risposta.Data
+			};
+
+			// Itera su tutti i link e aggiorna l'attributo
+			editLinks.forEach(link => {
+				link.setAttribute('data-risposta', JSON.stringify(rispostaObj));
+			});
+		}
+	}
+
+
+	async function btnSalvaDettagliRisposta() {
+	// Ottieni i dati dalla modale
+	var dataRisposta = $('#dataRisposta').val();
+	var dataTrasmissione = $('#dataTrasmissione').val();
+	var dataTrattazione = $('#dataTrattazione').val();
+	var uid_risposta = $('#idRisposta').val();
+
+	// Prepara i dati per il salvataggio
+	var requestData = {
+		Uid: uid_risposta,
+		Data: dataRisposta,
+		DataTrasmissione: dataTrasmissione,
+		DataTrattazione: dataTrattazione
+	};
+
+	var url = '@Url.Action("Salva_DettagliRisposta", "DASI")';
+
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(requestData)
+	});
+
+	if (!response.ok) {
+		throw new Error('Network response was not ok');
+	}
+
+	try {
+		const errorData = await response.json();
+		if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+		const atto = @Html.Raw(JsonConvert.SerializeObject(new {
+                         UIDAtto = Model.Atto.UIDAtto,
+                         IsMOZ = Model.Atto.IsMOZ(),
+                         IsIQT = Model.Atto.IsIQT(),
+                         IsITL = Model.Atto.IsITL(),
+                         IsITR = Model.Atto.IsITR()
+                     }));
+
+		aggiornaDateRigaRisposta(requestData, atto);
+
+	} catch (error) {
+		// ignored
+	}
+
+	M.toast({
+		html: `<span>Dettagli della risposta salvati con successo</span>`,
+		classes: 'rounded',
+		displayLength: 5000
+	});
+
+	// Chiudi la modale
+	$('#modalDettaglioRisposta').modal('close');
+}
+
+</script>

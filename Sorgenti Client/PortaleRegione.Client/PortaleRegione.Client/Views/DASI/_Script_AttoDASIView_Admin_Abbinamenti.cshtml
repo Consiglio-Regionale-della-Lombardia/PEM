@@ -1,0 +1,139 @@
+﻿@model PortaleRegione.DTO.Model.DASIFormModel
+	
+<div id="modalAbbinamenti" class="modal">
+    <div class="modal-content">
+        <h4>Abbinamenti</h4>
+        <p>Ricerca abbinamenti all'atto @Model.Atto.Display</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="abbinamenti-autocomplete" class="autocomplete">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+    </div>
+</div>
+
+<script>
+
+	document.getElementById('btnAggiungiAbbinamento').addEventListener('click', async function () {
+    waiting(true);
+    var abbinamenti = await GetAbbinamentiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+	var data = [];
+	abbinamenti.forEach(function (item) {
+		data.push({
+			tag: `${item.display}, con oggetto: ${item.oggetto}`,
+			id: `${item.uidAtto}`
+		});
+	});
+    var elems = document.querySelectorAll('#abbinamenti-autocomplete');
+	var instances = M.Autocomplete.init(elems, {
+		data: data,
+		limit: 20,
+		minLength: 2,
+		onAutocomplete: function (txt, key) {
+			swal({
+				title: "Inserimento nuovo abbinamento",
+				text: "Sei sicuro di voler inserire l'abbinamento " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+				icon: "warning",
+				buttons: ["Annulla", "Inserisci"]
+			}).then(async (answer) => {
+
+				if (answer) {
+					var request = {
+						UidAbbinamento: "@Html.Raw(Model.Atto.UIDAtto)",
+						UidAttoAbbinato: `${key}`,
+					}
+
+					var url = '@Url.Action("Salva_NuovoAbbinamento", "DASI")';
+					// Send the data using fetch
+					const response = await fetch(url, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify(request)
+					});
+
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+
+					try {
+						const errorData = await response.json();
+						if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+					} catch (error) {
+						// ignored
+					}
+
+					// Aggiungi il nuovo abbinamento alla lista
+					var newItem = document.createElement('li');
+					newItem.className = 'collection-item';
+					newItem.innerHTML = `${txt} <a href="#!" class="secondary-content red-text" onclick="rimuoviAbbinamento(this,'${key}')"><i class="material-icons">close</i></a> `;
+
+					document.getElementById('lstAbbinamentiAtto').appendChild(newItem);
+
+					M.toast({
+						html: `<span>Abbinamento ${txt} inserito con successo nell'atto @Html.Raw(Model.Atto.Display)</span>`,
+						classes: 'rounded',
+						displayLength: 5000
+					});
+				}
+				document.getElementById('abbinamenti-autocomplete').value = "";
+			});
+		}
+	});
+	waiting(false);
+	$('#modalAbbinamenti').modal("open");
+});
+
+function rimuoviAbbinamento(ctrl, uidAttoAbbinato){
+	swal({
+			title: "Rimuovi abbinamento",
+			text: "Sei sicuro di voler rimuovere l'abbinamento?",
+			icon: "error",
+			buttons: ["Annulla", "Rimuovi"]
+	}).then(async (answer) => {
+		if (answer) {
+
+			var request = {
+				UidAbbinamento: `@Html.Raw(Model.Atto.UIDAtto)`,
+				UidAttoAbbinato: `${uidAttoAbbinato}`,
+			}
+
+			var url = '@Url.Action("Salva_RimuoviAbbinamento", "DASI")';
+			// Send the data using fetch
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(request)
+			});
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			try {
+				const errorData = await response.json();
+				if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+			} catch (error) {
+				// ignored
+			}
+
+			$(ctrl).parent().remove();
+			M.toast({
+				html: `<span>Abbinamento rimosso con successo dall'atto @Html.Raw(Model.Atto.Display)</span>`,
+				classes: 'rounded',
+				displayLength: 5000
+			});
+		}
+	});
+}
+
+</script>

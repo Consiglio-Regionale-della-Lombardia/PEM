@@ -1,0 +1,199 @@
+﻿@model PortaleRegione.DTO.Model.DASIFormModel
+
+<div id="modalMonitoraggio" class="modal">
+    <div class="modal-content">
+        <h4>Monitoraggio</h4>
+        <p>Ricerca organi da monitorare all'atto @Model.Atto.Display</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-monitoraggio-autocomplete" class="autocomplete">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+    </div>
+</div>
+
+<script>
+
+	document.getElementById('btnAggiungiMonitoraggio').addEventListener('click', async function () {
+	waiting(true);
+
+	var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+	var data = [];
+	organi.forEach(function (item) {
+		data.push({
+			tag: `${item.nome_organo}`,
+			id: `${item.id_organo}`
+		});
+	});
+	var elems = document.querySelectorAll('#organi-monitoraggio-autocomplete');
+	var instances = M.Autocomplete.init(elems, {
+		data: data,
+		limit: 20,
+		minLength: 2,
+		onAutocomplete: function (txt, key) {
+			swal({
+				title: "Inserimento nuovo organo",
+				text: "Sei sicuro di voler inserire " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+				icon: "warning",
+				buttons: ["Annulla", "Inserisci"]
+			}).then(async (answer) => {
+
+				if (answer) {
+
+					let tipoOrgano;
+					let displayTipoOrgano;
+
+					if (txt.includes("Commissione")) {
+						tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+						displayTipoOrgano = "Commissione";
+					} else {
+						tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+						displayTipoOrgano = "Giunta";
+					}
+
+					// Simula la richiesta al server per salvare i dati
+					var request = {
+						UIDAtto: '@Model.Atto.UIDAtto',
+						IdOrgano: `${key}`,
+						TipoOrgano: tipoOrgano,
+						DisplayTipoOrgano: displayTipoOrgano,
+						DescrizioneOrgano: txt,
+					}
+
+					var url = '@Url.Action("Salva_NuovoMonitoraggio", "DASI")';
+					// Send the data using fetch
+					const response = await fetch(url, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify(request)
+					});
+
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+
+					// Aggiungi una nuova riga alla tabella
+					var newRow = document.createElement('tr');
+					newRow.innerHTML = `
+						<td>${request.DisplayTipoOrgano}</td>
+						<td>${request.DescrizioneOrgano}</td>
+						<td>
+							<a class="red-text" onclick="rimuoviMonitoraggio(this, ${key})"><i class="material-icons">close</i></a>
+						</td>
+					`;
+
+						document.querySelector('#tableMonitoraggio tbody').appendChild(newRow);
+
+						M.toast({
+							html: `<span>${txt} inserito con successo all'atto @Html.Raw(Model.Atto.Display)</span>`,
+							classes: 'rounded',
+							displayLength: 5000
+						});
+					}
+					document.getElementById('organi-monitoraggio-autocomplete').value = "";
+				});
+			}
+		});
+	waiting(false);
+	$('#modalMonitoraggio').modal("open");
+});
+
+function rimuoviMonitoraggio(ctrl, organoId) {
+	var row = $(ctrl).closest('tr');
+	var id = organoId;
+
+	swal({
+		title: "Rimuovi monitoraggio",
+		text: "Sei sicuro di voler rimuovere questo monitoraggio?",
+		icon: "warning",
+		buttons: ["Annulla", "Rimuovi"]
+	}).then(async (answer) => {
+		if (answer) {
+			// Simula la richiesta al server per rimuovere i dati
+			var url = '@Url.Action("Salva_RimuoviMonitoraggio", "DASI")';
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ IdOrgano: id, UIDAtto: '@Model.Atto.UIDAtto' })
+			});
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			try {
+				const errorData = await response.json();
+				if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+			} catch (error) {
+				// ignored
+			}
+
+			// Rimuovi la riga dalla tabella
+			row.remove();
+
+			M.toast({
+				html: `<span>Monitoraggio rimosso con successo</span>`,
+				classes: 'rounded',
+				displayLength: 5000
+			});
+		}
+	});
+}
+
+document.getElementById('btnSalva_InformazioniAggiuntiveMonitoraggio').addEventListener('click', async function () {
+
+    swal({
+        title: "Salvataggio informazioni monitoraggio",
+        text: "Sei sicuro di voler salvare le informazioni di monitoraggio?",
+        icon: "warning",
+        buttons: ["Annulla", "Salva"]
+    }).then(async (answer) => {
+        if (answer) {
+            var data = {
+                UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+				AltriSoggetti: document.querySelector('input[name="Atto.AltriSoggetti"]').value,
+				AreaTematica: document.querySelector('input[name="Atto.AreaTematica"]').value
+            };
+
+            var url = '@Url.Action("Salva_InformazioniMonitoraggio", "DASI")';
+            // Send the data using fetch
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+			}
+
+			try {
+				const errorData = await response.json();
+				if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+			} catch (error) {
+				// ignored
+			}
+
+            M.toast({
+                html: `<span>Informazioni di monitoraggio salvate con successo</span>`,
+                classes: 'rounded',
+                displayLength: 5000
+            });
+        }
+    });
+});
+
+</script>
+

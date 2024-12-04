@@ -1,0 +1,256 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.DASIFormModel
+
+<div id="modalDocumento" class="modal">
+    <div class="modal-content">
+        <h4>Documento</h4>
+        <div class="row">
+            <div class="input-field col s12">
+                <select id="tipi-documento-select">
+                </select>
+                <label>Tipo documento</label>
+            </div>
+            <label>Carica documento</label>
+
+            <div class="file-field input-field">
+                <div class="btn">
+                    <span>SFOGLIA</span>
+                    <input type="file" name="document_object" accept="application/pdf">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text" placeholder="Carica documento">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+        <a onclick="btnSalvaDocumento()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+    </div>
+</div>
+
+<script>
+
+		document.getElementById('btnAggiungiDocumento_ChiusuraIter').addEventListener('click', function () {
+		waiting(true);
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">Chiusura Iter</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	});
+
+	document.getElementById('btnAggiungiDocumento_Pubblicazione').addEventListener('click', function () {
+		waiting(true);
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_ALLEGATO)">Testo cartaceo</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_PRIVACY)">Testo privacy</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.ABBINAMENTO)">Abbinamento</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.AGGIUNTIVO)">Aggiuntivo</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)">Monitoraggio</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">Chiusura Iter</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	});
+
+    document.getElementById('btnAggiungiDocumento_Monitoraggio').addEventListener('click', function () {
+		waiting(true);
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)">Monitoraggio</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	});
+
+	function AggiungiDocumento_Risposta(ctrl, uid) {
+		waiting(true);
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.RISPOSTA)">Risposta</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+
+		$('#idRisposta').val(uid);
+
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	}
+
+	document.getElementById('btnAggiungiDocumento_InformazioniGenerali').addEventListener('click', function () {
+		waiting(true);
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.AGGIUNTIVO)">Aggiuntivo</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	});
+
+	async function btnSalvaDocumento(){
+
+        // Ottieni i dati dalla modale
+        var tipoDocumentoValue = $('#tipi-documento-select').val();
+        var tipoDocumentoText = $('#tipi-documento-select option:selected').text();
+
+        var inputsAllegatoGenerico = $('input[name=document_object]');
+        if (inputsAllegatoGenerico.length != 0) {
+            var inputFileAllegatoGenerico = inputsAllegatoGenerico[0];
+            if (!inputFileAllegatoGenerico.files) {
+                alert("This browser doesn't seem to support the `files` property of file inputs.");
+                return; // Uscire in caso di errore
+            }
+
+            if (inputFileAllegatoGenerico.files.length > 0) {
+                // Creazione del FormData per inviare il file e altri dati
+                var formData = new FormData();
+                formData.append("UIDAtto", '@Html.Raw(Model.Atto.UIDAtto)');
+                formData.append("TipoDocumento", tipoDocumentoValue); // Invia il tipo di documento selezionato
+                formData.append("Documento", inputFileAllegatoGenerico.files[0]); // Aggiungi il file PDF
+
+				var uidRisposta = $('#idRisposta').val();
+				if (uidRisposta) {
+					formData.append("Uid", uidRisposta);
+					$('#idRisposta').val("");
+				}
+
+                var url = '@Url.Action("Salva_Documento", "DASI")';
+
+                try {
+
+					waiting(true);
+
+                    // Invia i dati usando fetch
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData // Non impostare il content-type, fetch lo farà automaticamente con FormData
+                    });
+
+                    if (!response.ok) {
+						waiting(false);
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const result = await response.json();
+                    if (result !== "OK") {
+						waiting(false);
+                        throw new Error(result.message);
+                    }
+
+                    // Mostra il messaggio di successo
+                    M.toast({
+                        html: `<span>Documento salvato con successo</span>`,
+                        classes: 'rounded',
+                        displayLength: 5000
+                    });
+
+					setTimeout(function () {
+						location.reload();
+					}, 5000);
+
+                } catch (error) {
+                    waiting(false);
+                    console.error('Errore durante il salvataggio del documento:', error);
+                    M.toast({
+                        html: `<span>Errore: ${error.message}</span>`,
+                        classes: 'rounded',
+                        displayLength: 5000
+                    });
+                }
+            } else {
+                alert("Seleziona un file PDF da caricare.");
+            }
+        } else {
+            alert("Input file non trovato.");
+        }
+    }
+
+	async function pubblicaDocumento(ctrl, uid) {
+		waiting(true);
+
+		var isChecked = ctrl.checked;
+		var statusMessage = isChecked ? "Documento pubblicato" : "Documento rimosso dalla pubblicazione";
+
+		// Simula la richiesta al server per rimuovere i dati
+		var url = '@Url.Action("Salva_PubblicaDocumento", "DASI")';
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ Uid: uid })
+		});
+
+		if (!response.ok) {
+			waiting(false);
+			throw new Error('Network response was not ok');
+		}
+
+		try {
+			const errorData = await response.json();
+						if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+		} catch (error) {
+			// ignored
+			waiting(false);
+		}
+		waiting(false);
+		M.toast({
+			html: `<span>${statusMessage}</span>`,
+			classes: 'rounded',
+			displayLength: 5000
+		});
+	}
+
+	function rimuoviDocumento(ctrl, titolo, uid) {
+	    swal({
+		    title: "Rimuovi documento " + titolo,
+		    text: "Sei sicuro di voler rimuovere questa documento?",
+		    icon: "warning",
+		    buttons: ["Annulla", "Rimuovi"]
+	    }).then(async (answer) => {
+		    if (answer) {
+                waiting(true);
+			    // Simula la richiesta al server per rimuovere i dati
+			    var url = '@Url.Action("Salva_RimuoviDocumento", "DASI")';
+			    const response = await fetch(url, {
+				    method: 'POST',
+				    headers: {
+					    'Content-Type': 'application/json'
+				    },
+				    body: JSON.stringify({ Uid: uid })
+			    });
+
+			    if (!response.ok) {
+					waiting(false);
+				    throw new Error('Network response was not ok');
+			    }
+
+			    try {
+				    const errorData = await response.json();
+					if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+			    } catch (error) {
+				    // ignored
+					waiting(false);
+			    }
+
+			    M.toast({
+				    html: `<span>Documento rimosso con successo</span>`,
+				    classes: 'rounded',
+				    displayLength: 5000
+			    });
+
+				setTimeout(function () {
+					location.reload();
+				}, 5000);
+		    }
+	    });
+}
+
+</script>
+
