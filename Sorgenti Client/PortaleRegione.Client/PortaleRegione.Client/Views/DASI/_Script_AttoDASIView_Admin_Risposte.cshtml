@@ -668,6 +668,7 @@ function modificaDettagliRisposta(ctrl) {
 	var dataRisposta = $('#dataRisposta').val();
 	var dataTrasmissione = $('#dataTrasmissione').val();
 	var dataTrattazione = $('#dataTrattazione').val();
+	var dataRevoca = $('#dataRevoca').val();
 	var uid_risposta = $('#idRisposta').val();
 
 	// Prepara i dati per il salvataggio
@@ -675,7 +676,8 @@ function modificaDettagliRisposta(ctrl) {
 		Uid: uid_risposta,
 		Data: dataRisposta,
 		DataTrasmissione: dataTrasmissione,
-		DataTrattazione: dataTrattazione
+		DataTrattazione: dataTrattazione,
+		DataRevoca: dataRevoca
 	};
 
 	var url = '@Url.Action("Salva_DettagliRisposta", "DASI")';
