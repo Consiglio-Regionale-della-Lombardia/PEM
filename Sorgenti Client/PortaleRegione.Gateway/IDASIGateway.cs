@@ -104,7 +104,7 @@ namespace PortaleRegione.Gateway
         Task Salva_Nota(NoteDto request);
         Task Rimuovi_Nota(NoteDto request);
         Task Salva_PrivacyAtto(AttoDASIDto request);
-        Task Salva_DocumentoAtto(SalvaDocumentoRequest request);
+        Task<AttiDocumentiDto> Salva_DocumentoAtto(SalvaDocumentoRequest request);
         Task Rimuovi_Documento(AttiDocumentiDto request);
         Task Pubblica_Documento(AttiDocumentiDto request);
         Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request);

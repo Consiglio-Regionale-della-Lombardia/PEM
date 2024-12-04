@@ -49,6 +49,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.DTO.Routes;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
 using Color = System.Drawing.Color;
@@ -4994,7 +4995,7 @@ namespace PortaleRegione.API.Controllers
             return res;
         }
 
-        public async Task Salva_Documento(SalvaDocumentoRequest request, PersonaDto currentUser)
+        public async Task<AttiDocumentiDto> Salva_Documento(SalvaDocumentoRequest request, PersonaDto currentUser)
         {
             var atto = await GetAttoDto(request.UIDAtto, currentUser);
             if (atto == null)
@@ -5087,6 +5088,16 @@ namespace PortaleRegione.API.Controllers
             }
 
             await _unitOfWork.CompleteAsync();
+
+            return new AttiDocumentiDto
+            {
+                Uid = doc.Uid,
+                Tipo = ((TipoDocumentoEnum)doc.Tipo).ToString(),
+                Titolo = doc.Titolo,
+                Pubblico = doc.Pubblica,
+                Link = $"{AppSettingsConfiguration.URL_API}/{ApiRoutes.DASI.DownloadDoc}?path={doc.Path}",
+                TipoEnum = (TipoDocumentoEnum)doc.Tipo
+            };
         }
 
         public async Task Rimuovi_Documento(AttiDocumentiDto request)

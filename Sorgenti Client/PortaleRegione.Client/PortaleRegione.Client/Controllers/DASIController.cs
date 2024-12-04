@@ -2613,8 +2613,8 @@ namespace PortaleRegione.Client.Controllers
                 }
 
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.Salva_DocumentoAtto(request);
-                return Json("OK", JsonRequestBehavior.AllowGet);
+                var documento = await apiGateway.DASI.Salva_DocumentoAtto(request);
+                return Json(documento, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

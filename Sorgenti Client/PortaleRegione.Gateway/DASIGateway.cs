@@ -156,11 +156,12 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
-        public async Task Salva_DocumentoAtto(SalvaDocumentoRequest request)
+        public async Task<AttiDocumentiDto> Salva_DocumentoAtto(SalvaDocumentoRequest request)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_Document}";
             var body = JsonConvert.SerializeObject(request);
-            await Post(requestUrl, body, _token);
+            var documento = JsonConvert.DeserializeObject<AttiDocumentiDto>(await Post(requestUrl, body, _token));
+            return documento;
         }
 
         public async Task Rimuovi_Documento(AttiDocumentiDto request)

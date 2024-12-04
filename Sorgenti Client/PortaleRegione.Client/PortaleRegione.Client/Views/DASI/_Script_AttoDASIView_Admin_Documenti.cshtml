@@ -31,8 +31,9 @@
 
 <script>
 
-		document.getElementById('btnAggiungiDocumento_ChiusuraIter').addEventListener('click', function () {
+	document.getElementById('btnAggiungiDocumento_ChiusuraIter').addEventListener('click', function () {
 		waiting(true);
+		resetModalDocumento();
 		$('#tipi-documento-select').empty();
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">Chiusura Iter</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
@@ -44,6 +45,7 @@
 
 	document.getElementById('btnAggiungiDocumento_Pubblicazione').addEventListener('click', function () {
 		waiting(true);
+		resetModalDocumento();
 		$('#tipi-documento-select').empty();
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_ALLEGATO)">Testo cartaceo</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_PRIVACY)">Testo privacy</option>');
@@ -60,6 +62,7 @@
 
     document.getElementById('btnAggiungiDocumento_Monitoraggio').addEventListener('click', function () {
 		waiting(true);
+		resetModalDocumento();
 		$('#tipi-documento-select').empty();
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)">Monitoraggio</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
@@ -70,6 +73,7 @@
 
 	function AggiungiDocumento_Risposta(ctrl, uid) {
 		waiting(true);
+		resetModalDocumento();
 		$('#tipi-documento-select').empty();
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.RISPOSTA)">Risposta</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
@@ -83,6 +87,7 @@
 
 	document.getElementById('btnAggiungiDocumento_InformazioniGenerali').addEventListener('click', function () {
 		waiting(true);
+		resetModalDocumento();
 		$('#tipi-documento-select').empty();
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.AGGIUNTIVO)">Aggiuntivo</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
@@ -136,10 +141,22 @@
                     }
 
                     const result = await response.json();
-                    if (result !== "OK") {
+                    if (result.message) {
 						waiting(false);
                         throw new Error(result.message);
                     }
+
+					if (uidRisposta) {
+						aggiornaRigaConDocumentoRisposta(uidRisposta, result);
+					} else if (tipoDocumentoValue == @Html.Raw((int)TipoDocumentoEnum.AGGIUNTIVO)) {
+						aggiornaTabellaDocumentiAggiuntivi(result);
+					} else if (tipoDocumentoValue == @Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)) {
+						aggiornaTabellaDocumentiMonitoraggio(result);
+					} else if (tipoDocumentoValue == @Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)) {
+						aggiornaTabellaDocumentiChiusuraIter(result);
+					}
+
+					aggiornaTabellaDocumentiGenerali(result);
 
                     // Mostra il messaggio di successo
                     M.toast({
@@ -148,10 +165,7 @@
                         displayLength: 5000
                     });
 
-					setTimeout(function () {
-						location.reload();
-					}, 5000);
-
+					$('#modalDocumento').modal("close");
                 } catch (error) {
                     waiting(false);
                     console.error('Errore durante il salvataggio del documento:', error);
@@ -167,7 +181,165 @@
         } else {
             alert("Input file non trovato.");
         }
+
+		waiting(false);
     }
+
+	function aggiornaTabellaDocumentiGenerali(documento) {
+		// Trova il corpo della tabella
+		const tableBody = document.querySelector('#tableDocumentiGenerali tbody');
+		if (!tableBody) {
+			console.error("Tabella documenti generali non trovata");
+			return;
+		}
+
+		// Determina il valore del checkbox Pubblico
+		const checkboxPubblico = documento.Pubblico
+			? `<input type="checkbox" checked="checked" onclick='pubblicaDocumento(this, "${documento.Uid}")' />`
+			: `<input type="checkbox" onclick='pubblicaDocumento(this, "${documento.Uid}")' />`;
+
+		// Crea una nuova riga per il documento
+		const nuovaRiga = `
+        <tr>
+            <td>${documento.Tipo}</td>
+            <td>${documento.Titolo}</td>
+            <td>
+                <p>
+                    <label>
+                        ${checkboxPubblico}
+                        <span></span>
+                    </label>
+                </p>
+            </td>
+            <td>
+                <a href="${documento.Link}" target="_blank">
+                    <i class="material-icons icon">link</i>
+                </a>
+            </td>
+            <td class="center">
+                <a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "${documento.Titolo}", "${documento.Uid}")'>
+                    Rimuovi
+                </a>
+            </td>
+        </tr>
+    `;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+
+
+	function aggiornaTabellaDocumentiAggiuntivi(documento) {
+		// Trova il corpo della tabella
+		const tableBody = document.querySelector('#tableDocumentiAggiuntivi tbody');
+		if (!tableBody) {
+			console.error("Tabella documenti aggiuntivi non trovata");
+			return;
+		}
+
+		// Crea una nuova riga per il documento
+		const nuovaRiga = `
+        <tr>
+            <td>${documento.Titolo}</td>
+            <td>
+                <a href="${documento.Link}" target="_blank">
+                    <i class="material-icons icon">link</i>
+                </a>
+            </td>
+            <td class="center">
+                <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "${documento.Titolo}", "${documento.Uid}")'>
+                    <i class="material-icons">close</i>
+                </a>
+            </td>
+        </tr>
+    `;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+	
+	function aggiornaTabellaDocumentiMonitoraggio(documento) {
+		// Trova il corpo della tabella
+		const tableBody = document.querySelector('#tableDocumentiMonitoraggio tbody');
+		if (!tableBody) {
+			console.error("Tabella documenti monitoraggio non trovata");
+			return;
+		}
+
+		// Crea una nuova riga per il documento
+		const nuovaRiga = `
+        <tr>
+            <td>${documento.Titolo}</td>
+            <td>
+                <a href="${documento.Link}" target="_blank">
+                    <i class="material-icons icon">link</i>
+                </a>
+            </td>
+            <td class="center">
+                <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "${documento.Titolo}", "${documento.Uid}")'>
+                    <i class="material-icons">close</i>
+                </a>
+            </td>
+        </tr>
+    `;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+	
+	function aggiornaTabellaDocumentiChiusuraIter(documento) {
+		// Trova il corpo della tabella
+		const tableBody = document.querySelector('#tableDocumentiChiusuraIter tbody');
+		if (!tableBody) {
+			console.error("Tabella documenti chiusura iter non trovata");
+			return;
+		}
+
+		// Crea una nuova riga per il documento
+		const nuovaRiga = `
+        <tr>
+            <td>${documento.Titolo}</td>
+            <td>
+                <a href="${documento.Link}" target="_blank">
+                    <i class="material-icons icon">link</i>
+                </a>
+            </td>
+            <td class="center">
+                <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "${documento.Titolo}", "${documento.Uid}")'>
+                    <i class="material-icons">close</i>
+                </a>
+            </td>
+        </tr>
+    `;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+
+	function aggiornaRigaConDocumentoRisposta(uidRisposta, documento) {
+		// Trova la riga corrispondente al `uidRisposta`
+		const row = document.querySelector(`table tbody tr[id="${uidRisposta}"]`);
+		if (!row) {
+			console.error(`Riga con UID ${uidRisposta} non trovata`);
+			return;
+		}
+
+		// Trova la penultima colonna
+		const cellDocumento = row.querySelector('td:nth-last-child(2)');
+		if (cellDocumento) {
+			// Aggiorna la cella con i dettagli del documento
+			cellDocumento.innerHTML = `
+            <a href="${documento.Link}" target="_blank" style="text-decoration: underline">
+                ${documento.Titolo}
+            </a>
+            <a href="#!" class="btn-flat red-text" onclick="rimuoviDocumento(this, '${documento.Titolo}', '${documento.Uid}')">
+                Rimuovi
+            </a>
+        `;
+		} else {
+			console.error(`Penultima colonna non trovata per la riga con UID ${uidRisposta}`);
+		}
+	}
 
 	async function pubblicaDocumento(ctrl, uid) {
 		waiting(true);
@@ -196,7 +368,6 @@
 
 		} catch (error) {
 			// ignored
-			waiting(false);
 		}
 		waiting(false);
 		M.toast({
@@ -250,6 +421,20 @@
 				}, 5000);
 		    }
 	    });
+}
+
+function resetModalDocumento() {
+	// Resetta il campo file
+	const inputFile = document.querySelector('input[name=document_object]');
+	if (inputFile) {
+		inputFile.value = '';
+	}
+
+	// Resetta il percorso del file visibile
+	const filePathInput = document.querySelector('.file-path');
+	if (filePathInput) {
+		filePathInput.value = '';
+	}
 }
 
 </script>

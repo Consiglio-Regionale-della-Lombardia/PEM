@@ -428,8 +428,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_Documento(request, CurrentUser);
-                return Ok();
+                var documento = await _dasiLogic.Salva_Documento(request, CurrentUser);
+                return Ok(documento);
             }
             catch (Exception e)
             {
