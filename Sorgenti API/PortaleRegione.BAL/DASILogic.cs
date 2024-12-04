@@ -655,6 +655,7 @@ namespace PortaleRegione.API.Controllers
 
         public async Task<RiepilogoDASIModel> Get(BaseRequest<AttoDASIDto> model, PersonaDto persona, Uri uri)
         {
+            var filterModel = model.filtro.ToList();
             var requestStato = GetResponseStatusFromFilters(model.filtro);
             var requestTipo = GetResponseTypeFromFilters(model.filtro);
 
@@ -693,7 +694,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     Stato = requestStato,
                     Tipo = requestTipo,
-                    Data = new BaseResponse<AttoDASIDto>(model.page, model.size, new List<AttoDASIDto>(), model.filtro,
+                    Data = new BaseResponse<AttoDASIDto>(model.page, model.size, new List<AttoDASIDto>(), filterModel,
                         0, uri),
                     CountBarData = await GetResponseCountBar(persona, GetClientMode(CLIENT_MODE),
                         queryFilter, queryExtended),
@@ -711,7 +712,7 @@ namespace PortaleRegione.API.Controllers
             {
                 Stato = requestStato,
                 Tipo = requestTipo,
-                Data = new BaseResponse<AttoDASIDto>(model.page, model.size, result, model.filtro, totaleAtti, uri),
+                Data = new BaseResponse<AttoDASIDto>(model.page, model.size, result, filterModel, totaleAtti, uri),
                 CountBarData = await GetResponseCountBar(persona, GetClientMode(CLIENT_MODE),
                     queryFilter, queryExtended),
                 CommissioniAttive = persona.IsSegreteriaAssemblea ? await GetCommissioniAttive() : null,
@@ -1025,49 +1026,41 @@ namespace PortaleRegione.API.Controllers
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, ClientModeEnum clientMode,
             Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended)
         {
-            var filtro = PulisciFiltro(queryFilter);
             var result = new CountBarData
             {
                 ITL = await _unitOfWork
                     .DASI
-                    .Count(persona,
-                        TipoAttoEnum.ITL, clientMode, filtro, queryExtended),
+                    .CountByTipo(persona, TipoAttoEnum.ITL),
                 ITR = await _unitOfWork
                     .DASI
-                    .Count(persona,
-                        TipoAttoEnum.ITR, clientMode, filtro, queryExtended),
+                    .CountByTipo(persona, TipoAttoEnum.ITR),
                 IQT = await _unitOfWork
                     .DASI
-                    .Count(persona,
-                        TipoAttoEnum.IQT, clientMode, filtro, queryExtended),
+                    .CountByTipo(persona, TipoAttoEnum.IQT),
                 MOZ = await _unitOfWork
                     .DASI
-                    .Count(persona,
-                        TipoAttoEnum.MOZ, clientMode, filtro, queryExtended),
+                    .CountByTipo(persona, TipoAttoEnum.MOZ),
                 ODG = await _unitOfWork
                     .DASI
-                    .Count(persona,
-                        TipoAttoEnum.ODG, clientMode, filtro, queryExtended),
+                    .CountByTipo(persona, TipoAttoEnum.ODG),
                 RIS = await _unitOfWork
                     .DASI
-                    .Count(persona,
-                        TipoAttoEnum.RIS, clientMode, filtro, queryExtended),
+                    .CountByTipo(persona, TipoAttoEnum.RIS),
                 TUTTI = await _unitOfWork
                     .DASI
-                    .Count(persona,
-                        TipoAttoEnum.TUTTI, clientMode, filtro, queryExtended),
+                    .CountByTipo(persona, TipoAttoEnum.TUTTI),
                 BOZZE = await _unitOfWork
                     .DASI
-                    .Count(persona, StatiAttoEnum.BOZZA, clientMode, filtro, queryExtended),
+                    .CountByStato(persona, queryExtended.Tipi, StatiAttoEnum.BOZZA),
                 PRESENTATI = await _unitOfWork
                     .DASI
-                    .Count(persona, StatiAttoEnum.PRESENTATO, clientMode, filtro, queryExtended),
+                    .CountByStato(persona, queryExtended.Tipi, StatiAttoEnum.PRESENTATO),
                 IN_TRATTAZIONE = await _unitOfWork
                     .DASI
-                    .Count(persona, StatiAttoEnum.IN_TRATTAZIONE, clientMode, filtro, queryExtended),
+                    .CountByStato(persona, queryExtended.Tipi, StatiAttoEnum.IN_TRATTAZIONE),
                 CHIUSO = await _unitOfWork
                     .DASI
-                    .Count(persona, StatiAttoEnum.COMPLETATO, clientMode, filtro, queryExtended)
+                    .CountByStato(persona, queryExtended.Tipi, StatiAttoEnum.COMPLETATO)
             };
 
             return result;

@@ -82,6 +82,9 @@ namespace PortaleRegione.Contracts
         Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size);
         Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId);
 
+        Task<int> CountByTipo(PersonaDto persona, TipoAttoEnum tipo);
+        Task<int> CountByStato(PersonaDto persona, List<int> tipo, StatiAttoEnum stato);
+
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, ClientModeEnum clientMode, Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended);
 
         Task<int> Count(PersonaDto persona, StatiAttoEnum stato, ClientModeEnum clientMode,

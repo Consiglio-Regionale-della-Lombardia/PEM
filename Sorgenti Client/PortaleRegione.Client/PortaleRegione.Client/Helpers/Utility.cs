@@ -419,13 +419,6 @@ namespace PortaleRegione.Client.Helpers
             if (filtroStato != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
             {
                 var operation = Operation.EqualTo;
-                if (filtroStato == Convert.ToInt32(StatiAttoEnum.PRESENTATO).ToString())
-                {
-                    if (currentUser.IsSegreteriaAssemblea)
-                        operation = Operation.EqualTo;
-                    else
-                        operation = Operation.GreaterThanOrEqualTo;
-                }
 
                 model.filtro.Add(new FilterStatement<AttoDASIDto>
                 {
@@ -437,26 +430,13 @@ namespace PortaleRegione.Client.Helpers
             }
             else
             {
-                if (currentUser.IsSegreteriaAssemblea)
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
                 {
-                    model.filtro.Add(new FilterStatement<AttoDASIDto>
-                    {
-                        PropertyId = nameof(AttoDASIDto.IDStato),
-                        Operation = Operation.EqualTo,
-                        Value = ((int)StatiAttoEnum.PRESENTATO).ToString(),
-                        Connector = FilterStatementConnector.And
-                    });
-                }
-                else
-                {
-                    model.filtro.Add(new FilterStatement<AttoDASIDto>
-                    {
-                        PropertyId = nameof(AttoDASIDto.IDStato),
-                        Operation = Operation.EqualTo,
-                        Value = ((int)StatiAttoEnum.BOZZA).ToString(),
-                        Connector = FilterStatementConnector.And
-                    });
-                }
+                    PropertyId = nameof(AttoDASIDto.IDStato),
+                    Operation = Operation.EqualTo,
+                    Value = ((int)StatiAttoEnum.BOZZA).ToString(),
+                    Connector = FilterStatementConnector.And
+                });
             }
         }
 

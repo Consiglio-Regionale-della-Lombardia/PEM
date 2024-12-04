@@ -1000,6 +1000,49 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
+        public async Task<int> CountByTipo(PersonaDto persona, TipoAttoEnum tipo)
+        {
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato
+                               && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
+
+            if (persona.Gruppo != null)
+            {
+                if (persona.Gruppo.id_gruppo > 0)
+                {
+                    query = query.Where(item => item.id_gruppo.Equals(persona.Gruppo.id_gruppo));
+                }
+            }
+
+            if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo.Equals((int)tipo));
+
+            return await query
+                .CountAsync();
+        }
+
+        public async Task<int> CountByStato(PersonaDto persona, List<int> tipo, StatiAttoEnum stato)
+        {
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato
+                               && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
+
+            if (persona.Gruppo != null)
+            {
+                if (persona.Gruppo.id_gruppo > 0)
+                {
+                    query = query.Where(item => item.id_gruppo.Equals(persona.Gruppo.id_gruppo));
+                }
+            }
+
+            if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato.Equals((int)stato));
+            if (tipo.Any()) query = query.Where(item => tipo.Contains(item.Tipo));
+
+            return await query
+                .CountAsync();
+        }
+
         public async Task<int> Count(PersonaDto currentUser, TipoAttoEnum tipo, ClientModeEnum clientMode,
             Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended)
         {
