@@ -1701,6 +1701,11 @@
                     dataChiusura.style.display = 'block';
                     dataComunicazione.style.display = 'block';
                     break;
+                case '@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)': // Trattazione in assemblea
+                case '@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)': // Commissione in assemblea
+                    dataChiusura.style.display = 'block';
+                    dataComunicazione.style.display = 'block';
+                    break;
                 default:
                     break;
             }
