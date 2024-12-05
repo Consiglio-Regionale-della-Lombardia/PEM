@@ -395,11 +395,13 @@
 			li.textContent = item.reportname;
 			li.onclick = function (event) {
 				event.stopPropagation();
+
 				resetSelezionePreferiti();
-				localStorage.setItem('selectedSortColumns', item.sorting)
+                localStorage.setItem('selectedSortColumns', item.sorting);
 				localStorage.setItem('filtriDasi', item.filters);
 				chipsKeys = [];
-				$('#chips-container').empty();
+
+                ripristinaOrdinamento();
 				ripristinaFiltri();			
 
 				$('#chips-container-selected-report').empty();

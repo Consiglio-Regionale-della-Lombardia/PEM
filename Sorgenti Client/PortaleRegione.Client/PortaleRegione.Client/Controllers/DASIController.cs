@@ -293,12 +293,15 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
                 var apiGateway = new ApiGateway(Token);
                 var result = await apiGateway.DASI.Salva(request);
                 Session["RiepilogoDASI"] = null;
                 return Json(Url.Action("ViewAtto", "DASI", new
                 {
-                    id = result.UIDAtto
+                    id = result.UIDAtto,
+                    name = currentUser.DisplayName,
+                    codice_gruppo = currentUser.Gruppo.codice_gruppo
                 }), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

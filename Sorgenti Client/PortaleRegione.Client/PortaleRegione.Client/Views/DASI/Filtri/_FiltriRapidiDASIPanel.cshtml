@@ -14,7 +14,7 @@
 <div class="row">
     <div class="col l7 m12 s12 left-align">
         <div id="chips-container"></div>
-        <br/>
+        <div id="chips-container-sorting"></div>
         <div id="chips-container-groups"></div>
     </div>
     <div class="col l5 m12 s12 right-align">
@@ -594,8 +594,8 @@ async function inviaDatiChips(page, size) {
 	const view = localStorage.getItem('viewModeDasi');
 	if (!view) {
 		localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
-		view = localStorage.getItem('viewModeDasi')
-	}
+        view = localStorage.getItem('viewModeDasi');
+    }
 
 	var paging = {};
 	paging.page = page;
@@ -2635,6 +2635,7 @@ function salvaFiltri() {
 }
 
 function ripristinaFiltri(){
+    $('#chips-container').empty();
 	const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
 	if (filtri) {
 		filtri.forEach(function (filtro) {
@@ -2651,6 +2652,7 @@ function ripristinaFiltri(){
 }
 
 	function ripristinaOrdinamento() {
+        $('#chips-container-sorting').empty();
 		const ordinamenti = JSON.parse(localStorage.getItem('selectedSortColumns'));
 		if (ordinamenti) {
 			ordinamenti.forEach(function (ordinamento) {
@@ -2665,7 +2667,7 @@ function ripristinaFiltri(){
 
 		if (!existingChip) {
 			// La chiave non esiste, quindi aggiungi la chip
-			var chipsContainer = document.getElementById('chips-container');
+			var chipsContainer = document.getElementById('chips-container-sorting');
 			var newChip = document.createElement('div');
 			newChip.setAttribute('data-order-direction', sortDirection);
 			newChip.setAttribute('data-orderby', key);
@@ -2675,18 +2677,24 @@ function ripristinaFiltri(){
 			newChip.classList.add('black-text');
 
 			var directionText = "";
-			if (sortDirection == "-1")
-				directionText = "Decrescente"
-			else
-				directionText = "Crescente"
+            if (sortDirection == "-1")
+                directionText = "Decrescente";
+            else
+                directionText = "Crescente";
 
 			newChip.textContent = "Ordinato per " + chipText + " " + directionText;
+
+            var editIcon = document.createElement('i');
+            editIcon.classList.add('material-icons', 'tiny');
+            editIcon.style.setProperty('margin-left', '10px');
+            editIcon.style.setProperty('top', '2px');
+            editIcon.textContent = 'edit';
 
 			newChip.onclick = async function (event) {
 				event.stopPropagation();
 				openOrdinamentoModal();
 			};
-
+            newChip.appendChild(editIcon);
 			chipsContainer.appendChild(newChip);
 		} else {
 			existingChip.setAttribute('data-order-direction', sortDirection);

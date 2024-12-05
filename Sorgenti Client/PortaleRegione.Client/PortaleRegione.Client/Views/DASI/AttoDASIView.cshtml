@@ -180,7 +180,6 @@
 							   data-tooltip="Iscrizione in seduta"
 							   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
 								Iscrizione in seduta
-								<i class="material-icons right pink-text">assignment_turned_in</i>
 							</a>
 						</span>
 					</div>
@@ -205,9 +204,9 @@
 						  || Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 						 && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
 			{
-				<div class="btn chip hoverable red center white-text" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
-					<i class="icon material-icons">close</i> Rimuovi richiesta
-				</div>
+				<a class="btn-flat red-text" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
+					Rimuovi richiesta
+				</a>
 			}
 		}
 	}
@@ -226,8 +225,8 @@
 				|| Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 			&& Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
 		{
-			<div class="btn chip hoverable red center white-text" onclick="DeclassaMozione('@atto.UIDAtto', '@atto.Display', 1)">
-				<i class="icon material-icons">close</i> Rimuovi urgenza
+			<div class="btn-flat red-text" onclick="DeclassaMozione('@atto.UIDAtto', '@atto.Display', 1)">
+				Rimuovi urgenza
 			</div>
 		}
 	}
@@ -242,8 +241,8 @@
 				|| Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 			&& Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
 		{
-			<div class="btn chip hoverable red center white-text" onclick="DeclassaMozione('@atto.UIDAtto', '@atto.Display', 2)">
-				<i class="icon material-icons">close</i> Rimuovi abbinamento
+			<div class="btn-flat red-text" onclick="DeclassaMozione('@atto.UIDAtto', '@atto.Display', 2)">
+				Rimuovi abbinamento
 			</div>
 		}
 	}
@@ -259,17 +258,15 @@
 			<div class="col s12 center">
 				<div class="">
 					<span class="black-text">
-						<a class="btn-flat red-text tooltipped"
+						<a class="btn-flat orange-text tooltipped"
 						   data-tooltip="Proponi urgenza"
 						   onclick="ProponiUrgenzaDASI('@Html.Raw(atto.UIDAtto)', '@Html.Raw(atto.Display)')">
 							Proponi urgenza
-							<i class="material-icons right red-text">priority_high</i>
 						</a>
 						<a class="btn-flat orange-text tooltipped"
 						   data-tooltip="Proponi abbinamento"
 						   onclick="ProponiAbbinataDASI('@Html.Raw(atto.UIDAtto)', '@Html.Raw(atto.Display)')">
 							Proponi abbinamento
-							<i class="material-icons right orange-text">insert_link</i>
 						</a>
 					</span>
 				</div>
@@ -293,7 +290,6 @@
 							   data-tooltip="Iscrizione in seduta"
 							   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
 								Iscrizione in seduta
-								<i class="material-icons right pink-text">assignment_turned_in</i>
 							</a>
 						</span>
 					</div>
@@ -327,9 +323,9 @@
 					|| Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 				&& Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
 			{
-				<div class="btn chip hoverable red center white-text"
+				<div class="btn-flat red-text"
 					 onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
-					<i class="icon material-icons">close</i> Rimuovi richiesta
+					Rimuovi richiesta
 				</div>
 			}
 		}
@@ -401,7 +397,6 @@
 			{
 				<a class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
 					Gestisci priorità e ordinamento firme @*#987*@
-					<i class="material-icons right pink-text">low_priority</i>
 				</a>
 				<br />
 			}
@@ -465,7 +460,6 @@
 			<div class="col s12">
 				<a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
 					Termina gestione firme @*#987*@
-					<i class="material-icons right pink-text">playlist_add_check</i>
 				</a>
 				<br />
 

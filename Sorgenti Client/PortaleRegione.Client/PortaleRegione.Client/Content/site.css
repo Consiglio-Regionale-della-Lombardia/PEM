@@ -52,49 +52,49 @@ main { margin-bottom: 150px; }
 	}
 
 	.btn-flat.yellow-text {
-		border: 1px #ffeb3b solid;
+		border: 1px #f9a825 solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #fff176;
 	}
 
 	.btn-flat.pink-text {
-		border: 1px #ec407a solid;
+		border: 1px #ad1457 solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #f06292;
 	}
 
 	.btn-flat.blue-text {
-		border: 1px #2196F3 solid;
+		border: 1px #1976d2 solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #64b5f6;
 	}
 
 	.btn-flat.red-text {
-		border: 1px #F44336 solid;
+		border: 1px #c62828 solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #e57373;
 	}
 
 	.btn-flat.green-text {
-		border: 1px #4CAF50 solid;
+		border: 1px #2e7d32 solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #81c784;
 	}
 
 	.btn-flat.purple-text {
-		border: 1px #9c27b0 solid;
+		border: 1px #6a1b9a solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #ce93d8;
 	}
 
 	.btn-flat.orange-text {
-		border: 1px #ff9800 solid;
+		border: 1px #ef6c00 solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #ffb74d;
