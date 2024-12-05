@@ -1081,10 +1081,12 @@ function CreaTabella() {
 			row.appendChild(td);
 		});
 
+		var linkGeasi = `https://www.consiglio.regione.lombardia.it/wps/portal/crl/home/leggi-e-banche-dati/Atti-di-indirizzo-e-controllo/Dettaglio-atto-di-indirizzo-e-controllo?tipoatto=${result.DisplayTipo}&numeroatto=${result.NAtto}&idlegislatura=${result.Legislatura}`;
 		const tdCommandsValue = document.createElement('td');
 		tdCommandsValue.classList.add('center');
 		tdCommandsValue.style.width = '10%';
-		tdCommandsValue.innerHTML = `<a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('${result.DisplayTipo}', ${result.NAtto}, ${result.Legislatura})">
+		tdCommandsValue.innerHTML = `<a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" 
+		onclick="goIntoOtherTab('${linkGeasi}')">
     <i class="icon material-icons">remove_red_eye</i>
 </a>
 <a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}"
