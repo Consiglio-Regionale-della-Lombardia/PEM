@@ -292,6 +292,14 @@ namespace PortaleRegione.API.Controllers
             attoInDb.Oggetto = request.Oggetto;
             attoInDb.IDTipo_Risposta = request.RispostaRichiesta;
             attoInDb.AreaPolitica = request.AreaPolitica;
+
+            if (attoInDb.IDStato.Equals((int)StatiAttoEnum.COMPLETATO)
+                && !request.Stato.Equals((int)StatiAttoEnum.COMPLETATO))
+            {
+                // #1110
+                PulisciChiusuraIter(attoInDb);
+            }
+
             attoInDb.IDStato = request.Stato;
             attoInDb.CodiceMateria = request.CodiceMateria;
             attoInDb.Protocollo = request.Protocollo;
@@ -2787,6 +2795,13 @@ namespace PortaleRegione.API.Controllers
                     if (string.IsNullOrEmpty(atto.DataPresentazione))
                         continue;
 
+                    if (atto.IDStato.Equals((int)StatiAttoEnum.COMPLETATO)
+                        && !model.Stato.Equals(StatiAttoEnum.COMPLETATO))
+                    {
+                        // #1110
+                        PulisciChiusuraIter(atto);
+                    }
+
                     atto.IDStato = (int)model.Stato;
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");
@@ -5231,6 +5246,13 @@ namespace PortaleRegione.API.Controllers
 
                 if (request.Dati.StatoCheck && int.Parse(request.Dati.Stato) >= 1)
                 {
+                    if (atto.IDStato.Equals((int)StatiAttoEnum.COMPLETATO)
+                        && !int.Parse(request.Dati.Stato).Equals((int)StatiAttoEnum.COMPLETATO))
+                    {
+                        // #1110
+                        PulisciChiusuraIter(atto);
+                    }
+
                     atto.IDStato = int.Parse(request.Dati.Stato);
                 }
 
@@ -5296,6 +5318,18 @@ namespace PortaleRegione.API.Controllers
 
                 await _unitOfWork.CompleteAsync();
             }
+        }
+
+        private void PulisciChiusuraIter(ATTI_DASI atto)
+        {
+            atto.TipoChiusuraIter = null;
+            atto.TipoVotazioneIter = null;
+            atto.DataChiusuraIter = null;
+            atto.DataComunicazioneAssemblea = null;
+            atto.Emendato = false;
+            atto.BURL = string.Empty;
+            atto.DCR = null;
+            atto.DCCR = null;
         }
 
         public async Task<ATTI_DASI> Get_ByQR(Guid id)
