@@ -1709,6 +1709,49 @@
                 default:
                     break;
             }
+
+            if (@Html.Raw((int)TipoAttoEnum.IQT) == @Html.Raw(Model.Atto.Tipo)) {
+				if (@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA) == selectedValue) {
+					const table = document.getElementById('tableRisposte');
+					if (table) {
+                        const firstRow = table.rows[1]; // La prima riga utile
+                        const secondCell = firstRow ? firstRow.cells[1] : null; // La seconda cella (indice 1)
+
+                        if (secondCell) {
+                            // Cerca l'elemento <a> con attributo data-risposta
+							const anchor = secondCell.querySelector('a[data-risposta]');
+                            if (anchor) {
+                                const dataRisposta = anchor.getAttribute('data-risposta');
+                                try {
+                                    // Analizza il JSON contenuto in data-risposta
+                                    const rispostaObj = JSON.parse(dataRisposta);
+                                    console.log("Risposta", rispostaObj)
+                                    if (rispostaObj && rispostaObj.Data) {
+                                        // Estrai solo la data (formato yyyy-MM-dd)
+                                        const fullDate = rispostaObj.Data.split('T')[0];
+                                        const input = document.querySelector('input[name="Atto.DataChiusuraIter"]');
+
+                                        // Imposta la data solo se valida e il campo è vuoto
+                                        if (!input.value) {
+                                            input.value = fullDate; // Imposta la data
+                                        }
+                                    }
+                                } catch (error) {
+									console.warn('Errore automatismo durante l\'analisi del JSON:', error);
+                                }
+                            } else {
+								console.warn('Errore automatismo anchor non trovata');
+                            }
+                        } else {
+							console.warn('Errore automatismo cella non trovata');
+                        }
+                    } else {
+						console.warn('Errore automatismo tabella risposte non trovata');
+                    }
+                } else {
+					document.querySelector('input[name="Atto.DataChiusuraIter"]').value = "";
+                }
+            }
         }
 
         // Trigger the visibility update on page load and selection change

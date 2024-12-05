@@ -296,7 +296,13 @@ namespace PortaleRegione.API.Controllers
             attoInDb.CodiceMateria = request.CodiceMateria;
             attoInDb.Protocollo = request.Protocollo;
             if (request.DataAnnunzio > DateTime.MinValue)
+            {
                 attoInDb.DataAnnunzio = request.DataAnnunzio;
+                
+                // #1110
+                if (attoInDb.IDStato.Equals((int)StatiAttoEnum.PRESENTATO))
+                    attoInDb.IDStato = (int)StatiAttoEnum.IN_TRATTAZIONE;
+            }
             attoInDb.Pubblicato = request.Pubblicato;
             attoInDb.Sollecito = request.Sollecito;
 
@@ -612,6 +618,20 @@ namespace PortaleRegione.API.Controllers
             attoInDb.TipoVotazioneIter = request.TipoVotazioneIter;
             attoInDb.DataChiusuraIter = request.DataChiusuraIter;
             attoInDb.Emendato = request.Emendato;
+
+            //#1110
+            if (attoInDb.Tipo.Equals((int)TipoAttoEnum.MOZ)
+                || attoInDb.Tipo.Equals((int)TipoAttoEnum.ODG)
+                || attoInDb.Tipo.Equals((int)TipoAttoEnum.RIS))
+            {
+                if (attoInDb.TipoChiusuraIter.HasValue && attoInDb.TipoChiusuraIter > 0)
+                {
+                    if (!attoInDb.IsChiuso)
+                    {
+                        attoInDb.IDStato = (int)StatiAttoEnum.COMPLETATO;
+                    }
+                }
+            }
 
             await _unitOfWork.CompleteAsync();
         }
