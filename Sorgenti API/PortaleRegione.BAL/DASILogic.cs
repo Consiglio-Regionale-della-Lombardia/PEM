@@ -289,7 +289,6 @@ namespace PortaleRegione.API.Controllers
 
             attoInDb.UIDPersonaModifica = persona.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
-            attoInDb.Oggetto = request.Oggetto;
             attoInDb.IDTipo_Risposta = request.RispostaRichiesta;
             attoInDb.AreaPolitica = request.AreaPolitica;
 
