@@ -598,7 +598,8 @@
                                                 <th>Data trattazione</th>
                                             }
 
-                                            @if (atto.IsIQT())
+                                            @if (atto.IsIQT()
+                                                 || atto.IsMOZ())
                                             {
 
                                             }
@@ -752,7 +753,8 @@
                                                     </td>
                                                 }
 
-                                                @if (atto.IsIQT())
+                                                @if (atto.IsIQT() 
+                                                     || atto.IsMOZ())
                                                 {
                                                 }
                                                 else
@@ -1692,9 +1694,6 @@
                 case '@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)': // Decaduto
                 case '@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)': // Decadenza per fine mandato
                 case '@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)': // Decadenza per fine legislatura
-                    dataChiusura.style.display = 'block';
-                    dataComunicazione.style.display = 'block';
-                    break;
                 case '@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)': // Inammissibile
                 case '@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)': // Chiusura per motivi diversi
                     dataChiusura.style.display = 'block';

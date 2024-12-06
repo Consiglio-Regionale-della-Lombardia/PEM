@@ -540,31 +540,39 @@ function modificaDettagliRisposta(ctrl) {
     `;
 		}
 
+        var colonnaInfoRisposta = "";
+		if (atto.IsIQT || atto.IsMOZ) {
+            // ignored
+        } else {
+			colonnaInfoRisposta = `<td>
+    <ul class="collection">
+        ${(risposta.RisposteAssociate || []).map(r => `
+            <li class="collection-item" id="${r.Uid}">
+                <div>${r.DescrizioneOrgano}
+                    <a href="#!" class="secondary-content red-text" onclick="rimuoviInformazioniRisposta(this, '${r.Uid}')">
+                        <i class="material-icons">close</i>
+                    </a>
+                </div>
+            </li>
+        `).join('')}
+        <li class="collection-item">
+            <div>
+                <a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '${risposta.Uid}')">
+                    <i class="material-icons">add</i>
+                </a>
+            </div>
+        </li>
+    </ul>
+</td>`;
+        }
+
+
 		// Costruisci l'intera riga con le colonne dinamiche
 		const nuovaRiga = `
     <tr id="${risposta.Uid}">
         <td>${risposta.DescrizioneOrgano}</td>
         ${colonneDinamiche}
-        <td>
-            <ul class="collection">
-                ${(risposta.RisposteAssociate || []).map(r => `
-                    <li class="collection-item" id="${r.Uid}">
-                        <div>${r.DescrizioneOrgano}
-                            <a href="#!" class="secondary-content red-text" onclick="rimuoviInformazioniRisposta(this, '${r.Uid}')">
-                                <i class="material-icons">close</i>
-                            </a>
-                        </div>
-                    </li>
-                `).join('')}
-                <li class="collection-item">
-                    <div>
-                        <a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '${risposta.Uid}')">
-                            <i class="material-icons">add</i>
-                        </a>
-                    </div>
-                </li>
-            </ul>
-        </td>
+		${colonnaInfoRisposta}	
         <td>
             ${risposta.UIDDocumento ? `
                 <a href="${risposta.Link}" target="_blank" style="text-decoration: underline">

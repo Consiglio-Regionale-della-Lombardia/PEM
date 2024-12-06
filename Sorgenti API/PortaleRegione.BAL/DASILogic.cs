@@ -517,6 +517,7 @@ namespace PortaleRegione.API.Controllers
             risposteInDb.Data = request.Data;
             risposteInDb.DataTrasmissione = request.DataTrasmissione;
             risposteInDb.DataTrattazione = request.DataTrattazione;
+            risposteInDb.DataRevoca = request.DataRevoca;
             await _unitOfWork.CompleteAsync();
         }
 
