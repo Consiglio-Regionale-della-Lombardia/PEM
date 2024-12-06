@@ -1673,7 +1673,6 @@
 
             switch (selectedValue) {
                 case '': // Non selezionato
-                    dataComunicazione.style.display = 'block';
                     break;
                 case '@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)': // Approvato
                     dataChiusura.style.display = 'block';
@@ -1702,9 +1701,15 @@
                     dataComunicazione.style.display = 'block';
                     break;
                 case '@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)': // Trattazione in assemblea
+                    if (@Html.Raw((int)TipoAttoEnum.IQT) == @Html.Raw(Model.Atto.Tipo)) {
+                        dataChiusura.style.display = 'block';
+                    } else {
+                        dataChiusura.style.display = 'block';
+                        dataComunicazione.style.display = 'block';
+                    }
+                    break;
                 case '@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)': // Commissione in assemblea
-                    dataChiusura.style.display = 'block';
-                    dataComunicazione.style.display = 'block';
+					dataComunicazione.style.display = 'block';
                     break;
                 default:
                     break;
@@ -1725,7 +1730,6 @@
                                 try {
                                     // Analizza il JSON contenuto in data-risposta
                                     const rispostaObj = JSON.parse(dataRisposta);
-                                    console.log("Risposta", rispostaObj)
                                     if (rispostaObj && rispostaObj.Data) {
                                         // Estrai solo la data (formato yyyy-MM-dd)
                                         const fullDate = rispostaObj.Data.split('T')[0];

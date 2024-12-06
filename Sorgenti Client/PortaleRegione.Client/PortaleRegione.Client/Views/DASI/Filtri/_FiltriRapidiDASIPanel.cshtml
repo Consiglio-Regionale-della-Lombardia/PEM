@@ -584,6 +584,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 async function inviaDatiChips(page, size) {
+    console.log("Invio dati", page, size);
 	if (!page){
 		page = 1;
 	}
@@ -640,9 +641,9 @@ async function inviaDatiChips(page, size) {
 		const response = await fetch('@Url.Action("Riepilogo")', {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json',
+				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify(request),
+			body: JSON.stringify(request)
 		});
 
 		if (!response.ok) {
@@ -650,13 +651,13 @@ async function inviaDatiChips(page, size) {
 		}
 
 		responseData = await response.json();
-		if (responseData.message){
+		if (responseData.message) {
 			ErrorAlert(responseData.message);
 			return;
 		}
 
 		if (responseData.Data && responseData.Data.Results && responseData.Data.Results.length > 0) {
-			CreaTabella();
+            CreaTabella();
 		} else {
 			if (chipsData.length == 0){
 				document.getElementById('tableResults').innerHTML = `<div class="card-panel blue lighten-5 center">
