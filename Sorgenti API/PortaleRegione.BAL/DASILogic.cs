@@ -583,6 +583,12 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
+            if (attoInDb.DCR is null && attoInDb.DCCR is null)
+            {
+                attoInDb.DCR = 0;
+                attoInDb.DCCR = 0;
+            }
+
             if (!attoInDb.DCRL.Equals(request.DCRL)
                 || !attoInDb.DCR.Equals(request.DCR)
                 || !attoInDb.DCCR.Equals(request.DCCR))
@@ -4662,6 +4668,9 @@ namespace PortaleRegione.API.Controllers
 
             if (propertyName.Equals(nameof(AttoDASIDto.Monitoraggi)))
             {
+                if (!atto.Monitoraggi.Any())
+                    return "";
+
                 var bodyMonitoraggio = string.Empty;
                 if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
                     bodyMonitoraggio += "<ul>";
@@ -4901,21 +4910,15 @@ namespace PortaleRegione.API.Controllers
             }
 
             // Configura la dimensione della pagina
-            var pageSize = new PageSize();
             if (wordSize == WordSizeEnum.A3)
             {
+                var pageSize = new PageSize();
                 pageSize.Width = 16840; // Dimensione in twips per A3 (297 mm x 420 mm)
                 pageSize.Height = 11900;
+                var sectionProps = new SectionProperties();
+                sectionProps.Append(pageSize);
+                mainPart.Document.Body.Append(sectionProps);
             }
-            else
-            {
-                pageSize.Width = 11900; // Dimensione in twips per A4 (210 mm x 297 mm)
-                pageSize.Height = 16840;
-            }
-
-            var sectionProps = new SectionProperties();
-            sectionProps.Append(pageSize);
-            mainPart.Document.Body.Append(sectionProps);
 
             // Converti l'HTML in contenuto Word e aggiungilo al documento
             var converter = new HtmlConverter(mainPart);
@@ -4964,7 +4967,13 @@ namespace PortaleRegione.API.Controllers
                 default:
                     var displayName = GetPropertyDisplayName(typeof(AttoDASIReportDto), propertyName);
                     var value = GetPropertyValue(dto, propertyName, ExportFormatEnum.PDF);
-                    return value != null ? $"<b>{displayName}:</b> {value}<br>" : null; // #1094
+                    if (value == null)
+                        return null;
+                    
+                    if (string.IsNullOrEmpty(value.ToString()))
+                        return null;
+
+                    return $"<b>{displayName}:</b> {value}<br>"; // #1094
             }
         }
 
@@ -5205,6 +5214,13 @@ namespace PortaleRegione.API.Controllers
                         if (parti.Length > 0)
                             atto.DCRL = parti[parti.Length - 1];
                     }
+                }
+
+                if (atto.DCR is null
+                    && atto.DCCR is null)
+                {
+                    atto.DCR = 0;
+                    atto.DCCR = 0;
                 }
 
                 if (!atto.DCR.Equals(int.Parse(datiInline.DCR))

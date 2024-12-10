@@ -119,7 +119,9 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public Guid? UIDPersonaRitiro { get; set; }
 
-    [DisplayName("Tipo risposta richiesta")] public int IDTipo_Risposta { get; set; }
+    [DisplayName("Tipo risposta richiesta")]
+    public int IDTipo_Risposta { get; set; }
+
     public int OrdineVisualizzazione { get; set; }
 
     [DisplayName("Allegato")]
@@ -156,7 +158,8 @@ public class AttoDASIDto
     public string BodyAtto { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    [DisplayName("Firmatari")] public string Firme { get; set; } = string.Empty;
+    [DisplayName("Firmatari")]
+    public string Firme { get; set; } = string.Empty;
 
     [DisplayName("Data presentazione")] public DateTime? Timestamp { get; set; }
 
@@ -164,7 +167,7 @@ public class AttoDASIDto
     [DisplayName("Firme dopo il deposito")]
     public string Firme_dopo_deposito { get; set; } // #1049
 
-    [DisplayName("Firme ritirate")] public string Firme_ritirate{ get; set; } // #1048
+    [DisplayName("Firme ritirate")] public string Firme_ritirate { get; set; } // #1048
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Destinatari { get; set; }
@@ -180,8 +183,8 @@ public class AttoDASIDto
     public bool Eliminabile { get; set; }
     public bool Ritirabile { get; set; }
     public bool Modificabile { get; set; }
-    [DisplayName("Gruppo proponente")]public int id_gruppo { get; set; }
-    [DisplayName("Gruppo firmatario")]public int id_gruppo_firmatari { get; set; }
+    [DisplayName("Gruppo proponente")] public int id_gruppo { get; set; }
+    [DisplayName("Gruppo firmatario")] public int id_gruppo_firmatari { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public List<OrganoDto> Organi { get; set; } = new List<OrganoDto>();
@@ -195,12 +198,14 @@ public class AttoDASIDto
     [DisplayName("Data iscrizione in seduta")]
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public DateTime? DataIscrizioneSeduta { get; set; }
-    
-    [DisplayName("Data trasmissione")]
-    public DateTime? DataTrasmissione { get; set; }
+
+    [DisplayName("Data trasmissione")] public DateTime? DataTrasmissione { get; set; }
 
     public bool Invito_Abilitato { get; set; } = false;
-    [DisplayName("Presentato oltre i termini")] public bool PresentatoOltreITermini { get; set; } = false;
+
+    [DisplayName("Presentato oltre i termini")]
+    public bool PresentatoOltreITermini { get; set; } = false;
+
     public bool Non_Passaggio_In_Esame { get; set; } = false;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -282,7 +287,7 @@ public class AttoDASIDto
     {
         return Tipo == (int)TipoAttoEnum.ODG;
     }
-    
+
     public bool IsRIS()
     {
         return Tipo == (int)TipoAttoEnum.RIS;
@@ -328,13 +333,14 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [DisplayName("Codice materia")]
     public string CodiceMateria { get; set; }
+
     public string BURL { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Protocollo { get; set; }
+    public string Protocollo { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    [DisplayName("Tipo risposta fornita")] 
+    [DisplayName("Tipo risposta fornita")]
     public int? IDTipo_Risposta_Effettiva { get; set; }
 
     public bool Pubblicato { get; set; }
@@ -364,7 +370,7 @@ public class AttoDASIDto
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string DisplayTipoRispostaRichiesta { get; set; }
-    
+
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string DisplayTipoRispostaFornita { get; set; }
 
@@ -387,8 +393,8 @@ public class AttoDASIDto
 
     public string DisplayTipoChiusuraIter { get; set; }
     public string DisplayTipoVotazioneIter { get; set; }
-    [DisplayName("DCR/DCCR")] public int? DCR { get; set; }
-    public int? DCCR { get; set; }
+    [DisplayName("DCR/DCCR")] public int? DCR { get; set; } = 0;
+    public int? DCCR { get; set; } = 0;
     public string DCRL { get; set; }
 
     [DisplayName("Privacy - dati giudiziari")]
@@ -414,19 +420,32 @@ public class AttoDASIDto
 
     [DisplayName("Privacy")] public bool Privacy { get; set; }
 
-    [DisplayName("Data comunicazione assemblea")]public DateTime? DataComunicazioneAssemblea { get; set; }
-    [DisplayName("Data risposta")]public DateTime? DataRisposta { get; set; }
-    [DisplayName("Data trattazione")]public DateTime? DataTrattazione { get; set; }
-    [DisplayName("Iter multiplo")]public bool IterMultiplo { get; set; } = false;
+    [DisplayName("Data comunicazione assemblea")]
+    public DateTime? DataComunicazioneAssemblea { get; set; }
+
+    [DisplayName("Data risposta")] public DateTime? DataRisposta { get; set; }
+    [DisplayName("Data trattazione")] public DateTime? DataTrattazione { get; set; }
+    [DisplayName("Iter multiplo")] public bool IterMultiplo { get; set; } = false;
 
     [DisplayName("Commissioni proponenti RIS")]
     public List<KeyValueDto> CommissioniProponenti { get; set; } = new List<KeyValueDto>();
 
-    [DisplayName("Impegni scadenze")][AllowHtml] public string ImpegniScadenze { get; set; }
-    [DisplayName("Stato attuazione")][AllowHtml] public string StatoAttuazione { get; set; }
-    [DisplayName("Competenza monitoraggio")][AllowHtml] public string CompetenzaMonitoraggio { get; set; }
+    [DisplayName("Impegni scadenze")]
+    [AllowHtml]
+    public string ImpegniScadenze { get; set; }
+
+    [DisplayName("Stato attuazione")]
+    [AllowHtml]
+    public string StatoAttuazione { get; set; }
+
+    [DisplayName("Competenza monitoraggio")]
+    [AllowHtml]
+    public string CompetenzaMonitoraggio { get; set; }
+
     [DisplayName("Monitoraggio concluso")] public bool MonitoraggioConcluso { get; set; }
-    [DisplayName("Data trasmissione monitoraggio")] public DateTime? DataTrasmissioneMonitoraggio { get; set; }
+
+    [DisplayName("Data trasmissione monitoraggio")]
+    public DateTime? DataTrasmissioneMonitoraggio { get; set; }
 
     public string CommissioniProponenti_string { get; set; }
     public Guid? UIDPersonaRelatore1 { get; set; }
@@ -436,10 +455,21 @@ public class AttoDASIDto
     public PersonaLightDto PersonaRelatore2 { get; set; }
     public PersonaLightDto PersonaRelatoreMinoranza { get; set; }
     [DisplayName("Data seduta")] public DateTime? DataSedutaRisposta { get; set; }
-    [DisplayName("Data comunicazione assemblea risposta")] public DateTime? DataComunicazioneAssembleaRisposta { get; set; }
-    [DisplayName("Data proposta")]public DateTime? DataProposta { get; set; }
-    [DisplayName("Tipo chiusura iter commissione")]public int? TipoChiusuraIterCommissione { get; set; }
-    [DisplayName("Data chiusura iter commissione")]public DateTime? DataChiusuraIterCommissione { get; set; }
-    [DisplayName("Tipo chiusura iter commissione")]public int? TipoVotazioneIterCommissione { get; set; }
-    [DisplayName("Risultato votazione commissione")]public int? RisultatoVotazioneIterCommissione { get; set; }
+
+    [DisplayName("Data comunicazione assemblea risposta")]
+    public DateTime? DataComunicazioneAssembleaRisposta { get; set; }
+
+    [DisplayName("Data proposta")] public DateTime? DataProposta { get; set; }
+
+    [DisplayName("Tipo chiusura iter commissione")]
+    public int? TipoChiusuraIterCommissione { get; set; }
+
+    [DisplayName("Data chiusura iter commissione")]
+    public DateTime? DataChiusuraIterCommissione { get; set; }
+
+    [DisplayName("Tipo chiusura iter commissione")]
+    public int? TipoVotazioneIterCommissione { get; set; }
+
+    [DisplayName("Risultato votazione commissione")]
+    public int? RisultatoVotazioneIterCommissione { get; set; }
 }

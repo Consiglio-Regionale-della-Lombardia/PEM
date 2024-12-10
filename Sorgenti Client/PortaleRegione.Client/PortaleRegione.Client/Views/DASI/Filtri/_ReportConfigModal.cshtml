@@ -355,6 +355,25 @@
 				addChipReportSorting('Ordinato per ' + sortInfo.displayText + ' ' + (sortInfo.sortDirection == 1 ? "Crescente": "Decrescente"));
 			});
 		}
+        
+		const savedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
+        const defaultColumn = { propertyName: "Display", displayText: "Display" };
+        savedColumns.unshift(defaultColumn);
+        const columnsSelect = document.getElementById("columns-select");
+
+        if (savedColumns.length > 0 && columnsSelect) {
+            savedColumns.forEach(function (column) {
+                // Trova l'opzione corrispondente nella select
+                const option = Array.from(columnsSelect.options).find(opt => opt.value === column.propertyName);
+
+                // Se l'opzione esiste, la selezioniamo
+                if (option) {
+                    option.selected = true;
+                }
+            });
+
+            $("#columns-select").formSelect();
+        }
 
 		$('#modalReportConfig').modal("open");
 		waiting(false);

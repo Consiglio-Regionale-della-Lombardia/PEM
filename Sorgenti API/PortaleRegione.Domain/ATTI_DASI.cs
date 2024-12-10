@@ -16,12 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Enum;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Domain
 {
@@ -105,11 +104,11 @@ namespace PortaleRegione.Domain
 
         public bool IsChiuso => IDStato == (int)StatiAttoEnum.COMPLETATO;
 
-        
+
         public DateTime? DataAnnunzio { get; set; }
         public string CodiceMateria { get; set; }
-        public string Protocollo{ get; set; }
-        public int? IDTipo_Risposta_Effettiva{ get; set; }
+        public string Protocollo { get; set; } = string.Empty;
+        public int? IDTipo_Risposta_Effettiva { get; set; }
         public bool Pubblicato { get; set; }
         public bool Sollecito { get; set; }
         public int? TipoChiusuraIter { get; set; }
@@ -120,8 +119,8 @@ namespace PortaleRegione.Domain
         public string AreaTematica { get; set; }
         public string AltriSoggetti { get; set; }
 
-        public int? DCR { get; set; }
-        public int? DCCR { get; set; }
+        public int? DCR { get; set; } = 0;
+        public int? DCCR { get; set; } = 0;
         public string DCRL { get; set; }
         public string BURL { get; set; }
 
