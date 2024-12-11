@@ -253,18 +253,22 @@
 				<div class="card">
 					<div class="card-content">
 						<div class="row">
-							<div class="input-field col s12 m12 l6">
-								<select id="Atto_Stato">
-									<option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.PRESENTATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
-									<option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
-									<option value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.COMPLETATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
-								</select>
-								<label for="Atto_Stato">Stato</label>
-							</div>
-							<div class="input-field col s12 m12 l6">
-								@Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
-								@Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
-							</div>
+                            <div class="input-field col s12 m12 l6">
+                                <select id="Atto_Stato">
+                                    <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.PRESENTATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
+                                    <option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
+                                    <option value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.COMPLETATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
+                                </select>
+                                <label for="Atto_Stato">Stato</label>
+                            </div>
+                            @if (!atto.IsRIS())
+                            {
+                                //#1203
+                                <div class="input-field col s12 m12 l6">
+                                    @Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                                    @Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
+                                </div>
+                            }
 						</div>
 						<div class="row">
                             <div class="input-field col s12">
@@ -290,17 +294,22 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="input-field col s12 m12 l6">
-								<select id="Atto_AreaPolitica">
-									<option value="@Html.Raw((int)AreaPoliticaIntEnum.Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)</option>
-									<option value="@Html.Raw((int)AreaPoliticaIntEnum.Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza)</option>
-									<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)</option>
-									<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)</option>
-									<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)</option>
-									<option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)</option>
-								</select>
-								<label for="Atto_AreaPolitica">Area politica</label>
-							</div>
+							@if (!atto.IsRIS())
+                            {
+                                //#1203
+                                <div class="input-field col s12 m12 l6">
+                                    <select id="Atto_AreaPolitica">
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)</option>
+                                        <option value="@Html.Raw((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)" @Html.Raw(Model.Atto.AreaPolitica == (int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)</option>
+                                    </select>
+                                    <label for="Atto_AreaPolitica">Area politica</label>
+                                </div>
+                            }
+							
 							@if (!Model.Atto.IsMOZ()
 								 && !Model.Atto.IsODG()
 								 && !Model.Atto.IsRIS())
@@ -312,17 +321,17 @@
 										<option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
 										<option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
 									</select>
-                                    <label for="Atto_RispostaRichiesta">Risposta richiesta</label>
+									<label for="Atto_RispostaRichiesta">Risposta richiesta</label>
 									@if (Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE)
-                                    {
-                                        if (Model.Atto.Organi.Any())
-                                        {
-                                            foreach (var organoDto in Model.Atto.Organi)
-                                            {
-                                                <div class="chip">@organoDto.nome_organo</div>
-                                            }
-                                        }
-                                    }
+									{
+										if (Model.Atto.Organi.Any())
+										{
+											foreach (var organoDto in Model.Atto.Organi)
+											{
+												<div class="chip">@organoDto.nome_organo</div>
+											}
+										}
+									}
 								</div>
 							}
 						</div>
@@ -1841,10 +1850,8 @@
                 var data = {
                     UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
                     Stato: document.getElementById('Atto_Stato').value,
-                    DataAnnunzio: document.querySelector('input[name="Atto.DataAnnunzio"]').value,
                     Protocollo: document.querySelector('input[name="Atto.Protocollo"]').value,
                     CodiceMateria: document.querySelector('input[name="Atto.CodiceMateria"]').value,
-                    AreaPolitica: document.getElementById('Atto_AreaPolitica').value,
                     Pubblicato: document.querySelector('input[name="Atto.Pubblicato"]').checked
                 };
 
@@ -1852,12 +1859,20 @@
 					data.UIDPersonaRelatore1 = $('select[id="Atto_UIDPersonaRelatore1"]').children("option:selected").val();
 					data.UIDPersonaRelatore2 = $('select[id="Atto_UIDPersonaRelatore2"]').children("option:selected").val();
 					data.UIDPersonaRelatoreMinoranza = $('select[id="Atto_UIDPersonaRelatoreMinoranza"]').children("option:selected").val();
-				} else if (@Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.ITL)
+				} 
+                
+                if (@Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.ITL)
                         || @Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.ITR)
                         || @Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.IQT)) {
 					data.RispostaRichiesta = document.getElementById('Atto_RispostaRichiesta').value;
 					data.Sollecito = document.querySelector('input[name="Atto.Sollecito"]').checked;
 				}
+
+				//#1203
+                if (@Html.Raw(Model.Atto.Tipo) != @Html.Raw((int)TipoAttoEnum.RIS)) {
+					data.DataAnnunzio = document.querySelector('input[name="Atto.DataAnnunzio"]').value;
+					data.AreaPolitica = document.getElementById('Atto_AreaPolitica').value;
+                } 
 
                 var url = '@Url.Action("Salva_InformazioniGeneraliAtto", "DASI")';
                 // Send the data using fetch
