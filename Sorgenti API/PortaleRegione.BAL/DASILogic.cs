@@ -4618,7 +4618,7 @@ namespace PortaleRegione.API.Controllers
                 foreach (var attiRisposteDto in atto.Risposte)
                 {
                     // Identificazione del tipo di risposta
-                    if (attiRisposteDto.Tipo == (int)TipoRispostaEnum.COMMISSIONE)
+                    if (atto.IDTipo_Risposta_Effettiva == (int)TipoRispostaEnum.COMMISSIONE)
                     {
                         // Gestione delle risposte associate
                         if (attiRisposteDto.RisposteAssociate.Any())
@@ -4635,12 +4635,12 @@ namespace PortaleRegione.API.Controllers
                                 $"In commissione: Risposta richiesta in {attiRisposteDto.DescrizioneOrgano} non ancora fornita";
                         }
                     }
-                    else if (attiRisposteDto.Tipo == (int)TipoRispostaEnum.SCRITTA)
+                    else if (atto.IDTipo_Risposta_Effettiva == (int)TipoRispostaEnum.SCRITTA)
                     {
                         // Risposta scritta
                         bodyRisposte += $"Scritta: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
                     }
-                    else if (attiRisposteDto.Tipo == (int)TipoRispostaEnum.ORALE)
+                    else if (atto.IDTipo_Risposta_Effettiva == (int)TipoRispostaEnum.ORALE)
                     {
                         // Risposta orale
                         bodyRisposte += $"Orale: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
