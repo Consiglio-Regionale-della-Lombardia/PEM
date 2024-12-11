@@ -3956,7 +3956,8 @@ namespace PortaleRegione.API.Controllers
         {
             if (atto.Tipo == (int)TipoAttoEnum.RIS)
             {
-                // ignored
+                atto.RisultatoVotazioneIterCommissione = (int)RisultatoVotazioneIterEnum.UNANIMITÀ;
+                atto.TipoChiusuraIterCommissione = (int)TipoChiusuraIterEnum.APPROVATO;
             }
             else
             {
@@ -3984,6 +3985,7 @@ namespace PortaleRegione.API.Controllers
             }
 
             atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
+            atto.DCRL = dto.GetLegislatura();
 
             await _unitOfWork.CompleteAsync();
         }

@@ -597,6 +597,8 @@ function modificaDettagliRisposta(ctrl) {
 
 		// Aggiungi la riga alla tabella
 		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+
+        $('#modalRisposte').modal("close");
 	}
 
 	function aggiornaDateRigaRisposta(risposta, atto) {
