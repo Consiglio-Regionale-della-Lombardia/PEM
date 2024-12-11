@@ -1899,7 +1899,9 @@
 					data.UIDPersonaRelatore1 = $('select[id="Atto_UIDPersonaRelatore1"]').children("option:selected").val();
 					data.UIDPersonaRelatore2 = $('select[id="Atto_UIDPersonaRelatore2"]').children("option:selected").val();
 					data.UIDPersonaRelatoreMinoranza = $('select[id="Atto_UIDPersonaRelatoreMinoranza"]').children("option:selected").val();
-				} else {
+				} else if (@Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.ITL)
+                        || @Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.ITR)
+                        || @Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.IQT)) {
 					data.RispostaRichiesta = document.getElementById('Atto_RispostaRichiesta').value;
 					data.Sollecito = document.querySelector('input[name="Atto.Sollecito"]').checked;
 				}
