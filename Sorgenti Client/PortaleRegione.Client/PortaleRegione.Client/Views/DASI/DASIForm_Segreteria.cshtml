@@ -114,12 +114,6 @@
                             </div>
                             <div class="row">
                                 <div class="col s12 form-group">
-                                    <label>Proponenti: </label>
-                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control", multiple = "multiple" })
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col s12 form-group">
                                     <label>Commissioni proponenti: </label>
                                     @Html.DropDownListFor(m => m.Atto.CommissioniProponenti, new SelectList(Model.CommissioniAttive, "id_organo", "nome_organo"), "Seleziona commissione proponente", new { @class = "form-control", multiple = "multiple" })
                                 </div>
@@ -173,15 +167,6 @@
 										}
 									});
 									 $('#Atto_CommissioniProponenti').formSelect();
-
-									// Seleziona i valori corrispondenti nella select "Proponenti"
-									Array.from(ddlProponenti.options).forEach(function (option) {
-										if (proponentiIds.includes(option.value)) {
-											option.selected = true;
-										}
-									});
-
-									 $('#Atto_UIDPersonaProponente').formSelect();
 								});
 
 							</script>

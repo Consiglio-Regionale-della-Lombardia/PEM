@@ -3920,14 +3920,24 @@ namespace PortaleRegione.API.Controllers
             attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
             attoInDb.FirmeCartacee = attoDto.FirmeCartacee_string;
 
-            if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
+            if (attoDto.IsRIS())
             {
-                await Salva_Documento(new SalvaDocumentoRequest
+                attoInDb.UIDPersonaRelatore1 = attoDto.UIDPersonaRelatore1;
+                attoInDb.UIDPersonaRelatore2 = attoDto.UIDPersonaRelatore2;
+                attoInDb.UIDPersonaRelatoreMinoranza = attoDto.UIDPersonaRelatoreMinoranza;
+            }
+
+            if (attoDto.DocAllegatoGenerico_Stream != null)
+            {
+                if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
                 {
-                    Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
-                    Contenuto = attoDto.DocAllegatoGenerico_Stream,
-                    UIDAtto = attoInDb.UIDAtto
-                }, currentUser);
+                    await Salva_Documento(new SalvaDocumentoRequest
+                    {
+                        Tipo = (int)TipoDocumentoEnum.TESTO_ALLEGATO,
+                        Contenuto = attoDto.DocAllegatoGenerico_Stream,
+                        UIDAtto = attoInDb.UIDAtto
+                    }, currentUser);
+                }
             }
 
             await _unitOfWork.CompleteAsync();
