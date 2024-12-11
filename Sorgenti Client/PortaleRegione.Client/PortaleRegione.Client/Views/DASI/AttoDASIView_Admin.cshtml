@@ -511,7 +511,7 @@
 					<div class="card">
 						<div class="card-content">
 							<div class="row">
-								<div class="input-field col s4">
+								<div class="input-field col l3 s12">
 									<select id="tipi-risposta-fornita-select">
 										<option value="">Seleziona</option>
 										@if (atto.IsMOZ())
@@ -535,16 +535,19 @@
 								@if (atto.IsMOZ())
 								{
 									<div id="pnlDateRispostaMozione" style="display:none;">
-										<div class="input-field col s4">
+										<div class="input-field col l3 s12">
 											@Html.TextBoxFor(s => s.Atto.DataSedutaRisposta, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
 											@Html.LabelFor(s => s.Atto.DataSedutaRisposta, new { @class = "active" })
 										</div>
-										<div class="input-field col s4">
+										<div class="input-field col l3 s12">
 											@Html.TextBoxFor(s => s.Atto.DataComunicazioneAssembleaRisposta, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
 											@Html.LabelFor(s => s.Atto.DataComunicazioneAssembleaRisposta, new { @class = "active" })
 										</div>
 									</div>
 								}
+                                <div class="input-field col l3 s12">
+									<a id="btnSalva_InformazioniRisposte" class="blue-text waves-effect waves-green btn-flat" style="width: 100%" onclick="salvaInformazioniRisposta()">Salva informazioni</a>
+                                </div>
 							</div>
                             <div class="row" id="pnlRisposteFornite">
                                 <div class="col s12">
@@ -1785,9 +1788,8 @@
 				if (pnlDateRispostaMozione) {
 					pnlDateRispostaMozione.style.display = 'none';
 				}
-				pnlRisposteFornite.style.display = 'none';
-
-			}
+                pnlRisposteFornite.style.display = 'none';
+            }
 		}
 
 		// Esegui il controllo iniziale al caricamento della pagina
@@ -1797,55 +1799,6 @@
 		if (selectElementRispostaFornita) {
 			selectElementRispostaFornita.addEventListener('change', togglePanels_Trattazione);
 		}
-
-		const dateSeduta = document.querySelector('input[name="Atto.DataSedutaRisposta"]');
-		const dateComunicazione = document.querySelector('input[name="Atto.DataComunicazioneAssemblea"]');
-
-		async function salvaInformazioni() {
-			waiting(true);
-			const data = {
-				UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
-				DataSedutaRisposta: dateSeduta ? dateSeduta.value : '',
-				DataComunicazioneAssemblea: dateComunicazione ? dateComunicazione.value : '',
-				IDTipo_Risposta_Effettiva: selectElementRispostaFornita.value
-			};
-
-			const url = '@Url.Action("Salva_InformazioniRisposta", "DASI")';
-
-			try {
-				const response = await fetch(url, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(data)
-				});
-
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-
-				const responseData = await response.json();
-				if (responseData !== "OK") {
-					M.toast({ html: `<span>${responseData.message}</span>`, classes: 'rounded red', displayLength: 5000 });
-					return;
-				}
-
-				M.toast({ html: `<span>Informazioni salvate con successo</span>`, classes: 'rounded', displayLength: 5000 });
-			} catch (error) {
-				console.error('Errore durante il salvataggio:', error);
-			}
-
-			waiting(false);
-		}
-
-		// Aggiungi l'evento onchange per la select e per le date
-		if (selectElementRispostaFornita) {
-			selectElementRispostaFornita.addEventListener('change', salvaInformazioni);
-		}
-
-		if (dateSeduta) dateSeduta.addEventListener('change', salvaInformazioni);
-		if (dateComunicazione) dateComunicazione.addEventListener('change', salvaInformazioni);
 
 		var initialTipoRispostaFornita = @Html.Raw((atto.IDTipo_Risposta_Effettiva.HasValue) ? atto.IDTipo_Risposta_Effettiva.Value.ToString() : "null");
 		if (initialTipoRispostaFornita != null) {
@@ -2077,6 +2030,7 @@
 				 TipoChiusuraIter: document.getElementById('Atto_TipoChiusuraIter').value,
 				 TipoVotazioneIter: document.getElementById('Atto_TipoVotazione').value,
 				 DataChiusuraIter: document.querySelector('input[name="Atto.DataChiusuraIter"]').value,
+                 DataComunicazioneAssemblea: document.querySelector('input[name="Atto.DataComunicazioneAssemblea"]').value,
 				 DCR: document.querySelector('input[name="Atto.DCR"]').value,
 				 DCCR: document.querySelector('input[name="Atto.DCCR"]').value,
 				 DCRL: document.querySelector('input[name="Atto.DCRL"]').value,

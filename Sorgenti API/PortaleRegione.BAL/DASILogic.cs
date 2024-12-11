@@ -530,7 +530,7 @@ namespace PortaleRegione.API.Controllers
 
             attoInDb.IDTipo_Risposta_Effettiva = request.IDTipo_Risposta_Effettiva;
             attoInDb.DataSedutaRisposta = request.DataSedutaRisposta;
-            attoInDb.DataComunicazioneAssemblea = request.DataComunicazioneAssemblea;
+            attoInDb.DataComunicazioneAssembleaRisposta = request.DataComunicazioneAssembleaRisposta;
 
             await _unitOfWork.CompleteAsync();
         }
@@ -636,6 +636,7 @@ namespace PortaleRegione.API.Controllers
             attoInDb.TipoChiusuraIter = request.TipoChiusuraIter;
             attoInDb.TipoVotazioneIter = request.TipoVotazioneIter;
             attoInDb.DataChiusuraIter = request.DataChiusuraIter;
+            attoInDb.DataComunicazioneAssemblea = request.DataComunicazioneAssemblea;
             attoInDb.Emendato = request.Emendato;
 
             //#1110

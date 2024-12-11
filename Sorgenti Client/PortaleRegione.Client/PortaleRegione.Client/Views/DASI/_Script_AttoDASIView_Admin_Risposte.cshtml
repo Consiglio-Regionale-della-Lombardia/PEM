@@ -730,4 +730,46 @@ function modificaDettagliRisposta(ctrl) {
 	$('#modalDettaglioRisposta').modal('close');
 }
 
+async function salvaInformazioniRisposta() {
+    waiting(true);
+    const selectElementRispostaFornita = document.getElementById('tipi-risposta-fornita-select');
+    const dateSeduta = document.querySelector('input[name="Atto.DataSedutaRisposta"]');
+    const dateComunicazioneRisposta = document.querySelector('input[name="Atto.DataComunicazioneAssembleaRisposta"]');
+
+    const data = {
+        UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+        DataSedutaRisposta: dateSeduta ? dateSeduta.value : '',
+        DataComunicazioneAssembleaRisposta: dateComunicazioneRisposta ? dateComunicazioneRisposta.value : '',
+        IDTipo_Risposta_Effettiva: selectElementRispostaFornita.value
+    };
+
+    const url = '@Url.Action("Salva_InformazioniRisposta", "DASI")';
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const responseData = await response.json();
+        if (responseData !== "OK") {
+            M.toast({ html: `<span>${responseData.message}</span>`, classes: 'rounded red', displayLength: 5000 });
+            return;
+        }
+
+        M.toast({ html: `<span>Informazioni salvate con successo</span>`, classes: 'rounded', displayLength: 5000 });
+    } catch (error) {
+        console.error('Errore durante il salvataggio:', error);
+    }
+
+    waiting(false);
+}
+
 </script>
