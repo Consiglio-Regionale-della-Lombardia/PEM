@@ -1088,13 +1088,20 @@
                                 </div>
                                 <div class="input-field col s12 m12 l6" id="pnlChiusuraIterCommissione_RisultatoVotazione">
                                     <select id="Atto_RisultatoVotazioneCommissione">
-                                        <option value="@Html.Raw((int)RisultatoVotazioneIterEnum.NESSUNO)" @Html.Raw(!Model.Atto.TipoVotazioneIterCommissione.HasValue ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.NESSUNO)</option>
-                                        <option value="@Html.Raw((int)RisultatoVotazioneIterEnum.MAGGIORNAZA)" @Html.Raw(Model.Atto.RisultatoVotazioneIterCommissione == (int)RisultatoVotazioneIterEnum.MAGGIORNAZA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_RisultatoVotazioneDASI((int)RisultatoVotazioneIterEnum.MAGGIORNAZA)</option>
                                         <option value="@Html.Raw((int)RisultatoVotazioneIterEnum.UNANIMITÀ)" @Html.Raw(Model.Atto.RisultatoVotazioneIterCommissione == (int)RisultatoVotazioneIterEnum.UNANIMITÀ ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_RisultatoVotazioneDASI((int)RisultatoVotazioneIterEnum.UNANIMITÀ)</option>
                                     </select>
                                     <label for="Atto_RisultatoVotazioneCommissione">Risultato votazione</label>
                                 </div>
-							</div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12 l4 hide-on-med-and-down">
+                                </div>
+                                <div class="col s12 l4 center">
+                                    <a id="btnSalva_InformazioniTrattazioneCommissione" class="blue-text waves-effect waves-green btn-flat truncate" style="width: 100%">Salva</a>
+                                </div>
+                                <div class="col s12 l4 hide-on-med-and-down">
+                                </div>
+                            </div>
 						</div>
 					</div>
 				</div>
@@ -2033,55 +2040,103 @@
 
     document.getElementById('btnSalva_InformazioniChiusuraIter').addEventListener('click', async function () {
 
-	 swal({
-		 title: "Salvataggio informazioni chiusura",
-		 text: "Sei sicuro di voler salvare le informazioni di chiusura?",
-		 icon: "warning",
-		 buttons: ["Annulla", "Salva"]
-	 }).then(async (answer) => {
-		 if (answer) {
-			 var data = {
-				 UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
-				 TipoChiusuraIter: document.getElementById('Atto_TipoChiusuraIter').value,
-				 TipoVotazioneIter: document.getElementById('Atto_TipoVotazione').value,
-				 DataChiusuraIter: document.querySelector('input[name="Atto.DataChiusuraIter"]').value,
-                 DataComunicazioneAssemblea: document.querySelector('input[name="Atto.DataComunicazioneAssemblea"]').value,
-				 DCR: document.querySelector('input[name="Atto.DCR"]').value,
-				 DCCR: document.querySelector('input[name="Atto.DCCR"]').value,
-				 DCRL: document.querySelector('input[name="Atto.DCRL"]').value,
-				 Emendato: document.querySelector('input[name="Atto.Emendato"]').checked
-			 };
+	     swal({
+		     title: "Salvataggio informazioni",
+		     text: "Sei sicuro di voler salvare le informazioni?",
+		     icon: "warning",
+		     buttons: ["Annulla", "Salva"]
+	     }).then(async (answer) => {
+		     if (answer) {
+			     var data = {
+				     UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+				     TipoChiusuraIter: document.getElementById('Atto_TipoChiusuraIter').value,
+				     TipoVotazioneIter: document.getElementById('Atto_TipoVotazione').value,
+				     DataChiusuraIter: document.querySelector('input[name="Atto.DataChiusuraIter"]').value,
+                     DataComunicazioneAssemblea: document.querySelector('input[name="Atto.DataComunicazioneAssemblea"]').value,
+				     DCR: document.querySelector('input[name="Atto.DCR"]').value,
+				     DCCR: document.querySelector('input[name="Atto.DCCR"]').value,
+				     DCRL: document.querySelector('input[name="Atto.DCRL"]').value,
+				     Emendato: document.querySelector('input[name="Atto.Emendato"]').checked
+			     };
 
-			 var url = '@Url.Action("Salva_InformazioniChiusuraIter", "DASI")';
-			 // Send the data using fetch
-			 const response = await fetch(url, {
-				 method: 'POST',
-				 headers: {
-					 'Content-Type': 'application/json'
-				 },
-				 body: JSON.stringify(data)
-			 });
+			     var url = '@Url.Action("Salva_InformazioniChiusuraIter", "DASI")';
+			     // Send the data using fetch
+			     const response = await fetch(url, {
+				     method: 'POST',
+				     headers: {
+					     'Content-Type': 'application/json'
+				     },
+				     body: JSON.stringify(data)
+			     });
 
-			 if (!response.ok) {
-				 throw new Error('Network response was not ok');
-			 }
+			     if (!response.ok) {
+				     throw new Error('Network response was not ok');
+			     }
 
-			 try {
-				 const errorData = await response.json();
-				 if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+			     try {
+				     const errorData = await response.json();
+				     if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
 
-			 } catch (error) {
-				 // ignored
-			 }
+			     } catch (error) {
+				     // ignored
+			     }
 
-			 M.toast({
-				 html: `<span>Informazioni chiusura iter salvate con successo</span>`,
-				 classes: 'rounded',
-				 displayLength: 5000
-			 });
-		 }
-	 });
-});
+			     M.toast({
+				     html: `<span>Informazioni salvate con successo</span>`,
+				     classes: 'rounded',
+				     displayLength: 5000
+			     });
+		     }
+	     });
+    });
+
+	function Salva_InformazioniTrattazioneCommissione() {
+
+        swal({
+            title: "Salvataggio informazioni",
+            text: "Sei sicuro di voler salvare le informazioni?",
+            icon: "warning",
+            buttons: ["Annulla", "Salva"]
+        }).then(async (answer) => {
+            if (answer) {
+                var data = {
+                    UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+                    TipoChiusuraIterCommissione: document.getElementById('Atto_TipoChiusuraIterCommissione').value,
+                    DataChiusuraIterCommissione: document.querySelector('input[name="Atto.DataChiusuraIterCommissione"]').value,
+                    DataTrasmissione: document.querySelector('input[name="Atto.DataTrasmissione"]').value,
+                    RisultatoVotazioneCommissione: document.getElementById('Atto_RisultatoVotazioneCommissione').value
+                };
+
+                var url = '@Url.Action("Salva_InformazioniChiusuraIter", "DASI")';
+                // Send the data using fetch
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                try {
+                    const errorData = await response.json();
+                    if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+                } catch (error) {
+                    // ignored
+                }
+
+                M.toast({
+                    html: `<span>Informazioni salvate con successo</span>`,
+                    classes: 'rounded',
+                    displayLength: 5000
+                });
+            }
+        });
+    }
 
 </script>
 

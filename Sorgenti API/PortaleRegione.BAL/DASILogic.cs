@@ -588,6 +588,17 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
+            // #1214
+            if (attoInDb.TipoChiusuraIterCommissione.HasValue 
+                && attoInDb.Tipo.Equals((int)TipoAttoEnum.RIS))
+            {
+                attoInDb.DataChiusuraIterCommissione = request.DataChiusuraIterCommissione;
+                attoInDb.DataTrasmissione = request.DataTrasmissione;
+
+                await _unitOfWork.CompleteAsync();
+                return;
+            }
+
             if (attoInDb.DCR is null && attoInDb.DCCR is null)
             {
                 attoInDb.DCR = 0;

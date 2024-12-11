@@ -631,8 +631,8 @@ div.input-field > label { line-height: initial; }
 
 .badgeRIS {
 	background-color: white;
-	border: 1px solid #69f0ae;
-	border-left: 1em solid #69f0ae;
+	border: 1px solid #009688;
+	border-left: 1em solid #009688;
 	color: black;
 	font-weight: bold;
 	min-width: unset !important;
