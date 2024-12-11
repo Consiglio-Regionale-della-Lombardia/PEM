@@ -1748,7 +1748,7 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("genera-report-dcr")]
-        public async Task<ActionResult> GeneraReportDcr(Guid id)
+        public async Task<ActionResult> GeneraReportDcr(Guid id, int tipo)
         {
             try
             {
@@ -1767,8 +1767,18 @@ namespace PortaleRegione.Client.Controllers
                     filters = JsonConvert.SerializeObject(filters),
                     exportformat = (int)ExportFormatEnum.WORD,
                     dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
-                    dataviewtype_template = AppSettingsConfiguration.UIDTemplateReportDCR
+                    wordsize = (int)WordSizeEnum.A4
                 };
+
+                if (tipo.Equals((int)TipoAttoEnum.MOZ))
+                {
+                    request.dataviewtype_template = AppSettingsConfiguration.MOZ_UIDTemplateReportDCR;
+                }
+                else if (tipo.Equals((int)TipoAttoEnum.ODG))
+                {
+                    request.dataviewtype_template = AppSettingsConfiguration.ODG_UIDTemplateReportDCR;
+                }
+
                 var file = await apiGateway.DASI.GeneraReport(request);
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
             }

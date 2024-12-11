@@ -50,22 +50,48 @@
     <add key="IQT" value="1" />
     <add key="MOZ" value="1" />
     <add key="ODG" value="1" />
+
+     <add key="MOZ_UIDTemplateReportDCR" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />    
+    <add key="ODG_UIDTemplateReportDCR" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />  
+    
+    <add key="ITL_COMMISSIONE_UIDTemplateReportCopertinaPresidente" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITL_COMMISSIONE_UIDTemplateReportCopertinaUfficio" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITL_SCRITTA_UIDTemplateReportCopertinaPresidente" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITL_SCRITTA_UIDTemplateReportCopertinaUfficio" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITL_ORALE_UIDTemplateReportCopertinaPresidente" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITL_ORALE_UIDTemplateReportCopertinaUfficio" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />    
+    <add key="ITR_COMMISSIONE_UIDTemplateReportCopertinaPresidente" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITR_COMMISSIONE_UIDTemplateReportCopertinaUfficio" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITR_SCRITTA_UIDTemplateReportCopertinaPresidente" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITR_SCRITTA_UIDTemplateReportCopertinaUfficio" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="IQT_UIDTemplateReportCopertinaPresidente" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="IQT_UIDTemplateReportCopertinaUfficio" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="MOZ_UIDTemplateReportCopertinaPresidente" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="MOZ_UIDTemplateReportCopertinaUfficio" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ODG_UIDTemplateReportCopertinaPresidente" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ODG_UIDTemplateReportCopertinaUfficio" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="RIS_UIDTemplateReportCopertinaPresidente" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="RIS_UIDTemplateReportCopertinaUfficio" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    
+    <add key="RIS_UIDTemplateReportLettera" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="MOZ_UIDTemplateReportLettera" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="MOZ_COMMISSIONE_UIDTemplateReportLettera" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ODG_UIDTemplateReportLettera" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITL_SCRITTA_UIDTemplateReportLettera" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITL_ORALE_UIDTemplateReportLettera" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITL_COMMISSIONE_UIDTemplateReportLettera" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITR_COMMISSIONE_UIDTemplateReportLettera" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+    <add key="ITR_SCRITTA_UIDTemplateReportLettera" value="a8a10fe3-314a-412b-870d-d502ce10d07a" />
+
   </appSettings>
   <system.web>
     <authentication mode="Forms">
       <forms loginUrl="~/Login" timeout="2880" />
     </authentication>
-    <compilation debug="true" targetFramework="4.7.2" />
-    <httpRuntime targetFramework="4.7.2" maxRequestLength="500000"/>
+    <compilation targetFramework="4.8" debug="true" />
+    <httpRuntime targetFramework="4.7.2" maxRequestLength="500000" executionTimeout="6000000" />
+    <customErrors mode="RemoteOnly" defaultRedirect="App_Err.htm" />
   </system.web>
-  <system.webServer>
-    <security>
-      <requestFiltering>
-        <!-- maxAllowedContentLength, for IIS, 2GB in bytes -->
-        <requestLimits maxAllowedContentLength="2147483648"></requestLimits>
-      </requestFiltering>
-    </security>
-  </system.webServer>
   <runtime>
     <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
       <dependentAssembly>
