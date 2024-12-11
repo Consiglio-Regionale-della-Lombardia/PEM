@@ -573,6 +573,11 @@ namespace PortaleRegione.API.Controllers
 
             attoInDb.AltriSoggetti = request.AltriSoggetti;
             attoInDb.AreaTematica = request.AreaTematica;
+            attoInDb.CompetenzaMonitoraggio = request.CompetenzaMonitoraggio;
+            attoInDb.ImpegniScadenze = request.ImpegniScadenze;
+            attoInDb.StatoAttuazione = request.StatoAttuazione;
+            attoInDb.DataTrasmissioneMonitoraggio = request.DataTrasmissioneMonitoraggio;
+            attoInDb.MonitoraggioConcluso = request.MonitoraggioConcluso;
 
             await _unitOfWork.CompleteAsync();
         }

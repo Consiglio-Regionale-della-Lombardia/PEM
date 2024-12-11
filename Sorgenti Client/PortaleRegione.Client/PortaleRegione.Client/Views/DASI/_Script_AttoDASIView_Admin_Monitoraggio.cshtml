@@ -158,10 +158,26 @@ document.getElementById('btnSalva_InformazioniAggiuntiveMonitoraggio').addEventL
         buttons: ["Annulla", "Salva"]
     }).then(async (answer) => {
         if (answer) {
+			var container_altri_soggetti = $("#Atto_AltriSoggetti").parent();
+			var editor_altri_soggetti = $(container_altri_soggetti).find(".trumbowyg-editor");
+			var container_area_tematica = $("#Atto_AreaTematica").parent();
+			var editor_area_tematica = $(container_area_tematica).find(".trumbowyg-editor");
+			var container_competenza_monitoraggio = $("#Atto_CompetenzaMonitoraggio").parent();
+			var editor_competenza_monitoraggio = $(container_competenza_monitoraggio).find(".trumbowyg-editor");
+			var container_impegni_scadenze = $("#Atto_ImpegniScadenze").parent();
+			var editor_impegni_scadenze = $(container_impegni_scadenze).find(".trumbowyg-editor");
+			var container_stato_attuazione = $("#Atto_StatoAttuazione").parent();
+			var editor_stato_attuazione = $(container_stato_attuazione).find(".trumbowyg-editor");
+
             var data = {
                 UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
-				AltriSoggetti: document.querySelector('input[name="Atto.AltriSoggetti"]').value,
-				AreaTematica: document.querySelector('input[name="Atto.AreaTematica"]').value
+                AltriSoggetti: editor_altri_soggetti.html(),
+                AreaTematica: editor_area_tematica.html(),
+                CompetenzaMonitoraggio: editor_competenza_monitoraggio.html(),
+				ImpegniScadenze: editor_impegni_scadenze.html(),
+				StatoAttuazione: editor_stato_attuazione.html(),
+                DataTrasmissioneMonitoraggio: $('#Atto_DataTrasmissioneMonitoraggio').val(),
+                MonitoraggioConcluso: document.querySelector('input[name="Atto.MonitoraggioConcluso"]').checked
             };
 
             var url = '@Url.Action("Salva_InformazioniMonitoraggio", "DASI")';
