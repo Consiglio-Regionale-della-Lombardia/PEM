@@ -2096,7 +2096,7 @@ namespace PortaleRegione.Client.Controllers
                     filters = JsonConvert.SerializeObject(filters),
                     exportformat = (int)ExportFormatEnum.WORD,
                     dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
-                    wordsize = (int)WordSizeEnum.A3
+                    wordsize = (int)WordSizeEnum.A4
                 };
 
                 request.dataviewtype_template =

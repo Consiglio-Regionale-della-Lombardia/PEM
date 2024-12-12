@@ -30,7 +30,7 @@
             </div>
             <div class="input-field col s6" id="columns-select-panel">
                 <select name="columns" id="columns-select" multiple>
-                    <option value="" disabled selected>Scegli colonne</option>
+                    <option value="" disabled>Scegli colonne</option>
                     @foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
                     {
                         var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
@@ -306,6 +306,11 @@
 		$('#chips-container-report-config').empty();
 		$('#chips-container-report-sort').empty();
 
+        $('select[name="columns"]').val([]);
+        $('select[name="columns"]').find('option').each(function () {
+            $(this).prop('selected', false);
+        });
+
 		var existingChip = document.querySelector(`div[data-selected-report]`);
 		if (existingChip) {
 			var report_name = $(existingChip).data("selected-report");
@@ -317,10 +322,7 @@
 			$('select[name="dataViewType"]').val(selectedReport.dataviewtype).formSelect();
 			$('select[name="dataViewType_Templates"]').val(selectedReport.dataviewtype_template).formSelect();
 			$('select[name="exportFormat"]').val(selectedReport.exportformat).formSelect();
-			$('select[name="columns"]').val([]);
-			$('select[name="columns"]').find('option').each(function () {
-				$(this).prop('selected', false);
-			});
+			
 			var columns = JSON.parse(selectedReport.columns);
 			columns.forEach(function (columnId) {
 				$('select[name="columns"]').find(`option[value="${columnId}"]`).prop('selected', true);

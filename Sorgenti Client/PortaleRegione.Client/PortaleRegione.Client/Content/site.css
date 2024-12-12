@@ -528,7 +528,7 @@ div.input-field > label { line-height: initial; }
 }
 
 .trattazioneT {
-	color: #00cee6 !important;
+	color: #009688 !important;
 	font-weight: bold !important;
 }
 
@@ -739,8 +739,8 @@ div.input-field > label { line-height: initial; }
 
 .trattazione {
 	background-color: white;
-	border: 1px solid #00cee6;
-	color: #00cee6;
+	border: 1px solid #009688;
+	color: #009688;
 	font-weight: bold;
 }
 

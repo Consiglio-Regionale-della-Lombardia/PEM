@@ -920,7 +920,7 @@ function CreaTabella() {
 				const parts = result.Etichetta.split('_');
 				td.textContent = parts[parts.length - 1];
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Risposte)') {
-    td.innerHTML += "<ul>";
+				td.innerHTML += `<ul>`;
     result.Risposte.forEach(abb => {
         let testo_risposta = ``;
         let dataRisposta = ``;
@@ -935,6 +935,7 @@ function CreaTabella() {
                 testo_risposta = `Scritta: Risposta fornita da ${abb.DescrizioneOrgano} il ${dataRisposta}`;
                 break;
             case @Html.Raw((int)TipoRispostaEnum.ORALE):
+            case @Html.Raw((int)TipoRispostaEnum.IMMEDIATA):
                 testo_risposta = `Orale: Risposta fornita da ${abb.DescrizioneOrgano} il ${dataRisposta}`;
                 break;
             case @Html.Raw((int)TipoRispostaEnum.COMMISSIONE):
@@ -948,12 +949,18 @@ function CreaTabella() {
                     testo_risposta = `In commissione: Risposta richiesta in ${abb.DescrizioneOrgano} non ancora fornita`;
                 }
                 break;
+            case @Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA):
+				testo_risposta = `Atto trattato in assemblea`;
+                break;
+            case @Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE):
+                testo_risposta = `${abb.DescrizioneOrgano}`;
+                break;
             default:
                 testo_risposta = `Risposta di tipo non specificato da ${abb.DescrizioneOrgano}`;
         }
 
         // Aggiungere il testo generato come elemento della lista
-        td.innerHTML += `<li>${testo_risposta}</li>`;
+		td.innerHTML += `<li>${testo_risposta}</li>`;
     });
     td.innerHTML += "</ul>";
 }else if (col.propertyName === '@nameof(AttoDASIDto.Monitoraggi)') {
