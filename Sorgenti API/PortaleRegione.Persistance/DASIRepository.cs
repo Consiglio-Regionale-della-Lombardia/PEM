@@ -1051,8 +1051,12 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
-
-            queryExtended.Tipi.Clear();
+            
+            if (!currentUser.IsSegreteriaAssemblea)
+            {
+                queryExtended.Tipi.Clear();
+                queryExtended.Stati.Clear();
+            }
 
             query = ApplyFilters(query, queryFilter.Statements, queryExtended, clientMode, currentUser, ref userOrder);
 
@@ -1071,7 +1075,10 @@ namespace PortaleRegione.Persistance
                 .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
-            queryExtended.Stati.Clear();
+            if (!currentUser.IsSegreteriaAssemblea)
+            {
+                queryExtended.Stati.Clear();
+            }
 
             query = ApplyFilters(query, queryFilter.Statements, queryExtended, clientMode, currentUser, ref userOrder);
             if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato.Equals((int)stato));

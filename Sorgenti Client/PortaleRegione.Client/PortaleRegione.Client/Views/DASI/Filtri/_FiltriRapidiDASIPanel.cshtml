@@ -1232,6 +1232,7 @@ function AggiornaContatori(responseData) {
 	aggiornaConteggi('li.collection-item div', "IQT", responseData.CountBarData.IQT);
 	aggiornaConteggi('li.collection-item div', "MOZ", responseData.CountBarData.MOZ);
 	aggiornaConteggi('li.collection-item div', "ODG", responseData.CountBarData.ODG);
+    aggiornaConteggi('li.collection-item div', "RIS", responseData.CountBarData.RIS);
 
 	if (!responseData.CurrentUser.IsSegreteriaAssemblea) {
 		aggiornaConteggi('li.collection-item div', "BOZZE", responseData.CountBarData.BOZZE);

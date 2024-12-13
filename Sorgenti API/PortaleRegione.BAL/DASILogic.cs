@@ -1095,37 +1095,37 @@ namespace PortaleRegione.API.Controllers
             {
                 ITL = await _unitOfWork
                     .DASI
-                    .CountByTipo(persona, TipoAttoEnum.ITL),
+                    .Count(persona, TipoAttoEnum.ITL, clientMode, queryFilter, queryExtended.Clone()),
                 ITR = await _unitOfWork
                     .DASI
-                    .CountByTipo(persona, TipoAttoEnum.ITR),
+                    .Count(persona,TipoAttoEnum.ITR, clientMode, queryFilter, queryExtended.Clone()),
                 IQT = await _unitOfWork
                     .DASI
-                    .CountByTipo(persona, TipoAttoEnum.IQT),
+                    .Count(persona,TipoAttoEnum.IQT, clientMode, queryFilter, queryExtended.Clone()),
                 MOZ = await _unitOfWork
                     .DASI
-                    .CountByTipo(persona, TipoAttoEnum.MOZ),
+                    .Count(persona, TipoAttoEnum.MOZ, clientMode, queryFilter, queryExtended.Clone()),
                 ODG = await _unitOfWork
                     .DASI
-                    .CountByTipo(persona, TipoAttoEnum.ODG),
+                    .Count(persona, TipoAttoEnum.ODG, clientMode, queryFilter, queryExtended.Clone()),
                 RIS = await _unitOfWork
                     .DASI
-                    .CountByTipo(persona, TipoAttoEnum.RIS),
+                    .Count(persona, TipoAttoEnum.RIS, clientMode, queryFilter, queryExtended.Clone()),
                 TUTTI = await _unitOfWork
                     .DASI
-                    .CountByTipo(persona, TipoAttoEnum.TUTTI),
+                    .Count(persona, TipoAttoEnum.TUTTI, clientMode, queryFilter, queryExtended.Clone()),
                 BOZZE = await _unitOfWork
                     .DASI
-                    .CountByStato(persona, queryExtended.Tipi, StatiAttoEnum.BOZZA),
+                    .Count(persona, StatiAttoEnum.BOZZA, clientMode, queryFilter, queryExtended.Clone()),
                 PRESENTATI = await _unitOfWork
                     .DASI
-                    .CountByStato(persona, queryExtended.Tipi, StatiAttoEnum.PRESENTATO),
+                    .Count(persona, StatiAttoEnum.PRESENTATO, clientMode, queryFilter, queryExtended.Clone()),
                 IN_TRATTAZIONE = await _unitOfWork
                     .DASI
-                    .CountByStato(persona, queryExtended.Tipi, StatiAttoEnum.IN_TRATTAZIONE),
+                    .Count(persona, StatiAttoEnum.IN_TRATTAZIONE, clientMode, queryFilter, queryExtended.Clone()),
                 CHIUSO = await _unitOfWork
                     .DASI
-                    .CountByStato(persona, queryExtended.Tipi, StatiAttoEnum.COMPLETATO)
+                    .Count(persona, StatiAttoEnum.COMPLETATO, clientMode, queryFilter, queryExtended.Clone())
             };
 
             return result;
@@ -1478,10 +1478,29 @@ namespace PortaleRegione.API.Controllers
             return sb.Aggregate((i, j) => i + "<br>" + j);
         }
 
-        private Filter<ATTI_DASI> PulisciFiltro(Filter<ATTI_DASI> filtro)
+        private Filter<ATTI_DASI> PulisciFiltroTipo(Filter<ATTI_DASI> filtro)
         {
             var filtro_pulito = new List<FilterStatement<ATTI_DASI>>();
             var filtri_da_rimuovere = filtro.Statements.Where(f => f.PropertyId != nameof(AttoDASIDto.Tipo));
+            foreach (var filterStatement in filtri_da_rimuovere)
+                filtro_pulito.Add(new FilterStatement<ATTI_DASI>
+                {
+                    PropertyId = filterStatement.PropertyId,
+                    Value = filterStatement.Value,
+                    Value2 = filterStatement.Value2,
+                    Connector = filterStatement.Connector,
+                    Operation = filterStatement.Operation
+                });
+
+            var result = new Filter<ATTI_DASI>();
+            result.ImportStatements(filtro_pulito);
+            return result;
+        }
+
+        private Filter<ATTI_DASI> PulisciFiltroStato(Filter<ATTI_DASI> filtro)
+        {
+            var filtro_pulito = new List<FilterStatement<ATTI_DASI>>();
+            var filtri_da_rimuovere = filtro.Statements.Where(f => f.PropertyId != nameof(AttoDASIDto.IDStato));
             foreach (var filterStatement in filtri_da_rimuovere)
                 filtro_pulito.Add(new FilterStatement<ATTI_DASI>
                 {

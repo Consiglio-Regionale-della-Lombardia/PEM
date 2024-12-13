@@ -57,4 +57,45 @@ public class QueryExtendedRequest
     public List<Guid> Firmatari { get; set; } = new List<Guid>();
     public List<int> GruppiFirmatari { get; set; } = new List<int>();
     public List<int> AreaPolitica { get; set; } = new List<int>();
+
+    public QueryExtendedRequest Clone()
+    {
+        return new QueryExtendedRequest
+        {
+            Soggetti = new List<int>(Soggetti),
+            Stati = new List<int>(Stati),
+            Tipi = new List<int>(Tipi),
+            TipiRispostaRichiesta = new List<int>(TipiRispostaRichiesta),
+            TipiChiusura = new List<int>(TipiChiusura),
+            TipiVotazione = new List<int>(TipiVotazione),
+            TipiDocumento = new List<int>(TipiDocumento),
+            DocumentiMancanti = DocumentiMancanti,
+            Proponenti = new List<Guid>(Proponenti),
+            Provvedimenti = new List<Guid>(Provvedimenti),
+            AttiDaFirmare = new List<Guid>(AttiDaFirmare),
+            Risposte = new List<int>(Risposte),
+            Organi = new List<int>(Organi),
+            DataTrasmissione = new List<DateTime>(DataTrasmissione),
+            DataTrasmissioneIsNull = DataTrasmissioneIsNull,
+            RispostaMancante = RispostaMancante,
+            OrganiIsNull = OrganiIsNull,
+            DataSeduta = new List<DateTime>(DataSeduta),
+            DataRisposta = new List<DateTime>(DataRisposta),
+            DataRispostaIsNull = DataRispostaIsNull,
+            DataAnnunzioIsNull = DataAnnunzioIsNull,
+            DataComunicazioneAssembleaIsNull = DataComunicazioneAssembleaIsNull,
+            DataChiusuraIterIsNull = DataChiusuraIterIsNull,
+            DataComunicazioneAssemblea = new List<DateTime>(DataComunicazioneAssemblea),
+            DataAnnunzio = new List<DateTime>(DataAnnunzio),
+            DataChiusuraIter = new List<DateTime>(DataChiusuraIter),
+            DataTrattazione = new List<DateTime>(DataTrattazione),
+            DataTrattazioneIsNull = DataTrattazioneIsNull,
+            DataPresentazione = new List<DateTime>(DataPresentazione),
+            DataPresentazioneIsNull = DataPresentazioneIsNull,
+            GruppiProponenti = new List<int>(GruppiProponenti),
+            Firmatari = new List<Guid>(Firmatari),
+            GruppiFirmatari = new List<int>(GruppiFirmatari),
+            AreaPolitica = new List<int>(AreaPolitica)
+        };
+    }
 }
