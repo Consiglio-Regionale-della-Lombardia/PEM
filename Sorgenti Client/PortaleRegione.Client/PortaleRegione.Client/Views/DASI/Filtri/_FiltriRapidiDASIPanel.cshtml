@@ -763,7 +763,7 @@ function CreaTabella() {
 		}
 
 		var iconChipAggiuntiva = "";
-		if (result.Abbinamenti.length > 0) {
+		if (result.Abbinamenti.length > 0 || result.ODG_Atto_PEM) {
 			iconChipAggiuntiva += `<i class="close material-icons blue-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>`;
 		}
 
@@ -799,8 +799,8 @@ function CreaTabella() {
 				if (result.DCR > 0) {
 					td.textContent = `${result.DCRL}/${result.DCR}`;
 					if (result.DCCR > 0) {
-						td.textContent += `/${result.DCCR}`
-					}
+                        td.textContent += `/${result.DCCR}`;
+                    }
 				} else {
 					td.textContent = "";
 				}
@@ -976,6 +976,11 @@ function CreaTabella() {
 				});
 				td.innerHTML += "</ul>";
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Abbinamenti)') {
+
+				if (result.ODG_Atto_PEM) {
+					td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">${result.ODG_Atto_PEM}</a></p>`;
+                }
+
 				result.Abbinamenti.forEach(abb => {
 					td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UidAttoAbbinato}')">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</a></p>`;
 				});
