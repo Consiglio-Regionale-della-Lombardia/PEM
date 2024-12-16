@@ -1,14 +1,16 @@
 # Portale digitalizzazione atti (PEM-DASI)
 
-Il portale PEM-DASI è stato realizzato per digitalizzare e gestire a distanza la fase di presentazioni degli Atti di iniziativa dei consiglieri regionali ed automatizzare alcune fasi del loro iter. Il suo sviluppo è stato inizialmente studiato per digitalizzare la presentazione degli emendamenti/subemendamenti ai progetti di legge (modulo PEM) e, a seguito del riscontro positivo da parte degli utilizzatori, è stato esteso alla presentazione degli atti di indirizzo e sindacato ispettivo, realizzando il modulo DASI.
+Il progetto GeDASI è il risultato di diverse fasi di sviluppo che hanno portato alla costruzione di uno stack tecnologico, che comprende:
+- il modulo PEM, per la presentazione degli Emendamenti ai progetti di legge, nell’ambiente quindi legato a una specifica seduta e attivato in concomitanza della stessa.
+- il modulo DASI, per la presentazione e la gestione degli ATTI di indirizzo e sindacato ispettivo, non necessariamente legato a una specifica seduta del Consiglio.
 
-Il modulo DASI e il modulo PEM sono ospitati nella medesima piattaforma, ci sarà quindi un doppio canale di accesso:
+Il portale è stato inizialmente studiato per digitalizzare la presentazione degli emendamenti/subemendamenti ai progetti di legge (modulo PEM) e, a seguito del riscontro positivo da parte degli utilizzatori, è stato esteso alla presentazione degli atti di indirizzo e sindacato ispettivo, realizzando il modulo DASI. In una terza fase il modulo DASI è stato esteso con una serie di funzionalità, dedicate al personale del Servizio Segreteria dell’Assemblea consiliare, che consento di gestire tutte le informazioni correlate agli atti di indirizzo e di sindacato ispettivo (ad esempio date di trattazione, note, ecc) e memorizzare i documenti relativi al fascicolo che compone la vita dell’atto (ad esempio le risposte fornite dalla Giunta in merito ad una interrogazione o interpellanza di un consigliere). A seguito di questa terza fase di sviluppo la piattaforma ha preso il nome di GeDASI.
 
-1. un canale per la presentazione degli Emendamenti ai progetti di legge, nell’ambiente quindi legato a una specifica seduta e attivato in concomitanza della stessa;
+A differenza degli emendamenti che si concludono con la votazione (approvato/respinto), gli atti di indirizzo e sindacato ispettivo hanno un iter complesso che si sviluppa in una serie di passaggi, da tracciare, e di documenti da generare e memorizzare. 
 
-2. un canale per la presentazione degli ATTI di indirizzo e sindacato ispettivo, non necessariamente legato a una specifica seduta del Consiglio.
+Per chiarezza espositiva tratteremo separatamente il modulo per la presentazione dematerializzata degli emendamenti (PEM) il modulo per la presentazione dematerializzata degli atti di indirizzo e di sindacato ispettivo (DASI) e il terzo modulo che consente la gestione di questi ultimi.
 
-Va puntualizzato che, per i due canali di accesso, la categoria di utenti non è coincidente: gli assessori, in quanto non sono consiglieri o sono sospesi dalla carica, non accederanno al canale DASI.
+L’accesso al portale è rimasto comunque unico per tutti i moduli, le varie sezioni sono visibili solo ai profili autorizzati. Il nuovo sviluppo per la gestione degli atti di indirizzo e di sindacato ispettivo è accessibile solo al personale del Servizio Segreteria dell’Assemblea. Va puntualizzato che, per i due canali di accesso, la categoria di utenti non è coincidente: gli assessori, in quanto non sono consiglieri o sono sospesi dalla carica, non accederanno al canale DASI.
 
 ## Modulo PEM - Presentazione Emendamenti
   
