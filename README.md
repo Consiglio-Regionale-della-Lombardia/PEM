@@ -1,4 +1,4 @@
-# Portale digitalizzazione atti (PEM-DASI)
+# Portale digitalizzazione atti (GeDASI)
 
 Il progetto GeDASI è il risultato di diverse fasi di sviluppo che hanno portato alla costruzione di uno stack tecnologico, che comprende:
 - il modulo PEM, per la presentazione degli Emendamenti ai progetti di legge, nell’ambiente quindi legato a una specifica seduta e attivato in concomitanza della stessa.
@@ -28,6 +28,16 @@ Gli strumenti di indirizzo politico, denominati ATTI DI INDIRIZZO, previsti dal 
 
 La funzione di controllo invece, come definita a livello parlamentare, si estrinseca (anche) nell’attività di sindacato ispettivo (ATTI DI SINDACATO ISPETTIVO), e viene tradizionalmente esercitata attraverso gli strumenti tipici dell’interpellanza (ITL), dell’interrogazione (ITR) e dell’interrogazione a risposta immediata (IQT).
 
+## Funzionalità di gestione avanzata
+
+Nel suo complesso il GeDASI offre alcuni strumenti avanzati come la ricerca effettuata tramite la configurazione di filtri custom, la gestione massiva e puntuale degli atti. Il sistema è anche in grado di fornire una reportistica basata su una configurazione completamente personalizzata e memorizzabile di:
+
+- criteri di ricerca
+- tipo di documento (word, xls e pdf)
+- tipo di visualizzazione
+- template per le copertine e l'impaginazione
+- dati esposti
+
 ### Note sul copyright
 - Copyright: Consiglio regionale della Lombardia
 - Stato del progetto: Beta
@@ -50,7 +60,7 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
 
 # Introduzione
 
-Questo repository contiene il codice sorgente e la documentazione del portale PEM-DASI. 
+Questo repository contiene il codice sorgente e la documentazione del portale GeDASI. 
 L'obiettivo del Portale è di informatizzare e rendere più efficiente e funzionale la procedura di deposito (numerazione e marcatura temporale) degli emendamenti ai progetti di legge e degli atti di indirizzo e di sindacato ispettivo, con un’applicazione multiutente con livelli di informatizzazione e automazione più o meno ampi, a seconda delle varie fasi del processo. L'applicazione, unica, è stata divisa a livello funzionale in due moduli denominati modulo PEM e modulo DASI.
  
 Il Modulo PEM permette di:
@@ -77,19 +87,19 @@ Maggiori dettagli sulle funzionalità possono essere lette nella documentazione 
   
   - Database: struttura di configurazione del database e sua documentazione
   
-  - Documentazione: documentazione varia sull'installazione e sull'utilizzo del Portale PEM-DASI
+  - Documentazione: documentazione varia sull'installazione e sull'utilizzo del Portale GeDASI
   
-  - Sorgenti API: sorgenti dei moduli API utilizzati dal Portale PEM-DASI
+  - Sorgenti API: sorgenti dei moduli API utilizzati dal Portale GeDASI
   
-  - Sorgenti Client: sorgenti della parte client del Portale PEM-DASI
+  - Sorgenti Client: sorgenti della parte client del Portale GeDASI
   
   - Sorgenti modulo di stampa asincrona: Sorgenti del modulo di stampa asincrona degli Emendamenti in formato pdf
   
 Il repository corrente ha 3 branches:
 
-- Branch master: contiene il codice e la documentazione di PEM-DASI nella versione attuale e su cui verranno effettuati gli aggiornamenti e le ulteriori modifiche evolutive
+- Branch master: contiene il codice e la documentazione di GeDASI nella versione attuale e su cui verranno effettuati gli aggiornamenti e le ulteriori modifiche evolutive
 
-- Branch v2.2-beta: contiene il codice e la documentazione di PEM-DASI in versione 2.2 ovvero il modulo PEM con le ultime modifiche evolutive e il modulo DASI per la digitalizzazione della presentazione degli atti di sindacato ispettivo e d'indirizzo 
+- Branch v2.2-beta: contiene il codice e la documentazione di GeDASI in versione 2.2 ovvero il modulo PEM con le ultime modifiche evolutive e il modulo DASI per la digitalizzazione della presentazione degli atti di sindacato ispettivo e d'indirizzo 
 
 - Branch v2.0-stable: contiene il codice e la documentazione della versione PEM 2.0 ovvero il modulo PEM per la digitalizzazione della presentazione degli emendamenti senza le ultime modifiche evolutive effettuate
 
