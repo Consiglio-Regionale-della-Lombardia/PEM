@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -1264,6 +1265,42 @@ namespace PortaleRegione.Common
             }
 
             return result;
+        }
+
+        public static DateTime ParseDateTime(string dateTime)
+        {
+            try
+            {
+                // Definisci una cultura specifica per il parsing (italiano)
+                var italianCulture = new CultureInfo("it-IT");
+                string[] supportedFormats = {
+                    "yyyy-MM-dd HH:mm:ss", // Formato ISO senza "T"
+                    "yyyy-MM-ddTHH:mm:ss", // Formato ISO con "T"
+                    "dd/MM/yyyy HH:mm:ss", // Formato italiano standard
+                };
+                
+                if (dateTime.Contains("T"))
+                {
+                    // Parsing con il formato italiano
+                    try
+                    {
+                        var dateT = DateTime.ParseExact(dateTime.Substring(0, 19).Replace("T", " "), supportedFormats, italianCulture, DateTimeStyles.None);
+                        return dateT;
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception($"Data in errore: {dateTime}, modificata in {dateTime.Substring(0, 19).Replace("T", " ")}", e);
+                    }
+                }
+
+                // Parsing della stringa con la cultura italiana
+                var date = DateTime.ParseExact(dateTime, supportedFormats, italianCulture, DateTimeStyles.None);
+                return date;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Data in errore: {dateTime}", e);
+            }
         }
     }
 }

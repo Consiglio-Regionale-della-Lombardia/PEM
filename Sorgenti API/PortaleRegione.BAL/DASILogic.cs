@@ -4385,36 +4385,100 @@ namespace PortaleRegione.API.Controllers
             var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
             var filterStatements = Utility.ParseFilterDasi(filtri);
 
+            var tipi_join = string.Empty;
+            if (filterStatements.Any(i => i.PropertyId.Equals(nameof(AttoDASIDto.Tipo))))
+            {
+                var tipi_lista = filterStatements.Where(i => i.PropertyId.Equals(nameof(AttoDASIDto.Tipo)))
+                    .Select(i => Utility.GetText_Tipo(int.Parse(i.Value.ToString())));
+                tipi_join = string.Join(", ", tipi_lista);
+            }
+
+            var date_join = string.Empty;
+            if (filterStatements.Any(i => i.PropertyId.Equals(nameof(AttoDASIDto.Timestamp))))
+            {
+                var date_lista = filterStatements.Where(i => i.PropertyId.Equals(nameof(AttoDASIDto.Timestamp)));
+
+                // range di date
+                foreach (var dataItem in date_lista)
+                {
+                    var data = $"{Utility.ParseDateTime(dataItem.Value.ToString()):dd/MM/yyyy}";
+                    if (string.IsNullOrEmpty(date_join))
+                    {
+                        date_join = $" dal {data}";
+                    }
+                    else
+                    {
+                        date_join += $" al {data}";
+                    }
+                }
+            }
+
+            var titolo_report = "Situazione";
+
+            if (!string.IsNullOrEmpty(tipi_join))
+            {
+                titolo_report += $" {tipi_join}";
+            }
+                
+            if (!string.IsNullOrEmpty(date_join))
+            {
+                titolo_report += $"{date_join}";
+            }
+
             var request = new BaseRequest<AttoDASIDto>
             {
                 filtro = filterStatements,
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
             };
 
-            if (!string.IsNullOrEmpty(model.sorting))
+            request.dettagliOrdinamento = new List<SortingInfo>
             {
-                var ordinamento = JsonConvert.DeserializeObject<List<SortingInfo>>(model.sorting);
-                request.dettagliOrdinamento = ordinamento;
-            }
+                new SortingInfo
+                {
+                    propertyName = nameof(AttiDASISorting.Tipo),
+                    sortDirection = 1
+                },new SortingInfo
+                {
+                    propertyName = nameof(AttiDASISorting.NAtto_search),
+                    sortDirection = 1
+                },
+                new SortingInfo
+                {
+                    propertyName = nameof(AttoDASIDto.IDTipo_Risposta),
+                    sortDirection = 1
+                }
+            };
 
             var idsList = await GetSoloIds(request, currentUser, null);
 
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Report");
+                // Intestazioni delle colonne
+                worksheet.Cells[1, 1].Value = titolo_report.ToUpper();
+
+                // Unire le celle da colonna 1 a colonna 9 nella riga 1
+                worksheet.Cells[1, 1, 1, 9].Merge = true;
+
+                // Impostare il testo centrato
+                worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                worksheet.Cells[1, 1].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                // Imposta uno stile per il testo, ad esempio grassetto
+                worksheet.Cells[1, 1].Style.Font.Bold = true;
 
                 // Intestazioni delle colonne
-                worksheet.Cells[1, 1].Value = "Atto";
-                worksheet.Cells[1, 2].Value = "Risposta richiesta";
-                worksheet.Cells[1, 3].Value = "Presentate";
-                worksheet.Cells[1, 4].Value = "Ritirate/Inammissibili";
-                worksheet.Cells[1, 5].Value = "Annunciate";
-                worksheet.Cells[1, 6].Value = "Risposte pervenute";
-                worksheet.Cells[1, 7].Value = "In attesa risposta";
-                worksheet.Cells[1, 8].Value = "di cui in ritardo oltre 20gg";
-                worksheet.Cells[1, 9].Value = "% risposte";
+                worksheet.Cells[4, 1].Value = "Atto";
+                worksheet.Cells[4, 2].Value = "Risposta richiesta";
+                worksheet.Cells[4, 3].Value = "Presentate";
+                worksheet.Cells[4, 4].Value = "Ritirate/Inammissibili";
+                worksheet.Cells[4, 5].Value = "Annunciate";
+                worksheet.Cells[4, 6].Value = "Risposte pervenute";
+                worksheet.Cells[4, 7].Value = "In attesa risposta";
+                worksheet.Cells[4, 8].Value = "di cui in ritardo oltre 20gg";
+                worksheet.Cells[4, 9].Value = "% risposte";
 
-                var currentRow = 2;
+                var currentRow = 5;
                 var groupedByAtto = new Dictionary<string, List<AttoDASIDto>>();
 
                 // Raggruppa gli atti per tipo (es. ITR, ITL, IQT)
@@ -4468,17 +4532,12 @@ namespace PortaleRegione.API.Controllers
                         ///
                         ///
                         /// 
-
-                        var percentualeRisposte = annunciate - inAttesa > 0
-                            ? rispostePerv / (double)(annunciate - inAttesa) * 100
-                            : 0;
-
+                        
                         if (annunciate == 0)
                         {
                             rispostePerv = 0;
                             inAttesa = 0;
                             ritardoOltre20gg = 0;
-                            percentualeRisposte = 0;
                         }
 
                         // Scrivi i dati nella riga corrente
@@ -4490,7 +4549,10 @@ namespace PortaleRegione.API.Controllers
                         worksheet.Cells[currentRow, 6].Value = rispostePerv;
                         worksheet.Cells[currentRow, 7].Value = inAttesa;
                         worksheet.Cells[currentRow, 8].Value = ritardoOltre20gg;
-                        worksheet.Cells[currentRow, 9].Value = percentualeRisposte;
+                        worksheet.Cells[currentRow, 9].Formula =
+                            $"IF(E{currentRow}<>0,F{currentRow}/E{currentRow}*100,0)";
+                        worksheet.Cells[currentRow, 9].Style.Numberformat.Format = "0.00";
+
 
                         currentRow++;
                     }
@@ -4522,10 +4584,24 @@ namespace PortaleRegione.API.Controllers
                     currentRow++;
                 }
 
+                try
+                {
+                    // Intestazioni delle colonne
+                    worksheet.Cells[currentRow, 1].Value = "A cura di: U.O. Atti consiliari e Resoconti";
+
+                    // Unire le celle da colonna 1 a colonna 9 nella riga 1
+                    worksheet.Cells[currentRow, 1, currentRow, 9].Merge = true;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+
                 // Formattazione delle celle e salvataggio
-                worksheet.Cells[1, 1, currentRow - 1, 9].AutoFitColumns();
-                worksheet.Cells[1, 1, 1, 9].Style.Font.Bold = true;
-                worksheet.Cells[1, 1, currentRow - 1, 9].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                worksheet.Cells[4, 1, currentRow - 1, 9].AutoFitColumns();
+                worksheet.Cells[4, 1, 4, 9].Style.Font.Bold = true;
+                worksheet.Cells[4, 1, currentRow - 1, 9].Style.Border.BorderAround(ExcelBorderStyle.Thin);
 
                 await package.SaveAsAsync(new FileInfo(filePath));
             }
