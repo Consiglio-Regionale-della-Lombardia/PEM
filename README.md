@@ -38,7 +38,7 @@ Nel suo complesso il GeDASI offre alcuni strumenti avanzati come la ricerca effe
 - template per le copertine e l'impaginazione
 - dati esposti
 
-### Note sul copyright
+# Note sul copyright
 - Copyright: Consiglio regionale della Lombardia
 - Stato del progetto: Beta
 - Mantenimento in carico Namirial S.p.A. a socio unico - https://www.namirial.it/
