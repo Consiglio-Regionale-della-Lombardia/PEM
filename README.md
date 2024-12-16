@@ -285,16 +285,16 @@ NOTA: Io modulo DASI è attualmente in fase di test e viene rilasciato in versio
 
 ## Requisiti del sistema
 
-Specifiche tecniche server:
+Specifiche tecniche server consigliate:
 
-- Sistema Operativo: Windows 2008 Server R2 o superiore + Active Directory
-- Web e Application server: IIS 7.5 o superiore + Entity Framework 6.0
-- Database: Microsoft SQL server 2012 o superiore
+- Sistema Operativo: Windows Server 2022 + Active Directory
+- Web e Application server: IIS 10 + Entity Framework 6.0
+- Database: Microsoft SQL server 2019
 
 Specifiche tecniche client:
-- Sistema Operativo: Microsoft windows (7 – 8 - 10), Mac OsX
-- Browser: Internet Explorer (ver. 9.0-10.0-11.0), FireFox, Chrome, Safari
-- Dispositivi mobile (tablet/cellulari): iOS, Android - il portale è completamente responsive escluso le pagine contenenti la griglia di lavoro dedicata alla Segreteria dell'Assemblea
+- Sistema Operativo: Microsoft windows 10 o superiore, Mac OsX
+- Browser: Edge, FireFox, Chrome, Safari
+- Dispositivi mobile (tablet/cellulari): iOS, Android - il portale è responsive ad esclusione di alcune parti.
 
 ## Procedura di installazione
 
