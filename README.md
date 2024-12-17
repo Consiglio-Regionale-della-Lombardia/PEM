@@ -271,7 +271,7 @@ La soluzione del progetto in Visual Studio risulta quella in figura:
 #### WebService pubblico
 Di seguito la documentazione del WebService pubblico:
 
-![Strutturazione dei web services](/Documentazione/Strutturazione dei web services.pdf)
+- [Strutturazione dei web services](/Documentazione/Strutturazione dei web services.pdf)
 
 # Installazione
 
