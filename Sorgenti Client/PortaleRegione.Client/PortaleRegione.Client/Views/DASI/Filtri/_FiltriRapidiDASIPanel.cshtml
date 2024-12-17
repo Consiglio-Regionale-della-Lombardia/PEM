@@ -584,15 +584,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 async function inviaDatiChips(page, size) {
-    console.log("Invio dati", page, size);
-	if (!page){
+    if (!page){
 		page = 1;
 	}
 	if (!size){
 		size = 20;
 	}
 
-	const view = localStorage.getItem('viewModeDasi');
+	var view = localStorage.getItem('viewModeDasi');
 	if (!view) {
 		localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
         view = localStorage.getItem('viewModeDasi');

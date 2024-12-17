@@ -373,18 +373,21 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
+        public async Task Salva_NuovoAbbinamento(AttiAbbinamentoDto request, PersonaDto currentUser)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UidAbbinamento);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
 
             _unitOfWork.DASI.AggiungiAbbinamento(request.UidAbbinamento, request.UidAttoAbbinato);
 
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task<AttiRisposteDto> Salva_NuovaRisposta(AttiRisposteDto request)
+        public async Task<AttiRisposteDto> Salva_NuovaRisposta(AttiRisposteDto request, PersonaDto currentUser)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
@@ -403,6 +406,9 @@ namespace PortaleRegione.API.Controllers
 
             _unitOfWork.DASI.AggiungiRisposta(risposta);
 
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
+
             await _unitOfWork.CompleteAsync();
 
             return new AttiRisposteDto
@@ -417,11 +423,14 @@ namespace PortaleRegione.API.Controllers
             };
         }
 
-        public async Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
+        public async Task Salva_RimuoviAbbinamento(AttiAbbinamentoDto request, PersonaDto currentUser)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UidAbbinamento);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
 
             var abbinamentoInDb =
                 await _unitOfWork.DASI.GetAbbinamento(request.UidAbbinamento, request.UidAttoAbbinato);
@@ -461,11 +470,14 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_RimuoviNota(NoteDto request)
+        public async Task Salva_RimuoviNota(NoteDto request, PersonaDto currentUser)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
 
             var notaInDb = await _unitOfWork.DASI.GetNota(request.UIDAtto, request.TipoEnum);
             if (notaInDb == null)
@@ -483,6 +495,9 @@ namespace PortaleRegione.API.Controllers
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
 
             var nota = await _unitOfWork.DASI.GetNota(request.UIDAtto, request.TipoEnum);
             if (nota == null)
@@ -524,13 +539,16 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_InformazioniRisposta(AttoDASIDto request)
+        public async Task Salva_InformazioniRisposta(AttoDASIDto request, PersonaDto currentUser)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
             {
                 throw new InvalidOperationException("Atto non trovato");
             }
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
 
             attoInDb.IDTipo_Risposta_Effettiva = request.IDTipo_Risposta_Effettiva;
             attoInDb.DataSedutaRisposta = request.DataSedutaRisposta;
@@ -539,22 +557,28 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_RimuoviMonitoraggio(AttiRisposteDto request)
+        public async Task Salva_RimuoviMonitoraggio(AttiRisposteDto request, PersonaDto currentUser)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
 
             var monitoraggioInDb = await _unitOfWork.DASI.GetMonitoraggio(request.Uid);
             _unitOfWork.DASI.RimuoviMonitoraggio(monitoraggioInDb);
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_NuovoMonitoraggio(AttiRisposteDto request)
+        public async Task Salva_NuovoMonitoraggio(AttiRisposteDto request, PersonaDto currentUser)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
 
             var monitoraggio = new ATTI_MONITORAGGIO
             {
@@ -569,7 +593,7 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_InformazioniMonitoraggio(AttoDASIDto request)
+        public async Task Salva_InformazioniMonitoraggio(AttoDASIDto request, PersonaDto currentUser)
         {
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
@@ -582,6 +606,9 @@ namespace PortaleRegione.API.Controllers
             attoInDb.StatoAttuazione = request.StatoAttuazione;
             attoInDb.DataTrasmissioneMonitoraggio = request.DataTrasmissioneMonitoraggio;
             attoInDb.MonitoraggioConcluso = request.MonitoraggioConcluso;
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
 
             await _unitOfWork.CompleteAsync();
         }
@@ -660,6 +687,8 @@ namespace PortaleRegione.API.Controllers
             attoInDb.DataChiusuraIter = request.DataChiusuraIter;
             attoInDb.DataComunicazioneAssemblea = request.DataComunicazioneAssemblea;
             attoInDb.Emendato = request.Emendato;
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
 
             //#1110
             if (attoInDb.Tipo.Equals((int)TipoAttoEnum.MOZ)
@@ -2996,7 +3025,7 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task RimuoviSeduta(IscriviSedutaDASIModel model)
+        public async Task RimuoviSeduta(IscriviSedutaDASIModel model, PersonaDto currentUser)
         {
             try
             {
@@ -3010,6 +3039,10 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDSeduta = null;
                     atto.DataIscrizioneSeduta = null;
                     atto.UIDPersonaIscrizioneSeduta = null;
+
+                    atto.UIDPersonaModifica = currentUser.UID_persona;
+                    atto.DataModifica = DateTime.Now;
+
                     await _unitOfWork.CompleteAsync();
                 }
             }
@@ -5483,6 +5516,9 @@ namespace PortaleRegione.API.Controllers
                 {
                     atto.Pubblicato = request.Dati.Pubblicato;
                 }
+
+                atto.UIDPersonaModifica = currentUser.UID_persona;
+                atto.DataModifica = DateTime.Now;
 
                 await _unitOfWork.CompleteAsync();
             }

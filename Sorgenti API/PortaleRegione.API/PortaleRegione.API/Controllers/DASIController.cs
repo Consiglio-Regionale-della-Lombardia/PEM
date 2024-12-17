@@ -176,7 +176,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var risposta = await _dasiLogic.Salva_NuovaRisposta(request);
+                var risposta = await _dasiLogic.Salva_NuovaRisposta(request, CurrentUser);
                 return Ok(risposta);
             }
             catch (Exception e)
@@ -218,7 +218,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_NuovoAbbinamento(request);
+                await _dasiLogic.Salva_NuovoAbbinamento(request, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -239,7 +239,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_RimuoviAbbinamento(request);
+                await _dasiLogic.Salva_RimuoviAbbinamento(request, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -281,7 +281,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_InformazioniRisposta(request);
+                await _dasiLogic.Salva_InformazioniRisposta(request, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -302,7 +302,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_NuovoMonitoraggio(request);
+                await _dasiLogic.Salva_NuovoMonitoraggio(request, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -323,7 +323,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_RimuoviMonitoraggio(request);
+                await _dasiLogic.Salva_RimuoviMonitoraggio(request, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -344,7 +344,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_InformazioniMonitoraggio(request);
+                await _dasiLogic.Salva_InformazioniMonitoraggio(request, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -407,7 +407,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_RimuoviNota(request);
+                await _dasiLogic.Salva_RimuoviNota(request, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -1069,7 +1069,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.RimuoviSeduta(model);
+                await _dasiLogic.RimuoviSeduta(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)

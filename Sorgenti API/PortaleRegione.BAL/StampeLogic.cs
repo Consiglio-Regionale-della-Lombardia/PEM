@@ -187,7 +187,7 @@ namespace PortaleRegione.BAL
             stampa.UIDUtenteRichiesta = persona.UID_persona;
             stampa.Lock = false;
             stampa.Tentativi = 0;
-            if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
+            if (stampa.A == 0 && stampa.Da == 0)
             {
                 stampa.Scadenza = null;
             }

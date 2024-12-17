@@ -75,6 +75,28 @@
 			data.Tutti = getSelezionaTutti_DASI();
 			data.Lista = getListaAtti();
 
+            var chipsData = [];
+            document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function (chip) {
+                if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
+                    chipsData.push({
+                        property: chip.getAttribute('data-filterby'),
+                        value: '',
+                        not_empty: true
+                    });
+                }
+                else {
+                    chipsData.push({
+                        property: chip.getAttribute('data-filterby'),
+                        value: chip.getAttribute('data-val')
+                    });
+                }
+            });
+
+            data.filters_dasi = chipsData;
+
+            const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+            data.sort_settings_dasi = savedSortColumns;
+
             waiting(true);
             var url = baseUrl + "/stampe/nuova-dasi";
             $.ajax({
@@ -95,7 +117,8 @@
             });
 
             setListaAtti([]);
-            setSelezionaTutti(false);
+            setSelezionaTutti_DASI(false);
+			$('input[id^="chk_Atto_"]').not($(ctrl)).prop('checked', false);
 
             return false; //This doesn't prevent the form from submitting.
         }

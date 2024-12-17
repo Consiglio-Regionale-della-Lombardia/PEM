@@ -22,6 +22,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PortaleRegione.Client.Models;
+using PortaleRegione.Common;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
@@ -111,19 +112,22 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> NuovaStampaDasi(StampaModel model)
         {
             var apiGateway = new ApiGateway(Token);
-            var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
 
             if (model.Tutti)
             {
-                var requestAtti = new BaseRequest<AttoDASIDto>
+                var request = new BaseRequest<AttoDASIDto>
                 {
                     page = 1,
-                    size = modelInCache.Data.Paging.Total,
-                    filtro = modelInCache.Data.Filters,
-                    ordine = OrdinamentoEnum.Crescente,
-                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
+                    size = 99999,
+                    param = new Dictionary<string, object>
+                    {
+                        { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }
+                    }
                 };
-                var list = await apiGateway.DASI.GetSoloIds(requestAtti);
+
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters_dasi));
+
+                var list = await apiGateway.DASI.GetSoloIds(request);
 
                 if (model.Lista != null)
                     foreach (var guid in model.Lista)
