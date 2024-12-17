@@ -268,6 +268,11 @@ La soluzione del progetto in Visual Studio risulta quella in figura:
 
 ![Soluzione_VisualStudio_JobStampa](/Documentazione/Screenshot/Soluzione_VisualStudio_JobStampa.jpg)
 
+#### WebService pubblico
+Di seguito la documentazione del WebService pubblico:
+
+![Strutturazione dei web services](/Documentazione/Strutturazione dei web services.pdf)
+
 # Installazione
 
 ## Note sulla release
