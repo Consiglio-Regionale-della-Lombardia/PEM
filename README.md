@@ -111,8 +111,8 @@ Il repository corrente ha 3 branches:
 
 #### INTRODUZIONE
 
-La versione pubblicata del software GeDASI è l’evoluzione di una prima versione di PEM (PEM v 1.0), sviluppata con tecnologia Microsoft ASP.net su Framework .NET 4.5.
-La nuova versione (PEM 2.0) è stata realizzata con l’obiettivo di migliorare e superare alcuni limiti del vecchio portale offrendo i seguenti vantaggi:
+La versione pubblicata del software GeDASI è l’evoluzione di una prima versione di PEM (PEM v 1.0) e della sua successiva, PEM-DASI, sviluppata con tecnologia Microsoft ASP.net su Framework .NET 4.5.
+La nuova versione è stata realizzata con l’obiettivo di migliorare e superare alcuni limiti del vecchio portale offrendo i seguenti vantaggi:
 -	Eliminazione di librerie di terze parti coperte da licenza non opensource;
 -	Separazione della parte client da quella server realizzando API dedicate che gestiscono tutta la logica applicativa di GeDASI e facilitano l'eventuale sviluppo di applicazioni mobile per dispositivi Apple e Android;
 -	Aumento della modularità per consentire l’evoluzione del portale per la gestione di altre tipologie di ATTI (es. atti d’indirizzo e di sindacato ispettivo);
@@ -120,9 +120,16 @@ La nuova versione (PEM 2.0) è stata realizzata con l’obiettivo di migliorare 
 -	Miglioramento della sicurezza;
 -	Introduzione di funzionalità che permetto di utilizzare la piattaforma in modalità stand-alone, gestendo in modalità nativa le funzioni di autenticazione, profilazione e di anagrafica.
  
-La nuova versione (PEM 2.0) è stata sviluppata utilizzando la tecnologia Microsoft MVC (model view controller) utilizzando C# come linguaggio di programmazione e il Framework .NET 4.7.2. 
+La nuova versione è stata sviluppata utilizzando la tecnologia Microsoft MVC (model view controller) utilizzando C# come linguaggio di programmazione e il Framework .NET 4.7.2. 
 
-Successivamente la piattaforma PEM v2.0, utilizzata per digitalizzare gli emendamenti/subemendamenti ai progetti di legge, è stata estesa per la digitalizzazione degli altri atti tipici delle assemblee regionali sviluppando il modulo DASI per la Digitalizzazione Atti di Sindacato ispettivo e d'Indirizzo GeDASI v2.2
+Successivamente la piattaforma PEM v2.0, utilizzata per digitalizzare gli emendamenti/subemendamenti ai progetti di legge, è stata estesa per la digitalizzazione degli altri atti tipici delle assemblee regionali sviluppando il modulo DASI per la Digitalizzazione Atti di Sindacato ispettivo e d'Indirizzo PEM-DASI v2.2
+
+La piattaforma GeDASI offre un nuovo incremento alle funzionalità del sistema, tra cui:
+- filtraggio configurabile
+- reportistica custom
+- CRUD sul singolo atto
+- gestione massiva atti
+- gestione dei template per report lettere e copertine
 
 ### STRUTTURA DEL SISTEMA
 Il portale GeDASI è stato progettato e sviluppato in modo da separare in maniera netta la parte server da quella client e allo stesso tempo fornire intefacce progrmmabili (API) di tipo web che possono essere richiamate ed utilizzate per altri scopi da altre applicazioni. 
@@ -278,16 +285,16 @@ NOTA: Io modulo DASI è attualmente in fase di test e viene rilasciato in versio
 
 ## Requisiti del sistema
 
-Specifiche tecniche server:
+Specifiche tecniche server consigliate:
 
-- Sistema Operativo: Windows 2008 Server R2 o superiore + Active Directory
-- Web e Application server: IIS 7.5 o superiore + Entity Framework 6.0
-- Database: Microsoft SQL server 2012 o superiore
+- Sistema Operativo: Windows Server 2022 + Active Directory
+- Web e Application server: IIS 10 + Entity Framework 6.0
+- Database: Microsoft SQL server 2019
 
 Specifiche tecniche client:
-- Sistema Operativo: Microsoft windows (7 – 8 - 10), Mac OsX
-- Browser: Internet Explorer (ver. 9.0-10.0-11.0), FireFox, Chrome, Safari
-- Dispositivi mobile (tablet/cellulari): iOS, Android - il portale è completamente responsive escluso le pagine contenenti la griglia di lavoro dedicata alla Segreteria dell'Assemblea
+- Sistema Operativo: Microsoft windows 10 o superiore, Mac OsX
+- Browser: Edge, FireFox, Chrome, Safari
+- Dispositivi mobile (tablet/cellulari): iOS, Android - il portale è responsive ad esclusione di alcune parti.
 
 ## Procedura di installazione
 
