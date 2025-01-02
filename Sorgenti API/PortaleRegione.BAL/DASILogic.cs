@@ -499,28 +499,16 @@ namespace PortaleRegione.API.Controllers
             attoInDb.UIDPersonaModifica = currentUser.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
 
-            var nota = await _unitOfWork.DASI.GetNota(request.UIDAtto, request.TipoEnum);
-            if (nota == null)
+            //Aggiungi nota
+            _unitOfWork.DASI.AggiungiNota(new ATTI_NOTE
             {
-                //Aggiungi nota
-                _unitOfWork.DASI.AggiungiNota(new ATTI_NOTE
-                {
-                    Data = DateTime.Now,
-                    Nota = request.Nota,
-                    Tipo = (int)request.TipoEnum,
-                    UIDAtto = request.UIDAtto,
-                    UIDPersona = currentUser.UID_persona,
-                    Uid = Guid.NewGuid()
-                });
-                await _unitOfWork.CompleteAsync();
-                return;
-            }
-
-            //Modifica nota
-            nota.Nota = request.Nota;
-            nota.UIDPersona = currentUser.UID_persona;
-            nota.Data = DateTime.Now;
-
+                Data = DateTime.Now,
+                Nota = request.Nota,
+                Tipo = (int)request.TipoEnum,
+                UIDAtto = request.UIDAtto,
+                UIDPersona = currentUser.UID_persona,
+                Uid = Guid.NewGuid()
+            });
             await _unitOfWork.CompleteAsync();
         }
 

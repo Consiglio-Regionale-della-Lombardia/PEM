@@ -860,6 +860,7 @@ namespace PortaleRegione.Persistance
             var noteInDB = await PRContext
                 .ATTI_NOTE
                 .Where(d => d.UIDAtto == uidAtto)
+                .OrderByDescending(d => d.Data)
                 .ToListAsync();
             var res = new List<NoteDto>();
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
@@ -1051,7 +1052,7 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
-            
+
             if (!currentUser.IsSegreteriaAssemblea)
             {
                 queryExtended.Tipi.Clear();
