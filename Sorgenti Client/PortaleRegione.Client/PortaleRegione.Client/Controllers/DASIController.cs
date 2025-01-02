@@ -116,6 +116,12 @@ namespace PortaleRegione.Client.Controllers
                 {
                     request.dettagliOrdinamento = model.sort_settings;
                 }
+                
+                // #1191
+                if (model.columns_settings.Any())
+                {
+                    request.columns = model.columns_settings;
+                }
 
                 request.page = model.page;
                 request.size = model.size;

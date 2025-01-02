@@ -816,7 +816,7 @@ namespace PortaleRegione.API.Controllers
                 };
             }
 
-            var result = await GetAttoDtos(atti_in_db, persona, viewMode);
+            var result = await GetAttoDtos(atti_in_db, persona, model.columns, viewMode);
             var totaleAtti = await _unitOfWork.DASI.Count(persona, GetClientMode(CLIENT_MODE),
                 queryFilter, queryExtended);
 
@@ -1115,7 +1115,10 @@ namespace PortaleRegione.API.Controllers
                 { PropertyId = propertyId, Value = value.ToString() }).ToList();
         }
 
-        private async Task<List<AttoDASIDto>> GetAttoDtos(List<Guid> atti_in_db, PersonaDto persona,
+        private async Task<List<AttoDASIDto>> GetAttoDtos(
+            List<Guid> atti_in_db, 
+            PersonaDto persona, 
+            List<string> columns,
             ViewModeEnum viewMode)
         {
             var result = new List<AttoDASIDto>();
@@ -1131,7 +1134,7 @@ namespace PortaleRegione.API.Controllers
                     continue;
                 }
 
-                var dto = await GetAttoDto(attoUId, persona);
+                var dto = await GetAttoDto(attoUId, persona, columns);
                 result.Add(dto);
             }
 
@@ -1299,28 +1302,54 @@ namespace PortaleRegione.API.Controllers
             return dto;
         }
 
-        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona)
+        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona, List<string> columns = null)
         {
             var attoInDb = await _unitOfWork.DASI.Get(attoUid);
             if (attoInDb == null)
                 return null;
+
+            columns ??= typeof(AttiDASIColums).GetProperties().Select(prop => prop.Name).ToList();
+
             var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+
+            // #1191
+            dto.AltriSoggetti = string.Empty;
+            dto.AreaTematica = string.Empty;
+            dto.Atto_Certificato = string.Empty;
+            dto.BodyAtto = string.Empty;
+            dto.CompetenzaMonitoraggio = string.Empty;
+            if (!columns.Contains(nameof(AttiDASIColums.ImpegniScadenze)))
+                dto.ImpegniScadenze = string.Empty;
+            dto.Premesse = string.Empty;
+            dto.Premesse_Modificato = string.Empty;
+            dto.Richiesta = string.Empty;
+            dto.Richiesta_Modificata = string.Empty;
+            dto.StatoAttuazione = string.Empty;
 
             dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
             dto.DisplayTipo = Utility.GetText_Tipo(attoInDb.Tipo);
             dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
             dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} n. {dto.NAtto}"; // #1039
-            dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
-            if (dto.IDTipo_Risposta_Effettiva.HasValue)
-                dto.DisplayTipoRispostaFornita =
-                    Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta_Effettiva.Value); // #1052
-            dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
-            dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
+
+            if (columns.Contains(nameof(AttiDASIColums.IDTipo_Risposta)))
+                dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
+            if (columns.Contains(nameof(AttiDASIColums.IDTipo_Risposta_Effettiva)))
+            {
+                if (dto.IDTipo_Risposta_Effettiva.HasValue)
+                    dto.DisplayTipoRispostaFornita =
+                        Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta_Effettiva.Value); // #1052
+            }
+            if (columns.Contains(nameof(AttiDASIColums.IDStato)))
+                dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
+            if (columns.Contains(nameof(AttiDASIColums.AreaPolitica)))
+                dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
 
             try
             {
-                if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
-                    dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
+                if (columns.Contains(nameof(AttiDASIColums.Timestamp)))
+                    if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                        dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
+                
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
                     dto.DataPresentazione_MOZ = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ);
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_URGENTE))
@@ -1330,8 +1359,8 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
                     dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
 
-                if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
-                    dto.Atto_Certificato = BALHelper.Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
+                //if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
+                //    dto.Atto_Certificato = BALHelper.Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
 
                 dto.PersonaCreazione = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
                 dto.PersonaProponente = attoInDb.UIDPersonaProponente != null
@@ -1342,53 +1371,68 @@ namespace PortaleRegione.API.Controllers
                     dto.PersonaModifica =
                         Users.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
 
-                var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
+                if (columns.Contains(nameof(AttiDASIColums.Firme))
+                    || columns.Contains(nameof(AttiDASIColums.Firme_dopo_deposito))
+                    || columns.Contains(nameof(AttiDASIColums.Firme_ritirate))
+                    || columns.Contains(nameof(AttiDASIColums.ConteggioFirme)))
+                {
+                    var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
+
+                    if (!dto.IsRIS())
+                    {
+                        if (firme.Any())
+                        {
+                            if (firme
+                                    .Count(f => f.UID_persona != attoInDb.UIDPersonaProponente
+                                                && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
+                            {
+                                dto.Firme = firme
+                                    .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente
+                                                && string.IsNullOrEmpty(f.Data_ritirofirma))
+                                    .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                                    .Aggregate((i, j) => i + "<br>" + j);
+                            }
+
+                            dto.ConteggioFirme = firme.Count(f => string.IsNullOrEmpty(f.Data_ritirofirma));
+                            dto.Firmato_Dal_Proponente = firme.Any(f => f.UID_persona.Equals(dto.UIDPersonaProponente));
+                            dto.Firma_da_ufficio = firme.Any(f => f.ufficio);
+
+                            dto.FirmeAnte = firme.Where(f => f.Timestamp <= dto.Timestamp).ToList();
+                            dto.FirmePost = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
+
+                            if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
+                                                    persona.CurrentRole ==
+                                                    RuoliIntEnum.Assessore_Sottosegretario_Giunta))
+                                dto.Firmato_Da_Me = firme.Any(f => f.UID_persona.Equals(persona.UID_persona));
+
+                            // #1049
+                            var firme_dopo_deposito = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
+                            if (firme_dopo_deposito.Any())
+                            {
+                                dto.Firme_dopo_deposito = firme_dopo_deposito
+                                    .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                                    .Aggregate((i, j) => i + "<br>" + j);
+                            }
+
+                            // #1048
+                            var firme_ritirate = firme.Where(f => !string.IsNullOrEmpty(f.Data_ritirofirma)).ToList();
+                            if (firme_ritirate.Any())
+                            {
+                                dto.Firme_ritirate = firme_ritirate
+                                    .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
+                                    .Aggregate((i, j) => i + "<br>" + j);
+                            }
+                        }
+
+                        dto.Firmabile = await _unitOfWork
+                            .Atti_Firme
+                            .CheckIfFirmabile(dto, firme,
+                                persona);
+                    }
+                }
 
                 if (!dto.IsRIS())
                 {
-                    if (firme.Any())
-                    {
-                        if (firme
-                                .Count(f => f.UID_persona != attoInDb.UIDPersonaProponente
-                                            && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
-                        {
-                            dto.Firme = firme
-                                .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente
-                                            && string.IsNullOrEmpty(f.Data_ritirofirma))
-                                .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
-                                .Aggregate((i, j) => i + "<br>" + j);
-                        }
-
-                        dto.ConteggioFirme = firme.Count(f => string.IsNullOrEmpty(f.Data_ritirofirma));
-                        dto.Firmato_Dal_Proponente = firme.Any(f => f.UID_persona.Equals(dto.UIDPersonaProponente));
-                        dto.Firma_da_ufficio = firme.Any(f => f.ufficio);
-
-                        dto.FirmeAnte = firme.Where(f => f.Timestamp <= dto.Timestamp).ToList();
-                        dto.FirmePost = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
-
-                        if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                                                persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
-                            dto.Firmato_Da_Me = firme.Any(f => f.UID_persona.Equals(persona.UID_persona));
-
-                        // #1049
-                        var firme_dopo_deposito = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
-                        if (firme_dopo_deposito.Any())
-                        {
-                            dto.Firme_dopo_deposito = firme_dopo_deposito
-                                .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
-                                .Aggregate((i, j) => i + "<br>" + j);
-                        }
-
-                        // #1048
-                        var firme_ritirate = firme.Where(f => !string.IsNullOrEmpty(f.Data_ritirofirma)).ToList();
-                        if (firme_ritirate.Any())
-                        {
-                            dto.Firme_ritirate = firme_ritirate
-                                .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
-                                .Aggregate((i, j) => i + "<br>" + j);
-                        }
-                    }
-
                     dto.gruppi_politici =
                         Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                             await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
@@ -1404,11 +1448,6 @@ namespace PortaleRegione.API.Controllers
                             .DASI
                             .CheckIfPresentabile(dto,
                                 persona);
-
-                    dto.Firmabile = await _unitOfWork
-                        .Atti_Firme
-                        .CheckIfFirmabile(dto, firme,
-                            persona);
 
                     if (!dto.DataRitiro.HasValue)
                         dto.Ritirabile = _unitOfWork
@@ -1437,6 +1476,7 @@ namespace PortaleRegione.API.Controllers
                 dto.Organi = commissioni
                     .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
 
+
                 if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO
                     && attoInDb.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
                 {
@@ -1459,7 +1499,10 @@ namespace PortaleRegione.API.Controllers
 
                     if (sedutaInDb != null)
                     {
-                        dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
+                        if (columns.Contains(nameof(AttiDASIColums.UIDSeduta)))
+                        {
+                            dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
+                        }
 
                         var presentato_oltre_termini = IsOutdate(dto);
                         dto.PresentatoOltreITermini = presentato_oltre_termini;
@@ -1486,16 +1529,41 @@ namespace PortaleRegione.API.Controllers
 
                 dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
 
-                if (attoInDb.TipoChiusuraIter.HasValue)
-                    dto.DisplayTipoChiusuraIter = Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.Value);
-                if (attoInDb.TipoVotazioneIter.HasValue)
-                    dto.DisplayTipoVotazioneIter = Utility.GetText_TipoVotazioneDASI(attoInDb.TipoVotazioneIter.Value);
+                if (columns.Contains(nameof(AttiDASIColums.TipoChiusuraIter)))
+                {
+                    if (attoInDb.TipoChiusuraIter.HasValue)
+                        dto.DisplayTipoChiusuraIter = Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.Value);
+                }
 
-                dto.Risposte = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
-                dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
-                dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
-                dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
+                if (columns.Contains(nameof(AttiDASIColums.TipoVotazioneIter)))
+                {
+                    if (attoInDb.TipoVotazioneIter.HasValue)
+                        dto.DisplayTipoVotazioneIter =
+                            Utility.GetText_TipoVotazioneDASI(attoInDb.TipoVotazioneIter.Value);
+                }
+
+                if (columns.Contains(nameof(AttiDASIColums.Risposte)))
+                {
+                    dto.Risposte = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+                }
+
+                if (columns.Contains(nameof(AttiDASIColums.Monitoraggi)))
+                {
+                    dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
+                }
+
+                if (columns.Contains(nameof(AttiDASIColums.Documenti)))
+                {
+                    dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
+                }
+
+                if (columns.Contains(nameof(AttiDASIColums.Note)))
+                {
+                    dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
+                }
+
                 dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
+
                 if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 {
                     dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);

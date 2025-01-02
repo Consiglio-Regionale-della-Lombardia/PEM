@@ -643,6 +643,13 @@ async function inviaDatiChips(page, size) {
 		// Aggiungi le impostazioni di ordinamento alla richiesta
 		request.sort_settings = savedSortColumns;
 
+        const selectedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
+        request.columns_settings = [];
+        // Aggiungi le impostazioni delle colonne visibili alla richiesta
+		selectedColumns.forEach(function(item) {
+			request.columns_settings.push(item.propertyName);
+        });
+		
 		// Invia la richiesta al server
 		const response = await fetch('@Url.Action("Riepilogo")', {
 			method: 'POST',
@@ -1192,7 +1199,7 @@ function CreaTabella() {
 		paginationHTML += `</ul>`;
 
 		// Costruzione del selettore per i tagli di paginazione
-		var tagliPaginazione = [20, 40];
+		var tagliPaginazione = [20, 50, 100, 250];
 		var dropdownHTML_top = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
         Paginazione
         <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>

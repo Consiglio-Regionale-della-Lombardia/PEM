@@ -29,5 +29,6 @@ namespace PortaleRegione.DTO.Request
         public int size { get; set; }
         public int viewMode { get; set; } = (int)ViewModeEnum.GRID;
         public List<SortingInfo> sort_settings { get; set; } = new List<SortingInfo>();
+        public List<string> columns_settings { get; set; } = new List<string>();
     }
 }
