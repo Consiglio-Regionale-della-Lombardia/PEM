@@ -546,6 +546,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 				val += item.getAttribute('data-organo-id');
 			});
             chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Legislatura)") {
+            var selectedOptions = document.querySelectorAll('#legislature-select option:checked');
+            var values = Array.from(selectedOptions).map(option => option.value);
+            var texts = Array.from(selectedOptions).map(option => option.text);
+            val = values.join(',');
+            text = texts.join(', ');
+            chipText = keyLabel + ": " + text;
         } else {
             // Per altri filtri che usano una select
             var selectedOption = document.querySelector('#dynamic-select-container select');
@@ -1265,7 +1272,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
     switch (key) {
 	    case '@nameof(AttoDASIDto.Legislatura)':
 			var legislature = await GetLegislature();
-			selectHTML = '<select id="legislature-select">';
+			selectHTML = '<select id="legislature-select" multiple>';
 			legislature.forEach(function (item) {
 				var selected = isEditing && currentValue > 0 && item.id_legislatura == currentValue ? 'selected' : '';
 				selectHTML += `<option value="${item.id_legislatura}" ${selected}>${item.num_legislatura}</option>`;
