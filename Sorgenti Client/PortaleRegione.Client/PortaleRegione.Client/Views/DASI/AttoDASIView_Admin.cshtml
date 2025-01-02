@@ -1071,9 +1071,18 @@
 						<div class="card-content">
 							<div class="row">
                                 <div class="input-field col s12 m12 l6">
-                                    <select id="Atto_TipoChiusuraIterCommissione">
-                                        <option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)" @Html.Raw(Model.Atto.TipoChiusuraIterCommissione == (int)TipoChiusuraIterEnum.APPROVATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
-                                    </select>
+									<select id="Atto_TipoChiusuraIterCommissione">
+										<option value="" selected>Seleziona</option>
+										<option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)" @Html.Raw(Model.Atto.TipoChiusuraIterCommissione == (int)TipoChiusuraIterEnum.APPROVATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
+										@if (atto.FlussoRespingi)
+										{
+											<option value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RESPINTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
+											<option value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.RITIRATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
+
+											<option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADUTO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
+											<option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)" @Html.Raw(Model.Atto.TipoChiusuraIter == (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
+										}
+									</select>
                                     <label for="Atto_TipoChiusuraIterCommissione">Tipo chiusura iter</label>
                                 </div>
                                 <div class="input-field col s12 m12 l6">
@@ -1087,9 +1096,17 @@
                                     @Html.LabelFor(s => s.Atto.DataTrasmissione, new { @class = "active" })
                                 </div>
                                 <div class="input-field col s12 m12 l6" id="pnlChiusuraIterCommissione_RisultatoVotazione">
-                                    <select id="Atto_RisultatoVotazioneCommissione">
+									<select id="Atto_RisultatoVotazioneCommissione">
+                                        @if (atto.FlussoRespingi)
+                                        {
+                                            <option value="@Html.Raw((int)RisultatoVotazioneIterEnum.NESSUNO)" @Html.Raw(Model.Atto.RisultatoVotazioneIterCommissione == (int)RisultatoVotazioneIterEnum.NESSUNO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_RisultatoVotazioneDASI((int)RisultatoVotazioneIterEnum.NESSUNO)</option>
+                                        }
                                         <option value="@Html.Raw((int)RisultatoVotazioneIterEnum.UNANIMITÀ)" @Html.Raw(Model.Atto.RisultatoVotazioneIterCommissione == (int)RisultatoVotazioneIterEnum.UNANIMITÀ ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_RisultatoVotazioneDASI((int)RisultatoVotazioneIterEnum.UNANIMITÀ)</option>
-                                    </select>
+										@if (atto.FlussoRespingi)
+										{
+											<option value="@Html.Raw((int)RisultatoVotazioneIterEnum.MAGGIORNAZA)" @Html.Raw(Model.Atto.RisultatoVotazioneIterCommissione == (int)RisultatoVotazioneIterEnum.MAGGIORNAZA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_RisultatoVotazioneDASI((int)RisultatoVotazioneIterEnum.MAGGIORNAZA)</option>
+										}
+									</select>
                                     <label for="Atto_RisultatoVotazioneCommissione">Risultato votazione</label>
                                 </div>
                             </div>
@@ -1270,46 +1287,61 @@
 								</table>
 							</div>
 						</div>
-						<div class="row" id="pnlDocumenti_ChiusuraIter">
-							<div class="col s12 m12 l12">
-								<h6>
-									<b>Documenti di chiusura iter</b>
-								</h6>
-								<hr />
-								<table id="tableDocumentiChiusuraIter">
-									<thead>
-										<tr>
-											<th>Documento</th>
-                                            <th>Scarica</th>
-                                            <th class="center" width="10%">
-                                                <a id="btnAggiungiDocumento_ChiusuraIter" class="btn-flat green-text">
-                                                    Aggiungi
+                        <div class="row" id="pnlDocumenti_ChiusuraIter">
+                            <div class="col s12 m12 l12">
+                                <h6>
+                                    <b>Documenti di chiusura iter</b>
+                                </h6>
+                                <hr />
+                                <table id="tableDocumentiChiusuraIter">
+                                    <thead>
+                                    <tr>
+                                        <th>Documento</th>
+                                        <th>Scarica</th>
+                                        <th class="center" width="10%">
+                                            <a id="btnAggiungiDocumento_ChiusuraIter" class="btn-flat green-text">
+                                                Aggiungi
+                                            </a>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER
+                                                                                   || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE))
+                                    {
+                                        <tr>
+                                            <td>@doc.Titolo</td>
+                                            <td>
+                                                <a href="@doc.Link" target="_blank">
+                                                    <i class="material-icons icon">link</i>
                                                 </a>
-                                            </th>
-										</tr>
-									</thead>
-									<tbody>
-										@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER
-																					   || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE))
-										{
-											<tr>
-												<td>@doc.Titolo</td>
-												<td>
-													<a href="@doc.Link" target="_blank">
-														<i class="material-icons icon">link</i>
-													</a>
-												</td>
-												<td class="center">
-													<a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-														Rimuovi
-													</a>
-												</td>
-											</tr>
-										}
-									</tbody>
-								</table>
+                                            </td>
+                                            <td class="center">
+                                                <a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+                                                    Rimuovi
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        @if (atto.IsRIS() && atto.FlussoRespingi == false)
+                        {
+							<div class="row card-panel blue lighten-4">
+                                <div class="col s12 l4 center hide-on-med-and-down">
+                                    <i class="material-icons">warning</i>
+                                </div>
+								<div class="col s12 l4 center">
+									<a id="btnFlussoRespingi" class="purple-text waves-effect waves-green btn-flat" style="width: 100%">RI-TRASMETTI IN COMMISSIONE</a>
+								</div>
+								<div class="col s12 l4 center hide-on-med-and-down">
+									<i class="material-icons">warning</i>
+
+								</div>
 							</div>
-						</div>
+                        }
 					</div>
 				</div>
 			</div>
@@ -2138,7 +2170,7 @@
                     TipoChiusuraIterCommissione: document.getElementById('Atto_TipoChiusuraIterCommissione').value,
                     DataChiusuraIterCommissione: document.querySelector('input[name="Atto.DataChiusuraIterCommissione"]').value,
                     DataTrasmissione: document.querySelector('input[name="Atto.DataTrasmissione"]').value,
-                    RisultatoVotazioneCommissione: document.getElementById('Atto_RisultatoVotazioneCommissione').value
+					RisultatoVotazioneIterCommissione: document.getElementById('Atto_RisultatoVotazioneCommissione').value
                 };
 
                 var url = '@Url.Action("Salva_InformazioniChiusuraIter", "DASI")';
@@ -2171,6 +2203,48 @@
             }
         });
     }
+
+	document.getElementById('btnFlussoRespingi').addEventListener('click', async function () {
+
+        swal({
+            title: "Attenzione",
+            text: "Trasmettendo il documento alla commissione questo non sarà più modificabile. Procedere con l'operazione?",
+            icon: "warning",
+            buttons: ["Annulla", "Procedi"]
+        }).then(async (answer) => {
+            if (answer) {
+                waiting(true);
+                var data = {
+                    UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+                    FlussoRespingi: true
+                };
+
+                var url = '@Url.Action("Salva_InformazioniChiusuraIter", "DASI")';
+                // Send the data using fetch
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                try {
+                    const errorData = await response.json();
+                    if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+                } catch (error) {
+                    // ignored
+                }
+
+                location.reload();
+            }
+        });
+    });
 
 </script>
 

@@ -472,4 +472,6 @@ public class AttoDASIDto
 
     [DisplayName("Risultato votazione commissione")]
     public int? RisultatoVotazioneIterCommissione { get; set; }
+
+    public bool FlussoRespingi { get; set; } = false;
 }

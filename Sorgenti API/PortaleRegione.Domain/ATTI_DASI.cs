@@ -153,5 +153,6 @@ namespace PortaleRegione.Domain
         public DateTime? DataChiusuraIterCommissione { get; set; }
         public int? TipoVotazioneIterCommissione { get; set; }
         public int? RisultatoVotazioneIterCommissione { get; set; }
+        public bool FlussoRespingi { get; set; } = false;
     }
 }

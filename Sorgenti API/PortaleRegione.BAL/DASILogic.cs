@@ -621,12 +621,44 @@ namespace PortaleRegione.API.Controllers
 
             var dto = await GetAttoDto(request.UIDAtto);
 
+            // #1151
+            if (request.FlussoRespingi
+                && attoInDb.Tipo.Equals((int)TipoAttoEnum.RIS))
+            {
+                attoInDb.FlussoRespingi = true;
+
+                // pulisci pannello chiusura iter
+                attoInDb.TipoChiusuraIter = null;
+                attoInDb.TipoVotazioneIter = null;
+                attoInDb.DataChiusuraIter = null;
+                attoInDb.DataComunicazioneAssemblea = null;
+                attoInDb.Emendato = false;
+
+                // pulizia pannello ris commissione
+                attoInDb.DataChiusuraIterCommissione = null;
+                attoInDb.DataTrasmissione = null;
+                attoInDb.TipoChiusuraIterCommissione = null;
+                attoInDb.TipoVotazioneIterCommissione = null;
+                attoInDb.RisultatoVotazioneIterCommissione = null;
+
+                await _unitOfWork.CompleteAsync();
+
+                return;
+            }
+
             // #1214
             if (request.TipoChiusuraIterCommissione.HasValue 
                 && attoInDb.Tipo.Equals((int)TipoAttoEnum.RIS))
             {
                 attoInDb.DataChiusuraIterCommissione = request.DataChiusuraIterCommissione;
                 attoInDb.DataTrasmissione = request.DataTrasmissione;
+
+                // #1151
+                if (attoInDb.FlussoRespingi)
+                {
+                    attoInDb.TipoChiusuraIterCommissione = request.TipoChiusuraIterCommissione;
+                    attoInDb.RisultatoVotazioneIterCommissione = request.RisultatoVotazioneIterCommissione;
+                }
 
                 await _unitOfWork.CompleteAsync();
                 return;
