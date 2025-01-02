@@ -1134,7 +1134,7 @@ namespace PortaleRegione.API.Controllers
                     continue;
                 }
 
-                var dto = await GetAttoDto(attoUId, persona, columns);
+                var dto = await GetAttoDto(attoUId, persona, columns, true);
                 result.Add(dto);
             }
 
@@ -1302,7 +1302,7 @@ namespace PortaleRegione.API.Controllers
             return dto;
         }
 
-        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona, List<string> columns = null)
+        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona, List<string> columns = null, bool cleanText = false)
         {
             var attoInDb = await _unitOfWork.DASI.Get(attoUid);
             if (attoInDb == null)
@@ -1313,18 +1313,22 @@ namespace PortaleRegione.API.Controllers
             var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
             // #1191
-            dto.AltriSoggetti = string.Empty;
-            dto.AreaTematica = string.Empty;
-            dto.Atto_Certificato = string.Empty;
-            dto.BodyAtto = string.Empty;
-            dto.CompetenzaMonitoraggio = string.Empty;
+            if (cleanText)
+            {
+                dto.AltriSoggetti = string.Empty;
+                dto.AreaTematica = string.Empty;
+                dto.Atto_Certificato = string.Empty;
+                dto.BodyAtto = string.Empty;
+                dto.CompetenzaMonitoraggio = string.Empty;
+                dto.Premesse = string.Empty;
+                dto.Premesse_Modificato = string.Empty;
+                dto.Richiesta = string.Empty;
+                dto.Richiesta_Modificata = string.Empty;
+                dto.StatoAttuazione = string.Empty;
+            }
+            
             if (!columns.Contains(nameof(AttiDASIColums.ImpegniScadenze)))
                 dto.ImpegniScadenze = string.Empty;
-            dto.Premesse = string.Empty;
-            dto.Premesse_Modificato = string.Empty;
-            dto.Richiesta = string.Empty;
-            dto.Richiesta_Modificata = string.Empty;
-            dto.StatoAttuazione = string.Empty;
 
             dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
             dto.DisplayTipo = Utility.GetText_Tipo(attoInDb.Tipo);
@@ -1359,8 +1363,9 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
                     dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
 
-                //if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
-                //    dto.Atto_Certificato = BALHelper.Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
+                if(!cleanText)
+                    if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
+                        dto.Atto_Certificato = BALHelper.Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
 
                 dto.PersonaCreazione = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
                 dto.PersonaProponente = attoInDb.UIDPersonaProponente != null
