@@ -305,7 +305,7 @@ namespace PortaleRegione.API.Controllers
             if (request.DataAnnunzio > DateTime.MinValue)
             {
                 attoInDb.DataAnnunzio = request.DataAnnunzio;
-                
+
                 // #1110
                 if (attoInDb.IDStato.Equals((int)StatiAttoEnum.PRESENTATO))
                     attoInDb.IDStato = (int)StatiAttoEnum.IN_TRATTAZIONE;
@@ -314,6 +314,7 @@ namespace PortaleRegione.API.Controllers
             {
                 attoInDb.DataAnnunzio = null;
             }
+
             attoInDb.Pubblicato = request.Pubblicato;
             attoInDb.Sollecito = request.Sollecito;
 
@@ -541,7 +542,7 @@ namespace PortaleRegione.API.Controllers
             attoInDb.IDTipo_Risposta_Effettiva = request.IDTipo_Risposta_Effettiva;
             attoInDb.DataSedutaRisposta = request.DataSedutaRisposta;
             attoInDb.DataComunicazioneAssembleaRisposta = request.DataComunicazioneAssembleaRisposta;
-            
+
             // #1200
             attoInDb.IterMultiplo = request.IterMultiplo;
 
@@ -638,7 +639,7 @@ namespace PortaleRegione.API.Controllers
             }
 
             // #1214
-            if (request.TipoChiusuraIterCommissione.HasValue 
+            if (request.TipoChiusuraIterCommissione.HasValue
                 && attoInDb.Tipo.Equals((int)TipoAttoEnum.RIS))
             {
                 attoInDb.DataChiusuraIterCommissione = request.DataChiusuraIterCommissione;
@@ -713,17 +714,12 @@ namespace PortaleRegione.API.Controllers
             attoInDb.UIDPersonaModifica = currentUser.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
 
-            //#1110
-            if (attoInDb.Tipo.Equals((int)TipoAttoEnum.MOZ)
-                || attoInDb.Tipo.Equals((int)TipoAttoEnum.ODG)
-                || attoInDb.Tipo.Equals((int)TipoAttoEnum.RIS))
+            //#1199
+            if (attoInDb.TipoChiusuraIter.HasValue && attoInDb.TipoChiusuraIter > 0)
             {
-                if (attoInDb.TipoChiusuraIter.HasValue && attoInDb.TipoChiusuraIter > 0)
+                if (!attoInDb.IsChiuso)
                 {
-                    if (!attoInDb.IsChiuso)
-                    {
-                        attoInDb.IDStato = (int)StatiAttoEnum.COMPLETATO;
-                    }
+                    attoInDb.IDStato = (int)StatiAttoEnum.COMPLETATO;
                 }
             }
 
@@ -788,7 +784,7 @@ namespace PortaleRegione.API.Controllers
             var viewMode = ViewModeEnum.GRID;
             if (viewModeRequest == null)
             {
-                    // ignored
+                // ignored
             }
             else
             {
@@ -815,7 +811,7 @@ namespace PortaleRegione.API.Controllers
                         0, uri),
                     CountBarData = await GetResponseCountBar(persona, GetClientMode(CLIENT_MODE),
                         queryFilter, queryExtended),
-                    ViewMode = viewMode, 
+                    ViewMode = viewMode,
                     ClientMode = GetClientMode(CLIENT_MODE)
                 };
             }
@@ -1040,7 +1036,8 @@ namespace PortaleRegione.API.Controllers
                     foreach (var statement in statements) model.filtro.Remove(statement);
                 }
 
-                if (model.filtro.Any(statement => statement.PropertyId == propertyId && statement.Value.Equals("_NOT_")))
+                if (model.filtro.Any(statement =>
+                        statement.PropertyId == propertyId && statement.Value.Equals("_NOT_")))
                 {
                     if (propertyId == nameof(AttoDASIDto.Documenti)) query.DocumentiMancanti = true;
 
@@ -1133,6 +1130,7 @@ namespace PortaleRegione.API.Controllers
                     });
                     continue;
                 }
+
                 var dto = await GetAttoDto(attoUId, persona);
                 result.Add(dto);
             }
@@ -1150,10 +1148,10 @@ namespace PortaleRegione.API.Controllers
                     .Count(persona, TipoAttoEnum.ITL, clientMode, queryFilter, queryExtended.Clone()),
                 ITR = await _unitOfWork
                     .DASI
-                    .Count(persona,TipoAttoEnum.ITR, clientMode, queryFilter, queryExtended.Clone()),
+                    .Count(persona, TipoAttoEnum.ITR, clientMode, queryFilter, queryExtended.Clone()),
                 IQT = await _unitOfWork
                     .DASI
-                    .Count(persona,TipoAttoEnum.IQT, clientMode, queryFilter, queryExtended.Clone()),
+                    .Count(persona, TipoAttoEnum.IQT, clientMode, queryFilter, queryExtended.Clone()),
                 MOZ = await _unitOfWork
                     .DASI
                     .Count(persona, TipoAttoEnum.MOZ, clientMode, queryFilter, queryExtended.Clone()),
@@ -1235,7 +1233,8 @@ namespace PortaleRegione.API.Controllers
 
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
             if (dto.IDTipo_Risposta_Effettiva.HasValue)
-                dto.DisplayTipoRispostaFornita = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta_Effettiva.Value); // #1052
+                dto.DisplayTipoRispostaFornita =
+                    Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta_Effettiva.Value); // #1052
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
             dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
             dto.DisplayTipoMozione = Utility.GetText_TipoMOZDASI(dto.TipoMOZ);
@@ -1313,7 +1312,8 @@ namespace PortaleRegione.API.Controllers
             dto.DisplayExtended = $"{Utility.GetText_TipoEstesoDASI(dto.Tipo)} n. {dto.NAtto}"; // #1039
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
             if (dto.IDTipo_Risposta_Effettiva.HasValue)
-                dto.DisplayTipoRispostaFornita = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta_Effettiva.Value); // #1052
+                dto.DisplayTipoRispostaFornita =
+                    Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta_Effettiva.Value); // #1052
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
             dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
 
@@ -1369,7 +1369,7 @@ namespace PortaleRegione.API.Controllers
                         if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                                                 persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
                             dto.Firmato_Da_Me = firme.Any(f => f.UID_persona.Equals(persona.UID_persona));
-                        
+
                         // #1049
                         var firme_dopo_deposito = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
                         if (firme_dopo_deposito.Any())
@@ -3633,7 +3633,7 @@ namespace PortaleRegione.API.Controllers
                      !string.IsNullOrEmpty(atto.Richiesta_Modificata))
                 //caso in cui l'utente voglia tornare allo stato precedente
                 atto.Richiesta_Modificata = string.Empty;
-            
+
             await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
             if (model.Organi.Any(o => o.tipo_organo == TipoOrganoEnum.COMMISSIONE))
                 foreach (var commissioneDto in model.Organi.Where(o => o.tipo_organo == TipoOrganoEnum.COMMISSIONE))
@@ -4475,7 +4475,7 @@ namespace PortaleRegione.API.Controllers
             {
                 titolo_report += $" {tipi_join}";
             }
-                
+
             if (!string.IsNullOrEmpty(date_join))
             {
                 titolo_report += $"{date_join}";
@@ -4493,7 +4493,8 @@ namespace PortaleRegione.API.Controllers
                 {
                     propertyName = nameof(AttiDASISorting.Tipo),
                     sortDirection = 1
-                },new SortingInfo
+                },
+                new SortingInfo
                 {
                     propertyName = nameof(AttiDASISorting.NAtto_search),
                     sortDirection = 1
@@ -4517,8 +4518,8 @@ namespace PortaleRegione.API.Controllers
                 worksheet.Cells[1, 1, 1, 9].Merge = true;
 
                 // Impostare il testo centrato
-                worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                worksheet.Cells[1, 1].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[1, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
                 // Imposta uno stile per il testo, ad esempio grassetto
                 worksheet.Cells[1, 1].Style.Font.Bold = true;
@@ -4588,7 +4589,7 @@ namespace PortaleRegione.API.Controllers
                         ///
                         ///
                         /// 
-                        
+
                         if (annunciate == 0)
                         {
                             rispostePerv = 0;
@@ -4749,24 +4750,24 @@ namespace PortaleRegione.API.Controllers
                 if (string.IsNullOrEmpty(atto.Firme)) return "";
                 return atto.Firme.Replace("<br>", "; ");
             }
-            
+
             // #1047
             if (propertyName.Equals(nameof(AttoDASIReportDto.Iniziativa)))
             {
                 var firme = new List<string>();
                 if (atto.FirmeAnte.Any())
                 {
-                    firme.AddRange(atto.FirmeAnte.Select(f=> f.FirmaCert));
-                    
+                    firme.AddRange(atto.FirmeAnte.Select(f => f.FirmaCert));
+
                     if (atto.FirmePost.Any())
                     {
-                        firme.AddRange(atto.FirmePost.Select(f=> f.FirmaCert));
+                        firme.AddRange(atto.FirmePost.Select(f => f.FirmaCert));
                     }
                 }
 
                 if (firme.Any())
                 {
-                    return firme.Aggregate((i, j)=> i + "; " + j);
+                    return firme.Aggregate((i, j) => i + "; " + j);
                 }
 
                 return "";
@@ -4840,6 +4841,7 @@ namespace PortaleRegione.API.Controllers
                                 bodyRisposte +=
                                     $"In commissione: Risposta richiesta in {attiRisposteDto.DescrizioneOrgano} non ancora fornita";
                             }
+
                             break;
                         }
                         case TipoRispostaEnum.ITER_IN_ASSEMBLEA:
@@ -4928,8 +4930,9 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.TipoChiusuraIter))) return atto.DisplayTipoChiusuraIter;
 
             if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta))) return atto.DisplayTipoRispostaRichiesta;
-            
-            if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta_Effettiva))) return atto.DisplayTipoRispostaFornita;
+
+            if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta_Effettiva)))
+                return atto.DisplayTipoRispostaFornita;
 
             if (propertyName.Equals(nameof(AttoDASIDto.TipoVotazioneIter))) return atto.DisplayTipoVotazioneIter;
 
@@ -5177,7 +5180,7 @@ namespace PortaleRegione.API.Controllers
                     var value = GetPropertyValue(dto, propertyName, ExportFormatEnum.PDF);
                     if (value == null)
                         return null;
-                    
+
                     if (string.IsNullOrEmpty(value.ToString()))
                         return null;
 
