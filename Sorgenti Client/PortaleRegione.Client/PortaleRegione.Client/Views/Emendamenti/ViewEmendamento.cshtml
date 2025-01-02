@@ -71,39 +71,39 @@
 							<div class="col s12" style="margin-top: 5px">
 								@if (Model.Firmabile)
 								{
-									<div class="btn chip hoverable green center white-text" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.FIRMA))">
-										<i class="icon material-icons">gavel</i> Firma
-									</div>
+									<button class="btn-flat green-text truncate" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.FIRMA))">
+										Firma
+									</button>
 								}
 								@if (Model.Depositabile)
 								{
-									<div class="btn chip hoverable purple center white-text" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.DEPOSITA))">
-										<i class="icon material-icons">lock</i> Presenta
-									</div>
+									<button class="btn-flat purple-text truncate" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.DEPOSITA))">
+										Presenta
+									</button>
 								}
 								@if (Model.Modificabile)
 								{
-									<div class="btn chip hoverable blue center white-text" onclick="go('@Url.Action("ModificaEmendamento", new { id = Model.UIDEM })')">
-										<i class="icon material-icons">edit</i> Modifica
-									</div>
+									<button class="btn-flat blue-text truncate" onclick="go('@Url.Action("ModificaEmendamento", new { id = Model.UIDEM })')">
+										Modifica
+									</button>
 								}
 								@if (Model.Invito_Abilitato)
 								{
-									<div class="btn chip hoverable amber center" onclick="NotificaAEM('@Model.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI))">
-										<i class="icon material-icons">share</i> Invita
-									</div>
+									<button class="btn-flat amber-text truncate" onclick="NotificaAEM('@Model.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI))">
+										Invita
+									</button>
 								}
 								@if (Model.Eliminabile)
 								{
-									<div class="btn chip hoverable red center white-text" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.ELIMINA))">
-										<i class="icon material-icons">delete</i> Elimina
-									</div>
+									<button class="btn-flat red-text truncate" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.ELIMINA))">
+										Elimina
+									</button>
 								}
 								@if (Model.Ritirabile)
 								{
-									<div class="btn chip hoverable red white-text center" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.RITIRA))">
-										<i class="icon material-icons">settings_backup_restore</i> Ritira EM/SUBEM
-									</div>
+									<button class="btn-flat red-text truncate" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.RITIRA))">
+										Ritira EM/SUBEM
+									</button>
 								}
 							</div>
 						</div>
