@@ -643,6 +643,11 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         @"(SELECT TOP(1) nome_organo FROM dbo.organi WHERE id_organo = @IdOrgano)";
                                     var tipoRispostaAssociata = cellsRisposteAssociate[rowRA, 10]?.Value?.ToString();
                                     var tipoRispostaAssociataInt = ConvertToIntTipoRisposta(tipoRispostaAssociata);
+                                    if (tipoAttoEnum == TipoAttoEnum.IQT)
+                                    {
+                                        tipoRispostaAssociataInt = (int)TipoRispostaEnum.IMMEDIATA;
+                                    }
+
                                     var dataRispostaAssociata = cellsRisposteAssociate[rowRA, 12]?.Value;
                                     var dataTrasmissioneRispostaAssociata = cellsRisposteAssociate[rowRA, 13]?.Value;
                                     var dataTrattazioneRispostaAssociata = cellsRisposteAssociate[rowRA, 14]?.Value;
@@ -693,11 +698,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                             tipoRispostaAssociata,
                                             tipoOrgano, dataRispostaAssociata, dataTrasmissioneRispostaAssociata,
                                             dataTrattazioneRispostaAssociata, idOrgano, sub_query);
-
-                                        if (attoImportato.UidAtto == Guid.Parse("d0d0d957-b98f-4786-bd47-52dfec695846"))
-                                        {
-                                        }
-
+                                        
                                         var nodeIdRispostaMadre = cellsRisposteAssociate[rowRA, 7]?.Value?.ToString();
                                         for (var rowRG = 2; rowRG <= rowCountRG; rowRG++)
                                         {
@@ -845,11 +846,19 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var tipoRispostaRichiestaAttoFromAlfresco = Convert.ToString(cellsAtti[row, 20].Value);
                                 var tipoRispostaRichiestaAttoInt =
                                     ConvertToIntTipoRisposta(tipoRispostaRichiestaAttoFromAlfresco);
+                                if (tipoAttoEnum == TipoAttoEnum.IQT)
+                                {
+                                    tipoRispostaRichiestaAttoInt = (int)TipoRispostaEnum.IMMEDIATA;
+                                }
 
                                 //tipo risposta effettiva
                                 var tipoRispostaEffettivaAttoFromAlfresco = Convert.ToString(cellsAtti[row, 11].Value);
                                 var tipoRispostaEffettivaAttoInt =
                                     ConvertToIntTipoRisposta(tipoRispostaEffettivaAttoFromAlfresco);
+                                if (tipoAttoEnum == TipoAttoEnum.IQT)
+                                {
+                                    tipoRispostaEffettivaAttoInt = (int)TipoRispostaEnum.IMMEDIATA;
+                                }
 
                                 //data presentazione
                                 var dataPresentazioneFromAlfresco = Convert.ToString(cellsAtti[row, 16].Value);
@@ -2219,7 +2228,8 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
             var command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@Uid", guidRisposta);
             command.Parameters.AddWithValue("@UIDAtto", uidAtto);
-            command.Parameters.AddWithValue("@Tipo", ConvertToIntTipoRisposta(tipoRispostaAssociata));
+            var tipoRispostaAssociataInt = ConvertToIntTipoRisposta(tipoRispostaAssociata);
+            command.Parameters.AddWithValue("@Tipo", tipoRispostaAssociataInt);
             command.Parameters.AddWithValue("@TipoOrgano", tipoOrgano);
             command.Parameters.Add("@Data", SqlDbType.DateTime).Value = ConvertToSqlDateTime(dataRisposta);
             command.Parameters.Add("@DataTrasmissione", SqlDbType.DateTime).Value =

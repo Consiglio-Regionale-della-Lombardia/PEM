@@ -316,11 +316,19 @@
 							{
 								// #1056
 								<div class="input-field col s12 m12 l6">
-									<select id="Atto_RispostaRichiesta">
-										<option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
-										<option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
-										<option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
-									</select>
+                                    <select id="Atto_RispostaRichiesta">
+                                        @if (atto.IsIQT())
+                                        {
+                                            <option value="@Html.Raw((int)TipoRispostaEnum.IMMEDIATA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.IMMEDIATA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.IMMEDIATA)</option>
+
+                                        }
+                                        else
+                                        {
+                                            <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                                            <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+                                            <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                                        }
+                                    </select>
 									<label for="Atto_RispostaRichiesta">Risposta richiesta</label>
 									@if (Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE)
 									{
@@ -530,7 +538,7 @@
 										}
 										else if (atto.IsIQT())
 										{
-											<option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+											<option value="@Html.Raw((int)TipoRispostaEnum.IMMEDIATA)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.IMMEDIATA)</option>
 										}
 										else
 										{
