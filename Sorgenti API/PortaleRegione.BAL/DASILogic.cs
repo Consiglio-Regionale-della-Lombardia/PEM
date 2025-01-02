@@ -541,6 +541,9 @@ namespace PortaleRegione.API.Controllers
             attoInDb.IDTipo_Risposta_Effettiva = request.IDTipo_Risposta_Effettiva;
             attoInDb.DataSedutaRisposta = request.DataSedutaRisposta;
             attoInDb.DataComunicazioneAssembleaRisposta = request.DataComunicazioneAssembleaRisposta;
+            
+            // #1200
+            attoInDb.IterMultiplo = request.IterMultiplo;
 
             await _unitOfWork.CompleteAsync();
         }

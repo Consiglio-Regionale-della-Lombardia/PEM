@@ -554,6 +554,14 @@
 										</div>
 									</div>
 								}
+                                <div class="input-field col s12 m12 l6">
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="Atto.IterMultiplo" value="true" @Html.Raw(Model.Atto.IterMultiplo ? "checked=\"checked\"" : "") />
+                                            <span>Iter multiplo</span>
+                                        </label>
+                                    </p>
+                                </div>
                                 <div class="input-field col l3 s12">
 									<a id="btnSalva_InformazioniRisposte" class="blue-text waves-effect waves-green btn-flat" style="width: 100%" onclick="salvaInformazioniRisposta()">Salva informazioni</a>
                                 </div>
@@ -870,7 +878,7 @@
                             <div class="row">
                                 <div class="col s12 m12 l12">
                                     <h6>
-										<b>Note</b>
+                                        <b>Note</b>
                                     </h6>
                                     <hr />
                                     <table id="tableNote_Risposte">

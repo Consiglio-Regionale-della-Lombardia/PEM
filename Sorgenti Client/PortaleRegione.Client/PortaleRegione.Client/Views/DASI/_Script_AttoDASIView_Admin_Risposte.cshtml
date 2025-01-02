@@ -737,12 +737,14 @@ async function salvaInformazioniRisposta() {
     const selectElementRispostaFornita = document.getElementById('tipi-risposta-fornita-select');
     const dateSeduta = document.querySelector('input[name="Atto.DataSedutaRisposta"]');
     const dateComunicazioneRisposta = document.querySelector('input[name="Atto.DataComunicazioneAssembleaRisposta"]');
+	const iterMultiplo = document.querySelector('input[name="Atto.IterMultiplo"]').checked;
 
     const data = {
         UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
         DataSedutaRisposta: dateSeduta ? dateSeduta.value : '',
         DataComunicazioneAssembleaRisposta: dateComunicazioneRisposta ? dateComunicazioneRisposta.value : '',
-        IDTipo_Risposta_Effettiva: selectElementRispostaFornita.value
+        IDTipo_Risposta_Effettiva: selectElementRispostaFornita.value,
+		IterMultiplo: iterMultiplo
     };
 
     const url = '@Url.Action("Salva_InformazioniRisposta", "DASI")';
