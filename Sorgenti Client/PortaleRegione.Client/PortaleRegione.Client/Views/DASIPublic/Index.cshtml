@@ -6,4 +6,12 @@
 
 @Styles.Render("~/Content/css")
 
-@Html.Raw(Model)
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                @Html.Raw(Model)
+            </div>
+        </div>
+    </div>
+</div>

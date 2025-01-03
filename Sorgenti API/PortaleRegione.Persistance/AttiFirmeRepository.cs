@@ -191,6 +191,8 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, List<AttiFirmeDto> firme, PersonaDto persona, bool firma_ufficio = false)
         {
+            if (persona == null)
+                return false;
             // #721
             if (!persona.IsConsigliereRegionale && !firma_ufficio)
                 return false;
