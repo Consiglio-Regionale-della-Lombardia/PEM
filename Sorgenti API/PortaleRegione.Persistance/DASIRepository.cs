@@ -855,6 +855,29 @@ namespace PortaleRegione.Persistance
             return res.UIDAtto;
         }
 
+        public async Task<bool> CheckDCR(string dcrl, string dcr, string dccr)
+        {
+            var query = PRContext
+                .DASI
+                .Where(a => a.DCRL.Equals(dcrl));
+
+            var intDcr = int.Parse(dcr);
+            var intDccr = int.Parse(dccr);
+
+            if (intDcr > 0)
+            {
+                query = query.Where(a => a.DCR.Value.Equals(intDcr));
+            }
+            
+            if (intDccr > 0)
+            {
+                query = query.Where(a => a.DCCR.Value.Equals(intDccr));
+            }
+
+            var res = await query.AnyAsync();
+            return res;
+        }
+
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)
         {
             var noteInDB = await PRContext

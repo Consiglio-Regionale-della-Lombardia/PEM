@@ -673,32 +673,9 @@ namespace PortaleRegione.API.Controllers
             {
                 if (request.DCR > 0 || request.DCCR > 0)
                 {
-                    var filtroDCR = new List<FilterItem>
-                    {
-                        new FilterItem
-                        {
-                            property = nameof(AttoDASIDto.DCRL),
-                            value = request.DCRL
-                        },
-                        new FilterItem
-                        {
-                            property = nameof(AttoDASIDto.DCR),
-                            value = request.DCR.ToString()
-                        },
-                        new FilterItem
-                        {
-                            property = nameof(AttoDASIDto.DCCR),
-                            value = request.DCCR.ToString()
-                        }
-                    };
+                    var res = await _unitOfWork.DASI.CheckDCR(request.DCRL, request.DCR.ToString(), request.DCCR.ToString());
 
-                    var query = Utility.ParseFilterDasi(filtroDCR);
-                    var queryFilter = new Filter<ATTI_DASI>();
-                    queryFilter.ImportStatements(query);
-                    var res = await _unitOfWork.DASI.GetAll(currentUser, 1, 1, ClientModeEnum.GRUPPI, queryFilter,
-                        new QueryExtendedRequest(), new List<SortingInfo>());
-
-                    if (res.Any()) throw new InvalidOperationException("DCR/DCCR già presente a sistema.");
+                    if (res) throw new InvalidOperationException("DCR/DCCR già presente a sistema.");
                 }
 
                 attoInDb.DCRL = request.DCRL;
@@ -5510,32 +5487,9 @@ namespace PortaleRegione.API.Controllers
                 if (!atto.DCR.Equals(int.Parse(datiInline.DCR))
                     || !atto.DCCR.Equals(int.Parse(datiInline.DCCR)))
                 {
-                    var filtroDCR = new List<FilterItem>
-                    {
-                        new FilterItem
-                        {
-                            property = nameof(AttoDASIDto.DCRL),
-                            value = atto.DCRL
-                        },
-                        new FilterItem
-                        {
-                            property = nameof(AttoDASIDto.DCR),
-                            value = datiInline.DCR
-                        },
-                        new FilterItem
-                        {
-                            property = nameof(AttoDASIDto.DCCR),
-                            value = datiInline.DCCR
-                        }
-                    };
+                    var res = await _unitOfWork.DASI.CheckDCR(atto.DCRL, datiInline.DCR, datiInline.DCCR);
 
-                    var query = Utility.ParseFilterDasi(filtroDCR);
-                    var queryFilter = new Filter<ATTI_DASI>();
-                    queryFilter.ImportStatements(query);
-                    var res = await _unitOfWork.DASI.GetAll(currentUser, 1, 1, ClientModeEnum.GRUPPI, queryFilter,
-                        new QueryExtendedRequest(), new List<SortingInfo>());
-
-                    if (res.Any()) continue;
+                    if (res) continue;
 
                     atto.DCR = int.Parse(datiInline.DCR);
                     atto.DCCR = int.Parse(datiInline.DCCR);

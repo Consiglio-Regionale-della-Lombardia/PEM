@@ -46,6 +46,17 @@
             <li class="active">
                 <div class="collapsible-header"><i class="material-icons">format_list_bulleted</i>Lista atti selezionati</div>
                 <div class="collapsible-body">
+                    <div class="row">
+                        <div class="col s12 l4 hide-on-med-and-down">
+                        </div>
+                        <div class="col s12 l4 hide-on-med-and-down">
+                            
+                        </div>
+						<div class="col s12 l4 right-align">
+							<button id="btnAutocompletamentoDCR" class="btn-flat blue-text waves-effect waves-green">Auto DCR</button>
+							<button id="btnAutocompletamentoDCCR" class="btn-flat blue-text waves-effect waves-green">Auto DCCR</button>
+						</div>
+                    </div>
                     <ul class="collection" id="listaMassivaAtti">
                     </ul>
                 </div>
@@ -279,8 +290,90 @@
 	}
 
 
-	document.getElementById('btnSalvaModificaMassiva').addEventListener('click', function () {
-	    waiting(true);
+	document.getElementById('btnAutocompletamentoDCR').addEventListener('click', function() {
+        $("#modalModificaMassiva").modal("close");
+
+        swal({
+            text: "Inserisci il numero iniziale della DCR per poter procedere con l'auto-incremento?",
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "Numero iniziale DCR",
+                    type: "text"
+                }
+            },
+            icon: "info",
+            buttons: ["Annulla", "Procedi"]
+        }).then((value) => {
+            if (value) {
+                console.log("Numero inserito:", value);
+
+                // Converti il valore iniziale in numero
+                let currentValue = parseInt(value, 10);
+
+                selectedUid.forEach(uid => {
+                    let dcrInput = document.getElementById(`dcr_${uid}`);
+                    let dcrValue = parseInt(dcrInput.value, 10);
+
+                    if (dcrValue === 0) {
+                        // Assegna il valore incrementato
+                        dcrInput.value = currentValue;
+                        console.log(`Assegnato ${currentValue} all'input dcr_${uid}`);
+                        // Incrementa il valore per il prossimo input
+                        currentValue++;
+                    }
+                });
+            } else {
+                console.log("Operazione annullata");
+            }
+
+			$("#modalModificaMassiva").modal("open");
+        });
+    });
+    
+    document.getElementById('btnAutocompletamentoDCCR').addEventListener('click', function() {
+        $("#modalModificaMassiva").modal("close");
+
+        swal({
+            text: "Inserisci il numero iniziale della DCCR per poter procedere con l'auto-incremento?",
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "Numero iniziale DCCR",
+                    type: "text"
+                }
+            },
+            icon: "info",
+            buttons: ["Annulla", "Procedi"]
+        }).then((value) => {
+            if (value) {
+                console.log("Numero inserito:", value);
+
+                // Converti il valore iniziale in numero
+                let currentValue = parseInt(value, 10);
+
+                selectedUid.forEach(uid => {
+                    let dcrInput = document.getElementById(`dccr_${uid}`);
+                    let dcrValue = parseInt(dcrInput.value, 10);
+
+                    if (dcrValue === 0) {
+                        // Assegna il valore incrementato
+                        dcrInput.value = currentValue;
+                        console.log(`Assegnato ${currentValue} all'input dccr_${uid}`);
+                        // Incrementa il valore per il prossimo input
+                        currentValue++;
+                    }
+                });
+            } else {
+                console.log("Operazione annullata");
+            }
+
+			$("#modalModificaMassiva").modal("open");
+        });
+    });
+
+    document.getElementById('btnSalvaModificaMassiva').addEventListener('click', function () {
+	    
 
 		swal({
 			title: "Salvataggio massivo",
@@ -289,7 +382,7 @@
 			buttons: ["Annulla", "Procedi"]
 		}).then(async (answer) => {
 			if (answer) {
-
+				waiting(true);
 				var request = {};
 				request.Lista = [];
 				selectedUid.forEach(uid => {
@@ -359,7 +452,6 @@
 
 				} catch (error) {
 					// ignored
-					waiting(false);
 				}
 
 				M.toast({
