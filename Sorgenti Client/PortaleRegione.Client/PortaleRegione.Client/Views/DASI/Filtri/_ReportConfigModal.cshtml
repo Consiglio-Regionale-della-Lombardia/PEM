@@ -342,6 +342,13 @@
 			});
 			$('select[name="columns"]').formSelect();
 
+            const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+            if (savedSortColumns.length > 0) {
+                savedSortColumns.forEach(function (sortInfo) {
+                    addChipReportSorting('Ordinato per ' + sortInfo.displayText + ' ' + (sortInfo.sortDirection == 1 ? "Crescente": "Decrescente"));
+                });
+            }
+
 			if (selectedReport.exportformat != '@Html.Raw((int)ExportFormatEnum.EXCEL)'){
 				document.getElementById('extraOptions-panel').style.display = 'block';
 			}
