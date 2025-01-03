@@ -4859,73 +4859,89 @@ namespace PortaleRegione.API.Controllers
                 var bodyRisposte = string.Empty;
                 foreach (var attiRisposteDto in atto.Risposte)
                 {
-                    // Identificazione del tipo di risposta
-                    switch ((TipoRispostaEnum)atto.IDTipo_Risposta_Effettiva)
+                    if (atto.IDTipo_Risposta_Effettiva.HasValue)
                     {
-                        case TipoRispostaEnum.IMMEDIATA:
-                        case TipoRispostaEnum.ORALE:
+                        // Identificazione del tipo di risposta
+                        switch ((TipoRispostaEnum)atto.IDTipo_Risposta_Effettiva)
                         {
-                            // Risposta orale
-                            bodyRisposte += $"Orale: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
-                            break;
-                        }
-                        case TipoRispostaEnum.SCRITTA:
-                        {
-                            // Risposta scritta
-                            bodyRisposte += $"Scritta: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
-                            break;
-                        }
-                        case TipoRispostaEnum.COMMISSIONE:
-                        {
-                            // Gestione delle risposte associate
-                            if (attiRisposteDto.RisposteAssociate.Any())
+                            case TipoRispostaEnum.IMMEDIATA:
+                            case TipoRispostaEnum.ORALE:
                             {
-                                var assessoriAssociati = string.Join(", ",
-                                    attiRisposteDto.RisposteAssociate.Select(assoc => assoc.DescrizioneOrgano));
-                                bodyRisposte +=
-                                    $"In commissione: Risposta fornita da {assessoriAssociati} in {attiRisposteDto.DescrizioneOrgano}";
+                                // Risposta orale
+                                bodyRisposte += $"Orale: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
+                                break;
                             }
+                            case TipoRispostaEnum.SCRITTA:
+                            {
+                                // Risposta scritta
+                                bodyRisposte += $"Scritta: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
+                                break;
+                            }
+                            case TipoRispostaEnum.COMMISSIONE:
+                            {
+                                // Gestione delle risposte associate
+                                if (attiRisposteDto.RisposteAssociate.Any())
+                                {
+                                    var assessoriAssociati = string.Join(", ",
+                                        attiRisposteDto.RisposteAssociate.Select(assoc => assoc.DescrizioneOrgano));
+                                    bodyRisposte +=
+                                        $"In commissione: Risposta fornita da {assessoriAssociati} in {attiRisposteDto.DescrizioneOrgano}";
+                                }
+                                else
+                                {
+                                    // Nessuna risposta associata
+                                    bodyRisposte +=
+                                        $"In commissione: Risposta richiesta in {attiRisposteDto.DescrizioneOrgano} non ancora fornita";
+                                }
+
+                                break;
+                            }
+                            case TipoRispostaEnum.ITER_IN_ASSEMBLEA:
+                            {
+                                bodyRisposte += "Atto trattato in assemblea";
+                                break;
+                            }
+                            case TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE:
+                            {
+                                bodyRisposte += $"{attiRisposteDto.DescrizioneOrgano}";
+                                break;
+                            }
+                            default:
+                            {
+                                bodyRisposte = $"Risposta di tipo non specificato da {attiRisposteDto.DescrizioneOrgano}";
+                                break;
+                            }
+                        }
+
+                        if (attiRisposteDto.Data.HasValue)
+                        {
+                            var dataRisposta = attiRisposteDto.Data.Value.ToString("dd/MM/yyyy");
+                            if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
+                                bodyRisposte += $" - <b>Data risposta:</b> {dataRisposta}";
                             else
-                            {
-                                // Nessuna risposta associata
-                                bodyRisposte +=
-                                    $"In commissione: Risposta richiesta in {attiRisposteDto.DescrizioneOrgano} non ancora fornita";
-                            }
-
-                            break;
+                                bodyRisposte += $" - Data risposta: {dataRisposta}";
                         }
-                        case TipoRispostaEnum.ITER_IN_ASSEMBLEA:
+                        
+                        if (attiRisposteDto.DataTrasmissione.HasValue)
                         {
-                            bodyRisposte += "Atto trattato in assemblea";
-                            break;
+                            var dataRispostaTrasmissione = attiRisposteDto.DataTrasmissione.Value.ToString("dd/MM/yyyy");
+                            if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
+                                bodyRisposte += $" - <b>Trasmessa il:</b> {dataRispostaTrasmissione}";
+                            else
+                                bodyRisposte += $" - Trasmessa il: {dataRispostaTrasmissione}";
                         }
-                        case TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE:
-                        {
-                            bodyRisposte += $"{attiRisposteDto.DescrizioneOrgano}";
-                            break;
-                        }
-                    }
 
-                    if (attiRisposteDto.Data.HasValue)
-                    {
-                        var dataRisposta = attiRisposteDto.Data.Value.ToString("dd/MM/yyyy");
+                        // Separatore tra risposte
                         if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
-                            bodyRisposte += $" - <b>Data risposta:</b> {dataRisposta}";
+                            bodyRisposte += "<br>";
                         else
-                            bodyRisposte += $" - Data risposta: {dataRisposta}";
+                            bodyRisposte += "; ";
                     }
-
-                    // Separatore tra risposte
-                    if (exportFormat == ExportFormatEnum.PDF || exportFormat == ExportFormatEnum.WORD)
-                        bodyRisposte += "<br>";
-                    else
-                        bodyRisposte += "; ";
                 }
 
                 return bodyRisposte.TrimEnd(';', ' ');
             }
-
-
+            
             if (propertyName.Equals(nameof(AttoDASIDto.Monitoraggi)))
             {
                 if (!atto.Monitoraggi.Any())
