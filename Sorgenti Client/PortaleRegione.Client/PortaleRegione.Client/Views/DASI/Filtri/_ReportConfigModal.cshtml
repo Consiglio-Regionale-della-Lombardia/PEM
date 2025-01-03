@@ -58,8 +58,9 @@
             </div>
             <div class="input-field col s6">
                 <select name="dataViewType" onchange="dataViewType_onChange(this)">
-					<option value="@Html.Raw((int)DataViewTypeEnum.GRID)">TABELLARE</option>
-					<option value="@Html.Raw((int)DataViewTypeEnum.CARD)">LISTA</option>
+                    <option value="0" disabled>Scegli tipo visualizzazione</option>
+                    <option value="@Html.Raw((int)DataViewTypeEnum.GRID)">TABELLARE</option>
+                    <option value="@Html.Raw((int)DataViewTypeEnum.CARD)">LISTA</option>
                     <option value="@Html.Raw((int)DataViewTypeEnum.TEMPLATE)">TEMPLATE</option>
                 </select>
                 <label>Visualizzazione dati</label>
@@ -102,15 +103,27 @@
 			} else {
 				columnsOptions.style.display = 'block';
 			}
+
+            var $dataViewTypeElement = $('[name="dataViewType"]');
+            if ($dataViewTypeElement.length > 0) {
+				console.log("INIT dataviewType")
+                $dataViewTypeElement.val('0'); // Assegna il valore iniziale
+                $dataViewTypeElement.formSelect(); // Inizializza la lista
+                $dataViewTypeElement.trigger('change'); // Attiva l'evento onchange
+            }
+
     }
 
 	function dataViewType_onChange(ctrl){
 		var dataViewType = $(ctrl).val();
 		var extraOptions = document.getElementById('panelDataViewType_Templates');
+        var columnsOptions = document.getElementById('columns-select-panel');
 		if (dataViewType == '@Html.Raw((int)DataViewTypeEnum.TEMPLATE)') {
             extraOptions.style.display = 'block';
+            columnsOptions.style.display = 'none';
         } else {
             extraOptions.style.display = 'none';
+            columnsOptions.style.display = 'block';
         }
 	}
 
