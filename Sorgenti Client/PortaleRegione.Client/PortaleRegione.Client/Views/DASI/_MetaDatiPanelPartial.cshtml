@@ -253,8 +253,12 @@
             //waiting(true);
 
             var oggetto_modificabile = $("input[type=radio][name='Oggetto']:checked")[0];
-            if ($(oggetto_modificabile).val() == 1) {
+			if ($(oggetto_modificabile).val() == 0) {
+                atto.Oggetto_Modificato = "";
+				atto.Oggetto_Approvato = "";
+            }else if ($(oggetto_modificabile).val() == 1) {
                 atto.Oggetto_Modificato = $('#EditorOggetto').val();
+				atto.Oggetto_Approvato = "";
             } else if ($(oggetto_modificabile).val() == 2) {
                 atto.Oggetto_Approvato = $('#EditorOggetto').val();
             }
