@@ -81,7 +81,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _dasiLogic.NuovoModello(tipo, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                var result = await _dasiLogic.NuovoModello(tipo, currentUser);
                 return Ok(result);
             }
             catch (Exception e)
@@ -101,9 +107,14 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
-                var currentUser = CurrentUser;
                 if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea)
                     return NotFound();
 
@@ -132,6 +143,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
                 var nuovoAtto = await _dasiLogic.Salva(request, CurrentUser);
 
                 return Created(new Uri(Request.RequestUri.ToString()), Mapper.Map<ATTI_DASI, AttoDASIDto>(nuovoAtto));
@@ -154,7 +171,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_InformazioniGenerali(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_InformazioniGenerali(request, currentUser);
 
                 return Ok();
             }
@@ -176,7 +198,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var risposta = await _dasiLogic.Salva_NuovaRisposta(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                var risposta = await _dasiLogic.Salva_NuovaRisposta(request, currentUser);
                 return Ok(risposta);
             }
             catch (Exception e)
@@ -197,6 +225,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.Salva_RimuoviRisposta(request);
                 return Ok();
             }
@@ -218,7 +251,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_NuovoAbbinamento(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                await _dasiLogic.Salva_NuovoAbbinamento(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -239,7 +278,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_RimuoviAbbinamento(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_RimuoviAbbinamento(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -260,6 +304,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.Salva_DettagliRisposta(request);
                 return Ok();
             }
@@ -281,7 +330,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_InformazioniRisposta(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                await _dasiLogic.Salva_InformazioniRisposta(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -302,7 +357,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_NuovoMonitoraggio(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                await _dasiLogic.Salva_NuovoMonitoraggio(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -323,7 +384,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_RimuoviMonitoraggio(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_RimuoviMonitoraggio(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -344,7 +410,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_InformazioniMonitoraggio(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_InformazioniMonitoraggio(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -365,7 +436,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_InformazioniChiusuraIter(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_InformazioniChiusuraIter(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -386,7 +462,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_Nota(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_Nota(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -407,7 +488,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_RimuoviNota(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_RimuoviNota(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -428,7 +514,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var documento = await _dasiLogic.Salva_Documento(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                var documento = await _dasiLogic.Salva_Documento(request, currentUser);
                 return Ok(documento);
             }
             catch (Exception e)
@@ -449,6 +540,11 @@ namespace PortaleRegione.API.Controllers
         {   
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.Rimuovi_Documento(request);
                 return Ok();
             }
@@ -470,7 +566,12 @@ namespace PortaleRegione.API.Controllers
         {   
             try
             {
-                await _dasiLogic.Pubblica_Documento(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Pubblica_Documento(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -491,7 +592,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_ComandoMassivo(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_ComandoMassivo(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -512,7 +618,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.Salva_Privacy(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_Privacy(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -533,7 +644,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.SalvaCartaceo(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.SalvaCartaceo(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -553,6 +669,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.CambiaPrioritaFirma(firma);
                 return Ok();
             }
@@ -573,6 +694,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
                 await _dasiLogic.CambiaOrdineVisualizzazione(firme);
                 return Ok();
             }
@@ -681,18 +808,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var user = CurrentUser;
-                var firmaUfficio = user.IsSegreteriaAssemblea;
+                var currentUser = CurrentUser;
+                var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                         throw new InvalidOperationException("Pin inserito non valido");
 
-                    return Ok(await _dasiLogic.Firma(firmaModel, user, null, true));
+                    return Ok(await _dasiLogic.Firma(firmaModel, currentUser, null, true));
                 }
 
-                var pinInDb = await _personeLogic.GetPin(user);
+                var pinInDb = await _personeLogic.GetPin(currentUser);
                 if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
                 if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
@@ -700,7 +827,7 @@ namespace PortaleRegione.API.Controllers
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                     throw new InvalidOperationException("Pin inserito non valido");
 
-                return Ok(await _dasiLogic.Firma(firmaModel, user, pinInDb));
+                return Ok(await _dasiLogic.Firma(firmaModel, currentUser, pinInDb));
             }
             catch (Exception e)
             {
@@ -720,18 +847,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var user = CurrentUser;
-                var firmaUfficio = user.IsSegreteriaAssemblea;
+                var currentUser = CurrentUser;
+                var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                         throw new InvalidOperationException("Pin inserito non valido");
 
-                    return Ok(await _dasiLogic.RitiroFirma(firmaModel, user));
+                    return Ok(await _dasiLogic.RitiroFirma(firmaModel, currentUser));
                 }
 
-                var pinInDb = await _personeLogic.GetPin(user);
+                var pinInDb = await _personeLogic.GetPin(currentUser);
                 if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
                 if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
@@ -739,7 +866,7 @@ namespace PortaleRegione.API.Controllers
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                     throw new InvalidOperationException("Pin inserito non valido");
 
-                return Ok(await _dasiLogic.RitiroFirma(firmaModel, user));
+                return Ok(await _dasiLogic.RitiroFirma(firmaModel, currentUser));
             }
             catch (Exception e)
             {
@@ -759,19 +886,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var user = CurrentUser;
-
-                var firmaUfficio = user.IsSegreteriaAssemblea;
+                var currentUser = CurrentUser;
+                var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                         throw new InvalidOperationException("Pin inserito non valido");
 
-                    return Ok(await _dasiLogic.EliminaFirma(firmaModel, user));
+                    return Ok(await _dasiLogic.EliminaFirma(firmaModel, currentUser));
                 }
 
-                var pinInDb = await _personeLogic.GetPin(user);
+                var pinInDb = await _personeLogic.GetPin(currentUser);
                 if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
                 if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
@@ -779,7 +905,7 @@ namespace PortaleRegione.API.Controllers
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                     throw new InvalidOperationException("Pin inserito non valido");
 
-                return Ok(await _dasiLogic.EliminaFirma(firmaModel, user));
+                return Ok(await _dasiLogic.EliminaFirma(firmaModel, currentUser));
             }
             catch (Exception e)
             {
@@ -799,22 +925,22 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
                 if (ManagerLogic.BloccaPresentazione)
                     throw new InvalidOperationException(
                         "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
 
-                var user = CurrentUser;
-                var presentazioneUfficio = user.IsSegreteriaAssemblea;
+                var presentazioneUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (presentazioneUfficio)
                 {
                     if (presentazioneModel.Pin != AppSettingsConfiguration.MasterPIN)
                         throw new InvalidOperationException("Pin inserito non valido");
 
-                    return Ok(await _dasiLogic.Presenta(presentazioneModel, user));
+                    return Ok(await _dasiLogic.Presenta(presentazioneModel, currentUser));
                 }
 
-                var pinInDb = await _personeLogic.GetPin(user);
+                var pinInDb = await _personeLogic.GetPin(currentUser);
                 if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
                 if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
@@ -822,7 +948,7 @@ namespace PortaleRegione.API.Controllers
                 if (presentazioneModel.Pin != pinInDb.PIN_Decrypt)
                     throw new InvalidOperationException("Pin inserito non valido");
 
-                return Ok(await _dasiLogic.Presenta(presentazioneModel, user));
+                return Ok(await _dasiLogic.Presenta(presentazioneModel, currentUser));
             }
             catch (Exception e)
             {

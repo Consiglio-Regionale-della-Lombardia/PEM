@@ -19,7 +19,10 @@
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
-        <a onclick="btnSalvaNota()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            <a onclick="btnSalvaNota()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+        }
     </div>
 </div>
 

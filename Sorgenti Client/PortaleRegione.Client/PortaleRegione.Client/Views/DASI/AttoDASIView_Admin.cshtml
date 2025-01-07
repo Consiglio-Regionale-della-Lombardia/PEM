@@ -388,7 +388,10 @@
                             <div class="col s12 l4 hide-on-med-and-down">
                             </div>
                             <div class="col s12 l4 center">
-								<a id="btnSalva_InformazioniGenerali" class="btn-flat blue-text waves-effect waves-green" style="width: 100%">Salva</a>
+                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                {
+                                    <a id="btnSalva_InformazioniGenerali" class="btn-flat blue-text waves-effect waves-green" style="width: 100%">Salva</a>
+                                }
                             </div>
                             <div class="col s12 l4 hide-on-med-and-down">
                             </div>
@@ -403,30 +406,36 @@
 									<thead>
 										<tr>
 											<th>Documento</th>
-											<th>Scarica</th>
-                                            <th class="center" width="10%">
-                                                <a id="btnAggiungiDocumento_InformazioniGenerali" class="btn-flat green-text">
-                                                    Aggiungi
-                                                </a>
-                                            </th>
-										</tr>
+                                            <th>Scarica</th>
+                                            @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                            {
+                                                <th class="center" width="10%">
+                                                    <a id="btnAggiungiDocumento_InformazioniGenerali" class="btn-flat green-text">
+                                                        Aggiungi
+                                                    </a>
+                                                </th>
+                                            }
+                                        </tr>
 									</thead>
 									<tbody>
 										@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.AGGIUNTIVO))
 										{
 											<tr>
 												<td>@doc.Titolo</td>
-												<td>
-													<a href="@doc.Link" target="_blank">
-														<i class="material-icons icon">link</i>
-													</a>
-												</td>
-												<td class="center">
-													<a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-														<i class="material-icons">close</i>
-													</a>
-												</td>
-											</tr>
+                                                <td>
+                                                    <a href="@doc.Link" target="_blank">
+                                                        <i class="material-icons icon">link</i>
+                                                    </a>
+                                                </td>
+                                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                                {
+                                                    <td class="center">
+                                                        <a href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+                                                            <i class="material-icons">close</i>
+                                                        </a>
+                                                    </td>
+                                                }
+                                            </tr>
 										}
 									</tbody>
 								</table>
@@ -452,10 +461,13 @@
                                 <h6>
                                     <b>Lista abbinamenti</b>
                                 </h6>
-                                <a id="btnAggiungiAbbinamento" class="btn-flat green-text" style="position:absolute; right:10px; top:-10px;">
-                                    Aggiungi
-                                </a>
-								<hr />
+                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                {
+                                    <a id="btnAggiungiAbbinamento" class="btn-flat green-text" style="position: absolute; right: 10px; top: -10px;">
+                                        Aggiungi
+                                    </a>
+                                }
+                                <hr />
 								<ul id="lstAbbinamentiAtto" class="collection">
 									@foreach (var abb in atto.Abbinamenti)
 									{
@@ -571,7 +583,10 @@
                                     </p>
                                 </div>
                                 <div class="input-field col l3 s12">
-									<a id="btnSalva_InformazioniRisposte" class="blue-text waves-effect waves-green btn-flat" style="width: 100%" onclick="salvaInformazioniRisposta()">Salva informazioni</a>
+                                    @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                    {
+                                        <a id="btnSalva_InformazioniRisposte" class="blue-text waves-effect waves-green btn-flat" style="width: 100%" onclick="salvaInformazioniRisposta()">Salva informazioni</a>
+                                    }
                                 </div>
 							</div>
                             <div class="row" id="pnlRisposteFornite">
@@ -637,11 +652,14 @@
                                             }
 
                                             <th>Testo</th>
-                                            <th class="center" width="10%">
-                                                <a id="btnAggiungiRisposta" class="btn-flat green-text">
-                                                    Aggiungi
-                                                </a>
-                                            </th>
+                                            @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                            {
+                                                <th class="center" width="10%">
+                                                    <a id="btnAggiungiRisposta" class="btn-flat green-text">
+                                                        Aggiungi
+                                                    </a>
+                                                </th>
+                                            }
                                         </tr>
                                         </thead>
 
@@ -827,22 +845,31 @@
                                                         <a href="@documentoRisposta.Link" target="_blank" style="text-decoration: underline">
                                                             @documentoRisposta.Titolo
                                                         </a>
-                                                        <a href="#!" class="btn-flat red-text" onclick="rimuoviDocumento(this, '@documentoRisposta.Titolo', '@risposta.UIDDocumento')">
-                                                            Rimuovi
-                                                        </a>
+                                                        if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                                        {
+                                                            <a href="#!" class="btn-flat red-text" onclick="rimuoviDocumento(this, '@documentoRisposta.Titolo', '@risposta.UIDDocumento')">
+                                                                Rimuovi
+                                                            </a>
+                                                        }
                                                     }
                                                     else
                                                     {
-                                                        <a href="#!" class="btn-flat pink-text" onclick="AggiungiDocumento_Risposta(this, '@risposta.Uid')">
-                                                            Carica
-                                                        </a>
+                                                        if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                                        {
+                                                            <a href="#!" class="btn-flat pink-text" onclick="AggiungiDocumento_Risposta(this, '@risposta.Uid')">
+                                                                Carica
+                                                            </a>
+                                                        }
                                                     }
                                                 </td>
-                                                <td class="center">
-                                                    <a href="#!" class="btn-flat red-text" onclick="rimuoviRisposta(this, '@risposta.Uid')">
-                                                        Elimina
-                                                    </a>
-                                                </td>
+                                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                                {
+                                                    <td class="center">
+                                                        <a href="#!" class="btn-flat red-text" onclick="rimuoviRisposta(this, '@risposta.Uid')">
+                                                            Elimina
+                                                        </a>
+                                                    </td>
+                                                }
                                             </tr>
                                         }
                                         </tbody>
@@ -894,11 +921,14 @@
                                         <tr>
                                             <th>Nota</th>
                                             <th>Utente</th>
-                                            <th class="center" width="10%">
-                                                <a id="btnAggiungiNota_Risposte" class="btn-flat green-text">
-                                                    Aggiungi
-                                                </a>
-                                            </th>
+                                            @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                            {
+                                                <th class="center" width="10%">
+                                                    <a id="btnAggiungiNota_Risposte" class="btn-flat green-text">
+                                                        Aggiungi
+                                                    </a>
+                                                </th>
+                                            }
                                         </tr>
                                         </thead>
 
@@ -908,11 +938,14 @@
                                             <tr>
                                                 <td>@Html.Raw(nota.Nota)</td>
                                                 <td>@Html.Raw(nota.Persona.DisplayName)</td>
-                                                <td class="center">
-                                                    <a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-                                                        Rimuovi
-                                                    </a>
-                                                </td>
+                                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                                {
+                                                    <td class="center">
+                                                        <a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                                            Rimuovi
+                                                        </a>
+                                                    </td>
+                                                }
                                             </tr>
                                         }
                                         </tbody>
@@ -966,11 +999,14 @@
                                             <thead>
                                             <tr>
                                                 <th>Organo che effettua il monitoraggio</th>
-                                                <th class="center" width="10%">
-                                                    <a id="btnAggiungiMonitoraggio" class="btn-flat green-text">
-                                                        Aggiungi
-                                                    </a>
-                                                </th>
+                                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                                {
+                                                    <th class="center" width="10%">
+                                                        <a id="btnAggiungiMonitoraggio" class="btn-flat green-text">
+                                                            Aggiungi
+                                                        </a>
+                                                    </th>
+                                                }
                                             </tr>
                                             </thead>
 
@@ -979,11 +1015,14 @@
                                             {
                                                 <tr>
                                                     <td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
-                                                    <td class="center">
-                                                        <a href="#!" class="btn-flat red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
-                                                            Rimuovi
-                                                        </a>
-                                                    </td>
+                                                    @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                                    {
+                                                        <td class="center">
+                                                            <a href="#!" class="btn-flat red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
+                                                                Rimuovi
+                                                            </a>
+                                                        </td>
+                                                    }
                                                 </tr>
                                             }
                                             </tbody>
@@ -1022,11 +1061,14 @@
                                     <tr>
                                         <th>Documento</th>
                                         <th>Scarica</th>
-                                        <th class="center" width="10%">
-                                            <a id="btnAggiungiDocumento_Monitoraggio" class="btn-flat green-text">
-                                                Aggiungi
-                                            </a>
-                                        </th>
+                                        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                        {
+                                            <th class="center" width="10%">
+                                                <a id="btnAggiungiDocumento_Monitoraggio" class="btn-flat green-text">
+                                                    Aggiungi
+                                                </a>
+                                            </th>
+                                        }
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -1039,11 +1081,14 @@
                                                     <i class="material-icons icon">link</i>
                                                 </a>
                                             </td>
-                                            <td class="center">
-                                                <a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                                   Rimuovi
-                                                </a>
-                                            </td>
+                                            @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                            {
+                                                <td class="center">
+                                                    <a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+                                                        Rimuovi
+                                                    </a>
+                                                </td>
+                                            }
                                         </tr>
                                     }
                                     </tbody>
@@ -1073,7 +1118,10 @@
                             <div class="col s12 l4 hide-on-med-and-down">
                             </div>
                             <div class="col s12 l4 center">
-                                <a id="btnSalva_InformazioniAggiuntiveMonitoraggio" class="blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva informazioni monitoraggio</a>
+                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                {
+                                    <a id="btnSalva_InformazioniAggiuntiveMonitoraggio" class="blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva informazioni monitoraggio</a>
+                                }
                             </div>
                             <div class="col s12 l4 hide-on-med-and-down">
                             </div>
@@ -1137,7 +1185,10 @@
                                 <div class="col s12 l4 hide-on-med-and-down">
                                 </div>
                                 <div class="col s12 l4 center">
-                                    <a id="btnSalva_InformazioniTrattazioneCommissione" class="blue-text waves-effect waves-green btn-flat truncate" style="width: 100%" onclick="Salva_InformazioniTrattazioneCommissione()">Salva</a>
+                                    @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                    {
+                                        <a id="btnSalva_InformazioniTrattazioneCommissione" class="blue-text waves-effect waves-green btn-flat truncate" style="width: 100%" onclick="Salva_InformazioniTrattazioneCommissione()">Salva</a>
+                                    }
                                 </div>
                                 <div class="col s12 l4 hide-on-med-and-down">
                                 </div>
@@ -1265,9 +1316,12 @@
 						<div class="row">
                             <div class="col s12 l4 hide-on-med-and-down">
                             </div>
-                            <div class="col s12 l4 center">
-                                <a id="btnSalva_InformazioniChiusuraIter" class="blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
-                            </div>
+							<div class="col s12 l4 center">
+								@if (Model.CurrentUser.IsSegreteriaAssemblea)
+								{
+									<a id="btnSalva_InformazioniChiusuraIter" class="blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
+								}
+							</div>
                             <div class="col s12 l4 hide-on-med-and-down">
 							</div>
 						</div>
@@ -1282,12 +1336,15 @@
 										<tr>
 											<th>Nota</th>
                                             <th>Utente</th>
-                                            <th class="center" width="10%">
-                                                <a id="btnAggiungiNota_ChiusuraIter" class="btn-flat green-text">
-                                                    Aggiungi
-                                                </a>
-                                            </th>
-										</tr>
+                                            @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                            {
+                                                <th class="center" width="10%">
+                                                    <a id="btnAggiungiNota_ChiusuraIter" class="btn-flat green-text">
+                                                        Aggiungi
+                                                    </a>
+                                                </th>
+                                            }
+                                        </tr>
 									</thead>
 
 									<tbody>
@@ -1295,13 +1352,16 @@
 										{
 											<tr>
 												<td>@Html.Raw(nota.Nota)</td>
-												<td>@Html.Raw(nota.Persona.DisplayName)</td>
-												<td class="center">
-													<a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-														Rimuovi
-													</a>
-												</td>
-											</tr>
+                                                <td>@Html.Raw(nota.Persona.DisplayName)</td>
+                                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                                {
+                                                    <td class="center">
+                                                        <a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                                            Rimuovi
+                                                        </a>
+                                                    </td>
+                                                }
+                                            </tr>
 										}
 									</tbody>
 								</table>
@@ -1318,11 +1378,14 @@
                                     <tr>
                                         <th>Documento</th>
                                         <th>Scarica</th>
-                                        <th class="center" width="10%">
-                                            <a id="btnAggiungiDocumento_ChiusuraIter" class="btn-flat green-text">
-                                                Aggiungi
-                                            </a>
-                                        </th>
+                                        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                        {
+                                            <th class="center" width="10%">
+                                                <a id="btnAggiungiDocumento_ChiusuraIter" class="btn-flat green-text">
+                                                    Aggiungi
+                                                </a>
+                                            </th>
+                                        }
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -1336,11 +1399,14 @@
                                                     <i class="material-icons icon">link</i>
                                                 </a>
                                             </td>
-                                            <td class="center">
-                                                <a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                                    Rimuovi
-                                                </a>
-                                            </td>
+                                            @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                            {
+                                                <td class="center">
+                                                    <a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+                                                        Rimuovi
+                                                    </a>
+                                                </td>
+                                            }
                                         </tr>
                                     }
                                     </tbody>
@@ -1388,12 +1454,15 @@
 									<th>Tipo nota</th>
 									<th>Nota</th>
                                     <th>Utente</th>
-                                    <th class="center" width="10%">
-                                        <a id="btnAggiungiNota" class="btn-flat green-text">
-                                            Aggiungi
-                                        </a>
-                                    </th>
-								</tr>
+                                    @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                    {
+                                        <th class="center" width="10%">
+                                            <a id="btnAggiungiNota" class="btn-flat green-text">
+                                                Aggiungi
+                                            </a>
+                                        </th>
+                                    }
+                                </tr>
 							</thead>
 
 							<tbody>
@@ -1402,13 +1471,16 @@
 									<tr>
 										<td>@Html.Raw(nota.Tipo)</td>
 										<td>@Html.Raw(nota.Nota)</td>
-										<td>@Html.Raw(nota.Persona.DisplayName)</td>
-										<td class="center">
-											<a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-												Rimuovi
-											</a>
-										</td>
-									</tr>
+                                        <td>@Html.Raw(nota.Persona.DisplayName)</td>
+                                        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                        {
+                                            <td class="center">
+                                                <a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                                    Rimuovi
+                                                </a>
+                                            </td>
+                                        }
+                                    </tr>
 								}
 							</tbody>
 						</table>
@@ -1491,11 +1563,14 @@
                                     <tr>
                                         <th>Nota</th>
                                         <th>Utente</th>
-                                        <th class="center" width="10%">
-                                            <a id="btnAggiungiNota_Privacy" class="btn-flat green-text">
-                                                Aggiungi
-                                            </a>
-                                        </th>
+                                        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                        {
+                                            <th class="center" width="10%">
+                                                <a id="btnAggiungiNota_Privacy" class="btn-flat green-text">
+                                                    Aggiungi
+                                                </a>
+                                            </th>
+                                        }
                                     </tr>
                                     </thead>
 
@@ -1505,11 +1580,14 @@
                                         <tr>
                                             <td>@Html.Raw(nota.Nota)</td>
                                             <td>@Html.Raw(nota.Persona.DisplayName)</td>
-                                            <td class="center">
-                                                <a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-                                                    Rimuovi
-                                                </a>
-                                            </td>
+                                            @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                            {
+                                                <td class="center">
+                                                    <a class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                                        Rimuovi
+                                                    </a>
+                                                </td>
+                                            }
                                         </tr>
                                     }
                                     </tbody>
@@ -1520,7 +1598,10 @@
                             <div class="col s12 l4 hide-on-med-and-down">
                             </div>
                             <div class="col s12 l4 center">
-								<a id="btnSalva_Privacy" class="btn-flat blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
+                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                {
+                                    <a id="btnSalva_Privacy" class="btn-flat blue-text waves-effect waves-green btn-flat" style="width: 100%">Salva</a>
+                                }
                             </div>
                             <div class="col s12 l4 hide-on-med-and-down">
                             </div>
@@ -1543,12 +1624,15 @@
 											<th>Documento</th>
 											<th>Pubblico</th>
                                             <th>Scarica</th>
-                                            <th class="center" width="10%">
-                                                <a id="btnAggiungiDocumento_Pubblicazione" class="btn-flat green-text">
-                                                    Aggiungi
-                                                </a>
-                                            </th>
-										</tr>
+                                            @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                            {
+                                                <th class="center" width="10%">
+                                                    <a id="btnAggiungiDocumento_Pubblicazione" class="btn-flat green-text">
+                                                        Aggiungi
+                                                    </a>
+                                                </th>
+                                            }
+                                        </tr>
 									</thead>
 									<tbody>
 										@foreach (var doc in atto.Documenti)
@@ -1564,17 +1648,20 @@
 														</label>
 													</p>
 												</td>
-												<td>
-													<a href="@doc.Link" target="_blank">
-														<i class="material-icons icon">link</i>
-													</a>
-												</td>
-												<td class="center">
-													<a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-														Rimuovi
-													</a>
-												</td>
-											</tr>
+                                                <td>
+                                                    <a href="@doc.Link" target="_blank">
+                                                        <i class="material-icons icon">link</i>
+                                                    </a>
+                                                </td>
+                                                @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                                                {
+                                                    <td class="center">
+                                                        <a href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+                                                            Rimuovi
+                                                        </a>
+                                                    </td>
+                                                }
+                                            </tr>
 										}
 									</tbody>
 								</table>

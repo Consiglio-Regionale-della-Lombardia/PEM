@@ -54,7 +54,9 @@ namespace PortaleRegione.Client.Controllers
         {
             var currentUser = CurrentUser;
             if (CanAccess(new List<RuoliIntEnum>
-                    { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                    { RuoliIntEnum.Amministratore_PEM
+                        , RuoliIntEnum.Segreteria_Assemblea
+                        , RuoliIntEnum.Segreteria_Assemblea_Read }))
             {
                 return View("RiepilogoDASI_Admin", new RiepilogoDASIModel
                 {
@@ -199,7 +201,9 @@ namespace PortaleRegione.Client.Controllers
             };
 
             if (CanAccess(new List<RuoliIntEnum>
-                    { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                    { RuoliIntEnum.Amministratore_PEM
+                        , RuoliIntEnum.Segreteria_Assemblea
+                        , RuoliIntEnum.Segreteria_Assemblea_Read }))
                 return View("RiepilogoDASI_Admin", model);
 
             return View("RiepilogoDASI", model);
@@ -251,7 +255,9 @@ namespace PortaleRegione.Client.Controllers
             Session["RiepilogoDASI"] = model;
 
             if (CanAccess(new List<RuoliIntEnum>
-                    { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                    { RuoliIntEnum.Amministratore_PEM
+                        , RuoliIntEnum.Segreteria_Assemblea
+                        , RuoliIntEnum.Segreteria_Assemblea_Read }))
                 return View("RiepilogoDASI_Admin", model);
 
             return View("RiepilogoDASI", model);

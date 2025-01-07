@@ -68,7 +68,6 @@ public class AttiDASIColums
     // Manca il calcolo dei gg di ritardo
     [DisplayName("Pubblicato")] public bool Pubblicato { get; set; }
     [DisplayName("Sollecito")] public bool Sollecito { get; set; }
-    [DisplayName("Data trasmissione")] public DateTime? DataTrasmissione { get; set; }
     [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
     [DisplayName("Privacy")] public bool Privacy { get; set; }
     [DisplayName("Privacy - divieto di pubblicazione")] public bool Privacy_Divieto_Pubblicazione { get; set; }

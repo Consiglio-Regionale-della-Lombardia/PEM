@@ -45,9 +45,12 @@
 
 	</div>
 	<div class="modal-footer">
-		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
-		<a onclick="btnSalvaDettagliRisposta()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
-	</div>
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            <a onclick="btnSalvaDettagliRisposta()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+        }
+    </div>
 </div>
 
 <div id="modalInformazioniRisposta" class="modal">
