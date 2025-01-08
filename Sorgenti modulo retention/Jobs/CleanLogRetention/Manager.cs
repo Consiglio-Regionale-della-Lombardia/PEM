@@ -16,18 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using PortaleRegione.DTO.Domain;
+using System;
+using System.Reflection;
+using System.Threading.Tasks;
 
-namespace GeneraStampeJob
+namespace CleanLogRetention
 {
-    public class BodyModel
+    public class Manager
     {
-        public string Path { get; set; }
-        public string Body { get; set; }
-        public EmendamentiDto EM { get; set; }
-        public AttoDASIDto Atto { get; set; }
-        public object Content { get; set; }
-        public List<string> Attachments { get; set; }
+        private ThreadWorkerModel _model;
+        public event EventHandler<bool> OnManagerFinish;
+
+        public Manager(ThreadWorkerModel model)
+        {
+            _model = model;
+        }
+        public async Task Run()
+        {
+            try
+            {
+                var work = new Worker(_model);
+                var res = await work.ExecuteAsync();
+                OnManagerFinish?.Invoke(this, true);
+            }
+            catch (Exception e)
+            {
+                OnManagerFinish?.Invoke(this, false);
+                throw;
+            }
+        }
     }
 }

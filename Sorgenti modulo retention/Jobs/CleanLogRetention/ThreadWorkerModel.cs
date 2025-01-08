@@ -16,18 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using PortaleRegione.DTO.Domain;
-
-namespace GeneraStampeJob
+namespace CleanLogRetention
 {
-    public class BodyModel
+    public class ThreadWorkerModel
     {
-        public string Path { get; set; }
-        public string Body { get; set; }
-        public EmendamentiDto EM { get; set; }
-        public AttoDASIDto Atto { get; set; }
-        public object Content { get; set; }
-        public List<string> Attachments { get; set; }
+        public string connectionString { get; set; }
+        public int retention { get; set; }
+        public string tables { get; set; }
+        public string pathReport { get; set; }
     }
 }

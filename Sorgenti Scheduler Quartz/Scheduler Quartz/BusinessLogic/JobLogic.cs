@@ -215,10 +215,51 @@ namespace Scheduler.BusinessLogic
         /// <param name="path"></param>
         public void ExtractZipJob(string path, string job_name)
         {
-            using (var zip = ZipFile.OpenRead(path))
+            try
             {
-                foreach (var e in zip.Entries)
-                    e.ExtractToFile($"CustomJobs/{job_name}", true);
+                // Percorso della directory
+                var directory = Path.Combine("CustomJobs", job_name);
+
+                // Crea la directory se non esiste
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                // Estrai i file dallo ZIP
+                using (var zip = ZipFile.OpenRead(path))
+                {
+                    foreach (var entry in zip.Entries)
+                    {
+                        // Percorso completo per il file da estrarre
+                        var destinationPath = Path.Combine(directory, entry.FullName);
+
+                        // Verifica se è una directory
+                        if (string.IsNullOrEmpty(entry.Name))
+                        {
+                            // Crea la directory
+                            Directory.CreateDirectory(destinationPath);
+                        }
+                        else
+                        {
+                            // Crea la directory genitore se non esiste
+                            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+
+                            // Estrai il file
+                            entry.ExtractToFile(destinationPath, true); // 'true' per sovrascrivere
+                        }
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine($"Accesso negato: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Errore durante l'estrazione: {ex.Message}");
+                throw;
             }
         }
     }

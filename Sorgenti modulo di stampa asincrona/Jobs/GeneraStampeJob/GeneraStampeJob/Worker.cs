@@ -1,9 +1,26 @@
-﻿using System;
+﻿/*
+ * Copyright (C) 2019 Consiglio Regionale della Lombardia
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PortaleRegione.Common;
@@ -143,8 +160,6 @@ namespace GeneraStampeJob
 
             docs.Add(await _stamper.CreaPDFInMemory(bodyCopertina));
 
-            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
-
             var attiGenerati = await GeneraPDFAtti(lista, path);
 
             docs.AddRange(attiGenerati.Where(item => item.Value.Content != null)
@@ -180,52 +195,11 @@ namespace GeneraStampeJob
                 await apiGateway.Stampe.JobSetInvioStampa(_stampa);
         }
 
-        //private async Task<Dictionary<Guid, BodyModel>> GeneraPDFAtti(List<AttoDASIDto> lista, string path)
-        //{
-        //    var listaPercorsi = new Dictionary<Guid, BodyModel>();
-        //    var counter = 1;
-        //    listaPercorsi = lista.ToDictionary(atto => atto.UIDAtto, atto => new BodyModel());
-        //    foreach (var item in lista)
-        //    {
-        //        var bodyPDF = await apiGateway.DASI.GetBody(item.UIDAtto, TemplateTypeEnum.PDF, true);
-        //        var nameFilePDF =
-        //            $"{item.Display}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-
-        //        var FilePathComplete = string.IsNullOrEmpty(path) ? nameFilePDF : Path.Combine(path, nameFilePDF);
-
-        //        var dettagliCreaPDF = new BodyModel
-        //        {
-        //            Path = FilePathComplete,
-        //            Body = bodyPDF,
-        //            Atto = item
-        //        };
-        //        var listAttachments = new List<string>();
-        //        if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
-        //        {
-        //            var complete_path = string.Empty;
-
-        //            var attachName = Path.GetFileName(item.PATH_AllegatoGenerico);
-        //            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
-        //                $"PercorsoCompatibilitaDocumenti {_model.PercorsoCompatibilitaDocumenti} - {attachName}");
-        //            complete_path = Path.Combine(
-        //                _model.PercorsoCompatibilitaDocumenti,
-        //                attachName);
-        //            listAttachments.Add(complete_path);
-        //        }
-
-        //        var pdf = await _stamper.CreaPDFInMemory(dettagliCreaPDF.Body, item.Display, listAttachments);
-        //        dettagliCreaPDF.Content = pdf;
-        //        listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
-        //        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
-        //        counter++;
-        //    }
-
-        //    return listaPercorsi;
-        //}
-
         private async Task<Dictionary<Guid, BodyModel>> GeneraPDFAtti(List<AttoDASIDto> lista, string path)
         {
             var listaPercorsi = new Dictionary<Guid, BodyModel>();
+            var counter = 0;
+            var totalItems = lista.Count;
 
             try
             {
@@ -254,8 +228,6 @@ namespace GeneraStampeJob
                             var completePath = Path.Combine(_model.PercorsoCompatibilitaDocumenti,
                                 Path.GetFileName(item.PATH_AllegatoGenerico));
                             listAttachments.Add(completePath);
-                            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
-                                $"PercorsoCompatibilitaDocumenti {_model.PercorsoCompatibilitaDocumenti} - {Path.GetFileName(item.PATH_AllegatoGenerico)}");
                         }
 
                         // Genera PDF e salva direttamente su disco
@@ -265,8 +237,11 @@ namespace GeneraStampeJob
                         listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
                         counter++;
 
-                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
-                            $"Progresso {counter}/{lista.Count}");
+                        // Update progress every 50 items or at the end
+                        if (counter % 50 == 0 || counter == totalItems)
+                        {
+                            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{totalItems}");
+                        }
                     }
                     catch (Exception e)
                     {
@@ -283,7 +258,6 @@ namespace GeneraStampeJob
             return listaPercorsi;
         }
 
-
         private async Task PresentazioneDifferita(List<AttoDASIDto> listaAtti, string path)
         {
             //STAMPA PDF PRESENTATO (BACKGROUND MODE)
@@ -293,7 +267,7 @@ namespace GeneraStampeJob
             var nameFilePDF = $"{item.Display}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
 
             var content = await _stamper.CreaPDFInMemory(bodyPDF, nameFilePDF);
-            
+
             //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva Atti nel repository");
 
             var dasiDto = listaAtti.First();
@@ -403,10 +377,7 @@ namespace GeneraStampeJob
                         : OrdinamentoEnum.Presentazione
                 });
 
-                var cover = await _stamper.CreaPDFInMemory(bodyCopertina);
-                _stamper.MergedPDF(FilePathTarget, cover);
-                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
-
+                await _stamper.CreaPDFAsync(FilePathTarget, bodyCopertina, "");
                 var listaPdfEmendamentiGenerati =
                     await GeneraPDFEmendamenti(listaEMendamenti, path);
 
@@ -421,6 +392,19 @@ namespace GeneraStampeJob
                 var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
                 _stampa.PathFile = nameFileTarget;
                 await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
+
+                if (_stampa.Da.Equals(0) && _stampa.A.Equals(0))
+                {
+                    if (_stampa.Ordine.HasValue)
+                    {
+                        if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Presentazione)
+                            atto.LinkFascicoloPresentazione = URLDownload;
+                        if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Votazione)
+                            atto.LinkFascicoloVotazione = URLDownload;
+                        await apiGateway.Atti.ModificaFiles(atto);
+                    }
+                }
+
                 if (_stampa.Scadenza.HasValue)
                 {
                     try
@@ -442,17 +426,6 @@ namespace GeneraStampeJob
                     {
                         //Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
                         await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail ERRORE. Motivo: {e.Message}");
-                    }
-                }
-                else
-                {
-                    if (_stampa.Ordine.HasValue)
-                    {
-                        if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Presentazione)
-                            atto.LinkFascicoloPresentazione = URLDownload;
-                        if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Votazione)
-                            atto.LinkFascicoloVotazione = URLDownload;
-                        await apiGateway.Atti.ModificaFiles(atto);
                     }
                 }
 
@@ -485,7 +458,7 @@ namespace GeneraStampeJob
             var content = await _stamper.CreaPDFInMemory(em.Value, nameFilePDF);
 
             //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva EM nel repository");
-            
+
             var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
             var dirSeduta = $"Seduta_{atto.SEDUTE.Data_seduta:yyyyMMdd}";
             var dirPDL = Regex.Replace($"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}", @"[^0-9a-zA-Z]+",
@@ -646,112 +619,27 @@ namespace GeneraStampeJob
                 Directory.CreateDirectory(path);
         }
 
-        //private async Task<Dictionary<Guid, BodyModel>> GeneraPDFEmendamenti(ICollection<EmendamentiDto> lista,
-        //    string _pathTemp)
-        //{
-        //    var listaPercorsi = new Dictionary<Guid, BodyModel>();
-        //    try
-        //    {
-        //        listaPercorsi = lista.ToDictionary(em => em.UIDEM, em => new BodyModel());
-        //        var batchSize = 500;
-        //        for (var i = 0; i < lista.Count; i += batchSize)
-        //        {
-        //            var batch = lista.Skip(i).Take(batchSize).ToList();
-        //            foreach (var item in batch)
-        //            {
-        //                try
-        //                {
-        //                    counter++;
-        //                    var dettagliCreaPDF = new BodyModel
-        //                    {
-        //                        EM = item
-        //                    };
-
-        //                    var FilePathComplete = string.Empty;
-        //                    var nameFilePDF =
-        //                        $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-        //                    FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
-        //                    dettagliCreaPDF.Body = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
-        //                    dettagliCreaPDF.Path = FilePathComplete;
-        //                    var listAttachments = new List<string>();
-        //                    if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
-        //                    {
-        //                        var complete_path = Path.Combine(
-        //                            _model.PercorsoCompatibilitaDocumenti,
-        //                            Path.GetFileName(item.PATH_AllegatoGenerico));
-        //                        listAttachments.Add(complete_path);
-        //                    }
-
-        //                    if (!string.IsNullOrEmpty(item.PATH_AllegatoTecnico))
-        //                    {
-        //                        var complete_path = Path.Combine(
-        //                            _model.PercorsoCompatibilitaDocumenti,
-        //                            Path.GetFileName(item.PATH_AllegatoTecnico));
-        //                        listAttachments.Add(complete_path);
-        //                    }
-
-        //                    dettagliCreaPDF.Attachments = listAttachments;
-
-        //                    await _stamper.CreaPDFAsync(dettagliCreaPDF.Path, dettagliCreaPDF.Body, item.N_EM,
-        //                        listAttachments);
-
-        //                    listaPercorsi[item.UIDEM] = dettagliCreaPDF;
-
-        //                    await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
-        //                        $"Progresso {counter}/{lista.Count}");
-        //                }
-        //                catch (Exception e)
-        //                {
-        //                    await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Errore: {item.N_EM}");
-        //                    throw;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        //Log.Error("GeneraPDFEmendamenti Error-->", ex);
-        //    }
-
-        //    return listaPercorsi;
-        //}
-
         private async Task<Dictionary<Guid, BodyModel>> GeneraPDFEmendamenti(Dictionary<Guid, string> lista,
             string _pathTemp)
         {
             var listaPercorsi = new Dictionary<Guid, BodyModel>();
             var lockObject = new object();
             var counter = 0;
+
             listaPercorsi = lista.ToDictionary(em => em.Key, em => new BodyModel());
+            var totalItems = lista.Count;
+
             foreach (var item in lista)
             {
                 try
                 {
                     var dettagliCreaPDF = new BodyModel();
 
-                    var nameFilePDF =
-                        $"{item.Key}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                    var nameFilePDF = $"{item.Key}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                     var filePathComplete = Path.Combine(_pathTemp, nameFilePDF);
 
                     dettagliCreaPDF.Body = item.Value;
                     dettagliCreaPDF.Path = filePathComplete;
-
-                    //var listAttachments = new List<string>();
-                    //if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
-                    //{
-                    //    var completePath = Path.Combine(_model.PercorsoCompatibilitaDocumenti,
-                    //        Path.GetFileName(item.PATH_AllegatoGenerico));
-                    //    listAttachments.Add(completePath);
-                    //}
-
-                    //if (!string.IsNullOrEmpty(item.PATH_AllegatoTecnico))
-                    //{
-                    //    var completePath = Path.Combine(_model.PercorsoCompatibilitaDocumenti,
-                    //        Path.GetFileName(item.PATH_AllegatoTecnico));
-                    //    listAttachments.Add(completePath);
-                    //}
-
-                    //dettagliCreaPDF.Attachments = listAttachments;
 
                     // Genera PDF e salva direttamente su disco
                     await _stamper.CreaPDFAsync(filePathComplete, dettagliCreaPDF.Body, "");
@@ -763,7 +651,11 @@ namespace GeneraStampeJob
                         counter++;
                     }
 
-                    await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
+                    // Update progress every 50 items or at the end
+                    if (counter % 50 == 0 || counter == totalItems)
+                    {
+                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{totalItems}");
+                    }
                 }
                 catch (Exception)
                 {

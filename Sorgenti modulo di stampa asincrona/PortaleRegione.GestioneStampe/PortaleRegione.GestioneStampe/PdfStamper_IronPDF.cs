@@ -1,4 +1,22 @@
-﻿using System;
+﻿/*
+ * Copyright (C) 2019 Consiglio Regionale della Lombardia
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -52,35 +70,48 @@ namespace PortaleRegione.GestioneStampe
         {
             try
             {
-                var Renderer = SetupRender();
+                // Ogni thread crea la propria istanza di Renderer per evitare conflitti.
+                var renderer = SetupRender();
+
+                // Configurazione del footer (non condiviso tra thread)
                 if (!string.IsNullOrEmpty(nome_documento))
-                    Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" + " Pagina {page} di {total-pages}";
+                    renderer.PrintOptions.Footer.RightText = $"{nome_documento}" + " Pagina {page} di {total-pages}";
                 else
-                    Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
-                using (var pdf = await Renderer.RenderHtmlAsPdfAsync(body))
+                    renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
+
+                // Render PDF dal contenuto HTML
+                using (var pdf = await renderer.RenderHtmlAsPdfAsync(body))
                 {
-                    if (attachments != null)
-                        if (attachments.Any())
-                            foreach (var attachment in attachments)
+                    // Gestione degli allegati
+                    if (attachments != null && attachments.Any())
+                    {
+                        foreach (var attachment in attachments)
+                        {
+                            if (!File.Exists(attachment))
+                                continue;
+
+                            if (Path.GetExtension(attachment).Equals(".pdf", StringComparison.InvariantCultureIgnoreCase))
                             {
-                                if (!File.Exists(attachment))
-                                    continue;
-
-                                if (Path.GetExtension(attachment)
-                                    .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase))
-                                    using (var attach = PdfDocument.FromFile(attachment))
-                                    {
-                                        pdf.AppendPdf(attach);
-                                    }
+                                // Evitare conflitti tra thread che accedono allo stesso file
+                                using (var attach = PdfDocument.FromFile(attachment))
+                                {
+                                    pdf.AppendPdf(attach);
+                                }
                             }
+                        }
+                    }
 
+                    // Salvataggio del PDF (ogni thread salva in percorsi separati)
                     pdf.SaveAs(path);
                 }
             }
             catch (Exception ex)
             {
-                //Log.Error("CreaPDFInMemory Error-->", ex);
-                throw ex;
+                // Log dell'errore
+                // Log.Error("CreaPDFAsync Error-->", ex);
+
+                // Rilancio dell'eccezione con il suo stack originale
+                throw;
             }
         }
 
@@ -200,6 +231,82 @@ namespace PortaleRegione.GestioneStampe
         }
 
         public void MergedPDFWithRetry(string path, List<string> docs)
+        {
+            var batchSize = 250;
+            var maxRetryAttempts = 3;
+
+            var mergedBatchList = new List<PdfDocument>();
+            PdfDocument finalDocument = null;
+
+            try
+            {
+                // Verifica se il file esiste e lo carica come documento base
+                if (File.Exists(path))
+                {
+                    finalDocument = new PdfDocument(path);
+                }
+
+                for (var i = 0; i < docs.Count; i += batchSize)
+                {
+                    var retryCount = 0;
+                    var success = false;
+                    while (retryCount < maxRetryAttempts && success == false)
+                    {
+                        try
+                        {
+                            var batch = docs.Skip(i).Take(batchSize).ToList();
+                            var listPdf = batch.Select(p => new PdfDocument(p)).ToList();
+
+                            var mergedBatch = PdfDocument.Merge(listPdf);
+                            mergedBatchList.Add(mergedBatch);
+
+                            // Dispose individual PDFs to free memory
+                            foreach (var doc in listPdf) doc.Dispose();
+
+                            success = true;
+                        }
+                        catch (Exception)
+                        {
+                            retryCount++;
+                        }
+                    }
+
+                    if (!success)
+                        throw new Exception("Max retry attempts reached. Unable to process the batch.");
+                }
+
+                // Se finalDocument esiste già, aggiungi i batch a esso
+                if (finalDocument != null)
+                {
+                    foreach (var batch in mergedBatchList)
+                    {
+                        finalDocument.AppendPdf(batch);
+                    }
+                }
+                else
+                {
+                    // Altrimenti, crea un nuovo documento unendo i batch
+                    finalDocument = PdfDocument.Merge(mergedBatchList);
+                }
+
+                finalDocument.SaveAs(path);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                // Dispose merged batch documents to free memory
+                foreach (var doc in mergedBatchList) doc.Dispose();
+                // Dispose the final merged document
+                finalDocument?.Dispose();
+            }
+        }
+
+
+        public void MergedPDFWithRetryOLD(string path, List<string> docs)
         {
             var batchSize = 250;
             var maxRetryAttempts = 3;

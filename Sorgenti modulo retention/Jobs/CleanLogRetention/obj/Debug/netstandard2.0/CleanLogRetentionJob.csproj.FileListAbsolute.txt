@@ -1,0 +1,11 @@
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\bin\Debug\netstandard2.0\CleanLogRetentionJob.deps.json
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\bin\Debug\netstandard2.0\CleanLogRetentionJob.dll
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\bin\Debug\netstandard2.0\CleanLogRetentionJob.pdb
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\obj\Debug\netstandard2.0\CleanLogRetentionJob.csproj.AssemblyReference.cache
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\obj\Debug\netstandard2.0\CleanLogRetentionJob.GeneratedMSBuildEditorConfig.editorconfig
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\obj\Debug\netstandard2.0\CleanLogRetentionJob.AssemblyInfoInputs.cache
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\obj\Debug\netstandard2.0\CleanLogRetentionJob.AssemblyInfo.cs
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\obj\Debug\netstandard2.0\CleanLogRetentionJob.csproj.CoreCompileInputs.cache
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\obj\Debug\netstandard2.0\CleanLogRetentionJob.sourcelink.json
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\obj\Debug\netstandard2.0\CleanLogRetentionJob.dll
+C:\Git\PEM\Sorgenti modulo retention\Jobs\CleanLogRetention\obj\Debug\netstandard2.0\CleanLogRetentionJob.pdb
