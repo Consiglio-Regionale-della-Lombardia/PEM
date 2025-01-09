@@ -16,21 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GeneraStampeJob
+using System.Collections.Generic;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+
+namespace GeneraStampeJobFramework
 {
-    public class ThreadWorkerModel
+    public class BodyModel
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string UrlAPI { get; set; }
-        public string UrlCLIENT { get; set; }
-        public string ConnectionString { get; set; }
-        public string NumMaxTentativi { get; set; }
-        public string CartellaLavoroTemporanea { get; set; }
-        public string CartellaLavoroStampe { get; set; }
-        public string PercorsoCompatibilitaDocumenti { get; set; }
-        public string RootRepository { get; set; }
-        public string EmailFrom { get; set; }
-        public string PDF_LICENSE { get; set; }
+        public string Path { get; set; }
+        public string Body { get; set; }
+        public EmendamentiDto EM { get; set; }
+        public ATTI_DASI Atto { get; set; }
+        public object Content { get; set; }
+        public List<string> Attachments { get; set; }
     }
 }

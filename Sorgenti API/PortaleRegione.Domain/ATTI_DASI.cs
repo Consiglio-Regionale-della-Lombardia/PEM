@@ -154,5 +154,17 @@ namespace PortaleRegione.Domain
         public int? TipoVotazioneIterCommissione { get; set; }
         public int? RisultatoVotazioneIterCommissione { get; set; }
         public bool FlussoRespingi { get; set; } = false;
+
+        public string GetLegislatura()
+        {
+            if (!string.IsNullOrEmpty(Etichetta))
+            {
+                var parti = Etichetta.Split('_');
+                if (parti.Length > 0)
+                    return parti[parti.Length - 1];
+            }
+
+            return string.Empty;
+        }
     }
 }

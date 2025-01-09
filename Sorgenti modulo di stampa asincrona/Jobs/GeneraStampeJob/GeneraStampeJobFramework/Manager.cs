@@ -1,7 +1,4 @@
-﻿using PortaleRegione.DTO.Autenticazione;
-using PortaleRegione.Gateway;
-using System;
-/*
+﻿/*
  * Copyright (C) 2019 Consiglio Regionale della Lombardia
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -19,11 +16,14 @@ using System;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Threading.Tasks;
 using PortaleRegione.DataBase;
+using PortaleRegione.DTO.Autenticazione;
+using PortaleRegione.Gateway;
 using PortaleRegione.Persistance;
 
-namespace GeneraStampeJob
+namespace GeneraStampeJobFramework
 {
     public class Manager
     {
@@ -47,14 +47,37 @@ namespace GeneraStampeJob
                     Username = _model.Username,
                     Password = _model.Password
                 });
+
+                if (!string.IsNullOrEmpty(_model.ConnectionString))
+                {
+                    using (var context = new PortaleRegioneDbContext(_model.ConnectionString))
+                    {
+                        using (var unitOfWork = new UnitOfWork(context))
+                        {
+                            // Recupera i dati dal database
+                            var stampeList = await unitOfWork.Stampe.GetAll(1, 5); // Esempio
+
+                            var worker = new Worker(auth.jwt, unitOfWork, ref _model);
+                            foreach (var stampa in stampeList)
+                            {
+                                await worker.ExecuteAsync(stampa);
+                            }
+                        }
+                    }
+
+                    OnManagerFinish?.Invoke(this, true);
+                    return;
+                }
+                
                 apiGateway = new ApiGateway(auth.jwt);
                 var stampe = await apiGateway.Stampe.JobGetStampe(1, 5);
-                
+
                 var work = new Worker(auth, ref _model);
                 foreach (var stampa in stampe.Results)
                 {
                     await work.ExecuteAsync(stampa);
                 }
+
                 OnManagerFinish?.Invoke(this, true);
             }
             catch (Exception e)

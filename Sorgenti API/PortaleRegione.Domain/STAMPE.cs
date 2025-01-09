@@ -111,6 +111,37 @@ namespace PortaleRegione.Domain
             return result;
         }
 
+        public static implicit operator StampaDto(STAMPE stampa)
+        {
+            var result = new STAMPE
+            {
+                UIDAtto = stampa.UIDAtto,
+                Query = stampa.Query,
+                UIDEM = stampa.UIDEM,
+                CurrentRole = stampa.CurrentRole,
+                DASI = stampa.DASI,
+                Da = stampa.Da,
+                A = stampa.A,
+                DataFineEsecuzione = stampa.DataFineEsecuzione,
+                DataInizioEsecuzione = stampa.DataInizioEsecuzione,
+                DataInvio = stampa.DataInvio,
+                DataLock = stampa.DataLock,
+                DataRichiesta = stampa.DataRichiesta,
+                Invio = stampa.Invio,
+                Lock = stampa.Lock,
+                MessaggioErrore = stampa.MessaggioErrore,
+                Notifica = stampa.Notifica,
+                Ordine = stampa.Ordine,
+                PathFile = stampa.PathFile,
+                Scadenza = stampa.Scadenza,
+                Tentativi = stampa.Tentativi,
+                UIDStampa = stampa.UIDStampa,
+                UIDUtenteRichiesta = stampa.UIDUtenteRichiesta
+            };
+
+            return result;
+        }
+
         public StampaDto ToDto()
         {
             var result = new StampaDto

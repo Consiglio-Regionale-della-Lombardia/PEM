@@ -19,7 +19,7 @@
 using System.Threading.Tasks;
 using Quartz;
 
-namespace GeneraStampeJob
+namespace GeneraStampeJobFramework
 {
     public class Genera : IJob
     {
@@ -35,8 +35,8 @@ namespace GeneraStampeJob
         public string RootRepository { get; set; }
         public string PDF_LICENSE { get; set; }
         public string PercorsoCompatibilitaDocumenti { get; set; }
-
-
+        public string masterKey { get; set; }
+        
         public async Task Execute(IJobExecutionContext context)
         {
             ConvertParameters(context.JobDetail.JobDataMap);
@@ -98,6 +98,9 @@ namespace GeneraStampeJob
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.ConnectionString)))
                 ConnectionString = data.Get(nameof(ThreadWorkerModel.ConnectionString)).ToString();
+            
+            if (data.ContainsKey(nameof(ThreadWorkerModel.masterKey)))
+                masterKey = data.Get(nameof(ThreadWorkerModel.masterKey)).ToString();
         }
     }
 }

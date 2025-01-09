@@ -42,7 +42,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static string DecryptString(string EncryptedString, string Key)
+        public static string DecryptString(string EncryptedString, string Key)
         {
             try
             {

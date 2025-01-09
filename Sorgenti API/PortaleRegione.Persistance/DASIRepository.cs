@@ -519,9 +519,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .DASI
-                .SqlQuery(model.Query)
-                .Skip((model.page - 1) * 100)
-                .Take(100);
+                .SqlQuery(model.Query);
 
             return query
                 .Select(item => item.UIDAtto)

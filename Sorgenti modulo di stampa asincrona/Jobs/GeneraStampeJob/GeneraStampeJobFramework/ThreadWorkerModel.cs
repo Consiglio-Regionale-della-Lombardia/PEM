@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GeneraStampeJob
+namespace GeneraStampeJobFramework
 {
     public class ThreadWorkerModel
     {
@@ -32,5 +32,6 @@ namespace GeneraStampeJob
         public string RootRepository { get; set; }
         public string EmailFrom { get; set; }
         public string PDF_LICENSE { get; set; }
+        public string masterKey { get; set; }
     }
 }

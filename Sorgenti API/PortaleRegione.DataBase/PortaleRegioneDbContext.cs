@@ -39,6 +39,12 @@ namespace PortaleRegione.DataBase
             Configuration.LazyLoadingEnabled = false;
         }
 
+        public PortaleRegioneDbContext(string connectionString)
+            : base(connectionString)
+        {
+            Configuration.LazyLoadingEnabled = false;
+        }
+        
         // Di seguito, vengono definiti i set di dati per ogni tabella del database.
         // Ogni DbSet rappresenta una collezione di entità che mappa una specifica tabella nel database.
 
