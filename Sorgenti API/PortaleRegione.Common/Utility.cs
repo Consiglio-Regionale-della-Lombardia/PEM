@@ -976,11 +976,11 @@ namespace PortaleRegione.Common
             return displayNameAttribute?.DisplayName ?? propertyName;
         }
 
-        public static List<List<T>> Split<T>(IList<T> source)
+        public static List<List<T>> Split<T>(IList<T> source, int slice = 100)
         {
             return source
                 .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / 100)
+                .GroupBy(x => x.Index / slice)
                 .Select(x => x.Select(v => v.Value).ToList())
                 .ToList();
         }

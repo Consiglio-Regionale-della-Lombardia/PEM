@@ -16,9 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
+using Newtonsoft.Json;
 using PortaleRegione.API.Controllers;
+using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -27,13 +35,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace PortaleRegione.BAL
 {
@@ -62,189 +63,109 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<StampaDto> InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model, PersonaDto persona)
+        public async Task<List<StampaDto>> InserisciStampa(NuovaStampaRequest request, PersonaDto persona)
         {
-            var stampa = model.entity;
+            var stampe = new List<StampaDto>();
+            var listaCount = request.Lista.Count;
+            var scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
+            var dataRichiesta = DateTime.Now;
+            var currentRole = (int)persona.CurrentRole;
+            var uidPersonaRichiesta = persona.UID_persona;
 
-            var queryFilter = new Filter<EM>();
-            var firmatari = new List<Guid>();
-            var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
+            // Genera un UIDFascicolo per raggruppare i slice
+            var uidFascicolo = Guid.NewGuid();
 
-            var gruppi = new List<int>();
-            var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
-
-            var stati = new List<int>();
-            var stati_request = new List<FilterStatement<EmendamentiDto>>();
-
-            var proponenti = new List<Guid>();
-            var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
-            if (model.filtro != null)
+            // Verifica se la lista supera i 1000 elementi
+            if (listaCount > 1000)
             {
-                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
+                // Suddividi la lista in slice da 1000
+                var listaSuddivisa = Utility.Split(request.Lista, 1000);
+
+                // Ordine progressivo per ogni slice
+                var numeroFascicolo = 1;
+
+                foreach (var slice in listaSuddivisa)
                 {
-                    firmatari_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == "Firmatario"));
-                    firmatari.AddRange(
-                        firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
-                    foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
+                    var stampa = new StampaDto
+                    {
+                        DataRichiesta = dataRichiesta,
+                        CurrentRole = currentRole,
+                        UIDStampa = Guid.NewGuid(),
+                        UIDUtenteRichiesta = uidPersonaRichiesta,
+                        Lock = false,
+                        Tentativi = 0,
+                        Query = JsonConvert.SerializeObject(slice), // Serializza il slice attuale
+                        Da = request.Da,
+                        A = request.A,
+                        DASI = request.Modulo == ModuloStampaEnum.DASI,
+                        Ordine = (int)request.Ordinamento,
+                        UIDFascicolo = uidFascicolo, // GUID di raggruppamento
+                        NumeroFascicolo = numeroFascicolo // Ordine progressivo
+                    };
+
+                    if (request.UIDAtto != Guid.Empty)
+                    {
+                        stampa.UIDAtto = request.UIDAtto;
+                    }
+
+                    if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
+                    {
+                        stampa.Scadenza = null;
+                    }
+                    else
+                    {
+                        stampa.Scadenza = scadenza;
+                    }
+
+                    _unitOfWork.Stampe.Add(stampa);
+                    stampe.Add(stampa);
+
+                    numeroFascicolo++;
                 }
-
-                if (model.filtro.Any(statement =>
-                        statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
-                {
-                    proponenti_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
-                    proponenti.AddRange(proponenti_request.Select(proponente =>
-                        new Guid(proponente.Value.ToString())));
-                    foreach (var proponenteStatement in proponenti_request)
-                        model.filtro.Remove(proponenteStatement);
-                }
-
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
-                {
-                    gruppi_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
-                    gruppi.AddRange(gruppi_request.Select(gruppo => Convert.ToInt32(gruppo.Value.ToString())));
-                    foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
-                }
-
-
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
-                {
-                    stati_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.IDStato)));
-                    stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
-                    foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
-                }
-            }
-
-            queryFilter.ImportStatements(model.filtro);
-
-            model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
-
-            var queryEM =
-                await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
-            stampa.Query = queryEM;
-
-            stampa.DataRichiesta = DateTime.Now;
-            stampa.CurrentRole = (int)persona.CurrentRole;
-            stampa.UIDStampa = Guid.NewGuid();
-            stampa.UIDUtenteRichiesta = persona.UID_persona;
-            stampa.Lock = false;
-            stampa.Tentativi = 0;
-            if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDEM.HasValue)
-                stampa.Scadenza = null;
-            else
-                stampa.Scadenza =
-                    DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
-
-            var stampa_In_Db = stampa;
-            _unitOfWork.Stampe.Add(stampa_In_Db);
-
-            await _unitOfWork.CompleteAsync();
-
-            return stampa;
-        }
-
-        public async Task<StampaDto> InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model, PersonaDto persona)
-        {
-            model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
-            var mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE);
-            var stampa = model.entity;
-            var soggetti = new List<int>();
-            var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
-            if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
-            {
-                soggetti_request =
-                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
-                        statement.PropertyId == "SoggettiDestinatari"));
-                soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
-                foreach (var s in soggetti_request) model.filtro.Remove(s);
-            }
-            var stati = new List<int>();
-            var stati_request = new List<FilterStatement<AttoDASIDto>>();
-            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
-            {
-                stati_request =
-                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
-                        statement.PropertyId == nameof(AttoDASIDto.IDStato)));
-                stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
-                foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
-            }
-
-            var queryFilter = new Filter<ATTI_DASI>();
-            queryFilter.ImportStatements(model.filtro);
-            var query = await _unitOfWork.DASI.GetAll_Query(persona, mode, queryFilter, soggetti, stati);
-            stampa.Query = query;
-
-            stampa.DataRichiesta = DateTime.Now;
-            stampa.CurrentRole = (int)persona.CurrentRole;
-            stampa.UIDStampa = Guid.NewGuid();
-            stampa.UIDUtenteRichiesta = persona.UID_persona;
-            stampa.Lock = false;
-            stampa.Tentativi = 0;
-            if (stampa.A == 0 && stampa.Da == 0)
-            {
-                stampa.Scadenza = null;
             }
             else
             {
-                stampa.Scadenza =
-                    DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
-            }
+                // Caso in cui la lista è inferiore o uguale a 1000
+                var stampa = new StampaDto
+                {
+                    DataRichiesta = dataRichiesta,
+                    CurrentRole = currentRole,
+                    UIDStampa = Guid.NewGuid(),
+                    UIDUtenteRichiesta = uidPersonaRichiesta,
+                    Lock = false,
+                    Tentativi = 0,
+                    Query = JsonConvert.SerializeObject(request.Lista), // Serializza la lista intera
+                    Da = request.Da,
+                    A = request.A,
+                    DASI = request.Modulo == ModuloStampaEnum.DASI,
+                    Ordine = (int)request.Ordinamento,
+                    UIDFascicolo = uidFascicolo, // Genera un nuovo UIDFascicolo
+                    NumeroFascicolo = 1 // Unico elemento, quindi progressivo = 1
+                };
 
-            stampa.DASI = true;
-            var stampa_In_Db = stampa;
-            _unitOfWork.Stampe.Add(stampa_In_Db);
+                if (request.UIDAtto != Guid.Empty)
+                {
+                    stampa.UIDAtto = request.UIDAtto;
+                }
+
+                if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
+                {
+                    stampa.Scadenza = null;
+                }
+                else
+                {
+                    stampa.Scadenza = scadenza;
+                }
+
+                _unitOfWork.Stampe.Add(stampa);
+                stampe.Add(stampa);
+            }
 
             await _unitOfWork.CompleteAsync();
 
-            return stampa;
+            return stampe;
         }
 
-        public async Task<StampaDto> InserisciStampa(NuovaStampaRequest request, PersonaDto persona)
-        {
-            var stampa = new StampaDto
-            {
-                DataRichiesta = DateTime.Now,
-                CurrentRole = (int)persona.CurrentRole,
-                UIDStampa = Guid.NewGuid(),
-                UIDUtenteRichiesta = persona.UID_persona,
-                Lock = false,
-                Tentativi = 0,
-                Query = JsonConvert.SerializeObject(request.Lista),
-                Da = request.Da,
-                A = request.A,
-                DASI = request.Modulo == ModuloStampaEnum.DASI,
-                Ordine = (int)request.Ordinamento
-            };
-
-            if (request.UIDAtto != Guid.Empty)
-            {
-                stampa.UIDAtto = request.UIDAtto;
-            }
-
-            if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
-            {
-                stampa.Scadenza = null;
-            }
-            else
-            {
-                stampa.Scadenza =
-                    DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
-            }
-
-            var stampa_In_Db = stampa;
-            _unitOfWork.Stampe.Add(stampa_In_Db);
-
-            await _unitOfWork.CompleteAsync();
-
-            return stampa;
-        }
 
         public async Task LockStampa(IEnumerable<StampaDto> listaStampe)
         {

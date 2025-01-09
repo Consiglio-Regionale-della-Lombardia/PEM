@@ -1267,27 +1267,6 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per accodare una stampa
-        /// </summary>
-        /// <param name="model">Modello specifico per richiesta stampa</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route(ApiRoutes.PEM.InserisciStampaDifferita)]
-        public async Task<IHttpActionResult> InserisciStampaDifferita(BaseRequest<EmendamentiDto, StampaDto> model)
-        {
-            try
-            {
-                var result = await _stampeLogic.InserisciStampa(model, CurrentUser);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                Log.Error("InserisciStampaDifferita", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
         ///     Endpoint per accodare una stampa massiva
         /// </summary>
         /// <param name="model">Modello specifico per richiesta stampa</param>
