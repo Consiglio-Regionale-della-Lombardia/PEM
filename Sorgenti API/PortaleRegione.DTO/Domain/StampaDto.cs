@@ -74,8 +74,8 @@ namespace PortaleRegione.DTO.Domain
         public string Info { get; set; }
         public int CurrentRole { get; set; }
 
-        public Guid UIDFascicolo { get; set; }
+        public Guid? UIDFascicolo { get; set; }
 
-        public int NumeroFascicolo { get; set; }
+        public int NumeroFascicolo { get; set; } = 0;
     }
 }

@@ -31,7 +31,8 @@ namespace PortaleRegione.Contracts
     public interface IStampeRepository : IRepository<STAMPE>
     {
         Task<IEnumerable<STAMPE>> GetAll(PersonaDto persona, int? page, int? size, Filter<STAMPE> filtro = null);
-        Task<IEnumerable<STAMPE>> GetAll(int? page, int? size);
+        Task<IEnumerable<STAMPE>> GetAll(int page, int size);
+        Task<IEnumerable<STAMPE>> GetStampeFascicolo(Guid uidFascicolo);
         Task<int> Count(PersonaDto persona, Filter<STAMPE> filtro = null);
         Task<int> Count();
         Task<STAMPE> Get(Guid stampaUId);

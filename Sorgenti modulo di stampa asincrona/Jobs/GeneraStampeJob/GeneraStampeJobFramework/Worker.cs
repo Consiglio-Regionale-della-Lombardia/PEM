@@ -33,7 +33,6 @@ using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Persistance;
-using static PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace GeneraStampeJobFramework
 {
@@ -45,7 +44,7 @@ namespace GeneraStampeJobFramework
         private readonly PdfStamper_IronPDF _stamper;
         private readonly ApiGateway apiGateway;
         private StampaDto _stampa;
-        
+
         private int counter;
 
         public Worker(LoginResponse auth, ref ThreadWorkerModel model)
@@ -62,6 +61,10 @@ namespace GeneraStampeJobFramework
             _model = model;
             BaseGateway.apiUrl = _model.UrlAPI;
             apiGateway = new ApiGateway(jwt);
+            _auth = new LoginResponse
+            {
+                jwt = jwt
+            };
             _unitOfWork = unitOfWork;
             _stamper = new PdfStamper_IronPDF(_model.PDF_LICENSE);
         }
@@ -192,7 +195,7 @@ namespace GeneraStampeJobFramework
             var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
             var FilePathTarget = Path.Combine(path, nameFileTarget);
             _stamper.MergedPDF(FilePathTarget, docs);
-            
+
             await LogStampa(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
 
             var _pathStampe = Path.Combine(_model.CartellaLavoroStampe, nameFileTarget);
@@ -200,7 +203,7 @@ namespace GeneraStampeJobFramework
 
             var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
             _stampa.PathFile = nameFileTarget;
-            
+
             var bodyMail =
                 $"Gentile {persona.DisplayName},<br>la stampa richiesta sulla piattaforma è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
             var resultInvio = await BaseGateway.SendMail(new MailModel
@@ -218,6 +221,7 @@ namespace GeneraStampeJobFramework
                 stampaInDb.Invio = true;
                 stampaInDb.DataInvio = DateTime.Now;
             }
+
             stampaInDb.DataFineEsecuzione = DateTime.Now;
             stampaInDb.PathFile = _stampa.PathFile;
             stampaInDb.MessaggioErrore = string.Empty;
@@ -295,7 +299,7 @@ namespace GeneraStampeJobFramework
             var nameFilePDF = $"{item.Etichetta}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
 
             var content = await _stamper.CreaPDFInMemory(bodyPDF, nameFilePDF);
-            
+
             var dasiDto = listaAtti.First();
             var legislatura = dasiDto.GetLegislatura();
             //Legislatura/Tipo
@@ -349,40 +353,7 @@ namespace GeneraStampeJobFramework
                 Console.WriteLine(e);
             }
 
-            var result = await GetByQuery(new ByQueryModel(_stampa.Query));
-            return result.ToList();
-        }
-
-        public async Task<IEnumerable<ATTI_DASI>> GetByQuery(ByQueryModel model)
-        {
-            try
-            {
-                var atti = new List<Guid>();
-
-                try
-                {
-                    atti = JsonConvert.DeserializeObject<List<Guid>>(model.Query);
-                }
-                catch (Exception)
-                {
-                    atti = _unitOfWork
-                        .DASI
-                        .GetByQuery(model);
-                }
-
-                var result = new List<ATTI_DASI>();
-                foreach (var idAtto in atti)
-                {
-                    var atto = await _unitOfWork.DASI.Get(idAtto);
-                    result.Add(atto);
-                }
-
-                return result;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return new List<ATTI_DASI>();
         }
 
         private async Task ExecuteStampaEmendamenti(PersonaDto persona, string path)
@@ -410,17 +381,31 @@ namespace GeneraStampeJobFramework
             {
                 var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                var FilePathTarget = Path.Combine(path, nameFileTarget);
-                var bodyCopertina = await apiGateway.Emendamento.GetCopertina(new CopertinaModel
+                var FilePathTarget = string.Empty;
+                if (_stampa.UIDFascicolo.HasValue)
                 {
-                    Atto = atto,
-                    Totale = listaEMendamenti.Count,
-                    Ordinamento = _stampa.Ordine.HasValue
-                        ? (OrdinamentoEnum)_stampa.Ordine.Value
-                        : OrdinamentoEnum.Presentazione
-                });
+                    // Fascicolo
 
-                await _stamper.CreaPDFAsync(FilePathTarget, bodyCopertina, "");
+                    nameFileTarget = $"Fascicolo_{_stampa.NumeroFascicolo}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                }
+
+                FilePathTarget = Path.Combine(path, nameFileTarget);
+
+                if (!_stampa.UIDFascicolo.HasValue)
+                {
+                    // Fascicolo
+                    var bodyCopertina = await apiGateway.Emendamento.GetCopertina(new CopertinaModel
+                    {
+                        Atto = atto,
+                        Totale = listaEMendamenti.Count,
+                        Ordinamento = _stampa.Ordine.HasValue
+                            ? (OrdinamentoEnum)_stampa.Ordine.Value
+                            : OrdinamentoEnum.Presentazione
+                    });
+
+                    await _stamper.CreaPDFAsync(FilePathTarget, bodyCopertina, "");
+                }
+
                 var listaPdfEmendamentiGenerati =
                     await GeneraPDFEmendamenti(listaEMendamenti, path);
 
@@ -429,10 +414,10 @@ namespace GeneraStampeJobFramework
 
                 await LogStampa(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
                 var _pathStampe = Path.Combine(_model.CartellaLavoroStampe, nameFileTarget);
-                
+
                 SpostaFascicolo(FilePathTarget, _pathStampe);
 
-                var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
+                var URLDownload = $"{_model.UrlCLIENT}/stampe/{_stampa.UIDStampa}";
                 _stampa.PathFile = nameFileTarget;
                 var stampaInDb = await _unitOfWork.Stampe.Get(_stampa.UIDStampa);
                 stampaInDb.DataFineEsecuzione = DateTime.Now;
@@ -441,46 +426,156 @@ namespace GeneraStampeJobFramework
 
                 await _unitOfWork.CompleteAsync();
 
-                if (_stampa.Da.Equals(0) && _stampa.A.Equals(0))
+                if (_stampa.UIDFascicolo.HasValue)
                 {
-                    if (_stampa.Ordine.HasValue)
+                    // Fascicolo
+                    var stampeFascicolo =
+                        await _unitOfWork.Stampe.GetStampeFascicolo(_stampa.UIDFascicolo.Value);
+
+                    if (stampeFascicolo.All(s => s.DataFineEsecuzione.HasValue))
                     {
-                        var attoInDb = await _unitOfWork.Atti.Get(atto.UIDAtto);
-                        if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Presentazione)
-                            attoInDb.LinkFascicoloPresentazione = URLDownload;
-                        if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Votazione)
-                            attoInDb.LinkFascicoloVotazione = URLDownload;
-                        await _unitOfWork.CompleteAsync();
+                        // Copertina Fascicolo
+                        var prefissoTesto = "Fascicolo";
+                        if (_stampa.Da.Equals(0) && _stampa.A.Equals(0))
+                        {
+                            if (_stampa.Ordine.HasValue)
+                            {
+                                switch ((OrdinamentoEnum)_stampa.Ordine)
+                                {
+                                    case OrdinamentoEnum.Presentazione:
+                                        prefissoTesto += $" in ordine di presentazione:";
+                                        break;
+                                    case OrdinamentoEnum.Votazione:
+                                        prefissoTesto += $" in ordine di votazione:";
+                                        break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            prefissoTesto += ":";
+                        }
+
+                        var counter = 1;
+                        var totaleElementi = 0;
+                        var bodyCopertinaFascicolo = "<ul>";
+                        foreach (var fascicolo in stampeFascicolo)
+                        {
+                            // Deserializza la lista di elementi dal Query
+                            var list = JsonConvert.DeserializeObject<List<Guid>>(fascicolo.Query);
+                            totaleElementi += list.Count;
+                            // Calcola l'inizio e la fine del fascicolo
+                            var start_fascicolo = counter;
+                            var end_fascicolo = counter + list.Count - 1;
+
+                            var URLDownloadFascicolo = $"{_model.UrlCLIENT}/stampe/{fascicolo.UIDStampa}";
+
+                            // Aggiungi l'elemento alla lista HTML
+                            bodyCopertinaFascicolo +=
+                                $"<li><a href='{URLDownloadFascicolo}' target='_blank'>{prefissoTesto} EM dal {start_fascicolo} a {end_fascicolo}</a></li>";
+
+                            // Aggiorna il contatore
+                            counter = end_fascicolo + 1;
+                        }
+
+                        // Chiudi il tag <ul>
+                        bodyCopertinaFascicolo += "</ul>";
+
+                        var nomeCopertinaFascicolo = $"Fascicolo_EM_1_{totaleElementi}_{DateTime.Now.Ticks}.pdf";
+                        var pathCopertinaFascicolo = Path.Combine(_model.CartellaLavoroStampe, nomeCopertinaFascicolo);
+
+                        await _stamper.CreaPDFAsync(pathCopertinaFascicolo, bodyCopertinaFascicolo, "");
+
+                        var URLDownloadCopertinaFascicolo =
+                            $"{_model.UrlCLIENT}/stampe/fascicolo/{Path.GetFileNameWithoutExtension(nomeCopertinaFascicolo)}";
+
+                        if (_stampa.Da.Equals(0) && _stampa.A.Equals(0))
+                        {
+                            if (_stampa.Ordine.HasValue)
+                            {
+                                var attoInDb = await _unitOfWork.Atti.Get(atto.UIDAtto);
+                                if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Presentazione)
+                                    attoInDb.LinkFascicoloPresentazione = URLDownloadCopertinaFascicolo;
+                                if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Votazione)
+                                    attoInDb.LinkFascicoloVotazione = URLDownloadCopertinaFascicolo;
+
+                                await _unitOfWork.CompleteAsync();
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                var bodyMail =
+                                    $"Gentile {utenteRichiedente.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownloadCopertinaFascicolo}' target='_blank'>{URLDownloadCopertinaFascicolo}</a>";
+                                var resultInvio = await BaseGateway.SendMail(new MailModel
+                                    {
+                                        DA = _model.EmailFrom,
+                                        A = utenteRichiedente.email,
+                                        OGGETTO = "Link download fascicolo",
+                                        MESSAGGIO = bodyMail
+                                    },
+                                    _auth.jwt);
+                                if (resultInvio)
+                                {
+                                    stampaInDb = await _unitOfWork.Stampe.Get(_stampa.UIDStampa);
+                                    stampaInDb.DataInvio = DateTime.Now;
+                                    stampaInDb.Invio = true;
+
+                                    await _unitOfWork.CompleteAsync();
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                //Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
+                                await LogStampa(_stampa.UIDStampa, $"Invio mail ERRORE. Motivo: {e.Message}");
+                            }
+                        }
                     }
                 }
-
-                if (_stampa.Scadenza.HasValue)
+                else
                 {
-                    try
+                    if (_stampa.Da.Equals(0) && _stampa.A.Equals(0))
                     {
-                        var bodyMail =
-                            $"Gentile {utenteRichiedente.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
-                        var resultInvio = await BaseGateway.SendMail(new MailModel
-                            {
-                                DA = _model.EmailFrom,
-                                A = utenteRichiedente.email,
-                                OGGETTO = "Link download fascicolo",
-                                MESSAGGIO = bodyMail
-                            },
-                            _auth.jwt);
-                        if (resultInvio)
+                        if (_stampa.Ordine.HasValue)
                         {
-                            stampaInDb = await _unitOfWork.Stampe.Get(_stampa.UIDStampa);
-                            stampaInDb.DataInvio = DateTime.Now;
-                            stampaInDb.Invio = true;
-
+                            var attoInDb = await _unitOfWork.Atti.Get(atto.UIDAtto);
+                            if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Presentazione)
+                                attoInDb.LinkFascicoloPresentazione = URLDownload;
+                            if ((OrdinamentoEnum)_stampa.Ordine.Value == OrdinamentoEnum.Votazione)
+                                attoInDb.LinkFascicoloVotazione = URLDownload;
                             await _unitOfWork.CompleteAsync();
                         }
                     }
-                    catch (Exception e)
+
+                    if (_stampa.Scadenza.HasValue)
                     {
-                        //Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
-                        await LogStampa(_stampa.UIDStampa, $"Invio mail ERRORE. Motivo: {e.Message}");
+                        try
+                        {
+                            var bodyMail =
+                                $"Gentile {utenteRichiedente.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
+                            var resultInvio = await BaseGateway.SendMail(new MailModel
+                                {
+                                    DA = _model.EmailFrom,
+                                    A = utenteRichiedente.email,
+                                    OGGETTO = "Link download fascicolo",
+                                    MESSAGGIO = bodyMail
+                                },
+                                _auth.jwt);
+                            if (resultInvio)
+                            {
+                                stampaInDb = await _unitOfWork.Stampe.Get(_stampa.UIDStampa);
+                                stampaInDb.DataInvio = DateTime.Now;
+                                stampaInDb.Invio = true;
+
+                                await _unitOfWork.CompleteAsync();
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            //Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
+                            await LogStampa(_stampa.UIDStampa, $"Invio mail ERRORE. Motivo: {e.Message}");
+                        }
                     }
                 }
 
@@ -513,11 +608,12 @@ namespace GeneraStampeJobFramework
             {
                 GetNomeEM(emInDb, null);
             }
+
             var nameFilePDF =
                 $"{emInDb.N_EM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
 
             var content = await _stamper.CreaPDFInMemory(em.Value, nameFilePDF);
-            
+
             var atto = await _unitOfWork.Atti.Get(_stampa.UIDAtto.Value);
             var dirSeduta = $"Seduta_{atto.SEDUTE.Data_seduta:yyyyMMdd}";
             var dirPDL = Regex.Replace($"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}", @"[^0-9a-zA-Z]+",
@@ -678,7 +774,7 @@ namespace GeneraStampeJobFramework
 
                     if (!string.IsNullOrEmpty(emendamento.N_SUBEM))
                         emendamento.N_EM = "SUBEM " +
-                                 BALHelper.DecryptString(emendamento.N_SUBEM, _model.masterKey);
+                                           BALHelper.DecryptString(emendamento.N_SUBEM, _model.masterKey);
                     else
                         emendamento.N_EM = "SUBEM TEMP " + emendamento.SubProgressivo;
 
@@ -701,7 +797,7 @@ namespace GeneraStampeJobFramework
 
         private void GetFascicolo(ref string path)
         {
-            var dirFascicolo = $"Fascicolo_{_stampa.UIDStampa}_{DateTime.Now:ddMMyyyy_hhmmss}";
+            var dirFascicolo = $"{_stampa.UIDStampa}";
             path = Path.Combine(_model.CartellaLavoroTemporanea, dirFascicolo);
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
@@ -723,7 +819,7 @@ namespace GeneraStampeJobFramework
                 {
                     var dettagliCreaPDF = new BodyModel();
 
-                    var nameFilePDF = $"{item.Key}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                    var nameFilePDF = $"{item.Key}.pdf";
                     var filePathComplete = Path.Combine(_pathTemp, nameFilePDF);
 
                     dettagliCreaPDF.Body = item.Value;

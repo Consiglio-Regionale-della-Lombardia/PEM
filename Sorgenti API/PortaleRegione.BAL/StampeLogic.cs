@@ -108,7 +108,7 @@ namespace PortaleRegione.BAL
                         stampa.UIDAtto = request.UIDAtto;
                     }
 
-                    if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
+                    if (stampa.A == 0 && stampa.Da == 0)
                     {
                         stampa.Scadenza = null;
                     }
@@ -138,9 +138,7 @@ namespace PortaleRegione.BAL
                     Da = request.Da,
                     A = request.A,
                     DASI = request.Modulo == ModuloStampaEnum.DASI,
-                    Ordine = (int)request.Ordinamento,
-                    UIDFascicolo = uidFascicolo, // Genera un nuovo UIDFascicolo
-                    NumeroFascicolo = 1 // Unico elemento, quindi progressivo = 1
+                    Ordine = (int)request.Ordinamento
                 };
 
                 if (request.UIDAtto != Guid.Empty)
@@ -148,7 +146,7 @@ namespace PortaleRegione.BAL
                     stampa.UIDAtto = request.UIDAtto;
                 }
 
-                if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
+                if (stampa.A == 0 && stampa.Da == 0)
                 {
                     stampa.Scadenza = null;
                 }
@@ -236,6 +234,13 @@ namespace PortaleRegione.BAL
 
             var result = await ComposeFileResponse(Path.Combine(_pathTemp, stampa.PathFile));
 
+            return result;
+        }
+        
+        public async Task<HttpResponseMessage> DownloadFascicoloStampa(string nomeFile)
+        {
+            nomeFile += ".pdf";
+            var result = await ComposeFileResponse(Path.Combine(AppSettingsConfiguration.CartellaLavoroStampe, nomeFile));
             return result;
         }
 

@@ -48,34 +48,30 @@ namespace GeneraStampeJobFramework
                     Password = _model.Password
                 });
 
-                if (!string.IsNullOrEmpty(_model.ConnectionString))
+                using (var context = new PortaleRegioneDbContext(_model.ConnectionString))
                 {
-                    using (var context = new PortaleRegioneDbContext(_model.ConnectionString))
+                    using (var unitOfWork = new UnitOfWork(context))
                     {
-                        using (var unitOfWork = new UnitOfWork(context))
-                        {
-                            // Recupera i dati dal database
-                            var stampeList = await unitOfWork.Stampe.GetAll(1, 5); // Esempio
+                        // Recupera i dati dal database
+                        var stampeList = await unitOfWork.Stampe.GetAll(1, 5);
 
-                            var worker = new Worker(auth.jwt, unitOfWork, ref _model);
-                            foreach (var stampa in stampeList)
-                            {
-                                await worker.ExecuteAsync(stampa);
-                            }
+                        // LOCK STAMPE
+                        foreach (var stampa in stampeList)
+                        {
+                            stampa.Lock = true;
+                            stampa.DataLock = DateTime.Now;
+                            stampa.DataInizioEsecuzione = DateTime.Now;
+                            stampa.Tentativi += 1;
+
+                            await unitOfWork.CompleteAsync();
+                        }
+
+                        var worker = new Worker(auth.jwt, unitOfWork, ref _model);
+                        foreach (var stampa in stampeList)
+                        {
+                            await worker.ExecuteAsync(stampa.ToDto());
                         }
                     }
-
-                    OnManagerFinish?.Invoke(this, true);
-                    return;
-                }
-                
-                apiGateway = new ApiGateway(auth.jwt);
-                var stampe = await apiGateway.Stampe.JobGetStampe(1, 5);
-
-                var work = new Worker(auth, ref _model);
-                foreach (var stampa in stampe.Results)
-                {
-                    await work.ExecuteAsync(stampa);
                 }
 
                 OnManagerFinish?.Invoke(this, true);

@@ -175,6 +175,29 @@ namespace PortaleRegione.Client.Controllers
                 return Json(e.Message, JsonRequestBehavior.AllowGet);
             }
         }
+        
+        /// <summary>
+        ///     Controller per scaricare una stampa
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("fascicolo/{nomeFile}")]
+        public async Task<ActionResult> DownloadFascicoloStampa(string nomeFile)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var file = await apiGateway.Stampe.DownloadStampa(nomeFile);
+                return File(file.Content, "application/pdf",
+                    file.FileName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         [HttpGet]
         [Route("reset")]

@@ -55,7 +55,7 @@ namespace PortaleRegione.Gateway
             var body = JsonConvert.SerializeObject(request);
             return JsonConvert.DeserializeObject<StampaDto>(await Post(requestUrl, body, _token));
         }
-
+        
         public async Task EliminaStampa(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Delete.Replace("{id}", id.ToString())}";
@@ -188,6 +188,14 @@ namespace PortaleRegione.Gateway
         public async Task<FileResponse> DownloadStampa(Guid stampaUId)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Download.Replace("{id}", stampaUId.ToString())}";
+            var lst = await GetFile(requestUrl, _token);
+            return lst;
+        }
+
+        
+        public async Task<FileResponse> DownloadStampa(string nomeFile)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.DownloadFolder.Replace("{nomeFile}", nomeFile)}";
             var lst = await GetFile(requestUrl, _token);
             return lst;
         }

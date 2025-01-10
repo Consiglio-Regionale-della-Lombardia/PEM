@@ -71,9 +71,9 @@ namespace PortaleRegione.Domain
 
         public bool DASI { get; set; } = false;
 
-        public Guid UIDFascicolo { get; set; }
+        public Guid? UIDFascicolo { get; set; }
 
-        public int NumeroFascicolo { get; set; }
+        public int NumeroFascicolo { get; set; } = 0;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ATTI ATTI { get; set; }
@@ -112,39 +112,6 @@ namespace PortaleRegione.Domain
                 UIDUtenteRichiesta = stampaDto.UIDUtenteRichiesta,
                 UIDFascicolo = stampaDto.UIDFascicolo,
                 NumeroFascicolo = stampaDto.NumeroFascicolo
-            };
-
-            return result;
-        }
-
-        public static implicit operator StampaDto(STAMPE stampa)
-        {
-            var result = new STAMPE
-            {
-                UIDAtto = stampa.UIDAtto,
-                Query = stampa.Query,
-                UIDEM = stampa.UIDEM,
-                CurrentRole = stampa.CurrentRole,
-                DASI = stampa.DASI,
-                Da = stampa.Da,
-                A = stampa.A,
-                DataFineEsecuzione = stampa.DataFineEsecuzione,
-                DataInizioEsecuzione = stampa.DataInizioEsecuzione,
-                DataInvio = stampa.DataInvio,
-                DataLock = stampa.DataLock,
-                DataRichiesta = stampa.DataRichiesta,
-                Invio = stampa.Invio,
-                Lock = stampa.Lock,
-                MessaggioErrore = stampa.MessaggioErrore,
-                Notifica = stampa.Notifica,
-                Ordine = stampa.Ordine,
-                PathFile = stampa.PathFile,
-                Scadenza = stampa.Scadenza,
-                Tentativi = stampa.Tentativi,
-                UIDStampa = stampa.UIDStampa,
-                UIDUtenteRichiesta = stampa.UIDUtenteRichiesta,
-                UIDFascicolo = stampa.UIDFascicolo,
-                NumeroFascicolo = stampa.NumeroFascicolo
             };
 
             return result;
