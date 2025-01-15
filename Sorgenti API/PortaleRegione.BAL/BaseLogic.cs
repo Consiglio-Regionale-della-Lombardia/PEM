@@ -352,7 +352,7 @@ namespace PortaleRegione.BAL
             //Allegato Tecnico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoTecnico))
                 allegato_tecnico =
-                    $"<div class=\"chip white black-text\"><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></div>";
+                    $"<div class=\"chip white black-text\"><a class='blue-text' href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></div>";
 
             #endregion
 
@@ -361,7 +361,7 @@ namespace PortaleRegione.BAL
             //Allegato Generico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoGenerico))
                 allegato_generico =
-                    $"<div class=\"chip white black-text\"><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></div>";
+                    $"<div class=\"chip white black-text\"><a class='blue-text' href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></div>";
 
             #endregion
 
@@ -485,7 +485,7 @@ namespace PortaleRegione.BAL
                     foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
                     {
                         allegato_generico.AppendLine(
-                            $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{doc.Link}' target='_blank'>SCARICA - {doc.Titolo}</a></td></tr>");
+                            $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a class='blue-text' href='{doc.Link}' target='_blank'>SCARICA - {doc.Titolo}</a></td></tr>");
                     }
                 }
             }

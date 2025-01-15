@@ -170,15 +170,15 @@ else
                             </h6>
                         </div>
                         <div class="col s6 right-align">
-                            <a class="btn-floating white black-text tooltipped activator" data-tooltip="Visualizza tags"onclick="RevealTags('@itemEM.UIDEM')">
-                                <i class="material-icons">filter_frames</i>
-                            </a>
-                            <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })">
-                                <i class="material-icons">print</i>
-                            </a>
-                            <a class="btn-floating white black-text tooltipped" data-tooltip="Visualizza EM" onclick="goIntoOtherTab('@Url.Action("ViewEmendamento", new { id = itemEM.UIDEM })')">
-                                <i class="material-icons">chevron_right</i>
-                            </a>
+							<button type="button" class="btn-floating white black-text tooltipped activator" data-tooltip="Visualizza tags" onclick="RevealTags('@itemEM.UIDEM')">
+								<i class="material-icons">filter_frames</i>
+							</button>
+							<button type="button" class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })">
+								<i class="material-icons">print</i>
+							</button>
+							<button type="button" class="btn-floating white black-text tooltipped" data-tooltip="Visualizza EM" onclick="goIntoOtherTab('@Url.Action("ViewEmendamento", new { id = itemEM.UIDEM })')">
+								<i class="material-icons">chevron_right</i>
+							</button>
                         </div>
                     </div>
                 </div>

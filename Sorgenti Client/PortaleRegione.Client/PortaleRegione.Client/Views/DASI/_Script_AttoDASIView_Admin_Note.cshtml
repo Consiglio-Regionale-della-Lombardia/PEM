@@ -21,7 +21,7 @@
         <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
         @if (Model.CurrentUser.IsSegreteriaAssemblea)
         {
-            <a onclick="btnSalvaNota()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+            <button type="button" onclick="btnSalvaNota()" class="blue-text waves-effect waves-green btn-flat">Salva</button>
         }
     </div>
 </div>
@@ -80,7 +80,7 @@
 	<td>${nota_testo}</td>
 	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 	<td>
-		<a class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Rimuovi</a>
+		<button type="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
 	</td>
 `;
 
@@ -94,7 +94,7 @@
 	<td>${nota_testo}</td>
 	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 	<td>
-		<a class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Rimuovi</a>
+		<button type="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
 	</td>
 `;
         document.querySelector('#tableNote_Privacy tbody').appendChild(newPrivacyRow);
@@ -116,7 +116,7 @@
 				<td>${nota_testo}</td>
 				<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 				<td>
-					<a class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Rimuovi</a>
+					<button type="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
 				</td>
 			`;
 			document.querySelector('#tableNote_ChiusuraIter tbody').appendChild(newchiusuraIterRow);
@@ -130,7 +130,7 @@
 	<td>${nota_testo}</td>
 	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 	<td>
-		<a class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Rimuovi</a>
+		<button type="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
 	</td>
 `;
         document.querySelector('#tableNote_Risposte tbody').appendChild(newrisposteRow);

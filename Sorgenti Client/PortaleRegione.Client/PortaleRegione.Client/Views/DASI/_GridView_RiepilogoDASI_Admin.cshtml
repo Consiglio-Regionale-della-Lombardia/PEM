@@ -227,7 +227,7 @@ else
             @if (item.ConteggioFirme > 1)
             {
                 <br/>
-                <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset;">
+                <a class='chip tooltipped blue darken-3 white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset;">
                     + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right hide-on-med-and-down' style="margin-left: unset">group</i>
                 </a>
             }
@@ -252,31 +252,31 @@ else
                 }
             }
 
-            <span id="lblStato_@item.UIDAtto" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
+            <span id="lblStato_@item.UIDAtto" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato" style="border:none!important">
                 @labelStato
             </span>
             @if (!item.IsChiuso && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
             {
-                <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
-                    <i class="icon material-icons">refresh</i>
-                </a>
+				<button type="button" class='dropdown-trigger blue-text' data-target='dropdown_@item.UIDAtto'>
+					<i class="icon material-icons">refresh</i>
+				</button>
 
                 <!-- Dropdown Structure -->
                 <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
                     <li>
-                        <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int)StatiAttoEnum.PRESENTATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int)StatiAttoEnum.PRESENTATO))">
+                        <button type="button" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int)StatiAttoEnum.PRESENTATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int)StatiAttoEnum.PRESENTATO))">
                             <i class="material-icons">lock</i> @Html.Raw(Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO))
-                        </a>
+                        </button>
                     </li>
                     <li>
-                        <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int)StatiAttoEnum.IN_TRATTAZIONE))">
+                        <button type="button" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int)StatiAttoEnum.IN_TRATTAZIONE))">
                             <i class="material-icons">settings_input_antenna</i> @Html.Raw(Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE))
-                        </a>
+                        </button>
                     </li>
                     <li>
-                        <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int)StatiAttoEnum.COMPLETATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int)StatiAttoEnum.CHIUSO))">
-                            <i class="material-icons">storage</i> @Html.Raw(Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO))
-                        </a>
+						<button type="button" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int)StatiAttoEnum.COMPLETATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int)StatiAttoEnum.COMPLETATO))">
+							<i class="material-icons">storage</i> @Html.Raw(Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO))
+						</button>
                     </li>
                 </ul>
             }
@@ -333,22 +333,22 @@ else
         <td class="center" style="width: 5%;">
             @if (item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
             {
-                <a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
-                    <i class="icon material-icons">remove_red_eye</i>
-                </a>
-                <a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI", new { id = item.UIDAtto })"
-                   data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })" onclick="StampaUOLA(this)">
-                    <i class="material-icons">print</i>
-                </a>
-                <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="openMetaDatiDASI('@item.UIDAtto')">
-                    <i class="icon material-icons">edit</i>
-                </a>
+				<button type="button" class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
+					<i class="icon material-icons">remove_red_eye</i>
+				</button>
+				<button type="button" class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI", new { id = item.UIDAtto })"
+						data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })" onclick="StampaUOLA(this)">
+					<i class="material-icons">print</i>
+				</button>
+				<button type="button" class="blue-text tooltipped" data-tooltip="Modifica" onclick="openMetaDatiDASI('@item.UIDAtto')">
+					<i class="icon material-icons">edit</i>
+				</button>
             }
             else
             {
-                <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="go('@Url.Action("Modifica", new { id = item.UIDAtto })')">
-                    <i class="icon material-icons">edit</i>
-                </a>
+		        <button type="button" class="blue-text tooltipped" data-tooltip="Modifica" onclick="go('@Url.Action("Modifica", new { id = item.UIDAtto })')">
+			        <i class="icon material-icons">edit</i>
+		        </button>
             }
         </td>
         </tr>

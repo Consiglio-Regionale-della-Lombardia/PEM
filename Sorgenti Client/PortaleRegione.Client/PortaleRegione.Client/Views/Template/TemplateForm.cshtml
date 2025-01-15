@@ -61,80 +61,83 @@
         <div id="waiting_info_message"></div>
     </div>
 </div>
-
+	
 <div class="row" style="margin-bottom: unset !important">
-    <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
-            <i class="material-icons">close</i>
-        </a>
-    </div>
+	<div class="col s12">
+		<a class="btn-floating waves-effect waves-light grey darken-3 header-back" onclick="window.close()">
+			<i class="material-icons">close</i>
+		</a>
+	</div>
 </div>
+<div class="row">
+	<div class="col s12">
+		<div class="card">
+			<div class="card-content">
+				<div class="row">
+					<div class="col s12">
+						@using (Html.BeginForm("SaveTemplate", "Template", FormMethod.Post, new { id = "formTemplate" }))
+						{
+							@Html.AntiForgeryToken()
+							@Html.HiddenFor(m => m.Uid)
+							<div class="form-group" style="padding-top: 10px">
+								<label>Tipo Template: </label>
+								<select id="ddlTipo" onchange="ddlTipo_OnChange(this)">
+									<option value="@((int)TemplateTypeEnum.REPORT_COVER)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_COVER ? "selected='selected'" : "")>Copertina</option>
+									<option value="@((int)TemplateTypeEnum.REPORT_ITEM_CARD)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_CARD ? "selected='selected'" : "")>Card</option>
+									<option value="@((int)TemplateTypeEnum.REPORT_ITEM_GRID)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_GRID ? "selected='selected'" : "")>Griglia</option>
+								</select>
+							</div>
+							<div class="form-group" style="padding-top: 10px">
+								@Html.LabelFor(s => s.Nome)
+								@Html.TextBoxFor(model => model.Nome, new { @class = "form-control" })
+							</div>
+							<div class="form-group" style="padding-top: 10px; display:none;" id="pnlTestata">
+								@Html.LabelFor(s => s.Testata)
+								@Html.TextAreaFor(model => model.Testata, new { @class = "form-control trumbowyg" })
+							</div>
+							<div class="form-group" style="padding-top: 10px">
+								@Html.LabelFor(s => s.Corpo)
+								@Html.TextAreaFor(model => model.Corpo, new { @class = "form-control trumbowyg" })
+							</div>
+							<div class="input-field" style="padding-top: 10px">
+								<p>
+									<label>
+										<input type="checkbox" value="true" name="Template.Visibile" @Html.Raw(Model.Visibile ? "checked=\"checked\"" : "") />
+										<span>@nameof(TemplatesItemDto.Visibile)</span>
+									</label>
+								</p>
+							</div>
 
-<div class="card">
-    <div class="card-content">
-        <div class="row">
-            <div class="col s12">
-                @using (Html.BeginForm("SaveTemplate", "Template", FormMethod.Post, new { id = "formTemplate" }))
-                {
-                    @Html.AntiForgeryToken()
-                    @Html.HiddenFor(m => m.Uid)
-                    <div class="form-group" style="padding-top: 10px">
-                        <label>Tipo Template: </label>
-                        <select id="ddlTipo" onchange="ddlTipo_OnChange(this)">
-                            <option value="@((int)TemplateTypeEnum.REPORT_COVER)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_COVER ? "selected='selected'" : "")>Copertina</option>
-                            <option value="@((int)TemplateTypeEnum.REPORT_ITEM_CARD)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_CARD ? "selected='selected'" : "")>Card</option>
-                            <option value="@((int)TemplateTypeEnum.REPORT_ITEM_GRID)" @Html.Raw(Model.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_GRID ? "selected='selected'" : "")>Griglia</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="padding-top: 10px">
-                        @Html.LabelFor(s => s.Nome)
-                        @Html.TextBoxFor(model => model.Nome, new { @class = "form-control" })
-                    </div>
-                    <div class="form-group" style="padding-top: 10px; display:none;" id="pnlTestata">
-                        @Html.LabelFor(s => s.Testata)
-                        @Html.TextAreaFor(model => model.Testata, new { @class = "form-control trumbowyg" })
-                    </div>
-                    <div class="form-group" style="padding-top: 10px">
-                        @Html.LabelFor(s => s.Corpo)
-                        @Html.TextAreaFor(model => model.Corpo, new { @class = "form-control trumbowyg" })
-                    </div>
-                    <div class="input-field" style="padding-top: 10px">
-                        <p>
-                            <label>
-                                <input type="checkbox" value="true" name="Template.Visibile" @Html.Raw(Model.Visibile ? "checked=\"checked\"" : "") />
-                                <span>@nameof(TemplatesItemDto.Visibile)</span>
-                            </label>
-                        </p>
-                    </div>
+							<div class="fixed-action-btn">
+								<button class="btn-floating btn-large blue darken-3" id="btnSave" type="button" alt="Salva template">
+									<i class="large material-icons">save</i>
+								</button>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
 
-                    <div class="fixed-action-btn">
-                        <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva template">
-                            <i class="large material-icons">save</i>
-                        </button>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
+		<div class="card">
+			<div class="card-content black-text">
+				<span class="card-title bold-text">Informazioni</span>
+				<p>
+					Chiavi disponibili per Template CARD:
+					<ul style="padding-left: 40px">
+						@foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
+						{
+							var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+								.Cast<DisplayNameAttribute>()
+								.FirstOrDefault()?.DisplayName ?? prop.Name;
 
-<div class="card blue lighten-5">
-    <div class="card-content black-text">
-        <span class="card-title">Informazioni</span>
-        <p>
-            Chiavi disponibili per Template CARD:
-            <ul style="padding-left: 40px">
-                @foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
-                {
-                    var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
-                        .Cast<DisplayNameAttribute>()
-                        .FirstOrDefault()?.DisplayName ?? prop.Name;
-
-                    <li style="list-style-type: disc;">@displayName: <a onclick="addKeyOnEditor(this)">{{@prop.Name}}</a></li>
-                }
-            </ul>
-        </p>
-    </div>
+							<li style="list-style-type: disc;">@displayName: <a class="blue-text" onclick="addKeyOnEditor(this)">{{@prop.Name}}</a></li>
+						}
+					</ul>
+				</p>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>

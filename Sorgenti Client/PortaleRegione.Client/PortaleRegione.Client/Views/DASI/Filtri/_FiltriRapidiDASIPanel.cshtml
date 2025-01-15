@@ -18,8 +18,8 @@
         <div id="chips-container-groups"></div>
     </div>
     <div class="col l5 m12 s12 right-align">
-        <a id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</a>
-        <a id="btnReportConfig" class="btn-flat pink-text">Genera report</a>
+        <button type="button" id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</button>
+        <button type="button" id="btnReportConfig" class="btn-flat pink-text">Genera report</button>
         <div class="row">
             <div class="col s12">
                 <div id="chips-container-selected-report"></div>
@@ -770,7 +770,7 @@ function CreaTabella() {
 		}
 
 		if (result.ConteggioFirme > 1) {
-			htmlFirme += `<br/><a class='chip tooltipped blue white-text' data-position='left' data-tooltip='${result.Firme}' style="min-width: unset;">
+			htmlFirme += `<br/><a class='chip tooltipped blue darken-3 white-text' data-position='left' data-tooltip='${result.Firme}' style="min-width: unset;">
 + ${result.ConteggioFirme - 1} <i class='icon material-icons right hide-on-med-and-down' style="margin-left: unset">group</i>
 </a>`
 		}
@@ -1123,18 +1123,18 @@ function CreaTabella() {
 		var linkGeasi = `https://www.consiglio.regione.lombardia.it/wps/portal/crl/home/leggi-e-banche-dati/Atti-di-indirizzo-e-controllo/Dettaglio-atto-di-indirizzo-e-controllo?tipoatto=${result.DisplayTipo}&numeroatto=${result.NAtto}&idlegislatura=${result.Legislatura}`;
 		const tdCommandsValue = document.createElement('td');
 		tdCommandsValue.classList.add('center');
-		tdCommandsValue.style.width = '10%';
-		tdCommandsValue.innerHTML = `<a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" 
+		tdCommandsValue.style.width = '5%';
+		tdCommandsValue.innerHTML = `<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" 
 		onclick="goIntoOtherTab('${linkGeasi}')">
     <i class="icon material-icons">remove_red_eye</i>
-</a>
-<a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}"
+</button>
+<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}"
    data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI")?id=${result.UIDAtto}" onclick="StampaUOLA(this)">
     <i class="material-icons">print</i>
-</a>
-<a class="black-text tooltipped" data-tooltip="Modifica Metadati" onclick="openMetaDatiDASI('${result.UIDAtto}')">
+</button>
+<button type="button" class="btn-floating white black-text tooltipped" data-tooltip="Modifica Metadati" onclick="openMetaDatiDASI('${result.UIDAtto}')">
     <i class="icon material-icons">edit</i>
-</a>`;
+</button>`;
 		row.appendChild(tdCommandsValue);
 		tbody.appendChild(row);
 	});
@@ -1215,11 +1215,11 @@ function CreaTabella() {
 		var tagliPaginazione = [20, 50, 100, 250];
 		var dropdownHTML_top = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
         Paginazione
-        <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
+        <a class="dropdown-trigger chip white" href="#" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
         <ul id="ddlPaginazione-top" class="dropdown-content" style="width: 100px !important">`;
 		var dropdownHTML_bottom = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
         Paginazione
-        <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione-bottom" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
+        <a class="dropdown-trigger chip grey white" href="#" data-target="ddlPaginazione-bottom" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
         <ul id="ddlPaginazione-bottom" class="dropdown-content" style="width: 100px !important">`;
 
 		tagliPaginazione.forEach(function (limite) {

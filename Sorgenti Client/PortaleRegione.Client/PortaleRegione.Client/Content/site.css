@@ -45,60 +45,124 @@ main { margin-bottom: 150px; }
 .btn-flat { font-weight: bold !important; }
 
 	.btn-flat.black-text {
-		border: 1px black solid;
+		border: 2px black solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #e0e0e0;
 	}
 
+.black-text {
+	color: black !important;
+}
+
+a.black-text {
+	text-decoration: underline;
+}
+
 	.btn-flat.yellow-text {
-		border: 1px #f9a825 solid;
+		border: 2px #f57f17 solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #fff176;
 	}
 
+.yellow-text {
+	color: #f57f17 !important;
+}
+
+a.yellow-text {
+	text-decoration: underline;
+}
+
 	.btn-flat.pink-text {
-		border: 1px #ad1457 solid;
+		border: 2px #880e4f solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #f06292;
 	}
 
+.pink-text {
+	color: #880e4f !important;
+}
+
+a.pink-text {
+	text-decoration: underline;
+}
+
 	.btn-flat.blue-text {
-		border: 1px #1976d2 solid;
+		border: 2px #1565c0 solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #64b5f6;
 	}
 
-	.btn-flat.red-text {
-		border: 1px #c62828 solid;
-		border-radius: 5px;
-		color: black !important;
-		background-color: #e57373;
-	}
+.blue-text {
+	color: #1565c0 !important;
+}
+
+a.blue-text {
+	text-decoration: underline;
+}
+
+.btn-flat.red-text {
+	border: 2px #b71c1c solid;
+	border-radius: 5px;
+	color: black !important;
+	background-color: #e57373;
+}
+
+.red-text {
+	color: #b71c1c!important;
+}
+
+a.red-text {
+	text-decoration: underline;
+}
 
 	.btn-flat.green-text {
-		border: 1px #2e7d32 solid;
+		border: 2px #2e7d32 solid;
 		border-radius: 5px;
 		color: black !important;
 		background-color: #81c784;
 	}
 
-	.btn-flat.purple-text {
-		border: 1px #6a1b9a solid;
-		border-radius: 5px;
-		color: black !important;
-		background-color: #ce93d8;
-	}
+.green-text {
+	color: #1b5e20 !important;
+}
 
-	.btn-flat.orange-text {
-		border: 1px #ef6c00 solid;
-		border-radius: 5px;
-		color: black !important;
-		background-color: #ffb74d;
-	}
+a.green-text {
+	text-decoration: underline;
+}
+
+.btn-flat.purple-text {
+	border: 2px #4a148c solid;
+	border-radius: 5px;
+	color: black !important;
+	background-color: #ce93d8;
+}
+
+.purple-text {
+	color: #4a148c !important;
+}
+
+a.purple-text {
+	text-decoration: underline;
+}
+
+.btn-flat.orange-text {
+	border: 2px #e65100 solid;
+	border-radius: 5px;
+	color: black !important;
+	background-color: #ffb74d;
+}
+
+.orange-text {
+	color: #e65100 !important;
+}
+
+a.orange-text {
+	text-decoration: underline;
+}
 
 .btn-floating > i { color: unset; }
 
@@ -202,7 +266,13 @@ div.chips.chips-autocomplete > .chip {
 	border: 1px #9e9e9e solid;
 }
 
-div.form-group > .chip { min-width: unset !important; }
+	.chip.filter-chip, .chip.order-chip, .chip.deep-purple {
+		border: 2px black solid;
+	}
+
+div.form-group > .chip {
+	min-width: unset !important;
+}
 
 div.chip > i.material-icons {
 	margin-left: 5px;
@@ -433,121 +503,134 @@ div.input-field > label { line-height: initial; }
 
 .bozza {
 	background-color: white;
-	border: 1px solid black;
-	color: black;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .depositato {
 	background-color: white;
-	border: 1px solid #2196F3;
-	color: #2196F3;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .approvato {
 	background-color: white;
-	border: 1px solid #4CAF50;
-	color: #4CAF50;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .approvatomod {
 	background-color: white;
-	border: 1px solid #00796b;
-	color: #00796b;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .NOapprovato {
 	background-color: white;
-	border: 1px solid #F44336;
-	color: #F44336;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .ritirato {
 	background-color: white;
-	border: 1px solid #9E9E9E;
-	color: #9E9E9E;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .decaduto {
 	background-color: white;
-	border: 1px solid #9C27B0;
-	color: #9C27B0;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .inammissibile {
 	background-color: white;
-	border: 1px solid #FFC107;
-	color: #FFC107;
+	border: 2px solid black!important;
+	color: black!important;
 	font-weight: bold;
 }
 
 .bozzaT {
+	border: 2px solid black !important;
 	color: black !important;
 	font-weight: bold !important;
 }
 
 .depositatoT {
-	color: #2196F3 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .approvatoT {
-	color: #4CAF50 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .approvatomodT {
-	color: #00796b !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .NOapprovatoT {
-	color: #F44336 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .ritiratoT {
-	color: #9E9E9E !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .decadutoT {
-	color: #9C27B0 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .inammissibileT {
-	color: #FFC107 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .trattazioneT {
-	color: #009688 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .comunicazioneAssembleaT {
-	color: #00e676 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .trattazioneAssembleaT {
-	color: #546e7a !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .altroT {
-	color: #546e7a !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .chiusoT {
+	border: 2px solid black !important;
 	color: black !important;
 	font-weight: bold !important;
 }

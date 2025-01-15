@@ -5,6 +5,12 @@
     ViewBag.Title = "Templates";
 }
 
+<script>
+	$(document).ready(function () {
+		$('#btnSearch').hide();
+	});
+</script>
+
 <div class="row">
     <div class="col s12">
         <h4>
@@ -66,7 +72,7 @@
     </ul>
 </div>
 <div id="pnlNuovoDASI" class="fixed-action-btn">
-	<a id="btnNuovoTemplate" class="btn-floating btn-large blue darken-1" onclick="goIntoOtherTab('@Url.Action("NewTemplate")')">
+	<a id="btnNuovoTemplate" class="btn-floating btn-large blue darken-3" onclick="goIntoOtherTab('@Url.Action("NewTemplate")')">
 		<i class="large material-icons">add</i>
 	</a>
 </div>
