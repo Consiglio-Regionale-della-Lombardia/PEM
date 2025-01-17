@@ -199,20 +199,20 @@
 
                                 @if (!archivio)
                                 {
-                                    <a class="btn-floating white red-text tooltipped" data-tooltip="Archivia notifica" onclick="ArchiviaNotifica(this, '@notifica.UIDNotifica')">
+                                    <button type="button" role="button" class="btn-floating white red-text tooltipped" data-tooltip="Archivia notifica" onclick="ArchiviaNotifica(this, '@notifica.UIDNotifica')">
                                         <i class="material-icons">close</i>
-                                    </a>
+                                    </button>
                                 }
 
-                                <a class="btn-floating white black-text tooltipped" data-tooltip="Vedi emendamento" onclick="goIntoOtherTab('@Url.Action("ViewEmendamento", "Emendamenti", new { id = notifica.UIDEM, notificaId = notifica.UIDNotifica })')">
+                                <button type="button" role="button" class="btn-floating white black-text tooltipped" data-tooltip="Vedi emendamento" onclick="goIntoOtherTab('@Url.Action("ViewEmendamento", "Emendamenti", new { id = notifica.UIDEM, notificaId = notifica.UIDNotifica })')">
                                     <i class="material-icons">remove_red_eye</i>
-                                </a>
+                                </button>
 
                                 @if (notifica.EM.Firmabile && notifica.IDTipo == (int)TipoNotificaEnum.INVITO)
                                 {
-                                    <a class="btn-floating white green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDeposito('@notifica.EM.UIDEM', @Html.Raw((int)ActionEnum.FIRMA))">
+                                    <button type="button" role="button" class="btn-floating white green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDeposito('@notifica.EM.UIDEM', @Html.Raw((int)ActionEnum.FIRMA))">
                                         <i class="material-icons">gavel</i>
-                                    </a>
+                                    </button>
                                 }
                             </div>
                         </div>
@@ -229,20 +229,20 @@
                             <div class="card-action right-align">
                                 @if (!archivio)
                                 {
-                                    <a class="btn-floating white red-text tooltipped" data-tooltip="Archivia notifica" onclick="ArchiviaNotifica(this, '@notifica.UIDNotifica')">
+                                    <buttton type="button" role="button" class="btn-floating white red-text tooltipped" data-tooltip="Archivia notifica" onclick="ArchiviaNotifica(this, '@notifica.UIDNotifica')">
                                         <i class="material-icons">close</i>
-                                    </a>
+                                    </buttton>
                                 }
-                                <a class="btn-floating white black-text tooltipped" data-tooltip="Vedi atto"
+                                <button type="button" role="button" class="btn-floating white black-text tooltipped" data-tooltip="Vedi atto"
                                    onclick="goIntoOtherTab('@Url.Action("ViewAtto", "DASI", new { id = notifica.ATTO_DASI.UIDAtto })')">
                                     <i class="material-icons">remove_red_eye</i>
-                                </a>
+                                </button>
 
                                 @if (notifica.ATTO_DASI.Firmabile && notifica.IDTipo == (int)TipoNotificaEnum.INVITO)
                                 {
-                                    <a class="btn-floating white green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@notifica.ATTO_DASI.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                                    <button type="button" role="button" class="btn-floating white green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@notifica.ATTO_DASI.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
                                         <i class="material-icons">gavel</i>
-                                    </a>
+                                    </button>
                                 }
 
                                 @if (!notifica.Chiuso
@@ -250,18 +250,18 @@
                                      && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaProponente
                                      && notifica.IDTipo == (int)TipoNotificaEnum.RICHIESTA)
                                 {
-                                    <a class="btn-floating white green-text tooltipped" data-tooltip="Accetta proposta" onclick="AccettaPropostaFirmaAttoDASI('@notifica.UIDNotifica')">
+                                    <button type="button" role="button" class="btn-floating white green-text tooltipped" data-tooltip="Accetta proposta" onclick="AccettaPropostaFirmaAttoDASI('@notifica.UIDNotifica')">
                                         <i class="material-icons">check</i>
-                                    </a>
+                                    </button>
                                 }
                                 else if (!notifica.Chiuso
                                          && notifica.Valida
                                          && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaProponente
                                          && notifica.IDTipo == (int)TipoNotificaEnum.RITIRO)
                                 {
-                                    <a class="btn-floating white green-text tooltipped" data-tooltip="Accetta ritiro" onclick="AccettaRitiroFirmaAttoDASI('@notifica.UIDNotifica')">
+                                    <button type="button" role="button" class="btn-floating white green-text tooltipped" data-tooltip="Accetta ritiro" onclick="AccettaRitiroFirmaAttoDASI('@notifica.UIDNotifica')">
                                         <i class="material-icons">check</i>
-                                    </a>
+                                    </button>
                                 }
                             </div>
                         </div>

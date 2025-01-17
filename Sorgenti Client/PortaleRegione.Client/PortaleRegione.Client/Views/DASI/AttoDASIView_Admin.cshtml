@@ -79,9 +79,9 @@
 
 <div class="row" style="left: 10px; margin-bottom: unset !important; position: absolute; top: -18px;">
     <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" onclick="window.close()">
+        <button type="button" role="button" class="btn-floating waves-effect waves-light grey darken-3 header-back" onclick="window.close()">
             <i class="material-icons">close</i>
-        </a>
+        </button>
 
     </div>
 </div>
@@ -126,10 +126,10 @@
                                                                                                    && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
                                             || Model.CurrentUser.IsSegreteriaAssemblea)
                                         {
-                                            <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+                                            <button type="button" role="button" class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
                                                 Gestisci priorità e ordinamento firme @*#987*@
                                                 <i class="material-icons right pink-text">low_priority</i>
-                                            </a>
+                                            </button>
                                             <br/>
                                         }
                                     }
@@ -158,15 +158,15 @@
                                                     @*#986*@
                                                     if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                                                     {
-                                                        <a class='center red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')">
+                                                        <button type="button" role="button" class='center red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')">
                                                             <i class='icon material-icons'>delete</i>
-                                                        </a>
+                                                        </button>
                                                     }
                                                     else
                                                     {
-                                                        <a class='center red-text secondary-content' style="min-width:unset;" onclick="EliminaFirmaDASI('@firme.UIDAtto')">
+                                                        <button type="button" role="button" class='center red-text secondary-content' style="min-width:unset;" onclick="EliminaFirmaDASI('@firme.UIDAtto')">
                                                             <i class='icon material-icons'>delete</i>
-                                                        </a>
+                                                        </button>
                                                     }
                                                 }
                                             }
@@ -194,10 +194,10 @@
 								@* FIRME PRIORITA' *@
 								<div class="row" id="pnlPrioritaFirme" style="display: none;">
 									<div class="col s12">
-										<a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
+										<button type="button" role="button" class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
 											Visualizza griglia
 											<i class="material-icons right pink-text">grid_on</i>
-										</a>
+										</button>
 										<br />
 
 										<ul class="collapsible expandable">
@@ -209,10 +209,10 @@
 														<div class="collapsible-header valign-wrapper">
 															@if (atto.UIDPersonaProponente != firme.UID_persona)
 															{
-																<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+																<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 																   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
 																	<i class="material-icons black-text" style="margin-left: 5px;">star</i>
-																</a>
+																</button>
 															}
 															@firme.FirmaCert
 
@@ -223,10 +223,10 @@
 														<div class="collapsible-header valign-wrapper">
 															@if (string.IsNullOrEmpty(firme.Data_ritirofirma))
 															{
-																<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+																<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 																   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
 																	<i class="material-icons" style="margin-left: 5px;">star_border</i>
-																</a>
+																</button>
 																@firme.FirmaCert
 															}
 															else
@@ -478,9 +478,9 @@
 												@Html.Raw($", con oggetto: {abb.OggettoAttoAbbinato}")
 											}
 
-											<a href="#!" class="secondary-content red-text" onclick="rimuoviAbbinamento(this,'@abb.UidAttoAbbinato')">
+											<button type="button" role="button" href="#!" class="secondary-content red-text" onclick="rimuoviAbbinamento(this,'@abb.UidAttoAbbinato')">
 												<i class="material-icons">close</i>
-											</a>
+											</button>
 										</li>
 									}
 								</ul>
@@ -686,9 +686,9 @@
                                                                 @Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")
                                                             </div>
                                                             <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                                <button type="button" role="button" class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
                                                                     <i class="material-icons">edit</i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -698,9 +698,9 @@
                                                                 @Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")
                                                             </div>
                                                             <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                                <button type="button" role="button" class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
                                                                     <i class="material-icons">edit</i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -710,9 +710,9 @@
                                                                 @Html.Raw(risposta.DataRevoca.HasValue ? risposta.DataRevoca.Value.ToString("dd/MM/yyyy") : "")
                                                             </div>
                                                             <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                                <button type="button" role="button" class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
                                                                     <i class="material-icons">edit</i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -725,9 +725,9 @@
                                                                 @Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
                                                             </div>
                                                             <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                                <button type="button" role="button" class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
                                                                     <i class="material-icons">edit</i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -740,9 +740,9 @@
                                                                 @Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")
                                                             </div>
                                                             <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                                <button type="button" role="button" class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
                                                                     <i class="material-icons">edit</i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -752,9 +752,9 @@
                                                                 @Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
                                                             </div>
                                                             <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                                <button type="button" role="button" class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
                                                                     <i class="material-icons">edit</i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -767,9 +767,9 @@
                                                                 @Html.Raw(risposta.DataTrasmissione.HasValue ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")
                                                             </div>
                                                             <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                                <button type="button" role="button" class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
                                                                     <i class="material-icons">edit</i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -779,9 +779,9 @@
                                                                 @Html.Raw(risposta.Data.HasValue ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")
                                                             </div>
                                                             <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                                <button type="button" role="button" class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
                                                                     <i class="material-icons">edit</i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -791,9 +791,9 @@
                                                                 @Html.Raw(risposta.DataTrattazione.HasValue ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")
                                                             </div>
                                                             <div class="col s6">
-                                                                <a class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
+                                                                <button type="button" role="button" class="black-text" data-risposta='@Html.Raw(jsonRisposta)' onclick="modificaDettagliRisposta(this)">
                                                                     <i class="material-icons">edit</i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -811,11 +811,11 @@
                                                             @foreach (var rispostaAssociata in risposta.RisposteAssociate)
                                                             {
                                                                 <li class="collection-item" id="@rispostaAssociata.Uid">
-                                                                    <div>@rispostaAssociata.DescrizioneOrgano<a href="#!" class="secondary-content red-text" onclick="rimuoviInformazioniRisposta(this, '@rispostaAssociata.Uid')"><i class="material-icons">close</i></a></div>
+                                                                    <div>@rispostaAssociata.DescrizioneOrgano<button type="button" role="button" href="#!" class="secondary-content red-text" onclick="rimuoviInformazioniRisposta(this, '@rispostaAssociata.Uid')"><i class="material-icons">close</i></button></div>
                                                                 </li>
                                                             }
                                                             <li class="collection-item">
-                                                                <div><a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '@risposta.Uid')"><i class="material-icons">add</i></a></div>
+                                                                <div><button type="button" role="button" href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '@risposta.Uid')"><i class="material-icons">add</i></button></div>
                                                             </li>
                                                         </ul>
                                                     </td>
@@ -1002,9 +1002,9 @@
                                                 @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                                 {
                                                     <th class="center" width="10%">
-                                                        <a id="btnAggiungiMonitoraggio" class="btn-flat green-text">
+                                                        <button type="button" role="button" id="btnAggiungiMonitoraggio" class="btn-flat green-text">
                                                             Aggiungi
-                                                        </a>
+                                                        </button>
                                                     </th>
                                                 }
                                             </tr>
@@ -1018,9 +1018,9 @@
                                                     @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                                     {
                                                         <td class="center">
-                                                            <a href="#!" class="btn-flat red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
+                                                            <button type="button" role="button" href="#!" class="btn-flat red-text" onclick="rimuoviMonitoraggio(this, @monitoraggio.IdOrgano)">
                                                                 Rimuovi
-                                                            </a>
+                                                            </button>
                                                         </td>
                                                     }
                                                 </tr>
@@ -1064,9 +1064,9 @@
                                         @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                         {
                                             <th class="center" width="10%">
-                                                <a id="btnAggiungiDocumento_Monitoraggio" class="btn-flat green-text">
+                                                <button type="button" role="button" id="btnAggiungiDocumento_Monitoraggio" class="btn-flat green-text">
                                                     Aggiungi
-                                                </a>
+                                                </button>
                                             </th>
                                         }
                                     </tr>
@@ -1381,9 +1381,9 @@
                                         @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                         {
                                             <th class="center" width="10%">
-                                                <a id="btnAggiungiDocumento_ChiusuraIter" class="btn-flat green-text">
+                                                <button type="button" role="button" id="btnAggiungiDocumento_ChiusuraIter" class="btn-flat green-text">
                                                     Aggiungi
-                                                </a>
+                                                </button>
                                             </th>
                                         }
                                     </tr>
@@ -1420,7 +1420,7 @@
                                     <i class="material-icons">warning</i>
                                 </div>
 								<div class="col s12 l4 center">
-									<a id="btnFlussoRespingi" class="purple-text waves-effect waves-green btn-flat" style="width: 100%">RI-TRASMETTI IN COMMISSIONE</a>
+									<button type="button" role="button" id="btnFlussoRespingi" class="purple-text waves-effect waves-green btn-flat" style="width: 100%">RI-TRASMETTI IN COMMISSIONE</button>
 								</div>
 								<div class="col s12 l4 center hide-on-med-and-down">
 									<i class="material-icons">warning</i>
@@ -1684,11 +1684,11 @@
 									<b>Generazione DCR</b>
 								</h6>
 								<hr />
-								<a class="collection-item"
+								<button type="button" role="button" class="btn-flat black-text"
 								   data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto })"
 								   onclick="StampaReportRapido(this)">
 									Genera la DCR per l'atto
-								</a>
+								</button>
 							</div>
 						}
 						<h6>
@@ -1703,16 +1703,16 @@
 									tipo_risposta = atto.IDTipo_Risposta_Effettiva.Value;
 								}
 							}
-							<a class="collection-item"
+							<button type="button" role="button" class="btn-flat black-text"
 							   data-url="@Url.Action("GeneraReportCopertinaPresidente", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
 							   onclick="StampaReportRapido(this)">
 								Copertina presidente
-							</a>
-							<a class="collection-item"
+							</button>
+							<button type="button" role="button" class="btn-flat black-text"
 							   data-url="@Url.Action("GeneraReportCopertinaUfficio", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
 							   onclick="StampaReportRapido(this)">
 								Copertina ufficio
-							</a>
+							</button>
 						</div>
 
 						<h6>
@@ -1722,48 +1722,48 @@
 						<div class="collection">
 							@if (atto.IsITL())
 							{
-								<a class="collection-item"
+								<button type="button" role="button" class="btn-flat black-text"
 								   data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
 								   onclick="StampaReportRapido(this)">
 									Lettera invio in commissione
-								</a>
+								</button>
 							}
 							@if (atto.IsITR())
 							{
-								<a class="collection-item"
+								<button type="button" role="button" class="btn-flat black-text"
 								   data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
 								   onclick="StampaReportRapido(this)">
 									Lettera invio in commissione
-								</a>
+								</button>
 							}
 							@if (atto.IsODG())
 							{
-								<a class="collection-item"
+								<button type="button" role="button" class="btn-flat black-text"
 								   data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
 								   onclick="StampaReportRapido(this)">
 									Lettera deliberazione
-								</a>
+								</button>
 							}
 							@if (atto.IsRIS())
 							{
-								<a class="collection-item"
+								<button type="button" role="button" class="btn-flat black-text"
 								   data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
 								   onclick="StampaReportRapido(this)">
 									Lettera deliberazione
-								</a>
+								</button>
 							}
 							@if (atto.IsMOZ())
 							{
-								<a class="collection-item"
+								<button type="button" role="button" class="btn-flat black-text"
 								   data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
 								   onclick="StampaReportRapido(this)">
 									Lettera deliberazione
-								</a>
-								<a class="collection-item"
+								</button>
+								<button type="button" role="button" class="btn-flat black-text"
 								   data-url="@Url.Action("GeneraReportLetteraAssembleaMOZ", "DASI", new { id = atto.UIDAtto })"
 								   onclick="StampaReportRapido(this)">
 									Lettera invio da Assemblea in commissione
-								</a>
+								</button>
 							}
 						</div>
 					</div>

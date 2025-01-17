@@ -125,11 +125,11 @@
                             <div class="col s4">
                                 @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                 {
-                                    <a class="btn-flat pink-text hide-on-med-and-down"
+                                    <button type="button" role="button" class="btn-flat pink-text hide-on-med-and-down"
                                        href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})" title="Scarica documento">
                                         <i class="material-icons right pink-text">cloud_download</i>
                                         SCARICA TESTO
-                                    </a>
+                                    </button>
                                 }
 
                             </div>
@@ -143,9 +143,9 @@
                                 <div class="col s2 right-align">
                                     @if (atto.Data_apertura.HasValue)
                                     {
-                                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
+                                        <button type="button" role="button" class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
                                             <i class="material-icons" style="line-height: unset">chevron_right</i>
-                                        </a>
+                                        </button>
                                     }
                                 </div>
                             }

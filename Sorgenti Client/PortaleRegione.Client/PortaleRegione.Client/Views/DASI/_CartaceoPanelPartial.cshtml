@@ -1,13 +1,13 @@
 ﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
-<a class="btn-floating btn-large halfway-fab waves-effect waves-light pink tooltipped"
+<button type="button" role="button" class="btn-floating btn-large halfway-fab waves-effect waves-light pink tooltipped"
    onclick="openPanelCartacei()"
    style="position: fixed; top: 100px; right: 24px;"
    data-tooltip="Visualizza atti cartacei"
    data-position="left">
     <i class="material-icons">insert_drive_file</i>
-</a>
+</button>
 
 
 <div id="slide-atti-cartacei" class="sidenav sidenav-search" style="overflow: auto !important">
@@ -19,9 +19,9 @@
     </ul>
 	
     <div id="pnlNuovoCartaceoDASI" class="fixed-action-btn" style="display: block; bottom:80px">
-        <a id="btnNuovoCartaceoDASI" class="btn-floating btn-large blue darken-3">
+        <button type="button" role="button" id="btnNuovoCartaceoDASI" class="btn-floating btn-large blue darken-3">
             <i class="large material-icons">add</i>
-        </a>
+        </button>
     </div>
 </div>
 <div id="modalNuovoCartaceo" class="modal">
@@ -47,7 +47,7 @@
 
 	</div>
 	<div class="modal-footer">
-		<a id="NuovoCartaceo_Presenta" href="#!" class="modal-close waves-effect waves-green btn-flat">Presenta</a>
+		<button type="button" role="button" id="NuovoCartaceo_Presenta" href="#!" class="modal-close btn-flat">Presenta</button>
 	</div>
 </div>
 

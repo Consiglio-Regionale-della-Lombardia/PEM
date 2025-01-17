@@ -228,9 +228,9 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
-		<a onclick="btnResetColonneGriglia()" class="red-text waves-effect waves-green btn-flat">Reset</a>
-		<a onclick="btnSalvaColonneGriglia()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+		<button type="button" class="btn-flat modal-close">Annulla</button>
+		<button type="button" onclick="btnResetColonneGriglia()" class="btn-flat red-text">Reset</button>
+		<button type="button" onclick="btnSalvaColonneGriglia()" class="btn-flat blue-text">Salva</button>
 	</div>
 </div>
 
@@ -358,7 +358,7 @@
 		// Aggiorna il select dopo aver impostato le opzioni selezionate
 		$('#columns-grid-select').formSelect();
 
-		CreaTabella();
+        inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
     }
 
     function btnSalvaColonneGriglia() {
@@ -370,7 +370,7 @@
 		// Salva le colonne selezionate nel local storage
 		localStorage.setItem('selectedColumns', JSON.stringify(selectedColumns));
 
-        CreaTabella();
+        inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
 
 		// Chiudi la modale
 		$('#modalColonneGriglia').modal('close');		

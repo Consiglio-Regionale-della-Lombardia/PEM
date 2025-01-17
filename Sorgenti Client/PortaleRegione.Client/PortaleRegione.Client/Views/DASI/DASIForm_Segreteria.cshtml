@@ -57,9 +57,9 @@
 
 	<div class="row">
 		<div class="col l1 s2">
-			<a class="btn-floating waves-effect waves-light grey darken-3 header-back" onclick="window.close()">
+			<button type="button" role="button" class="btn-floating waves-effect waves-light grey darken-3 header-back" onclick="window.close()">
 				<i class="material-icons">close</i>
-			</a>
+			</button>
 		</div>
 		<div class="col l11 s10">
 			<h4>
@@ -289,11 +289,11 @@
 									<div class="col s12 center">
 										<div class="card-panel grey lighten-4">
 											<span class="black-text">
-												<a class="btn pink tooltipped"
+												<button type="button" role="button" class="btn pink tooltipped"
 												   data-tooltip="Iscrizione in seduta"
 												   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
 													Iscrizione in seduta
-												</a>
+												</button>
 											</span>
 										</div>
 									</div>

@@ -264,10 +264,10 @@ namespace PortaleRegione.Client.Helpers
                     {
                         if (em.IDStato >= (int)StatiEnum.Depositato)
                             body +=
-                                $"<a class='btn-floating red center white-text secondary-content tooltipped' data-tooltip=\"Ritira la tua firma da questo emendamento. Se sei il proponente dell'emendamento, l'emendamento potrebbe decadere\" style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i></a>";
+                                $"<button type='button' role='button' class='btn-floating red center white-text secondary-content tooltipped' data-tooltip=\"Ritira la tua firma da questo emendamento. Se sei il proponente dell'emendamento, l'emendamento potrebbe decadere\" style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i></button>";
                         else
                             body +=
-                                $"<a class='btn-floating red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i></a>";
+                                $"<button type=\"button\" role=\"button\" class='btn-floating red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i></button>";
                     }
                 }
 
@@ -364,13 +364,13 @@ namespace PortaleRegione.Client.Helpers
                     {
                         if (dto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                             body +=
-                                $"<a class='btn-floating red center white-text secondary-content tooltipped' data-tooltip=\"Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere\" style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i></a>";
+                                $"<button type=\"button\" role=\"button\" class='btn-floating red center white-text secondary-content tooltipped' data-tooltip=\"Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere\" style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i></button>";
                         else
                         {
                             if (dto.UIDPersonaProponente == firmeDto.UID_persona) continue;
 
                             body +=
-                                $"<a class='btn-floating red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i></a>";
+                                $"<button type=\"button\" role=\"button\" class='btn-floating red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i></button>";
                         }
                     }
                 }

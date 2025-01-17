@@ -228,15 +228,13 @@ namespace PortaleRegione.Persistance.Public
 
             foreach (var nota in noteInDB)
             {
-                var persona = await PRContext.View_UTENTI.FindAsync(nota.UIDPersona);
                 res.Add(new NoteDto
                 {
                     Tipo = Utility.GetText_TipoNotaDASI(nota.Tipo),
                     TipoEnum = (TipoNotaEnum)nota.Tipo,
                     Data = nota.Data,
                     Uid = nota.Uid,
-                    Nota = nota.Nota,
-                    Persona = new PersonaLightDto(persona.cognome, persona.nome)
+                    Nota = nota.Nota
                 });
             }
 

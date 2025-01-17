@@ -37,8 +37,6 @@ namespace PortaleRegione.DTO.Domain.Essentials
     {
         public Guid uidAtto { get; set; }
         public string oggetto { get; set; }
-        public string premesse { get; set; }
-        public string richiesta { get; set; }
         public string tipo { get; set; }
         public string tipo_esteso { get; set; }
         public string n_atto { get; set; }
@@ -53,13 +51,9 @@ namespace PortaleRegione.DTO.Domain.Essentials
 
         public List<AttiFirmePublicDto> firme { get; set; } = new List<AttiFirmePublicDto>();
         public KeyValueDto gruppo { get; set; } = new KeyValueDto();
-        public string data_iscrizione { get; set; }
         public string display { get; set; }
         public List<AttiDocumentiPublicDto> documenti { get; set; } = new List<AttiDocumentiPublicDto>();
-        public object atto_odg { get; set; } = null;
-        public bool non_passaggio_in_esame { get; set; }
         public string tipo_mozione { get; set; }
-        public object abbinata { get; set; } = null;
         public List<KeyValueDto> commissioni { get; set; } = new List<KeyValueDto>();
         public List<AttiRispostePublicDto> risposte { get; set; } = new List<AttiRispostePublicDto>();
         public int id_stato { get; set; }
@@ -75,8 +69,8 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string data_chiusura_iter { get; set; }
         public List<NoteDto> note { get; set; } = new List<NoteDto>();
         public string data_comunicazione_assemblea { get; set; }
-        public string testo_presentato { get; set; }
-        public string testo_approvato { get; set; }
+        public string link_testo_originale { get; set; }
+        public string link_testo_presentato { get; set; }
         public List<KeyValueDto> proponenti { get; set; } = new List<KeyValueDto>();
         public PersonaPublicDto relatore1 { get; set; }
         public PersonaPublicDto relatore2 { get; set; }

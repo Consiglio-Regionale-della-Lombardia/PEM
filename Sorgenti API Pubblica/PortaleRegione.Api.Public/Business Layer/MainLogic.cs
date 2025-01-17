@@ -274,7 +274,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     data_trattazione = r.DataTrattazione,
                     organo = r.DescrizioneOrgano,
                     id_organo = r.IdOrgano,
-                    tipo_risposta = Utility.GetText_TipoRispostaDASI(r.Tipo, false),
+                    tipo_risposta = Utility.GetText_TipoRispostaDASI(r.Tipo),
                     tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
                 }).ToList();
                 var documentiInDb = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
@@ -287,17 +287,18 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 }).ToList();
 
                 var note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
+                note = note.Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA).ToList();
 
                 var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
                 var firme = await GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
 
                 var linkTestoOriginale = $"{AppSettingsConfigurationHelper.urlDASI_Originale.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
-                var linkTestoApprovato = $"{AppSettingsConfigurationHelper.urlDASI_Approvato.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+                var linkTestoPresentato = $"{AppSettingsConfigurationHelper.urlDASI_Presentato.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
 
                 var attoDto = new AttoDasiPublicDto
                 {
                     uidAtto = attoInDb.UIDAtto,
-                    oggetto = attoInDb.Oggetto,
+                    oggetto = attoInDb.OggettoView(),
                     display = GetDisplayFromEtichetta(attoInDb.Etichetta),
                     id_stato = attoInDb.IDStato,
                     stato = Utility.GetText_StatoDASI(attoInDb.IDStato),
@@ -307,8 +308,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     n_atto = attoInDb.NAtto_search.ToString(),
                     data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
                         AppSettingsConfigurationHelper.masterKey),
-                    premesse = attoInDb.Premesse,
-                    richiesta = attoInDb.Richiesta,
                     tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
                     area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
                     data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
@@ -319,7 +318,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
                             ? attoInDb.TipoChiusuraIter.Value
                             : 0),
                     gruppo = gruppo,
-                    uid_proponente = attoInDb.UIDPersonaProponente.Value,
                     proponente = proponente,
                     commissioni = commissioni,
                     risposte = risposte,
@@ -331,8 +329,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     firme = firme,
                     burl = attoInDb.BURL,
                     note = note,
-                    testo_presentato = linkTestoOriginale,
-                    testo_approvato = linkTestoApprovato
+                    link_testo_originale = linkTestoOriginale,
+                    link_testo_presentato = linkTestoPresentato
                 };
 
                 if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
@@ -341,6 +339,16 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     attoDto.relatore1 = personaRelatore1;
                     attoDto.relatore2 = personaRelatore2;
                     attoDto.relatore_minoranza = personaRelatoreMinoranza;
+                }
+                else
+                {
+                    if(attoInDb.UIDPersonaProponente.HasValue)
+                        attoDto.uid_proponente = attoInDb.UIDPersonaProponente.Value;
+
+                    if (attoInDb.TipoMOZ > 0)
+                    {
+                        attoDto.tipo_mozione = Utility.GetText_TipoMOZDASI(attoInDb.TipoMOZ);
+                    }
                 }
 
                 return attoDto;

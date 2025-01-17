@@ -166,5 +166,14 @@ namespace PortaleRegione.Domain
 
             return string.Empty;
         }
+
+        public string OggettoView()
+        {
+            if (!string.IsNullOrEmpty(Oggetto_Approvato))
+                return Oggetto_Approvato;
+            if (!string.IsNullOrEmpty(Oggetto_Modificato))
+                return Oggetto_Modificato;
+            return Oggetto;
+        }
     }
 }
