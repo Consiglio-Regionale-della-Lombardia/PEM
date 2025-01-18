@@ -49,7 +49,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("riepilogo")]
-        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
+        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 20, int view = (int)ViewModeEnum.GRID,
             int stato = (int)StatiAttoEnum.BOZZA, int tipo = (int)TipoAttoEnum.TUTTI)
         {
             var currentUser = CurrentUser;
@@ -235,7 +235,7 @@ namespace PortaleRegione.Client.Controllers
         [HttpGet]
         [Route("seduta")]
         public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo = (int)TipoAttoEnum.TUTTI,
-            int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
+            int page = 1, int size = 20, int view = (int)ViewModeEnum.GRID,
             int stato = (int)StatiAttoEnum.PRESENTATO, string uidAtto = "")
         {
             var apiGateway = new ApiGateway(Token);

@@ -62,18 +62,18 @@
                         }
                         else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                         {
-                            <div class="chip white green-text hide-on-med-and-down" style="border: 1px solid green; min-width: unset;">Aperta</div>
+                            <div class="btn-flat green-text hide-on-med-and-down">Aperta</div>
                         }
                         @if (!string.IsNullOrEmpty(seduta.Note))
                         {
-                            <div class="chip chip-centered white black-text hide-on-med-and-down" style="border: 1px solid black; min-width: unset;">@seduta.Note</div>
+                            <div class="btn-flat purple-text hide-on-med-and-down">@seduta.Note</div>
                         }
                     </div>
 
                     @*COMANDI*@
                     <div class="col s4 right-align" style="margin-top: 15px;">
                         <button type="button" role="button" class="btn-flat black-text tooltipped" onclick="go('@Url.Action("Index", "AttiTrattazione", new { id = seduta.UIDSeduta })')" data-tooltip="Riepilogo atti">
-                            <i class="material-icons" style="margin-right: 5px">chevron_right</i>
+                            RIEPILOGO EM
                         </button>
                     </div>
                 </div>

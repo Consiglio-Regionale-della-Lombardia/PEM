@@ -44,7 +44,7 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [Route("{id:guid}")]
         public async Task<ActionResult> RiepilogoAtti(Guid id, ClientModeEnum mode = ClientModeEnum.GRUPPI,
-            int page = 1, int size = 50)
+            int page = 1, int size = 20)
         {
             Session["RiepilogoEmendamenti"] = null;
             var apiGateway = new ApiGateway(Token);

@@ -47,7 +47,7 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("users/view")]
-        public async Task<ActionResult> RiepilogoUtenti(int page = 1, int size = 50)
+        public async Task<ActionResult> RiepilogoUtenti(int page = 1, int size = 20)
         {
             var request = new BaseRequest<PersonaDto> { page = page, size = size };
             var apiGateway = new ApiGateway(Token);

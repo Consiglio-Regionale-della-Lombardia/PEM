@@ -40,7 +40,7 @@ namespace PortaleRegione.Client.Helpers
         /// </summary>
         private static readonly string _chipTemplate = @"
             <div class='chip' style='margin: 5px; min-width: unset!important'>
-                <img src='http://intranet.consiglio.regione.lombardia.it/GC/foto/{{foto}}'>
+                <img src='https://pubblicazioniweb.consiglio.regione.lombardia.it/fotocons/{{foto}}'>
                 {{DisplayName}}
                 {{OPZIONALE}}
             </div>";

@@ -176,7 +176,7 @@
                         {
                             if (stampa.DataFineEsecuzione.HasValue)
                             {
-                                <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
+                                <div class="green-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
                                     Completata
                                 </div>
                             }
@@ -184,7 +184,7 @@
                             {
                                 if (stampa.DataFineEsecuzione.HasValue)
                                 {
-                                    <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
+                                    <div class="green-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
                                         Completata
                                     </div>
                                 }
@@ -192,14 +192,14 @@
                                 {
                                     abilitaReset = true;
 
-                                    <div class="chip center amber white-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
+                                    <div class="amber-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
                                         In lavorazione
                                     </div>
                                 }
                             }
                             else
                             {
-                                <div class="chip center grey white-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
+                                <div class="grey-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
                                     In attesa
                                 </div>
                             }
@@ -208,7 +208,7 @@
                         {
                             abilitaReset = true;
 
-                            <div class="chip center red white-text tooltipped" data-position="bottom" data-tooltip="Messaggio di errore: @stampa.MessaggioErrore" style="min-width: unset">
+                            <div class="red-text tooltipped" data-position="bottom" data-tooltip="Messaggio di errore: @stampa.MessaggioErrore" style="min-width: unset">
                                 Errore
                             </div>
                         }

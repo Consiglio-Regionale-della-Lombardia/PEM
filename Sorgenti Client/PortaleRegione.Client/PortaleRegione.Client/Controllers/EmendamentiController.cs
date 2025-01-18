@@ -52,7 +52,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}")]
         public async Task<ActionResult> RiepilogoEmendamenti(Guid id,
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1,
-            int size = 50)
+            int size = 20)
         {
             var mode = ClientModeEnum.GRUPPI;
             var contextMode = HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));

@@ -39,7 +39,7 @@ namespace PortaleRegione.Client.Controllers
     [RoutePrefix("pem")]
     public class PEMController : BaseController
     {
-        public async Task<ActionResult> RiepilogoSedute(int page = 1, int size = 50)
+        public async Task<ActionResult> RiepilogoSedute(int page = 1, int size = 20)
         {
             var currentUser = CurrentUser;
             await CheckCacheGruppiAdmin(currentUser.CurrentRole);

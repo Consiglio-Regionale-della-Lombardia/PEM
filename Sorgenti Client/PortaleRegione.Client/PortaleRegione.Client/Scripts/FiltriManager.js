@@ -135,7 +135,7 @@ function GetAbbinamentiDisponibili(legislaturaId) {
         }
 
         let page = 1;
-        const size = 50; // possiamo impostare una dimensione di pagina standard
+        const size = 20; // possiamo impostare una dimensione di pagina standard
         let allResults = [];
 
         try {
@@ -189,7 +189,7 @@ function GetGruppiByLegislatura(legislaturaId) {
         }
 
         let page = 1;
-        const size = 50; // possiamo impostare una dimensione di pagina standard
+        const size = 20; // possiamo impostare una dimensione di pagina standard
         let allResults = [];
 
         try {

@@ -10,7 +10,7 @@
         <button type="button" role="button" class="btn-flat @(!archivio ? "green-text" : "")" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})')">Attive</button>
     </div>
     <div class="col s6">
-        <button type="button" role="button" class="@(archivio ? "green-text" : "")" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = true})')">Archiviate</button>
+        <button type="button" role="button" class="btn-flat @(archivio ? "green-text" : "")" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = true})')">Archiviate</button>
     </div>
 </div>
 

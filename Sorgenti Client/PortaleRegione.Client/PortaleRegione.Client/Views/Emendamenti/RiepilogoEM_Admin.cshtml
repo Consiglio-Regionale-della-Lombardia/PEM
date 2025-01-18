@@ -50,7 +50,7 @@
                 <div class="col s8 right-align">
                     @if (Model.Ordinamento == OrdinamentoEnum.Votazione)
                     {
-                        <button type="button" role="button" class="btn-flat pink-text tooltipped" data-tooltip="Esegui ordinamento dell'atto con drag&drop" onclick="viewOrdinamentoAtto();">
+                        <button type="button" role="button" class="btn-flat orange-text tooltipped" data-tooltip="Esegui ordinamento dell'atto con drag&drop" onclick="viewOrdinamentoAtto();">
                             ORDINA ATTO
                         </button>
                     }
@@ -71,19 +71,19 @@
                 @if (!filtri_attivi)
                 {
                     <li class="tab col s3">
-                        <button type="button" role="button" class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</button>
+                        <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</a>
                     </li>
                     <li class="tab col s3">
-                        <button type="button" role="button" class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</button>
+                        <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</a>
                     </li>
                 }
                 else
                 {
                     <li class="tab col s3">
-                        <button type="button" role="button" class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</button>
+                        <a class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</a>
                     </li>
                     <li class="tab col s3">
-                        <button type="button" role="button" class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</button>
+                        <a class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</a>
                     </li>
                 }
 

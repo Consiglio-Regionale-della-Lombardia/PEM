@@ -59,7 +59,7 @@ namespace PortaleRegione.Client.Controllers
             return View("Index", model);
         }
 
-        public async Task<ActionResult> Archivio(int page = 1, int size = 50)
+        public async Task<ActionResult> Archivio(int page = 1, int size = 20)
         {
             CheckCacheClientMode(ClientModeEnum.TRATTAZIONE);
 

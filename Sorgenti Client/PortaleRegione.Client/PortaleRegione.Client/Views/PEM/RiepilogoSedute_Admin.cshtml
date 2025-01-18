@@ -65,29 +65,29 @@
                         </span>
                         @if (!seduta.Data_apertura.HasValue)
                         {
-                            <div class="chip white grey-text hide-on-med-and-down" style="border: 1px solid grey; min-width: unset;">Chiusa</div>
+                            <div class="btn-flat grey-text hide-on-med-and-down">Chiusa</div>
                         }
                         else if (seduta.Data_apertura > DateTime.Now)
                         {
-                            <div class="chip white grey-text hide-on-med-and-down" style="border: 1px solid grey; min-width: unset;">Chiusa</div>
+                            <div class="btn-flat grey-text hide-on-med-and-down">Chiusa</div>
                         }
                         else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                         {
-                            <div class="chip white green-text hide-on-med-and-down" style="border: 1px solid green; min-width: unset;">Aperta</div>
+                            <div class="btn-flat green-text hide-on-med-and-down">Aperta</div>
                         }
                         @if (!string.IsNullOrEmpty(seduta.Note))
                         {
-                            <div class="chip chip-centered white black-text hide-on-med-and-down" style="border: 1px solid black; min-width: unset;">@seduta.Note</div>
+                            <div class="btn-flat purple-text hide-on-med-and-down">@seduta.Note</div>
                         }
                     </div>
 
                     @*COMANDI*@
                     <div class="col s3 right-align hide-on-med-and-down" style="margin: 5px;">
-                        <button type="button" role="button" class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
-                            <i class="material-icons" style="margin-right:5px">edit</i>
+                        <button type="button" role="button" class="btn-flat blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                            MODIFICA
                         </button>
-                        <button type="button" role="button" class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
-                            <i class="material-icons" style="margin-right:5px">chevron_right</i>
+                        <button type="button" role="button" class="btn-flat black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                            RIEPILOGO ATTI
                         </button>
                     </div>
                     @*COMANDI MOBILE*@

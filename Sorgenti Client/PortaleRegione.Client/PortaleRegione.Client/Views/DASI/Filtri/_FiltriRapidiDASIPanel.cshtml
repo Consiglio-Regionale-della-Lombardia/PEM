@@ -1004,15 +1004,15 @@ function CreaTabella() {
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Abbinamenti)') {
 
 				if (result.ODG_Atto_PEM) {
-					td.innerHTML += `<p><button type="button" role="button" class="btn-flat blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">${result.ODG_Atto_PEM}</button></p>`;
+					td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">${result.ODG_Atto_PEM}</a></p>`;
                 }
 
 				result.Abbinamenti.forEach(abb => {
-					td.innerHTML += `<p><button type="button" role="button" class="btn-flat blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UidAttoAbbinato}')">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</button></p>`;
+					td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UidAttoAbbinato}')">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</a></p>`;
 				});
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Documenti)') {
 				result.Documenti.forEach(abb => {
-					td.innerHTML += `<p>${abb.Tipo} - <button type="button" role="button" class="btn-flat blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('${abb.Link}')">${abb.Titolo}</button></p>`;
+					td.innerHTML += `<p>${abb.Tipo} - <a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('${abb.Link}')">${abb.Titolo}</a></p>`;
 				});
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Note)') {
 				result.Note.forEach(abb => {

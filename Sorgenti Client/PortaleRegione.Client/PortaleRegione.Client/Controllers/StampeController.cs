@@ -40,7 +40,7 @@ namespace PortaleRegione.Client.Controllers
     public class StampeController : BaseController
     {
         // GET
-        public async Task<ActionResult> Index(int page = 1, int size = 50)
+        public async Task<ActionResult> Index(int page = 1, int size = 20)
         {
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.Stampe.Get(page, size);

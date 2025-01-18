@@ -367,7 +367,7 @@ namespace PortaleRegione.Gateway
             var model = new BaseRequest<AttoDASIDto>
             {
                 page = 1,
-                size = 50,
+                size = 20,
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.TRATTAZIONE } }
             };
             var filtroSeduta = new FilterStatement<AttoDASIDto>
@@ -385,7 +385,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<RiepilogoDASIModel> GetBySeduta_Trattazione(Guid id, TipoAttoEnum tipoAtto, string uidAtto,
             int page = 1,
-            int size = 50)
+            int size = 20)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll}";
             var request = new BaseRequest<AttoDASIDto>

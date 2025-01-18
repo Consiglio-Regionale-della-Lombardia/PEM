@@ -37,14 +37,14 @@
 
 <ul id="RiepilogoNotificheTabs" class="tabs tabs-fixed-width">
     <li class="tab col s3">
-        <button type="button" role="button" class="@(!is_inviate ? "active" : "")" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})')">
+        <a class="@(!is_inviate ? "active" : "")" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})')">
             <i class="icon material-icons">move_to_inbox</i> Ricevute
-        </button>
+        </a>
     </li>
     <li class="tab col s3">
-        <button type="button" role="button" class="@(is_inviate ? "active" : "")" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = false})')">
+        <a class="@(is_inviate ? "active" : "")" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = false})')">
             <i class="icon material-icons">send</i> Inviate
-        </button>
+        </a>
     </li>
 </ul>
 

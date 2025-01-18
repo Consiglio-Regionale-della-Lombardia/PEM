@@ -37,7 +37,7 @@ namespace PortaleRegione.Client.Controllers
     {
         [HttpGet]
         [Route("view")]
-        public async Task<ActionResult> RiepilogoNotifiche(bool is_inviate, bool archivio, int page = 1, int size = 50)
+        public async Task<ActionResult> RiepilogoNotifiche(bool is_inviate, bool archivio, int page = 1, int size = 20)
         {
             try
             {

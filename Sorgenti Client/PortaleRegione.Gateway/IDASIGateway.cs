@@ -47,7 +47,7 @@ namespace PortaleRegione.Gateway
         Task<Dictionary<Guid, string>> Firma(Guid attoUId, string pin);
         Task<RiepilogoDASIModel> GetBySeduta(Guid sedutaUidSeduta);
         Task<RiepilogoDASIModel> GetBySeduta_Trattazione(Guid id, TipoAttoEnum tipoAtto, string uidAtto, int page = 1,
-            int size = 50);
+            int size = 20);
         Task<IEnumerable<AttiFirmeDto>> GetFirmatari(Guid id, FirmeTipoEnum primaDeposito);
         Task<string> GetBody(Guid id, TemplateTypeEnum template, bool privacy = false);
         Task Elimina(Guid id);
