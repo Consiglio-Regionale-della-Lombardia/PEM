@@ -94,9 +94,9 @@
 </div>
 <div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" onclick="window.close()">
+        <button type="button" role="button" class="btn-floating grey darken-3 header-back" onclick="window.close()">
             <i class="material-icons">close</i>
-        </a>
+        </button>
     </div>
 </div>
 <div class="row">
@@ -123,39 +123,39 @@
             <div class="col s12" style="margin-top: 5px">
                 @if (atto.Firmabile)
                 {
-                    <a class="btn-flat green-text" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                    <button type="button" role="button" class="btn-flat green-text" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
                          Firma
-                    </a>
+                    </button>
                 }
                 @if (atto.Presentabile)
                 {
-                    <a class="btn-flat purple-text center" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
+                    <button type="button" role="button" class="btn-flat purple-text center" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
                         Deposita
-                    </a>
+                    </button>
                 }
                 @if (atto.Modificabile)
                 {
-                    <a class="btn-flat blue-text center" onclick="go('@Url.Action("Modifica", new { id = atto.UIDAtto })')">
+                    <button type="button" role="button" class="btn-flat blue-text center" onclick="go('@Url.Action("Modifica", new { id = atto.UIDAtto })')">
                         Modifica
-                    </a>
+                    </button>
                 }
                 @if (atto.Invito_Abilitato)
                 {
-                    <a class="btn-flat yellow-text center" onclick="NotificaADASI('@atto.UIDAtto', @atto.Tipo)">
+                    <button type="button" role="button" class="btn-flat yellow-text center" onclick="NotificaADASI('@atto.UIDAtto', @atto.Tipo)">
                         Invita
-                    </a>
+                    </button>
                 }
                 @if (atto.Eliminabile)
                 {
-                    <a class="btn-flat red-text center" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.ELIMINA))">
+                    <button type="button" role="button" class="btn-flat red-text center" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.ELIMINA))">
                         Elimina
-                    </a>
+                    </button>
                 }
                 @if (atto.Ritirabile)
                 {
-                    <a class="btn-flat red-text white-text" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.RITIRA))">
+                    <button type="button" role="button" class="btn-flat red-text" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.RITIRA))">
                         Ritira Atto
-                    </a>
+                    </button>
                 }
             </div>
         </div>
@@ -176,11 +176,11 @@
 				<div class="col s12 center">
 					<div class="">
 						<span class="black-text">
-							<a class="btn-flat pink-text tooltipped"
+							<button type="button" role="button" class="btn-flat pink-text tooltipped"
 							   data-tooltip="Iscrizione in seduta"
 							   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
 								Iscrizione in seduta
-							</a>
+							</button>
 						</span>
 					</div>
 				</div>
@@ -204,9 +204,9 @@
 						  || Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 						 && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
 			{
-				<a class="btn-flat red-text" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
+				<button type="button" role="button" class="btn-flat red-text" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
 					Rimuovi richiesta
-				</a>
+				</button>
 			}
 		}
 	}
@@ -225,9 +225,9 @@
 				|| Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 			&& Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
 		{
-			<div class="btn-flat red-text" onclick="DeclassaMozione('@atto.UIDAtto', '@atto.Display', 1)">
+			<button type="button" role="button" class="btn-flat red-text" onclick="DeclassaMozione('@atto.UIDAtto', '@atto.Display', 1)">
 				Rimuovi urgenza
-			</div>
+			</button>
 		}
 	}
 	else if (atto.IsMOZ() && atto.TipoMOZ == (int)TipoMOZEnum.ABBINATA && !string.IsNullOrEmpty(atto.DataPresentazione_MOZ_ABBINATA))
@@ -241,9 +241,9 @@
 				|| Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 			&& Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
 		{
-			<div class="btn-flat red-text" onclick="DeclassaMozione('@atto.UIDAtto', '@atto.Display', 2)">
+			<button type="button" role="button" class="btn-flat red-text" onclick="DeclassaMozione('@atto.UIDAtto', '@atto.Display', 2)">
 				Rimuovi abbinamento
-			</div>
+			</button>
 		}
 	}
 	@if (atto.IsMOZ()
@@ -258,16 +258,16 @@
 			<div class="col s12 center">
 				<div class="">
 					<span class="black-text">
-						<a class="btn-flat orange-text tooltipped"
+						<button type="button" role="button" class="btn-flat orange-text tooltipped"
 						   data-tooltip="Proponi urgenza"
 						   onclick="ProponiUrgenzaDASI('@Html.Raw(atto.UIDAtto)', '@Html.Raw(atto.Display)')">
 							Proponi urgenza
-						</a>
-						<a class="btn-flat orange-text tooltipped"
+						</button>
+						<button type="button" role="button" class="btn-flat orange-text tooltipped"
 						   data-tooltip="Proponi abbinamento"
 						   onclick="ProponiAbbinataDASI('@Html.Raw(atto.UIDAtto)', '@Html.Raw(atto.Display)')">
 							Proponi abbinamento
-						</a>
+						</button>
 					</span>
 				</div>
 			</div>
@@ -286,11 +286,11 @@
 				<div class="col s12 center">
 					<div class="">
 						<span class="black-text">
-							<a class="btn-flat pink-text tooltipped"
+							<button type="button" role="button" class="btn-flat pink-text tooltipped"
 							   data-tooltip="Iscrizione in seduta"
 							   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
 								Iscrizione in seduta
-							</a>
+							</button>
 						</span>
 					</div>
 				</div>
@@ -323,10 +323,10 @@
 					|| Model.CurrentUser.IsResponsabileSegreteriaPolitica)
 				&& Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
 			{
-				<div class="btn-flat red-text"
+				<button type="button" role="button" class="btn-flat red-text"
 					 onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
 					Rimuovi richiesta
-				</div>
+				</button>
 			}
 		}
 	}
@@ -395,9 +395,9 @@
 					 && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
 				 || Model.CurrentUser.IsSegreteriaAssemblea)
 			{
-				<a class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
+				<button type="button" role="button" class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
 					Gestisci priorità e ordinamento firme @*#987*@
-				</a>
+				</button>
 				<br />
 			}
 
@@ -424,11 +424,11 @@
                                 @*#986*@
                                 if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                                 {
-                                    <a class='center red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+                                    <button type="button" role="button" class='btn-flat red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></button>
                                 }
                                 else
                                 {
-                                    <a class='center red-text secondary-content' style="min-width:unset;" onclick="EliminaFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></a>
+                                    <button type="button" role="button" class='btn-flat red-text secondary-content' style="min-width:unset;" onclick="EliminaFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></button>
                                 }
                             }
 						}
@@ -458,9 +458,9 @@
 		@* FIRME PRIORITA' *@
 		<div class="row" id="pnlPrioritaFirme" style="display: none;">
 			<div class="col s12">
-				<a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
+				<button type="button" role="button" class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
 					Termina gestione firme @*#987*@
-				</a>
+				</button>
 				<br />
 
 				<ul class="collapsible expandable">
@@ -476,10 +476,10 @@
 											&& atto.Tipo != (int)TipoAttoEnum.ITR
 											&& atto.Tipo != (int)TipoAttoEnum.ODG)
 										{
-											<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+											<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 											   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
 												<i class="material-icons black-text" style="margin-left: 5px;">star</i>
-											</a>
+											</button>
 										}
 									}
 									<span class="title bold-text">
@@ -509,10 +509,10 @@
 									{
 										if (atto.Tipo != (int)TipoAttoEnum.ITL && atto.Tipo != (int)TipoAttoEnum.ITR)
 										{
-											<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+											<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 											   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
 												<i class="material-icons" style="margin-left: 5px;">star_border</i>
-											</a>
+											</button>
 										}
 										<span class="title">@firme.FirmaCert</span>
 										<p> - Firmato il @firme.Timestamp.ToString("dd/MM/yyyy")</p>
@@ -583,7 +583,8 @@
 <div class="fixed-action-btn">
     @if (Model.CurrentUser.UID_persona == atto.UIDPersonaProponente)
     {
-        <a class="btn-floating btn-large white black-text tooltipped"
+        <button type="button" role="button"
+                class="btn-floating btn-large white black-text tooltipped"
            data-position="left"
            data-tooltip="Stampa"
            data-url="@Url.Action("Download", "DASI", new { id = atto.UIDAtto })"
@@ -591,18 +592,19 @@
            onclick="StampaUOLA(this)"
            style="margin-right: 15px;">
             <i class="material-icons">print</i>
-        </a>
+        </button>
     }
     else
     {
-        <a class="btn-floating btn-large white black-text tooltipped"
+        <button type="button" role="button"
+                class="btn-floating btn-large white black-text tooltipped"
            data-position="left"
            data-tooltip="Stampa"
            target="_blank"
            href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
            style="margin-right: 15px;">
             <i class="material-icons">print</i>
-        </a>
+        </button>
     }
 </div>
 

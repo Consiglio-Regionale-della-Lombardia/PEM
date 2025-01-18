@@ -62,17 +62,17 @@
 							</a>
 							<ul class="dropdown-content" id="ddlSubMenu">
 								<li>
-									<a onclick="CambioPin()">
+									<button type="button" role="button" onclick="CambioPin()">
 										<i class="material-icons">settings</i>Reimposta Pin
-									</a>
+									</button>
 								</li>
 								@if (persona.IsGiunta)
 								{
 								    <li>
                                         <input type="hidden" id="hdPersonaUID"/>
-                                        <a onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')">
+                                        <button type="button" role="button" onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')">
                                             <i class="material-icons">key</i>Reset Password
-                                        </a>
+                                        </button>
                                     </li>
 								}
 								<li>
@@ -81,9 +81,9 @@
 									</a>
 								</li>
 								<li>
-									<a class="red-text" onclick="logout()">
+									<button type="button" role="button" class="red-text" onclick="logout()">
 										<i class="material-icons red-text">exit_to_app</i> Esci
-									</a>
+									</button>
 								</li>
 							</ul>
 						</div>

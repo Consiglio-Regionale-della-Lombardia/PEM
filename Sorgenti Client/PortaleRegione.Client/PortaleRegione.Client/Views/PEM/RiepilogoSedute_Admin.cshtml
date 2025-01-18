@@ -83,21 +83,21 @@
 
                     @*COMANDI*@
                     <div class="col s3 right-align hide-on-med-and-down" style="margin: 5px;">
-                        <a class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                        <button type="button" role="button" class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
                             <i class="material-icons" style="margin-right:5px">edit</i>
-                        </a>
-                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                        </button>
+                        <button type="button" role="button" class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
                             <i class="material-icons" style="margin-right:5px">chevron_right</i>
-                        </a>
+                        </button>
                     </div>
                     @*COMANDI MOBILE*@
                     <div class="col s3 right-align hide-on-large-only" style="margin: 5px;">
-                        <a class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                        <button type="button" role="button" class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
                             <i class="material-icons" style="margin-right:5px">edit</i>
-                        </a>
-                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                        </button>
+                        <button type="button" role="button" class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
                             <i class="material-icons" style="margin-right:5px">chevron_right</i>
-                        </a>
+                        </button>
                     </div>
                 </div>
                 <div class="collapsible-body">

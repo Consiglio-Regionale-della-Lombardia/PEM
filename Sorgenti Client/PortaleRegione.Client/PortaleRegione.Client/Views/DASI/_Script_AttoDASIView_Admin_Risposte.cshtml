@@ -13,8 +13,8 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
-		<a id="btnInserisciRisposta" href="#!" class="blue-text waves-effect waves-green btn-flat" onclick="InserisciRisposta()">Inserisci</a>
+        <button type="button" role="button" class="modal-close btn-flat green-text">Chiudi</button>
+		<button type="button" role="button" id="btnInserisciRisposta" class="btn-flat blue-text" onclick="InserisciRisposta()">Inserisci</button>
 	</div>
 </div>
 
@@ -48,7 +48,7 @@
         <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
         @if (Model.CurrentUser.IsSegreteriaAssemblea)
         {
-            <a onclick="btnSalvaDettagliRisposta()" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+            <button type="button" role="button" onclick="btnSalvaDettagliRisposta()" class="btn-flat blue-text">Salva</button>
         }
     </div>
 </div>

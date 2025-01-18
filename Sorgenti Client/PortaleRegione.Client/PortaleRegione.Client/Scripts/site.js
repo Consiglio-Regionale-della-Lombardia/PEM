@@ -1079,7 +1079,7 @@ async function GetArticoliAtto(attoUId) {
     var table = $("#tableArticoli");
     table.empty();
 
-    table.append('<li class="collection-item"><div>Nuovo articolo <a onclick="CreaArticolo(\'' +
+    table.append('<li class="collection-item"><div>Nuovo articolo <button type="button" role="button" onclick="CreaArticolo(\'' +
         attoUId +
         '\')" class="secondary-content blue-text"><i class="material-icons">add</i></a></div></li>');
 
@@ -1092,9 +1092,9 @@ async function GetArticoliAtto(attoUId) {
                 '"><div>' +
                 item.Articolo +
                 " " +
-                '<a onclick="EliminaArticolo(\'' +
+                '<button type="button" role="button" onclick="EliminaArticolo(\'' +
                 item.UIDArticolo +
-                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></a>' +
+                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></button>' +
                 "</div></li>");
         });
 }
@@ -1112,9 +1112,9 @@ async function GetCommiArticolo(articoloUId) {
     var table = $("#tableCommi");
     table.empty();
 
-    table.append('<li class="collection-item"><div>Nuovo comma <a onclick="CreaComma(\'' +
+    table.append('<li class="collection-item"><div>Nuovo comma <button type="button" role="button" onclick="CreaComma(\'' +
         articoloUId +
-        '\')" class="secondary-content blue-text"><i class="material-icons">add</i></a></div></li>');
+        '\')" class="secondary-content blue-text"><i class="material-icons">add</i></button></div></li>');
 
     $.each(commi,
         function(index, item) {
@@ -1125,9 +1125,9 @@ async function GetCommiArticolo(articoloUId) {
                 '"><div>' +
                 item.Comma +
                 " " +
-                '<a onclick="EliminaComma(\'' +
+                '<button type="button" role="button" onclick="EliminaComma(\'' +
                 item.UIDComma +
-                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></a>' +
+                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></button>' +
                 "</div></li>");
         });
 }
@@ -1140,9 +1140,9 @@ async function GetLettereComma(commaUId) {
     var table = $("#tableLettere");
     table.empty();
 
-    table.append('<li class="collection-item"><div>Nuova lettera <a onclick="CreaLettera(\'' +
+    table.append('<li class="collection-item"><div>Nuova lettera <button type="button" role="button" onclick="CreaLettera(\'' +
         commaUId +
-        '\')" class="secondary-content blue-text"><i class="material-icons">add</i></a></div></li>');
+        '\')" class="secondary-content blue-text"><i class="material-icons">add</i></button></div></li>');
 
     $.each(lettere,
         function(index, item) {
@@ -1151,9 +1151,9 @@ async function GetLettereComma(commaUId) {
                 "'><div>" +
                 item.Lettera +
                 " " +
-                '<a onclick="EliminaLettera(\'' +
+                '<button type="button" role="button" onclick="EliminaLettera(\'' +
                 item.UIDLettera +
-                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></a>' +
+                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></button>' +
                 "</div></li>");
         });
 }

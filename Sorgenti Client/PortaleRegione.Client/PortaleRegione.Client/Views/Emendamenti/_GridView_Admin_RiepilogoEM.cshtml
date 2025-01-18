@@ -120,25 +120,25 @@ else
                         <!-- Dropdown Structure -->
                         <ul id='dropdown_@itemEM.UIDEM' class='dropdown-content' style="max-width: 300px">
                             <li>
-                                <a class="depositatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Depositato))"><i class="material-icons">lock</i> Depositato</a>
+                                <button type="button" role="button" class="depositatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Depositato))"><i class="material-icons">lock</i> Depositato</button>
                             </li>
                             <li>
-                                <a class="approvatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Approvato))"><i class="material-icons">check</i> Approva</a>
+                                <button type="button" role="button" class="approvatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Approvato))"><i class="material-icons">check</i> Approva</button>
                             </li>
                             <li>
-                                <a class="approvatomodT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Approvato_Con_Modifiche))"><i class="material-icons">check</i> Approva con modifiche</a>
+                                <button type="button" role="button" class="approvatomodT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Approvato_Con_Modifiche))"><i class="material-icons">check</i> Approva con modifiche</button>
                             </li>
                             <li>
-                                <a class="NOapprovatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Non_Approvato))"><i class="material-icons">close</i> Non approva</a>
+                                <button type="button" role="button" class="NOapprovatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Non_Approvato))"><i class="material-icons">close</i> Non approva</button>
                             </li>
                             <li>
-                                <a class="inammissibileT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Inammissibile))"><i class="material-icons">not_interested</i> Inammissibile</a>
+                                <button type="button" role="button" class="inammissibileT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Inammissibile))"><i class="material-icons">not_interested</i> Inammissibile</button>
                             </li>
                             <li>
-                                <a class="decadutoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Decaduto))"><i class="material-icons">report</i> Decaduto</a>
+                                <button type="button" role="button" class="decadutoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Decaduto))"><i class="material-icons">report</i> Decaduto</button>
                             </li>
                             <li>
-                                <a class="ritiratoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Ritirato))"><i class="material-icons">delete</i> Ritira</a>
+                                <button type="button" role="button" class="ritiratoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Ritirato))"><i class="material-icons">delete</i> Ritira</button>
                             </li>
                         </ul>
                     </td>

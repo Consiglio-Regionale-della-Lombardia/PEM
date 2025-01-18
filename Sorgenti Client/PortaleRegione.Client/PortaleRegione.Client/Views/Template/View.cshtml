@@ -59,8 +59,8 @@
                         <div class="col s12">
                             <div class="card blue-grey lighten-1">
                                 <div class="card-action">
-                                    <a href="#" onclick="editTemplate(this)" data-uid="@item.Uid">Modifica</a>
-                                    <a href="#" class="red-text" onclick="removeTemplate(this)" data-uid="@item.Uid" data-name="@item.Nome">Elimina</a>
+                                    <button type="button" role="button" nclick="editTemplate(this)" data-uid="@item.Uid">Modifica</button>
+                                    <button type="button" role="button" class="red-text" onclick="removeTemplate(this)" data-uid="@item.Uid" data-name="@item.Nome">Elimina</button>
                                 </div>
                             </div>
                         </div>
@@ -72,9 +72,9 @@
     </ul>
 </div>
 <div id="pnlNuovoDASI" class="fixed-action-btn">
-	<a id="btnNuovoTemplate" class="btn-floating btn-large blue darken-3" onclick="goIntoOtherTab('@Url.Action("NewTemplate")')">
+	<button type="button" role="button" id="btnNuovoTemplate" class="btn-floating btn-large blue darken-3" onclick="goIntoOtherTab('@Url.Action("NewTemplate")')">
 		<i class="large material-icons">add</i>
-	</a>
+	</button>
 </div>
 
 <script>

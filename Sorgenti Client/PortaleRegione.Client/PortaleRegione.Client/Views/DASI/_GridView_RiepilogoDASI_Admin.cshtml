@@ -144,11 +144,11 @@ else
         {
             <td style="width: 8%;">
                 <span>
-                    <a class="btn-flat red-text tooltipped"
+                    <button type="button" role="button" class="btn-flat red-text tooltipped"
                        data-tooltip="Rimuovi urgenza"
                        onclick="DeclassaMozione('@item.UIDAtto')">
                         <i class="material-icons">close</i>
-                    </a>
+                    </button>
                 </span>
             </td>
         }
@@ -156,12 +156,12 @@ else
         {
             <td style="width: 8%;">
                 <span>
-                    <a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</a>
-                    <a class="btn-flat red-text tooltipped"
+                    <button type="button" role="button" class="btn-flat blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</button>
+                    <button type="button" role="button" class="btn-flat red-text tooltipped"
                        data-tooltip="Rimuovi abbinamento"
                        onclick="DeclassaMozione('@item.UIDAtto')">
                         <i class="material-icons">close</i>
-                    </a>
+                    </button>
                 </span>
             </td>
         }
@@ -314,9 +314,9 @@ else
                         }
                         else if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta))
                         {
-                            <div class="chip hoverable badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                            <button type="button" role="button" class="btn-flat badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
                                 Iscrivi
-                            </div>
+                            </button>
                         }
                     }
                 }

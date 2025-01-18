@@ -50,18 +50,16 @@
                 <div class="col s8 right-align">
                     @if (Model.Ordinamento == OrdinamentoEnum.Votazione)
                     {
-                        <a class="btn-flat pink-text tooltipped" data-tooltip="Esegui ordinamento dell'atto con drag&drop" onclick="viewOrdinamentoAtto();">
-                            <i class="material-icons right pink-text">swap_vert</i>
+                        <button type="button" role="button" class="btn-flat pink-text tooltipped" data-tooltip="Esegui ordinamento dell'atto con drag&drop" onclick="viewOrdinamentoAtto();">
                             ORDINA ATTO
-                        </a>
+                        </button>
                     }
                     @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
                     {
-                        <a class="btn-flat pink-text tooltipped"
+                        <button type="button" role="button" class="btn-flat pink-text tooltipped"
                            href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" data-tooltip="Scarica documento">
-                            <i class="material-icons right pink-text">cloud_download</i>
                             SCARICA DOCUMENTO
-                        </a>
+                        </button>
                     }
                 </div>
             </div>
@@ -73,19 +71,19 @@
                 @if (!filtri_attivi)
                 {
                     <li class="tab col s3">
-                        <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</a>
+                        <button type="button" role="button" class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</button>
                     </li>
                     <li class="tab col s3">
-                        <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</a>
+                        <button type="button" role="button" class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</button>
                     </li>
                 }
                 else
                 {
                     <li class="tab col s3">
-                        <a class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</a>
+                        <button type="button" role="button" class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</button>
                     </li>
                     <li class="tab col s3">
-                        <a class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</a>
+                        <button type="button" role="button" class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</button>
                     </li>
                 }
 
@@ -100,10 +98,10 @@
     <div class="card-content">
         <div class="row">
             <div class="col l12 right-align">
-                <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="viewStandard();">
+                <button type="button" role="button" class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="viewStandard();">
                     <i class="material-icons right pink-text">apps</i>
                     VISUALIZZA EM
-                </a>
+                </button>
             </div>
             <div class="col l12">
                 <table id="tableTesti" class="tableTesti">
@@ -126,10 +124,10 @@
 <div id="pnlOrdinamento" style="display: none;">
     <div class="row">
         <div class="col l12 right-align">
-            <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="location.reload();">
+            <button type="button" role="button" class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="location.reload();">
                 <i class="material-icons right pink-text">apps</i>
                 VISUALIZZA EM
-            </a>
+            </button>
         </div>
         <div class="col l12">
             <div class="row">

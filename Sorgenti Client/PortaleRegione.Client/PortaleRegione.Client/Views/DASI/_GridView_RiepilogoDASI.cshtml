@@ -84,7 +84,7 @@ else
                 @if (item.IsMOZAbbinata())
                 {
                     <i class="close material-icons orange-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>
-                    <a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</a>
+                    <button type="button" role="button" class="btn-flat blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</>
                 }
                 @if (item.IsODG())
                 {
@@ -135,29 +135,29 @@ else
                 {
                     if (item.Firmabile)
                     {
-                        <a class="btn-floating white green-text tooltipped" style="margin: 5px" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                        <button type="button" role="button" class="btn-floating white green-text tooltipped" style="margin: 5px" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
                             <i class="icon material-icons" style="margin-right: 5px">gavel</i>
-                        </a>
+                        </button>
                     }
                     if (item.Presentabile)
                     {
-                        <a class="btn-floating white purple-text tooltipped" style="margin: 5px" data-tooltip="Deposita" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
+                        <button type="button" role="button" class="btn-floating white purple-text tooltipped" style="margin: 5px" data-tooltip="Deposita" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
                             <i class="material-icons" style="margin-right: 5px">lock</i>
-                        </a>
+                        </button>
                     }
                 }
                 else
                 {
                     if (item.Firmabile)
                     {
-                        <a class="btn-floating white green-text tooltipped" style="margin: 5px" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                        <button type="button" role="button" class="btn-floating white green-text tooltipped" style="margin: 5px" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
                             <i class="icon material-icons" style="margin-right: 5px">gavel</i>
-                        </a>
+                        </button>
                     }
                 }
-                <a class="btn-floating white black-text tooltipped" style="margin: 5px" data-tooltip="Visualizza" onclick="goIntoOtherTabWithName('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })', '@Html.Raw(Model.CurrentUser.DisplayName)', '@Html.Raw(Model.CurrentUser.Gruppo.codice_gruppo)')">
+                <button type="button" role="button" class="btn-floating white black-text tooltipped" style="margin: 5px" data-tooltip="Visualizza" onclick="goIntoOtherTabWithName('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })', '@Html.Raw(Model.CurrentUser.DisplayName)', '@Html.Raw(Model.CurrentUser.Gruppo.codice_gruppo)')">
                     <i class="icon material-icons" style="margin-right: 5px">chevron_right</i>
-                </a>
+                </button>
             </div>
         </div>
         <div class="collapsible-body" style="display: block;">
@@ -232,9 +232,9 @@ else
                                      && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
                                     || (Model.CurrentUser.IsCapoGruppo && item.id_gruppo == Model.CurrentUser.Gruppo.id_gruppo))
                                 {
-                                    <a class="btn-floating white red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                    <button type="button" role="button" class="btn-floating white red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">
                                         <i class="material-icons">close</i>
-                                    </a>
+                                    </button>
                                 }
                             }
                         </span>
@@ -309,14 +309,14 @@ else
                                  && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica))
                             {
                                 <li>
-                                    <a onclick="ProponiUrgenzaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                    <button type="button" role="button" onclick="ProponiUrgenzaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
                                         Proponi urgenza
-                                    </a>
+                                    </button>
                                 </li>
                                 <li>
-                                    <a onclick="ProponiAbbinataDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                    <button type="button" role="button" onclick="ProponiAbbinataDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
                                         Proponi abbinamento
-                                    </a>
+                                    </button>
                                 </li>
                             }
 
@@ -332,9 +332,9 @@ else
                                     || (item.IsMOZ() && item.IDStato > (int)StatiAttoEnum.BOZZA))
                                 {
                                     <li>
-                                        <a onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)', @Html.Raw(item.Tipo), @Html.Raw(item.TipoMOZ))">
+                                        <button type="button" role="button" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)', @Html.Raw(item.Tipo), @Html.Raw(item.TipoMOZ))">
                                             Proponi iscrizione
-                                        </a>
+                                        </button>
                                     </li>
                                 }
                             }
@@ -343,36 +343,36 @@ else
 
                     if (Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
                     {
-                        <a class="btn-floating white black-text tooltipped" style="margin-right: 5px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI", new { id = item.UIDAtto })"
+                        <button type="button" role="button" class="btn-floating white black-text tooltipped" style="margin-right: 5px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI", new { id = item.UIDAtto })"
                            data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })" onclick="StampaUOLA(this)">
                             <i class="material-icons">print</i>
-                        </a>
+                        </button>
                     }
                     else
                     {
-                        <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 5px;" href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })">
+                        <button type="button" role="button" class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 5px;" href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })">
                             <i class="material-icons">print</i>
-                        </a>
+                        </button>
                     }
 
                     if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                     {
-                        <a class="btn-floating white blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" style="margin-right: 5px;" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
+                        <button type="button" role="button" class="btn-floating white blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" style="margin-right: 5px;" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
                             <i class="icon material-icons">remove_red_eye</i>
-                        </a>
+                        </button>
                     }
 
                     if (item.Eliminabile)
                     {
-                        <a class="btn-floating white red-text tooltipped" data-tooltip="Elimina atto" style="margin-right: 5px;" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int)ActionEnum.ELIMINA))">
+                        <button type="button" role="button" class="btn-floating white red-text tooltipped" data-tooltip="Elimina atto" style="margin-right: 5px;" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int)ActionEnum.ELIMINA))">
                             <i class="material-icons">close</i>
-                        </a>
+                        </button>
                     }
                     if (item.Ritirabile)
                     {
-                        <a class="btn-floating white red-text tooltipped" data-tooltip="Ritira atto" style="margin-right: 5px;" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int)ActionEnum.RITIRA))">
+                        <button type="button" role="button" class="btn-floating white red-text tooltipped" data-tooltip="Ritira atto" style="margin-right: 5px;" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int)ActionEnum.RITIRA))">
                             <i class="material-icons">close</i>
-                        </a>
+                        </button>
                     }
                 }
             </div>

@@ -7,10 +7,10 @@
 }
 <div id="RiepilogoNotificheInviateTabs" class="row center-align">
     <div class="col s6">
-        <a class="@(!archivio ? "green white-text" : "") chip" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = false})')">Attive</a>
+        <button type="button" role="button" class="btn-flat @(!archivio ? "green-text" : "") chip" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = false})')">Attive</button>
     </div>
     <div class="col s6">
-        <a class="@(archivio ? "green white-text" : "") chip" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = true})')">Archiviate</a>
+        <button type="button" role="button" class="btn-flat @(archivio ? "green-text" : "")" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = true})')">Archiviate</button>
     </div>
 </div>
 

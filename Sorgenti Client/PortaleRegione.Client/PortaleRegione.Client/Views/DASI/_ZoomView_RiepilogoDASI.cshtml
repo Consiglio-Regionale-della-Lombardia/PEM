@@ -58,15 +58,15 @@ else
                         <div class='card-action right'>
                             @if (HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                             {
-                                <a class="btn-floating white blue-text tooltipped" onclick="openMetaDatiDASI('@item.UIDAtto')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                                <button type="button" role="button" class="btn-floating white blue-text tooltipped" onclick="openMetaDatiDASI('@item.UIDAtto')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
                                     <i class="material-icons" style="margin-right:5px">edit</i>
-                                </a>
+                                </button>
                             }
 
-                            <a class="btn-floating white black-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')" style="margin: 2px"
+                            <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')" style="margin: 2px"
                                data-position="left" data-tooltip="Visualizza atto">
                                 <i class="material-icons" style="margin-right:5px">chevron_right</i>
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -103,18 +103,18 @@ else
 
                                 @if (item.Firmabile)
                                 {
-                                    <a class="btn-floating white green-text" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                                    <button type="button" role="button" class="btn-floating white green-text" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
                                         <i class="material-icons right green-text" style="margin-right:5px">gavel</i>
                                         FIRMA
-                                    </a>
+                                    </button>
                                 }
                                 @if (item.Presentabile)
                                 {
-                                    <a class="btn-floating white purple-text"
+                                    <button type="button" role="button" class="btn-floating white purple-text"
                                        onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
                                         <i class="material-icons right purple-text" style="margin-right:5px">lock</i>
                                         PRESENTA
-                                    </a>
+                                    </button>
                                 }
                             </div>
                         </div>

@@ -78,9 +78,9 @@
                 </div>
             </div>
             <div class="card-action right-align">
-                <div class="btn-flat green-text" onclick="login()">
+                <button type="button" role="button" class="btn-flat green-text" onclick="login()">
                     Accedi
-                </div>
+                </button>
 
                 @{
                     if (!string.IsNullOrEmpty(Model.LoginRequest.MessaggioErrore))
