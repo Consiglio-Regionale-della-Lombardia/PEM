@@ -57,7 +57,7 @@
             if (atto.Data_chiusura.Value < DateTime.Now)
             {
                 statoAtto = "Chiuso";
-                coloreStatoAtto = "grey";
+                coloreStatoAtto = "grey-text";
             }
         }
         if (string.IsNullOrEmpty(statoAtto))
@@ -65,12 +65,12 @@
             if (!atto.Data_apertura.HasValue)
             {
                 statoAtto = "Chiuso";
-                coloreStatoAtto = "grey";
+                coloreStatoAtto = "grey-text";
             }
             else if (atto.Data_apertura.Value < DateTime.Now)
             {
                 statoAtto = "Aperto";
-                coloreStatoAtto = "green";
+                coloreStatoAtto = "green-text";
             }
             else
             {
@@ -86,7 +86,7 @@
                     statoAtto = $"Apertura prevista: {atto.Data_apertura.Value:dd/MM/yyyy HH:mm}";
                 }
 
-                coloreStatoAtto = "green";
+                coloreStatoAtto = "green-text";
             }
         }
 
@@ -102,7 +102,7 @@
                                     {
                                         <a class="btn-flat pink-text hide-on-large-only"
                                            href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
-                                            <i class="material-icons right pink-text">cloud_download</i>
+                                            Scarica documento
                                         </a>
                                     }
                                 </h5>
@@ -110,7 +110,7 @@
                             <div class="col s4 right-align">
                                 @if (!string.IsNullOrEmpty(statoAtto))
                                 {
-                                    <div class="chip white @coloreStatoAtto-text" style="min-width: unset; border: 1px solid @coloreStatoAtto">@statoAtto</div>
+									<div class="btn-flat @coloreStatoAtto">@statoAtto</div>
                                 }
                             </div>
                         </div>
@@ -127,7 +127,6 @@
                                 {
                                     <button type="button" role="button" class="btn-flat pink-text hide-on-med-and-down"
                                        href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})" title="Scarica documento">
-                                        <i class="material-icons right pink-text">cloud_download</i>
                                         SCARICA TESTO
                                     </button>
                                 }

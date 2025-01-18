@@ -89,24 +89,24 @@
             <div class="col s12">
                 <ul class="tabs">
                     <li class="tab col l3 s12">
-                        <button type="button" role="button" class="@classTabBozza" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.BOZZA));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
+                        <a class="@classTabBozza" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.BOZZA));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
                             Bozza (@Model.CountBarData.BOZZE)
-                        </button>
+                        </a>
                     </li>
                     <li class="tab col l3 s12">
-                        <button type="button" role="button" class="@classTabPresentati" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.PRESENTATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
+                        <a class="@classTabPresentati" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.PRESENTATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
                             Depositati (@Model.CountBarData.PRESENTATI)
-                        </button>
+                        </a>
                     </li>
                     <li class="tab col l3 s12">
-                        <button type="button" role="button" class="@classTabTrattazione" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.IN_TRATTAZIONE));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
+                        <a class="@classTabTrattazione" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.IN_TRATTAZIONE));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
                             In Trattazione (@Model.CountBarData.IN_TRATTAZIONE)
-                        </button>
+                        </a>
                     </li>
                     <li class="tab col l3 s12">
-                        <button type="button" role="button" class="@classTabChiusi" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.COMPLETATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
+                        <a class="@classTabChiusi" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.COMPLETATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
                             Chiusi (@Model.CountBarData.CHIUSO)
-                        </button>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -261,8 +261,8 @@ function ConfirmActionDASI(id, name, action) {
         <h5 id="attoActionDisplayName"></h5>
         <p id="attoActionMessage"></p>
         <div class="modal-footer" style="position: unset !important;">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaActionDASI" class="btn red" href="#">Elimina</a>
+            <button type="button" role="button" class="btn-flat modal-close grey-text">Annulla</button>
+            <button type="button" role="button" id="btnConfermaActionDASI" class="btn-flat red-text" href="#">Elimina</button>
         </div>
     </div>
 </div>

@@ -52,10 +52,26 @@
                         <b>@ViewBag.Title</b>
                         @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
                         {
-                            <a class="btn-flat pink-text tooltipped"
-                               href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" data-tooltip="Scarica testo">
-                               SCARICA
-                            </a>
+                            <button type="button" role="button" class="btn-flat pink-text"
+                               href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })">
+                               SCARICA DOCUMENTO ATTO
+                            </button>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
+                        {
+                            <button type="button" role="button" class="btn-flat orange-text"
+                                    href="@Model.Atto.LinkFascicoloPresentazione"
+                                    target="_blank">
+                                Scarica fascicolo presentazione
+                            </button>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
+                        {
+                            <button type="button" role="button" class="btn-flat orange-text"
+                                    href="@Model.Atto.LinkFascicoloVotazione"
+                                    target="_blank">
+                                Scarica fascicolo votazione
+                            </button>
                         }
                     </h3>
                 </div>

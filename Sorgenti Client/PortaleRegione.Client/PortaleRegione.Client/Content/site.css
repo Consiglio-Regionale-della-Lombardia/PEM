@@ -171,37 +171,56 @@ a.orange-text {
 .btn-floating.btn-large.white.black-text {
 	border: 4px solid black;
 }
+.btn-floating.btn-large.white.green-text {
+	border: 4px solid #1b5e20;
+}
+.btn-floating.btn-large.white.purple-text {
+	border: 4px solid #4a148c;
+}
+.btn-floating.btn-large.white.orange-text {
+	border: 4px solid #e65100;
+}
+.btn-floating.btn-large.white.grey-text {
+	border: 4px solid #636363;
+}
 
-.btn-floating.btn-large.white.black-text > i {
-	margin-left: -4px;
-	margin-top: -4px;
+	.btn-floating.btn-large.white.black-text > i,
+	.btn-floating.btn-large.white.green-text > i,
+	.btn-floating.btn-large.white.purple-text > i,
+	.btn-floating.btn-large.white.orange-text > i {
+		margin-left: -4px;
+		margin-top: -4px;
+	}
+
+.btn-floating.white.black-text > i,
+.btn-floating.white.green-text > i,
+.btn-floating.white.purple-text > i,
+.btn-floating.white.orange-text > i,
+.btn-floating.white.blue-text-text > i,
+.btn-floating.white.red-text > i {
+	margin-left: -2px !important;
+	margin-top: -1px !important;
 }
 
 .btn-floating.white.black-text {
 	border: 2px solid black;
 }
 
-.btn-floating.white.black-text > i {
-	margin-left: -2px;
-	margin-top: -2px;
-}
-
 .btn-floating.white.orange-text {
 	border: 2px solid #e65100;
-}
-
-.btn-floating.white.orange-text > i {
-	margin-left: -2px;
-	margin-top: -2px;
 }
 
 .btn-floating.white.green-text {
 	border: 2px solid #1b5e20;
 }
-
-.btn-floating.white.green-text > i {
-	margin-left: -2px;
-	margin-top: -2px;
+.btn-floating.white.purple-text {
+	border: 2px solid #4a148c;
+}
+.btn-floating.white.red-text {
+	border: 2px solid #b71c1c;
+}
+.btn-floating.white.blue-text {
+	border: 2px solid #1565c0;
 }
 
 .btn-floating > i { color: unset; }

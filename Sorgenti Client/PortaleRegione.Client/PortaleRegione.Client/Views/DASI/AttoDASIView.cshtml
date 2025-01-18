@@ -129,25 +129,25 @@
                 }
                 @if (atto.Presentabile)
                 {
-                    <button type="button" role="button" class="btn-flat purple-text center" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
+                    <button type="button" role="button" class="btn-flat purple-text" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
                         Deposita
                     </button>
                 }
                 @if (atto.Modificabile)
                 {
-                    <button type="button" role="button" class="btn-flat blue-text center" onclick="go('@Url.Action("Modifica", new { id = atto.UIDAtto })')">
+                    <button type="button" role="button" class="btn-flat blue-text" onclick="go('@Url.Action("Modifica", new { id = atto.UIDAtto })')">
                         Modifica
                     </button>
                 }
                 @if (atto.Invito_Abilitato)
                 {
-                    <button type="button" role="button" class="btn-flat yellow-text center" onclick="NotificaADASI('@atto.UIDAtto', @atto.Tipo)">
+                    <button type="button" role="button" class="btn-flat orange-text" onclick="NotificaADASI('@atto.UIDAtto', @atto.Tipo)">
                         Invita
                     </button>
                 }
                 @if (atto.Eliminabile)
                 {
-                    <button type="button" role="button" class="btn-flat red-text center" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.ELIMINA))">
+                    <button type="button" role="button" class="btn-flat red-text" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.ELIMINA))">
                         Elimina
                     </button>
                 }
@@ -1052,7 +1052,7 @@
         <p id="attoActionMessage"></p>
         <div class="modal-footer" style="position: unset !important;">
             <button type="button" class="btn-flat modal-close grey-text">Annulla</button>
-            <a id="btnConfermaActionDASI" class="btn-flat red-text" href="#">Elimina</a>
+            <button type="button" role="button" id="btnConfermaActionDASI" class="btn-flat red-text" href="#">Elimina</button>
         </div>
     </div>
 </div>
