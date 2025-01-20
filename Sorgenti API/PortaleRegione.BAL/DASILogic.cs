@@ -3600,7 +3600,7 @@ namespace PortaleRegione.API.Controllers
                     .Replace("{NAtto}", dasiDto.NAtto)
                     .Replace("{Oggetto}", dasiDto.OggettoView())
                     .Replace("{Firmatari}",
-                        $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
+                        $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
                     .Replace("{DataDeposito}",
                         string.IsNullOrEmpty(dasiDto.DataPresentazione)
                             ? ""
