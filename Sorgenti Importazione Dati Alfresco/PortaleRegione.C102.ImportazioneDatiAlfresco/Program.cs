@@ -47,8 +47,15 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
             var legislatureFromDatabase = GetLegislatureFromDataBase();
             var proponenteId = GetDefaultIdFromDatabase();
 
+            if (!File.Exists(percorsoXLS))
+                throw new Exception("File non trovato");
+
             using (var package = new ExcelPackage(new FileInfo(percorsoXLS)))
             {
+                if (package.Workbook.Worksheets.Count == 0)
+                {
+                    throw new Exception("Nessun worksheet trovato nel file.");
+                }
                 var worksheetFirme = package.Workbook.Worksheets.First(w => w.Name.Equals(foglioFirme));
                 var cellsFirme = worksheetFirme.Cells;
                 var rowCountF = worksheetFirme.Dimension.Rows;
@@ -138,7 +145,11 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                 var insertSeduta =
                     @"INSERT INTO SEDUTE (UIDSeduta, Data_seduta, Data_apertura, Data_effettiva_inizio, Data_effettiva_fine, id_legislatura, Note, DataCreazione) 
-                                     VALUES (@UIDSeduta, @Data_seduta, @Data_apertura, @Data_effettiva_inizio, @Data_effettiva_fine, @id_legislatura, @Note, GETDATE())";
+                     VALUES (@UIDSeduta, @Data_seduta, @Data_apertura, @Data_effettiva_inizio, @Data_effettiva_fine, @id_legislatura, @Note, GETDATE())";
+
+                var checkSeduta =
+                    @"SELECT COUNT(1) FROM SEDUTE WHERE CONVERT(DATE, Data_seduta) = CONVERT(DATE, @Data_seduta)";
+
                 using (var connection = new SqlConnection(AppsettingsConfiguration.CONNECTIONSTRING))
                 {
                     connection.Open();
@@ -148,46 +159,69 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                         var legislaturaSeduta =
                             legislatureFromDatabase.First(l => l.id_legislatura.Equals(int.Parse(item.Legislatura)));
 
-                        var resQuery = -1;
-                        using (var command = new SqlCommand(insertSeduta, connection))
+                        // Controlla se esiste già una seduta con la stessa data
+                        bool sedutaExists;
+                        using (var commandCheck = new SqlCommand(checkSeduta, connection))
                         {
-                            // Assegna i valori dei parametri
-                            command.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
-                            command.Parameters.AddWithValue("@Data_seduta", legislaturaSeduta.durata_legislatura_da);
-                            command.Parameters.AddWithValue("@Data_apertura", legislaturaSeduta.durata_legislatura_da);
-                            command.Parameters.AddWithValue("@Data_effettiva_inizio",
-                                legislaturaSeduta.durata_legislatura_da);
-                            command.Parameters.AddWithValue("@Data_effettiva_fine",
-                                legislaturaSeduta.durata_legislatura_da);
-                            command.Parameters.AddWithValue("@id_legislatura", legislaturaSeduta.id_legislatura);
-                            command.Parameters.AddWithValue("@Note", "Contenitore atti importati da Alfresco");
-
-                            resQuery = command.ExecuteNonQuery();
+                            commandCheck.Parameters.AddWithValue("@Data_seduta",
+                                legislaturaSeduta.durata_legislatura_da.ToString("yyyy-MM-dd"));
+                            sedutaExists = (int)commandCheck.ExecuteScalar() > 0;
                         }
 
-                        if (resQuery == 1)
-                            foreach (var abbinamentoGea in item.Abbinamenti)
+                        // Inserisce la seduta solo se non esiste
+                        if (!sedutaExists)
+                        {
+                            using (var command = new SqlCommand(insertSeduta, connection))
                             {
-                                abbinamentoGea.UIDAtto = Guid.NewGuid();
+                                // Assegna i valori dei parametri
+                                command.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
+                                command.Parameters.AddWithValue("@Data_seduta",
+                                    legislaturaSeduta.durata_legislatura_da);
+                                command.Parameters.AddWithValue("@Data_apertura",
+                                    legislaturaSeduta.durata_legislatura_da);
+                                command.Parameters.AddWithValue("@Data_effettiva_inizio",
+                                    legislaturaSeduta.durata_legislatura_da);
+                                command.Parameters.AddWithValue("@Data_effettiva_fine",
+                                    legislaturaSeduta.durata_legislatura_da);
+                                command.Parameters.AddWithValue("@id_legislatura", legislaturaSeduta.id_legislatura);
+                                command.Parameters.AddWithValue("@Note", "Contenitore atti importati da Alfresco");
 
-                                var insertAttoGea = @"IF NOT EXISTS 
-                                    (SELECT 1 FROM ATTI WHERE NAtto = @NAtto AND IDTipoAtto = @IDTipoAtto AND UIDSeduta = @UIDSeduta)
-                                    BEGIN
-                                        INSERT INTO ATTI (UIDAtto, NAtto, IDTipoAtto, UIDSeduta)
-                                            VALUES (@UIDAtto, @NAtto, @IDTipoAtto, @UIDSeduta)        
-                                    END";
-                                using (var commandAttoGea = new SqlCommand(insertAttoGea, connection))
+                                var resQuery = command.ExecuteNonQuery();
+
+                                if (resQuery == 1)
                                 {
-                                    commandAttoGea.Parameters.AddWithValue("@UIDAtto", abbinamentoGea.UIDAtto);
-                                    commandAttoGea.Parameters.AddWithValue("@NAtto", abbinamentoGea.NumeroAtto_Gea);
-                                    commandAttoGea.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
-                                    commandAttoGea.Parameters.AddWithValue("@IDTipoAtto",
-                                        (int)ConvertToEnumTipoAtto(abbinamentoGea.TipoAtto_Gea));
-                                    var resQueryGea = commandAttoGea.ExecuteNonQuery();
+                                    foreach (var abbinamentoGea in item.Abbinamenti)
+                                    {
+                                        abbinamentoGea.UIDAtto = Guid.NewGuid();
+
+                                        var insertAttoGea = @"IF NOT EXISTS 
+                            (SELECT 1 FROM ATTI WHERE NAtto = @NAtto AND IDTipoAtto = @IDTipoAtto AND UIDSeduta = @UIDSeduta)
+                            BEGIN
+                                INSERT INTO ATTI (UIDAtto, NAtto, IDTipoAtto, UIDSeduta)
+                                    VALUES (@UIDAtto, @NAtto, @IDTipoAtto, @UIDSeduta)        
+                            END";
+                                        using (var commandAttoGea = new SqlCommand(insertAttoGea, connection))
+                                        {
+                                            commandAttoGea.Parameters.AddWithValue("@UIDAtto", abbinamentoGea.UIDAtto);
+                                            commandAttoGea.Parameters.AddWithValue("@NAtto",
+                                                abbinamentoGea.NumeroAtto_Gea);
+                                            commandAttoGea.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
+                                            commandAttoGea.Parameters.AddWithValue("@IDTipoAtto",
+                                                (int)ConvertToEnumTipoAtto(abbinamentoGea.TipoAtto_Gea));
+                                            commandAttoGea.ExecuteNonQuery();
+                                        }
+                                    }
                                 }
                             }
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                $"Seduta già esistente per la data {legislaturaSeduta.durata_legislatura_da:yyyy-MM-dd}. Salto l'inserimento.");
+                        }
                     }
                 }
+
 
                 var sb = new StringBuilder();
                 var elaborationTicks = DateTime.Now.Ticks;
@@ -564,9 +598,11 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     {
                                         var data_firma = string.Empty;
                                         // Se il valore della cella corrisponde, aggiungi la riga alla lista
-                                        if (cellsFirme[rowF, 8].Value != null)
+                                        if (cellsFirme[rowF, 8].Value != null && !string.IsNullOrEmpty(cellsFirme[rowF, 8].Value.ToString()))
                                             data_firma = ParseDateTime(Convert.ToString(cellsFirme[rowF, 8].Value))
                                                 .ToString("dd/MM/yyyy HH:mm:ss");
+                                        if (string.IsNullOrEmpty(data_firma))
+                                            throw new Exception($"Data firma non valida [{cellsFirme[rowF, 8].Value}].");
 
                                         var data_ritiro_firma = Convert.ToString(cellsFirme[rowF, 9].Value);
                                         var id_persona = cellsFirme[rowF, 10].Value.ToString();
@@ -913,7 +949,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 //data presentazione
                                 var dataPresentazioneFromAlfresco = Convert.ToString(cellsAtti[row, 16].Value);
                                 if (string.IsNullOrEmpty(dataPresentazioneFromAlfresco))
-                                    throw new Exception("Data presentazione non valida");
+                                    throw new Exception("Data presentazione vuota.");
                                 var dataPresentazione = ParseDateTime(dataPresentazioneFromAlfresco);
                                 var dataPresentazione_Cifrata = CryptoHelper.EncryptString(
                                     dataPresentazione.ToString("dd/MM/yyyy HH:mm:ss"),
@@ -973,21 +1009,22 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var statoAttuazione = Convert.ToString(cellsAtti[row, 70].Value);
                                 var dataTrasmissioneMonitoraggio = Convert.ToString(cellsAtti[row, 73].Value);
                                 var conclusoMonitoraggioFromAlfresco = Convert.ToString(cellsAtti[row, 74].Value);
-                                var monitoraggioConcluso = !string.IsNullOrEmpty(conclusoMonitoraggioFromAlfresco)
-                                    ? conclusoMonitoraggioFromAlfresco.Equals("1")
-                                    : false;
+                                var monitoraggioConcluso = !string.IsNullOrEmpty(conclusoMonitoraggioFromAlfresco) && conclusoMonitoraggioFromAlfresco.Equals("1");
 
-                                var privacy_dati_personali_giudiziari_sn = Convert.ToBoolean(cellsAtti[row, 53].Value);
+                                var privacy_dati_personali_giudiziari_sn = cellsAtti[row, 53].Value != null && cellsAtti[row, 53].Value.Equals("1");
                                 var privacy_divieto_pubblicazione_salute_sn =
-                                    Convert.ToBoolean(cellsAtti[row, 54].Value);
+                                    cellsAtti[row, 54].Value != null &&
+                                    cellsAtti[row, 54].Value.Equals("1");
                                 var privacy_divieto_pubblicazione_vita_sessuale_sn =
-                                    Convert.ToBoolean(cellsAtti[row, 55].Value);
-                                var privacy_divieto_pubblicazione_sn = Convert.ToBoolean(cellsAtti[row, 56].Value);
-                                var privacy_dati_personali_sensibili_sn = Convert.ToBoolean(cellsAtti[row, 57].Value);
+                                    cellsAtti[row, 55].Value != null &&
+                                    cellsAtti[row, 55].Value.Equals("1");
+                                var privacy_divieto_pubblicazione_sn = cellsAtti[row, 56].Value != null &&
+                                                                       cellsAtti[row, 56].Value.Equals("1");
+                                var privacy_dati_personali_sensibili_sn = cellsAtti[row, 57].Value != null && cellsAtti[row, 57].Value.Equals("1");
                                 var privacy_divieto_pubblicazione_altri_sn =
-                                    Convert.ToBoolean(cellsAtti[row, 58].Value);
-                                var privacy_dati_personali_semplici_sn = Convert.ToBoolean(cellsAtti[row, 59].Value);
-                                var privacy_sn = Convert.ToBoolean(cellsAtti[row, 60].Value);
+                                    cellsAtti[row, 58].Value != null && cellsAtti[row, 58].Value.Equals("1");
+                                var privacy_dati_personali_semplici_sn = cellsAtti[row, 59].Value != null && cellsAtti[row, 59].Value.Equals("1");
+                                var privacy_sn = cellsAtti[row, 60].Value != null && cellsAtti[row, 60].Value.Equals("1");
 
                                 //Risposte
                                 var dataTrasmissione = Convert.ToString(cellsAtti[row, 99].Value);
@@ -1235,8 +1272,8 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                             .Replace("{FIELD_REL_MINORANZA}", ", UIDPersonaRelatoreMinoranza")
                                             .Replace("{PARAM_REL_MINORANZA}", ", @UIDPersonaRelatoreMinoranza");
 
-                                    if (tipoAttoEnum is TipoAttoEnum.MOZ 
-                                        || tipoAttoEnum is TipoAttoEnum.ODG 
+                                    if (tipoAttoEnum is TipoAttoEnum.MOZ
+                                        || tipoAttoEnum is TipoAttoEnum.ODG
                                         || tipoAttoEnum is TipoAttoEnum.RIS)
                                     {
                                         if (string.IsNullOrEmpty(uidSeduta))
@@ -2441,6 +2478,7 @@ VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssocia
                 string[] supportedFormats =
                 {
                     "yyyy-MM-dd HH:mm:ss", // Formato ISO senza "T"
+                    "yyyy-MM-dd", // Formato ISO senza "T"
                     "yyyy-MM-ddTHH:mm:ss", // Formato ISO con "T"
                     "dd/MM/yyyy HH:mm:ss" // Formato italiano standard
                 };
@@ -2477,6 +2515,11 @@ VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssocia
             if (dateValue == null || dateValue == DBNull.Value)
             {
                 return DBNull.Value; // Ritorna DBNull se il valore è null
+            }
+
+            if (string.IsNullOrEmpty(dateValue.ToString()))
+            {
+                return DBNull.Value;
             }
 
             // Prova a fare il parsing se il valore è una stringa
