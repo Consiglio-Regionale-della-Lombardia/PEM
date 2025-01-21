@@ -30,6 +30,7 @@ namespace PortaleRegione.Gateway
         Task<FileResponse> EsportaXLS(EmendamentiViewModel model);
         Task<FileResponse> EsportaXLS_UOLA(EmendamentiViewModel model);
         Task<FileResponse> EsportaXLSDASI(List<Guid> lista);
+        Task<FileResponse> EsportaXLSConsiglieriDASI(List<Guid> lista);
         Task<FileResponse> EsportaZipDASI(List<Guid> lista);
     }
 }

@@ -536,7 +536,7 @@ namespace PortaleRegione.BAL
                     {
                         firmatariList.AddRange(dto.FirmeAnte);
                     }
-                    
+
                     if (dto.FirmePost.Any())
                     {
                         firmatariList.AddRange(dto.FirmePost);
@@ -553,6 +553,37 @@ namespace PortaleRegione.BAL
                 FillSheetDASI_Controlli(controlliSheet);
 
                 var lookupSheet = package.Workbook.Worksheets.Add("LOOKUP");
+
+                package.SaveAs(new FileInfo(FilePathComplete));
+            }
+
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{filename}")
+            };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+            return result;
+        }
+
+        public async Task<HttpResponseMessage> EsportaXLSConsiglieriDASI(List<Guid> data, PersonaDto currentUser)
+        {
+            var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+            var filename = $"EsportazioneDASI{DateTime.Now.Ticks}.xlsx";
+            var FilePathComplete = Path.Combine(tempFolderPath, filename);
+
+            using (var package = new ExcelPackage())
+            {
+                var attiList = new List<AttoDASIDto>();
+                foreach (var uid in data)
+                {
+                    var dto = await _logicDasi.GetAttoDto(uid);
+                    if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
+                    attiList.Add(dto);
+                }
+
+                var dasiSheet = package.Workbook.Worksheets.Add("Atti");
+                FillSheetDASI_AttiConsiglieri(dasiSheet, attiList);
 
                 package.SaveAs(new FileInfo(FilePathComplete));
             }
@@ -603,7 +634,7 @@ namespace PortaleRegione.BAL
                 {
                     try
                     {
-                        var atto = attiList.First(a=> a.UIDAtto.Equals(firma.UIDAtto));
+                        var atto = attiList.First(a => a.UIDAtto.Equals(firma.UIDAtto));
                         sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
                         sheet.Cells[row, 2].Value = Convert.ToInt32(atto.NAtto);
                         sheet.Cells[row, 2].Style.Numberformat.Format = "0";
@@ -655,6 +686,7 @@ namespace PortaleRegione.BAL
 
                 //HEADER
                 var headerRow = 2;
+
                 sheet.Cells[headerRow, 1].Value = "TIPO ATTO";
                 sheet.Cells[headerRow, 2].Value = "TIPO MOZIONE";
                 sheet.Cells[headerRow, 3].Value = "NUMERO ATTO";
@@ -744,6 +776,181 @@ namespace PortaleRegione.BAL
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        private void FillSheetDASI_AttiConsiglieri(ExcelWorksheet sheet, IEnumerable<AttoDASIDto> attiList)
+        {
+            try
+            {
+                // #994
+
+                //HEADER
+                var headerRow = 2;
+
+                sheet.Cells[headerRow, 1].Value = nameof(AttoDASIDto.Legislatura).ToUpper();
+                sheet.Cells[headerRow, 2].Value = nameof(AttoDASIDto.Etichetta).ToUpper();
+                sheet.Cells[headerRow, 3].Value = nameof(AttoDASIDto.Tipo).ToUpper();
+                sheet.Cells[headerRow, 4].Value = nameof(AttoDASIDto.NAtto).ToUpper();
+                sheet.Cells[headerRow, 5].Value = nameof(AttoDASIDto.TipoMOZ).ToUpper();
+                sheet.Cells[headerRow, 6].Value = nameof(AttoDASIDto.Oggetto).ToUpper();
+                sheet.Cells[headerRow, 7].Value = nameof(AttoDASIDto.Firme).ToUpper();
+                sheet.Cells[headerRow, 8].Value = nameof(AttoDASIDto.Timestamp).ToUpper();
+                sheet.Cells[headerRow, 9].Value = nameof(AttoDASIDto.DataAnnunzio).ToUpper();
+                sheet.Cells[headerRow, 10].Value = nameof(AttoDASIDto.Firme_ritirate).ToUpper();
+                sheet.Cells[headerRow, 11].Value = nameof(AttoDASIDto.ConteggioFirme).ToUpper();
+                sheet.Cells[headerRow, 12].Value = nameof(AttoDASIDto.AreaPolitica).ToUpper();
+                sheet.Cells[headerRow, 13].Value = nameof(AttoDASIDto.IDStato).ToUpper();
+                sheet.Cells[headerRow, 14].Value = nameof(AttoDASIDto.TipoChiusuraIter).ToUpper();
+                sheet.Cells[headerRow, 15].Value = nameof(AttoDASIDto.DCR).ToUpper();
+                sheet.Cells[headerRow, 16].Value = nameof(AttoDASIDto.DataChiusuraIter).ToUpper();
+                sheet.Cells[headerRow, 17].Value = nameof(AttoDASIDto.UIDSeduta).ToUpper();
+                sheet.Cells[headerRow, 18].Value = nameof(AttoDASIDto.TipoVotazioneIter).ToUpper();
+                sheet.Cells[headerRow, 19].Value = nameof(AttoDASIDto.Emendato).ToUpper();
+                sheet.Cells[headerRow, 20].Value = "INFORMAZIONI RISPOSTA";
+                sheet.Cells[headerRow, 21].Value = nameof(AttoDASIDto.ImpegniScadenze).ToUpper();
+
+                var row = 3;
+                foreach (var atto in attiList)
+                {
+                    var firme = new List<string>();
+                    if (atto.FirmeAnte.Any())
+                        firme.AddRange(atto.FirmeAnte.Select(f => f.FirmaCert));
+                    if (atto.FirmePost.Any())
+                        firme.AddRange(atto.FirmePost.Select(f => f.FirmaCert));
+
+                    var dcrText = string.Empty;
+                    if (atto.DCR > 0)
+                    {
+                        dcrText = $"{atto.DCRL}/{atto.DCR}";
+
+                        if (atto.DCCR > 0)
+                        {
+                            dcrText += $"/{atto.DCCR}";
+                        }
+                    }
+
+                    // Popolamento delle celle
+                    sheet.Cells[row, 1].Value = atto.GetLegislatura();
+                    sheet.Cells[row, 2].Value = atto.Etichetta;
+                    sheet.Cells[row, 3].Value = atto.DisplayTipo;
+                    sheet.Cells[row, 4].Value = atto.NAtto;
+                    sheet.Cells[row, 5].Value = atto.TipoMOZ > 0 ? atto.DisplayTipoMozione : "";
+                    sheet.Cells[row, 6].Value = atto.OggettoView();
+                    sheet.Cells[row, 7].Value = firme.Any() ? string.Join(", ", firme) : "";
+                    sheet.Cells[row, 8].Value = atto.DataPresentazione;
+                    sheet.Cells[row, 9].Value = atto.IDStato > (int)StatiAttoEnum.PRESENTATO
+                        ? atto.DataAnnunzio?.ToString("dd/MM/yyyy")
+                        : "";
+                    sheet.Cells[row, 10].Value = atto.Firme_ritirate;
+                    sheet.Cells[row, 11].Value = atto.ConteggioFirme;
+                    sheet.Cells[row, 12].Value =
+                        atto.IDStato > (int)StatiAttoEnum.PRESENTATO ? atto.DisplayAreaPolitica : "";
+                    sheet.Cells[row, 13].Value = atto.DisplayStato;
+                    sheet.Cells[row, 14].Value =
+                        atto.IDStato > (int)StatiAttoEnum.PRESENTATO ? atto.DisplayTipoChiusuraIter : "";
+                    sheet.Cells[row, 15].Value = dcrText;
+                    sheet.Cells[row, 16].Value = atto.IDStato > (int)StatiAttoEnum.PRESENTATO
+                        ? atto.DataChiusuraIter?.ToString("dd/MM/yyyy")
+                        : "";
+                    sheet.Cells[row, 17].Value = atto.IDStato > (int)StatiAttoEnum.PRESENTATO
+                        ? atto.UIDSeduta.HasValue ? atto.Seduta?.Data_seduta.ToString("dd/MM/yyyy") : ""
+                        : "";
+                    sheet.Cells[row, 18].Value = atto.IDStato > (int)StatiAttoEnum.PRESENTATO
+                        ? atto.DisplayTipoVotazioneIter
+                        : ""; // Annotazioni
+                    sheet.Cells[row, 19].Value = atto.Emendato ? "Si" : "";
+                    sheet.Cells[row, 20].Value =
+                        atto.IDStato > (int)StatiAttoEnum.PRESENTATO ? ParseRisposte(atto) : "";
+                    sheet.Cells[row, 21].Value = atto.ImpegniScadenze;
+
+                    row++;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        private string ParseRisposte(AttoDASIDto atto)
+        {
+            if (!atto.Risposte.Any())
+                return "";
+            var bodyRisposte = string.Empty;
+            foreach (var attiRisposteDto in atto.Risposte)
+            {
+                if (atto.IDTipo_Risposta_Effettiva.HasValue)
+                {
+                    // Identificazione del tipo di risposta
+                    switch ((TipoRispostaEnum)atto.IDTipo_Risposta_Effettiva)
+                    {
+                        case TipoRispostaEnum.IMMEDIATA:
+                        case TipoRispostaEnum.ORALE:
+                        {
+                            // Risposta orale
+                            bodyRisposte += $"Orale: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
+                            break;
+                        }
+                        case TipoRispostaEnum.SCRITTA:
+                        {
+                            // Risposta scritta
+                            bodyRisposte += $"Scritta: Risposta fornita da {attiRisposteDto.DescrizioneOrgano}";
+                            break;
+                        }
+                        case TipoRispostaEnum.COMMISSIONE:
+                        {
+                            // Gestione delle risposte associate
+                            if (attiRisposteDto.RisposteAssociate.Any())
+                            {
+                                var assessoriAssociati = string.Join(", ",
+                                    attiRisposteDto.RisposteAssociate.Select(assoc => assoc.DescrizioneOrgano));
+                                bodyRisposte +=
+                                    $"In commissione: Risposta fornita da {assessoriAssociati} in {attiRisposteDto.DescrizioneOrgano}";
+                            }
+                            else
+                            {
+                                // Nessuna risposta associata
+                                bodyRisposte +=
+                                    $"In commissione: Risposta richiesta in {attiRisposteDto.DescrizioneOrgano} non ancora fornita";
+                            }
+
+                            break;
+                        }
+                        case TipoRispostaEnum.ITER_IN_ASSEMBLEA:
+                        {
+                            bodyRisposte += "Atto trattato in assemblea";
+                            break;
+                        }
+                        case TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE:
+                        {
+                            bodyRisposte += $"{attiRisposteDto.DescrizioneOrgano}";
+                            break;
+                        }
+                        default:
+                        {
+                            bodyRisposte = $"Risposta di tipo non specificato da {attiRisposteDto.DescrizioneOrgano}";
+                            break;
+                        }
+                    }
+
+                    if (attiRisposteDto.Data.HasValue)
+                    {
+                        var dataRisposta = attiRisposteDto.Data.Value.ToString("dd/MM/yyyy");
+                        bodyRisposte += $" - Data risposta: {dataRisposta}";
+                    }
+
+                    if (attiRisposteDto.DataTrasmissione.HasValue)
+                    {
+                        var dataRispostaTrasmissione = attiRisposteDto.DataTrasmissione.Value.ToString("dd/MM/yyyy");
+                        bodyRisposte += $" - Trasmessa il: {dataRispostaTrasmissione}";
+                    }
+
+                    bodyRisposte += "; ";
+                }
+            }
+
+            return bodyRisposte.TrimEnd(';', ' ');
         }
 
         public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode,

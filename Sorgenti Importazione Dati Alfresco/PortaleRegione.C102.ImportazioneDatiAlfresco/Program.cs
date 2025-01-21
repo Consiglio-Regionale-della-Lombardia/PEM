@@ -13,7 +13,6 @@ using OfficeOpenXml;
 using PortaleRegione.Crypto;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
-using static log4net.Appender.RollingFileAppender;
 
 namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 {
@@ -145,39 +144,47 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     connection.Open();
                     foreach (var item in abbinamentiRaggruppatiPerLegislatura)
                     {
-                        var command = new SqlCommand(insertSeduta, connection);
                         var uidSeduta = Guid.NewGuid();
                         var legislaturaSeduta =
                             legislatureFromDatabase.First(l => l.id_legislatura.Equals(int.Parse(item.Legislatura)));
-                        // Assegna i valori dei parametri
-                        command.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
-                        command.Parameters.AddWithValue("@Data_seduta", legislaturaSeduta.durata_legislatura_da);
-                        command.Parameters.AddWithValue("@Data_apertura", legislaturaSeduta.durata_legislatura_da);
-                        command.Parameters.AddWithValue("@Data_effettiva_inizio",
-                            legislaturaSeduta.durata_legislatura_da);
-                        command.Parameters.AddWithValue("@Data_effettiva_fine",
-                            legislaturaSeduta.durata_legislatura_da);
-                        command.Parameters.AddWithValue("@id_legislatura", legislaturaSeduta.id_legislatura);
-                        command.Parameters.AddWithValue("@Note", "Contenitore atti importati da Alfresco");
 
-                        var resQuery = command.ExecuteNonQuery();
+                        var resQuery = -1;
+                        using (var command = new SqlCommand(insertSeduta, connection))
+                        {
+                            // Assegna i valori dei parametri
+                            command.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
+                            command.Parameters.AddWithValue("@Data_seduta", legislaturaSeduta.durata_legislatura_da);
+                            command.Parameters.AddWithValue("@Data_apertura", legislaturaSeduta.durata_legislatura_da);
+                            command.Parameters.AddWithValue("@Data_effettiva_inizio",
+                                legislaturaSeduta.durata_legislatura_da);
+                            command.Parameters.AddWithValue("@Data_effettiva_fine",
+                                legislaturaSeduta.durata_legislatura_da);
+                            command.Parameters.AddWithValue("@id_legislatura", legislaturaSeduta.id_legislatura);
+                            command.Parameters.AddWithValue("@Note", "Contenitore atti importati da Alfresco");
+
+                            resQuery = command.ExecuteNonQuery();
+                        }
+
                         if (resQuery == 1)
                             foreach (var abbinamentoGea in item.Abbinamenti)
                             {
+                                abbinamentoGea.UIDAtto = Guid.NewGuid();
+
                                 var insertAttoGea = @"IF NOT EXISTS 
                                     (SELECT 1 FROM ATTI WHERE NAtto = @NAtto AND IDTipoAtto = @IDTipoAtto AND UIDSeduta = @UIDSeduta)
                                     BEGIN
                                         INSERT INTO ATTI (UIDAtto, NAtto, IDTipoAtto, UIDSeduta)
                                             VALUES (@UIDAtto, @NAtto, @IDTipoAtto, @UIDSeduta)        
                                     END";
-                                var commandAttoGea = new SqlCommand(insertAttoGea, connection);
-                                abbinamentoGea.UIDAtto = Guid.NewGuid();
-                                commandAttoGea.Parameters.AddWithValue("@UIDAtto", abbinamentoGea.UIDAtto);
-                                commandAttoGea.Parameters.AddWithValue("@NAtto", abbinamentoGea.NumeroAtto_Gea);
-                                commandAttoGea.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
-                                commandAttoGea.Parameters.AddWithValue("@IDTipoAtto",
-                                    (int)ConvertToEnumTipoAtto(abbinamentoGea.TipoAtto_Gea));
-                                var resQueryGea = commandAttoGea.ExecuteNonQuery();
+                                using (var commandAttoGea = new SqlCommand(insertAttoGea, connection))
+                                {
+                                    commandAttoGea.Parameters.AddWithValue("@UIDAtto", abbinamentoGea.UIDAtto);
+                                    commandAttoGea.Parameters.AddWithValue("@NAtto", abbinamentoGea.NumeroAtto_Gea);
+                                    commandAttoGea.Parameters.AddWithValue("@UIDSeduta", uidSeduta);
+                                    commandAttoGea.Parameters.AddWithValue("@IDTipoAtto",
+                                        (int)ConvertToEnumTipoAtto(abbinamentoGea.TipoAtto_Gea));
+                                    var resQueryGea = commandAttoGea.ExecuteNonQuery();
+                                }
                             }
                     }
                 }
@@ -210,9 +217,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                             var tipoAttoFromAlfresco = Convert.ToString(cellsAtti[row, 4].Value);
                             var legislaturaFromAlfresco = Convert.ToString(cellsAtti[row, 47].Value);
 
-                            //if (legislaturaFromAlfresco == "33")
-                            //    continue;
-
                             var numeroAtto = Convert.ToString(cellsAtti[row, 19].Value);
 
                             attoImportato.Legislatura = legislaturaFromAlfresco;
@@ -229,10 +233,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var statoId = (int)StatiAttoEnum.COMPLETATO;
 
-                                //if (statoId == (int)StatiAttoEnum.PRESENTATO)
-                                //{
-                                //    throw new Exception("Atto scartato perchè in stato presentato.");
-                                //}
                                 //legislatura
                                 if (string.IsNullOrEmpty(legislaturaFromAlfresco))
                                     throw new Exception("Legislatura non valida");
@@ -297,16 +297,20 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
                                                 (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
-                                    var commandInsertNotaChiusuraIter =
-                                        new SqlCommand(queryInsertNotaChiusuraIter, connection);
-                                    commandInsertNotaChiusuraIter.Parameters.AddWithValue("@UIDAtto",
-                                        attoImportato.UidAtto);
-                                    commandInsertNotaChiusuraIter.Parameters.AddWithValue("@UIDPersona",
-                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
-                                    commandInsertNotaChiusuraIter.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.CHIUSURA_ITER);
-                                    commandInsertNotaChiusuraIter.Parameters.AddWithValue("@Nota", noteChiusuraIter);
-                                    commandInsertNotaChiusuraIter.ExecuteNonQuery();
+                                    using (var commandInsertNotaChiusuraIter =
+                                           new SqlCommand(queryInsertNotaChiusuraIter, connection))
+                                    {
+                                        commandInsertNotaChiusuraIter.Parameters.AddWithValue("@UIDAtto",
+                                            attoImportato.UidAtto);
+                                        commandInsertNotaChiusuraIter.Parameters.AddWithValue("@UIDPersona",
+                                            Guid.Parse(
+                                                "AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                        commandInsertNotaChiusuraIter.Parameters.AddWithValue("@Tipo",
+                                            (int)TipoNotaEnum.CHIUSURA_ITER);
+                                        commandInsertNotaChiusuraIter.Parameters.AddWithValue("@Nota",
+                                            noteChiusuraIter);
+                                        commandInsertNotaChiusuraIter.ExecuteNonQuery();
+                                    }
                                 }
 
                                 #endregion
@@ -325,15 +329,19 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
                                                 (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
-                                    var commandInsertNotaRisposta = new SqlCommand(queryInsertNotaRisposta, connection);
-                                    commandInsertNotaRisposta.Parameters.AddWithValue("@UIDAtto",
-                                        attoImportato.UidAtto);
-                                    commandInsertNotaRisposta.Parameters.AddWithValue("@UIDPersona",
-                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
-                                    commandInsertNotaRisposta.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.RISPOSTA);
-                                    commandInsertNotaRisposta.Parameters.AddWithValue("@Nota", noteRisposta);
-                                    commandInsertNotaRisposta.ExecuteNonQuery();
+                                    using (var commandInsertNotaRisposta =
+                                           new SqlCommand(queryInsertNotaRisposta, connection))
+                                    {
+                                        commandInsertNotaRisposta.Parameters.AddWithValue("@UIDAtto",
+                                            attoImportato.UidAtto);
+                                        commandInsertNotaRisposta.Parameters.AddWithValue("@UIDPersona",
+                                            Guid.Parse(
+                                                "AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                        commandInsertNotaRisposta.Parameters.AddWithValue("@Tipo",
+                                            (int)TipoNotaEnum.RISPOSTA);
+                                        commandInsertNotaRisposta.Parameters.AddWithValue("@Nota", noteRisposta);
+                                        commandInsertNotaRisposta.ExecuteNonQuery();
+                                    }
                                 }
 
                                 #endregion
@@ -352,16 +360,19 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         @"INSERT INTO ATTI_NOTE (Uid,UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
                                                 (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
-                                    var commandInsertNoteAggiuntive =
-                                        new SqlCommand(queryInsertNoteAggiuntive, connection);
-                                    commandInsertNoteAggiuntive.Parameters.AddWithValue("@UIDAtto",
-                                        attoImportato.UidAtto);
-                                    commandInsertNoteAggiuntive.Parameters.AddWithValue("@UIDPersona",
-                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
-                                    commandInsertNoteAggiuntive.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
-                                    commandInsertNoteAggiuntive.Parameters.AddWithValue("@Nota", noteAggiuntive);
-                                    commandInsertNoteAggiuntive.ExecuteNonQuery();
+                                    using (var commandInsertNoteAggiuntive =
+                                           new SqlCommand(queryInsertNoteAggiuntive, connection))
+                                    {
+                                        commandInsertNoteAggiuntive.Parameters.AddWithValue("@UIDAtto",
+                                            attoImportato.UidAtto);
+                                        commandInsertNoteAggiuntive.Parameters.AddWithValue("@UIDPersona",
+                                            Guid.Parse(
+                                                "AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                        commandInsertNoteAggiuntive.Parameters.AddWithValue("@Tipo",
+                                            (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                        commandInsertNoteAggiuntive.Parameters.AddWithValue("@Nota", noteAggiuntive);
+                                        commandInsertNoteAggiuntive.ExecuteNonQuery();
+                                    }
                                 }
 
                                 #endregion
@@ -380,16 +391,19 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
                                                 (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
-                                    var commandInsertNoteAggiuntive2 =
-                                        new SqlCommand(queryInsertNoteAggiuntive2, connection);
-                                    commandInsertNoteAggiuntive2.Parameters.AddWithValue("@UIDAtto",
-                                        attoImportato.UidAtto);
-                                    commandInsertNoteAggiuntive2.Parameters.AddWithValue("@UIDPersona",
-                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
-                                    commandInsertNoteAggiuntive2.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
-                                    commandInsertNoteAggiuntive2.Parameters.AddWithValue("@Nota", noteAggiuntive2);
-                                    commandInsertNoteAggiuntive2.ExecuteNonQuery();
+                                    using (var commandInsertNoteAggiuntive2 =
+                                           new SqlCommand(queryInsertNoteAggiuntive2, connection))
+                                    {
+                                        commandInsertNoteAggiuntive2.Parameters.AddWithValue("@UIDAtto",
+                                            attoImportato.UidAtto);
+                                        commandInsertNoteAggiuntive2.Parameters.AddWithValue("@UIDPersona",
+                                            Guid.Parse(
+                                                "AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                        commandInsertNoteAggiuntive2.Parameters.AddWithValue("@Tipo",
+                                            (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                        commandInsertNoteAggiuntive2.Parameters.AddWithValue("@Nota", noteAggiuntive2);
+                                        commandInsertNoteAggiuntive2.ExecuteNonQuery();
+                                    }
                                 }
 
                                 #endregion
@@ -409,16 +423,19 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
                                                 (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
-                                    var commandInsertNoteAnnotazioni =
-                                        new SqlCommand(queryInsertNoteAnnotazioni, connection);
-                                    commandInsertNoteAnnotazioni.Parameters.AddWithValue("@UIDAtto",
-                                        attoImportato.UidAtto);
-                                    commandInsertNoteAnnotazioni.Parameters.AddWithValue("@UIDPersona",
-                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
-                                    commandInsertNoteAnnotazioni.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
-                                    commandInsertNoteAnnotazioni.Parameters.AddWithValue("@Nota", noteAnnotazioni);
-                                    commandInsertNoteAnnotazioni.ExecuteNonQuery();
+                                    using (var commandInsertNoteAnnotazioni =
+                                           new SqlCommand(queryInsertNoteAnnotazioni, connection))
+                                    {
+                                        commandInsertNoteAnnotazioni.Parameters.AddWithValue("@UIDAtto",
+                                            attoImportato.UidAtto);
+                                        commandInsertNoteAnnotazioni.Parameters.AddWithValue("@UIDPersona",
+                                            Guid.Parse(
+                                                "AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                        commandInsertNoteAnnotazioni.Parameters.AddWithValue("@Tipo",
+                                            (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                        commandInsertNoteAnnotazioni.Parameters.AddWithValue("@Nota", noteAnnotazioni);
+                                        commandInsertNoteAnnotazioni.ExecuteNonQuery();
+                                    }
                                 }
 
                                 #endregion
@@ -438,18 +455,23 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
                                                 (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
-                                    var commandInsertPrivacy_dati_personali_sensibili_note =
-                                        new SqlCommand(queryInsertPrivacy_dati_personali_sensibili_note, connection);
-                                    commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue(
-                                        "@UIDAtto", attoImportato.UidAtto);
-                                    commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue(
-                                        "@UIDPersona",
-                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
-                                    commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
-                                    commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue("@Nota",
-                                        noteprivacy_dati_personali_sensibili_note);
-                                    commandInsertPrivacy_dati_personali_sensibili_note.ExecuteNonQuery();
+                                    using (var commandInsertPrivacy_dati_personali_sensibili_note =
+                                           new SqlCommand(queryInsertPrivacy_dati_personali_sensibili_note, connection))
+                                    {
+                                        commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue(
+                                            "@UIDAtto", attoImportato.UidAtto);
+                                        commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue(
+                                            "@UIDPersona",
+                                            Guid.Parse(
+                                                "AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                        commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue(
+                                            "@Tipo",
+                                            (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                        commandInsertPrivacy_dati_personali_sensibili_note.Parameters.AddWithValue(
+                                            "@Nota",
+                                            noteprivacy_dati_personali_sensibili_note);
+                                        commandInsertPrivacy_dati_personali_sensibili_note.ExecuteNonQuery();
+                                    }
                                 }
 
                                 #endregion
@@ -469,18 +491,24 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
                                                 (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
-                                    var commandInsertPrivacy_dati_personali_giudiziari_note =
-                                        new SqlCommand(queryInsertPrivacy_dati_personali_giudiziari_note, connection);
-                                    commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue(
-                                        "@UIDAtto", attoImportato.UidAtto);
-                                    commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue(
-                                        "@UIDPersona",
-                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
-                                    commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
-                                    commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue("@Nota",
-                                        noteprivacy_dati_personali_giudiziari_note);
-                                    commandInsertPrivacy_dati_personali_giudiziari_note.ExecuteNonQuery();
+                                    using (var commandInsertPrivacy_dati_personali_giudiziari_note =
+                                           new SqlCommand(queryInsertPrivacy_dati_personali_giudiziari_note,
+                                               connection))
+                                    {
+                                        commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue(
+                                            "@UIDAtto", attoImportato.UidAtto);
+                                        commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue(
+                                            "@UIDPersona",
+                                            Guid.Parse(
+                                                "AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                        commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue(
+                                            "@Tipo",
+                                            (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                        commandInsertPrivacy_dati_personali_giudiziari_note.Parameters.AddWithValue(
+                                            "@Nota",
+                                            noteprivacy_dati_personali_giudiziari_note);
+                                        commandInsertPrivacy_dati_personali_giudiziari_note.ExecuteNonQuery();
+                                    }
                                 }
 
                                 #endregion
@@ -500,18 +528,23 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
                                                 (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
-                                    var commandInsertPrivacy_dati_personali_semplici_note =
-                                        new SqlCommand(queryInsertPrivacy_dati_personali_semplici_note, connection);
-                                    commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue(
-                                        "@UIDAtto", attoImportato.UidAtto);
-                                    commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue(
-                                        "@UIDPersona",
-                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
-                                    commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
-                                    commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue("@Nota",
-                                        noteprivacy_dati_personali_semplici_note);
-                                    commandInsertPrivacy_dati_personali_semplici_note.ExecuteNonQuery();
+                                    using (var commandInsertPrivacy_dati_personali_semplici_note =
+                                           new SqlCommand(queryInsertPrivacy_dati_personali_semplici_note, connection))
+                                    {
+                                        commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue(
+                                            "@UIDAtto", attoImportato.UidAtto);
+                                        commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue(
+                                            "@UIDPersona",
+                                            Guid.Parse(
+                                                "AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                        commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue(
+                                            "@Tipo",
+                                            (int)TipoNotaEnum.GENERALE_PRIVATA);
+                                        commandInsertPrivacy_dati_personali_semplici_note.Parameters.AddWithValue(
+                                            "@Nota",
+                                            noteprivacy_dati_personali_semplici_note);
+                                        commandInsertPrivacy_dati_personali_semplici_note.ExecuteNonQuery();
+                                    }
                                 }
 
                                 #endregion
@@ -549,11 +582,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                        VALUES
                                      (@UID_persona, @id_persona)";
                                             // Esegui la query di inserimento dei dati nella tabella ATTI_FIRME
-                                            var commandInsertPersona = new SqlCommand(queryInsertPersona, connection);
-                                            commandInsertPersona.Parameters.AddWithValue("@UID_persona",
-                                                find_uid_persona);
-                                            commandInsertPersona.Parameters.AddWithValue("@id_persona", id_persona);
-                                            commandInsertPersona.ExecuteNonQuery(); // Esegui l'inserimento dei dati
+                                            using (var commandInsertPersona =
+                                                   new SqlCommand(queryInsertPersona, connection))
+                                            {
+                                                commandInsertPersona.Parameters.AddWithValue("@UID_persona",
+                                                    find_uid_persona);
+                                                commandInsertPersona.Parameters.AddWithValue("@id_persona", id_persona);
+                                                commandInsertPersona.ExecuteNonQuery(); // Esegui l'inserimento dei dati
+                                            }
                                         }
 
                                         var queryInsertFirmatario =
@@ -577,39 +613,44 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                                 .Replace("{FIELD_DATA_RITIRO_FIRMA}", ", Data_ritirofirma")
                                                 .Replace("{PARAM_DATA_RITIRO_FIRMA}", ", @Data_ritirofirma");
 
-                                        // Esegui la query di inserimento dei dati nella tabella ATTI_FIRME
-                                        var commandInsertFirmatario = new SqlCommand(queryInsertFirmatario, connection);
-                                        commandInsertFirmatario.Parameters.AddWithValue("@UIDAtto",
-                                            attoImportato.UidAtto);
-                                        commandInsertFirmatario.Parameters.AddWithValue("@UID_persona",
-                                            find_uid_persona);
-                                        commandInsertFirmatario.Parameters.AddWithValue("@FirmaCert",
-                                            CryptoHelper.EncryptString(nome_firmatario,
-                                                AppsettingsConfiguration.MASTER_KEY));
-                                        commandInsertFirmatario.Parameters.AddWithValue("@Data_firma",
-                                            CryptoHelper.EncryptString(data_firma,
-                                                AppsettingsConfiguration.MASTER_KEY));
-                                        if (string.IsNullOrEmpty(data_ritiro_firma))
-                                        {
-                                            // Ignored
-                                        }
-                                        else
-                                        {
-                                            commandInsertFirmatario.Parameters.AddWithValue("@Data_ritirofirma",
-                                                CryptoHelper.EncryptString(
-                                                    ParseDateTime(data_ritiro_firma).ToString("dd/MM/yyyy HH:mm:ss"),
-                                                    AppsettingsConfiguration.MASTER_KEY));
-                                        }
-
                                         var id_gruppo_firmatario =
                                             ParseNomeFirmatarioToGruppo(nome_firmatario, legislatura.id_legislatura);
-                                        commandInsertFirmatario.Parameters.AddWithValue("@PrimoFirmatario",
-                                            Convert.ToBoolean(primo_firmatario));
-                                        commandInsertFirmatario.Parameters.AddWithValue("@id_gruppo",
-                                            id_gruppo_firmatario);
-                                        commandInsertFirmatario.Parameters.AddWithValue("@Timestamp",
-                                            ParseDateTime(data_firma));
-                                        commandInsertFirmatario.ExecuteNonQuery(); // Esegui l'inserimento dei dati
+
+                                        // Esegui la query di inserimento dei dati nella tabella ATTI_FIRME
+                                        using (var commandInsertFirmatario =
+                                               new SqlCommand(queryInsertFirmatario, connection))
+                                        {
+                                            commandInsertFirmatario.Parameters.AddWithValue("@UIDAtto",
+                                                attoImportato.UidAtto);
+                                            commandInsertFirmatario.Parameters.AddWithValue("@UID_persona",
+                                                find_uid_persona);
+                                            commandInsertFirmatario.Parameters.AddWithValue("@FirmaCert",
+                                                CryptoHelper.EncryptString(nome_firmatario,
+                                                    AppsettingsConfiguration.MASTER_KEY));
+                                            commandInsertFirmatario.Parameters.AddWithValue("@Data_firma",
+                                                CryptoHelper.EncryptString(data_firma,
+                                                    AppsettingsConfiguration.MASTER_KEY));
+                                            if (string.IsNullOrEmpty(data_ritiro_firma))
+                                            {
+                                                // Ignored
+                                            }
+                                            else
+                                            {
+                                                commandInsertFirmatario.Parameters.AddWithValue("@Data_ritirofirma",
+                                                    CryptoHelper.EncryptString(
+                                                        ParseDateTime(data_ritiro_firma)
+                                                            .ToString("dd/MM/yyyy HH:mm:ss"),
+                                                        AppsettingsConfiguration.MASTER_KEY));
+                                            }
+
+                                            commandInsertFirmatario.Parameters.AddWithValue("@PrimoFirmatario",
+                                                Convert.ToBoolean(primo_firmatario));
+                                            commandInsertFirmatario.Parameters.AddWithValue("@id_gruppo",
+                                                id_gruppo_firmatario);
+                                            commandInsertFirmatario.Parameters.AddWithValue("@Timestamp",
+                                                ParseDateTime(data_firma));
+                                            commandInsertFirmatario.ExecuteNonQuery(); // Esegui l'inserimento dei dati
+                                        }
 
                                         chkf++;
 
@@ -698,7 +739,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                             tipoRispostaAssociata,
                                             tipoOrgano, dataRispostaAssociata, dataTrasmissioneRispostaAssociata,
                                             dataTrattazioneRispostaAssociata, idOrgano, sub_query);
-                                        
+
                                         var nodeIdRispostaMadre = cellsRisposteAssociate[rowRA, 7]?.Value?.ToString();
                                         for (var rowRG = 2; rowRG <= rowCountRG; rowRG++)
                                         {
@@ -746,18 +787,22 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                          VALUES"
                                             + "(@IdMonitoraggio, @UIDAtto, @Tipo, @Nome, @IdOrganoMonitorato)";
 
-                                        var commandMonitoraggioCommissione =
-                                            new SqlCommand(queryInsertMonitoraggio, connection);
-                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@IdMonitoraggio",
-                                            Guid.NewGuid());
-                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@UIDAtto",
-                                            attoImportato.UidAtto);
-                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@Tipo", tipoOrgano);
-                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@Nome", nomeMonitorato);
-                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@IdOrganoMonitorato",
-                                            Convert.ToInt16(idMonitorato));
+                                        using (var commandMonitoraggioCommissione =
+                                               new SqlCommand(queryInsertMonitoraggio, connection))
+                                        {
+                                            commandMonitoraggioCommissione.Parameters.AddWithValue("@IdMonitoraggio",
+                                                Guid.NewGuid());
+                                            commandMonitoraggioCommissione.Parameters.AddWithValue("@UIDAtto",
+                                                attoImportato.UidAtto);
+                                            commandMonitoraggioCommissione.Parameters.AddWithValue("@Tipo", tipoOrgano);
+                                            commandMonitoraggioCommissione.Parameters.AddWithValue("@Nome",
+                                                nomeMonitorato);
+                                            commandMonitoraggioCommissione.Parameters.AddWithValue(
+                                                "@IdOrganoMonitorato",
+                                                Convert.ToInt16(idMonitorato));
 
-                                        commandMonitoraggioCommissione.ExecuteNonQuery();
+                                            commandMonitoraggioCommissione.ExecuteNonQuery();
+                                        }
                                     }
                                 }
 
@@ -780,18 +825,20 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                          VALUES"
                                             + "(@IdMonitoraggio, @UIDAtto, @Tipo, @Nome, @IdOrganoMonitorato)";
 
-                                        var commandMonitoraggioGiunta =
-                                            new SqlCommand(queryInsertMonitoraggio, connection);
-                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@IdMonitoraggio",
-                                            Guid.NewGuid());
-                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@UIDAtto",
-                                            attoImportato.UidAtto);
-                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@Tipo", tipoOrgano);
-                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@Nome", nomeMonitorato);
-                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@IdOrganoMonitorato",
-                                            Convert.ToInt16(idMonitorato));
+                                        using (var commandMonitoraggioGiunta =
+                                               new SqlCommand(queryInsertMonitoraggio, connection))
+                                        {
+                                            commandMonitoraggioGiunta.Parameters.AddWithValue("@IdMonitoraggio",
+                                                Guid.NewGuid());
+                                            commandMonitoraggioGiunta.Parameters.AddWithValue("@UIDAtto",
+                                                attoImportato.UidAtto);
+                                            commandMonitoraggioGiunta.Parameters.AddWithValue("@Tipo", tipoOrgano);
+                                            commandMonitoraggioGiunta.Parameters.AddWithValue("@Nome", nomeMonitorato);
+                                            commandMonitoraggioGiunta.Parameters.AddWithValue("@IdOrganoMonitorato",
+                                                Convert.ToInt16(idMonitorato));
 
-                                        commandMonitoraggioGiunta.ExecuteNonQuery();
+                                            commandMonitoraggioGiunta.ExecuteNonQuery();
+                                        }
                                     }
                                 }
 
@@ -812,17 +859,20 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                          VALUES"
                                             + "(@Uid, @UIDAtto, @Nome, @IdOrgano)";
 
-                                        var commandProponentiCommissione =
-                                            new SqlCommand(queryInsertProponentiCommissione, connection);
-                                        commandProponentiCommissione.Parameters.AddWithValue("@Uid",
-                                            Guid.NewGuid());
-                                        commandProponentiCommissione.Parameters.AddWithValue("@UIDAtto",
-                                            attoImportato.UidAtto);
-                                        commandProponentiCommissione.Parameters.AddWithValue("@Nome", nomeCommissione);
-                                        commandProponentiCommissione.Parameters.AddWithValue("@IdOrgano",
-                                            Convert.ToInt16(idCommissione));
+                                        using (var commandProponentiCommissione =
+                                               new SqlCommand(queryInsertProponentiCommissione, connection))
+                                        {
+                                            commandProponentiCommissione.Parameters.AddWithValue("@Uid",
+                                                Guid.NewGuid());
+                                            commandProponentiCommissione.Parameters.AddWithValue("@UIDAtto",
+                                                attoImportato.UidAtto);
+                                            commandProponentiCommissione.Parameters.AddWithValue("@Nome",
+                                                nomeCommissione);
+                                            commandProponentiCommissione.Parameters.AddWithValue("@IdOrgano",
+                                                Convert.ToInt16(idCommissione));
 
-                                        commandProponentiCommissione.ExecuteNonQuery();
+                                            commandProponentiCommissione.ExecuteNonQuery();
+                                        }
                                     }
                                 }
 
@@ -881,6 +931,24 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var tipoChiusuraIter = Convert.ToString(cellsAtti[row, 28].Value);
                                 var dataChiusuraIter = Convert.ToString(cellsAtti[row, 30].Value);
+                                var uidSeduta = string.Empty;
+                                if (tipoAttoEnum is TipoAttoEnum.MOZ
+                                    || tipoAttoEnum is TipoAttoEnum.ODG
+                                    || tipoAttoEnum is TipoAttoEnum.RIS)
+                                {
+                                    var queryGetSeduta =
+                                        $"SELECT UIDSeduta FROM SEDUTE WHERE CONVERT(DATE, Data_seduta) = '{dataChiusuraIter}'";
+
+                                    using (var commandGetSeduta = new SqlCommand(queryGetSeduta, connection))
+                                    {
+                                        var result = commandGetSeduta.ExecuteScalar();
+                                        if (result != null)
+                                        {
+                                            uidSeduta = result.ToString();
+                                        }
+                                    }
+                                }
+
                                 var iterMultiplo = Convert.ToString(cellsAtti[row, 50].Value) == "1";
 
                                 var emendatoFromAlfresco = Convert.ToString(cellsAtti[row, 32].Value);
@@ -982,14 +1050,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
 {FIELD_TIPO_CHIUSURA_ITER}{FIELD_TIPO_CHIUSURA_ITER_COMMISSIONE}{FIELD_DATA_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER_COMMISSIONE}{FIELD_TIPO_VOTAZIONE_ITER}{FIELD_TIPO_VOTAZIONE_ITER_COMMISSIONE}{FIELD_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}, Emendato, BURL, DCR, DCCR, DCRL, AreaTematica, AltriSoggetti, ImpegniScadenze, StatoAttuazione, CompetenzaMonitoraggio, Privacy_Dati_Personali_Giudiziari,
 Privacy_Divieto_Pubblicazione_Salute, Privacy_Divieto_Pubblicazione_Vita_Sessuale, Privacy_Divieto_Pubblicazione, Privacy_Dati_Personali_Sensibili, Privacy_Divieto_Pubblicazione_Altri, Privacy_Dati_Personali_Semplici, 
-Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}{FIELD_DATA_TRASMISSIONE}{FIELD_DATA_SEDUTA_RISPOSTA}{FIELD_DATA_PROPOSTA}{FIELD_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}{FIELD_REL_1}{FIELD_REL_2}{FIELD_REL_MINORANZA}, IterMultiplo, Proietta, Firma_su_invito, Eliminato) 
+Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}{FIELD_DATA_TRASMISSIONE}{FIELD_DATA_SEDUTA_RISPOSTA}{FIELD_DATA_PROPOSTA}{FIELD_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}{FIELD_REL_1}{FIELD_REL_2}{FIELD_REL_MINORANZA}{FIELD_UIDSEDUTA}, IterMultiplo, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @IDTipo_Risposta_Effettiva, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
 {PARAM_TIPO_CHIUSURA_ITER}{PARAM_TIPO_CHIUSURA_ITER_COMMISSIONE}{PARAM_DATA_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER_COMMISSIONE}{PARAM_TIPO_VOTAZIONE_ITER}{PARAM_TIPO_VOTAZIONE_ITER_COMMISSIONE}{PARAM_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}, @Emendato, @BURL, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, @ImpegniScadenze, @StatoAttuazione, @CompetenzaMonitoraggio, @Privacy_Dati_Personali_Giudiziari,
 @Privacy_Divieto_Pubblicazione_Salute, @Privacy_Divieto_Pubblicazione_Vita_Sessuale, @Privacy_Divieto_Pubblicazione, @Privacy_Dati_Personali_Sensibili, @Privacy_Divieto_Pubblicazione_Altri, @Privacy_Dati_Personali_Semplici, 
-@Privacy{PARAM_DATA_DataComunicazioneAssemblea}, @MonitoraggioConcluso{PARAM_DATA_TRASMISSIONE_MONITORAGGIO}{PARAM_DATA_TRASMISSIONE}{PARAM_DATA_SEDUTA_RISPOSTA}{PARAM_DATA_PROPOSTA}{PARAM_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}{PARAM_REL_1}{PARAM_REL_2}{PARAM_REL_MINORANZA}, @IterMultiplo, 0, 0, 0)";
+@Privacy{PARAM_DATA_DataComunicazioneAssemblea}, @MonitoraggioConcluso{PARAM_DATA_TRASMISSIONE_MONITORAGGIO}{PARAM_DATA_TRASMISSIONE}{PARAM_DATA_SEDUTA_RISPOSTA}{PARAM_DATA_PROPOSTA}{PARAM_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}{PARAM_REL_1}{PARAM_REL_2}{PARAM_REL_MINORANZA}{PARAM_UIDSEDUTA}, @IterMultiplo, 0, 0, 0)";
 
                                     if (string.IsNullOrEmpty(dataAnnunzio))
                                         query = query
@@ -1167,249 +1235,280 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                             .Replace("{FIELD_REL_MINORANZA}", ", UIDPersonaRelatoreMinoranza")
                                             .Replace("{PARAM_REL_MINORANZA}", ", @UIDPersonaRelatoreMinoranza");
 
-                                    var command = new SqlCommand(query, connection);
-
-                                    // Assegna i valori dei parametri
-                                    command.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
-                                    command.Parameters.AddWithValue("@Tipo", (int)tipoAttoEnum);
-                                    command.Parameters.AddWithValue("@TipoMOZ", tipoMozione);
-                                    command.Parameters.AddWithValue("@NAtto", etichettaAtto_Cifrata);
-                                    command.Parameters.AddWithValue("@Etichetta", etichettaAtto);
-                                    command.Parameters.AddWithValue("@NAtto_search", numeroAtto);
-                                    command.Parameters.AddWithValue("@Oggetto", CleanHtmlTags(oggetto));
-                                    command.Parameters.AddWithValue("@Premesse", CleanHtmlTags(premesse));
-                                    command.Parameters.AddWithValue("@IDTipo_Risposta", tipoRispostaRichiestaAttoInt);
-                                    command.Parameters.AddWithValue("@IDTipo_Risposta_Effettiva",
-                                        tipoRispostaEffettivaAttoInt);
-                                    command.Parameters.AddWithValue("@DataPresentazione", dataPresentazione_Cifrata);
-                                    command.Parameters.AddWithValue("@IDStato", statoId);
-                                    command.Parameters.AddWithValue("@Legislatura", legislatura.id_legislatura);
-                                    command.Parameters.AddWithValue("@Timestamp", dataPresentazione);
-                                    command.Parameters.AddWithValue("@OrdineVisualizzazione", numeroAtto);
-                                    command.Parameters.AddWithValue("@UID_QRCode", Guid.NewGuid());
-                                    command.Parameters.AddWithValue("@idRuoloCreazione",
-                                        (int)RuoliIntEnum.Consigliere_Regionale);
-                                    command.Parameters.AddWithValue("@UIDPersonaCreazione", proponenteId);
-                                    command.Parameters.AddWithValue("@UIDPersonaPresentazione", proponenteId);
-                                    command.Parameters.AddWithValue("@UIDPersonaProponente", proponenteId);
-                                    command.Parameters.AddWithValue("@UIDPersonaPrimaFirma", proponenteId);
-                                    command.Parameters.AddWithValue("@id_gruppo", id_gruppo);
-                                    command.Parameters.AddWithValue("@chkf", chkf);
-                                    command.Parameters.AddWithValue("@AreaPolitica", ParseDescr2Enum_Area(area));
-                                    command.Parameters.AddWithValue("@Pubblicato", pubblicato);
-                                    command.Parameters.AddWithValue("@Sollecito", sollecito);
-                                    command.Parameters.AddWithValue("@Protocollo", protocollo);
-                                    command.Parameters.AddWithValue("@CodiceMateria", codiceMateria);
-                                    command.Parameters.AddWithValue("@Emendato", emendato);
-                                    command.Parameters.AddWithValue("@BURL", burl);
-                                    command.Parameters.AddWithValue("@DCR", dcr);
-                                    command.Parameters.AddWithValue("@DCRC", dcrc);
-                                    command.Parameters.AddWithValue("@DCRL", dcrl);
-                                    command.Parameters.AddWithValue("@AreaTematica", CleanHtmlTags(areaTematica));
-                                    command.Parameters.AddWithValue("@AltriSoggetti", CleanHtmlTags(altriSoggetti));
-                                    command.Parameters.AddWithValue("@ImpegniScadenze",
-                                        CleanHtmlTags(noteImpegni_e_scadenze));
-                                    command.Parameters.AddWithValue("@StatoAttuazione", CleanHtmlTags(statoAttuazione));
-                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio",
-                                        CleanHtmlTags(competenzaMonitoraggio));
-                                    command.Parameters.AddWithValue("@MonitoraggioConcluso", monitoraggioConcluso);
-                                    command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
-
-                                    command.Parameters.AddWithValue("@Privacy_Dati_Personali_Giudiziari",
-                                        privacy_dati_personali_giudiziari_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Salute",
-                                        privacy_divieto_pubblicazione_salute_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Vita_Sessuale",
-                                        privacy_divieto_pubblicazione_vita_sessuale_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione",
-                                        privacy_divieto_pubblicazione_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Dati_Personali_Sensibili",
-                                        privacy_dati_personali_sensibili_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Altri",
-                                        privacy_divieto_pubblicazione_altri_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Dati_Personali_Semplici",
-                                        privacy_dati_personali_semplici_sn);
-                                    command.Parameters.AddWithValue("@Privacy", privacy_sn);
-
-                                    if (string.IsNullOrEmpty(dataAnnunzio))
+                                    if (tipoAttoEnum is TipoAttoEnum.MOZ 
+                                        || tipoAttoEnum is TipoAttoEnum.ODG 
+                                        || tipoAttoEnum is TipoAttoEnum.RIS)
                                     {
-                                        // Ignored
+                                        if (string.IsNullOrEmpty(uidSeduta))
+                                            query = query.Replace("{FIELD_UIDSEDUTA}", "")
+                                                .Replace("{PARAM_UIDSEDUTA}", "");
+                                        else
+                                            query = query.Replace("{FIELD_UIDSEDUTA}", "UIDSeduta")
+                                                .Replace("{PARAM_UIDSEDUTA}", "@UIDSeduta");
                                     }
                                     else
                                     {
-                                        command.Parameters.AddWithValue("@DataAnnunzio",
-                                            ParseDateTime(dataAnnunzio));
+                                        query = query.Replace("{FIELD_UIDSEDUTA}", "")
+                                            .Replace("{PARAM_UIDSEDUTA}", "");
                                     }
 
-                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio)
-                                        || tipoAttoEnum == TipoAttoEnum.ITL
-                                        || tipoAttoEnum == TipoAttoEnum.ITR
-                                        || tipoAttoEnum == TipoAttoEnum.IQT)
+                                    using (var command = new SqlCommand(query, connection))
                                     {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataTrasmissioneMonitoraggio",
-                                            ParseDateTime(dataTrasmissioneMonitoraggio));
-                                    }
+                                        // Assegna i valori dei parametri
+                                        command.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
+                                        command.Parameters.AddWithValue("@Tipo", (int)tipoAttoEnum);
+                                        command.Parameters.AddWithValue("@TipoMOZ", tipoMozione);
+                                        command.Parameters.AddWithValue("@NAtto", etichettaAtto_Cifrata);
+                                        command.Parameters.AddWithValue("@Etichetta", etichettaAtto);
+                                        command.Parameters.AddWithValue("@NAtto_search", numeroAtto);
+                                        command.Parameters.AddWithValue("@Oggetto", CleanHtmlTags(oggetto));
+                                        command.Parameters.AddWithValue("@Premesse", CleanHtmlTags(premesse));
+                                        command.Parameters.AddWithValue("@IDTipo_Risposta",
+                                            tipoRispostaRichiestaAttoInt);
+                                        command.Parameters.AddWithValue("@IDTipo_Risposta_Effettiva",
+                                            tipoRispostaEffettivaAttoInt);
+                                        command.Parameters.AddWithValue("@DataPresentazione",
+                                            dataPresentazione_Cifrata);
+                                        command.Parameters.AddWithValue("@IDStato", statoId);
+                                        command.Parameters.AddWithValue("@Legislatura", legislatura.id_legislatura);
+                                        command.Parameters.AddWithValue("@Timestamp", dataPresentazione);
+                                        command.Parameters.AddWithValue("@OrdineVisualizzazione", numeroAtto);
+                                        command.Parameters.AddWithValue("@UID_QRCode", Guid.NewGuid());
+                                        command.Parameters.AddWithValue("@idRuoloCreazione",
+                                            (int)RuoliIntEnum.Consigliere_Regionale);
+                                        command.Parameters.AddWithValue("@UIDPersonaCreazione", proponenteId);
+                                        command.Parameters.AddWithValue("@UIDPersonaPresentazione", proponenteId);
+                                        command.Parameters.AddWithValue("@UIDPersonaProponente", proponenteId);
+                                        command.Parameters.AddWithValue("@UIDPersonaPrimaFirma", proponenteId);
+                                        command.Parameters.AddWithValue("@id_gruppo", id_gruppo);
+                                        command.Parameters.AddWithValue("@chkf", chkf);
+                                        command.Parameters.AddWithValue("@AreaPolitica", ParseDescr2Enum_Area(area));
+                                        command.Parameters.AddWithValue("@Pubblicato", pubblicato);
+                                        command.Parameters.AddWithValue("@Sollecito", sollecito);
+                                        command.Parameters.AddWithValue("@Protocollo", protocollo);
+                                        command.Parameters.AddWithValue("@CodiceMateria", codiceMateria);
+                                        command.Parameters.AddWithValue("@Emendato", emendato);
+                                        command.Parameters.AddWithValue("@BURL", burl);
+                                        command.Parameters.AddWithValue("@DCR", dcr);
+                                        command.Parameters.AddWithValue("@DCRC", dcrc);
+                                        command.Parameters.AddWithValue("@DCRL", dcrl);
+                                        command.Parameters.AddWithValue("@AreaTematica", CleanHtmlTags(areaTematica));
+                                        command.Parameters.AddWithValue("@AltriSoggetti", CleanHtmlTags(altriSoggetti));
+                                        command.Parameters.AddWithValue("@ImpegniScadenze",
+                                            CleanHtmlTags(noteImpegni_e_scadenze));
+                                        command.Parameters.AddWithValue("@StatoAttuazione",
+                                            CleanHtmlTags(statoAttuazione));
+                                        command.Parameters.AddWithValue("@CompetenzaMonitoraggio",
+                                            CleanHtmlTags(competenzaMonitoraggio));
+                                        command.Parameters.AddWithValue("@MonitoraggioConcluso", monitoraggioConcluso);
+                                        command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
 
-                                    if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataComunicazioneAssemblea",
-                                            ParseDateTime(dataComunicazioneAssemblea));
-                                    }
+                                        command.Parameters.AddWithValue("@Privacy_Dati_Personali_Giudiziari",
+                                            privacy_dati_personali_giudiziari_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Salute",
+                                            privacy_divieto_pubblicazione_salute_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Vita_Sessuale",
+                                            privacy_divieto_pubblicazione_vita_sessuale_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione",
+                                            privacy_divieto_pubblicazione_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Dati_Personali_Sensibili",
+                                            privacy_dati_personali_sensibili_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Altri",
+                                            privacy_divieto_pubblicazione_altri_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Dati_Personali_Semplici",
+                                            privacy_dati_personali_semplici_sn);
+                                        command.Parameters.AddWithValue("@Privacy", privacy_sn);
 
-                                    if (string.IsNullOrEmpty(dataTrasmissione))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataTrasmissione",
-                                            ParseDateTime(dataTrasmissione));
-                                    }
+                                        if (string.IsNullOrEmpty(dataAnnunzio))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataAnnunzio",
+                                                ParseDateTime(dataAnnunzio));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataSedutaRisposta))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataSedutaRisposta",
-                                            ParseDateTime(dataSedutaRisposta));
-                                    }
+                                        if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio)
+                                            || tipoAttoEnum == TipoAttoEnum.ITL
+                                            || tipoAttoEnum == TipoAttoEnum.ITR
+                                            || tipoAttoEnum == TipoAttoEnum.IQT)
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataTrasmissioneMonitoraggio",
+                                                ParseDateTime(dataTrasmissioneMonitoraggio));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataComunicazioneAssembleaRisposta",
-                                            ParseDateTime(dataComunicazioneAssembleaRisposta));
-                                    }
+                                        if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataComunicazioneAssemblea",
+                                                ParseDateTime(dataComunicazioneAssemblea));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataProposta))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataProposta",
-                                            ParseDateTime(dataProposta));
-                                    }
+                                        if (string.IsNullOrEmpty(dataTrasmissione))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataTrasmissione",
+                                                ParseDateTime(dataTrasmissione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(tipoChiusuraIter))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@TipoChiusuraIter",
-                                            ParseDescr2Enum_ChiusuraIter(tipoChiusuraIter));
-                                    }
+                                        if (string.IsNullOrEmpty(dataSedutaRisposta))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataSedutaRisposta",
+                                                ParseDateTime(dataSedutaRisposta));
+                                        }
 
-                                    if (string.IsNullOrEmpty(tipoChiusuraIterCommissione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@TipoChiusuraIterCommissione",
-                                            ParseDescr2Enum_ChiusuraIter(tipoChiusuraIterCommissione));
-                                    }
+                                        if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataComunicazioneAssembleaRisposta",
+                                                ParseDateTime(dataComunicazioneAssembleaRisposta));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataChiusuraIter))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataChiusuraIter",
-                                            ParseDateTime(dataChiusuraIter));
-                                    }
+                                        if (string.IsNullOrEmpty(dataProposta))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataProposta",
+                                                ParseDateTime(dataProposta));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataChiusuraIterCommissione",
-                                            ParseDateTime(dataChiusuraIterCommissione));
-                                    }
+                                        if (string.IsNullOrEmpty(tipoChiusuraIter))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@TipoChiusuraIter",
+                                                ParseDescr2Enum_ChiusuraIter(tipoChiusuraIter));
+                                        }
 
-                                    if (string.IsNullOrEmpty(tipoVotazione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@TipoVotazioneIter",
-                                            ParseDescr2Enum_TipoVotazioneIter(tipoVotazione));
-                                    }
+                                        if (string.IsNullOrEmpty(tipoChiusuraIterCommissione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@TipoChiusuraIterCommissione",
+                                                ParseDescr2Enum_ChiusuraIter(tipoChiusuraIterCommissione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(tipoVotazioneIterCommissione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@TipoVotazioneIterCommissione",
-                                            ParseDescr2Enum_TipoVotazioneIter(tipoVotazioneIterCommissione));
-                                    }
+                                        if (string.IsNullOrEmpty(dataChiusuraIter))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataChiusuraIter",
+                                                ParseDateTime(dataChiusuraIter));
+                                        }
 
-                                    if (string.IsNullOrEmpty(risultatoVotazioneIterCommissione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@RisultatoVotazioneIterCommissione",
-                                            ParseDescr2Enum_RisultatoVotazioneIter(risultatoVotazioneIterCommissione));
-                                    }
+                                        if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataChiusuraIterCommissione",
+                                                ParseDateTime(dataChiusuraIterCommissione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(idRelatore))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@UIDPersonaRelatore1",
-                                            relatore1);
-                                    }
+                                        if (string.IsNullOrEmpty(tipoVotazione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@TipoVotazioneIter",
+                                                ParseDescr2Enum_TipoVotazioneIter(tipoVotazione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(idRelatore2))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@UIDPersonaRelatore2",
-                                            relatore2);
-                                    }
+                                        if (string.IsNullOrEmpty(tipoVotazioneIterCommissione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@TipoVotazioneIterCommissione",
+                                                ParseDescr2Enum_TipoVotazioneIter(tipoVotazioneIterCommissione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(idRelatoreMinoranza))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@UIDPersonaRelatoreMinoranza",
-                                            relatoreMinoranza);
-                                    }
+                                        if (string.IsNullOrEmpty(risultatoVotazioneIterCommissione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@RisultatoVotazioneIterCommissione",
+                                                ParseDescr2Enum_RisultatoVotazioneIter(
+                                                    risultatoVotazioneIterCommissione));
+                                        }
 
-                                    // Esegui la query di inserimento
-                                    var resQuery = command.ExecuteNonQuery();
-                                    if (resQuery == 1)
-                                    {
-                                        Console.WriteLine($"[{row}/{rowCount}] {etichettaAtto}");
-                                        attiImportati.Add(nodeIdFromAlfresco, attoImportato);
+                                        if (string.IsNullOrEmpty(idRelatore))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@UIDPersonaRelatore1",
+                                                relatore1);
+                                        }
+
+                                        if (string.IsNullOrEmpty(idRelatore2))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@UIDPersonaRelatore2",
+                                                relatore2);
+                                        }
+
+                                        if (string.IsNullOrEmpty(idRelatoreMinoranza))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@UIDPersonaRelatoreMinoranza",
+                                                relatoreMinoranza);
+                                        }
+
+                                        if (tipoAttoEnum is TipoAttoEnum.MOZ
+                                            || tipoAttoEnum is TipoAttoEnum.ODG
+                                            || tipoAttoEnum is TipoAttoEnum.RIS)
+                                        {
+                                            if (!string.IsNullOrEmpty(uidSeduta))
+                                                command.Parameters.AddWithValue("@UIDSeduta",
+                                                    uidSeduta);
+                                        }
+
+                                        // Esegui la query di inserimento
+                                        var resQuery = command.ExecuteNonQuery();
+                                        if (resQuery == 1)
+                                        {
+                                            Console.WriteLine($"[{row}/{rowCount}] {etichettaAtto}");
+                                            attiImportati.Add(nodeIdFromAlfresco, attoImportato);
+                                        }
                                     }
                                 }
                                 else
@@ -1442,13 +1541,13 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         Privacy_Dati_Personali_Sensibili = @Privacy_Dati_Personali_Sensibili,
                                         Privacy_Divieto_Pubblicazione_Altri = @Privacy_Divieto_Pubblicazione_Altri,
                                         Privacy_Dati_Personali_Semplici = @Privacy_Dati_Personali_Semplici,
-                                        Privacy = @Privacy{FIELD_DATA_DataComunicazioneAssemblea}{FIELD_REL_1}{FIELD_REL_2}{FIELD_REL_MINORANZA},
+                                        Privacy = @Privacy{FIELD_DATA_DataComunicazioneAssemblea}{FIELD_REL_1}{FIELD_REL_2}{FIELD_REL_MINORANZA}{FIELD_UIDSEDUTA},
                                         Firma_su_invito = 0
                                     WHERE UIDAtto = @UIDAtto";
 
                                     if (string.IsNullOrEmpty(dataAnnunzio))
-                                        query = query.Replace("{FIELD_DATA_ANNUNZIO}", "")
-                                            .Replace("{PARAM_DATA_ANNUNZIO}", "");
+                                        query = query
+                                            .Replace("{FIELD_DATA_ANNUNZIO}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_ANNUNZIO}",
                                             ", DataAnnunzio = @DataAnnunzio");
@@ -1457,345 +1556,381 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         || tipoAttoEnum == TipoAttoEnum.ITL
                                         || tipoAttoEnum == TipoAttoEnum.ITR
                                         || tipoAttoEnum == TipoAttoEnum.IQT)
-                                        query = query.Replace("{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}", "")
-                                            .Replace("{PARAM_DATA_TRASMISSIONE_MONITORAGGIO}", "");
+                                        query = query
+                                            .Replace("{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_TRASMISSIONE_MONITORAGGIO}",
                                             ", DataTrasmissioneMonitoraggio = @DataTrasmissioneMonitoraggio");
 
                                     if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
-                                        query = query.Replace("{FIELD_DATA_DataComunicazioneAssemblea}", "")
-                                            .Replace("{PARAM_DATA_DataComunicazioneAssemblea}", "");
+                                        query = query
+                                            .Replace("{FIELD_DATA_DataComunicazioneAssemblea}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_DataComunicazioneAssemblea}",
                                             ", DataComunicazioneAssemblea = @DataComunicazioneAssemblea");
 
                                     if (string.IsNullOrEmpty(dataTrasmissione))
-                                        query = query.Replace("{FIELD_DATA_TRASMISSIONE}", "")
-                                            .Replace("{PARAM_DATA_TRASMISSIONE}", "");
+                                        query = query
+                                            .Replace("{FIELD_DATA_TRASMISSIONE}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_TRASMISSIONE}",
                                             ", DataTrasmissione = @DataTrasmissione");
 
                                     if (string.IsNullOrEmpty(dataSedutaRisposta))
-                                        query = query.Replace("{FIELD_DATA_SEDUTA_RISPOSTA}", "")
-                                            .Replace("{PARAM_DATA_SEDUTA_RISPOSTA}", "");
+                                        query = query
+                                            .Replace("{FIELD_DATA_SEDUTA_RISPOSTA}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_SEDUTA_RISPOSTA}",
                                             ", DataSedutaRisposta = @DataSedutaRisposta");
 
                                     if (string.IsNullOrEmpty(dataProposta))
-                                        query = query.Replace("{FIELD_DATA_PROPOSTA}", "")
-                                            .Replace("{PARAM_DATA_PROPOSTA}", "");
+                                        query = query
+                                            .Replace("{FIELD_DATA_PROPOSTA}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_PROPOSTA}",
                                             ", DataProposta = @DataProposta");
 
                                     if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
-                                        query = query.Replace("{FIELD_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}", "")
-                                            .Replace("{PARAM_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}", "");
+                                        query = query
+                                            .Replace("{FIELD_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_COMUNICAZIONE_ASSEMBLEA_RISPOSTA}",
                                             ", DataComunicazioneAssembleaRisposta = @DataComunicazioneAssembleaRisposta");
 
                                     if (string.IsNullOrEmpty(tipoChiusuraIter))
-                                        query = query.Replace("{FIELD_TIPO_CHIUSURA_ITER}", "")
-                                            .Replace("{PARAM_TIPO_CHIUSURA_ITER}", "");
+                                        query = query
+                                            .Replace("{FIELD_TIPO_CHIUSURA_ITER}", "");
                                     else
                                         query = query.Replace("{FIELD_TIPO_CHIUSURA_ITER}",
                                             ", TipoChiusuraIter = @TipoChiusuraIter");
 
                                     if (string.IsNullOrEmpty(tipoChiusuraIterCommissione))
-                                        query = query.Replace("{FIELD_TIPO_CHIUSURA_ITER_COMMISSIONE}", "")
-                                            .Replace("{PARAM_TIPO_CHIUSURA_ITER_COMMISSIONE}", "");
+                                        query = query
+                                            .Replace("{FIELD_TIPO_CHIUSURA_ITER_COMMISSIONE}", "");
                                     else
                                         query = query.Replace("{FIELD_TIPO_CHIUSURA_ITER_COMMISSIONE}",
                                             ", TipoChiusuraIterCommissione = @TipoChiusuraIterCommissione");
 
                                     if (string.IsNullOrEmpty(dataChiusuraIter))
-                                        query = query.Replace("{FIELD_DATA_CHIUSURA_ITER}", "")
-                                            .Replace("{PARAM_DATA_CHIUSURA_ITER}", "");
+                                        query = query
+                                            .Replace("{FIELD_DATA_CHIUSURA_ITER}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_CHIUSURA_ITER}",
                                             ", DataChiusuraIter = @DataChiusuraIter");
 
                                     if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
-                                        query = query.Replace("{FIELD_DATA_CHIUSURA_ITER_COMMISSIONE}", "")
-                                            .Replace("{PARAM_DATA_CHIUSURA_ITER_COMMISSIONE}", "");
+                                        query = query
+                                            .Replace("{FIELD_DATA_CHIUSURA_ITER_COMMISSIONE}", "");
                                     else
                                         query = query.Replace("{FIELD_DATA_CHIUSURA_ITER_COMMISSIONE}",
                                             ", DataChiusuraIterCommissione = @DataChiusuraIterCommissione");
 
                                     if (string.IsNullOrEmpty(tipoVotazione))
-                                        query = query.Replace("{FIELD_TIPO_VOTAZIONE_ITER}", "")
-                                            .Replace("{PARAM_TIPO_VOTAZIONE_ITER}", "");
+                                        query = query
+                                            .Replace("{FIELD_TIPO_VOTAZIONE_ITER}", "");
                                     else
                                         query = query.Replace("{FIELD_TIPO_VOTAZIONE_ITER}",
                                             ", TipoVotazioneIter = @TipoVotazioneIter");
 
                                     if (string.IsNullOrEmpty(tipoVotazioneIterCommissione))
-                                        query = query.Replace("{FIELD_TIPO_VOTAZIONE_ITER_COMMISSIONE}", "")
-                                            .Replace("{PARAM_TIPO_VOTAZIONE_ITER_COMMISSIONE}", "");
+                                        query = query
+                                            .Replace("{FIELD_TIPO_VOTAZIONE_ITER_COMMISSIONE}", "");
                                     else
                                         query = query.Replace("{FIELD_TIPO_VOTAZIONE_ITER_COMMISSIONE}",
                                             ", TipoVotazioneIterCommissione = @TipoVotazioneIterCommissione");
 
                                     if (string.IsNullOrEmpty(risultatoVotazioneIterCommissione))
-                                        query = query.Replace("{FIELD_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}", "")
-                                            .Replace("{PARAM_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}", "");
+                                        query = query.Replace("{FIELD_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}", "");
                                     else
                                         query = query.Replace("{FIELD_RISULTATO_VOTAZIONE_ITER_COMMISSIONE}",
                                             ", RisultatoVotazioneIterCommissione = @RisultatoVotazioneIterCommissione");
 
                                     if (string.IsNullOrEmpty(idRelatore))
-                                        query = query.Replace("{FIELD_REL_1}", "")
-                                            .Replace("{PARAM_REL_1}", "");
+                                        query = query.Replace("{FIELD_REL_1}", "");
                                     else
                                         query = query.Replace("{FIELD_REL_1}",
                                             ", UIDPersonaRelatore1 = @UIDPersonaRelatore1");
 
                                     if (string.IsNullOrEmpty(idRelatore2))
-                                        query = query.Replace("{FIELD_REL_2}", "")
-                                            .Replace("{PARAM_REL_2}", "");
+                                        query = query.Replace("{FIELD_REL_2}", "");
                                     else
                                         query = query.Replace("{FIELD_REL_2}",
                                             ", UIDPersonaRelatore2 = @UIDPersonaRelatore2");
 
                                     if (string.IsNullOrEmpty(idRelatoreMinoranza))
-                                        query = query.Replace("{FIELD_REL_MINORANZA}", "")
-                                            .Replace("{PARAM_REL_MINORANZA}", "");
+                                        query = query.Replace("{FIELD_REL_MINORANZA}", "");
                                     else
                                         query = query.Replace("{FIELD_REL_MINORANZA}",
                                             ", UIDPersonaRelatoreMinoranza = @UIDPersonaRelatoreMinoranza");
 
-                                    var command = new SqlCommand(query, connection);
-
-                                    // Assegna i valori dei parametri
-                                    command.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
-                                    command.Parameters.AddWithValue("@AreaPolitica", ParseDescr2Enum_Area(area));
-                                    command.Parameters.AddWithValue("@Pubblicato", pubblicato);
-                                    command.Parameters.AddWithValue("@Sollecito", sollecito);
-                                    command.Parameters.AddWithValue("@Protocollo", protocollo);
-                                    command.Parameters.AddWithValue("@CodiceMateria", codiceMateria);
-                                    command.Parameters.AddWithValue("@Emendato", emendato);
-                                    command.Parameters.AddWithValue("@BURL", burl);
-                                    command.Parameters.AddWithValue("@DCR", dcr);
-                                    command.Parameters.AddWithValue("@DCRC", dcrc);
-                                    command.Parameters.AddWithValue("@DCRL", dcrl);
-                                    command.Parameters.AddWithValue("@AreaTematica", CleanHtmlTags(areaTematica));
-                                    command.Parameters.AddWithValue("@IDTipo_Risposta_Effettiva",
-                                        tipoRispostaEffettivaAttoInt);
-                                    command.Parameters.AddWithValue("@AltriSoggetti", CleanHtmlTags(altriSoggetti));
-                                    command.Parameters.AddWithValue("@ImpegniScadenze",
-                                        CleanHtmlTags(noteImpegni_e_scadenze));
-                                    command.Parameters.AddWithValue("@StatoAttuazione", CleanHtmlTags(statoAttuazione));
-                                    command.Parameters.AddWithValue("@CompetenzaMonitoraggio",
-                                        CleanHtmlTags(competenzaMonitoraggio));
-                                    command.Parameters.AddWithValue("@MonitoraggioConcluso", monitoraggioConcluso);
-                                    command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
-
-                                    command.Parameters.AddWithValue("@Privacy_Dati_Personali_Giudiziari",
-                                        privacy_dati_personali_giudiziari_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Salute",
-                                        privacy_divieto_pubblicazione_salute_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Vita_Sessuale",
-                                        privacy_divieto_pubblicazione_vita_sessuale_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione",
-                                        privacy_divieto_pubblicazione_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Dati_Personali_Sensibili",
-                                        privacy_dati_personali_sensibili_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Altri",
-                                        privacy_divieto_pubblicazione_altri_sn);
-                                    command.Parameters.AddWithValue("@Privacy_Dati_Personali_Semplici",
-                                        privacy_dati_personali_semplici_sn);
-                                    command.Parameters.AddWithValue("@Privacy", privacy_sn);
-
-                                    if (string.IsNullOrEmpty(dataAnnunzio))
+                                    if (tipoAttoEnum is TipoAttoEnum.MOZ
+                                        || tipoAttoEnum is TipoAttoEnum.ODG
+                                        || tipoAttoEnum is TipoAttoEnum.RIS)
                                     {
-                                        // Ignored
+                                        if (string.IsNullOrEmpty(uidSeduta))
+                                            query = query.Replace("{FIELD_UIDSEDUTA}", "");
+                                        else
+                                            query = query.Replace("{FIELD_UIDSEDUTA}",
+                                                ", UIDSeduta = @UIDSeduta");
                                     }
                                     else
                                     {
-                                        command.Parameters.AddWithValue("@DataAnnunzio",
-                                            ParseDateTime(dataAnnunzio));
+                                        query = query.Replace("{FIELD_UIDSEDUTA}", "");
                                     }
 
-                                    if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio)
-                                        || tipoAttoEnum == TipoAttoEnum.ITL
-                                        || tipoAttoEnum == TipoAttoEnum.ITR
-                                        || tipoAttoEnum == TipoAttoEnum.IQT)
+                                    using (var command = new SqlCommand(query, connection))
                                     {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataTrasmissioneMonitoraggio",
-                                            ParseDateTime(dataTrasmissioneMonitoraggio));
-                                    }
+                                        // Assegna i valori dei parametri
+                                        command.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
+                                        command.Parameters.AddWithValue("@AreaPolitica", ParseDescr2Enum_Area(area));
+                                        command.Parameters.AddWithValue("@Pubblicato", pubblicato);
+                                        command.Parameters.AddWithValue("@Sollecito", sollecito);
+                                        command.Parameters.AddWithValue("@Protocollo", protocollo);
+                                        command.Parameters.AddWithValue("@CodiceMateria", codiceMateria);
+                                        command.Parameters.AddWithValue("@Emendato", emendato);
+                                        command.Parameters.AddWithValue("@BURL", burl);
+                                        command.Parameters.AddWithValue("@DCR", dcr);
+                                        command.Parameters.AddWithValue("@DCRC", dcrc);
+                                        command.Parameters.AddWithValue("@DCRL", dcrl);
+                                        command.Parameters.AddWithValue("@AreaTematica", CleanHtmlTags(areaTematica));
+                                        command.Parameters.AddWithValue("@IDTipo_Risposta_Effettiva",
+                                            tipoRispostaEffettivaAttoInt);
+                                        command.Parameters.AddWithValue("@AltriSoggetti", CleanHtmlTags(altriSoggetti));
+                                        command.Parameters.AddWithValue("@ImpegniScadenze",
+                                            CleanHtmlTags(noteImpegni_e_scadenze));
+                                        command.Parameters.AddWithValue("@StatoAttuazione",
+                                            CleanHtmlTags(statoAttuazione));
+                                        command.Parameters.AddWithValue("@CompetenzaMonitoraggio",
+                                            CleanHtmlTags(competenzaMonitoraggio));
+                                        command.Parameters.AddWithValue("@MonitoraggioConcluso", monitoraggioConcluso);
+                                        command.Parameters.AddWithValue("@IterMultiplo", iterMultiplo);
 
-                                    if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataComunicazioneAssemblea",
-                                            ParseDateTime(dataComunicazioneAssemblea));
-                                    }
+                                        command.Parameters.AddWithValue("@Privacy_Dati_Personali_Giudiziari",
+                                            privacy_dati_personali_giudiziari_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Salute",
+                                            privacy_divieto_pubblicazione_salute_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Vita_Sessuale",
+                                            privacy_divieto_pubblicazione_vita_sessuale_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione",
+                                            privacy_divieto_pubblicazione_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Dati_Personali_Sensibili",
+                                            privacy_dati_personali_sensibili_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Divieto_Pubblicazione_Altri",
+                                            privacy_divieto_pubblicazione_altri_sn);
+                                        command.Parameters.AddWithValue("@Privacy_Dati_Personali_Semplici",
+                                            privacy_dati_personali_semplici_sn);
+                                        command.Parameters.AddWithValue("@Privacy", privacy_sn);
 
-                                    if (string.IsNullOrEmpty(dataTrasmissione))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataTrasmissione",
-                                            ParseDateTime(dataTrasmissione));
-                                    }
+                                        if (string.IsNullOrEmpty(dataAnnunzio))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataAnnunzio",
+                                                ParseDateTime(dataAnnunzio));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataSedutaRisposta))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataSedutaRisposta",
-                                            ParseDateTime(dataSedutaRisposta));
-                                    }
+                                        if (string.IsNullOrEmpty(dataTrasmissioneMonitoraggio)
+                                            || tipoAttoEnum == TipoAttoEnum.ITL
+                                            || tipoAttoEnum == TipoAttoEnum.ITR
+                                            || tipoAttoEnum == TipoAttoEnum.IQT)
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataTrasmissioneMonitoraggio",
+                                                ParseDateTime(dataTrasmissioneMonitoraggio));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataComunicazioneAssembleaRisposta",
-                                            ParseDateTime(dataComunicazioneAssembleaRisposta));
-                                    }
+                                        if (string.IsNullOrEmpty(dataComunicazioneAssemblea))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataComunicazioneAssemblea",
+                                                ParseDateTime(dataComunicazioneAssemblea));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataProposta))
-                                    {
-                                        // ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataProposta",
-                                            ParseDateTime(dataProposta));
-                                    }
+                                        if (string.IsNullOrEmpty(dataTrasmissione))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataTrasmissione",
+                                                ParseDateTime(dataTrasmissione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(tipoChiusuraIter))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@TipoChiusuraIter",
-                                            ParseDescr2Enum_ChiusuraIter(tipoChiusuraIter));
-                                    }
+                                        if (string.IsNullOrEmpty(dataSedutaRisposta))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataSedutaRisposta",
+                                                ParseDateTime(dataSedutaRisposta));
+                                        }
 
-                                    if (string.IsNullOrEmpty(tipoChiusuraIterCommissione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@TipoChiusuraIterCommissione",
-                                            ParseDescr2Enum_ChiusuraIter(tipoChiusuraIterCommissione));
-                                    }
+                                        if (string.IsNullOrEmpty(dataComunicazioneAssembleaRisposta))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataComunicazioneAssembleaRisposta",
+                                                ParseDateTime(dataComunicazioneAssembleaRisposta));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataChiusuraIter))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataChiusuraIter",
-                                            ParseDateTime(dataChiusuraIter));
-                                    }
+                                        if (string.IsNullOrEmpty(dataProposta))
+                                        {
+                                            // ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataProposta",
+                                                ParseDateTime(dataProposta));
+                                        }
 
-                                    if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@DataChiusuraIterCommissione",
-                                            ParseDateTime(dataChiusuraIterCommissione));
-                                    }
+                                        if (string.IsNullOrEmpty(tipoChiusuraIter))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@TipoChiusuraIter",
+                                                ParseDescr2Enum_ChiusuraIter(tipoChiusuraIter));
+                                        }
 
-                                    if (string.IsNullOrEmpty(tipoVotazione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@TipoVotazioneIter",
-                                            ParseDescr2Enum_TipoVotazioneIter(tipoVotazione));
-                                    }
+                                        if (string.IsNullOrEmpty(tipoChiusuraIterCommissione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@TipoChiusuraIterCommissione",
+                                                ParseDescr2Enum_ChiusuraIter(tipoChiusuraIterCommissione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(tipoVotazioneIterCommissione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@TipoVotazioneIterCommissione",
-                                            ParseDescr2Enum_TipoVotazioneIter(tipoVotazioneIterCommissione));
-                                    }
+                                        if (string.IsNullOrEmpty(dataChiusuraIter))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataChiusuraIter",
+                                                ParseDateTime(dataChiusuraIter));
+                                        }
 
-                                    if (string.IsNullOrEmpty(risultatoVotazioneIterCommissione))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@RisultatoVotazioneIterCommissione",
-                                            ParseDescr2Enum_RisultatoVotazioneIter(risultatoVotazioneIterCommissione));
-                                    }
+                                        if (string.IsNullOrEmpty(dataChiusuraIterCommissione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@DataChiusuraIterCommissione",
+                                                ParseDateTime(dataChiusuraIterCommissione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(idRelatore))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@UIDPersonaRelatore1",
-                                            relatore1);
-                                    }
+                                        if (string.IsNullOrEmpty(tipoVotazione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@TipoVotazioneIter",
+                                                ParseDescr2Enum_TipoVotazioneIter(tipoVotazione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(idRelatore2))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@UIDPersonaRelatore2",
-                                            relatore2);
-                                    }
+                                        if (string.IsNullOrEmpty(tipoVotazioneIterCommissione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@TipoVotazioneIterCommissione",
+                                                ParseDescr2Enum_TipoVotazioneIter(tipoVotazioneIterCommissione));
+                                        }
 
-                                    if (string.IsNullOrEmpty(idRelatoreMinoranza))
-                                    {
-                                        // Ignored
-                                    }
-                                    else
-                                    {
-                                        command.Parameters.AddWithValue("@UIDPersonaRelatoreMinoranza",
-                                            relatoreMinoranza);
-                                    }
+                                        if (string.IsNullOrEmpty(risultatoVotazioneIterCommissione))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@RisultatoVotazioneIterCommissione",
+                                                ParseDescr2Enum_RisultatoVotazioneIter(
+                                                    risultatoVotazioneIterCommissione));
+                                        }
 
-                                    // Esegui la query di inserimento
-                                    var resQuery = command.ExecuteNonQuery();
-                                    if (resQuery == 1)
-                                    {
-                                        Console.WriteLine($"[{row}/{rowCount}] {etichettaAtto}");
-                                        attiImportati.Add(nodeIdFromAlfresco, attoImportato);
+                                        if (string.IsNullOrEmpty(idRelatore))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@UIDPersonaRelatore1",
+                                                relatore1);
+                                        }
+
+                                        if (string.IsNullOrEmpty(idRelatore2))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@UIDPersonaRelatore2",
+                                                relatore2);
+                                        }
+
+                                        if (string.IsNullOrEmpty(idRelatoreMinoranza))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@UIDPersonaRelatoreMinoranza",
+                                                relatoreMinoranza);
+                                        }
+
+                                        if (string.IsNullOrEmpty(idRelatoreMinoranza))
+                                        {
+                                            // Ignored
+                                        }
+                                        else
+                                        {
+                                            command.Parameters.AddWithValue("@UIDPersonaRelatoreMinoranza",
+                                                relatoreMinoranza);
+                                        }
+
+                                        if (tipoAttoEnum is TipoAttoEnum.MOZ
+                                            || tipoAttoEnum is TipoAttoEnum.ODG
+                                            || tipoAttoEnum is TipoAttoEnum.RIS)
+                                        {
+                                            if (!string.IsNullOrEmpty(uidSeduta))
+                                                command.Parameters.AddWithValue("@UIDSeduta",
+                                                    uidSeduta);
+                                        }
+
+                                        // Esegui la query di inserimento
+                                        var resQuery = command.ExecuteNonQuery();
+                                        if (resQuery == 1)
+                                        {
+                                            Console.WriteLine($"[{row}/{rowCount}] {etichettaAtto}");
+                                            attiImportati.Add(nodeIdFromAlfresco, attoImportato);
+                                        }
                                     }
                                 }
                             }
                             catch (Exception e)
                             {
-                                _log.Error($"Errore: {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}", e);
-                                Console.WriteLine("Errore durante l'elaborazione della riga. Dettagli dell'errore: " + e.Message);
+                                _log.Error(
+                                    $"Errore: {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}",
+                                    e);
+                                Console.WriteLine("Errore durante l'elaborazione della riga. Dettagli dell'errore: " +
+                                                  e.Message);
                                 sb.AppendLine(
                                     $"{foglio}, {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}, {e.Message}");
                             }
@@ -1840,13 +1975,15 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     @"INSERT INTO ATTI_ABBINAMENTI (Uid, Data, UIDAtto, UIDAttoAbbinato)
                                                     VALUES
                                                 (@IdAbbinamento, GETDATE(), @UIDAtto, @UIDAttoAbbinato)";
-                                var commandInsertAbbinamento =
-                                    new SqlCommand(queryInsertAbbinamento, connection);
-                                commandInsertAbbinamento.Parameters.AddWithValue("@IdAbbinamento", Guid.NewGuid());
-                                commandInsertAbbinamento.Parameters.AddWithValue("@UIDAtto", attoPadre.UidAtto);
-                                commandInsertAbbinamento.Parameters.AddWithValue("@UIDAttoAbbinato",
-                                    attoAbbinato.UidAtto);
-                                commandInsertAbbinamento.ExecuteNonQuery();
+                                using (var commandInsertAbbinamento =
+                                       new SqlCommand(queryInsertAbbinamento, connection))
+                                {
+                                    commandInsertAbbinamento.Parameters.AddWithValue("@IdAbbinamento", Guid.NewGuid());
+                                    commandInsertAbbinamento.Parameters.AddWithValue("@UIDAtto", attoPadre.UidAtto);
+                                    commandInsertAbbinamento.Parameters.AddWithValue("@UIDAttoAbbinato",
+                                        attoAbbinato.UidAtto);
+                                    commandInsertAbbinamento.ExecuteNonQuery();
+                                }
                             }
                         }
                 }
@@ -1878,13 +2015,17 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     @"INSERT INTO ATTI_ABBINAMENTI (Uid, Data, UIDAtto, UIDAttoAbbinato)
                                                     VALUES
                                                 (@IdAbbinamento, GETDATE(), @UIDAtto, @UIDAttoAbbinato)";
-                                var commandInsertAbbinamentoGea =
-                                    new SqlCommand(queryInsertAbbinamentoGea, connection);
-                                commandInsertAbbinamentoGea.Parameters.AddWithValue("@IdAbbinamento", Guid.NewGuid());
-                                commandInsertAbbinamentoGea.Parameters.AddWithValue("@UIDAtto", attoPadre.UidAtto);
-                                commandInsertAbbinamentoGea.Parameters.AddWithValue("@UIDAttoAbbinato",
-                                    abbinamentoGea.UIDAtto);
-                                commandInsertAbbinamentoGea.ExecuteNonQuery();
+                                using (var commandInsertAbbinamentoGea =
+                                       new SqlCommand(queryInsertAbbinamentoGea, connection))
+                                {
+                                    commandInsertAbbinamentoGea.Parameters.AddWithValue("@IdAbbinamento",
+                                        Guid.NewGuid());
+                                    commandInsertAbbinamentoGea.Parameters.AddWithValue("@UIDAtto", attoPadre.UidAtto);
+                                    commandInsertAbbinamentoGea.Parameters.AddWithValue("@UIDAttoAbbinato",
+                                        abbinamentoGea.UIDAtto);
+                                    commandInsertAbbinamentoGea.ExecuteNonQuery();
+                                }
+
                                 count_inseriti++;
                             }
                             catch (Exception e)
@@ -1912,20 +2053,21 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
             FROM View_UTENTI 
             WHERE userAD LIKE '%max.pagliaro'";
 
-                var command = new SqlCommand(query, connection);
-
-                try
+                using (var command = new SqlCommand(query, connection))
                 {
-                    connection.Open();
-                    var uid = command.ExecuteScalar();
-                    if (uid != null && uid != DBNull.Value)
+                    try
                     {
-                        result = (Guid)uid;
+                        connection.Open();
+                        var uid = command.ExecuteScalar();
+                        if (uid != null && uid != DBNull.Value)
+                        {
+                            result = (Guid)uid;
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Errore durante l'accesso al database: " + ex.Message);
+                    catch (Exception ex)
+                    {
+                        throw new Exception("Errore durante l'accesso al database: " + ex.Message);
+                    }
                 }
             }
 
@@ -1950,31 +2092,32 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
             FROM 
                 legislature";
 
-                var command = new SqlCommand(query, connection);
-
-                try
+                using (var command = new SqlCommand(query, connection))
                 {
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
+                    try
                     {
-                        while (reader.Read())
+                        connection.Open();
+                        using (var reader = command.ExecuteReader())
                         {
-                            var legislatura = new LegislaturaDto
+                            while (reader.Read())
                             {
-                                id_legislatura = reader.GetInt32(0),
-                                num_legislatura = reader.GetString(1),
-                                durata_legislatura_da = reader.GetDateTime(2),
-                                durata_legislatura_a = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3),
-                                attiva = reader.GetBoolean(4),
-                                id_causa_fine = reader.IsDBNull(5) ? (int?)null : reader.GetInt32(5)
-                            };
-                            result.Add(legislatura);
+                                var legislatura = new LegislaturaDto
+                                {
+                                    id_legislatura = reader.GetInt32(0),
+                                    num_legislatura = reader.GetString(1),
+                                    durata_legislatura_da = reader.GetDateTime(2),
+                                    durata_legislatura_a = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3),
+                                    attiva = reader.GetBoolean(4),
+                                    id_causa_fine = reader.IsDBNull(5) ? (int?)null : reader.GetInt32(5)
+                                };
+                                result.Add(legislatura);
+                            }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Errore durante l'accesso al database: " + ex.Message);
+                    catch (Exception ex)
+                    {
+                        throw new Exception("Errore durante l'accesso al database: " + ex.Message);
+                    }
                 }
             }
 
@@ -2020,19 +2163,21 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                 {
                     conn.Open();
 
-                    var command = new SqlCommand(query, conn);
-                    command.Parameters.AddWithValue("@CodiceGruppoPolitico", codiceGruppoPolitico);
-                    command.Parameters.AddWithValue("@legislaturaId", legislaturaId);
-
-                    var reader = command.ExecuteReader();
-
-                    while (reader.Read())
+                    using (var command = new SqlCommand(query, conn))
                     {
-                        var idGruppo = reader.GetInt32(0); // Leggi l'ID del gruppo politico
-                        return idGruppo;
-                    }
+                        command.Parameters.AddWithValue("@CodiceGruppoPolitico", codiceGruppoPolitico);
+                        command.Parameters.AddWithValue("@legislaturaId", legislaturaId);
 
-                    reader.Close();
+                        var reader = command.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            var idGruppo = reader.GetInt32(0); // Leggi l'ID del gruppo politico
+                            return idGruppo;
+                        }
+
+                        reader.Close();
+                    }
                 }
             }
 
@@ -2225,21 +2370,23 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                 @"INSERT INTO ATTI_RISPOSTE (Uid, UIDAtto, Tipo, TipoOrgano, Data, DataTrasmissione, DataTrattazione, IdOrgano, DescrizioneOrgano)
           VALUES (@Uid, @UIDAtto, @Tipo, @TipoOrgano, @Data, @DataTrasmissione, @DataTrattazione, @IdOrgano, " +
                 subQuery + ")";
-            var command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@Uid", guidRisposta);
-            command.Parameters.AddWithValue("@UIDAtto", uidAtto);
-            var tipoRispostaAssociataInt = ConvertToIntTipoRisposta(tipoRispostaAssociata);
-            command.Parameters.AddWithValue("@Tipo", tipoRispostaAssociataInt);
-            command.Parameters.AddWithValue("@TipoOrgano", tipoOrgano);
-            command.Parameters.Add("@Data", SqlDbType.DateTime).Value = ConvertToSqlDateTime(dataRisposta);
-            command.Parameters.Add("@DataTrasmissione", SqlDbType.DateTime).Value =
-                ConvertToSqlDateTime(dataTrasmissione);
-            command.Parameters.Add("@DataTrattazione", SqlDbType.DateTime).Value =
-                ConvertToSqlDateTime(dataTrattazione);
-            command.Parameters.AddWithValue("@IdOrgano", idOrgano ?? 0);
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@Uid", guidRisposta);
+                command.Parameters.AddWithValue("@UIDAtto", uidAtto);
+                var tipoRispostaAssociataInt = ConvertToIntTipoRisposta(tipoRispostaAssociata);
+                command.Parameters.AddWithValue("@Tipo", tipoRispostaAssociataInt);
+                command.Parameters.AddWithValue("@TipoOrgano", tipoOrgano);
+                command.Parameters.Add("@Data", SqlDbType.DateTime).Value = ConvertToSqlDateTime(dataRisposta);
+                command.Parameters.Add("@DataTrasmissione", SqlDbType.DateTime).Value =
+                    ConvertToSqlDateTime(dataTrasmissione);
+                command.Parameters.Add("@DataTrattazione", SqlDbType.DateTime).Value =
+                    ConvertToSqlDateTime(dataTrattazione);
+                command.Parameters.AddWithValue("@IdOrgano", idOrgano ?? 0);
 
-            command.ExecuteNonQuery();
-            return guidRisposta;
+                command.ExecuteNonQuery();
+                return guidRisposta;
+            }
         }
 
         // Metodo per inserire le risposte associate
@@ -2250,23 +2397,27 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
             var query =
                 $@"INSERT INTO ATTI_RISPOSTE (UIDAtto, Tipo, TipoOrgano, IdOrgano, DescrizioneOrgano, UIDRispostaAssociata)
 VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssociata)";
-            var command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@UIDAtto", uidAtto);
-            command.Parameters.AddWithValue("@Tipo", ConvertToIntTipoRisposta(tipoRispostaAssociata));
-            command.Parameters.AddWithValue("@TipoOrgano", tipoOrgano);
-            command.Parameters.AddWithValue("@IdOrgano", idOrgano ?? 0);
-            command.Parameters.AddWithValue("@UIDRispostaAssociata", uidRispostaMadre);
-            command.ExecuteNonQuery();
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@UIDAtto", uidAtto);
+                command.Parameters.AddWithValue("@Tipo", ConvertToIntTipoRisposta(tipoRispostaAssociata));
+                command.Parameters.AddWithValue("@TipoOrgano", tipoOrgano);
+                command.Parameters.AddWithValue("@IdOrgano", idOrgano ?? 0);
+                command.Parameters.AddWithValue("@UIDRispostaAssociata", uidRispostaMadre);
+                command.ExecuteNonQuery();
+            }
         }
 
         private static object GetUidPersona(SqlConnection connection, int idPersona)
         {
             var queryGetPersona =
                 @"SELECT UID_persona FROM View_UTENTI WHERE id_persona = @id_persona";
-            var commandGetPersona = new SqlCommand(queryGetPersona, connection);
-            commandGetPersona.Parameters.AddWithValue("@id_persona", idPersona);
-            var find_uid_persona = commandGetPersona.ExecuteScalar();
-            return find_uid_persona;
+            using (var commandGetPersona = new SqlCommand(queryGetPersona, connection))
+            {
+                commandGetPersona.Parameters.AddWithValue("@id_persona", idPersona);
+                var find_uid_persona = commandGetPersona.ExecuteScalar();
+                return find_uid_persona;
+            }
         }
 
         public static string CleanHtmlTags(string input)
@@ -2287,23 +2438,27 @@ VALUES (@UIDAtto, @Tipo, @TipoOrgano, @IdOrgano, {subQuery}, @UIDRispostaAssocia
             {
                 // Definisci una cultura specifica per il parsing (italiano)
                 var italianCulture = new CultureInfo("it-IT");
-                string[] supportedFormats = {
+                string[] supportedFormats =
+                {
                     "yyyy-MM-dd HH:mm:ss", // Formato ISO senza "T"
                     "yyyy-MM-ddTHH:mm:ss", // Formato ISO con "T"
-                    "dd/MM/yyyy HH:mm:ss", // Formato italiano standard
+                    "dd/MM/yyyy HH:mm:ss" // Formato italiano standard
                 };
-                
+
                 if (dateTime.Contains("T"))
                 {
                     // Parsing con il formato italiano
                     try
                     {
-                        var dateT = DateTime.ParseExact(dateTime.Substring(0, 19).Replace("T", " "), supportedFormats, italianCulture, DateTimeStyles.None);
+                        var dateT = DateTime.ParseExact(dateTime.Substring(0, 19).Replace("T", " "), supportedFormats,
+                            italianCulture, DateTimeStyles.None);
                         return dateT;
                     }
                     catch (Exception e)
                     {
-                        throw new Exception($"Data in errore: {dateTime}, modificata in {dateTime.Substring(0, 19).Replace("T", " ")}", e);
+                        throw new Exception(
+                            $"Data in errore: {dateTime}, modificata in {dateTime.Substring(0, 19).Replace("T", " ")}",
+                            e);
                     }
                 }
 

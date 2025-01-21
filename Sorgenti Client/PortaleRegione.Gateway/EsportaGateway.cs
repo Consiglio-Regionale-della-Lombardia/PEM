@@ -68,6 +68,17 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task<FileResponse> EsportaXLSConsiglieriDASI(List<Guid> lista)
+        {
+            var requestUrl =
+                $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaExcelConsiglieriDasi}";
+
+            var body = JsonConvert.SerializeObject(lista);
+            var lst = await GetFile(requestUrl, body, _token);
+
+            return lst;
+        }
+
         public async Task<FileResponse> EsportaZipDASI(List<Guid> lista)
         {
             var requestUrl =

@@ -1205,6 +1205,36 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        /// <summary>
+        ///     Controller per esportare gli atti per consiglieri
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("esporta-xls-consiglieri")]
+        public async Task<ActionResult> EsportaXLSConsiglieri()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var model = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = model.Data.Paging.Page,
+                    size = model.Data.Paging.Total,
+                    filtro = model.Data.Filters,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)model.ClientMode } }
+                };
+                var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                var file = await apiGateway.Esporta.EsportaXLSConsiglieriDASI(soloIds);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
 
         /// <summary>
         ///     Controller per esportare gli atti

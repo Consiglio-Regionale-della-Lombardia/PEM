@@ -1204,20 +1204,20 @@ function CreaTabella() {
             </li>`;
 		}
 
-//		paginationHTML += `
-//<li class="waves-effect" style="margin-top:5px;padding-left:10px">
-//    <span class="chip deep-purple lighten-4">${totaleRisultati} risultati</span>
-//</li>`;
+		paginationHTML += `
+<li class="waves-effect" style="margin-top:5px;padding-left:10px;height:36px;">
+    <span class="chip deep-purple lighten-4">${totaleRisultati} risultati</span>
+</li>`;
 
 		paginationHTML += `</ul>`;
 
 		// Costruzione del selettore per i tagli di paginazione
 		var tagliPaginazione = [20, 50, 100, 250];
-		var dropdownHTML_top = `<span class="chip deep-purple lighten-4" style="margin-top:2px;padding-left:10px; position:absolute; right: 184px">${totaleRisultati} risultati</span><div class="chip deep-purple lighten-4 center" style="min-width: unset">
+		var dropdownHTML_top = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
         Paginazione
         <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
         <ul id="ddlPaginazione-top" class="dropdown-content">`;
-		var dropdownHTML_bottom = `<span class="chip deep-purple lighten-4" style="margin-top:2px;padding-left:10px; position:absolute; right: 184px">${totaleRisultati} risultati</span><div class="chip deep-purple lighten-4 center" style="min-width: unset">
+		var dropdownHTML_bottom = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
         Paginazione
         <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-bottom" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
         <ul id="ddlPaginazione-bottom" class="dropdown-content">`;

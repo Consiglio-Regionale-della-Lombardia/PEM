@@ -1265,7 +1265,7 @@ namespace PortaleRegione.API.Controllers
                 dto.FirmePost = firme.Where(f => f.Timestamp > dto.Timestamp).ToList();
             }
 
-            dto.PersonaProponente = attoInDb.UIDPersonaProponente != null
+            dto.PersonaProponente = attoInDb.UIDPersonaProponente.HasValue
                 ? Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente)
                 : dto.PersonaCreazione;
 
