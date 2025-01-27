@@ -1280,8 +1280,8 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                             query = query.Replace("{FIELD_UIDSEDUTA}", "")
                                                 .Replace("{PARAM_UIDSEDUTA}", "");
                                         else
-                                            query = query.Replace("{FIELD_UIDSEDUTA}", "UIDSeduta")
-                                                .Replace("{PARAM_UIDSEDUTA}", "@UIDSeduta");
+                                            query = query.Replace("{FIELD_UIDSEDUTA}", ", UIDSeduta")
+                                                .Replace("{PARAM_UIDSEDUTA}", ", @UIDSeduta");
                                     }
                                     else
                                     {
