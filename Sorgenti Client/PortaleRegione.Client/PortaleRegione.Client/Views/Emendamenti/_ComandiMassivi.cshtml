@@ -12,7 +12,7 @@
                 if (Model.Mode != ClientModeEnum.TRATTAZIONE) // #808 Trattazione AULA: operazioni consentite
                 {
                     <li>
-                        <button type="button" role="button" id="btnDepositaMassivo" class="btn-floating btn-large purple darken-1 tooltipped" onclick="RevealMassivo(@Html.Raw((int)ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
+                        <button type="button" role="button" id="btnDepositaMassivo" class="btn-floating btn-large black white-text tooltipped" onclick="RevealMassivo(@Html.Raw((int)ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
                             <i class="material-icons">lock</i>
                         </button>
                     </li>
@@ -22,24 +22,24 @@
                 || User.IsInRole(RuoliExt.Presidente_Regione))
             {
                 <li>
-                    <button type="button" role="button" id="btnFirmaMassivo" class="btn-floating btn-large white green-text tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.FIRMA))" data-position="left" data-tooltip="Firma massiva">
+                    <button type="button" role="button" id="btnFirmaMassivo" class="btn-floating btn-large black white-text tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.FIRMA))" data-position="left" data-tooltip="Firma massiva">
                         <i class="material-icons">gavel</i>
                     </button>
                 </li>
                 <li>
-                    <button type="button" role="button" id="btnDepositaMassivo" class="btn-floating btn-large white purple-text tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
+                    <button type="button" role="button" id="btnDepositaMassivo" class="btn-floating btn-large black white-text tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
                         <i class="material-icons">lock</i>
                     </button>
                 </li>
             }
 
             <li>
-                <button type="button" role="button" id="btnInvitaMassivo" class="btn-floating btn-large white orange-text tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.INVITA))" data-position="left" data-tooltip="Invito massivo">
+                <button type="button" role="button" id="btnInvitaMassivo" class="btn-floating btn-large black white-text tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.INVITA))" data-position="left" data-tooltip="Invito massivo">
                     <i class="material-icons">send</i>
                 </button>
             </li>
             <li>
-                <button type="button" role="button" class="btn-floating btn-large white grey-text tooltipped" onclick="DeselectALLEM()" data-position="left" data-tooltip="Annulla">
+                <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="DeselectALLEM()" data-position="left" data-tooltip="Annulla">
                     <i class="material-icons">undo</i>
                 </button>
             </li>

@@ -169,19 +169,19 @@ a.orange-text {
 }
 
 .btn-floating.btn-large.white.black-text {
-	border: 4px solid black;
+	border: 2px solid black;
 }
 .btn-floating.btn-large.white.green-text {
-	border: 4px solid #1b5e20;
+	border: 2px solid #1b5e20;
 }
 .btn-floating.btn-large.white.purple-text {
-	border: 4px solid #4a148c;
+	border: 2px solid #4a148c;
 }
 .btn-floating.btn-large.white.orange-text {
-	border: 4px solid #e65100;
+	border: 2px solid #e65100;
 }
 .btn-floating.btn-large.white.grey-text {
-	border: 4px solid #636363;
+	border: 2px solid #636363;
 }
 
 	.btn-floating.btn-large.white.black-text > i,

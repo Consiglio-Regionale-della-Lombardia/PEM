@@ -9,23 +9,23 @@
     </button>
     <ul>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large tooltipped btn-firma" data-position="left" 
+            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" 
                     data-tooltip="Firma" onclick="FirmaMassivo_DASI()">
                 <i class="material-icons">gavel</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large tooltipped btn-presenta" data-position="left" data-tooltip="Deposita" onclick="PresentaMassivo_DASI()">
+            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" data-tooltip="Deposita" onclick="PresentaMassivo_DASI()">
                 <i class="material-icons">lock</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large tooltipped btn-invita" data-position="left" data-tooltip="Invita" onclick="InvitoMassivo_DASI()">
+            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" data-tooltip="Invita" onclick="InvitoMassivo_DASI()">
                 <i class="material-icons">send</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
             </button>
         </li>
@@ -63,31 +63,31 @@
         @if (AppSettingsConfiguration.EnableITL)
         {
             <li>
-                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITL + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITL })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITL)</button>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITL + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITL })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITL)</button>
             </li>
         }
         @if (AppSettingsConfiguration.EnableITR)
         {
             <li>
-                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITR + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITR })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITR)</button>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITR + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITR })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITR)</button>
             </li>
         }
         @if (AppSettingsConfiguration.EnableIQT)
         {
             <li>
-                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.IQT + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.IQT })')">@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)</button>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.IQT + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.IQT })')">@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)</button>
             </li>
         }
         @if (AppSettingsConfiguration.EnableMOZ)
         {
             <li>
-                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.MOZ + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.MOZ })')">@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)</button>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.MOZ + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.MOZ })')">@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)</button>
             </li>
         }
         @if (AppSettingsConfiguration.EnableODG)
         {
             <li>
-                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ODG + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ODG })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ODG)</button>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ODG + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ODG })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ODG)</button>
             </li>
         }
     </ul>
