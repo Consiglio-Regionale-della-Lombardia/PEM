@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded",
         Accessibilita_Truncate();
         Accessibilita_TabIndex();
         Accessibilita_Tooltip();
+        ensureButtonAttributes();
     });
 
 function Accessibilita_Truncate() {
@@ -46,6 +47,25 @@ function Accessibilita_Tooltip() {
 		// Aggiungi aria-label solo se non esiste già
 		if (tooltipText && !el.hasAttribute("aria-label")) {
 			el.setAttribute("aria-label", tooltipText);
+		}
+	});
+}
+
+// Funzione per controllare e aggiungere attributi ai pulsanti
+function ensureButtonAttributes() {
+	// Seleziona tutti i pulsanti nella pagina
+	const buttons = document.querySelectorAll('button');
+
+	// Itera attraverso ogni pulsante
+	buttons.forEach(button => {
+		// Controlla e aggiunge l'attributo type="button" se non esiste
+		if (!button.hasAttribute('type')) {
+			button.setAttribute('type', 'button');
+		}
+
+		// Controlla e aggiunge l'attributo role="button" se non esiste
+		if (!button.hasAttribute('role')) {
+			button.setAttribute('role', 'button');
 		}
 	});
 }

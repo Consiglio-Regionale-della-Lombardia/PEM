@@ -29,7 +29,7 @@ using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
-    public class TemplatesRepository: Repository<TEMPLATES>, ITemplatesRepository
+    public class TemplatesRepository : Repository<TEMPLATES>, ITemplatesRepository
     {
         public TemplatesRepository(DbContext context) : base(context)
         {
@@ -48,7 +48,9 @@ namespace PortaleRegione.Persistance
             {
                 query = query.Where(t => t.Visibile);
             }
+
             return await query
+                .OrderBy(t => t.Nome)
                 .ToListAsync();
         }
 
@@ -59,8 +61,8 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .TEMPLATES
                 .Where(t => t.Eliminato == false
-                && t.Tipo.Equals((int)type)
-                && t.Visibile)
+                            && t.Tipo.Equals((int)type)
+                            && t.Visibile)
                 .ToListAsync();
         }
 
