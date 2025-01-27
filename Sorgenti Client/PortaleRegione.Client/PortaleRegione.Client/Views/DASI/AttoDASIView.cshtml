@@ -177,7 +177,7 @@
 					<div class="">
 						<span class="black-text">
 							<button type="button" role="button" class="btn-flat pink-text tooltipped"
-							   data-tooltip="Iscrizione in seduta"
+                                    data-tooltip="Iscrizione in seduta"
 							   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
 								Iscrizione in seduta
 							</button>
@@ -259,12 +259,12 @@
 				<div class="">
 					<span class="black-text">
 						<button type="button" role="button" class="btn-flat orange-text tooltipped"
-						   data-tooltip="Proponi urgenza"
+                                data-tooltip="Proponi urgenza"
 						   onclick="ProponiUrgenzaDASI('@Html.Raw(atto.UIDAtto)', '@Html.Raw(atto.Display)')">
 							Proponi urgenza
 						</button>
 						<button type="button" role="button" class="btn-flat orange-text tooltipped"
-						   data-tooltip="Proponi abbinamento"
+                                data-tooltip="Proponi abbinamento"
 						   onclick="ProponiAbbinataDASI('@Html.Raw(atto.UIDAtto)', '@Html.Raw(atto.Display)')">
 							Proponi abbinamento
 						</button>
@@ -287,7 +287,7 @@
 					<div class="">
 						<span class="black-text">
 							<button type="button" role="button" class="btn-flat pink-text tooltipped"
-							   data-tooltip="Iscrizione in seduta"
+                                    data-tooltip="Iscrizione in seduta"
 							   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
 								Iscrizione in seduta
 							</button>
@@ -424,7 +424,8 @@
                                 @*#986*@
                                 if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                                 {
-                                    <button type="button" role="button" class='btn-flat red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></button>
+                                    <button type="button" role="button" class='btn-flat red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere"
+                                            style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')"><i class='icon material-icons'>delete</i></button>
                                 }
                                 else
                                 {
@@ -476,7 +477,7 @@
 											&& atto.Tipo != (int)TipoAttoEnum.ITR
 											&& atto.Tipo != (int)TipoAttoEnum.ODG)
 										{
-											<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+                                            <button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 											   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
 												<i class="material-icons black-text" style="margin-left: 5px;">star</i>
 											</button>
@@ -509,8 +510,8 @@
 									{
 										if (atto.Tipo != (int)TipoAttoEnum.ITL && atto.Tipo != (int)TipoAttoEnum.ITR)
 										{
-											<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
-											   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+                                            <button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+                                                    onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
 												<i class="material-icons" style="margin-left: 5px;">star_border</i>
 											</button>
 										}

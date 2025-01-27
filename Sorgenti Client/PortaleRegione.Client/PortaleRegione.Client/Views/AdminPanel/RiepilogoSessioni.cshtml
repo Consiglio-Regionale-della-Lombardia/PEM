@@ -19,31 +19,18 @@
 </div>
 
 <div id="contentTable" class="row">
-    <table>
-        <thead>
-        <tr>
-            <td>Utente</td>
-            <td>Ingresso</td>
-            <td>Uscita</td>
-            <td>Stato</td>
-            <td>Chiusura corretta</td>
-        </tr>
-        </thead>
-        <tbody>
+    <ul class="collection">
         @foreach (var sessione in Model)
         {
-            <tr>
-                <td>@sessione.Persona.DisplayName</td>
-                <td>@sessione.DataIngresso.ToString("dd/MM/yyyy HH:mm")</td>
-				<td>@((sessione.DataUscita.HasValue)? sessione.DataUscita.Value.ToString("dd/MM/yyyy HH:mm"): "")</td>
-				<td>@sessione.Stato</td>
-				<td>@sessione.ChiusuraCorretta</td>
-            </tr>
+			<li class="collection-item">
+                Utente: <b>@sessione.Persona.DisplayName</b>; Ingresso il: 
+						<b>@sessione.DataIngresso.ToString("dd/MM/yyyy HH:mm")</b>; Uscita il: 
+						<b>@((sessione.DataUscita.HasValue) ? sessione.DataUscita.Value.ToString("dd/MM/yyyy HH:mm") : "--")</b>;
+                        Stato: <b>@sessione.Stato</b>; Chiusura corretta: <b>@(sessione.ChiusuraCorretta is true ? "Si": "No")</b>
+			</li>
         }
-        </tbody>
-    </table>
-    
-	
+    </ul>
+
     @if (!Model.Any())
     {
         <div class="row">

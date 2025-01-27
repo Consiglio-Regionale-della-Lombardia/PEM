@@ -763,7 +763,7 @@ function CreaTabella() {
 		var htmlFirme = ``;
 		if (result.id_gruppo != 0 ){
 			if (result.Firmato_Dal_Proponente == false) {
-				htmlFirme = `<span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</span>`;
+				htmlFirme = `<span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato" aria-label="Il Proponente non ha ancora firmato">${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</span>`;
 			} else {
 				htmlFirme = `<b>${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</b>`;
 			}
@@ -777,15 +777,15 @@ function CreaTabella() {
 
 		var iconChipAggiuntiva = "";
 		if (result.Abbinamenti.length > 0 || result.ODG_Atto_PEM) {
-			iconChipAggiuntiva += `<i class="close material-icons blue-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>`;
+			iconChipAggiuntiva += `<i class="close material-icons blue-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata" aria-label="Proposta di abbinata">insert_link</i>`;
 		}
 
 		if (result.PresentatoOltreITermini == true) {
-			iconChipAggiuntiva += `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini">warning</i>`;
+			iconChipAggiuntiva += `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini" aria-label="Presentato oltre i termini">warning</i>`;
 		}
 
 		if (result.Privacy == true || result.Privacy_Divieto_Pubblicazione) {
-			iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Modificato per privacy">lock</i>`;
+			iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Modificato per privacy" aria-label="Modificato per privacy">lock</i>`;
 		}
 
 		const row = document.createElement('tr');
@@ -1070,28 +1070,28 @@ function CreaTabella() {
 
 					var tooltipSeduta = `Iscritto dal ${dayIscrizioneSeduta}/${monthIscrizioneSeduta}/${yearIscrizioneSeduta}`;
 
-					var tdText = `<span class="tooltipped" data-tooltip="${tooltipSeduta}"`;
+					var tdText = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" aria-label="${tooltipSeduta}"`;
 					if (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)) {
 						tdText += ` onclick="RimuoviSedutaDASI('${result.UIDAtto}', '${result.Display}')"`;
 					}
 					tdText += ">";
 					tdText += `${textSeduta}`;
 					if (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)) {
-						tdText += `<i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi">close</i>`;
+						tdText += `<i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi" aria-label="Rimuovi">close</i>`;
 					}
 					tdText += `</span>`;
 					td.innerHTML = tdText;
 				} else if (result.DataRichiestaIscrizioneSeduta != null){
 					var textSeduta = `<i>Seduta del ${result.DataRichiestaIscrizioneSeduta}<i>`;
 					var tooltipSeduta = `Richiesta in attesa di elaborazione`;
-					var tdText = `<span class="tooltipped" data-tooltip="${tooltipSeduta}"`;
+					var tdText = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" aria-label="${tooltipSeduta}"`;
 					if (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)) {
 						tdText += ` onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.Display}')"`;
 					}
 					tdText += ">";
 					tdText += `${textSeduta}`;
 					if (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)) {
-						tdText += `<i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi">check</i>`;
+						tdText += `<i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi" aria-label="Iscrivi">check</i>`;
 					}
 
 					tdText += `</span>`;
@@ -1124,15 +1124,15 @@ function CreaTabella() {
 		const tdCommandsValue = document.createElement('td');
 		tdCommandsValue.classList.add('center');
 		tdCommandsValue.style.width = '5%';
-		tdCommandsValue.innerHTML = `<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" 
+		tdCommandsValue.innerHTML = `<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" aria-label="Vai alla banca dati in internet" 
 		onclick="goIntoOtherTab('${linkGeasi}')">
     <i class="icon material-icons">remove_red_eye</i>
 </button>
-<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}"
+<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" aria-label="Stampa" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}"
    data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI")?id=${result.UIDAtto}" onclick="StampaUOLA(this)">
     <i class="material-icons">print</i>
 </button>
-<button type="button" class="btn-floating white black-text tooltipped" data-tooltip="Modifica Metadati" onclick="openMetaDatiDASI('${result.UIDAtto}')">
+<button type="button" class="btn-floating white black-text tooltipped" data-tooltip="Modifica Metadati" aria-label="Modifica Metadati" onclick="openMetaDatiDASI('${result.UIDAtto}')">
     <i class="icon material-icons">edit</i>
 </button>`;
 		row.appendChild(tdCommandsValue);
@@ -1170,12 +1170,12 @@ function CreaTabella() {
 			paginationHTML += `
             <li class="waves-effect" style="margin-top: 7px;">
                 <a onclick="filterByPage(1)">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina">first_page</i>
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina" aria-label="Prima pagina">first_page</i>
                 </a>
             </li>
             <li class="waves-effect" style="margin-top: 7px;">
                 <a onclick="filterByPage(${paginaCorrente - 1})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">chevron_left</i>
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente" aria-label="Pagina precedente">chevron_left</i>
                 </a>
             </li>`;
 		}
@@ -1194,12 +1194,12 @@ function CreaTabella() {
 			paginationHTML += `
             <li class="waves-effect" style="margin-top: 7px;">
                 <a onclick="filterByPage(${paginaCorrente + 1})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">chevron_right</i>
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina" aria-label="Prossima pagina">chevron_right</i>
                 </a>
             </li>
             <li class="waves-effect" style="margin-top: 7px;">
                 <a onclick="filterByPage(${totalePagine})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">last_page</i>
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina" aria-label="Ultima pagina">last_page</i>
                 </a>
             </li>`;
 		}

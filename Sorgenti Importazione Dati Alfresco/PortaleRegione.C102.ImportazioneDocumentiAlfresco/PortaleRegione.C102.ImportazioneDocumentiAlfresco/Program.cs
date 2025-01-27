@@ -54,17 +54,14 @@ internal class Program
                     // Estrazione delle informazioni dal nome del file
                     var legislatura = ExtractLegislatura(fileNameWithoutExtension);
                     var tipoDocumento = ParseTipoDocumento(fileNameWithoutExtension);
-
-                    if (legislatura == "33" && tipoDocumento ==(int)TipoDocumentoEnum.TESTO_ALLEGATO)
-                        continue; // #1164
-
+                    
                     var numeroAtto = ExtractNumeroAtto(fileNameWithoutExtension);
                     var tipoAtto = ParseTipoAtto(filePath);
                     var uidDocumento = ExtractUidFromFileName(fileNameWithoutExtension);
                     var pubblicato = true;
                     var idOrgano = string.Empty;
                     var newId = Guid.NewGuid();
-
+                    
                     // Nome standard del documento basato sul tipo
                     var nomeDocumento = GetNomeDocumentoStandard(tipoDocumento);
 
@@ -112,12 +109,14 @@ internal class Program
                                     pubblicato = worksheet.Cells[row, 10].Text.Trim() == "1";
                                     break;
                                 }
+
                                 if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.AGGIUNTIVO)
                                 {
                                     nomeDocumento = worksheet.Cells[row, 13].Text.Trim() + Path.GetExtension(filePath);
                                     pubblicato = worksheet.Cells[row, 12].Text.Trim() == "1";
                                     break;
                                 }
+
                                 if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.RISPOSTA)
                                 {
                                     idOrgano = worksheet.Cells[row, 6].Text;
@@ -316,23 +315,23 @@ AND Tipo = @TipoAtto";
         {
             return (int)TipoAttoEnum.ITL;
         }
-        else if (lowerTipoDocumento.Contains("interrogazione"))
-        {
-            return (int)TipoAttoEnum.ITR;
-        }
-        else if (lowerTipoDocumento.Contains("mozione"))
-        {
-            return (int)TipoAttoEnum.MOZ;
-        }
-        else if (lowerTipoDocumento.Contains("interrogazione_question_time"))
+        if (lowerTipoDocumento.Contains("interrogazione_question_time"))
         {
             return (int)TipoAttoEnum.IQT;
         }
-        else if (lowerTipoDocumento.Contains("ordine_del_giorno"))
+        if (lowerTipoDocumento.Contains("interrogazione"))
+        {
+            return (int)TipoAttoEnum.ITR;
+        }
+        if (lowerTipoDocumento.Contains("mozione"))
+        {
+            return (int)TipoAttoEnum.MOZ;
+        }
+        if (lowerTipoDocumento.Contains("ordine_del_giorno"))
         {
             return (int)TipoAttoEnum.ODG;
         }
-        else if (lowerTipoDocumento.Contains("risoluzione"))
+        if (lowerTipoDocumento.Contains("risoluzione"))
         {
             return (int)TipoAttoEnum.RIS;
         }

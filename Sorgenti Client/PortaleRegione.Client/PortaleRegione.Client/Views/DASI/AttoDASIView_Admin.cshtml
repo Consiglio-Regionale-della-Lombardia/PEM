@@ -158,7 +158,8 @@
                                                     @*#986*@
                                                     if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                                                     {
-                                                        <button type="button" role="button" class='center red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere" style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')">
+                                                        <button type="button" role="button" class='center red-text secondary-content tooltipped' data-tooltip="Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere"
+                                                                style="min-width:unset" onclick="RitiraFirmaDASI('@firme.UIDAtto')">
                                                             <i class='icon material-icons'>delete</i>
                                                         </button>
                                                     }
@@ -209,7 +210,7 @@
 														<div class="collapsible-header valign-wrapper">
 															@if (atto.UIDPersonaProponente != firme.UID_persona)
 															{
-																<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+                                                                <button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 																   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
 																	<i class="material-icons black-text" style="margin-left: 5px;">star</i>
 																</button>
@@ -223,7 +224,7 @@
 														<div class="collapsible-header valign-wrapper">
 															@if (string.IsNullOrEmpty(firme.Data_ritirofirma))
 															{
-																<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+                                                                <button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 																   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
 																	<i class="material-icons" style="margin-left: 5px;">star_border</i>
 																</button>
@@ -524,13 +525,13 @@
 					{
 						if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
 						{
-							<div class="tooltipped" style="left: 220px; position: absolute;" data-tooltip="Nessuna risposta">
+                            <div class="tooltipped" style="left: 220px; position: absolute;" data-tooltip="Nessuna risposta">
 								<i class="material-icons icon right red-text">remove_circle</i>
 							</div>
 						}
 						else
 						{
-							<div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
+                            <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
 								<i class="material-icons icon right red-text">remove_circle</i>
 							</div>
 						}
@@ -1218,7 +1219,7 @@
 				}
 				else
 				{
-					<div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Informazioni mancanti">
+                    <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Informazioni mancanti">
 						<i class="material-icons icon right red-text">remove_circle</i>
 					</div>
 				}
