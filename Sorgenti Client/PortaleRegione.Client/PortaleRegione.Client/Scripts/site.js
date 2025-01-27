@@ -13,10 +13,21 @@ document.addEventListener("DOMContentLoaded",
         document.querySelectorAll('.btn-flat').forEach(element => {
             element.classList.add('truncate');
         });
+
+        // Seleziona tutti gli elementi con l'attributo data-tooltip
+        const tooltipElements = document.querySelectorAll("[data-tooltip]");
+
+        tooltipElements.forEach(el => {
+	        const tooltipText = el.getAttribute("data-tooltip");
+
+	        // Aggiungi aria-label solo se non esiste già
+	        if (tooltipText && !el.hasAttribute("aria-label")) {
+		        el.setAttribute("aria-label", tooltipText);
+	        }
+        });
     });
 
 function loaderView(enable) {
-    console.log("ENABLE", enable)
     if (enable) {
         $("body").removeClass("loaded");
     } else {

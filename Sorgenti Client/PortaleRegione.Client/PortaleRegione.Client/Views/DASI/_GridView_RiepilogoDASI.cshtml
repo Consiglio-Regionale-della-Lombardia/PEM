@@ -43,7 +43,7 @@ else
 
         <li class="active badgeBody @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item.Tipo))">
         <div class="collapsible-header valign-wrapper" tabindex="0">
-            <div class="col l6 s8 valign-wrapper" style="display: inline-flex">
+            <div class="col l4 m4 s12 valign-wrapper" style="display: inline-flex">
                 <p>
                     <label>
                         <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
@@ -103,7 +103,7 @@ else
                     </i>
                 }
             </div>
-            <div class="col l6 right-align hide-on-med-and-down">
+            <div class="col l4 m4 s12 right-align hide-on-med-and-down">
                 @if (!item.Firmato_Dal_Proponente)
                 {
                     <span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">
@@ -130,7 +130,7 @@ else
             </div>
 
             @*COMANDI*@
-            <div class="col l2 s4 right-align">
+            <div class="col l4 m4 s12 right-align">
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
                     if (item.Firmabile)
@@ -297,48 +297,35 @@ else
                               && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica)) || (item.IsIQT() && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
                              || (item.IsMOZ() && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA)))
                     {
-                        <button type="button" role="button" class='btn-flat black-text dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
-                            Impostazioni avanzate
-                        </button>
+                        if (item.IsMOZ()
+                             && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA 
+                             && item.IDStato > (int)StatiAttoEnum.BOZZA
+                             && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica))
+                        {
+                            <button type="button" role="button" class="btn-flat pink-text" onclick="ProponiUrgenzaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                Proponi urgenza
+                            </button>
+                            <button type="button" role="button" class="btn-flat pink-text" onclick="ProponiAbbinataDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                Proponi abbinamento
+                            </button>
+                        }
 
-                        <!-- Dropdown Structure -->
-                        <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
-                            @if (item.IsMOZ()
-                                 && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA 
-                                && item.IDStato > (int)StatiAttoEnum.BOZZA
-                                 && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica))
+                        if ((item.IDStato > (int)StatiAttoEnum.BOZZA
+                              || item.IsODG()
+                              || item.IsMOZ()
+                              || item.IsIQT())
+                             && !item.IsChiuso)
+                        {
+                            if ((item.IsIQT()
+                                 && ((Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica)
+                                     || (item.UIDPersonaProponente.HasValue && item.UIDPersonaProponente.Value == Model.CurrentUser.UID_persona)))
+                                || (item.IsMOZ() && item.IDStato > (int)StatiAttoEnum.BOZZA))
                             {
-                                <li>
-                                    <a onclick="ProponiUrgenzaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
-                                        Proponi urgenza
-                                    </a>
-                                </li>
-                                <li>
-                                    <a onclick="ProponiAbbinataDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
-                                        Proponi abbinamento
-                                    </a>
-                                </li>
+                                    <button type="button" role="button" class="btn-flat pink-text" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)', @Html.Raw(item.Tipo), @Html.Raw(item.TipoMOZ))">
+                                        Proponi iscrizione
+                                    </button>
                             }
-
-                            @if ((item.IDStato > (int)StatiAttoEnum.BOZZA
-                                  || item.IsODG()
-                                  || item.IsMOZ()
-                                  || item.IsIQT())
-                                 && !item.IsChiuso)
-                            {
-                                if ((item.IsIQT()
-                                     && ((Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica)
-                                         || (item.UIDPersonaProponente.HasValue && item.UIDPersonaProponente.Value == Model.CurrentUser.UID_persona)))
-                                    || (item.IsMOZ() && item.IDStato > (int)StatiAttoEnum.BOZZA))
-                                {
-                                    <li>
-                                        <a onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)', @Html.Raw(item.Tipo), @Html.Raw(item.TipoMOZ))">
-                                            Proponi iscrizione
-                                        </a>
-                                    </li>
-                                }
-                            }
-                        </ul>
+                        }
                     }
 
                     if (Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
