@@ -29,6 +29,7 @@
             <div class="col s12">
                 <button id="export-json" class="btn-flat blue-text">Esporta in JSON</button>
                 <button id="export-xml" class="btn-flat green-text">Esporta in XML</button>
+                <button id="export-sql" class="btn-flat yellow-text">Esporta in SQL</button>
             </div>
         </div>
 	</div>
@@ -211,5 +212,45 @@
 
         xmlData += '</Templates>';
         downloadFile(xmlData, 'templates.xml', 'application/xml');
+    });
+
+    // Funzione per generare i comandi INSERT
+    function generateSQLInsertCommands(data) {
+        const tableName = "TEMPLATES"; // Nome della tabella
+        const sqlCommands = [];
+
+        data.forEach(item => {
+            // Genera il comando INSERT con gestione di stringhe vuote
+            const command = `INSERT INTO ${tableName} (Uid, Nome, Corpo, Testata, Tipo, Visibile) VALUES (
+            '${item.Uid}', 
+            '${item.Nome.replace(/'/g, "''")}', 
+            '${item.Corpo ? item.Corpo.replace(/'/g, "''") : ""}', 
+            '${item.Testata ? item.Testata.replace(/'/g, "''") : ""}', 
+            ${item.Tipo}, 
+            ${item.Visibile ? 1 : 0}
+        );`;
+
+            sqlCommands.push(command);
+        });
+
+        return sqlCommands.join("\n");
+    }
+
+    // Funzione per scaricare il file SQL
+    function downloadSQLFile(sqlData, filename) {
+        const blob = new Blob([sqlData], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Genera e scarica i comandi SQL
+    document.getElementById("export-sql").addEventListener("click", function () {
+        const sqlData = generateSQLInsertCommands(modelResults);
+        downloadSQLFile(sqlData, "templates.sql");
     });
 </script>
