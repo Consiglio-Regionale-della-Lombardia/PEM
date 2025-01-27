@@ -58,13 +58,13 @@ else
                         <div class='card-action right'>
                             @if (HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                             {
-                                <button type="button" role="button" class="btn-floating white blue-text tooltipped" onclick="openMetaDatiDASI('@item.UIDAtto')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                                <button type="button" role="button" class="btn-floating white blue-text tooltipped" onclick="openMetaDatiDASI('@item.UIDAtto')" style="margin: 2px" data-position="bottom" data-tooltip="Modifica meta-dati">
                                     <i class="material-icons" style="margin-right:5px">edit</i>
                                 </button>
                             }
 
                             <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')" style="margin: 2px"
-                               data-position="left" data-tooltip="Visualizza atto">
+                               data-position="bottom" data-tooltip="Visualizza atto">
                                 <i class="material-icons" style="margin-right:5px">chevron_right</i>
                             </button>
                         </div>

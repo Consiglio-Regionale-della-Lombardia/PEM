@@ -79,7 +79,7 @@ else
                             {
                                 @Html.Partial("_MetaDatiFormPartial", itemEM)
 
-                                <button type="button" role="button" class="btn-flat blue-text tooltipped" onclick="openMetaDati('@itemEM.UIDEM')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                                <button type="button" role="button" class="btn-flat blue-text tooltipped" onclick="openMetaDati('@itemEM.UIDEM')" style="margin: 2px" data-position="bottom" data-tooltip="Modifica meta-dati">
                                     <i class="material-icons">edit</i>
                                 </button>
                             }
@@ -87,12 +87,12 @@ else
                             @if (abilitaInvitoConsigliere || abilitaInvitoSegreteria)
                             {
                                 <button type="button" role="button" class='btn-flat amber-text' style='margin: 5px' onclick="Invita('@itemEM.UIDEM')">
-                                    <i class="icon material-icons tooltipped" data-position="left" data-tooltip="Invita">send</i>
+                                    <i class="icon material-icons tooltipped" data-position="bottom" data-tooltip="Invita">send</i>
                                 </button>
                             }
                             
                             <button type="button" role="button" class="btn-flat green-text tooltipped" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px"
-                               data-position="left" data-tooltip="Visualizza emendamento">
+                               data-position="bottom" data-tooltip="Visualizza emendamento">
                                 <i class="material-icons">chevron_right</i>
                             </button>
                         </div>

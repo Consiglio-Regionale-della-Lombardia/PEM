@@ -1105,3 +1105,8 @@ select.readonly {
 	background-color: #f9f9f9; /* Colore di sfondo simile a readonly */
 	color: #555; /* Colore del testo */
 }
+
+:focus {
+	outline: 4px solid #007BFF; /* Un bordo visibile e chiaro */
+	outline-offset: 4px;
+}

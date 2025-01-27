@@ -217,14 +217,14 @@ else
                     </td>
                     <td class="center" style="width: 5%">
                         @*COMANDI*@
-						<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-position="left" data-tooltip="Stampa" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })" target="_blank">
+						<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-position="bottom" data-tooltip="Stampa" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })" target="_blank">
 							<i class="material-icons">print</i>
 						</button>
-						<button type="button" class="btn-floating white black-text tooltipped" onclick="openMetaDati('@itemEM.UIDEM')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+						<button type="button" class="btn-floating white black-text tooltipped" onclick="openMetaDati('@itemEM.UIDEM')" style="margin: 2px" data-position="bottom" data-tooltip="Modifica meta-dati">
 							<i class="material-icons">edit</i>
 						</button>
 						<button type="button" class="btn-floating white black-text tooltipped" onclick="goIntoOtherTab('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px"
-								data-position="left" data-tooltip="Visualizza emendamento">
+								data-position="bottom" data-tooltip="Visualizza emendamento">
                             <i class="material-icons">chevron_right</i>
                             </button>
                     </td>

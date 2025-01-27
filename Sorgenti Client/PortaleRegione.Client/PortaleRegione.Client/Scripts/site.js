@@ -10,22 +10,45 @@ document.addEventListener("DOMContentLoaded",
         M.AutoInit();
         loaderView(false);
 
-        document.querySelectorAll('.btn-flat').forEach(element => {
-            element.classList.add('truncate');
-        });
-
-        // Seleziona tutti gli elementi con l'attributo data-tooltip
-        const tooltipElements = document.querySelectorAll("[data-tooltip]");
-
-        tooltipElements.forEach(el => {
-	        const tooltipText = el.getAttribute("data-tooltip");
-
-	        // Aggiungi aria-label solo se non esiste già
-	        if (tooltipText && !el.hasAttribute("aria-label")) {
-		        el.setAttribute("aria-label", tooltipText);
-	        }
-        });
+        Accessibilita_Truncate();
+        Accessibilita_TabIndex();
+        Accessibilita_Tooltip();
     });
+
+function Accessibilita_Truncate() {
+	document.querySelectorAll('.btn-flat').forEach(element => {
+		element.classList.add('truncate');
+	});
+}
+
+function Accessibilita_TabIndex() {
+	const interactiveElements = document.querySelectorAll(
+		"a, button, input, select, textarea, [tabindex]"
+	);
+
+	let tabindex = 1;
+	interactiveElements.forEach(el => {
+		// Assegna tabindex solo se non è già impostato
+		if (!el.hasAttribute("tabindex")) {
+			el.setAttribute("tabindex", tabindex);
+			tabindex++;
+		}
+	});
+}
+
+function Accessibilita_Tooltip() {
+	// Seleziona tutti gli elementi con l'attributo data-tooltip
+	const tooltipElements = document.querySelectorAll("[data-tooltip]");
+
+	tooltipElements.forEach(el => {
+		const tooltipText = el.getAttribute("data-tooltip");
+
+		// Aggiungi aria-label solo se non esiste già
+		if (tooltipText && !el.hasAttribute("aria-label")) {
+			el.setAttribute("aria-label", tooltipText);
+		}
+	});
+}
 
 function loaderView(enable) {
     if (enable) {

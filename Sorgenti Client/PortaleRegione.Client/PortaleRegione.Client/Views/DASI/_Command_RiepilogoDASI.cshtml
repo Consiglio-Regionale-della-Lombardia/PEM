@@ -40,7 +40,7 @@
         <button type="button" role="button" id="btnExportXLSConsiglieri" class="btn-floating white green-text tooltipped" data-tooltip="Estrazione rapida in excel" data-href="@Url.Action("EsportaXLSConsiglieri", "DASI")">
             <i class="material-icons">grid_on</i>
         </button>
-        <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
+        <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="bottom">
             <i class="icon material-icons" style="margin-left: -1px!important;">print</i>
         </button>
         @{
@@ -71,7 +71,7 @@
             }
 
         }
-        <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="gotoPreviewMode()" data-tooltip="@text" data-position="left">
+        <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="gotoPreviewMode()" data-tooltip="@text" data-position="bottom">
             <i class="icon material-icons" style="margin-left: -1px!important;">@icon</i>
         </button>
     </div>

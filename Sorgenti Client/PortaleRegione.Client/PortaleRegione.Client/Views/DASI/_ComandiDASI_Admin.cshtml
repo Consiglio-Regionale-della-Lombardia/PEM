@@ -1,38 +1,38 @@
 ﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
-    <button type="button" role="button" class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
+    <button type="button" role="button" class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="bottom">
         <i class="large material-icons">playlist_add</i>
     </button>
     <ul>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="IscriviASedutaMassivoDASI()" data-position="left" data-tooltip="Iscrivi alla seduta">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="IscriviASedutaMassivoDASI()" data-position="bottom" data-tooltip="Iscrivi alla seduta">
                 <i class="material-icons">assignment_turned_in</i> Assegna a seduta
             </button>
         </li>
         
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="left" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))')">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="bottom" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))')">
                 <i class="material-icons">lock</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="left" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))')">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="bottom" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))')">
                 <i class="material-icons">settings_input_antenna</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="left" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.COMPLETATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.COMPLETATO))')">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="bottom" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.COMPLETATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.COMPLETATO))')">
                 <i class="material-icons">storage</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="left" data-tooltip="Modifica massiva dati" onclick="openModificaMassiva()">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="bottom" data-tooltip="Modifica massiva dati" onclick="openModificaMassiva()">
                 <i class="material-icons">content_copy</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="resetGridSelection()" data-position="bottom" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
             </button>
         </li>
