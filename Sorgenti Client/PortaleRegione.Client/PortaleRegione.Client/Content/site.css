@@ -1099,3 +1099,9 @@ a.collection-item{
 	display: inline-block; /* Mantieni il layout flessibile */
 	margin: 5px;
 }
+
+select.readonly {
+	pointer-events: none; /* Disabilita i clic */
+	background-color: #f9f9f9; /* Colore di sfondo simile a readonly */
+	color: #555; /* Colore del testo */
+}

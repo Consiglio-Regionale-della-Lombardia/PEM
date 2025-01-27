@@ -317,7 +317,7 @@
 							{
 								// #1056
 								<div class="input-field col s12 m12 l6">
-                                    <select id="Atto_RispostaRichiesta">
+                                    <select id="Atto_RispostaRichiesta" disabled>
                                         @if (atto.IsIQT())
                                         {
                                             <option value="@Html.Raw((int)TipoRispostaEnum.IMMEDIATA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.IMMEDIATA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.IMMEDIATA)</option>
