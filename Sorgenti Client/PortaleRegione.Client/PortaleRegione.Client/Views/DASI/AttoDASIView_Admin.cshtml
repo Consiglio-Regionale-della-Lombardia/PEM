@@ -1686,7 +1686,7 @@
 								</h6>
 								<hr />
 								<button type="button" role="button" class="btn-flat black-text"
-								   data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto })"
+								   data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo })"
 								   onclick="StampaReportRapido(this)">
 									Genera la DCR per l'atto
 								</button>
