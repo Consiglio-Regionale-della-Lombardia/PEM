@@ -18,10 +18,10 @@
         </div>
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+        <button class="modal-close btn-flat grey-text">Annulla</button>
         @if (Model.CurrentUser.IsSegreteriaAssemblea)
         {
-            <button type="button" onclick="btnSalvaNota()" class="blue-text waves-effect waves-green btn-flat">Salva</button>
+            <button onclick="btnSalvaNota()" class="btn-flat blue-text">Salva</button>
         }
     </div>
 </div>
@@ -79,8 +79,8 @@
 	<td>${tipoNotaText}</td>
 	<td>${nota_testo}</td>
 	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
-	<td>
-		<button type="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
+	<td class="center">
+		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
 	</td>
 `;
 
@@ -93,8 +93,8 @@
         newPrivacyRow.innerHTML = `
 	<td>${nota_testo}</td>
 	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
-	<td>
-		<button type="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
+	<td class="center">
+		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
 	</td>
 `;
         document.querySelector('#tableNote_Privacy tbody').appendChild(newPrivacyRow);
@@ -115,8 +115,8 @@
 			newchiusuraIterRow.innerHTML = `
 				<td>${nota_testo}</td>
 				<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
-				<td>
-					<button type="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
+				<td class="center">
+					<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
 				</td>
 			`;
 			document.querySelector('#tableNote_ChiusuraIter tbody').appendChild(newchiusuraIterRow);
@@ -129,8 +129,8 @@
         newrisposteRow.innerHTML = `
 	<td>${nota_testo}</td>
 	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
-	<td>
-		<button type="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
+	<td class="center">
+		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
 	</td>
 `;
         document.querySelector('#tableNote_Risposte tbody').appendChild(newrisposteRow);

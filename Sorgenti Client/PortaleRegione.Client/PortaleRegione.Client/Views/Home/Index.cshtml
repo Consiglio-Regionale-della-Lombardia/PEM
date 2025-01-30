@@ -84,57 +84,68 @@
     </div>
     @if (PEMEnabled)
     {
+        var showScadenze = false;
+
+
         <div class="collapsible-body">
         <div class="card">
-        <div class="card-reveal">
-            <span class="card-title grey-text text-darken-4">Scadenze <i class="material-icons right">close</i></span>
-            <ul class="collection">
-                @if (seduta.Scadenza_presentazione.HasValue)
-                {
-                    <li class="collection-item">
-                        <b>EMENDAMENTI</b> @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
-                    </li>
-                }
-                @if (seduta.DataScadenzaPresentazioneIQT.HasValue)
-                {
-                    <li class="collection-item">
-                        <b>INTERROGAZIONE A RISPOSTA IMMEDIATA</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneIQT).ToString("dd/MM/yyyy HH:mm")
-                    </li>
-                }
-                @if (seduta.DataScadenzaPresentazioneMOZ.HasValue)
-                {
-                    <li class="collection-item">
-                        <b>MOZIONI</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneMOZ).ToString("dd/MM/yyyy HH:mm")
-                    </li>
-                }
-                @if (seduta.DataScadenzaPresentazioneMOZU.HasValue)
-                {
-                    <li class="collection-item">
-                        <b>MOZIONI URGENTI</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneMOZU).ToString("dd/MM/yyyy HH:mm")
-                    </li>
-                }
-                @if (seduta.DataScadenzaPresentazioneMOZA.HasValue)
-                {
-                    <li class="collection-item">
-                        <b>MOZIONI ABBINATE</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneMOZA).ToString("dd/MM/yyyy HH:mm")
-                    </li>
-                }
-                @if (seduta.DataScadenzaPresentazioneODG.HasValue)
-                {
-                    <li class="collection-item">
-                        <b>ORDINI DEL GIORNO</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
-                    </li>
-                }
-            </ul>
-        </div>
-        <div class="row" style="margin: 0 !important">
-            <div class="col l12 s12 right-align">
-                <a class="btn-flat black-text activator" style="margin-top: 20px;">
-                    <i class="material-icons activator right black-text tooltipped" data-tooltip="Scadenze">access_alarm</i>
-                    SCADENZE
-                </a>
+            <div class="card-reveal">
+                <span class="card-title grey-text text-darken-4">Scadenze <i class="material-icons right">close</i></span>
+                <ul class="collection">
+                    @if (seduta.Scadenza_presentazione.HasValue)
+                    {
+                        showScadenze = true;
+                        <li class="collection-item">
+                            <b>EMENDAMENTI</b> @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
+                        </li>
+                    }
+                    @if (seduta.DataScadenzaPresentazioneIQT.HasValue)
+                    {
+                        showScadenze = true;
+                        <li class="collection-item">
+                            <b>INTERROGAZIONE A RISPOSTA IMMEDIATA</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneIQT).ToString("dd/MM/yyyy HH:mm")
+                        </li>
+                    }
+                    @if (seduta.DataScadenzaPresentazioneMOZ.HasValue)
+                    {
+                        showScadenze = true;
+                        <li class="collection-item">
+                            <b>MOZIONI</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneMOZ).ToString("dd/MM/yyyy HH:mm")
+                        </li>
+                    }
+                    @if (seduta.DataScadenzaPresentazioneMOZU.HasValue)
+                    {
+                        showScadenze = true;
+                        <li class="collection-item">
+                            <b>MOZIONI URGENTI</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneMOZU).ToString("dd/MM/yyyy HH:mm")
+                        </li>
+                    }
+                    @if (seduta.DataScadenzaPresentazioneMOZA.HasValue)
+                    {
+                        showScadenze = true;
+                        <li class="collection-item">
+                            <b>MOZIONI ABBINATE</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneMOZA).ToString("dd/MM/yyyy HH:mm")
+                        </li>
+                    }
+                    @if (seduta.DataScadenzaPresentazioneODG.HasValue)
+                    {
+                        showScadenze = true;
+                        <li class="collection-item">
+                            <b>ORDINI DEL GIORNO</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
+                        </li>
+                    }
+                </ul>
             </div>
-        </div>
+            @if (showScadenze)
+            {
+                <div class="row" style="margin: 0 !important">
+                    <div class="col l12 s12 right-align">
+                        <button type="button" role="button" class="btn-flat black-text activator" style="margin-top: 20px;">
+                            SCADENZE
+                        </button>
+                    </div>
+                </div>
+            }
         <div class="row" style="margin: 0 !important">
             <div class="col @Html.Raw(DASIEnabled ? "l6" : "l12") s12">
                 <div class="row" style="margin: 0 !important">

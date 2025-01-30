@@ -13,8 +13,8 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-        <button type="button" role="button" class="modal-close btn-flat green-text">Chiudi</button>
-		<button type="button" role="button" id="btnInserisciRisposta" class="btn-flat blue-text" onclick="InserisciRisposta()">Inserisci</button>
+        <button class="modal-close btn-flat green-text">Chiudi</button>
+		<button id="btnInserisciRisposta" class="btn-flat blue-text" onclick="InserisciRisposta()">Inserisci</button>
 	</div>
 </div>
 
@@ -48,7 +48,7 @@
         <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
         @if (Model.CurrentUser.IsSegreteriaAssemblea)
         {
-            <button type="button" role="button" onclick="btnSalvaDettagliRisposta()" class="btn-flat blue-text">Salva</button>
+            <button onclick="btnSalvaDettagliRisposta()" class="btn-flat blue-text">Salva</button>
         }
     </div>
 </div>
@@ -65,7 +65,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+        <button class="modal-close btn-flat grey-text">Chiudi</button>
     </div>
 </div>
 
@@ -152,7 +152,7 @@ async function AggiungiInformazioneRisposta(element, idRisposta) {
 						newItem.innerHTML = `
 							  <div>
 								  ${txt}
-								  <a href="#!" class="secondary-content red-text" onclick="rimuoviInformazioniRisposta(this, '${data.Uid}')"><i class="material-icons">close</i></a>
+								  <button type="button" role="button" class="secondary-content btn-small btn-flat red-text" style="margin-top: -5px" onclick="rimuoviInformazioniRisposta(this, '${data.Uid}')"><i class="material-icons">close</i></button>
 							  </div>
 						  `;
 
@@ -263,7 +263,7 @@ if (document.getElementById('btnAggiungiRisposta')) {
 							IdOrgano: `${key}`,
 							TipoOrgano: tipoOrgano,
 							DisplayTipoOrgano: displayTipoOrgano,
-							DescrizioneOrgano: txt,
+							DescrizioneOrgano: txt
 						}
 
 						var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
@@ -442,103 +442,67 @@ function modificaDettagliRisposta(ctrl) {
 		if (atto.IsMOZ) {
 			colonneDinamiche += `
         <td class="center">
-            <div class="row">
-                <div class="col s6">${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}</div>
-                <div class="col s6">
-                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+		    ${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
                         <i class="material-icons">edit</i>
-                    </a>
-                </div>
-            </div>
+                    </button>
         </td>
         <td class="center">
-            <div class="row">
-                <div class="col s6">${risposta.DataTrattazione ? risposta.DataTrattazione : ''}</div>
-                <div class="col s6">
-                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+		    ${risposta.DataTrattazione ? risposta.DataTrattazione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
                         <i class="material-icons">edit</i>
-                    </a>
-                </div>
-            </div>
+                    </button>
         </td>
         <td class="center">
-            <div class="row">
-                <div class="col s6">${risposta.DataRevoca ? risposta.DataRevoca : ''}</div>
-                <div class="col s6">
-                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+		    ${risposta.DataRevoca ? risposta.DataRevoca : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
                         <i class="material-icons">edit</i>
-                    </a>
-                </div>
-            </div>
+                    </button>
         </td>
     `;
 		} else if (atto.IsIQT) {
 			colonneDinamiche += `
         <td class="center">
-            <div class="row">
-                <div class="col s6">${risposta.Data ? risposta.Data : ''}</div>
-                <div class="col s6">
-                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+		    ${risposta.Data ? risposta.Data : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
                         <i class="material-icons">edit</i>
-                    </a>
-                </div>
-            </div>
+                    </button>
         </td>
     `;
 		} else if (atto.IsITR || atto.IsITL) {
 			colonneDinamiche += `
         <td class="center">
-            <div class="row">
-                <div class="col s6">${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}</div>
-                <div class="col s6">
-                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+		    ${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
                         <i class="material-icons">edit</i>
-                    </a>
-                </div>
-            </div>
+                    </button>
         </td>
         <td class="center">
-            <div class="row">
-                <div class="col s6">${risposta.Data ? risposta.Data : ''}</div>
-                <div class="col s6">
-                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+		    ${risposta.Data ? risposta.Data : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
                         <i class="material-icons">edit</i>
-                    </a>
-                </div>
-            </div>
+                    </button>
         </td>
     `;
 		} else {
 			colonneDinamiche += `
         <td class="center">
-            <div class="row">
-                <div class="col s6">${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}</div>
-                <div class="col s6">
-                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+		    ${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
                         <i class="material-icons">edit</i>
-                    </a>
-                </div>
-            </div>
+                    </button>
         </td>
         <td class="center">
-            <div class="row">
-                <div class="col s6">${risposta.Data ? risposta.Data : ''}</div>
-                <div class="col s6">
-                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+		    ${risposta.Data ? risposta.Data : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
                         <i class="material-icons">edit</i>
-                    </a>
-                </div>
-            </div>
+                    </button>
         </td>
         <td class="center">
-            <div class="row">
-                <div class="col s6">${risposta.DataTrattazione ? risposta.DataTrattazione : ''}</div>
-                <div class="col s6">
-                    <a class="black-text" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                ${risposta.DataTrattazione ? risposta.DataTrattazione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
                         <i class="material-icons">edit</i>
-                    </a>
-                </div>
-            </div>
+                    </button>
         </td>
     `;
 		}
@@ -551,19 +515,16 @@ function modificaDettagliRisposta(ctrl) {
     <ul class="collection">
         ${(risposta.RisposteAssociate || []).map(r => `
             <li class="collection-item" id="${r.Uid}">
-                <div>${r.DescrizioneOrgano}
-                    <a href="#!" class="secondary-content red-text" onclick="rimuoviInformazioniRisposta(this, '${r.Uid}')">
-                        <i class="material-icons">close</i>
-                    </a>
-                </div>
+                ${r.DescrizioneOrgano}
+                <button type="button" role="button" class="secondary-content btn-small btn-flat red-text" style="margin-top: -5px" onclick="rimuoviInformazioniRisposta(this, '${r.Uid}')">
+                    <i class="material-icons">close</i>
+                </button>			
             </li>
         `).join('')}
         <li class="collection-item">
-            <div>
-                <a href="#!" class="secondary-content" onclick="AggiungiInformazioneRisposta(this, '${risposta.Uid}')">
+                <button type="button" role="button" class="secondary-content btn-small btn-flat black-text" onclick="AggiungiInformazioneRisposta(this, '${risposta.Uid}')">
                     <i class="material-icons">add</i>
-                </a>
-            </div>
+                </button>
         </li>
     </ul>
 </td>`;
@@ -581,19 +542,19 @@ function modificaDettagliRisposta(ctrl) {
                 <a href="${risposta.Link}" target="_blank" style="text-decoration: underline">
                     ${risposta.Titolo}
                 </a>
-                <a href="#!" class="btn-flat red-text" onclick="rimuoviDocumento(this, '${risposta.Titolo}', '${risposta.UIDDocumento}')">
-                    Rimuovi
-                </a>
+                <button type="button" role="button" class="btn-small btn-flat red-text" onclick="rimuoviDocumento(this, '${risposta.Titolo}', '${risposta.UIDDocumento}')">
+                    <i class="material-icons">close</i>
+                </button>
             ` : `
-                <a href="#!" class="btn-flat pink-text" onclick="AggiungiDocumento_Risposta(this, '${risposta.Uid}')">
+                <button type="button" role="button" class="btn-small btn-flat pink-text" onclick="AggiungiDocumento_Risposta(this, '${risposta.Uid}')">
                     Carica
-                </a>
+                </button>
             `}
         </td>
         <td class="center">
-            <a href="#!" class="btn-flat red-text" onclick="rimuoviRisposta(this, '${risposta.Uid}')">
+            <button type="button" role="button" class="btn-small btn-flat red-text" onclick="rimuoviRisposta(this, '${risposta.Uid}')">
                 Elimina
-            </a>
+            </button>
         </td>
     </tr>
 `;
@@ -611,70 +572,64 @@ function modificaDettagliRisposta(ctrl) {
 			console.error(`Riga con UID ${risposta.Uid} non trovata`);
 			return;
 		}
+		console.log("riga trovata")
 
-		// Aggiorna le celle specifiche in base alle condizioni di `atto`
-		if (atto.IsMOZ) {
-			const cellDataTrasmissione = row.querySelector('td:nth-child(2) .col.s6:first-child');
-			const cellDataTrattazione = row.querySelector('td:nth-child(3) .col.s6:first-child');
-			const cellDataRevoca = row.querySelector('td:nth-child(4) .col.s6:first-child');
+        // Aggiorna le celle in base al tipo di `atto`
+        if (atto.IsMOZ) {
+            aggiornaTestoCella(row.querySelector('td:nth-child(2)'), risposta.DataTrasmissione);
+            aggiornaTestoCella(row.querySelector('td:nth-child(3)'), risposta.DataTrattazione);
+            aggiornaTestoCella(row.querySelector('td:nth-child(4)'), risposta.DataRevoca);
+        } else if (atto.IsIQT) {
+            aggiornaTestoCella(row.querySelector('td:nth-child(2)'), risposta.Data);
+        } else if (atto.IsITR || atto.IsITL) {
+            aggiornaTestoCella(row.querySelector('td:nth-child(2)'), risposta.DataTrasmissione);
+            aggiornaTestoCella(row.querySelector('td:nth-child(3)'), risposta.Data);
+        } else {
+            aggiornaTestoCella(row.querySelector('td:nth-child(2)'), risposta.DataTrasmissione);
+            aggiornaTestoCella(row.querySelector('td:nth-child(3)'), risposta.Data);
+            aggiornaTestoCella(row.querySelector('td:nth-child(4)'), risposta.DataTrattazione);
+        }
 
-			if (cellDataTrasmissione) {
-				cellDataTrasmissione.textContent = risposta.DataTrasmissione ? formatDateForDisplay(risposta.DataTrasmissione) : '';
-			}
-			if (cellDataTrattazione) {
-				cellDataTrattazione.textContent = risposta.DataTrattazione ? formatDateForDisplay(risposta.DataTrattazione) : '';
-			}
-			if (cellDataRevoca) {
-				cellDataRevoca.textContent = risposta.DataRevoca ? formatDateForDisplay(risposta.DataRevoca) : '';
-			}
-		} else if (atto.IsIQT) {
-			const cellDataRisposta = row.querySelector('td:nth-child(2) .col.s6:first-child');
-			if (cellDataRisposta) {
-				cellDataRisposta.textContent = risposta.Data ? formatDateForDisplay(risposta.Data) : '';
-			}
-		} else if (atto.IsITR || atto.IsITL) {
-			const cellDataTrasmissione = row.querySelector('td:nth-child(2) .col.s6:first-child');
-			const cellDataRisposta = row.querySelector('td:nth-child(3) .col.s6:first-child');
+        // Aggiorna l'attributo `data-risposta` sui pulsanti di modifica
+        const editLinks = row.querySelectorAll('button[data-risposta]');
+        if (editLinks.length > 0) {
+            const rispostaObj = {
+                Uid: risposta.Uid,
+                DataTrasmissione: risposta.DataTrasmissione,
+                DataTrattazione: risposta.DataTrattazione,
+                DataRevoca: risposta.DataRevoca,
+                Data: risposta.Data
+            };
 
-			if (cellDataTrasmissione) {
-				cellDataTrasmissione.textContent = risposta.DataTrasmissione ? formatDateForDisplay(risposta.DataTrasmissione) : '';
-			}
-			if (cellDataRisposta) {
-				cellDataRisposta.textContent = risposta.Data ? formatDateForDisplay(risposta.Data) : '';
-			}
-		} else {
-			const cellDataTrasmissione = row.querySelector('td:nth-child(2) .col.s6:first-child');
-			const cellDataRisposta = row.querySelector('td:nth-child(3) .col.s6:first-child');
-			const cellDataTrattazione = row.querySelector('td:nth-child(4) .col.s6:first-child');
-
-			if (cellDataTrasmissione) {
-				cellDataTrasmissione.textContent = risposta.DataTrasmissione ? formatDateForDisplay(risposta.DataTrasmissione) : '';
-			}
-			if (cellDataRisposta) {
-				cellDataRisposta.textContent = risposta.Data ? formatDateForDisplay(risposta.Data) : '';
-			}
-			if (cellDataTrattazione) {
-				cellDataTrattazione.textContent = risposta.DataTrattazione ? formatDateForDisplay(risposta.DataTrattazione) : '';
-			}
-		}
-
-		const editLinks = row.querySelectorAll('a[data-risposta]');
-		if (editLinks.length > 0) {
-			const rispostaObj = {
-				Uid: risposta.Uid,
-				DataTrasmissione: risposta.DataTrasmissione,
-				DataTrattazione: risposta.DataTrattazione,
-				DataRevoca: risposta.DataRevoca,
-				Data: risposta.Data
-			};
-
-			// Itera su tutti i link e aggiorna l'attributo
-			editLinks.forEach(link => {
-				link.setAttribute('data-risposta', JSON.stringify(rispostaObj));
-			});
-		}
+            editLinks.forEach(link => {
+                link.setAttribute('data-risposta', JSON.stringify(rispostaObj));
+            });
+        }
 	}
 
+    // Funzione di supporto per aggiornare solo il testo di una cella mantenendo il pulsante
+    function aggiornaTestoCella(cella, valore) {
+        if (cella) {
+            // Trova il bottone dentro la cella (se esiste)
+            const button = cella.querySelector('button');
+
+            // Rimuove tutti i nodi di testo nella cella
+            cella.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    node.remove();
+                }
+            });
+
+            // Inserisce il nuovo testo prima del bottone (se presente)
+            if (button) {
+                cella.insertBefore(document.createTextNode(valore ? formatDateForDisplay(valore) : ''), button);
+            } else {
+                cella.textContent = valore ? formatDateForDisplay(valore) : '';
+            }
+        } else {
+            console.log("Cella non trovata");
+        }
+    }
 
 	async function btnSalvaDettagliRisposta() {
 	// Ottieni i dati dalla modale
