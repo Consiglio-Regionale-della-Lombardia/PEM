@@ -735,7 +735,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         : (int?)null;
 
                                     if ((TipoRispostaEnum)tipoRispostaAssociataInt == TipoRispostaEnum.SCRITTA
-                                        || (TipoRispostaEnum)tipoRispostaAssociataInt == TipoRispostaEnum.ORALE)
+                                        || (TipoRispostaEnum)tipoRispostaAssociataInt == TipoRispostaEnum.ORALE
+                                        || (TipoRispostaEnum)tipoRispostaAssociataInt == TipoRispostaEnum.IMMEDIATA)
                                     {
                                         var nodeIdRispostaMadre = cellsRisposteAssociate[rowRA, 7]?.Value?.ToString();
                                         for (var rowRG = 2; rowRG <= rowCountRG; rowRG++)

@@ -80,7 +80,7 @@
 	<td>${nota_testo}</td>
 	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 	<td class="center">
-		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
+		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
 	</td>
 `;
 
@@ -94,7 +94,7 @@
 	<td>${nota_testo}</td>
 	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 	<td class="center">
-		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
+		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
 	</td>
 `;
         document.querySelector('#tableNote_Privacy tbody').appendChild(newPrivacyRow);
@@ -116,7 +116,7 @@
 				<td>${nota_testo}</td>
 				<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 				<td class="center">
-					<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
+					<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
 				</td>
 			`;
 			document.querySelector('#tableNote_ChiusuraIter tbody').appendChild(newchiusuraIterRow);
@@ -130,7 +130,7 @@
 	<td>${nota_testo}</td>
 	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 	<td class="center">
-		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})">Elimina</button>
+		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
 	</td>
 `;
         document.querySelector('#tableNote_Risposte tbody').appendChild(newrisposteRow);

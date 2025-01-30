@@ -12,7 +12,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+        <button class="modal-close btn-flat grey-text">Annulla</button>
     </div>
 </div>
 
@@ -72,7 +72,7 @@
 					// Aggiungi il nuovo abbinamento alla lista
 					var newItem = document.createElement('li');
 					newItem.className = 'collection-item';
-					newItem.innerHTML = `${txt} <a href="#!" class="secondary-content red-text" onclick="rimuoviAbbinamento(this,'${key}')"><i class="material-icons">close</i></a> `;
+					newItem.innerHTML = `${txt} <button type="button" role="button" class="secondary-content btn-flat red-text" onclick="rimuoviAbbinamento(this,'${key}')"><i class="material-icons">close</i></button> `;
 
 					document.getElementById('lstAbbinamentiAtto').appendChild(newItem);
 

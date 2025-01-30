@@ -12,7 +12,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+        <button class="modal-close btn-flat grey-text">Annulla</button>
     </div>
 </div>
 
@@ -84,7 +84,7 @@
 						<td>${request.DisplayTipoOrgano}</td>
 						<td>${request.DescrizioneOrgano}</td>
 						<td>
-							<a class="red-text" onclick="rimuoviMonitoraggio(this, ${key})"><i class="material-icons">close</i></a>
+							<button type="button" role="button" class="btn-flat red-text" onclick="rimuoviMonitoraggio(this, ${key})"><i class="material-icons">close</i></button>
 						</td>
 					`;
 

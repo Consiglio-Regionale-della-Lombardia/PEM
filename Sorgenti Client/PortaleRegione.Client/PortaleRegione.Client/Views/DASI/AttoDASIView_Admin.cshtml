@@ -408,7 +408,7 @@
                                 @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                 {
                                     <th class="center" width="10%">
-                                        <button type="button" id="btnAggiungiDocumento_InformazioniGenerali" class="btn-flat green-text">
+                                        <button id="btnAggiungiDocumento_InformazioniGenerali" class="btn-flat green-text">
                                             Aggiungi
                                         </button>
                                     </th>
@@ -428,7 +428,7 @@
                                     @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                     {
                                         <td class="center">
-                                            <button type="button" href="#!" class="red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+                                            <button class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
                                                 <i class="material-icons">close</i>
                                             </button>
                                         </td>
@@ -461,7 +461,7 @@
                         </h6>
                         @if (Model.CurrentUser.IsSegreteriaAssemblea)
                         {
-                            <button type="button" id="btnAggiungiAbbinamento" class="btn-flat green-text" style="position: absolute; right: 10px; top: -10px;">
+                            <button id="btnAggiungiAbbinamento" class="btn-flat green-text" style="position: absolute; right: 10px; top: -10px;">
                                 Aggiungi
                             </button>
                         }
@@ -476,7 +476,7 @@
                                         @Html.Raw($", con oggetto: {abb.OggettoAttoAbbinato}")
                                     }
 
-                                    <button type="button" role="button" href="#!" class="secondary-content red-text" onclick="rimuoviAbbinamento(this, '@abb.UidAttoAbbinato')">
+                                    <button class="secondary-content btn-flat red-text" onclick="rimuoviAbbinamento(this, '@abb.UidAttoAbbinato')">
                                         <i class="material-icons">close</i>
                                     </button>
                                 </li>
@@ -900,7 +900,7 @@
                         {
                             <td class="center">
                                 <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-                                    Elimina
+									<i class="material-icons">close</i>
                                 </button>
                             </td>
                         }
@@ -1042,8 +1042,8 @@
                             @if (Model.CurrentUser.IsSegreteriaAssemblea)
                             {
                                 <td class="center">
-                                    <button type="button" href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                        Rimuovi
+                                    <button class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
+										<i class="material-icons">close</i>
                                     </button>
                                 </td>
                             }
@@ -1315,7 +1315,7 @@
                                     {
                                         <td class="center">
                                             <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-                                                Elimina
+												<i class="material-icons">close</i>
                                             </button>
                                         </td>
                                     }
@@ -1361,7 +1361,7 @@
                                     {
                                         <td class="center">
                                             <button type="button" href="#!" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                                Rimuovi
+												<i class="material-icons">close</i>
                                             </button>
                                         </td>
                                     }
@@ -1434,7 +1434,7 @@
                             {
                                 <td class="center">
                                     <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-                                        Elimina
+										<i class="material-icons">close</i>
                                     </button>
                                 </td>
                             }
@@ -1542,7 +1542,7 @@
                                     {
                                         <td class="center">
                                             <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-                                                Elimina
+												<i class="material-icons">close</i>
                                             </button>
                                         </td>
                                     }
@@ -1615,7 +1615,7 @@
                                     {
                                         <td class="center">
                                             <button type="button" class="btn-flat red-text" onclick='rimuoviDocumento(this, "@doc.Titolo", "@doc.Uid")'>
-                                                Rimuovi
+												<i class="material-icons">close</i>
                                             </button>
                                         </td>
                                     }
@@ -1633,98 +1633,105 @@
     <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe e lettere</div>
     <div class="collapsible-body">
         <div class="card">
-            <div class="card-content">
-                @if (atto.IsODG()
-                     || atto.IsMOZ())
-                {
-                    <div class="collection">
-                        <h6>
-                            <b>Generazione DCR</b>
-                        </h6>
-                        <hr/>
-                        <button type="button" role="button" class="btn-flat black-text"
-                                data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo })"
-                                onclick="StampaReportRapido(this)">
-                            Genera la DCR per l'atto
-                        </button>
-                    </div>
-                }
-                <h6>
-                    <b>Copertine</b>
-                </h6>
-                <hr/>
-                <div class="collection">
-                    @{
-                        var tipo_risposta = atto.IDTipo_Risposta;
-                        if (atto.IDTipo_Risposta_Effettiva.HasValue)
-                        {
-                            tipo_risposta = atto.IDTipo_Risposta_Effettiva.Value;
-                        }
-                    }
-                    <button type="button" role="button" class="btn-flat black-text"
-                            data-url="@Url.Action("GeneraReportCopertinaPresidente", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
-                            onclick="StampaReportRapido(this)">
-                        Copertina presidente
-                    </button>
-                    <button type="button" role="button" class="btn-flat black-text"
-                            data-url="@Url.Action("GeneraReportCopertinaUfficio", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
-                            onclick="StampaReportRapido(this)">
-                        Copertina ufficio
-                    </button>
-                </div>
+			<div class="card-content">
+				@if (atto.IsODG()
+					 || atto.IsMOZ())
+				{
+					<div class="collection">
+						<h6>
+							<b>Generazione DCR</b>
+						</h6>
+						<hr />
+						<button type="button" role="button" class="btn-flat black-text"
+								data-url="@Url.Action("GeneraReportDCR", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo })"
+								onclick="StampaReportRapido(this)">
+							Genera la DCR per l'atto
+						</button>
+					</div>
+				}
+				<h6>
+					<b>Copertine</b>
+				</h6>
+				<hr />
+				<div class="collection">
+					@{
+						var tipo_risposta = atto.IDTipo_Risposta;
+						if (atto.IDTipo_Risposta_Effettiva.HasValue)
+						{
+							tipo_risposta = atto.IDTipo_Risposta_Effettiva.Value;
+						}
+					}
+					<button type="button" role="button" class="btn-flat black-text"
+							data-url="@Url.Action("GeneraReportCopertinaPresidente", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+							onclick="StampaReportRapido(this)">
+						Copertina presidente
+					</button>
+					<button type="button" role="button" class="btn-flat black-text"
+							data-url="@Url.Action("GeneraReportCopertinaUfficio", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+							onclick="StampaReportRapido(this)">
+						Copertina ufficio
+					</button>
+				</div>
 
-                <h6>
-                    <b>Lettere</b>
-                </h6>
-                <hr/>
-                <div class="collection">
-                    @if (atto.IsITL())
-                    {
-                        <button type="button" role="button" class="btn-flat black-text"
-                                data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
-                                onclick="StampaReportRapido(this)">
-                            Lettera invio in commissione
-                        </button>
-                    }
-                    @if (atto.IsITR())
-                    {
-                        <button type="button" role="button" class="btn-flat black-text"
-                                data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
-                                onclick="StampaReportRapido(this)">
-                            Lettera invio in commissione
-                        </button>
-                    }
-                    @if (atto.IsODG())
-                    {
-                        <button type="button" role="button" class="btn-flat black-text"
-                                data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
-                                onclick="StampaReportRapido(this)">
-                            Lettera deliberazione
-                        </button>
-                    }
-                    @if (atto.IsRIS())
-                    {
-                        <button type="button" role="button" class="btn-flat black-text"
-                                data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
-                                onclick="StampaReportRapido(this)">
-                            Lettera deliberazione
-                        </button>
-                    }
-                    @if (atto.IsMOZ())
-                    {
-                        <button type="button" role="button" class="btn-flat black-text"
-                                data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
-                                onclick="StampaReportRapido(this)">
-                            Lettera deliberazione
-                        </button>
-                        <button type="button" role="button" class="btn-flat black-text"
-                                data-url="@Url.Action("GeneraReportLetteraAssembleaMOZ", "DASI", new { id = atto.UIDAtto })"
-                                onclick="StampaReportRapido(this)">
-                            Lettera invio da Assemblea in commissione
-                        </button>
-                    }
-                </div>
-            </div>
+				@if (atto.IsIQT())
+				{
+					//ignora
+				}
+				else
+				{
+					<h6>
+						<b>Lettere</b>
+					</h6>
+					<hr />
+					<div class="collection">
+						@if (atto.IsITL())
+						{
+							<button type="button" role="button" class="btn-flat black-text"
+									data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+									onclick="StampaReportRapido(this)">
+								Lettera invio in commissione
+							</button>
+						}
+						@if (atto.IsITR())
+						{
+							<button type="button" role="button" class="btn-flat black-text"
+									data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+									onclick="StampaReportRapido(this)">
+								Lettera invio in commissione
+							</button>
+						}
+						@if (atto.IsODG())
+						{
+							<button type="button" role="button" class="btn-flat black-text"
+									data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+									onclick="StampaReportRapido(this)">
+								Lettera deliberazione
+							</button>
+						}
+						@if (atto.IsRIS())
+						{
+							<button type="button" role="button" class="btn-flat black-text"
+									data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+									onclick="StampaReportRapido(this)">
+								Lettera deliberazione
+							</button>
+						}
+						@if (atto.IsMOZ())
+						{
+							<button type="button" role="button" class="btn-flat black-text"
+									data-url="@Url.Action("GeneraReportLettera", "DASI", new { id = atto.UIDAtto, tipo = atto.Tipo, tipo_risposta })"
+									onclick="StampaReportRapido(this)">
+								Lettera deliberazione
+							</button>
+							<button type="button" role="button" class="btn-flat black-text"
+									data-url="@Url.Action("GeneraReportLetteraAssembleaMOZ", "DASI", new { id = atto.UIDAtto })"
+									onclick="StampaReportRapido(this)">
+								Lettera invio da Assemblea in commissione
+							</button>
+						}
+					</div>
+				}
+			</div>
         </div>
     </div>
 </li>
