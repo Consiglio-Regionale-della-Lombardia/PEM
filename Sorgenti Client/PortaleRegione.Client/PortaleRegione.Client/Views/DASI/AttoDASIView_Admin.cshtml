@@ -1923,7 +1923,10 @@
                 } else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)) {
                     pnlDateRispostaMozione.style.display = 'block';
                     pnlRisposteFornite.style.display = 'block';
-                } else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ORALE) || selectedValue == @Html.Raw((int)TipoRispostaEnum.SCRITTA) || selectedValue == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)) {
+                } else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ORALE) 
+                    || selectedValue == @Html.Raw((int)TipoRispostaEnum.SCRITTA) 
+                    || selectedValue == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)
+                    || selectedValue == @Html.Raw((int)TipoRispostaEnum.IMMEDIATA)) {
                     pnlRisposteFornite.style.display = 'block';
                 } else {
                     if (pnlDateRispostaMozione) {
