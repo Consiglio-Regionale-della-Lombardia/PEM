@@ -16,10 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Gateway;
-using System.Threading.Tasks;
 using System;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using System.Web.Mvc;
+using Newtonsoft.Json;
+using PortaleRegione.Client.Helpers;
+using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -59,6 +63,32 @@ namespace PortaleRegione.Client.Controllers
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        internal static string apiUrl = AppSettingsConfiguration.URL_API_PUBLIC;
+
+        [HttpGet]
+        [Route("public/web/{id:guid}")]
+        public async Task<ActionResult> GetAtto(Guid id)
+        {
+            var url = $"{apiUrl}/atto";
+            var body = new AttoRequest { uidAtto = id.ToString() };
+
+            using (var httpClient = new HttpClient())
+            {
+                var jsonBody = JsonConvert.SerializeObject(body);
+                var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync(url, content);
+                var stringResponse = await response.Content.ReadAsStringAsync();
+
+                return Json(stringResponse, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public class AttoRequest
+        {
+            public string uidAtto { get; set; }
         }
     }
 }

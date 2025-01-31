@@ -31,9 +31,7 @@ namespace PortaleRegione.Client.Helpers
         public static string LimiteDocumentiDaProcessare => ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"];
         public static string URL_CLIENT => ConfigurationManager.AppSettings["URL_CLIENT"];
         public static string URL_API => ConfigurationManager.AppSettings["URL_API"];
-        public static string GEASI_URL => ConfigurationManager.AppSettings["GEASI_URL"];
-        public static string GEASI_USERNAME => ConfigurationManager.AppSettings["GEASI_USERNAME"];
-        public static string GEASI_PASSWORD => ConfigurationManager.AppSettings["GEASI_PASSWORD"];
+        public static string URL_API_PUBLIC => ConfigurationManager.AppSettings["URL_API_PUBLIC"];
         public static int COOKIE_EXPIRE_IN => Convert.ToInt16(ConfigurationManager.AppSettings["COOKIE_EXPIRE_IN"]);
         public static bool EnablePEM => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["PEM"]));
         public static bool EnableDASI => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["DASI"]));
