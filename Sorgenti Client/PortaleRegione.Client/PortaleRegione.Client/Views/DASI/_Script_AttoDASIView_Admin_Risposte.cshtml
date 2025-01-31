@@ -1,4 +1,5 @@
 ﻿@using Newtonsoft.Json
+@using PortaleRegione.Client.Helpers
 @model PortaleRegione.DTO.Model.DASIFormModel
 
 <div id="modalRisposte" class="modal">
@@ -111,7 +112,6 @@ async function AggiungiInformazioneRisposta(element, idRisposta) {
 					var tipoRispostaValue = $('#tipi-risposta-select').val();
 					var tipoRispostaText = $('#tipi-risposta-select option:selected').text();
 
-					// Simula la richiesta al server per salvare i dati
 					var request = {
 						UIDAtto: '@Model.Atto.UIDAtto',
 						IdOrgano: `${key}`,
@@ -163,7 +163,8 @@ async function AggiungiInformazioneRisposta(element, idRisposta) {
 							html: `<span>${txt} inserito con successo all'atto @Html.Raw(Model.Atto.Display)</span>`,
 							classes: 'rounded',
 							displayLength: 5000
-						});						
+						});			
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 
 					} catch (error) {
 						// ignored
@@ -210,6 +211,7 @@ async function InserisciRisposta() {
                          IsITL = Model.Atto.IsITL(),
                          IsITR = Model.Atto.IsITR()
                      }));
+        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 		aggiungiRigaAllaTabellaRisposta(data, atto);
 
     } catch (error) {
@@ -291,6 +293,7 @@ if (document.getElementById('btnAggiungiRisposta')) {
                                              IsITL = Model.Atto.IsITL(),
                                              IsITR = Model.Atto.IsITR()
                                          }));
+                            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 							aggiungiRigaAllaTabellaRisposta(data, atto);
 
 						} catch (error) {
@@ -349,6 +352,7 @@ function rimuoviRisposta(ctrl, uid) {
 					classes: 'rounded',
 					displayLength: 5000
 				});
+                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 			} catch (error) {
 				ErrorAlert("Errore durante l'elaborazione della risposta");
 			}
@@ -402,6 +406,7 @@ function rimuoviInformazioniRisposta(ctrl, uid) {
 					classes: 'rounded',
 					displayLength: 5000
 				});
+                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 			} catch (error) {
 				ErrorAlert("Errore durante l'elaborazione della risposta");
 			}
@@ -674,6 +679,7 @@ function modificaDettagliRisposta(ctrl) {
                          IsITR = Model.Atto.IsITR()
                      }));
 
+        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 		aggiornaDateRigaRisposta(requestData, atto);
 
 	} catch (error) {
@@ -727,6 +733,7 @@ async function salvaInformazioniRisposta() {
         }
 
         M.toast({ html: `<span>Informazioni salvate con successo</span>`, classes: 'rounded', displayLength: 5000 });
+        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
     } catch (error) {
         console.error('Errore durante il salvataggio:', error);
     }

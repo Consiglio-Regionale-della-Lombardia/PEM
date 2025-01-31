@@ -1,4 +1,5 @@
-﻿@model PortaleRegione.DTO.Model.DASIFormModel
+﻿@using PortaleRegione.Client.Helpers
+@model PortaleRegione.DTO.Model.DASIFormModel
 
 <div id="modalMonitoraggio" class="modal">
     <div class="modal-content">
@@ -95,6 +96,7 @@
 							classes: 'rounded',
 							displayLength: 5000
 						});
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 					}
 					document.getElementById('organi-monitoraggio-autocomplete').value = "";
 				});
@@ -145,6 +147,7 @@ function rimuoviMonitoraggio(ctrl, organoId) {
 				classes: 'rounded',
 				displayLength: 5000
 			});
+            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 		}
 	});
 }
@@ -207,6 +210,7 @@ document.getElementById('btnSalva_InformazioniAggiuntiveMonitoraggio').addEventL
                 classes: 'rounded',
                 displayLength: 5000
             });
+            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
         }
     });
 });

@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.DASIFormModel
 
 <div id="modalNota" class="modal">
@@ -72,6 +73,8 @@
 	} catch (error) {
 		waiting(false);
 	}
+
+    window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 
     // Aggiungi una nuova riga se non esiste
     var newRow = document.createElement('tr');
@@ -191,6 +194,7 @@ function rimuoviNota(ctrl, tipoNota) {
 				classes: 'rounded',
 				displayLength: 5000
 			});
+            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 		}
 	});
 }

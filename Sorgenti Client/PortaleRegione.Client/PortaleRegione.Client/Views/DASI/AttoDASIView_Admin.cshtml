@@ -1930,8 +1930,8 @@
                 } else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)) {
                     pnlDateRispostaMozione.style.display = 'block';
                     pnlRisposteFornite.style.display = 'block';
-                } else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ORALE) 
-                    || selectedValue == @Html.Raw((int)TipoRispostaEnum.SCRITTA) 
+                } else if (selectedValue == @Html.Raw((int)TipoRispostaEnum.ORALE)
+                    || selectedValue == @Html.Raw((int)TipoRispostaEnum.SCRITTA)
                     || selectedValue == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)
                     || selectedValue == @Html.Raw((int)TipoRispostaEnum.IMMEDIATA)) {
                     pnlRisposteFornite.style.display = 'block';
@@ -2047,6 +2047,7 @@
                         classes: 'rounded',
                         displayLength: 5000
                     });
+                    window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                 }
             });
         });
@@ -2102,6 +2103,8 @@
                         classes: 'rounded',
                         displayLength: 5000
                     });
+
+                    window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                 }
             });
         });
@@ -2167,6 +2170,7 @@
                     elem.text("star");
                     elem.addClass("black-text");
                 }
+                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
             },
             error: function(xhr, status, error) {
                 console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
@@ -2234,6 +2238,7 @@
                         classes: 'rounded',
                         displayLength: 5000
                     });
+                    window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                 }
             });
         });
@@ -2286,6 +2291,7 @@
                     classes: 'rounded',
                     displayLength: 5000
                 });
+                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
             }
         });
     }
@@ -2332,7 +2338,7 @@
                         } catch (error) {
                             // ignored
                         }
-
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                         location.reload();
                     }
                 });

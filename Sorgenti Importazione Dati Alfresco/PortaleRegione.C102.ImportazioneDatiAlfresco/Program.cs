@@ -2324,13 +2324,13 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                 case "minoranza":
                     return (int)AreaPoliticaIntEnum.Minoranza;
                 case "misto maggioranza/minoranza":
-                    return (int)AreaPoliticaIntEnum.Misto;
+                    return (int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza;
                 case "misto minoranza":
                     return (int)AreaPoliticaIntEnum.Misto_Minoranza;
                 case "misto maggioranza":
                     return (int)AreaPoliticaIntEnum.Misto_Maggioranza;
                 default:
-                    return 0;
+                    return (int)AreaPoliticaIntEnum.Misto;
             }
         }
 

@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.DASIFormModel
 
 <div id="modalDocumento" class="modal">
@@ -167,6 +168,8 @@
                         classes: 'rounded',
                         displayLength: 5000
                     });
+
+                    window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 
 					$('#modalDocumento').modal("close");
                 } catch (error) {
@@ -420,14 +423,16 @@
 			    }
 
 			    M.toast({
-				    html: `<span>Documento rimosso con successo</span>`,
+				    html: `<span>Documento rimosso con successo. Aggiornamento pagina in corso..</span>`,
 				    classes: 'rounded',
-				    displayLength: 5000
+				    displayLength: 2000
 			    });
+
+                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
 
 				setTimeout(function () {
 					location.reload();
-				}, 5000);
+				}, 1000);
 		    }
 	    });
 }
