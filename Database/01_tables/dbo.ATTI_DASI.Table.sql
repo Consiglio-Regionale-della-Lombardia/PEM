@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 02/01/2025 11:38:08 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 04/02/2025 11:16:35 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -115,6 +115,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[DataProposta] [datetime] NULL,
 	[DataTrasmissione] [datetime] NULL,
 	[FlussoRespingi] [bit] NOT NULL,
+	[Ritardo] [int] NOT NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -187,4 +188,8 @@ GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_FlussoRespingi]  DEFAULT ((0)) FOR [FlussoRespingi]
 GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Ritardo]  DEFAULT ((0)) FOR [Ritardo]
+GO
+
 

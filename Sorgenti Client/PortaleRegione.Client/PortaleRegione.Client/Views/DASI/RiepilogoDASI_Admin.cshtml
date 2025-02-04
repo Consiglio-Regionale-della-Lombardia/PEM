@@ -214,23 +214,28 @@
 </div>
 
 <div id="modalColonneGriglia" class="modal">
-	<div class="modal-content">
-		<h4>Seleziona le colonne della griglia</h4>
-		<div class="row">
-			<div class="input-field col s12">
-                <select name="columns-grid" id="columns-grid-select" multiple> 
+    <div class="modal-content">
+        <div class="row">
+            <div class="col s12">
+                <h4>Seleziona le colonne della griglia</h4>
+                <ul id="columns-grid-list" class="collection" style="height: 450px; overflow-y:auto">
                     @foreach (var prop in typeof(AttiDASIColums).GetProperties())
                     {
                         var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
                             .Cast<DisplayNameAttribute>()
                             .FirstOrDefault()?.DisplayName ?? prop.Name;
-
-                        <option value="@prop.Name">@displayName</option>
+                        <li class="collection-item">
+                            <label>
+                                <!-- The checkbox value will be the property name -->
+                                <input type="checkbox" value="@prop.Name"/>
+                                <span>@displayName</span>
+                            </label>
+                        </li>
                     }
-                </select>
-			</div>
-		</div>
-	</div>
+                </ul>
+            </div>
+        </div>
+    </div>
 	<div class="modal-footer">
 		<button type="button" class="btn-flat modal-close">Annulla</button>
 		<button type="button" onclick="btnResetColonneGriglia()" class="btn-flat red-text">Reset</button>
@@ -239,26 +244,21 @@
 </div>
 
 <script>
-	document.getElementById('btnSelezionaColonne').addEventListener('click', function () {
-		waiting(true);
+    document.getElementById('btnSelezionaColonne').addEventListener('click', function () {
+        waiting(true);
 
-		// Recupera le colonne salvate dal local storage (un array di oggetti con propertyName e displayText)
-		const savedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
+        // Retrieve the saved columns (an array of objects with propertyName and displayText)
+        const savedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
 
-		// Seleziona automaticamente le colonne salvate
-		const columnsSelect = document.getElementById('columns-grid-select');
-		Array.from(columnsSelect.options).forEach(option => {
-			// Controlla se il propertyName della colonna è incluso nelle colonne salvate
-			const isSelected = savedColumns.some(col => col.propertyName === option.value);
-			option.selected = isSelected;
-		});
+        // For each checkbox in the list, check if its value is among the saved columns
+        document.querySelectorAll('#columns-grid-list input[type="checkbox"]').forEach(chk => {
+            const isSelected = savedColumns.some(col => col.propertyName === chk.value);
+            chk.checked = isSelected;
+        });
 
-		// Aggiorna il select dopo aver impostato le opzioni selezionate
-		$('#columns-grid-select').formSelect();
-
-		waiting(false);
-		$('#modalColonneGriglia').modal("open");
-	});
+        waiting(false);
+        $('#modalColonneGriglia').modal("open");
+    });
 	
 	document.getElementById('btnOrdinamentoRisultati').addEventListener('click', function () {
 		openOrdinamentoModal();
@@ -350,34 +350,35 @@
 	}
 
     function btnResetColonneGriglia() {
-		localStorage.setItem('selectedColumns', JSON.stringify([]));
-		const savedColumns = [];
-		const columnsSelect = document.getElementById('columns-grid-select');
-		Array.from(columnsSelect.options).forEach(option => {
-			// Controlla se il propertyName della colonna è incluso nelle colonne salvate
-			const isSelected = savedColumns.some(col => col.propertyName === option.value);
-			option.selected = isSelected;
-		});
+        // Reset saved columns in local storage
+        localStorage.setItem('selectedColumns', JSON.stringify([]));
 
-		// Aggiorna il select dopo aver impostato le opzioni selezionate
-		$('#columns-grid-select').formSelect();
+        // Uncheck all checkboxes in the collection
+        document.querySelectorAll('#columns-grid-list input[type="checkbox"]').forEach(chk => {
+            chk.checked = false;
+        });
 
+        // Refresh your grid or chip data as needed
         inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
     }
 
     function btnSalvaColonneGriglia() {
-		const selectedColumns = Array.from(document.querySelector('select[name="columns-grid"]').selectedOptions).map(option => ({
-			propertyName: option.value,  // Nome della proprietà
-			displayText: option.text     // Testo visualizzato
-		}));
+        // Gather selected columns from the checkboxes
+        const selectedColumns = Array.from(
+            document.querySelectorAll('#columns-grid-list input[type="checkbox"]:checked')
+        ).map(chk => ({
+            propertyName: chk.value,  // the property name value
+            displayText: chk.parentElement.querySelector("span").textContent // the display text
+        }));
 
-		// Salva le colonne selezionate nel local storage
-		localStorage.setItem('selectedColumns', JSON.stringify(selectedColumns));
+        // Save the selected columns to local storage
+        localStorage.setItem('selectedColumns', JSON.stringify(selectedColumns));
 
+        // Refresh the grid/chips data based on the new selection
         inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
 
-		// Chiudi la modale
-		$('#modalColonneGriglia').modal('close');		
+        // Close the modal
+        $('#modalColonneGriglia').modal('close');
     }
 
 	// Salva l'ordinamento selezionato

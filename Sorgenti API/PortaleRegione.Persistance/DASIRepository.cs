@@ -1853,6 +1853,14 @@ namespace PortaleRegione.Persistance
                 }
             }
 
+            if (queryExtended.Ritardo.HasValue)
+            {
+                if (queryExtended.Ritardo.Value)
+                    query = query.Where(atto => atto.Ritardo > 0);
+                else
+                    query = query.Where(atto => atto.Ritardo.Equals(0));
+            }
+
             #endregion
 
             return query;

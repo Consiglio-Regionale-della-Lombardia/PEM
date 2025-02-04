@@ -57,6 +57,8 @@ public class QueryExtendedRequest
     public List<Guid> Firmatari { get; set; } = new List<Guid>();
     public List<int> GruppiFirmatari { get; set; } = new List<int>();
     public List<int> AreaPolitica { get; set; } = new List<int>();
+    public bool? Ritardo { get; set; }
+    public List<bool> RitardoList { get; set; } = new List<bool>();
 
     public QueryExtendedRequest Clone()
     {

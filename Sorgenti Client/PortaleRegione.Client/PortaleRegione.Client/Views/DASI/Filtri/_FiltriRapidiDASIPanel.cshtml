@@ -76,6 +76,7 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.BURL))", id: "@nameof(AttoDASIDto.BURL)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Note))", id: "@nameof(AttoDASIDto.Note)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IterMultiplo))", id: "@nameof(AttoDASIDto.IterMultiplo)"},
+    { tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Ritardo))", id: "@nameof(AttoDASIDto.Ritardo)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -207,6 +208,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.IterMultiplo)") {
 			val = document.getElementById('iter-multiplo').checked;
+			text = val ? 'Si' : 'No';
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Ritardo)") {
+			val = document.getElementById('ritardo').checked;
 			text = val ? 'Si' : 'No';
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.Emendato)") {
@@ -2310,6 +2315,26 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				<div class="card-content black-text">
 	<span class="card-title">Informazioni</span>
 	<p>Spuntare per trovare tutti gli atti che hanno l'iter multiplo. Lasciare vuoto per trovare tutti gli atti che non hanno l'iter multiplo.
+	</p>
+</div></div>`;
+	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			break;
+        case '@nameof(AttoDASIDto.Ritardo)':
+			console.log("Rit", currentValue)
+			var isChecked = isEditing && currentValue == true ? 'checked="checked"' : '';
+			selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="ritardo" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti che sono in ritardo. Lasciare vuoto per trovare tutti gli atti che non sono in ritardo.
 	</p>
 </div></div>`;
 	        document.getElementById('dynamic-select-container').innerHTML = selectHTML;

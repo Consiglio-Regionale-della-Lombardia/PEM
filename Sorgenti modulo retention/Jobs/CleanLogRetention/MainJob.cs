@@ -16,10 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Quartz;
-using System;
-using System.Net.Sockets;
 using System.Threading.Tasks;
+using Quartz;
 
 namespace CleanLogRetention
 {
@@ -36,7 +34,10 @@ namespace CleanLogRetention
 
             var manager = new Manager(new ThreadWorkerModel
             {
-                connectionString = connectionString
+                connectionString = connectionString,
+                pathReport = pathReport,
+                retention = retention,
+                tables = tables
             });
             await manager.Run();
         }
@@ -45,13 +46,13 @@ namespace CleanLogRetention
         {
             if (data.ContainsKey(nameof(ThreadWorkerModel.connectionString)))
                 connectionString = data.Get(nameof(ThreadWorkerModel.connectionString)).ToString();
-            
+
             if (data.ContainsKey(nameof(ThreadWorkerModel.retention)))
                 retention = int.Parse(data.Get(nameof(ThreadWorkerModel.retention)).ToString());
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.tables)))
                 tables = data.Get(nameof(ThreadWorkerModel.tables)).ToString();
-            
+
             if (data.ContainsKey(nameof(ThreadWorkerModel.pathReport)))
                 pathReport = data.Get(nameof(ThreadWorkerModel.pathReport)).ToString();
         }

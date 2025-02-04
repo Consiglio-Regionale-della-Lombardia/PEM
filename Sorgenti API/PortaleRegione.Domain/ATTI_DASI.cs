@@ -155,6 +155,8 @@ namespace PortaleRegione.Domain
         public int? RisultatoVotazioneIterCommissione { get; set; }
         public bool FlussoRespingi { get; set; } = false;
 
+        public int Ritardo { get; set; } = 0;
+
         public string GetLegislatura()
         {
             if (!string.IsNullOrEmpty(Etichetta))

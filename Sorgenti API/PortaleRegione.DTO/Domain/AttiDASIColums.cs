@@ -73,6 +73,7 @@ public class AttiDASIColums
     [DisplayName("Privacy - divieto di pubblicazione")] public bool Privacy_Divieto_Pubblicazione { get; set; }
     [DisplayName("Presentato oltre i termini")] public bool PresentatoOltreITermini { get; set; } = false;
     [DisplayName("Allegati dell’atto")] public string Documenti { get; set; } // #1021
+    [DisplayName("Ritardo")] public int Ritardo { get; set; } = 0;
 
 
 

@@ -867,6 +867,9 @@ namespace PortaleRegione.API.Controllers
                 queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.Risposte), queryExtended.Risposte, int.Parse,
                 queryExtended);
+            
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.Ritardo), queryExtended.RitardoList, bool.Parse,
+                queryExtended);
 
             return queryExtended;
         }
@@ -876,6 +879,20 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.Ritardo)))
+                {
+                    var item = model.filtro.First(statement => statement.PropertyId == propertyId
+                                                               && propertyId == nameof(AttoDASIDto.Ritardo));
+                    query.Ritardo = item.Value.ToString().Equals("true");
+                    var statementRitardo = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId
+                                                         && propertyId == nameof(AttoDASIDto.Ritardo)).ToList();
+                    foreach (var statement in statementRitardo) model.filtro.Remove(statement);
+
+                    return;
+                }
+
                 if (model.filtro.Any(statement => statement.PropertyId == propertyId
                                                   && propertyId == nameof(AttoDASIDto.DataTrasmissione)
                                                   && statement.Operation == Operation.IsNull))

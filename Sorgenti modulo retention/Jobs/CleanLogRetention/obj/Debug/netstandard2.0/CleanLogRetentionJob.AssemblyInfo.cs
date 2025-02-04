@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CleanLogRetentionJob")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a09b19c6e7ee48e8923d54a957a7d8c92cdc370")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aee545aae391f310ab47b1b25bc049d54c74814e")]
 [assembly: System.Reflection.AssemblyProductAttribute("CleanLogRetentionJob")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CleanLogRetentionJob")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

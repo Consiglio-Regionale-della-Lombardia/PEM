@@ -238,93 +238,8 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string FirmeCartacee_string { get; set; }
 
-    public bool IsMOZ()
-    {
-        return Tipo == (int)TipoAttoEnum.MOZ;
-    }
-
-    public bool IsMOZOrdinaria()
-    {
-        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.ORDINARIA;
-    }
-
-    public bool IsMOZUrgente()
-    {
-        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.URGENTE;
-    }
-
-    public bool IsMOZAbbinata()
-    {
-        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.ABBINATA;
-    }
-
-    public bool IsMOZSfiducia()
-    {
-        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.SFIDUCIA;
-    }
-
-    public bool IsMOZCensura()
-    {
-        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.CENSURA;
-    }
-
-    public bool IsIQT()
-    {
-        return Tipo == (int)TipoAttoEnum.IQT;
-    }
-
-    public bool IsITL()
-    {
-        return Tipo == (int)TipoAttoEnum.ITL;
-    }
-
-    public bool IsITR()
-    {
-        return Tipo == (int)TipoAttoEnum.ITR;
-    }
-
-    public bool IsODG()
-    {
-        return Tipo == (int)TipoAttoEnum.ODG;
-    }
-
-    public bool IsRIS()
-    {
-        return Tipo == (int)TipoAttoEnum.RIS;
-    }
-
-    // #558
-
-    public bool IsChiuso => IDStato == (int)StatiAttoEnum.COMPLETATO;
-
-    public bool IsBozza => IDStato == (int)StatiAttoEnum.BOZZA
-                           || IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
-                           || IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA;
-
-
     public List<AttiFirmeDto> FirmeAnte { get; set; }
     public List<AttiFirmeDto> FirmePost { get; set; }
-
-    public string OggettoView()
-    {
-        if (!string.IsNullOrEmpty(Oggetto_Approvato))
-            return Oggetto_Approvato;
-        if (!string.IsNullOrEmpty(Oggetto_Modificato))
-            return Oggetto_Modificato;
-        return Oggetto;
-    }
-
-    public string GetLegislatura()
-    {
-        if (!string.IsNullOrEmpty(Etichetta))
-        {
-            var parti = Etichetta.Split('_');
-            if (parti.Length > 0)
-                return parti[parti.Length - 1];
-        }
-
-        return string.Empty;
-    }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [DisplayName("Data annunzio")]
@@ -474,4 +389,88 @@ public class AttoDASIDto
     public int? RisultatoVotazioneIterCommissione { get; set; }
 
     public bool FlussoRespingi { get; set; } = false;
+    [DisplayName("Ritardo")] public int Ritardo { get; set; } = 0;
+
+    public string OggettoView()
+    {
+        if (!string.IsNullOrEmpty(Oggetto_Approvato))
+            return Oggetto_Approvato;
+        if (!string.IsNullOrEmpty(Oggetto_Modificato))
+            return Oggetto_Modificato;
+        return Oggetto;
+    }
+
+    public string GetLegislatura()
+    {
+        if (!string.IsNullOrEmpty(Etichetta))
+        {
+            var parti = Etichetta.Split('_');
+            if (parti.Length > 0)
+                return parti[parti.Length - 1];
+        }
+
+        return string.Empty;
+    }
+
+    public bool IsMOZ()
+    {
+        return Tipo == (int)TipoAttoEnum.MOZ;
+    }
+
+    public bool IsMOZOrdinaria()
+    {
+        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.ORDINARIA;
+    }
+
+    public bool IsMOZUrgente()
+    {
+        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.URGENTE;
+    }
+
+    public bool IsMOZAbbinata()
+    {
+        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.ABBINATA;
+    }
+
+    public bool IsMOZSfiducia()
+    {
+        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.SFIDUCIA;
+    }
+
+    public bool IsMOZCensura()
+    {
+        return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.CENSURA;
+    }
+
+    public bool IsIQT()
+    {
+        return Tipo == (int)TipoAttoEnum.IQT;
+    }
+
+    public bool IsITL()
+    {
+        return Tipo == (int)TipoAttoEnum.ITL;
+    }
+
+    public bool IsITR()
+    {
+        return Tipo == (int)TipoAttoEnum.ITR;
+    }
+
+    public bool IsODG()
+    {
+        return Tipo == (int)TipoAttoEnum.ODG;
+    }
+
+    public bool IsRIS()
+    {
+        return Tipo == (int)TipoAttoEnum.RIS;
+    }
+
+    // #558
+    public bool IsChiuso => IDStato == (int)StatiAttoEnum.COMPLETATO;
+
+    public bool IsBozza => IDStato == (int)StatiAttoEnum.BOZZA
+                           || IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
+                           || IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA;
 }
