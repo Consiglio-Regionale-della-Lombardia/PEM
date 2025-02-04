@@ -48,6 +48,6 @@ namespace PortaleRegione.Api.Public.Helpers
         /// <summary>
         ///     Url atto pubblico con testo approvato
         /// </summary>
-        public static string urlDASI_Presentato => ConfigurationManager.AppSettings["urlDASI_Trattazione"];
+        public static string urlDASI_Trattazione => ConfigurationManager.AppSettings["urlDASI_Trattazione"];
     }
 }

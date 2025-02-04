@@ -42,7 +42,7 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string n_atto { get; set; }
         public string data_presentazione { get; set; }
         public PersonaPublicDto proponente { get; set; } = new PersonaPublicDto();
-        public string tipo_risposta { get; set; }
+        public string tipo_risposta_richiesta { get; set; }
         public string stato { get; set; }
         public string area_politica { get; set; }
 
@@ -70,10 +70,11 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public List<NoteDto> note { get; set; } = new List<NoteDto>();
         public string data_comunicazione_assemblea { get; set; }
         public string link_testo_originale { get; set; }
-        public string link_testo_presentato { get; set; }
+        public string link_testo_trattazione { get; set; }
         public List<KeyValueDto> proponenti { get; set; } = new List<KeyValueDto>();
         public PersonaPublicDto relatore1 { get; set; }
         public PersonaPublicDto relatore2 { get; set; }
         public PersonaPublicDto relatore_minoranza { get; set; }
+        public string tipo_risposta_fornita { get; set; }
     }
 }

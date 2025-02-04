@@ -17,12 +17,14 @@
  */
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
@@ -67,6 +69,7 @@ namespace PortaleRegione.Client.Controllers
 
         internal static string apiUrl = AppSettingsConfiguration.URL_API_PUBLIC;
 
+
         [HttpGet]
         [Route("public/web/{id:guid}")]
         public async Task<ActionResult> GetAtto(Guid id)
@@ -76,12 +79,52 @@ namespace PortaleRegione.Client.Controllers
 
             using (var httpClient = new HttpClient())
             {
+                httpClient.Timeout = TimeSpan.FromSeconds(10);
+
                 var jsonBody = JsonConvert.SerializeObject(body);
                 var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync(url, content);
-                var stringResponse = await response.Content.ReadAsStringAsync();
+                HttpResponseMessage response;
+                try
+                {
+                    response = await httpClient.PostAsync(url, content);
+                }
+                catch (TaskCanceledException ex)
+                {
+                    // Se il task viene cancellato (tipicamente per timeout)
+                    return Json(new ErrorResponse("Timeout: l'endpoint non ha risposto in tempo."), JsonRequestBehavior.AllowGet);
+                }
+                catch (Exception ex)
+                {
+                    // Gestisce altri errori generici di connessione
+                    return Json(new ErrorResponse("Si è verificato un errore durante la chiamata all'endpoint."), JsonRequestBehavior.AllowGet);
+                }
 
+                // Se il codice di stato non indica successo, gestiamo i casi specifici
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.NotFound:
+                            return Json(new ErrorResponse($"Errore 404 - Endpoint non trovato."), JsonRequestBehavior.AllowGet);
+                        case HttpStatusCode.BadRequest:
+                            return Json(new ErrorResponse($"Errore 400 - Richiesta non valida."), JsonRequestBehavior.AllowGet);
+                        case HttpStatusCode.Unauthorized:
+                            return Json(new ErrorResponse($"Errore 401 - Non autorizzato."), JsonRequestBehavior.AllowGet);
+                        case HttpStatusCode.Forbidden:
+                            return Json(new ErrorResponse($"Errore 403 - Accesso proibito."), JsonRequestBehavior.AllowGet);
+                        case HttpStatusCode.InternalServerError:
+                            return Json(new ErrorResponse(
+                                $"Errore 500 - Errore interno del server."), JsonRequestBehavior.AllowGet);
+                        default:
+                            return Json(new ErrorResponse(
+                                $"Errore {response.StatusCode} - Risposta non valida dall'endpoint."), JsonRequestBehavior.AllowGet);
+                    }
+                }
+
+                // Se tutto va bene, leggo la risposta e la restituisco in formato JSON
+                var stringResponse = await response.Content.ReadAsStringAsync();
                 return Json(stringResponse, JsonRequestBehavior.AllowGet);
             }
         }

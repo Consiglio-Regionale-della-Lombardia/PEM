@@ -293,7 +293,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 var firme = await GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
 
                 var linkTestoOriginale = $"{AppSettingsConfigurationHelper.urlDASI_Originale.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
-                var linkTestoPresentato = $"{AppSettingsConfigurationHelper.urlDASI_Presentato.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+                var linkTestoTrattazione = $"{AppSettingsConfigurationHelper.urlDASI_Trattazione.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
 
                 var attoDto = new AttoDasiPublicDto
                 {
@@ -308,7 +308,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     n_atto = attoInDb.NAtto_search.ToString(),
                     data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
                         AppSettingsConfigurationHelper.masterKey),
-                    tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
+                    tipo_risposta_richiesta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
+                    tipo_risposta_fornita = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta_Effettiva.GetValueOrDefault(0)),
                     area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
                     data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
                     data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
@@ -330,7 +331,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     burl = attoInDb.BURL,
                     note = note,
                     link_testo_originale = linkTestoOriginale,
-                    link_testo_presentato = linkTestoPresentato
+                    link_testo_trattazione = linkTestoTrattazione
                 };
 
                 if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)

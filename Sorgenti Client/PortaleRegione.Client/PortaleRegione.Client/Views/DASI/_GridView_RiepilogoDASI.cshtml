@@ -344,7 +344,7 @@ else
 
                     if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                     {
-                        <button type="button" role="button" class="btn-flat blue-text" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
+                        <button type="button" role="button" class="btn-flat blue-text" onclick="goToGeasi('@item.UIDAtto', '@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
                             Vedi Banca Dati
                         </button>
                     }
