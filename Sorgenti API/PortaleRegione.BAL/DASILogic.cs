@@ -855,6 +855,10 @@ namespace PortaleRegione.API.Controllers
                 queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.Organi), queryExtended.Organi, int.Parse,
                 queryExtended);
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.Organi_Commissione), queryExtended.Organi_Commissione, int.Parse,
+                queryExtended);
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.Organi_Giunta), queryExtended.Organi_Giunta, int.Parse,
+                queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.IDStato), queryExtended.Stati, int.Parse, queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.Tipo), queryExtended.Tipi, int.Parse, queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.IDTipo_Risposta), queryExtended.TipiRispostaRichiesta,

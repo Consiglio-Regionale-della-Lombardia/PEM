@@ -36,6 +36,8 @@ public class QueryExtendedRequest
     public List<Guid> AttiDaFirmare { get; set; } = new List<Guid>();
     public List<int> Risposte { get; set; } = new List<int>();
     public List<int> Organi { get; set; } = new List<int>();
+    public List<int> Organi_Commissione { get; set; } = new List<int>();
+    public List<int> Organi_Giunta { get; set; } = new List<int>();
     public List<DateTime> DataTrasmissione { get; set; } = new List<DateTime>();
     public bool DataTrasmissioneIsNull { get; set; } = false;
     public bool RispostaMancante { get; set; } = false;

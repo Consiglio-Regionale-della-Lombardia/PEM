@@ -188,6 +188,8 @@ public class AttoDASIDto
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public List<OrganoDto> Organi { get; set; } = new List<OrganoDto>();
+    public List<OrganoDto> Organi_Commissione { get; set; } = new List<OrganoDto>();
+    public List<OrganoDto> Organi_Giunta { get; set; } = new List<OrganoDto>();
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Commissioni_client { get; set; }

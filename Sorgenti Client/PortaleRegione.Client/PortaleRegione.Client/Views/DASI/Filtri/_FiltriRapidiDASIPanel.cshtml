@@ -60,6 +60,8 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIReportDto), nameof(AttoDASIReportDto.Documenti))", id: "@nameof(AttoDASIDto.Documenti)"},
 	{ tag:"Tipo risposta fornita", id: "@nameof(AttoDASIDto.Risposte)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi))", id: "@nameof(AttoDASIDto.Organi)"},
+    { tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi_Commissione))", id: "@nameof(AttoDASIDto.Organi_Commissione)"},
+    { tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi_Giunta))", id: "@nameof(AttoDASIDto.Organi_Giunta)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataTrasmissione))", id: "@nameof(AttoDASIDto.DataTrasmissione)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataTrattazione))", id: "@nameof(AttoDASIDto.DataTrattazione)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataComunicazioneAssemblea))", id: "@nameof(AttoDASIDto.DataComunicazioneAssemblea)"},
@@ -549,6 +551,40 @@ document.addEventListener('DOMContentLoaded', async function() {
 				}
 				text += chipInnerText;
 				val += item.getAttribute('data-organo-id');
+			});
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Organi_Commissione)") {
+			text = "";
+			val = "";
+			var existingChips = document.querySelectorAll(`.chip[data-organo-commissione-id]`);
+			existingChips.forEach(function (item, index){
+				var chipInnerText = Array.from(item.childNodes)
+					.filter(node => node.nodeType === Node.TEXT_NODE)
+					.map(node => node.textContent.trim())
+					.join('');
+				if (index > 0) {
+					text += ", ";
+					val += ",";
+				}
+				text += chipInnerText;
+				val += item.getAttribute('data-organo-commissione-id');
+			});
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.Organi_Giunta)") {
+			text = "";
+			val = "";
+			var existingChips = document.querySelectorAll(`.chip[data-organo-giunta-id]`);
+			existingChips.forEach(function (item, index){
+				var chipInnerText = Array.from(item.childNodes)
+					.filter(node => node.nodeType === Node.TEXT_NODE)
+					.map(node => node.textContent.trim())
+					.join('');
+				if (index > 0) {
+					text += ", ";
+					val += ",";
+				}
+				text += chipInnerText;
+				val += item.getAttribute('data-organo-giunta-id');
 			});
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.Legislatura)") {
@@ -1680,6 +1716,13 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
             if (legislaturaChip) {
 	            var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
 				var persone = await GetProponenti(idLegislatura);
 				selectHTML = `<div class="input-field col s12">
 	            <i class="material-icons prefix">search</i>
@@ -1763,6 +1806,13 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
             if (legislaturaChip) {
 	            var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
 				var persone = await GetProponenti(idLegislatura);
 				selectHTML = `<div class="input-field col s12">
 	            <i class="material-icons prefix">search</i>
@@ -1865,6 +1915,13 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
 			if (legislaturaChip) {
 				var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
 				var abbinamenti = await GetAbbinamentiDisponibili(idLegislatura);
 				selectHTML = `<div class="input-field col s12">
                 <i class="material-icons prefix">search</i>
@@ -1954,6 +2011,13 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
 			if (legislaturaChip) {
 				var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
 				var gruppi = await GetGruppiByLegislatura(idLegislatura);
 
 				var selectHTML = '<select id="gruppi-select">';
@@ -2076,6 +2140,13 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
 			if (legislaturaChip) {
 				var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
 				var gruppi = await GetGruppiByLegislatura(idLegislatura);
 
 				var selectHTML = '<select id="gruppi-firmatari-select">';
@@ -2198,6 +2269,15 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
 			if (legislaturaChip) {
 				var idLegislatura = legislaturaChip.getAttribute('data-val');
+
+				if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+
 				var organi = await GetOrganiDisponibili(idLegislatura);
 				selectHTML = `<div class="input-field col s12">
                 <i class="material-icons prefix">search</i>
@@ -2260,6 +2340,201 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 						if (item) {
 							var newChip = document.createElement('div');
 							newChip.setAttribute('data-organo-id', item.id);
+							newChip.classList.add('chip');
+							newChip.textContent = item.tag;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerOrgani.appendChild(newChip);
+						}
+					});
+				}
+			}else{
+				swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+				    .then(() => {
+						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+				    });
+			}
+            break;
+        case '@nameof(AttoDASIDto.Organi_Commissione)':
+			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+			if (legislaturaChip) {
+				var idLegislatura = legislaturaChip.getAttribute('data-val');
+
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+
+				var organi = await GetOrganiDisponibili(idLegislatura);
+				selectHTML = `<div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-autocomplete" class="autocomplete">
+
+		        <div id="organi-selected"></div>
+             </div>
+			  <div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>La ricerca è effettuata sulle commissioni.
+					</p>
+				</div>
+			</div>`;
+
+				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+				var data = [];
+				organi.forEach(function (item) {
+					data.push({
+						tag: `${item.nome_organo}`,
+						id: `${item.id_organo}`
+					});
+				});
+				var elems = document.querySelectorAll('#organi-autocomplete');
+				var instances = M.Autocomplete.init(elems, {
+					data: data,
+					limit: 20,
+					minLength: 2,
+					onAutocomplete: function (txt, key) {
+
+						var existingChip = document.querySelector(`.chip[data-organo-commissione-id="${key}"]`);
+						if (!existingChip) {
+							var chipsContainerOrgano = document.getElementById('organi-selected');
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-organo-commissione-id', key);
+							newChip.classList.add('chip');
+							newChip.textContent = txt;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerOrgano.appendChild(newChip);
+						}
+
+						document.getElementById('organi-autocomplete').value = "";
+					}
+				});
+
+				if (isEditing) {
+					var currentValueArray = currentValue.split(',');
+					var chipsContainerOrgani = document.getElementById('organi-selected');
+					currentValueArray.forEach(function (guid) {
+						var item = data.find(item => item.id === guid);
+						if (item) {
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-organo-commissione-id', item.id);
+							newChip.classList.add('chip');
+							newChip.textContent = item.tag;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerOrgani.appendChild(newChip);
+						}
+					});
+				}
+			}else{
+				swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+				    .then(() => {
+						$('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+				    });
+			}
+            break;
+        case '@nameof(AttoDASIDto.Organi_Giunta)':
+			var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+			if (legislaturaChip) {
+				var idLegislatura = legislaturaChip.getAttribute('data-val');
+
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+				var organi = await GetOrganiDisponibili(idLegislatura);
+				selectHTML = `<div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-autocomplete" class="autocomplete">
+
+		        <div id="organi-selected"></div>
+             </div>
+			  <div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>La ricerca è effettuata sulla giunta.
+					</p>
+				</div>
+			</div>`;
+
+				document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+				var data = [];
+				organi.forEach(function (item) {
+					data.push({
+						tag: `${item.nome_organo}`,
+						id: `${item.id_organo}`
+					});
+				});
+				var elems = document.querySelectorAll('#organi-autocomplete');
+				var instances = M.Autocomplete.init(elems, {
+					data: data,
+					limit: 20,
+					minLength: 2,
+					onAutocomplete: function (txt, key) {
+
+						var existingChip = document.querySelector(`.chip[data-organo-giunta-id="${key}"]`);
+						if (!existingChip) {
+							var chipsContainerOrgano = document.getElementById('organi-selected');
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-organo-giunta-id', key);
+							newChip.classList.add('chip');
+							newChip.textContent = txt;
+
+							var closeIcon = document.createElement('i');
+							closeIcon.classList.add('close', 'material-icons');
+							closeIcon.style.setProperty('top', 'unset', 'important');
+							closeIcon.textContent = 'close';
+							closeIcon.onclick = function () {
+								newChip.remove();
+							};
+							newChip.appendChild(closeIcon);
+
+							chipsContainerOrgano.appendChild(newChip);
+						}
+
+						document.getElementById('organi-autocomplete').value = "";
+					}
+				});
+
+				if (isEditing) {
+					var currentValueArray = currentValue.split(',');
+					var chipsContainerOrgani = document.getElementById('organi-selected');
+					currentValueArray.forEach(function (guid) {
+						var item = data.find(item => item.id === guid);
+						if (item) {
+							var newChip = document.createElement('div');
+							newChip.setAttribute('data-organo-giunta-id', item.id);
 							newChip.classList.add('chip');
 							newChip.textContent = item.tag;
 

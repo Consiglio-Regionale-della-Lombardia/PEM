@@ -1631,6 +1631,30 @@ namespace PortaleRegione.Persistance
                                             || commissioniProponentiQuery.Contains(atto.UIDAtto)
                                             || monitoraggioQuery.Contains(atto.UIDAtto));
             }
+            
+            if (queryExtended.Organi_Commissione.Any())
+            {
+                var risposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(organo => queryExtended.Organi_Commissione.Contains(organo.IdOrgano) 
+                                     && organo.TipoOrgano.Equals((int)TipoOrganoEnum.COMMISSIONE))
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
+            }
+            
+            if (queryExtended.Organi_Giunta.Any())
+            {
+                var risposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(organo => queryExtended.Organi_Giunta.Contains(organo.IdOrgano) 
+                                     && organo.TipoOrgano.Equals((int)TipoOrganoEnum.GIUNTA))
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
+            }
 
             if (queryExtended.DataSeduta.Any())
             {
