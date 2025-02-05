@@ -56,6 +56,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                 {
                     throw new Exception("Nessun worksheet trovato nel file.");
                 }
+
                 var worksheetFirme = package.Workbook.Worksheets.First(w => w.Name.Equals(foglioFirme));
                 var cellsFirme = worksheetFirme.Cells;
                 var rowCountF = worksheetFirme.Dimension.Rows;
@@ -289,6 +290,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var etichettaAtto = $"{tipoAttoEnum}_{numeroAtto}_{legislatura.num_legislatura}";
                                 var etichettaAtto_Cifrata =
                                     CryptoHelper.EncryptString(etichettaAtto, AppsettingsConfiguration.MASTER_KEY);
+
+                                if (etichettaAtto == "ITR_2091_XII")
+                                {
+                                }
+                                else
+                                {
+                                    continue;
+                                }
 
                                 var queryExists = @"SELECT UIDAtto FROM [ATTI_DASI] WHERE Etichetta = @Etichetta";
 
@@ -587,49 +596,55 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 #region FIRME
 
-                                // Itera attraverso le righe del foglio delle firme
-                                for (var rowF = 2; rowF <= rowCountF; rowF++)
+                                if (!update)
                                 {
-                                    // Ottieni il valore della cella nella seconda colonna della riga corrente
-                                    var valoreCella = cellsFirme[rowF, 2].Value;
-
-                                    // Verifica se il valore della cella corrisponde al numeroAtto
-                                    if (valoreCella != null && valoreCella.ToString() == nodeIdFromAlfresco)
+                                    // Itera attraverso le righe del foglio delle firme
+                                    for (var rowF = 2; rowF <= rowCountF; rowF++)
                                     {
-                                        var data_firma = string.Empty;
-                                        // Se il valore della cella corrisponde, aggiungi la riga alla lista
-                                        if (cellsFirme[rowF, 8].Value != null && !string.IsNullOrEmpty(cellsFirme[rowF, 8].Value.ToString()))
-                                            data_firma = ParseDateTime(Convert.ToString(cellsFirme[rowF, 8].Value))
-                                                .ToString("dd/MM/yyyy HH:mm:ss");
-                                        if (string.IsNullOrEmpty(data_firma))
-                                            throw new Exception($"Data firma non valida [{cellsFirme[rowF, 8].Value}].");
+                                        // Ottieni il valore della cella nella seconda colonna della riga corrente
+                                        var valoreCella = cellsFirme[rowF, 2].Value;
 
-                                        var data_ritiro_firma = Convert.ToString(cellsFirme[rowF, 9].Value);
-                                        var id_persona = cellsFirme[rowF, 10].Value.ToString();
-                                        var nome_firmatario = cellsFirme[rowF, 14].Value.ToString().Trim();
-                                        var primo_firmatario = Convert.ToBoolean(cellsFirme[rowF, 16].Value);
-                                        var find_uid_persona = GetUidPersona(connection, int.Parse(id_persona));
-
-                                        if (!Guid.TryParse(Convert.ToString(find_uid_persona), out var guid))
+                                        // Verifica se il valore della cella corrisponde al numeroAtto
+                                        if (valoreCella != null && valoreCella.ToString() == nodeIdFromAlfresco)
                                         {
-                                            find_uid_persona = Guid.NewGuid();
-                                            var queryInsertPersona =
-                                                @"INSERT INTO join_persona_AD (UID_persona, id_persona)
+                                            var data_firma = string.Empty;
+                                            // Se il valore della cella corrisponde, aggiungi la riga alla lista
+                                            if (cellsFirme[rowF, 8].Value != null &&
+                                                !string.IsNullOrEmpty(cellsFirme[rowF, 8].Value.ToString()))
+                                                data_firma = ParseDateTime(Convert.ToString(cellsFirme[rowF, 8].Value))
+                                                    .ToString("dd/MM/yyyy HH:mm:ss");
+                                            if (string.IsNullOrEmpty(data_firma))
+                                                throw new Exception(
+                                                    $"Data firma non valida [{cellsFirme[rowF, 8].Value}].");
+
+                                            var data_ritiro_firma = Convert.ToString(cellsFirme[rowF, 9].Value);
+                                            var id_persona = cellsFirme[rowF, 10].Value.ToString();
+                                            var nome_firmatario = cellsFirme[rowF, 14].Value.ToString().Trim();
+                                            var primo_firmatario = Convert.ToBoolean(cellsFirme[rowF, 16].Value);
+                                            var find_uid_persona = GetUidPersona(connection, int.Parse(id_persona));
+
+                                            if (!Guid.TryParse(Convert.ToString(find_uid_persona), out var guid))
+                                            {
+                                                find_uid_persona = Guid.NewGuid();
+                                                var queryInsertPersona =
+                                                    @"INSERT INTO join_persona_AD (UID_persona, id_persona)
                                        VALUES
                                      (@UID_persona, @id_persona)";
-                                            // Esegui la query di inserimento dei dati nella tabella ATTI_FIRME
-                                            using (var commandInsertPersona =
-                                                   new SqlCommand(queryInsertPersona, connection))
-                                            {
-                                                commandInsertPersona.Parameters.AddWithValue("@UID_persona",
-                                                    find_uid_persona);
-                                                commandInsertPersona.Parameters.AddWithValue("@id_persona", id_persona);
-                                                commandInsertPersona.ExecuteNonQuery(); // Esegui l'inserimento dei dati
+                                                // Esegui la query di inserimento dei dati nella tabella ATTI_FIRME
+                                                using (var commandInsertPersona =
+                                                       new SqlCommand(queryInsertPersona, connection))
+                                                {
+                                                    commandInsertPersona.Parameters.AddWithValue("@UID_persona",
+                                                        find_uid_persona);
+                                                    commandInsertPersona.Parameters.AddWithValue("@id_persona",
+                                                        id_persona);
+                                                    commandInsertPersona
+                                                        .ExecuteNonQuery(); // Esegui l'inserimento dei dati
+                                                }
                                             }
-                                        }
 
-                                        var queryInsertFirmatario =
-                                            @"IF NOT EXISTS (
+                                            var queryInsertFirmatario =
+                                                @"IF NOT EXISTS (
                                                 SELECT 1
                                                 FROM ATTI_FIRME
                                                 WHERE UIDAtto = @UIDAtto AND UID_persona = @UID_persona
@@ -640,69 +655,73 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                                 (@UIDAtto, @UID_persona, @FirmaCert, @Data_firma{PARAM_DATA_RITIRO_FIRMA}, @PrimoFirmatario, @id_gruppo, @Timestamp, 1, 1)
                                             END";
 
-                                        if (string.IsNullOrEmpty(data_ritiro_firma))
-                                            queryInsertFirmatario = queryInsertFirmatario
-                                                .Replace("{FIELD_DATA_RITIRO_FIRMA}", "")
-                                                .Replace("{PARAM_DATA_RITIRO_FIRMA}", "");
-                                        else
-                                            queryInsertFirmatario = queryInsertFirmatario
-                                                .Replace("{FIELD_DATA_RITIRO_FIRMA}", ", Data_ritirofirma")
-                                                .Replace("{PARAM_DATA_RITIRO_FIRMA}", ", @Data_ritirofirma");
-
-                                        var id_gruppo_firmatario =
-                                            ParseNomeFirmatarioToGruppo(nome_firmatario, legislatura.id_legislatura);
-
-                                        // Esegui la query di inserimento dei dati nella tabella ATTI_FIRME
-                                        using (var commandInsertFirmatario =
-                                               new SqlCommand(queryInsertFirmatario, connection))
-                                        {
-                                            commandInsertFirmatario.Parameters.AddWithValue("@UIDAtto",
-                                                attoImportato.UidAtto);
-                                            commandInsertFirmatario.Parameters.AddWithValue("@UID_persona",
-                                                find_uid_persona);
-                                            commandInsertFirmatario.Parameters.AddWithValue("@FirmaCert",
-                                                CryptoHelper.EncryptString(nome_firmatario,
-                                                    AppsettingsConfiguration.MASTER_KEY));
-                                            commandInsertFirmatario.Parameters.AddWithValue("@Data_firma",
-                                                CryptoHelper.EncryptString(data_firma,
-                                                    AppsettingsConfiguration.MASTER_KEY));
                                             if (string.IsNullOrEmpty(data_ritiro_firma))
-                                            {
-                                                // Ignored
-                                            }
+                                                queryInsertFirmatario = queryInsertFirmatario
+                                                    .Replace("{FIELD_DATA_RITIRO_FIRMA}", "")
+                                                    .Replace("{PARAM_DATA_RITIRO_FIRMA}", "");
                                             else
+                                                queryInsertFirmatario = queryInsertFirmatario
+                                                    .Replace("{FIELD_DATA_RITIRO_FIRMA}", ", Data_ritirofirma")
+                                                    .Replace("{PARAM_DATA_RITIRO_FIRMA}", ", @Data_ritirofirma");
+
+                                            var id_gruppo_firmatario =
+                                                ParseNomeFirmatarioToGruppo(nome_firmatario,
+                                                    legislatura.id_legislatura);
+
+                                            // Esegui la query di inserimento dei dati nella tabella ATTI_FIRME
+                                            using (var commandInsertFirmatario =
+                                                   new SqlCommand(queryInsertFirmatario, connection))
                                             {
-                                                commandInsertFirmatario.Parameters.AddWithValue("@Data_ritirofirma",
-                                                    CryptoHelper.EncryptString(
-                                                        ParseDateTime(data_ritiro_firma)
-                                                            .ToString("dd/MM/yyyy HH:mm:ss"),
+                                                commandInsertFirmatario.Parameters.AddWithValue("@UIDAtto",
+                                                    attoImportato.UidAtto);
+                                                commandInsertFirmatario.Parameters.AddWithValue("@UID_persona",
+                                                    find_uid_persona);
+                                                commandInsertFirmatario.Parameters.AddWithValue("@FirmaCert",
+                                                    CryptoHelper.EncryptString(nome_firmatario,
                                                         AppsettingsConfiguration.MASTER_KEY));
+                                                commandInsertFirmatario.Parameters.AddWithValue("@Data_firma",
+                                                    CryptoHelper.EncryptString(data_firma,
+                                                        AppsettingsConfiguration.MASTER_KEY));
+                                                if (string.IsNullOrEmpty(data_ritiro_firma))
+                                                {
+                                                    // Ignored
+                                                }
+                                                else
+                                                {
+                                                    commandInsertFirmatario.Parameters.AddWithValue("@Data_ritirofirma",
+                                                        CryptoHelper.EncryptString(
+                                                            ParseDateTime(data_ritiro_firma)
+                                                                .ToString("dd/MM/yyyy HH:mm:ss"),
+                                                            AppsettingsConfiguration.MASTER_KEY));
+                                                }
+
+                                                commandInsertFirmatario.Parameters.AddWithValue("@PrimoFirmatario",
+                                                    Convert.ToBoolean(primo_firmatario));
+                                                commandInsertFirmatario.Parameters.AddWithValue("@id_gruppo",
+                                                    id_gruppo_firmatario);
+                                                commandInsertFirmatario.Parameters.AddWithValue("@Timestamp",
+                                                    ParseDateTime(data_firma));
+                                                commandInsertFirmatario
+                                                    .ExecuteNonQuery(); // Esegui l'inserimento dei dati
                                             }
 
-                                            commandInsertFirmatario.Parameters.AddWithValue("@PrimoFirmatario",
-                                                Convert.ToBoolean(primo_firmatario));
-                                            commandInsertFirmatario.Parameters.AddWithValue("@id_gruppo",
-                                                id_gruppo_firmatario);
-                                            commandInsertFirmatario.Parameters.AddWithValue("@Timestamp",
-                                                ParseDateTime(data_firma));
-                                            commandInsertFirmatario.ExecuteNonQuery(); // Esegui l'inserimento dei dati
-                                        }
+                                            chkf++;
 
-                                        chkf++;
-
-                                        if (Convert.ToBoolean(primo_firmatario))
-                                        {
-                                            proponenteId = (Guid)find_uid_persona;
-                                            id_gruppo = id_gruppo_firmatario;
+                                            if (Convert.ToBoolean(primo_firmatario))
+                                            {
+                                                proponenteId = (Guid)find_uid_persona;
+                                                id_gruppo = id_gruppo_firmatario;
+                                            }
                                         }
                                     }
-                                }
 
-                                if (tipoAttoEnum != TipoAttoEnum.RIS)
-                                {
-                                    if (chkf == 0) throw new Exception("Nessuna firma trovata per l'atto.");
+                                    if (tipoAttoEnum != TipoAttoEnum.RIS)
+                                    {
+                                        if (chkf == 0) throw new Exception("Nessuna firma trovata per l'atto.");
 
-                                    if (chkf > 0 && id_gruppo == 0) throw new Exception("Nessun proponente trovato.");
+                                        if (chkf > 0 && id_gruppo == 0)
+                                            throw new Exception("Nessun proponente trovato.");
+                                    }
                                 }
 
                                 #endregion
@@ -1010,9 +1029,11 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var statoAttuazione = Convert.ToString(cellsAtti[row, 70].Value);
                                 var dataTrasmissioneMonitoraggio = Convert.ToString(cellsAtti[row, 73].Value);
                                 var conclusoMonitoraggioFromAlfresco = Convert.ToString(cellsAtti[row, 74].Value);
-                                var monitoraggioConcluso = !string.IsNullOrEmpty(conclusoMonitoraggioFromAlfresco) && conclusoMonitoraggioFromAlfresco.Equals("1");
+                                var monitoraggioConcluso = !string.IsNullOrEmpty(conclusoMonitoraggioFromAlfresco) &&
+                                                           conclusoMonitoraggioFromAlfresco.Equals("1");
 
-                                var privacy_dati_personali_giudiziari_sn = cellsAtti[row, 53].Value != null && cellsAtti[row, 53].Value.Equals("1");
+                                var privacy_dati_personali_giudiziari_sn = cellsAtti[row, 53].Value != null &&
+                                                                           cellsAtti[row, 53].Value.Equals("1");
                                 var privacy_divieto_pubblicazione_salute_sn =
                                     cellsAtti[row, 54].Value != null &&
                                     cellsAtti[row, 54].Value.Equals("1");
@@ -1021,11 +1042,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     cellsAtti[row, 55].Value.Equals("1");
                                 var privacy_divieto_pubblicazione_sn = cellsAtti[row, 56].Value != null &&
                                                                        cellsAtti[row, 56].Value.Equals("1");
-                                var privacy_dati_personali_sensibili_sn = cellsAtti[row, 57].Value != null && cellsAtti[row, 57].Value.Equals("1");
+                                var privacy_dati_personali_sensibili_sn = cellsAtti[row, 57].Value != null &&
+                                                                          cellsAtti[row, 57].Value.Equals("1");
                                 var privacy_divieto_pubblicazione_altri_sn =
                                     cellsAtti[row, 58].Value != null && cellsAtti[row, 58].Value.Equals("1");
-                                var privacy_dati_personali_semplici_sn = cellsAtti[row, 59].Value != null && cellsAtti[row, 59].Value.Equals("1");
-                                var privacy_sn = cellsAtti[row, 60].Value != null && cellsAtti[row, 60].Value.Equals("1");
+                                var privacy_dati_personali_semplici_sn = cellsAtti[row, 59].Value != null &&
+                                                                         cellsAtti[row, 59].Value.Equals("1");
+                                var privacy_sn = cellsAtti[row, 60].Value != null &&
+                                                 cellsAtti[row, 60].Value.Equals("1");
 
                                 //Risposte
                                 var dataTrasmissione = Convert.ToString(cellsAtti[row, 99].Value);
@@ -1320,6 +1344,10 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@UIDPersonaPrimaFirma", proponenteId);
                                         command.Parameters.AddWithValue("@id_gruppo", id_gruppo);
                                         command.Parameters.AddWithValue("@chkf", chkf);
+                                        if (etichettaAtto == "ITR_2091_XII")
+                                        {
+                                        }
+
                                         command.Parameters.AddWithValue("@AreaPolitica", ParseDescr2Enum_Area(area));
                                         command.Parameters.AddWithValue("@Pubblicato", pubblicato);
                                         command.Parameters.AddWithValue("@Sollecito", sollecito);
@@ -1720,6 +1748,10 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     {
                                         // Assegna i valori dei parametri
                                         command.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
+                                        if (etichettaAtto == "ITR_2091_XII")
+                                        {
+                                        }
+
                                         command.Parameters.AddWithValue("@AreaPolitica", ParseDescr2Enum_Area(area));
                                         command.Parameters.AddWithValue("@Pubblicato", pubblicato);
                                         command.Parameters.AddWithValue("@Sollecito", sollecito);
@@ -2317,9 +2349,13 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
 
         private static int ParseDescr2Enum_Area(string area)
         {
+            area = area.Trim();
+            if (string.IsNullOrEmpty(area))
+                return (int)AreaPoliticaIntEnum.Misto;
             switch (area.ToLower())
             {
                 case "maggioranza":
+                case "monoranza":
                     return (int)AreaPoliticaIntEnum.Maggioranza;
                 case "minoranza":
                     return (int)AreaPoliticaIntEnum.Minoranza;
@@ -2329,8 +2365,12 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                     return (int)AreaPoliticaIntEnum.Misto_Minoranza;
                 case "misto maggioranza":
                     return (int)AreaPoliticaIntEnum.Misto_Maggioranza;
-                default:
+                case "misto":
                     return (int)AreaPoliticaIntEnum.Misto;
+                default:
+                {
+                    return (int)AreaPoliticaIntEnum.Misto;
+                }
             }
         }
 
