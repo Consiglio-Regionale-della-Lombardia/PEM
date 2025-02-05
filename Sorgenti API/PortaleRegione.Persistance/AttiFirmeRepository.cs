@@ -257,13 +257,13 @@ namespace PortaleRegione.Persistance
                 .ATTI_FIRME
                 .SingleOrDefaultAsync(f =>
                     f.UIDAtto == atto.UIDAtto
-                    && f.UID_persona == atto.UIDPersonaProponente
+                    && f.PrimoFirmatario
                     && f.Valida);
 
             var query = PRContext
                 .ATTI_FIRME
                 .Where(f => f.UIDAtto == atto.UIDAtto
-                            && f.UID_persona != atto.UIDPersonaProponente
+                            && !f.PrimoFirmatario
                             && f.Valida);
             switch (tipo)
             {

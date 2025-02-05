@@ -1268,11 +1268,11 @@ namespace PortaleRegione.API.Controllers
             if (firme.Any())
             {
                 if (firme
-                        .Count(f => f.UID_persona != attoInDb.UIDPersonaProponente
-                                    && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
+                        .Count(f => !f.PrimoFirmatario
+                                    && string.IsNullOrEmpty(f.Data_ritirofirma)) >= 1)
                 {
                     dto.Firme = firme
-                        .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente
+                        .Where(f => !f.PrimoFirmatario
                                     && string.IsNullOrEmpty(f.Data_ritirofirma))
                         .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
                         .Aggregate((i, j) => i + "<br>" + j);
@@ -1386,11 +1386,11 @@ namespace PortaleRegione.API.Controllers
                         if (firme.Any())
                         {
                             if (firme
-                                    .Count(f => f.UID_persona != attoInDb.UIDPersonaProponente
-                                                && string.IsNullOrEmpty(f.Data_ritirofirma)) > 1)
+                                    .Count(f => !f.PrimoFirmatario
+                                                && string.IsNullOrEmpty(f.Data_ritirofirma)) >= 1)
                             {
                                 dto.Firme = firme
-                                    .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente
+                                    .Where(f => !f.PrimoFirmatario
                                                 && string.IsNullOrEmpty(f.Data_ritirofirma))
                                     .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
                                     .Aggregate((i, j) => i + "<br>" + j);
