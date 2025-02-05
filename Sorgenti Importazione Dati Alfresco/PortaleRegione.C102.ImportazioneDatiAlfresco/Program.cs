@@ -144,6 +144,17 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     })
                     .ToList();
 
+                var updateAttiChiusiRitirati =
+                    @"UPDATE ATTI_DASI SET IDStato=14 WHERE IDStato=15";
+                using (var connection = new SqlConnection(AppsettingsConfiguration.CONNECTIONSTRING))
+                {
+                    connection.Open();
+                    using (var commandUpdateAttiChiusiRitirati = new SqlCommand(updateAttiChiusiRitirati, connection))
+                    {
+                        var resQuery = commandUpdateAttiChiusiRitirati.ExecuteNonQuery();
+                    }
+                }
+
                 var insertSeduta =
                     @"INSERT INTO SEDUTE (UIDSeduta, Data_seduta, Data_apertura, Data_effettiva_inizio, Data_effettiva_fine, id_legislatura, Note, DataCreazione) 
                      VALUES (@UIDSeduta, @Data_seduta, @Data_apertura, @Data_effettiva_inizio, @Data_effettiva_fine, @id_legislatura, @Note, GETDATE())";
@@ -290,15 +301,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var etichettaAtto = $"{tipoAttoEnum}_{numeroAtto}_{legislatura.num_legislatura}";
                                 var etichettaAtto_Cifrata =
                                     CryptoHelper.EncryptString(etichettaAtto, AppsettingsConfiguration.MASTER_KEY);
-
-                                if (etichettaAtto == "ITR_2091_XII")
-                                {
-                                }
-                                else
-                                {
-                                    continue;
-                                }
-
+                                
                                 var queryExists = @"SELECT UIDAtto FROM [ATTI_DASI] WHERE Etichetta = @Etichetta";
 
                                 var update = false;
@@ -311,12 +314,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     if (result != null)
                                     {
                                         attoImportato.UidAtto = new Guid(result.ToString());
-                                        //Console.WriteLine($"[{row}/{rowCount}] {etichettaAtto}");
-                                        //attiImportati.Add(nodeIdFromAlfresco, attoImportato);
-
-                                        //sb.AppendLine(
-                                        //    $"{foglio}, {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}, Il record esiste già.");
-                                        //continue;
                                         update = true;
                                     }
                                 }
@@ -663,10 +660,9 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                                 queryInsertFirmatario = queryInsertFirmatario
                                                     .Replace("{FIELD_DATA_RITIRO_FIRMA}", ", Data_ritirofirma")
                                                     .Replace("{PARAM_DATA_RITIRO_FIRMA}", ", @Data_ritirofirma");
-
+                                            
                                             var id_gruppo_firmatario =
-                                                ParseNomeFirmatarioToGruppo(nome_firmatario,
-                                                    legislatura.id_legislatura);
+                                                GetIdGruppoFromFunction(int.Parse(id_persona), ParseDateTime(data_firma));
 
                                             // Esegui la query di inserimento dei dati nella tabella ATTI_FIRME
                                             using (var commandInsertFirmatario =
@@ -1344,10 +1340,6 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                         command.Parameters.AddWithValue("@UIDPersonaPrimaFirma", proponenteId);
                                         command.Parameters.AddWithValue("@id_gruppo", id_gruppo);
                                         command.Parameters.AddWithValue("@chkf", chkf);
-                                        if (etichettaAtto == "ITR_2091_XII")
-                                        {
-                                        }
-
                                         command.Parameters.AddWithValue("@AreaPolitica", ParseDescr2Enum_Area(area));
                                         command.Parameters.AddWithValue("@Pubblicato", pubblicato);
                                         command.Parameters.AddWithValue("@Sollecito", sollecito);
@@ -1748,10 +1740,6 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                     {
                                         // Assegna i valori dei parametri
                                         command.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
-                                        if (etichettaAtto == "ITR_2091_XII")
-                                        {
-                                        }
-
                                         command.Parameters.AddWithValue("@AreaPolitica", ParseDescr2Enum_Area(area));
                                         command.Parameters.AddWithValue("@Pubblicato", pubblicato);
                                         command.Parameters.AddWithValue("@Sollecito", sollecito);
@@ -2213,45 +2201,24 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
             }
         }
 
-        private static int ParseNomeFirmatarioToGruppo(string input, int legislaturaId)
+        private static int GetIdGruppoFromFunction(int idPersona, DateTime dataFirma)
         {
-            var pattern = @"\((.*?)\)"; // Cerca il testo all'interno delle parentesi tonde
+            var query = "SELECT dbo.get_IDgruppoNelPeriodo_from_idpersona(@idPersona, @dataFirma, 0);";
 
-            var match = Regex.Match(input, pattern);
-
-            if (match.Success)
+            using (var conn = new SqlConnection(AppsettingsConfiguration.CONNECTIONSTRING))
             {
-                var codiceGruppoPolitico = match.Groups[1].Value.Trim();
-                if (codiceGruppoPolitico.ToLower().Equals("u.d.c.")) codiceGruppoPolitico = "U.di.C.";
+                conn.Open();
 
-                var query = @"SELECT gp.id_gruppo
-                FROM [gruppi_politici] gp
-                INNER JOIN [join_gruppi_politici_legislature] jgp ON gp.id_gruppo = jgp.id_gruppo
-                WHERE (gp.codice_gruppo = @CodiceGruppoPolitico OR gp.nome_gruppo = @CodiceGruppoPolitico) AND jgp.id_legislatura = @legislaturaId";
-
-                using (var conn = new SqlConnection(AppsettingsConfiguration.CONNECTIONSTRING))
+                using (var command = new SqlCommand(query, conn))
                 {
-                    conn.Open();
+                    command.Parameters.AddWithValue("@idPersona", idPersona);
+                    command.Parameters.AddWithValue("@dataFirma", dataFirma);
 
-                    using (var command = new SqlCommand(query, conn))
-                    {
-                        command.Parameters.AddWithValue("@CodiceGruppoPolitico", codiceGruppoPolitico);
-                        command.Parameters.AddWithValue("@legislaturaId", legislaturaId);
+                    var result = command.ExecuteScalar(); // ExecuteScalar is used for single value return
 
-                        var reader = command.ExecuteReader();
-
-                        while (reader.Read())
-                        {
-                            var idGruppo = reader.GetInt32(0); // Leggi l'ID del gruppo politico
-                            return idGruppo;
-                        }
-
-                        reader.Close();
-                    }
+                    return (result != DBNull.Value && result != null) ? Convert.ToInt32(result) : 0;
                 }
             }
-
-            return 0;
         }
 
         private static int ParseDescr2Enum_TipoVotazioneIter(string tipoVotazione)
