@@ -991,11 +991,11 @@ function CreaTabella() {
         // Identificare il tipo di risposta
         switch (result.IDTipo_Risposta_Effettiva) {
             case @Html.Raw((int)TipoRispostaEnum.SCRITTA):
-                testo_risposta = `Scritta: Risposta fornita da ${abb.DescrizioneOrgano}`;
+                testo_risposta = `Scritta: Risposta fornita da ${abb.DescrizioneOrgano} il ${dataRisposta || "non ancora disponibile"}`;
                 break;
             case @Html.Raw((int)TipoRispostaEnum.ORALE):
             case @Html.Raw((int)TipoRispostaEnum.IMMEDIATA):
-                testo_risposta = `Orale: Risposta fornita da ${abb.DescrizioneOrgano}`;
+                testo_risposta = `Orale: Risposta fornita da ${abb.DescrizioneOrgano} il ${dataRisposta || "non ancora disponibile"}`;
                 break;
             case @Html.Raw((int)TipoRispostaEnum.COMMISSIONE):
                 if (abb.RisposteAssociate?.length > 0) {
@@ -1016,10 +1016,6 @@ function CreaTabella() {
                 break;
             default:
                 testo_risposta = `Risposta di tipo non specificato da ${abb.DescrizioneOrgano}`;
-        }
-
-		if (dataRisposta) {
-            testo_risposta += ` - Data risposta: ${dataRisposta}`;
         }
         
 		if (dataTrasmissioneRisposta) {
