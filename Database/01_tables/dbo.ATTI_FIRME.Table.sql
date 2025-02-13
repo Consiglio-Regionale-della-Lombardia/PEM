@@ -1,6 +1,3 @@
-USE [dbDASI]
-GO
-
 /****** Object:  Table [dbo].[ATTI_FIRME]    Script Date: 29/09/2022 02:49:01 ******/
 SET ANSI_NULLS ON
 GO

@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[TEMPLATES]    Script Date: 08/11/2024 11:25:10 ******/
+/****** Object:  Table [dbo].[TEMPLATES]    Script Date: 07/02/2025 12:17:42 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -7,12 +7,13 @@ GO
 
 CREATE TABLE [dbo].[TEMPLATES](
 	[Uid] [uniqueidentifier] NOT NULL,
-	[Nome] [varchar](50) NULL,
+	[Nome] [varchar](250) NULL,
 	[Testata] [varchar](max) NULL,
 	[Corpo] [varchar](max) NULL,
 	[Tipo] [int] NOT NULL,
 	[DataCreazione] [datetime] NOT NULL,
 	[Eliminato] [bit] NOT NULL,
+	[Visibile] [bit] NOT NULL,
  CONSTRAINT [PK_TEMPLATES] PRIMARY KEY CLUSTERED 
 (
 	[Uid] ASC
@@ -27,6 +28,9 @@ ALTER TABLE [dbo].[TEMPLATES] ADD  CONSTRAINT [DF_TEMPLATES_DataCreazione]  DEFA
 GO
 
 ALTER TABLE [dbo].[TEMPLATES] ADD  CONSTRAINT [DF_TEMPLATES_Eliminato]  DEFAULT ((0)) FOR [Eliminato]
+GO
+
+ALTER TABLE [dbo].[TEMPLATES] ADD  CONSTRAINT [DF_TEMPLATES_Eliminabile]  DEFAULT ((1)) FOR [Visibile]
 GO
 
 

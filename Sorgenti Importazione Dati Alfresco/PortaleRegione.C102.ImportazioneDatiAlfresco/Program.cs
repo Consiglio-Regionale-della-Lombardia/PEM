@@ -2280,6 +2280,9 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                     return (int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA;
                 }
                 case "ritiro":
+                case "ritirato":
+                case "ritirata":
+                case "ritira":
                 {
                     return (int)TipoChiusuraIterEnum.RITIRATO;
                 }

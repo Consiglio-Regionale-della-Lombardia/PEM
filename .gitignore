@@ -118,3 +118,5 @@ Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/GeneraStampeJobFramewor
 Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/GeneraStampeJobFramework/obj
 Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/JobTest/bin
 Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/JobTest/obj
+Sorgenti modulo retention/Jobs/CleanLogRetention/obj
+Sorgenti modulo calcolo ritardo/Jobs/TestJob/obj

@@ -1049,7 +1049,7 @@ function CreaTabella() {
 				});
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Documenti)') {
 				result.Documenti.forEach(abb => {
-					td.innerHTML += `<p>${abb.Tipo} - <a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('${abb.Link}')">${abb.Titolo}</a></p>`;
+					td.innerHTML += `<p>${abb.Tipo} - <a class="blue-text" style="text-decoration: underline;" href="${abb.Link}" target="_blank">${abb.Titolo}</a></p>`;
 				});
 			}else if (col.propertyName === '@nameof(AttoDASIDto.Note)') {
 				result.Note.forEach(abb => {
