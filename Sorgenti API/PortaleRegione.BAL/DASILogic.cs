@@ -31,6 +31,7 @@ using System.Web;
 using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
@@ -53,6 +54,7 @@ using PortaleRegione.DTO.Routes;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
 using Color = System.Drawing.Color;
+using Tuple = System.Tuple;
 using Utility = PortaleRegione.Common.Utility;
 
 namespace PortaleRegione.API.Controllers
@@ -4493,7 +4495,7 @@ namespace PortaleRegione.API.Controllers
                         }
                         else if (int.TryParse(cellValue.ToString(), out var resInt))
                         {
-                            cell.Style.Numberformat.Format = "#,##0"; // formato numerico intero
+                            cell.Style.Numberformat.Format = "0";
                             cell.Value = resInt;
                         }
                         else
