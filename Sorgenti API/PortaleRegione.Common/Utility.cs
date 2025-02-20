@@ -313,7 +313,7 @@ namespace PortaleRegione.Common
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return "In trattazione";
                 case StatiAttoEnum.COMPLETATO:
-                    return "Completato";
+                    return "Concluso"; // #1281
                 case StatiAttoEnum.TUTTI:
                     return "Tutti";
                 case StatiAttoEnum.BOZZA_CARTACEA:
