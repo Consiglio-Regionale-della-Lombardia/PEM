@@ -214,7 +214,7 @@ namespace PortaleRegione.Common
                 case TipoAttoEnum.ITR:
                     return "Interrogazione";
                 case TipoAttoEnum.IQT:
-                    return "Interrogation question time";
+                    return "Interrogazione question time"; // #1268
                 case TipoAttoEnum.ITL:
                     return "Interpellanza";
                 case TipoAttoEnum.MOZ:
