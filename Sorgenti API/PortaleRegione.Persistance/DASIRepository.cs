@@ -1271,6 +1271,7 @@ namespace PortaleRegione.Persistance
                 {
                     query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                 || item.Oggetto_Modificato.Contains(f.Value.ToString())
+                                                || item.Oggetto_Approvato.Contains(f.Value.ToString())
                                                 || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                 || item.Premesse.Contains(f.Value.ToString())
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
