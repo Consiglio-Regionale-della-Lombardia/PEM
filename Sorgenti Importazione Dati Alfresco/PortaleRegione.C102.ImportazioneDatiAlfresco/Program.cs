@@ -595,6 +595,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 if (!update)
                                 {
+                                    var primo_firmatario_assigned = false;
+
                                     // Itera attraverso le righe del foglio delle firme
                                     for (var rowF = 2; rowF <= rowCountF; rowF++)
                                     {
@@ -617,7 +619,13 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                             var data_ritiro_firma = Convert.ToString(cellsFirme[rowF, 9].Value);
                                             var id_persona = cellsFirme[rowF, 10].Value.ToString();
                                             var nome_firmatario = cellsFirme[rowF, 14].Value.ToString().Trim();
-                                            var primo_firmatario = Convert.ToBoolean(cellsFirme[rowF, 16].Value);
+                                            var primo_firmatario_insert = false;
+                                            if (!primo_firmatario_assigned)
+                                            {
+                                                primo_firmatario_insert = Convert.ToBoolean(cellsFirme[rowF, 16].Value);
+                                                primo_firmatario_assigned = primo_firmatario_insert;
+                                            }
+
                                             var find_uid_persona = GetUidPersona(connection, int.Parse(id_persona));
 
                                             if (!Guid.TryParse(Convert.ToString(find_uid_persona), out var guid))
@@ -692,7 +700,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                                 }
 
                                                 commandInsertFirmatario.Parameters.AddWithValue("@PrimoFirmatario",
-                                                    Convert.ToBoolean(primo_firmatario));
+                                                    Convert.ToBoolean(primo_firmatario_insert));
+                                                
                                                 commandInsertFirmatario.Parameters.AddWithValue("@id_gruppo",
                                                     id_gruppo_firmatario);
                                                 commandInsertFirmatario.Parameters.AddWithValue("@Timestamp",
@@ -703,7 +712,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                             chkf++;
 
-                                            if (Convert.ToBoolean(primo_firmatario))
+                                            if (Convert.ToBoolean(primo_firmatario_insert))
                                             {
                                                 proponenteId = (Guid)find_uid_persona;
                                                 id_gruppo = id_gruppo_firmatario;
