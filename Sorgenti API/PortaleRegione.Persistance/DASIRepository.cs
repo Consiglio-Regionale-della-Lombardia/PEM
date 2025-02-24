@@ -1771,7 +1771,7 @@ namespace PortaleRegione.Persistance
             if (queryExtended.DataTrattazioneIsNull)
             {
                 var risposteTrattateNulleQuery = PRContext.ATTI_RISPOSTE
-                    .Where(risposta => risposta.DataTrattazione == null)
+                    .Where(risposta => !risposta.DataTrattazione.HasValue)
                     .Select(risposta => risposta.UIDAtto);
 
                 query = query
@@ -1876,6 +1876,17 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(atto => risposteDateQuery.Contains(atto.UIDAtto));
                 }
+            }
+
+            if (queryExtended.DataRispostaIsNull)
+            {
+                var risposteDateNulleQuery = PRContext.ATTI_RISPOSTE
+                    .Where(risposta =>
+                        !risposta.Data.HasValue)
+                    .Select(risposta => risposta.UIDAtto);
+
+                query = query
+                    .Where(atto => risposteDateNulleQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.Ritardo.HasValue)

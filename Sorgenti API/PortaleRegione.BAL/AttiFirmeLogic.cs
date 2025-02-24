@@ -92,7 +92,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetFirme - DASI", e);
+                Log.Error($"Logic - GetFirme - DASI - {atto.Etichetta}", e);
                 throw e;
             }
         }

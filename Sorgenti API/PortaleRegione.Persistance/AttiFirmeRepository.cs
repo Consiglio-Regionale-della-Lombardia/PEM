@@ -255,15 +255,20 @@ namespace PortaleRegione.Persistance
 
             var firmaProponente = await PRContext
                 .ATTI_FIRME
-                .SingleOrDefaultAsync(f =>
+                .FirstOrDefaultAsync(f =>
                     f.UIDAtto == atto.UIDAtto
                     && f.PrimoFirmatario
                     && f.Valida);
 
+            if (firmaProponente == null)
+            {
+                return new List<ATTI_FIRME>();
+            }
+
             var query = PRContext
                 .ATTI_FIRME
                 .Where(f => f.UIDAtto == atto.UIDAtto
-                            && !f.PrimoFirmatario
+                            && f.UID_persona != firmaProponente.UID_persona
                             && f.Valida);
             switch (tipo)
             {
