@@ -526,6 +526,32 @@ namespace PortaleRegione.Common
             }
         }
 
+        public static string GetNomeDocumentoStandard(int tipoDocumento)
+        {
+            switch ((TipoDocumentoEnum)tipoDocumento)
+            {
+                case TipoDocumentoEnum.TESTO_ALLEGATO:
+                    return "Allegato parte integrante atto.pdf";
+                case TipoDocumentoEnum.AGGIUNTIVO:
+                    return "Documento aggiuntivo.pdf";
+                case TipoDocumentoEnum.MONITORAGGIO:
+                    return "Documento monitoraggio.pdf";
+                case TipoDocumentoEnum.ABBINAMENTO:
+                    return "Documento abbinamento.pdf";
+                case TipoDocumentoEnum.CHIUSURA_ITER:
+                    return "Testo approvato.pdf";
+                case TipoDocumentoEnum.RISPOSTA:
+                case TipoDocumentoEnum.TESTO_RISPOSTA:
+                    return "Testo risposta.pdf";
+                case TipoDocumentoEnum.TESTO_PRIVACY:
+                    return "Documento privacy.pdf";
+                case TipoDocumentoEnum.VERBALE_VOTAZIONE:
+                    return "Verbale votazione.pdf";
+                default:
+                    throw new ArgumentOutOfRangeException($"Tipo documento non riconosciuto: {tipoDocumento}");
+            }
+        }
+
         /// <summary>
         ///     Metodo per convertire un enum in KeyValueDto
         /// </summary>

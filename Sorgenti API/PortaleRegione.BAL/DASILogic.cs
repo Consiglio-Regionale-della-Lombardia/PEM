@@ -5342,39 +5342,7 @@ namespace PortaleRegione.API.Controllers
                 throw new Exception("Atto non trovato");
 
             // #1031
-            switch ((TipoDocumentoEnum)request.Tipo)
-            {
-                case TipoDocumentoEnum.TESTO_ALLEGATO:
-                {
-                    request.Nome = "Allegato parte integrante dell'atto.pdf";
-                    break;
-                }
-                case TipoDocumentoEnum.AGGIUNTIVO:
-                    break;
-                case TipoDocumentoEnum.MONITORAGGIO:
-                    break;
-                case TipoDocumentoEnum.ABBINAMENTO:
-                    break;
-                case TipoDocumentoEnum.CHIUSURA_ITER:
-                {
-                    request.Nome = "Testo dell'atto approvato.pdf";
-                    break;
-                }
-                case TipoDocumentoEnum.RISPOSTA:
-                {
-                    request.Nome = "Testo della risposta.pdf";
-                    break;
-                }
-                case TipoDocumentoEnum.TESTO_PRIVACY:
-                    break;
-                case TipoDocumentoEnum.VERBALE_VOTAZIONE:
-                {
-                    request.Nome = "Verbale di votazione.pdf";
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            request.Nome = Utility.GetNomeDocumentoStandard(request.Tipo);
 
             var dir = $"{atto.GetLegislatura()}/{Utility.GetText_Tipo(atto.Tipo)}/{atto.Etichetta}";
             var pathRepository = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{dir}";

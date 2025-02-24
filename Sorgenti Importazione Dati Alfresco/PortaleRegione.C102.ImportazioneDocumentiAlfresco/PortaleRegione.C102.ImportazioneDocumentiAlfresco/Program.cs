@@ -15,6 +15,7 @@ namespace PortaleRegione.C102.ImportazioneDocumentiAlfresco;
 internal class Program
 {
     private static readonly ILog _log = LogManager.GetLogger(typeof(Program));
+    public static readonly string connectionString = ConfigurationManager.AppSettings["connection_string"];
 
     private static void Main(string[] args)
     {
@@ -54,9 +55,32 @@ internal class Program
                     // Estrazione delle informazioni dal nome del file
                     var legislatura = ExtractLegislatura(fileNameWithoutExtension);
                     var tipoDocumento = ParseTipoDocumento(fileNameWithoutExtension);
-                    
                     var numeroAtto = ExtractNumeroAtto(fileNameWithoutExtension);
                     var tipoAtto = ParseTipoAtto(filePath);
+
+                    // #1272
+                    if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.TESTO_ALLEGATO)
+                    {
+                        using (var connection = new SqlConnection(connectionString))
+                        {
+                            connection.Open();
+                            // Cerca l'atto nel database
+                            var atto = GetAtto(connection, legislatura, numeroAtto, tipoAtto);
+                            if (atto == null)
+                            {
+                                Debug($"Atto non trovato nel database [{fileName}].");
+                                sb.AppendLine($"{fileName},atto_non_trovato");
+                                continue;
+                            }
+
+                            var checkUfficio = CheckAttoUfficio(connection, atto.UIDAtto);
+                            if (checkUfficio == false)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    
                     var uidDocumento = ExtractUidFromFileName(fileNameWithoutExtension);
                     var pubblicato = true;
                     var idOrgano = string.Empty;
@@ -127,7 +151,6 @@ internal class Program
 
                     Debug($"Elaborazione documento: {fileName}");
 
-                    var connectionString = ConfigurationManager.AppSettings["connection_string"];
                     using (var connection = new SqlConnection(connectionString))
                     {
                         connection.Open();
@@ -252,22 +275,22 @@ VALUES (@Uid, @UIDAtto, @TipoDocumento, GETDATE(), @PercorsoFile, @Titolo, @Pubb
         switch ((TipoDocumentoEnum)tipoDocumento)
         {
             case TipoDocumentoEnum.TESTO_ALLEGATO:
-                return "Allegato parte integrante dell'atto.pdf";
+                return "Allegato parte integrante atto.pdf";
             case TipoDocumentoEnum.AGGIUNTIVO:
                 return "Documento aggiuntivo.pdf";
             case TipoDocumentoEnum.MONITORAGGIO:
-                return "Documento di monitoraggio.pdf";
+                return "Documento monitoraggio.pdf";
             case TipoDocumentoEnum.ABBINAMENTO:
-                return "Documento di abbinamento.pdf";
+                return "Documento abbinamento.pdf";
             case TipoDocumentoEnum.CHIUSURA_ITER:
-                return "Testo dell'atto approvato.pdf";
+                return "Testo approvato.pdf";
             case TipoDocumentoEnum.RISPOSTA:
             case TipoDocumentoEnum.TESTO_RISPOSTA:
-                return "Testo della risposta.pdf";
+                return "Testo risposta.pdf";
             case TipoDocumentoEnum.TESTO_PRIVACY:
                 return "Documento privacy.pdf";
             case TipoDocumentoEnum.VERBALE_VOTAZIONE:
-                return "Verbale di votazione.pdf";
+                return "Verbale votazione.pdf";
             default:
                 throw new ArgumentOutOfRangeException($"Tipo documento non riconosciuto: {tipoDocumento}");
         }
@@ -303,6 +326,29 @@ AND Tipo = @TipoAtto";
                 {
                     return null;
                 }
+            }
+        }
+    }
+    private static bool CheckAttoUfficio(SqlConnection connection, Guid uidAtto)
+    {
+        var sql = @"
+SELECT TOP 1 UIDAtto
+FROM ATTI_FIRME
+WHERE UIDAtto = @uidatto
+AND ufficio = 1";
+
+        using (var command = new SqlCommand(sql, connection))
+        {
+            command.Parameters.AddWithValue("@uidatto", uidAtto);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return true;
+                }
+
+                return false;
             }
         }
     }
