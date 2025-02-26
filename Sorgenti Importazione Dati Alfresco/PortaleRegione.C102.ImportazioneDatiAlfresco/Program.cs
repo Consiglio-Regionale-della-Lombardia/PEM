@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Text.RegularExpressions;
 using log4net;
@@ -259,6 +260,10 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                         for (var row = 2; row <= rowCount; row++)
                         {
+                            var tipoAttoFromAlfresco = Convert.ToString(cellsAtti[row, 4].Value);
+                            var legislaturaFromAlfresco = Convert.ToString(cellsAtti[row, 47].Value);
+                            var numeroAtto = Convert.ToString(cellsAtti[row, 19].Value);
+
                             try
                             {
                                 // #1295
@@ -269,11 +274,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 }
 
                                 var attoImportato = new AttoImportato();
-                                var tipoAttoFromAlfresco = Convert.ToString(cellsAtti[row, 4].Value);
-                                var legislaturaFromAlfresco = Convert.ToString(cellsAtti[row, 47].Value);
-
-                                var numeroAtto = Convert.ToString(cellsAtti[row, 19].Value);
-
                                 attoImportato.Legislatura = legislaturaFromAlfresco;
                                 attoImportato.Tipo = tipoAttoFromAlfresco;
                                 attoImportato.NumeroAtto = numeroAtto;
@@ -1064,49 +1064,68 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                                  cellsAtti[row, 60].Value.Equals("1");
 
                                 //Risposte
-                                var dataTrasmissione = Convert.ToString(cellsAtti[row, 99].Value);
-                                var dataSedutaRisposta = Convert.ToString(cellsAtti[row, 100].Value);
-                                var dataProposta = Convert.ToString(cellsAtti[row, 101].Value);
-                                var dataComunicazioneAssembleaRisposta = Convert.ToString(cellsAtti[row, 102].Value);
+                                var dataTrasmissione = Convert.ToString(cellsAtti[row, 95].Value);
+                                var dataSedutaRisposta = Convert.ToString(cellsAtti[row, 96].Value);
+                                var dataProposta = Convert.ToString(cellsAtti[row, 97].Value);
+                                var dataComunicazioneAssembleaRisposta = Convert.ToString(cellsAtti[row, 98].Value);
 
-                                //RIS
-                                var idRelatore = Convert.ToString(cellsAtti[row, 109].Value);
-                                var idRelatore2 = Convert.ToString(cellsAtti[row, 105].Value);
-                                var idRelatoreMinoranza = Convert.ToString(cellsAtti[row, 104].Value);
+                                if (tipoAttoEnum == TipoAttoEnum.RIS)
+                                {
+                                    dataTrasmissione = Convert.ToString(cellsAtti[row, 99].Value);
+                                    dataSedutaRisposta = Convert.ToString(cellsAtti[row, 100].Value);
+                                    dataProposta = Convert.ToString(cellsAtti[row, 101].Value);
+                                    dataComunicazioneAssembleaRisposta = Convert.ToString(cellsAtti[row, 102].Value);
+                                }
+
+                                //META DATI RELATORI RIS
+                                var idRelatore = string.Empty;
+                                var idRelatore2 = string.Empty;
+                                var idRelatoreMinoranza = string.Empty;
                                 var relatore1 = Guid.Empty;
                                 var relatore2 = Guid.Empty;
                                 var relatoreMinoranza = Guid.Empty;
-                                if (!string.IsNullOrEmpty(idRelatore))
-                                {
-                                    var find_uid_persona_relatore = GetUidPersona(connection, int.Parse(idRelatore));
 
-                                    if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore),
-                                            out var guid_relatore))
+                                if (tipoAttoEnum == TipoAttoEnum.RIS)
+                                {
+                                    idRelatore = Convert.ToString(cellsAtti[row, 109].Value);
+                                    idRelatore2 = Convert.ToString(cellsAtti[row, 105].Value);
+                                    idRelatoreMinoranza = Convert.ToString(cellsAtti[row, 104].Value);
+                                    relatore1 = Guid.Empty;
+                                    relatore2 = Guid.Empty;
+                                    relatoreMinoranza = Guid.Empty;
+
+                                    if (!string.IsNullOrEmpty(idRelatore))
                                     {
-                                        relatore1 = guid_relatore;
+                                        var find_uid_persona_relatore = GetUidPersona(connection, int.Parse(idRelatore));
+
+                                        if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore),
+                                                out var guid_relatore))
+                                        {
+                                            relatore1 = guid_relatore;
+                                        }
                                     }
-                                }
 
-                                if (!string.IsNullOrEmpty(idRelatore2))
-                                {
-                                    var find_uid_persona_relatore2 = GetUidPersona(connection, int.Parse(idRelatore2));
-
-                                    if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore2),
-                                            out var guid_relatore2))
+                                    if (!string.IsNullOrEmpty(idRelatore2))
                                     {
-                                        relatore2 = guid_relatore2;
+                                        var find_uid_persona_relatore2 = GetUidPersona(connection, int.Parse(idRelatore2));
+
+                                        if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore2),
+                                                out var guid_relatore2))
+                                        {
+                                            relatore2 = guid_relatore2;
+                                        }
                                     }
-                                }
 
-                                if (!string.IsNullOrEmpty(idRelatoreMinoranza))
-                                {
-                                    var find_uid_persona_relatore_minoranza =
-                                        GetUidPersona(connection, int.Parse(idRelatoreMinoranza));
-
-                                    if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore_minoranza),
-                                            out var guid_relatore_minoranza))
+                                    if (!string.IsNullOrEmpty(idRelatoreMinoranza))
                                     {
-                                        relatoreMinoranza = guid_relatore_minoranza;
+                                        var find_uid_persona_relatore_minoranza =
+                                            GetUidPersona(connection, int.Parse(idRelatoreMinoranza));
+
+                                        if (Guid.TryParse(Convert.ToString(find_uid_persona_relatore_minoranza),
+                                                out var guid_relatore_minoranza))
+                                        {
+                                            relatoreMinoranza = guid_relatore_minoranza;
+                                        }
                                     }
                                 }
 
