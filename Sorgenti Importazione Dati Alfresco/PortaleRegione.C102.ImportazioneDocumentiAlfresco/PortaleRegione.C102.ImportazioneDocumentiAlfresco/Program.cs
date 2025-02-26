@@ -88,10 +88,13 @@ internal class Program
                     
                     // Nome standard del documento basato sul tipo
                     var nomeDocumento = GetNomeDocumentoStandard(tipoDocumento);
-
-                    if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.AGGIUNTIVO
-                        || (TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.MONITORAGGIO
-                        || (TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.RISPOSTA)
+                    // #1292
+                    if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.TESTO_PRIVACY)
+                    {
+                        pubblicato = false;
+                    }else if ((TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.AGGIUNTIVO
+                              || (TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.MONITORAGGIO
+                              || (TipoDocumentoEnum)tipoDocumento == TipoDocumentoEnum.RISPOSTA)
                     {
                         var worksheetName = tipoDocumento switch
                         {
