@@ -259,18 +259,25 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                         for (var row = 2; row <= rowCount; row++)
                         {
-                            var attoImportato = new AttoImportato();
-                            var tipoAttoFromAlfresco = Convert.ToString(cellsAtti[row, 4].Value);
-                            var legislaturaFromAlfresco = Convert.ToString(cellsAtti[row, 47].Value);
-
-                            var numeroAtto = Convert.ToString(cellsAtti[row, 19].Value);
-
-                            attoImportato.Legislatura = legislaturaFromAlfresco;
-                            attoImportato.Tipo = tipoAttoFromAlfresco;
-                            attoImportato.NumeroAtto = numeroAtto;
-
                             try
                             {
+                                // #1295
+                                var eliminatoInAlfresco = Convert.ToString(cellsAtti[row, 37].Value);
+                                if (!string.IsNullOrEmpty(eliminatoInAlfresco))
+                                {
+                                    throw new Exception("Atto eliminato in Alfresco. Non importato.");
+                                }
+
+                                var attoImportato = new AttoImportato();
+                                var tipoAttoFromAlfresco = Convert.ToString(cellsAtti[row, 4].Value);
+                                var legislaturaFromAlfresco = Convert.ToString(cellsAtti[row, 47].Value);
+
+                                var numeroAtto = Convert.ToString(cellsAtti[row, 19].Value);
+
+                                attoImportato.Legislatura = legislaturaFromAlfresco;
+                                attoImportato.Tipo = tipoAttoFromAlfresco;
+                                attoImportato.NumeroAtto = numeroAtto;
+
                                 var chkf = 0;
                                 var id_gruppo = 0;
                                 // nodeid alfresco 
