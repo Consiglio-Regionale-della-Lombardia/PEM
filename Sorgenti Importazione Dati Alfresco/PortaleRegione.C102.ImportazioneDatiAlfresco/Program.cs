@@ -1044,15 +1044,15 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var monitoraggioConcluso = !string.IsNullOrEmpty(conclusoMonitoraggioFromAlfresco) &&
                                                            conclusoMonitoraggioFromAlfresco.Equals("1");
 
-                                var privacy_dati_personali_giudiziari_sn = cellsAtti[row, 53].Value.Equals("1");
-                                var privacy_divieto_pubblicazione_salute_sn = cellsAtti[row, 54].Value.Equals("1");
-                                var privacy_divieto_pubblicazione_vita_sessuale_sn = cellsAtti[row, 55].Value.Equals("1");
-                                var privacy_divieto_pubblicazione_sn = cellsAtti[row, 56].Value.Equals("1");
-                                var privacy_dati_personali_sensibili_sn = cellsAtti[row, 57].Value.Equals("1");
-                                var privacy_divieto_pubblicazione_altri_sn = cellsAtti[row, 58].Value.Equals("1");
-                                var privacy_dati_personali_semplici_sn = cellsAtti[row, 59].Value.Equals("1");
-                                var privacy_sn = cellsAtti[row, 60].Value.Equals("1");
-
+                                var privacy_dati_personali_giudiziari_sn = !string.IsNullOrEmpty(cellsAtti[row, 53]?.ToString()) && cellsAtti[row, 53].ToString().Equals("1");
+                                var privacy_divieto_pubblicazione_salute_sn = !string.IsNullOrEmpty(cellsAtti[row, 54]?.ToString()) && cellsAtti[row, 54].ToString().Equals("1");
+                                var privacy_divieto_pubblicazione_vita_sessuale_sn = !string.IsNullOrEmpty(cellsAtti[row, 55]?.ToString()) && cellsAtti[row, 55].ToString().Equals("1");
+                                var privacy_divieto_pubblicazione_sn = !string.IsNullOrEmpty(cellsAtti[row, 56]?.ToString()) && cellsAtti[row, 56].ToString().Equals("1");
+                                var privacy_dati_personali_sensibili_sn = !string.IsNullOrEmpty(cellsAtti[row, 57]?.ToString()) && cellsAtti[row, 57].ToString().Equals("1");
+                                var privacy_divieto_pubblicazione_altri_sn = !string.IsNullOrEmpty(cellsAtti[row, 58]?.ToString()) && cellsAtti[row, 58].ToString().Equals("1");
+                                var privacy_dati_personali_semplici_sn = !string.IsNullOrEmpty(cellsAtti[row, 59]?.ToString()) && cellsAtti[row, 59].ToString().Equals("1");
+                                var privacy_sn = !string.IsNullOrEmpty(cellsAtti[row, 60]?.ToString()) && cellsAtti[row, 60].ToString().Equals("1");
+                                
                                 //Risposte
                                 var dataTrasmissione = Convert.ToString(cellsAtti[row, 95].Value);
                                 var dataSedutaRisposta = Convert.ToString(cellsAtti[row, 96].Value);
