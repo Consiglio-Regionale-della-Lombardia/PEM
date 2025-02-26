@@ -1044,24 +1044,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var monitoraggioConcluso = !string.IsNullOrEmpty(conclusoMonitoraggioFromAlfresco) &&
                                                            conclusoMonitoraggioFromAlfresco.Equals("1");
 
-                                var privacy_dati_personali_giudiziari_sn = cellsAtti[row, 53].Value != null &&
-                                                                           cellsAtti[row, 53].Value.Equals("1");
-                                var privacy_divieto_pubblicazione_salute_sn =
-                                    cellsAtti[row, 54].Value != null &&
-                                    cellsAtti[row, 54].Value.Equals("1");
-                                var privacy_divieto_pubblicazione_vita_sessuale_sn =
-                                    cellsAtti[row, 55].Value != null &&
-                                    cellsAtti[row, 55].Value.Equals("1");
-                                var privacy_divieto_pubblicazione_sn = cellsAtti[row, 56].Value != null &&
-                                                                       cellsAtti[row, 56].Value.Equals("1");
-                                var privacy_dati_personali_sensibili_sn = cellsAtti[row, 57].Value != null &&
-                                                                          cellsAtti[row, 57].Value.Equals("1");
-                                var privacy_divieto_pubblicazione_altri_sn =
-                                    cellsAtti[row, 58].Value != null && cellsAtti[row, 58].Value.Equals("1");
-                                var privacy_dati_personali_semplici_sn = cellsAtti[row, 59].Value != null &&
-                                                                         cellsAtti[row, 59].Value.Equals("1");
-                                var privacy_sn = cellsAtti[row, 60].Value != null &&
-                                                 cellsAtti[row, 60].Value.Equals("1");
+                                var privacy_dati_personali_giudiziari_sn = cellsAtti[row, 53].Value.Equals("1");
+                                var privacy_divieto_pubblicazione_salute_sn = cellsAtti[row, 54].Value.Equals("1");
+                                var privacy_divieto_pubblicazione_vita_sessuale_sn = cellsAtti[row, 55].Value.Equals("1");
+                                var privacy_divieto_pubblicazione_sn = cellsAtti[row, 56].Value.Equals("1");
+                                var privacy_dati_personali_sensibili_sn = cellsAtti[row, 57].Value.Equals("1");
+                                var privacy_divieto_pubblicazione_altri_sn = cellsAtti[row, 58].Value.Equals("1");
+                                var privacy_dati_personali_semplici_sn = cellsAtti[row, 59].Value.Equals("1");
+                                var privacy_sn = cellsAtti[row, 60].Value.Equals("1");
 
                                 //Risposte
                                 var dataTrasmissione = Convert.ToString(cellsAtti[row, 95].Value);
