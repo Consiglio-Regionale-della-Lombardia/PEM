@@ -208,10 +208,10 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         abbinamentoGea.UIDAtto = Guid.NewGuid();
 
                                         var insertAttoGea = @"IF NOT EXISTS 
-                            (SELECT 1 FROM ATTI WHERE NAtto = @NAtto AND IDTipoAtto = @IDTipoAtto AND UIDSeduta = @UIDSeduta)
+                            (SELECT 1 FROM ATTI WHERE NAtto = @NAtto AND IDTipoAtto = @IDTipoAtto)
                             BEGIN
-                                INSERT INTO ATTI (UIDAtto, NAtto, IDTipoAtto, UIDSeduta)
-                                    VALUES (@UIDAtto, @NAtto, @IDTipoAtto, @UIDSeduta)        
+                                INSERT INTO ATTI (UIDAtto, NAtto, IDTipoAtto)
+                                    VALUES (@UIDAtto, @NAtto, @IDTipoAtto)        
                             END";
                                         using (var commandAttoGea = new SqlCommand(insertAttoGea, connection))
                                         {
