@@ -43,6 +43,7 @@ namespace PortaleRegione.Domain
         [Required] [StringLength(50)] public string NAtto { get; set; }
 
         public int IDTipoAtto { get; set; }
+        public int? Legislatura { get; set; }
 
         [StringLength(500)] public string Oggetto { get; set; }
 

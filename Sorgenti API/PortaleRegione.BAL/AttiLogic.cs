@@ -174,6 +174,15 @@ namespace PortaleRegione.BAL
                     attoInDb.UIDAssessoreRiferimento = null;
                 }
 
+                if (!attoInDb.Legislatura.HasValue)
+                {
+                    if (attoInDb.UIDSeduta.HasValue)
+                    {
+                        var seduta = await _unitOfWork.Sedute.Get(attoInDb.UIDSeduta.Value);
+                        attoInDb.Legislatura = seduta.id_legislatura;
+                    }
+                }
+
                 await _unitOfWork.CompleteAsync();
 
                 if (attoModel.DocAtto_Stream != null)

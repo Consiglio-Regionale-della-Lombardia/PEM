@@ -1,10 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
   <appSettings>
-    <add key="url_api" value=""/>
-    <add key="user_api" value=""/>
-    <add key="password_api" value=""/>
-    <add key="master_key" value=""/>
+    <add key="master_key" value="XXX"/>
+     <add key="connection_string" value="Data Source=FJ2A7DR\DB01;Initial Catalog=dbTest;User ID=sa;Password=123456;"/>
   </appSettings>
   <startup> 
         <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.8" />
