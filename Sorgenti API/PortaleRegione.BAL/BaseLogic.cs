@@ -376,7 +376,14 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_END}", "");
 
                 body = body.Replace("{lblTitoloPDLEMView}", atto.ODG_Atto_PEM);
-                body = body.Replace("{lblSubTitoloPDLEMView}", atto.ODG_Atto_Oggetto_PEM);
+                if (!string.IsNullOrEmpty(atto.ODG_Atto_Oggetto_PEM))
+                {
+                    body = body.Replace("{lblSubTitoloPDLEMView}", $"\"{atto.ODG_Atto_Oggetto_PEM}\"");
+                }
+                else
+                {
+                    body = body.Replace("{lblSubTitoloPDLEMView}", string.Empty);
+                }
             }
             else
             {

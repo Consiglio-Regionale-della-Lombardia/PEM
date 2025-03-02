@@ -1481,7 +1481,6 @@ namespace PortaleRegione.API.Controllers
                 dto.Organi = commissioni
                     .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
 
-
                 if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO
                     && attoInDb.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
                 {
@@ -1514,7 +1513,7 @@ namespace PortaleRegione.API.Controllers
                     }
                 }
 
-                if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA &&
+                if (dto.IsMOZAbbinata() &&
                     attoInDb.UID_MOZ_Abbinata.HasValue)
                 {
                     var attoAbbinato = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
@@ -1522,7 +1521,9 @@ namespace PortaleRegione.API.Controllers
                         $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo)}";
                 }
 
-                if (attoInDb.Tipo == (int)TipoAttoEnum.ODG && attoInDb.UID_Atto_ODG.HasValue)
+                dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
+                
+                if (dto.IsODG() && attoInDb.UID_Atto_ODG.HasValue)
                 {
                     var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
                     dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO
@@ -1530,6 +1531,21 @@ namespace PortaleRegione.API.Controllers
                         : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
 
                     dto.ODG_Atto_Oggetto_PEM = attoPem.Oggetto;
+                }
+                else if (dto.IsODG() && dto.Abbinamenti.Any())
+                {
+                    var primoAbbinamentoUid = dto.Abbinamenti.First().UidAttoAbbinato;
+                    var primoAbbinamento = await _unitOfWork.Atti.Get(primoAbbinamentoUid);
+                    if (primoAbbinamento.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
+                    {
+                        dto.ODG_Atto_PEM = $"{primoAbbinamento.NAtto}";
+                    }
+                    else
+                    {
+                        dto.ODG_Atto_PEM = $"{Utility.GetText_Tipo(primoAbbinamento.IDTipoAtto)} {primoAbbinamento.NAtto}";
+                    }
+                    
+                    dto.ODG_Atto_Oggetto_PEM = primoAbbinamento.Oggetto;
                 }
 
                 dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
@@ -1566,8 +1582,6 @@ namespace PortaleRegione.API.Controllers
                 {
                     dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
                 }
-
-                dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
 
                 if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 {
