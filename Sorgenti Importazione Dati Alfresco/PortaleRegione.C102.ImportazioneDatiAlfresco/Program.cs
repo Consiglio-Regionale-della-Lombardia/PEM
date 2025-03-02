@@ -313,10 +313,8 @@ WHERE a.Legislatura IS NULL;
                         var worksheetAtti = package.Workbook.Worksheets.First(w => w.Name.Equals(foglio));
                         var cellsAtti = worksheetAtti.Cells;
 
-                        //var rowCount = worksheetAtti.Dimension.Rows;
-                        var rowCount = 100;
+                        var rowCount = worksheetAtti.Dimension.Rows;
                         sb.Clear();
-
 
                         for (var row = 2; row <= rowCount; row++)
                         {

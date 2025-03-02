@@ -742,17 +742,53 @@ async function inviaDatiChips(page, size) {
 
 var responseData = {};
 var risultatiTabella = [];
-function createCard(result) {
-	const rowCard = document.createElement('div');
-	rowCard.className = "row card";
+//function createCard(result) {
+//	const rowCard = document.createElement('div');
+//	rowCard.className = "row card";
 
-	const rowContent = document.createElement('div');
-	rowContent.className = "col s12 card-content";
-	rowContent.innerHTML = result.BodyAtto;
+//	const rowContent = document.createElement('div');
+//	rowContent.className = "col s12 card-content";
+//	rowContent.innerHTML = result.BodyAtto;
 
-	rowCard.appendChild(rowContent);
-	return rowCard;
-}
+//	rowCard.appendChild(rowContent);
+//	return rowCard;
+//}
+	function createCard(result) {
+		console.log(result)
+		const rowCard = document.createElement('div');
+		rowCard.className = "row card";
+
+		// Crea un contenitore per i pulsanti
+		const btnContainer = document.createElement('div');
+		btnContainer.className = "col s12 right-align";
+        btnContainer.style.position = "absolute";
+        btnContainer.style.marginTop = "10px";
+		// Inserisci i due pulsanti, utilizzando il template literal per iniettare il valore dinamico
+		btnContainer.innerHTML = `
+      <button type="button" role="button" class="btn-flat blue-text tooltipped" 
+              onclick="openMetaDatiDASI('${result.UIDAtto}')" style="margin: 2px" 
+              data-position="bottom" data-tooltip="Modifica meta-dati">
+          <i class="material-icons">edit</i>
+      </button>
+      <button type="button" role="button" class="btn-flat green-text tooltipped" 
+              onclick="goIntoOtherTab('/dasi/${result.UIDAtto}')" style="margin: 2px"
+              data-position="bottom" data-tooltip="Visualizza atto">
+          <i class="material-icons">chevron_right</i>
+      </button>
+    `;
+
+		// Crea il contenuto della card
+		const rowContent = document.createElement('div');
+		rowContent.className = "col s12 card-content";
+		rowContent.innerHTML = result.BodyAtto;
+
+		// Aggiungi il contenitore dei pulsanti prima del contenuto
+		rowCard.appendChild(btnContainer);
+		rowCard.appendChild(rowContent);
+
+		return rowCard;
+	}
+
 function CreaTabella() {
 	// Recupera le colonne selezionate dal local storage
 	const selectedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
@@ -1249,7 +1285,7 @@ function CreaTabella() {
 		paginationHTML += `</ul>`;
 
 		// Costruzione del selettore per i tagli di paginazione
-		var tagliPaginazione = [20, 50, 100, 250];
+		var tagliPaginazione = [20, 50, 100];
 		var dropdownHTML_top = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
         Paginazione
         <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>

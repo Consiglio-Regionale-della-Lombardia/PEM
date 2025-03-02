@@ -30,6 +30,7 @@ namespace PortaleRegione.DTO.Enum
         REPORT_HEADER_DEFAULT = 8,
         REPORT_ITEM_CARD = 9,
         REPORT_COVER = 10,
-        REPORT_ITEM_GRID = 11
+        REPORT_ITEM_GRID = 11,
+        HTML_PDF = 12
     }
 }

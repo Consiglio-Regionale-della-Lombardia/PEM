@@ -1129,7 +1129,7 @@ namespace PortaleRegione.API.Controllers
                     result.Add(new AttoDASIDto
                     {
                         UIDAtto = attoUId,
-                        BodyAtto = await GetBodyDASI(attoUId, null, TemplateTypeEnum.PDF, false, false, false)
+                        BodyAtto = await GetBodyDASI(attoUId, null, TemplateTypeEnum.HTML_PDF, false, false, false)
                     });
                     continue;
                 }
@@ -2640,23 +2640,36 @@ namespace PortaleRegione.API.Controllers
                 {
                     var body = GetTemplate(template, true);
 
-                    body =
-                        "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
-                        "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
-                        $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
-                        body;
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
+                            body =
+                                "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                                "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                                $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
+                                body;
                             GetBody(dto, persona, false, privacy, false, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
+                            body =
+                                "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                                "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                                $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
+                                body;
                             GetBody(dto, persona, enableQr, privacy, enableLogo, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
                             GetBody(dto, persona, false, true, false, ref body);
                             break;
+                        case TemplateTypeEnum.HTML_PDF:
+                            GetBody(dto, persona, false, true, false, ref body);
+                            break;
                         case TemplateTypeEnum.FIRMA:
+                            body =
+                                "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                                "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                                $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
+                                body;
                             GetBodyTemporaneo(dto, privacy, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:

@@ -259,6 +259,7 @@ namespace PortaleRegione.BAL
                 switch (templateType)
                 {
                     case TemplateTypeEnum.PDF:
+                    case TemplateTypeEnum.HTML_PDF:
                         path = HttpContext.Current.Server.MapPath("~/templates/template_pdf.html");
                         break;
                     case TemplateTypeEnum.PDF_COPERTINA:
@@ -286,6 +287,7 @@ namespace PortaleRegione.BAL
                 switch (templateType)
                 {
                     case TemplateTypeEnum.PDF:
+                    case TemplateTypeEnum.HTML_PDF:
                         path = HttpContext.Current.Server.MapPath("~/templates/dasi/template_pdf.html");
                         break;
                     case TemplateTypeEnum.PDF_COPERTINA:
