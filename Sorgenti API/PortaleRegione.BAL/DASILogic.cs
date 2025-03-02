@@ -5364,8 +5364,7 @@ namespace PortaleRegione.API.Controllers
             if (!Directory.Exists(pathRepository))
                 Directory.CreateDirectory(pathRepository);
 
-            var nomeFile =
-                $"{Path.GetFileNameWithoutExtension(request.Nome)}_{DateTime.Now.Ticks}{Path.GetExtension(request.Nome)}";
+            var nomeFile = $"{DateTime.Now.Ticks}.pdf";
 
             var destinazioneDeposito = Path.Combine(pathRepository, nomeFile);
             File.WriteAllBytes(destinazioneDeposito, request.Contenuto);

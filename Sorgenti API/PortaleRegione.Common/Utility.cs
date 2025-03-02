@@ -531,22 +531,22 @@ namespace PortaleRegione.Common
             switch ((TipoDocumentoEnum)tipoDocumento)
             {
                 case TipoDocumentoEnum.TESTO_ALLEGATO:
-                    return "Allegato parte integrante atto.pdf";
+                    return "Allegato parte integrante atto";
                 case TipoDocumentoEnum.AGGIUNTIVO:
-                    return "Documento aggiuntivo.pdf";
+                    return "Documento aggiuntivo";
                 case TipoDocumentoEnum.MONITORAGGIO:
-                    return "Documento monitoraggio.pdf";
+                    return "Documento monitoraggio";
                 case TipoDocumentoEnum.ABBINAMENTO:
-                    return "Documento abbinamento.pdf";
+                    return "Documento abbinamento";
                 case TipoDocumentoEnum.CHIUSURA_ITER:
-                    return "Testo approvato.pdf";
+                    return "Testo approvato";
                 case TipoDocumentoEnum.RISPOSTA:
                 case TipoDocumentoEnum.TESTO_RISPOSTA:
-                    return "Testo risposta.pdf";
+                    return "Testo risposta";
                 case TipoDocumentoEnum.TESTO_PRIVACY:
-                    return "Documento privacy.pdf";
+                    return "Documento privacy";
                 case TipoDocumentoEnum.VERBALE_VOTAZIONE:
-                    return "Verbale votazione.pdf";
+                    return "Verbale votazione";
                 default:
                     throw new ArgumentOutOfRangeException($"Tipo documento non riconosciuto: {tipoDocumento}");
             }
