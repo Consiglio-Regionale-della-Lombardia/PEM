@@ -709,7 +709,7 @@ async function inviaDatiChips(page, size) {
 			ErrorAlert(responseData.message);
 			return;
 		}
-
+		
 		if (responseData.Data && responseData.Data.Results && responseData.Data.Results.length > 0) {
             CreaTabella();
 		} else {
@@ -3078,13 +3078,12 @@ function ripristinaFiltri(){
 	}
 
 function filterByPage(page){
-	console.log("filterByPage")
     inviaDatiChips(page, $("#hdPaginazioneCorrente").val());
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function filterBySize(page, size){
-	console.log("filterBySIze")
+	
     inviaDatiChips(page, size);
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 }

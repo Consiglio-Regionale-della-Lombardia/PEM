@@ -83,7 +83,6 @@ namespace PortaleRegione.Client.Controllers
             }
 
             Session["RiepilogoDASI"] = model;
-
             return View("RiepilogoDASI", model);
         }
 
@@ -133,6 +132,7 @@ namespace PortaleRegione.Client.Controllers
 
                 var res = await apiGateway.DASI.Get(request);
                 res.CurrentUser = CurrentUser;
+
                 return Json(res);
             }
             catch (Exception e)
