@@ -1464,6 +1464,7 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			break;
 		case '@nameof(AttoDASIDto.AreaPolitica)':
 			var tipiAreaPolitica = [
+			    { id: @((int)AreaPoliticaIntEnum.Nessuno), text: 'Nessuno'},
 			    { id: @((int)AreaPoliticaIntEnum.Maggioranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza))'},
 			    { id: @((int)AreaPoliticaIntEnum.Minoranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza))'},
 			    { id: @((int)AreaPoliticaIntEnum.Misto_Maggioranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza))'},
