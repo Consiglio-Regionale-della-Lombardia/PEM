@@ -9,6 +9,7 @@ using System.Text;
 using log4net;
 using log4net.Config;
 using OfficeOpenXml;
+using PortaleRegione.Common;
 using PortaleRegione.Crypto;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -398,6 +399,7 @@ WHERE a.Legislatura IS NULL;
                                 }
                                 else
                                 {
+                                    noteChiusuraIter = Utility.StripWordMarkup(noteChiusuraIter);
                                     var queryInsertNotaChiusuraIter =
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
@@ -430,6 +432,7 @@ WHERE a.Legislatura IS NULL;
                                 }
                                 else
                                 {
+                                    noteRisposta = Utility.StripWordMarkup(noteRisposta);
                                     var queryInsertNotaRisposta =
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
@@ -461,6 +464,7 @@ WHERE a.Legislatura IS NULL;
                                 }
                                 else
                                 {
+                                    noteAggiuntive = Utility.StripWordMarkup(noteAggiuntive);
                                     var queryInsertNoteAggiuntive =
                                         @"INSERT INTO ATTI_NOTE (Uid,UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
@@ -492,6 +496,7 @@ WHERE a.Legislatura IS NULL;
                                 }
                                 else
                                 {
+                                    noteAggiuntive2 = Utility.StripWordMarkup(noteAggiuntive2);
                                     var queryInsertNoteAggiuntive2 =
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
@@ -524,6 +529,7 @@ WHERE a.Legislatura IS NULL;
                                 }
                                 else
                                 {
+                                    noteAnnotazioni = Utility.StripWordMarkup(noteAnnotazioni);
                                     var queryInsertNoteAnnotazioni =
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
@@ -556,6 +562,8 @@ WHERE a.Legislatura IS NULL;
                                 }
                                 else
                                 {
+                                    noteprivacy_dati_personali_sensibili_note =
+                                        Utility.StripWordMarkup(noteprivacy_dati_personali_sensibili_note);
                                     var queryInsertPrivacy_dati_personali_sensibili_note =
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
@@ -592,6 +600,8 @@ WHERE a.Legislatura IS NULL;
                                 }
                                 else
                                 {
+                                    noteprivacy_dati_personali_giudiziari_note =
+                                        Utility.StripWordMarkup(noteprivacy_dati_personali_giudiziari_note);
                                     var queryInsertPrivacy_dati_personali_giudiziari_note =
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
@@ -629,6 +639,8 @@ WHERE a.Legislatura IS NULL;
                                 }
                                 else
                                 {
+                                    noteprivacy_dati_personali_semplici_note =
+                                        Utility.StripWordMarkup(noteprivacy_dati_personali_semplici_note);
                                     var queryInsertPrivacy_dati_personali_semplici_note =
                                         @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
@@ -1092,12 +1104,12 @@ WHERE a.Legislatura IS NULL;
                                 var dcrc = Convert.ToString(cellsAtti[row, 48].Value);
                                 if (string.IsNullOrEmpty(dcrc)) dcrc = "0";
 
-                                var areaTematica = Convert.ToString(cellsAtti[row, 72].Value);
-                                var altriSoggetti = Convert.ToString(cellsAtti[row, 71].Value);
+                                var areaTematica = Utility.StripWordMarkup(Convert.ToString(cellsAtti[row, 72].Value));
+                                var altriSoggetti = Utility.StripWordMarkup(Convert.ToString(cellsAtti[row, 71].Value));
 
-                                var competenzaMonitoraggio = Convert.ToString(cellsAtti[row, 68].Value);
-                                var noteImpegni_e_scadenze = Convert.ToString(cellsAtti[row, 69].Value);
-                                var statoAttuazione = Convert.ToString(cellsAtti[row, 70].Value);
+                                var competenzaMonitoraggio = Utility.StripWordMarkup(Convert.ToString(cellsAtti[row, 68].Value));
+                                var noteImpegni_e_scadenze = Utility.StripWordMarkup(Convert.ToString(cellsAtti[row, 69].Value));
+                                var statoAttuazione = Utility.StripWordMarkup(Convert.ToString(cellsAtti[row, 70].Value));
                                 var dataTrasmissioneMonitoraggio = Convert.ToString(cellsAtti[row, 73].Value);
                                 var conclusoMonitoraggioFromAlfresco = Convert.ToString(cellsAtti[row, 74].Value);
                                 var monitoraggioConcluso = !string.IsNullOrEmpty(conclusoMonitoraggioFromAlfresco) &&
