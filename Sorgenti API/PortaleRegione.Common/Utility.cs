@@ -27,6 +27,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
@@ -977,6 +978,30 @@ namespace PortaleRegione.Common
         public static string StripHTML(string input)
         {
             return Regex.Replace(input, "<.*?>", string.Empty).Replace("&nbsp;", " ");
+        }
+
+        public static string StripWordMarkup(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return string.Empty;
+
+            // Rimuove i commenti condizionali di Word (<!--[if gte mso 9]><xml>...</xml><![endif]-->)
+            string withoutComments = Regex.Replace(input, @"<!--\[if.*?\]\>.*?<!\[endif\]-->", string.Empty, RegexOptions.Singleline);
+
+            // Rimuove tutti i tag XML/HTML (inclusi quelli di Word come <w:p>, <w:r>, <o:OfficeDocumentSettings>)
+            string withoutTags = Regex.Replace(withoutComments, "<[^>]+>", string.Empty);
+
+            // Rimuove anche eventuali tag incompleti o parole chiave XML che iniziano con "<w:" o "<o:"
+            string cleaned = Regex.Replace(withoutTags, @"<\w+:[^\s>]+.*?", string.Empty);
+
+            // Decodifica le entità HTML (&nbsp;, &amp;, etc.)
+            string decodedText = HttpUtility.HtmlDecode(cleaned);
+
+            // Rimuove eventuali caratteri di controllo Unicode invisibili
+            string finalText = Regex.Replace(decodedText, @"[\u200B-\u200D\uFEFF]", string.Empty);
+
+            // Normalizza gli spazi multipli e rimuove spazi iniziali/finali
+            return Regex.Replace(finalText, @"\s+", " ").Trim();
         }
 
         private static string RegexPatterSubstitute(string text, string substitute, string regex_pattern)
