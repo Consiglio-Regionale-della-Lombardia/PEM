@@ -2446,7 +2446,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
         {
             area = area.Trim();
             if (string.IsNullOrEmpty(area))
-                return (int)AreaPoliticaIntEnum.Misto;
+                return (int)AreaPoliticaIntEnum.Nessuno; // #1300
             switch (area.ToLower())
             {
                 case "maggioranza":
@@ -2464,7 +2464,7 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                     return (int)AreaPoliticaIntEnum.Misto;
                 default:
                 {
-                    return (int)AreaPoliticaIntEnum.Misto;
+                    return (int)AreaPoliticaIntEnum.Nessuno; // #1300
                 }
             }
         }
