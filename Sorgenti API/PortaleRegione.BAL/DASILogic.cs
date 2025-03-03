@@ -292,7 +292,15 @@ namespace PortaleRegione.API.Controllers
             attoInDb.UIDPersonaModifica = persona.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
             attoInDb.IDTipo_Risposta = request.RispostaRichiesta;
-            attoInDb.AreaPolitica = request.AreaPolitica;
+
+            if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+            {
+                attoInDb.AreaPolitica = (int)AreaPoliticaIntEnum.Nessuno;
+            }
+            else
+            {
+                attoInDb.AreaPolitica = request.AreaPolitica;
+            }
 
             if (attoInDb.IDStato.Equals((int)StatiAttoEnum.COMPLETATO)
                 && !request.Stato.Equals((int)StatiAttoEnum.COMPLETATO))
