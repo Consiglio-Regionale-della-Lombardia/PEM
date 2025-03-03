@@ -701,7 +701,11 @@ async function salvaInformazioniRisposta() {
     const selectElementRispostaFornita = document.getElementById('tipi-risposta-fornita-select');
     const dateSeduta = document.querySelector('input[name="Atto.DataSedutaRisposta"]');
     const dateComunicazioneRisposta = document.querySelector('input[name="Atto.DataComunicazioneAssembleaRisposta"]');
-	const iterMultiplo = document.querySelector('input[name="Atto.IterMultiplo"]').checked;
+    let iterMultiplo = false;
+
+	if (document.querySelector('input[name="Atto.IterMultiplo"]')) {
+		iterMultiplo = document.querySelector('input[name="Atto.IterMultiplo"]').checked;
+    }
 
     const data = {
         UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',

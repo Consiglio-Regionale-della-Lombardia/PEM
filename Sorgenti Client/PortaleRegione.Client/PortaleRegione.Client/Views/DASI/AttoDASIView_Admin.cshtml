@@ -573,12 +573,15 @@
             </div>
         }
         <div class="input-field col s12 m12 l6">
-            <p>
-                <label>
-                    <input type="checkbox" name="Atto.IterMultiplo" value="true" @Html.Raw(Model.Atto.IterMultiplo ? "checked=\"checked\"" : "")/>
-                    <span>Iter multiplo</span>
-                </label>
-            </p>
+            @if (!atto.IsIQT() && !atto.IsMOZ())
+            {
+                <p>
+                    <label>
+                        <input type="checkbox" name="Atto.IterMultiplo" value="true" @Html.Raw(Model.Atto.IterMultiplo ? "checked=\"checked\"" : "")/>
+                        <span>Iter multiplo</span>
+                    </label>
+                </p>
+            }
         </div>
         <div class="input-field col l3 s12">
             @if (Model.CurrentUser.IsSegreteriaAssemblea)
