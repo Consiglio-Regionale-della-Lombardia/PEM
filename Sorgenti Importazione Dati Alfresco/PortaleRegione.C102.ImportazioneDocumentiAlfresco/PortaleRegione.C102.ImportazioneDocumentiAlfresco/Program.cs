@@ -292,7 +292,7 @@ VALUES (@Uid, @UIDAtto, @TipoDocumento, GETDATE(), @PercorsoFile, @Titolo, @Pubb
             case TipoDocumentoEnum.TESTO_RISPOSTA:
                 return "Testo risposta";
             case TipoDocumentoEnum.TESTO_PRIVACY:
-                return "Documento privacy";
+                return "Documento originale"; // #1306
             case TipoDocumentoEnum.VERBALE_VOTAZIONE:
                 return "Verbale votazione";
             default:
