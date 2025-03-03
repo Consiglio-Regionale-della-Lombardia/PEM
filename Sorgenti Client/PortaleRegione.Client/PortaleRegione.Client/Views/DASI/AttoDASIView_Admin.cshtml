@@ -1134,10 +1134,7 @@
                                     <option value="@Html.Raw((int)RisultatoVotazioneIterEnum.NESSUNO)" @Html.Raw(Model.Atto.RisultatoVotazioneIterCommissione == (int)RisultatoVotazioneIterEnum.NESSUNO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_RisultatoVotazioneDASI((int)RisultatoVotazioneIterEnum.NESSUNO)</option>
                                 }
                                 <option value="@Html.Raw((int)RisultatoVotazioneIterEnum.UNANIMITÀ)" @Html.Raw(Model.Atto.RisultatoVotazioneIterCommissione == (int)RisultatoVotazioneIterEnum.UNANIMITÀ ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_RisultatoVotazioneDASI((int)RisultatoVotazioneIterEnum.UNANIMITÀ)</option>
-                                @if (atto.FlussoRespingi)
-                                {
-                                    <option value="@Html.Raw((int)RisultatoVotazioneIterEnum.MAGGIORNAZA)" @Html.Raw(Model.Atto.RisultatoVotazioneIterCommissione == (int)RisultatoVotazioneIterEnum.MAGGIORNAZA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_RisultatoVotazioneDASI((int)RisultatoVotazioneIterEnum.MAGGIORNAZA)</option>
-                                }
+                                <option value="@Html.Raw((int)RisultatoVotazioneIterEnum.MAGGIORNAZA)" @Html.Raw(Model.Atto.RisultatoVotazioneIterCommissione == (int)RisultatoVotazioneIterEnum.MAGGIORNAZA ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_RisultatoVotazioneDASI((int)RisultatoVotazioneIterEnum.MAGGIORNAZA)</option>
                             </select>
                             <label for="Atto_RisultatoVotazioneCommissione">Risultato votazione</label>
                         </div>
@@ -1382,6 +1379,20 @@
                         </div>
                         <div class="col s12 l4 center">
                             <button type="button" role="button" id="btnFlussoRespingi" class="purple-text waves-effect waves-green btn-flat" style="width: 100%">RI-TRASMETTI IN COMMISSIONE</button>
+                        </div>
+                        <div class="col s12 l4 center hide-on-med-and-down">
+                            <i class="material-icons">warning</i>
+
+                        </div>
+                    </div>
+                }else if (atto.IsRIS() && atto.FlussoRespingi == true)
+                {
+                    <div class="row card-panel blue lighten-4">
+                        <div class="col s12 l4 center hide-on-med-and-down">
+                            <i class="material-icons">warning</i>
+                        </div>
+                        <div class="col s12 l4 center">
+                            RESPINTO IN COMMISSIONE IL @atto.DataFlussoRespingi.Value.ToString("dd/MM/yyyy HH:mm")
                         </div>
                         <div class="col s12 l4 center hide-on-med-and-down">
                             <i class="material-icons">warning</i>

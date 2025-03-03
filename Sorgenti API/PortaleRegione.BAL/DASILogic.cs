@@ -628,6 +628,8 @@ namespace PortaleRegione.API.Controllers
                 && attoInDb.Tipo.Equals((int)TipoAttoEnum.RIS))
             {
                 attoInDb.FlussoRespingi = true;
+                attoInDb.UIDPersonaFlussoRespingi = currentUser.UID_persona;
+                attoInDb.DataFlussoRespingi = DateTime.Now;
 
                 // pulisci pannello chiusura iter
                 attoInDb.TipoChiusuraIter = null;

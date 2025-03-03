@@ -156,6 +156,8 @@ namespace PortaleRegione.Domain
         public bool FlussoRespingi { get; set; } = false;
 
         public int Ritardo { get; set; } = 0;
+        public Guid? UIDPersonaFlussoRespingi { get; set; }
+        public DateTime? DataFlussoRespingi { get; set; }
 
         public string GetLegislatura()
         {

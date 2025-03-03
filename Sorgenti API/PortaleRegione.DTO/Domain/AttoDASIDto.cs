@@ -392,6 +392,8 @@ public class AttoDASIDto
 
     public bool FlussoRespingi { get; set; } = false;
     [DisplayName("Ritardo")] public int Ritardo { get; set; } = 0;
+    public Guid? UIDPersonaFlussoRespingi { get; set; }
+    public DateTime? DataFlussoRespingi { get; set; }
 
     public string OggettoView()
     {
