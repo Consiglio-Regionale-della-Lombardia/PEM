@@ -4538,7 +4538,7 @@ namespace PortaleRegione.API.Controllers
                         }
                         else
                         {
-                            cell.Value = cellValue;
+                            cell.Value = Utility.StripWordMarkup(cellValue.ToString()); // #1274
                         }
                     }
                 }
