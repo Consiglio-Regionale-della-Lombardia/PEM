@@ -39,7 +39,7 @@
 		waiting(true);
 		resetModalDocumento();
 		$('#tipi-documento-select').empty();
-		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">Chiusura Iter</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">DCR</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
 		$('#tipi-documento-select').formSelect();
@@ -51,12 +51,13 @@
 		waiting(true);
 		resetModalDocumento();
 		$('#tipi-documento-select').empty();
-		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_ALLEGATO)">Testo cartaceo</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_ALLEGATO)">Testo allegato</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_PRIVACY)">Testo privacy</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.ABBINAMENTO)">Abbinamento</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.AGGIUNTIVO)">Aggiuntivo</option>');
+        $('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.RISPOSTA)">Risposta</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)">Monitoraggio</option>');
-		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">Chiusura Iter</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">DCR</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
 		$('#tipi-documento-select').formSelect();
