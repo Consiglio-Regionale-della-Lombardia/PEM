@@ -1187,7 +1187,7 @@ function CreaTabella() {
 					const year = date.getFullYear();
 					td.textContent = `${day}/${month}/${year}`;
 				} else {
-					td.textContent = result[col.propertyName];
+					td.innerHTML = result[col.propertyName];
 				}
 			}
 			row.appendChild(td);
