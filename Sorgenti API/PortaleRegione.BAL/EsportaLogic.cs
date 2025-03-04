@@ -683,9 +683,10 @@ namespace PortaleRegione.BAL
             try
             {
                 // #994
+                // #1287 Tolta la prima riga dell'excel
 
                 //HEADER
-                var headerRow = 2;
+                var headerRow = 1;
 
                 sheet.Cells[headerRow, 1].Value = "TIPO ATTO";
                 sheet.Cells[headerRow, 2].Value = "TIPO MOZIONE";
@@ -705,7 +706,7 @@ namespace PortaleRegione.BAL
                 sheet.Cells[headerRow, 16].Value = "ITER MULTIPLO";
                 sheet.Cells[headerRow, 17].Value = "NOTE RISPOSTA";
                 sheet.Cells[headerRow, 18].Value = "ANNOTAZIONI";
-                sheet.Cells[headerRow, 19].Value = "TIPO CHIUSURA ITER";
+                sheet.Cells[headerRow, 19].Value = "MOTIVO CHIUSURA";
                 sheet.Cells[headerRow, 20].Value = "DATA CHIUSURA ITER";
                 sheet.Cells[headerRow, 21].Value = "NOTE CHIUSURA ITER";
                 sheet.Cells[headerRow, 22].Value = "RISULTATO VOTAZIONE";
@@ -725,7 +726,7 @@ namespace PortaleRegione.BAL
                 sheet.Cells[headerRow, 36].Value = "STATO DI ATTUAZIONE";
                 sheet.Cells[headerRow, 37].Value = "CONCLUSO";
 
-                var row = 3;
+                var row = 2;
                 foreach (var atto in attiList)
                 {
                     // Popolamento delle celle
@@ -760,12 +761,12 @@ namespace PortaleRegione.BAL
                     sheet.Cells[row, 28].Value = atto.BURL;
                     sheet.Cells[row, 29].Value = atto.Emendato ? "Sì" : "No";
                     sheet.Cells[row, 30].Value = atto.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy");
-                    sheet.Cells[row, 31].Value = atto.AreaTematica;
+                    sheet.Cells[row, 31].Value = Utility.StripWordMarkup(atto.AreaTematica);
                     sheet.Cells[row, 32].Value = atto.DataTrasmissione?.ToString("dd/MM/yyyy");
-                    sheet.Cells[row, 33].Value = atto.AltriSoggetti;
-                    sheet.Cells[row, 34].Value = atto.CompetenzaMonitoraggio;
-                    sheet.Cells[row, 35].Value = atto.ImpegniScadenze;
-                    sheet.Cells[row, 36].Value = atto.StatoAttuazione;
+                    sheet.Cells[row, 33].Value = Utility.StripWordMarkup(atto.AltriSoggetti);
+                    sheet.Cells[row, 34].Value = Utility.StripWordMarkup(atto.CompetenzaMonitoraggio);
+                    sheet.Cells[row, 35].Value = Utility.StripWordMarkup(atto.ImpegniScadenze);
+                    sheet.Cells[row, 36].Value = Utility.StripWordMarkup(atto.StatoAttuazione);
                     sheet.Cells[row, 37].Value = atto.IsChiuso ? "Sì" : "No";
 
                     row++;
@@ -783,9 +784,10 @@ namespace PortaleRegione.BAL
             try
             {
                 // #994
+                // #1287
 
                 //HEADER
-                var headerRow = 2;
+                var headerRow = 1;
 
                 sheet.Cells[headerRow, 1].Value = nameof(AttoDASIDto.Legislatura).ToUpper();
                 sheet.Cells[headerRow, 2].Value = nameof(AttoDASIDto.Etichetta).ToUpper();
@@ -794,22 +796,22 @@ namespace PortaleRegione.BAL
                 sheet.Cells[headerRow, 5].Value = nameof(AttoDASIDto.TipoMOZ).ToUpper();
                 sheet.Cells[headerRow, 6].Value = nameof(AttoDASIDto.Oggetto).ToUpper();
                 sheet.Cells[headerRow, 7].Value = nameof(AttoDASIDto.Firme).ToUpper();
-                sheet.Cells[headerRow, 8].Value = nameof(AttoDASIDto.Timestamp).ToUpper();
+                sheet.Cells[headerRow, 8].Value = "DATA PRESENTAZIONE";
                 sheet.Cells[headerRow, 9].Value = nameof(AttoDASIDto.DataAnnunzio).ToUpper();
                 sheet.Cells[headerRow, 10].Value = nameof(AttoDASIDto.Firme_ritirate).ToUpper();
                 sheet.Cells[headerRow, 11].Value = nameof(AttoDASIDto.ConteggioFirme).ToUpper();
                 sheet.Cells[headerRow, 12].Value = nameof(AttoDASIDto.AreaPolitica).ToUpper();
-                sheet.Cells[headerRow, 13].Value = nameof(AttoDASIDto.IDStato).ToUpper();
-                sheet.Cells[headerRow, 14].Value = nameof(AttoDASIDto.TipoChiusuraIter).ToUpper();
+                sheet.Cells[headerRow, 13].Value = "STATO";
+                sheet.Cells[headerRow, 14].Value = "MOTIVO CHIUSURA";
                 sheet.Cells[headerRow, 15].Value = nameof(AttoDASIDto.DCR).ToUpper();
                 sheet.Cells[headerRow, 16].Value = nameof(AttoDASIDto.DataChiusuraIter).ToUpper();
-                sheet.Cells[headerRow, 17].Value = nameof(AttoDASIDto.UIDSeduta).ToUpper();
+                sheet.Cells[headerRow, 17].Value = "SEDUTA";
                 sheet.Cells[headerRow, 18].Value = nameof(AttoDASIDto.TipoVotazioneIter).ToUpper();
                 sheet.Cells[headerRow, 19].Value = nameof(AttoDASIDto.Emendato).ToUpper();
                 sheet.Cells[headerRow, 20].Value = "INFORMAZIONI RISPOSTA";
                 sheet.Cells[headerRow, 21].Value = nameof(AttoDASIDto.ImpegniScadenze).ToUpper();
 
-                var row = 3;
+                var row = 2;
                 foreach (var atto in attiList)
                 {
                     var firme = new List<string>();
@@ -861,7 +863,7 @@ namespace PortaleRegione.BAL
                     sheet.Cells[row, 19].Value = atto.Emendato ? "Si" : "";
                     sheet.Cells[row, 20].Value =
                         atto.IDStato > (int)StatiAttoEnum.PRESENTATO ? ParseRisposte(atto) : "";
-                    sheet.Cells[row, 21].Value = atto.ImpegniScadenze;
+                    sheet.Cells[row, 21].Value = Utility.StripWordMarkup(atto.ImpegniScadenze);
 
                     row++;
                 }
