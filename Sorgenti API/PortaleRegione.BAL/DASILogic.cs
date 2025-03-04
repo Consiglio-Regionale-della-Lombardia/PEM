@@ -333,6 +333,7 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.UIDPersonaRelatore1 = request.UIDPersonaRelatore1;
                 attoInDb.UIDPersonaRelatore2 = request.UIDPersonaRelatore2;
                 attoInDb.UIDPersonaRelatoreMinoranza = request.UIDPersonaRelatoreMinoranza;
+                attoInDb.Timestamp = request.Timestamp;
             }
 
             await _unitOfWork.CompleteAsync();

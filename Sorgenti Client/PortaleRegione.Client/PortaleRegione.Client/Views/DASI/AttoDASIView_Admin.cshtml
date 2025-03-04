@@ -278,10 +278,17 @@
                         <blockquote>
                             @Html.Raw(atto.OggettoView())
                         </blockquote>
-
-
                     </div>
                 </div>
+                @if (atto.IsRIS())
+                {
+                    <div class="row">
+                        <div class="input-field col s3">
+                            @Html.TextBoxFor(s => s.Atto.Timestamp, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                            @Html.LabelFor(s => s.Atto.Timestamp, new { @class = "active" })
+                        </div>
+                    </div>
+                }
                 <div class="row">
                     <div class="input-field col s12 m12 l6">
                         @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
@@ -2016,6 +2023,7 @@
                         data.UIDPersonaRelatore1 = $('select[id="Atto_UIDPersonaRelatore1"]').children("option:selected").val();
                         data.UIDPersonaRelatore2 = $('select[id="Atto_UIDPersonaRelatore2"]').children("option:selected").val();
                         data.UIDPersonaRelatoreMinoranza = $('select[id="Atto_UIDPersonaRelatoreMinoranza"]').children("option:selected").val();
+                        data.Timestamp = document.querySelector('input[name="Atto.Timestamp"]').value;
                     }
 
                     if (@Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.ITL) || @Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.ITR) || @Html.Raw(Model.Atto.Tipo) == @Html.Raw((int)TipoAttoEnum.IQT)) {

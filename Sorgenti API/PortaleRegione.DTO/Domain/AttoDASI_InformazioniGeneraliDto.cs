@@ -25,6 +25,7 @@ public class AttoDASI_InformazioniGeneraliDto
     public Guid UIDAtto { get; set; }
     public int Stato { get; set; }             // ID dello stato dell'atto (Presentato, In Trattazione, Completato)
     public DateTime DataAnnunzio { get; set; } // Data dell'annuncio
+    public DateTime? Timestamp { get; set; } // Data presentazione modificabile per le RIS #1297
     public string Oggetto { get; set; }        // Oggetto dell'atto
     public string Protocollo { get; set; }     // Codice del protocollo
     public string CodiceMateria { get; set; }  // Codice della materia
