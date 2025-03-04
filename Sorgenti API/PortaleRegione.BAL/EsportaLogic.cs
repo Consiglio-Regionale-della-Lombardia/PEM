@@ -683,10 +683,10 @@ namespace PortaleRegione.BAL
             try
             {
                 // #994
-                // #1287 Tolta la prima riga dell'excel
+                // #1287
 
                 //HEADER
-                var headerRow = 1;
+                var headerRow = 2;
 
                 sheet.Cells[headerRow, 1].Value = "TIPO ATTO";
                 sheet.Cells[headerRow, 2].Value = "TIPO MOZIONE";
@@ -706,7 +706,7 @@ namespace PortaleRegione.BAL
                 sheet.Cells[headerRow, 16].Value = "ITER MULTIPLO";
                 sheet.Cells[headerRow, 17].Value = "NOTE RISPOSTA";
                 sheet.Cells[headerRow, 18].Value = "ANNOTAZIONI";
-                sheet.Cells[headerRow, 19].Value = "MOTIVO CHIUSURA";
+                sheet.Cells[headerRow, 19].Value = "TIPO CHIUSURA ITER";
                 sheet.Cells[headerRow, 20].Value = "DATA CHIUSURA ITER";
                 sheet.Cells[headerRow, 21].Value = "NOTE CHIUSURA ITER";
                 sheet.Cells[headerRow, 22].Value = "RISULTATO VOTAZIONE";
@@ -726,7 +726,7 @@ namespace PortaleRegione.BAL
                 sheet.Cells[headerRow, 36].Value = "STATO DI ATTUAZIONE";
                 sheet.Cells[headerRow, 37].Value = "CONCLUSO";
 
-                var row = 2;
+                var row = 3;
                 foreach (var atto in attiList)
                 {
                     // Popolamento delle celle
