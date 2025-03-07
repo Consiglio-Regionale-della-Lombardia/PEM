@@ -300,7 +300,7 @@
 			cardTemplates.forEach(function (template) {
 				cardTemplatesTypeSelect.append(`<option value="${template.Uid}">${template.Nome}</option>`);
 			});
-		}		
+		}
 		cardTemplatesTypeSelect.formSelect();
 
 		var copertine = await GetCopertine();
@@ -313,7 +313,7 @@
 				coverTypeSelect.append(`<option value="${copertina.Uid}">${copertina.Nome}</option>`);
 			});
 		}
-		
+
 		coverTypeSelect.formSelect();
 
 		$('#chips-container-report-config').empty();
@@ -335,10 +335,10 @@
 			$('select[name="dataViewType"]').val(selectedReport.dataviewtype).formSelect();
 			$('select[name="dataViewType_Templates"]').val(selectedReport.dataviewtype_template).formSelect();
 			$('select[name="exportFormat"]').val(selectedReport.exportformat).formSelect();
-			
+
 			var columns = JSON.parse(selectedReport.columns);
 			columns.forEach(function (columnId) {
-				$('select[name="columns"]').find(`option[value="${columnId}"]`).prop('selected', true);
+                $('select[name="columns"]').find(`option[value="${columnId}"]`).prop('selected', true);
 			});
 			$('select[name="columns"]').formSelect();
 
@@ -376,12 +376,22 @@
 
             if (savedColumns.length > 0 && columnsSelect) {
                 savedColumns.forEach(function (column) {
-                    // Trova l'opzione corrispondente nella select
-                    const option = Array.from(columnsSelect.options).find(opt => opt.value === column.propertyName);
 
-                    // Se l'opzione esiste, la selezioniamo
-                    if (option) {
-                        option.selected = true;
+					// #1224
+					if (column.propertyName.includes("@Html.Raw(nameof(AttoDASIReportDto.Firme))")) {
+                        let option = Array.from(columnsSelect.options).find(opt => opt.value === "@Html.Raw(nameof(AttoDASIReportDto.Iniziativa))");
+
+                        if (option) {
+                            option.selected = true;
+                        }
+                    } else {
+                        // Trova l'opzione corrispondente nella select
+                        const option = Array.from(columnsSelect.options).find(opt => opt.value === column.propertyName);
+
+                        // Se l'opzione esiste, la selezioniamo
+                        if (option) {
+                            option.selected = true;
+                        }
                     }
                 });
 
@@ -408,7 +418,7 @@
 
 		chipsContainer.appendChild(newChip);
 	}
-	
+
 	function addChipReportSorting(chipText) {
 		var chipsContainer = document.getElementById('chips-container-report-sort');
 		var newChip = document.createElement('div');
@@ -442,7 +452,7 @@
 				chipsKeys = [];
 
                 ripristinaOrdinamento();
-				ripristinaFiltri();			
+				ripristinaFiltri();
 
 				$('#chips-container-selected-report').empty();
 				var btnGeneraReport = document.getElementById('btnReportConfig');
