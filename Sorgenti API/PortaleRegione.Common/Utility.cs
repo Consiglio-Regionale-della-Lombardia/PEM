@@ -1271,7 +1271,8 @@ namespace PortaleRegione.Common
                 }
                 else
                 {
-                    if (IsDateProperty(filterItem.property))
+                    if (IsDateProperty(filterItem.property) 
+                        && !Guid.TryParse(filterItem.value, out var resGuid))
                     {
                         result.Add(new FilterStatement<AttoDASIDto>
                         {

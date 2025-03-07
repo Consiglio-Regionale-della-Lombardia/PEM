@@ -866,7 +866,7 @@ namespace PortaleRegione.Persistance
             {
                 query = query.Where(a => a.DCR.Value.Equals(intDcr));
             }
-            
+
             if (intDccr > 0)
             {
                 query = query.Where(a => a.DCCR.Value.Equals(intDccr));
@@ -1084,8 +1084,8 @@ namespace PortaleRegione.Persistance
 
             if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo.Equals((int)tipo));
 
-            return await query
-                .CountAsync();
+            var res = await query.CountAsync();
+            return res;
         }
 
         public async Task<int> Count(PersonaDto currentUser, StatiAttoEnum stato, ClientModeEnum clientMode,
@@ -1632,11 +1632,11 @@ namespace PortaleRegione.Persistance
                                             || commissioniProponentiQuery.Contains(atto.UIDAtto)
                                             || monitoraggioQuery.Contains(atto.UIDAtto));
             }
-            
+
             if (queryExtended.Organi_Commissione.Any())
             {
                 var risposteQuery = PRContext.ATTI_RISPOSTE
-                    .Where(organo => queryExtended.Organi_Commissione.Contains(organo.IdOrgano) 
+                    .Where(organo => queryExtended.Organi_Commissione.Contains(organo.IdOrgano)
                                      && organo.TipoOrgano.Equals((int)TipoOrganoEnum.COMMISSIONE))
                     .Select(organo => organo.UIDAtto)
                     .Distinct()
@@ -1644,11 +1644,11 @@ namespace PortaleRegione.Persistance
 
                 query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
             }
-            
+
             if (queryExtended.Organi_Giunta.Any())
             {
                 var risposteQuery = PRContext.ATTI_RISPOSTE
-                    .Where(organo => queryExtended.Organi_Giunta.Contains(organo.IdOrgano) 
+                    .Where(organo => queryExtended.Organi_Giunta.Contains(organo.IdOrgano)
                                      && organo.TipoOrgano.Equals((int)TipoOrganoEnum.GIUNTA))
                     .Select(organo => organo.UIDAtto)
                     .Distinct()

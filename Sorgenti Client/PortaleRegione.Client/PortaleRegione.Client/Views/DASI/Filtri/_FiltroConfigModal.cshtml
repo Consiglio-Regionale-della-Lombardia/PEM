@@ -31,9 +31,11 @@
 
 <script>
 	var filtriPreferitiArray = [];
-    document.getElementById('btnFiltroConfig').addEventListener('click', function () {
-        openModalWithContent_Preferiti("", localStorage.getItem('filtriDasi'));
-    });
+	if (document.getElementById('btnFiltroConfig')) {
+        document.getElementById('btnFiltroConfig').addEventListener('click', function () {
+            openModalWithContent_Preferiti("", localStorage.getItem('filtriDasi'));
+        });
+    }
     document.getElementById('btnSalvaConfig').addEventListener('click', async function () {
         var request = {};
         var filtri = JSON.parse(localStorage.getItem('filtriDasi'));

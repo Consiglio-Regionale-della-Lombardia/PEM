@@ -70,6 +70,11 @@ function ensureButtonAttributes() {
 	});
 }
 
+function getUrlParameter(name) {
+	const urlParams = new URLSearchParams(window.location.search);
+	return urlParams.get(name);
+}
+
 function loaderView(enable) {
     if (enable) {
         $("body").removeClass("loaded");

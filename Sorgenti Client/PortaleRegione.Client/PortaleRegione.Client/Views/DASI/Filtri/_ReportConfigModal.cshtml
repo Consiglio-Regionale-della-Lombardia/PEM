@@ -81,10 +81,11 @@
 
 <script>
 	var reportsArray = [];
-
-	document.getElementById('btnReportConfig').addEventListener('click', async function () {
-		await openModalWithContent_Report("", localStorage.getItem('filtriDasi'));
-	});
+	if (document.getElementById('btnReportConfig')) {
+        document.getElementById('btnReportConfig').addEventListener('click', async function () {
+            await openModalWithContent_Report("", localStorage.getItem('filtriDasi'));
+        });
+    }
 
 	 function exportFormat_onChange(ctrl) {
         var exportFormat = $(ctrl).val();
