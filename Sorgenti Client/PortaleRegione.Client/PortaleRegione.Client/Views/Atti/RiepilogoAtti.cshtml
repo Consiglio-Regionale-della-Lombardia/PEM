@@ -142,7 +142,7 @@
                                 <div class="col s2 right-align">
                                     @if (atto.Data_apertura.HasValue)
                                     {
-                                        <button type="button" role="button" class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
+                                        <button type="button" role="button" class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti/subemendamenti">
                                             <i class="material-icons" style="line-height: unset">chevron_right</i>
                                         </button>
                                     }

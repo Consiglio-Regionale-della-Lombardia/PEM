@@ -217,8 +217,8 @@
                             <div class="col s2 right-align">
                                 @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL && atto.Data_apertura.HasValue)
                                 {
-                                    <button type="button" role="button" class="btn-flat black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')" title="Riepilogo emendamenti">
-                                        RIEPILOGO EM
+                                    <button type="button" role="button" class="btn-flat black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')" title="Riepilogo emendamenti/subemendamenti">
+                                        RIEPILOGO EM/SUBEM
                                     </button>
                                 }
                             </div>
