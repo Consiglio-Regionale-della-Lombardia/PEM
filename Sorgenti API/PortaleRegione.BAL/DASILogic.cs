@@ -1536,6 +1536,12 @@ namespace PortaleRegione.API.Controllers
                 
                 if (dto.IsODG() && attoInDb.UID_Atto_ODG.HasValue)
                 {
+                    var abbinamentoSecondario =
+                        dto.Abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_Atto_ODG);
+                    if (abbinamentoSecondario != null)
+                    {
+                        dto.Abbinamenti.Remove(abbinamentoSecondario);
+                    }
                     var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
                     dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO
                         ? "Dibattito"

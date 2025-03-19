@@ -119,9 +119,10 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                             idNodoAlfresco = cellsAssociazione_Gea[rowAGea, 2].Value.ToString(),
                             NumeroAtto = cellsAssociazione_Gea[rowAGea, 3].Value.ToString(),
                             Legislatura = cellsAssociazione_Gea[rowAGea, 5].Value.ToString(),
-                            NumeroAtto_Gea = Convert.ToString(cellsAssociazione_Gea[rowAGea, 3].Value),
+                            NumeroAtto_Gea = Convert.ToString(cellsAssociazione_Gea[rowAGea, 8].Value),
                             TipoAtto_Gea = cellsAssociazione_Gea[rowAGea, 9].Value.ToString(),
-                            Ufficiale = Convert.ToString(cellsAssociazione_Gea[rowAGea, 10].Value)
+                            Ufficiale = Convert.ToString(cellsAssociazione_Gea[rowAGea, 10].Value),
+                            UIDAtto = Guid.NewGuid()
                         };
 
                         //if (abbinamentoGea.IsUfficiale())
@@ -153,19 +154,20 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 string risultatoNote = valoreNote?.Substring(0, Math.Min(100, valoreNote.Length)) ?? string.Empty;
 
                                 nattoGea =
-                                    $"{cellsAssociazione_Sind_Ind_Altro[rowAGea, 11].Value} {risultatoNote}";
+                                    $"{cellsAssociazione_Sind_Ind_Altro[rowAGea, 11].Value} {risultatoNote.Replace("'", "_")}";
                             }
                         }
 
                         var abbinamentoGea = new AbbinamentoGea
                         {
                             idNodoAlfresco = cellsAssociazione_Sind_Ind_Altro[rowAGea, 2].Value.ToString(),
-                            NumeroAtto = nattoGea,
+                            NumeroAtto = cellsAssociazione_Sind_Ind_Altro[rowAGea, 4].Value.ToString(),
                             Legislatura = cellsAssociazione_Sind_Ind_Altro[rowAGea, 6].Value.ToString(),
                             NumeroAtto_Gea = nattoGea,
                             TipoAtto_Gea = cellsAssociazione_Sind_Ind_Altro[rowAGea, 11].Value.ToString(),
                             Ufficiale = Convert.ToString(cellsAssociazione_Sind_Ind_Altro[rowAGea, 12].Value),
-                            Note = Convert.ToString(cellsAssociazione_Sind_Ind_Altro[rowAGea, 14].Value)
+                            Note = Convert.ToString(cellsAssociazione_Sind_Ind_Altro[rowAGea, 14].Value),
+                            UIDAtto = Guid.NewGuid()
                         };
 
                         //if (abbinamentoGea.IsUfficiale())
@@ -261,8 +263,6 @@ WHERE a.Legislatura IS NULL;
                                 {
                                     foreach (var abbinamentoGea in item.Abbinamenti)
                                     {
-                                        abbinamentoGea.UIDAtto = Guid.NewGuid();
-
                                         var insertAttoGea = @"IF NOT EXISTS 
                             (SELECT 1 FROM ATTI WHERE NAtto = @NAtto AND IDTipoAtto = @IDTipoAtto AND Legislatura = @id_legislatura)
                             BEGIN
@@ -2171,66 +2171,24 @@ Privacy{FIELD_DATA_DataComunicazioneAssemblea}, MonitoraggioConcluso{FIELD_DATA_
                                 .FirstOrDefault(abbinamento => abbinamento.idNodoAlfresco == attoImportatoItem.Value.idNodoAlfresco);
 
                             if (risultatoRicerca == null) { continue; }
+
                             var queryInsertAbbinamentoGea =
                                 @"INSERT INTO ATTI_ABBINAMENTI (Uid, Data, UIDAtto, UIDAttoAbbinato)
                                                     VALUES
-                                                (@IdAbbinamento, GETDATE(), @UIDAtto, (SELECT DISTINCT UIDAtto FROM ATTI WHERE IDTipoAtto = @TipoAtto AND NAtto = @natto AND Legislatura = @id_legislatura))";
+                                                (@IdAbbinamento, GETDATE(), @UIDAtto, (SELECT TOP 1 UIDAtto FROM ATTI WHERE NAtto = @natto AND IDTipoAtto = @TipoAtto AND Legislatura = @id_legislatura))";
                             using (var commandInsertAbbinamentoGea =
                                    new SqlCommand(queryInsertAbbinamentoGea, connection))
                             {
                                 commandInsertAbbinamentoGea.Parameters.AddWithValue("@IdAbbinamento",
                                     Guid.NewGuid());
                                 commandInsertAbbinamentoGea.Parameters.AddWithValue("@UIDAtto", attoImportatoItem.Value.UidAtto);
+                                //commandInsertAbbinamentoGea.Parameters.AddWithValue("@UIDAttoAbbinato", risultatoRicerca.UIDAtto);
                                 commandInsertAbbinamentoGea.Parameters.AddWithValue("@TipoAtto", (int)ConvertToEnumTipoAtto(risultatoRicerca.TipoAtto_Gea));
-                                commandInsertAbbinamentoGea.Parameters.AddWithValue("@natto", risultatoRicerca.NumeroAtto);
+                                commandInsertAbbinamentoGea.Parameters.AddWithValue("@natto", risultatoRicerca.NumeroAtto_Gea);
                                 commandInsertAbbinamentoGea.Parameters.AddWithValue("@id_legislatura", int.Parse(risultatoRicerca.Legislatura));
                                 commandInsertAbbinamentoGea.ExecuteNonQuery();
                             }
                         }
-
-                        //var listaPiattaRaggruppata = abbinamentiRaggruppatiPerLegislatura
-                        //    .SelectMany(g => g.Abbinamenti)
-                        //    .ToList();
-                        //var count_nontrovati = 0;
-                        //var count_errore = 0;
-                        //var count_inseriti = 0;
-                        //foreach (var abbinamentoGea in listaPiattaRaggruppata)
-                        //{
-                        //    if (!attiImportati.TryGetValue(abbinamentoGea.idNodoAlfresco, out var attoPadre))
-                        //    {
-                        //        count_nontrovati++;
-                        //        Console.WriteLine(
-                        //            $"Atto padre non trovato: {abbinamentoGea.idNodoAlfresco}, {abbinamentoGea.Legislatura}, {abbinamentoGea.NumeroAtto}");
-                        //        continue;
-                        //    }
-
-                        //    try
-                        //    {
-                        //        var queryInsertAbbinamentoGea =
-                        //            @"INSERT INTO ATTI_ABBINAMENTI (Uid, Data, UIDAtto, UIDAttoAbbinato)
-                        //                            VALUES
-                        //                        (@IdAbbinamento, GETDATE(), @UIDAtto, @UIDAttoAbbinato)";
-                        //        using (var commandInsertAbbinamentoGea =
-                        //               new SqlCommand(queryInsertAbbinamentoGea, connection))
-                        //        {
-                        //            commandInsertAbbinamentoGea.Parameters.AddWithValue("@IdAbbinamento",
-                        //                Guid.NewGuid());
-                        //            commandInsertAbbinamentoGea.Parameters.AddWithValue("@UIDAtto", attoPadre.UidAtto);
-                        //            commandInsertAbbinamentoGea.Parameters.AddWithValue("@UIDAttoAbbinato",
-                        //                abbinamentoGea.UIDAtto);
-                        //            commandInsertAbbinamentoGea.ExecuteNonQuery();
-                        //        }
-
-                        //        count_inseriti++;
-                        //    }
-                        //    catch (Exception e)
-                        //    {
-                        //        count_errore++;
-                        //    }
-                        //}
-
-                        //Console.WriteLine(
-                        //    $"Risultato: {count_inseriti}, {count_nontrovati}, {count_errore}");
                     }
                 }
             }

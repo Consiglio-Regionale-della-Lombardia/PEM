@@ -1097,12 +1097,12 @@
                     td.innerHTML += "</ul>";
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Abbinamenti)') {
 
-                    if (result.ODG_Atto_PEM) {
+					if (result.UID_Atto_ODG) {
                         td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">${result.ODG_Atto_PEM}</a></p>`;
                     }
 
                     result.Abbinamenti.forEach(abb => {
-                        td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UidAttoAbbinato}')">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</a></p>`;
+						td.innerHTML += `<p class="blue-text" style="text-decoration: underline;">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</p>`;
                     });
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Documenti)') {
                     result.Documenti.forEach(abb => {

@@ -167,7 +167,8 @@ internal class Program
                             continue;
                         }
 
-                        var systemFilename = $"{DateTime.Now.Ticks}.{Path.GetExtension(fileName)}";
+                        var uuid = Guid.NewGuid().ToString("N"); // "N" format rimuove i trattini
+                        var systemFilename = $"{uuid}{Path.GetExtension(fileName)}";
                         var newDirectoryPath = Path.Combine(destinationPath, atto.GetLegislatura(),
                             Utility.GetText_Tipo(tipoAtto), atto.Etichetta);
                         var newPath = Path.Combine(newDirectoryPath, systemFilename);
