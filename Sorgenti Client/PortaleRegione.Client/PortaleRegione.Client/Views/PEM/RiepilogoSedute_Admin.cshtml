@@ -198,7 +198,7 @@
 </div>
 
 <div class="fixed-action-btn">
-    <button type="button" id="btnCreaSeduta" class="btn-floating btn-large blue darken-3">
+    <button type="button" role="button" id="btnCreaSeduta" class="btn-floating btn-large blue darken-3" onclick="go('@Url.Action("NuovaSeduta", "PEM")')">
         <i class="large material-icons">add</i>
     </button>
 </div>
@@ -232,7 +232,6 @@
         Filtri_Sedute_CaricaDa("filter_sedute_da");
         Filtri_Sedute_CaricaA("filter_sedute_a");
 
-        $('#btnCreaSeduta').attr('href', '@Url.Action("NuovaSeduta", "PEM")');
         $('#btnSearch').on("click",
             function() {
                 openSearch();
