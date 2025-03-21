@@ -44,7 +44,7 @@ namespace PortaleRegione.Gateway
             return await GetFile(requestUrl, _token);
         }
         
-        public async Task<StampaDto> InserisciStampa(NuovaStampaRequest request)
+        public async Task<List<StampaDto>> InserisciStampa(NuovaStampaRequest request)
         {
             var requestUrl = $"{apiUrl}/";
             if (request.Modulo == ModuloStampaEnum.PEM)
@@ -53,7 +53,7 @@ namespace PortaleRegione.Gateway
                 requestUrl += $"{ApiRoutes.DASI.InserisciStampaMassiva}";
 
             var body = JsonConvert.SerializeObject(request);
-            return JsonConvert.DeserializeObject<StampaDto>(await Post(requestUrl, body, _token));
+            return JsonConvert.DeserializeObject<List<StampaDto>>(await Post(requestUrl, body, _token));
         }
         
         public async Task EliminaStampa(Guid id)

@@ -522,6 +522,10 @@
       <Project>{a7ada419-a178-40da-85cc-63f6875e5793}</Project>
       <Name>PortaleRegione.DTO</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Sorgenti API\PortaleRegione.Logger\PortaleRegione.Logger.csproj">
+      <Project>{1f9eec0b-08cc-481f-820e-c07b8327ac25}</Project>
+      <Name>PortaleRegione.Logger</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj">
       <Project>{34c5c26e-50bd-49f3-8500-62a8c209273b}</Project>
       <Name>PortaleRegione.Gateway</Name>

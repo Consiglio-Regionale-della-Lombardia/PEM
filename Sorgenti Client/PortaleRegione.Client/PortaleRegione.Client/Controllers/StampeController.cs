@@ -29,6 +29,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using PortaleRegione.Logger;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -112,45 +113,51 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> NuovaStampaDasi(StampaModel model)
         {
             var apiGateway = new ApiGateway(Token);
-
-            if (model.Tutti)
+            try
             {
-                var request = new BaseRequest<AttoDASIDto>
+                if (model.Tutti)
                 {
-                    page = 1,
-                    size = 99999,
-                    param = new Dictionary<string, object>
+                    var request = new BaseRequest<AttoDASIDto>
+                    {
+                        page = 1,
+                        size = 99999,
+                        param = new Dictionary<string, object>
                     {
                         { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }
                     }
-                };
+                    };
 
-                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters_dasi));
+                    request.filtro.AddRange(Utility.ParseFilterDasi(model.filters_dasi));
 
-                var list = await apiGateway.DASI.GetSoloIds(request);
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
-                if (model.Lista != null)
-                    foreach (var guid in model.Lista)
-                        list.Remove(guid);
+                    if (model.Lista != null)
+                        foreach (var guid in model.Lista)
+                            list.Remove(guid);
 
-                model.Lista = list;
-            }
-
-            var res = model.Lista.ToList();
-            if (model.da > 0 && model.a > 0)
-                if (model.da >= 1 && model.a <= res.Count)
-                {
-                    var range = res.GetRange(model.da - 1, model.a - (model.da - 1));
-                    res = range.ToList();
+                    model.Lista = list;
                 }
 
-            return Json(await apiGateway.Stampe.InserisciStampa(new NuovaStampaRequest
-            {
-                Lista = res,
-                Modulo = ModuloStampaEnum.DASI,
-                Da = model.da,
-                A = model.a
-            }), JsonRequestBehavior.AllowGet);
+                var res = model.Lista.ToList();
+                if (model.da > 0 && model.a > 0)
+                    if (model.da >= 1 && model.a <= res.Count)
+                    {
+                        var range = res.GetRange(model.da - 1, model.a - (model.da - 1));
+                        res = range.ToList();
+                    }
+
+                return Json(await apiGateway.Stampe.InserisciStampa(new NuovaStampaRequest
+                {
+                    Lista = res,
+                    Modulo = ModuloStampaEnum.DASI,
+                    Da = model.da,
+                    A = model.a
+                }), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex) {
+                Log.Error("Aggiungi Stampa", ex);
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }            
         }
 
         /// <summary>
