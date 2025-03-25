@@ -544,7 +544,7 @@ namespace PortaleRegione.BAL
                 }
 
                 var dasiSheet = package.Workbook.Worksheets.Add("Atti");
-                FillSheetDASI_Atti(dasiSheet, attiList);
+                FillSheetDASI_AttiUOLA(dasiSheet, attiList);
 
                 var firmatariSheet = package.Workbook.Worksheets.Add("Firmatari");
                 FillSheetDASI_Firmatari(firmatariSheet, firmatariList, attiList);
@@ -564,6 +564,112 @@ namespace PortaleRegione.BAL
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
 
             return result;
+        }
+
+        private void FillSheetDASI_AttiUOLA(ExcelWorksheet sheet, IEnumerable<AttoDASIDto> attiList)
+        {
+            try
+            {
+                //HEADER
+                var headerRow = 2;
+                sheet.Cells[headerRow, 1].Value = "TIPO ATTO";
+                sheet.Cells[headerRow, 2].Value = "TIPO MOZIONE";
+                sheet.Cells[headerRow, 3].Value = "NUMERO ATTO";
+                sheet.Cells[headerRow, 4].Value = "STATO";
+                sheet.Cells[headerRow, 5].Value = "PROTOCOLLO";
+                sheet.Cells[headerRow, 6].Value = "CODICE MATERIA";
+                sheet.Cells[headerRow, 7].Value = "DATA PRESENTAZIONE";
+                sheet.Cells[headerRow, 8].Value = "OGGETTO";
+                sheet.Cells[headerRow, 9].Value = "OGGETTO PRESENTATO/OGGETTO COMMISSIONE";
+                sheet.Cells[headerRow, 10].Value = "OGGETTO APPROVATO/OGGETTO ASSEMBLEA";
+                sheet.Cells[headerRow, 11].Value = "RISPOSTA RICHIESTA";
+                sheet.Cells[headerRow, 12].Value = "AREA";
+                sheet.Cells[headerRow, 13].Value = "DATA ANNUNZIO";
+                sheet.Cells[headerRow, 14].Value = "PUBBLICATO";
+                sheet.Cells[headerRow, 15].Value = "RISPOSTA FORNITA";
+                sheet.Cells[headerRow, 16].Value = "ITER MULTIPLO";
+                sheet.Cells[headerRow, 17].Value = "NOTE RISPOSTA";
+                sheet.Cells[headerRow, 18].Value = "ANNOTAZIONI";
+                sheet.Cells[headerRow, 19].Value = "TIPO CHIUSURA ITER";
+                sheet.Cells[headerRow, 20].Value = "DATA CHIUSURA ITER";
+                sheet.Cells[headerRow, 21].Value = "NOTE CHIUSURA ITER";
+                sheet.Cells[headerRow, 22].Value = "RISULTATO VOTAZIONE";
+                sheet.Cells[headerRow, 23].Value = "DATA TRASMISSIONE";
+                sheet.Cells[headerRow, 24].Value = "TIPO CHIUSURA ITER";
+                sheet.Cells[headerRow, 25].Value = "DATA CHIUSURA ITER";
+                sheet.Cells[headerRow, 26].Value = "NOTE CHIUSURA ITER";
+                sheet.Cells[headerRow, 27].Value = "TIPO VOTAZIONE";
+                sheet.Cells[headerRow, 28].Value = "DCR";
+                sheet.Cells[headerRow, 29].Value = "NUMERO DCR";
+                sheet.Cells[headerRow, 30].Value = "NUMERO DCRC";
+                sheet.Cells[headerRow, 31].Value = "BURL";
+                sheet.Cells[headerRow, 32].Value = "EMENDATO";
+                sheet.Cells[headerRow, 33].Value = "DATA COMUNICAZIONE ASSEMBLEA";
+                sheet.Cells[headerRow, 34].Value = "AREA TEMATICA";
+                sheet.Cells[headerRow, 35].Value = "DATA TRASMISSIONE";
+                sheet.Cells[headerRow, 36].Value = "ALTRI SOGGETTI";
+                sheet.Cells[headerRow, 37].Value = "COMPETENZA";
+                sheet.Cells[headerRow, 38].Value = "IMPEGNI E SCADENZE";
+                sheet.Cells[headerRow, 39].Value = "STATO DI ATTUAZIONE";
+                sheet.Cells[headerRow, 40].Value = "CONCLUSO";
+
+                int row = 3;
+                foreach (var atto in attiList)
+                {
+                    sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
+                    var tipoMozione = "";
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                    {
+                        tipoMozione = Utility.GetText_TipoMOZDASI(atto.TipoMOZ);
+
+                    }
+
+                    sheet.Cells[row, 2].Value = tipoMozione;
+                    sheet.Cells[row, 3].Value = Convert.ToInt32(atto.NAtto);
+                    sheet.Cells[row, 3].Style.Numberformat.Format = "0";
+
+                    sheet.Cells[row, 4].Value = Utility.GetText_StatoDASI(atto.IDStato, true);
+                    sheet.Cells[row, 5].Value = "";
+                    sheet.Cells[row, 6].Value = "";
+                    sheet.Cells[row, 7].Value = new DateTime(
+                        atto.Timestamp.Value.Year,
+                        atto.Timestamp.Value.Month,
+                        atto.Timestamp.Value.Day);
+                    sheet.Cells[row, 7].Style.Numberformat.Format = "dd/MM/yyyy";
+
+                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITL)
+                    {
+                        sheet.Cells[row, 8].Value = atto.Oggetto;
+                    }
+                    else
+                    {
+                        sheet.Cells[row, 8].Value = "";
+                    }
+
+                    //Matteo Cattapan #500 / #676
+                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.MOZ
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ODG)
+                    {
+                        sheet.Cells[row, 9].Value = atto.Oggetto; // oggetto presentato / oggetto commissione 
+                        sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
+                    }
+                    else
+                    {
+                        sheet.Cells[row, 9].Value = ""; // oggetto presentato / oggetto commissione 
+                        sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
+                    }
+
+                    sheet.Cells[row, 11].Value = Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta, true); // risposta
+                    row++;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public async Task<HttpResponseMessage> EsportaXLSConsiglieriDASI(List<Guid> data, PersonaDto currentUser)
