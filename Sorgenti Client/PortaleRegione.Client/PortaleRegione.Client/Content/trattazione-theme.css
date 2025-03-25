@@ -9,26 +9,32 @@
 .page-footer { background-color: #43a4f4 !important; }
 
 .tabs .tab a:hover, .tabs .tab a.active {
-    background-color: #BBDEFB !important;
-    color: white !important;
+    background-color: #43a4f4 !important;
+    color: black !important;
 }
 
 .tabs .tab a {
     background-color: white !important;
-    border: solid 1px #BBDEFB;
-    color: #BBDEFB !important;
+    border: solid 1px #1565c0;
+    color: grey !important;
 }
 
-.tabs .indicator { background-color: #73bbf7 !important; }
+.tabs .indicator {
+    background-color: #1565c0 !important;
+}
 
-.green.darken-3 { background-color: #73bbf7 !important; }
+.green.darken-3 {
+    background-color: #1565c0 !important;
+}
 
-.green { background-color: #73bbf7 !important; }
+.green {
+    background-color: #1565c0 !important;
+}
 
 .green.lighten-4 { background-color: #BBDEFB !important; }
 
 .sidenav li.active {
     background-color: #f5fafe;
-    border-bottom: solid rgba(115,187,247, 0.8);
-    border-width: .05em;
+    border-bottom: solid #1565c0;
+    border-width: 2px;
 }

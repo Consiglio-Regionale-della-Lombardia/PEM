@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Model;
-using PortaleRegione.DTO.Response;
-using PortaleRegione.Gateway;
 using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Response;
+using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -47,6 +47,14 @@ namespace PortaleRegione.Client.Controllers
             return Json(await apiGateway.Persone.Get(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        [Route("proponenti-firmatari")]
+        public async Task<ActionResult> GetProponentiFirmatari(string legislaturaId)
+        {
+            var apiGateway = new ApiGateway(Token);
+            return Json(await apiGateway.Persone.GetProponentiFirmatari(legislaturaId), JsonRequestBehavior.AllowGet);
+        }
+
         [Route("cambio-pin")]
         public ActionResult CambioPin()
         {
@@ -68,7 +76,6 @@ namespace PortaleRegione.Client.Controllers
                 Console.WriteLine(e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
-
         }
 
         [Route("conferma-cambio-pin")]

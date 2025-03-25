@@ -40,7 +40,7 @@ namespace PortaleRegione.Client.Helpers
         /// </summary>
         private static readonly string _chipTemplate = @"
             <div class='chip' style='margin: 5px; min-width: unset!important'>
-                <img src='http://intranet.consiglio.regione.lombardia.it/GC/foto/{{foto}}'>
+                <img src='https://pubblicazioniweb.consiglio.regione.lombardia.it/fotocons/{{foto}}'>
                 {{DisplayName}}
                 {{OPZIONALE}}
             </div>";
@@ -125,6 +125,8 @@ namespace PortaleRegione.Client.Helpers
                     return TipoAttoCSSConst.MOZ;
                 case TipoAttoEnum.ODG:
                     return TipoAttoCSSConst.ODG;
+                case TipoAttoEnum.RIS:
+                    return TipoAttoCSSConst.RIS;
                 case TipoAttoEnum.PDL:
                     return string.Empty;
                 case TipoAttoEnum.PDA:
@@ -167,9 +169,7 @@ namespace PortaleRegione.Client.Helpers
                     return StatiAttoCSSConst.PRESENTATO;
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return StatiAttoCSSConst.IN_TRATTAZIONE;
-                case StatiAttoEnum.CHIUSO:
-                case StatiAttoEnum.CHIUSO_RITIRATO:
-                case StatiAttoEnum.CHIUSO_DECADUTO:
+                case StatiAttoEnum.COMPLETATO:
                     return StatiAttoCSSConst.CHIUSO;
                 case StatiAttoEnum.BOZZA_CARTACEA:
                     return StatiAttoCSSConst.CARTACEO;
@@ -181,9 +181,9 @@ namespace PortaleRegione.Client.Helpers
         public static string GetText_TipoRispostaCommissioneTooltipDASI(AttoDASIDto atto)
         {
             if (atto.IDTipo_Risposta != (int)TipoRispostaEnum.COMMISSIONE) return string.Empty;
-            if (!atto.Commissioni.Any())
+            if (!atto.Organi.Any())
                 return string.Empty;
-            return atto.Commissioni.Select(c => c.nome_organo).Aggregate((i, j) => i + "<br>" + j);
+            return atto.Organi.Select(c => c.nome_organo).Aggregate((i, j) => i + "<br>" + j);
         }
 
         #region GetFirmatari
@@ -264,10 +264,10 @@ namespace PortaleRegione.Client.Helpers
                     {
                         if (em.IDStato >= (int)StatiEnum.Depositato)
                             body +=
-                                $"<a class='btn-floating red center white-text secondary-content tooltipped' data-tooltip=\"Ritira la tua firma da questo emendamento. Se sei il proponente dell'emendamento, l'emendamento potrebbe decadere\" style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i></a>";
+                                $"<button type='button' role='button' class='btn-floating red center white-text secondary-content tooltipped' data-tooltip=\"Ritira la tua firma da questo emendamento. Se sei il proponente dell'emendamento, l'emendamento potrebbe decadere\" style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i></button>";
                         else
                             body +=
-                                $"<a class='btn-floating red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i></a>";
+                                $"<button type=\"button\" role=\"button\" class='btn-floating red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i></button>";
                     }
                 }
 
@@ -364,13 +364,13 @@ namespace PortaleRegione.Client.Helpers
                     {
                         if (dto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                             body +=
-                                $"<a class='btn-floating red center white-text secondary-content tooltipped' data-tooltip=\"Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere\" style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i></a>";
+                                $"<button type=\"button\" role=\"button\" class='btn-floating red center white-text secondary-content tooltipped' data-tooltip=\"Ritira la tua firma da questo atto. Se sei il proponente dell'atto, l'atto potrebbe decadere\" style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i></button>";
                         else
                         {
                             if (dto.UIDPersonaProponente == firmeDto.UID_persona) continue;
 
                             body +=
-                                $"<a class='btn-floating red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i></a>";
+                                $"<button type=\"button\" role=\"button\" class='btn-floating red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i></button>";
                         }
                     }
                 }
@@ -413,67 +413,31 @@ namespace PortaleRegione.Client.Helpers
 
         public void AddFilter_ByStato(ref BaseRequest<AttoDASIDto> model, string filtroStato, PersonaDto currentUser)
         {
-            if (!string.IsNullOrEmpty(filtroStato))
-                if (filtroStato != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
-                {
-                    var operation = Operation.EqualTo;
-                    if (filtroStato == Convert.ToInt32(StatiAttoEnum.PRESENTATO).ToString())
-                    {
-                        if (currentUser.IsSegreteriaAssemblea)
-                            operation = Operation.EqualTo;
-                        else
-                            operation = Operation.GreaterThanOrEqualTo;
-                    }
+            if (string.IsNullOrEmpty(filtroStato))
+                filtroStato = Convert.ToInt32(StatiAttoEnum.TUTTI).ToString();
 
-                    model.filtro.Add(new FilterStatement<AttoDASIDto>
-                    {
-                        PropertyId = nameof(AttoDASIDto.IDStato),
-                        Operation = operation,
-                        Value = filtroStato,
-                        Connector = FilterStatementConnector.And
-                    });
+            if (filtroStato != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
+            {
+                var operation = Operation.EqualTo;
 
-                    if (filtroStato == Convert.ToInt32(StatiAttoEnum.CHIUSO).ToString())
-                    {
-                        model.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = nameof(AttoDASIDto.IDStato),
-                            Operation = Operation.EqualTo,
-                            Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_RITIRATO).ToString(),
-                            Connector = FilterStatementConnector.And
-                        });
-                        model.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = nameof(AttoDASIDto.IDStato),
-                            Operation = Operation.EqualTo,
-                            Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_DECADUTO).ToString(),
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
-                }
-                else
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
                 {
-                    if (currentUser.IsSegreteriaAssemblea)
-                    {
-                        model.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = nameof(AttoDASIDto.IDStato),
-                            Operation = Operation.EqualTo,
-                            Value = ((int)StatiAttoEnum.PRESENTATO).ToString(),
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
-                    else
-                    {
-                        model.filtro.Add(new FilterStatement<AttoDASIDto>
-                        {
-                            PropertyId = nameof(AttoDASIDto.IDStato),
-                            Operation = Operation.EqualTo,
-                            Value = ((int)StatiAttoEnum.BOZZA).ToString(),
-                            Connector = FilterStatementConnector.And
-                        });
-                    }
-                }
+                    PropertyId = nameof(AttoDASIDto.IDStato),
+                    Operation = operation,
+                    Value = filtroStato,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+            else
+            {
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.IDStato),
+                    Operation = Operation.EqualTo,
+                    Value = ((int)StatiAttoEnum.BOZZA).ToString(),
+                    Connector = FilterStatementConnector.And
+                });
+            }
         }
 
         public void AddFilter_ByTipoRisposta(ref BaseRequest<AttoDASIDto> model, string filtroTipoRisposta)
@@ -525,24 +489,16 @@ namespace PortaleRegione.Client.Helpers
             }
         }
 
-        public void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model, string filtroTipo,
+        public void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model,
             string filtroTipoTrattazione, ClientModeEnum mode)
         {
-            if (filtroTipoTrattazione != "0" && mode == ClientModeEnum.TRATTAZIONE)
-                model.filtro.Add(new FilterStatement<AttoDASIDto>
-                {
-                    PropertyId = nameof(AttoDASIDto.Tipo),
-                    Operation = Operation.EqualTo,
-                    Value = filtroTipoTrattazione,
-                    Connector = FilterStatementConnector.And
-                });
-            else if (filtroTipo != "0" && mode == ClientModeEnum.GRUPPI)
-                if (filtroTipo != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
+            if (filtroTipoTrattazione != "0")
+                if (filtroTipoTrattazione != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
                     model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
                         PropertyId = nameof(AttoDASIDto.Tipo),
                         Operation = Operation.EqualTo,
-                        Value = filtroTipo,
+                        Value = filtroTipoTrattazione,
                         Connector = FilterStatementConnector.And
                     });
         }

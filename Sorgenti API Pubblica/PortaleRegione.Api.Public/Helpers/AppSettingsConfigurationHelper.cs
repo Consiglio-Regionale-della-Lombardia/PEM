@@ -32,5 +32,22 @@ namespace PortaleRegione.Api.Public.Helpers
         ///     dell'applicazione.
         /// </summary>
         public static string masterKey => ConfigurationManager.AppSettings["masterKey"];
+        
+        /// <summary>
+        ///     Ottiene la chiave 'masterKey' dal file di configurazione dell'applicazione.
+        ///     Questa chiave può essere utilizzata, ad esempio, per operazioni di crittografia/descrittografia all'interno
+        ///     dell'applicazione.
+        /// </summary>
+        public static string PercorsoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PercorsoCompatibilitaDocumenti"];
+
+        /// <summary>
+        ///     Url atto pubblico in formato originale
+        /// </summary>
+        public static string urlDASI_Originale => ConfigurationManager.AppSettings["urlDASI_Originale"];
+
+        /// <summary>
+        ///     Url atto pubblico con testo approvato
+        /// </summary>
+        public static string urlDASI_Trattazione => ConfigurationManager.AppSettings["urlDASI_Trattazione"];
     }
 }

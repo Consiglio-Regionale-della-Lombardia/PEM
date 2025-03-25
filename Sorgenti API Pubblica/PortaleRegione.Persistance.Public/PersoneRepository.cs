@@ -27,6 +27,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Model;
 using Z.EntityFramework.Plus;
+using static PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.Persistance.Public
 {
@@ -55,6 +56,7 @@ namespace PortaleRegione.Persistance.Public
             var result = await PRContext
                 .View_cariche_assessori_per_legislatura
                 .Where(c => c.id_legislatura == idLegislatura)
+                .Distinct()
                 .OrderBy(item => item.ordine)
                 .ThenBy(item => item.nome_carica)
                 .ToListAsync();
@@ -70,6 +72,7 @@ namespace PortaleRegione.Persistance.Public
             var result = await PRContext
                 .View_Commissioni_per_legislatura
                 .Where(c => c.id_legislatura == idLegislatura)
+                .Distinct()
                 .OrderBy(item => item.ordinamento)
                 .ThenBy(item => item.nome_organo)
                 .ToListAsync();
@@ -84,13 +87,9 @@ namespace PortaleRegione.Persistance.Public
         public async Task<List<KeyValueDto>> GetGruppiByLegislatura(int idLegislatura)
         {
             var query = PRContext
-                .JOIN_GRUPPO_AD
+                .View_gruppi_politici_ws
                 .Where(j => j.id_legislatura == idLegislatura)
-                .Join(PRContext
-                        .gruppi_politici,
-                    p => p.id_gruppo,
-                    g => g.id_gruppo,
-                    (p, g) => g);
+                .Distinct();
             var lstGruppi = await query
                 .Select(g => new KeyValueDto
                 {
@@ -102,20 +101,41 @@ namespace PortaleRegione.Persistance.Public
             return lstGruppi;
         }
 
+        public async Task<KeyValueDto> GetGruppo(int idGruppo)
+        {
+            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
+            var gruppo = await PRContext
+            .View_gruppi_politici_con_giunta
+                .FirstOrDefaultAsync(g => g.id_gruppo == idGruppo);
+            if (gruppo == null)
+                throw new KeyNotFoundException("Gruppo non trovato");
+
+            return new KeyValueDto
+            {
+                id = gruppo.id_gruppo,
+                descr = gruppo.nome_gruppo,
+                sigla = gruppo.codice_gruppo
+            };
+        }
+
         public async Task<List<PersonaPublicDto>> GetFirmatariByLegislatura(int idLegislatura)
         {
-            PRContext.View_consiglieri_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_consiglieri.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
 
             var consiglieri = await PRContext
-                .View_consiglieri_per_legislatura
+                .View_consiglieri
                 .Where(p => p.id_legislatura == idLegislatura && p.id_persona > 0)
+                .Distinct()
                 .Select(p => new PersonaPublicDto
                 {
                     id = p.id_persona,
-                    DisplayName = p.DisplayName
+                    DisplayName = p.DisplayName.Replace("(--)", ""),
+                    uid = p.UID_persona
                 })
                 .ToListAsync();
+
             return consiglieri;
         }
 
@@ -126,12 +146,29 @@ namespace PortaleRegione.Persistance.Public
             var query = PRContext
                 .View_UTENTI
                 .Where(u => u.UID_persona != Guid.Empty)
+                .Distinct()
                 .OrderByDescending(u => u.id_persona)
                 .ThenBy(u => u.cognome)
                 .ThenBy(u => u.nome);
 
             return await query
                 .ToListAsync();
+        }
+
+        public async Task<PersonaPublicDto> GetPersona(Guid uidPersonaProponente)
+        {
+            PRContext.View_consiglieri.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+
+            var consigliere = await PRContext
+                .View_consiglieri
+                .FirstAsync(p => p.UID_persona == uidPersonaProponente);
+            return  new PersonaPublicDto
+            {
+                id = consigliere.id_persona,
+                DisplayName = consigliere.DisplayName,
+                uid = consigliere.UID_persona
+            };
         }
     }
 }

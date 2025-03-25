@@ -72,6 +72,28 @@ function set_ListaLegislature(obj) {
     localStorage.setItem("ListaLegislature", JSON.stringify(obj));
 }
 
+function get_ListaProponenti() {
+    var session_raw = localStorage.getItem("ListaProponenti");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function get_ListaViewAbbinamenti() {
+    var session_raw = localStorage.getItem("ListaViewAbbinamenti");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function set_ListaProponenti(obj) {
+    localStorage.setItem("ListaProponenti", JSON.stringify(obj));
+}
+
+function set_ListaViewAbbinamenti(obj) {
+    localStorage.setItem("ListaViewAbbinamenti", JSON.stringify(obj));
+}
+
 function get_ListaStatiEM() {
     var session_raw = localStorage.getItem("ListaStatiEM");
     if (session_raw == null)
@@ -92,6 +114,20 @@ function get_ListaStatiDASI() {
 
 function get_ListaTipiDASI() {
     var session_raw = localStorage.getItem("ListaTipiDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function get_ListaCopertine() {
+    var session_raw = localStorage.getItem("ListaCopertine");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function get_ListaCardTemplates() {
+    var session_raw = localStorage.getItem("ListaCardTemplates");
     if (session_raw == null)
         return {}
     return JSON.parse(session_raw);
@@ -128,6 +164,14 @@ function set_ListaTipiPEM(obj) {
 
 function set_ListaTipiDASI(obj) {
     localStorage.setItem("ListaTipiDASI", JSON.stringify(obj));
+}
+
+function set_ListaCopertine(obj) {
+    localStorage.setItem("ListaCopertine", JSON.stringify(obj));
+}
+
+function set_ListaCardTemplates(obj) {
+    localStorage.setItem("ListaCardTemplates", JSON.stringify(obj));
 }
 
 function set_ListaTipiMOZDASI(obj) {

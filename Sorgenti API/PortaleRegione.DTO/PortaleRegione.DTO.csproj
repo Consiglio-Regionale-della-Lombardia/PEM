@@ -22,6 +22,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,60 +32,75 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti Client\PortaleRegione.Client\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti Client\PortaleRegione.Client\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti Client\PortaleRegione.Client\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti Client\PortaleRegione.Client\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti Client\PortaleRegione.Client\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti Client\PortaleRegione.Client\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti Client\PortaleRegione.Client\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti Client\PortaleRegione.Client\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Autenticazione\LoginRequest.cs" />
     <Compile Include="Domain\ArticoliDto.cs" />
     <Compile Include="Domain\AssessoreInCaricaDto.cs" />
+    <Compile Include="Domain\AttiAbbinamentoDto.cs" />
+    <Compile Include="Domain\AttiDASIColums.cs" />
+    <Compile Include="Domain\AttiDASISorting.cs" />
+    <Compile Include="Domain\AttiDocumentiDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />
+    <Compile Include="Domain\AttiMonitoraggioDto.cs" />
+    <Compile Include="Domain\AttiRisposteDto.cs" />
     <Compile Include="Domain\AttoDASIDto.cs" />
-    <Compile Include="Domain\CommissioneDto.cs" />
+    <Compile Include="Domain\AttoDASIReportDto.cs" />
+    <Compile Include="Domain\AttoDASI_InformazioniGeneraliDto.cs" />
+    <Compile Include="Domain\OrganoDto.cs" />
     <Compile Include="Domain\DestinatariNotificaDto.cs" />
-    <Compile Include="Domain\Essentials\AttoDASILightDto.cs" />
+    <Compile Include="Domain\Essentials\AttoLightDto.cs" />
     <Compile Include="Domain\Essentials\EmendamentoLightDto.cs" />
     <Compile Include="Domain\Essentials\MetaDatiEMDto.cs" />
     <Compile Include="Domain\Essentials\PersonaLightDto.cs" />
+    <Compile Include="Domain\FiltroPreferitoDto.cs" />
     <Compile Include="Domain\FirmeDto.cs" />
     <Compile Include="Domain\GruppoAD_Dto.cs" />
     <Compile Include="Domain\LegislaturaDto.cs" />
     <Compile Include="Domain\LettereDto.cs" />
     <Compile Include="Domain\MissioniDto.cs" />
+    <Compile Include="Domain\NoteDto.cs" />
     <Compile Include="Domain\NotificaDto.cs" />
     <Compile Include="Domain\PersonaNoConsDto.cs" />
     <Compile Include="Domain\PinDto.cs" />
+    <Compile Include="Domain\ReportDto.cs" />
+    <Compile Include="Domain\SessioniDto.cs" />
     <Compile Include="Domain\StampaDto.cs" />
     <Compile Include="Domain\Stampa_InfoDto.cs" />
+    <Compile Include="Domain\TemplatesItemDto.cs" />
     <Compile Include="Domain\TipoNotificaDto.cs" />
     <Compile Include="Domain\View_Conteggi_EM_Area_PoliticaDto.cs" />
     <Compile Include="Domain\View_Conteggi_EM_Gruppi_PoliticiDto.cs" />
@@ -91,10 +108,13 @@
     <Compile Include="Enum\AreaPoliticaEnum.cs" />
     <Compile Include="Enum\ClientModeEnum.cs" />
     <Compile Include="Enum\CounterEmendamentiEnum.cs" />
+    <Compile Include="Enum\DataViewTypeEnum.cs" />
+    <Compile Include="Enum\ExportFormatEnum.cs" />
     <Compile Include="Enum\FirmeTipoEnum.cs" />
     <Compile Include="Enum\ModuloStampaEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />
     <Compile Include="Enum\ReportTypeEnum.cs" />
+    <Compile Include="Enum\RisultatoVotazioneIterEnum.cs" />
     <Compile Include="Enum\StatiAttoCSSConst.cs" />
     <Compile Include="Enum\StatiAttoEnum.cs" />
     <Compile Include="Enum\StatoPinEnum.cs" />
@@ -102,13 +122,17 @@
     <Compile Include="Enum\TipiEMEnum.cs" />
     <Compile Include="Enum\TipoAllegatoEnum.cs" />
     <Compile Include="Enum\TipoAttoCSSConst.cs" />
+    <Compile Include="Enum\TipoChiusuraIterEnum.cs" />
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
+    <Compile Include="Enum\TipoDocumentoEnum.cs" />
     <Compile Include="Enum\TipoMOZEnum.cs" />
+    <Compile Include="Enum\TipoNotaEnum.cs" />
     <Compile Include="Enum\TipoNotificaEnum.cs" />
     <Compile Include="Enum\TipoOrganoEnum.cs" />
     <Compile Include="Enum\TipoRichiestaEnum.cs" />
     <Compile Include="Enum\TipoRichiestaDestEnum.cs" />
     <Compile Include="Enum\TipoVotazioneIterEnum.cs" />
+    <Compile Include="Enum\WordSizeEnum.cs" />
     <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\AllegatoMail.cs" />
@@ -169,6 +193,8 @@
     <Compile Include="Domain\TagDto.cs" />
     <Compile Include="Model\TestoAttoModel.cs" />
     <Compile Include="Request\BaseRequest.cs" />
+    <Compile Include="Request\DatiInlineRequest.cs" />
+    <Compile Include="Request\DatiMassiviRequest.cs" />
     <Compile Include="Request\NuovaStampaRequest.cs" />
     <Compile Include="Request\FilterRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
@@ -179,8 +205,12 @@
     <Compile Include="Request\Public\CommissioniRequest.cs" />
     <Compile Include="Request\Public\FirmatariRequest.cs" />
     <Compile Include="Request\Public\GruppiRequest.cs" />
+    <Compile Include="Request\QueryExtendedRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />
+    <Compile Include="Request\SalvaComandoMassivoRequest.cs" />
+    <Compile Include="Request\SalvaDocumentoRequest.cs" />
     <Compile Include="Request\SalvaGruppoRequest.cs" />
+    <Compile Include="Request\SortingInfo.cs" />
     <Compile Include="Request\StampaRequest.cs" />
     <Compile Include="Enum\TipoRispostaEnum.cs" />
     <Compile Include="Response\BaseResponse.cs" />

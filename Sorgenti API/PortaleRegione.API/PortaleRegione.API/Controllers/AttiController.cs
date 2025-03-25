@@ -81,18 +81,18 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route(ApiRoutes.PEM.Atti.DownloadDoc)]
-        public async Task<IHttpActionResult> Download(string path)
+        public Task<IHttpActionResult> Download(string path)
         {
             try
             {
-                var response = ResponseMessage(await _attiLogic.Download(path));
+                var response = ResponseMessage(_attiLogic.Download(path));
 
-                return response;
+                return Task.FromResult<IHttpActionResult>(response);
             }
             catch (Exception e)
             {
                 Log.Error("DownloadStampa", e);
-                return ErrorHandler(e);
+                return Task.FromResult(ErrorHandler(e));
             }
         }
 

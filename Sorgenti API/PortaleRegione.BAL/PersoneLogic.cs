@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.BAL
 {
@@ -104,6 +105,34 @@ namespace PortaleRegione.BAL
             persone.AddRange(consiglieri.Select(Mapper.Map<View_UTENTI, PersonaDto>));
             persone.AddRange(assessori.Select(Mapper.Map<View_UTENTI, PersonaDto>));
 
+            return persone;
+        }
+
+        public async Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId)
+        {
+            var consiglieri =
+                await _unitOfWork.Persone.GetProponentiFirmatari(legislaturaId);
+            var persone = new List<PersonaPublicDto>();
+            foreach (var c in consiglieri)
+            {
+                try
+                {
+                    if (c==null)
+                        continue;
+
+                    var personaDto = new PersonaPublicDto
+                    {
+                        DisplayName = c.DisplayName,
+                        id = c.id_persona,
+                        uid = c.UID_persona
+                    };
+                    persone.Add(personaDto);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            }
             return persone;
         }
 

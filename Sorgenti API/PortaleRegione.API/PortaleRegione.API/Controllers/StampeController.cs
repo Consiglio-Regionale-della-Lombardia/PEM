@@ -108,6 +108,28 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per scaricare il file fascicolo generato
+        /// </summary>
+        /// <param name="nomeFile">Nome file</param>
+        /// <returns></returns>
+        [HttpGet]
+        [AllowAnonymous]
+        [Route(ApiRoutes.Stampe.DownloadFolder)]
+        public async Task<IHttpActionResult> DownloadFascicoloStampa(string nomeFile)
+        {
+            try
+            {
+                var response = ResponseMessage(await _stampeLogic.DownloadFascicoloStampa(nomeFile));
+                return response;
+            }
+            catch (Exception e)
+            {
+                Log.Error("DownloadFascicoloStampa", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per eliminare una stampa

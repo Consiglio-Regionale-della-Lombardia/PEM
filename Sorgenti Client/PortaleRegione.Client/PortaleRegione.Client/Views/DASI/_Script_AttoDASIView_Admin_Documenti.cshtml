@@ -1,0 +1,456 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.DASIFormModel
+
+<div id="modalDocumento" class="modal">
+    <div class="modal-content">
+        <h4>Documento</h4>
+        <div class="row">
+            <div class="input-field col s12">
+                <select id="tipi-documento-select">
+                </select>
+                <label>Tipo documento</label>
+            </div>
+            <label>Carica documento</label>
+
+            <div class="file-field input-field">
+                <div class="btn">
+                    <span>SFOGLIA</span>
+                    <input type="file" name="document_object" accept="application/pdf">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text" placeholder="Carica documento">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            <button type="button" role="button" onclick="btnSalvaDocumento()" class="btn-flat blue-text">Salva</button>
+        }
+    </div>
+</div>
+
+<script>
+
+	document.getElementById('btnAggiungiDocumento_ChiusuraIter').addEventListener('click', function () {
+		waiting(true);
+		resetModalDocumento();
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">DCR</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	});
+
+	document.getElementById('btnAggiungiDocumento_Pubblicazione').addEventListener('click', function () {
+		waiting(true);
+		resetModalDocumento();
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_ALLEGATO)">Testo allegato</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.TESTO_PRIVACY)">Testo privacy</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.ABBINAMENTO)">Abbinamento</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.AGGIUNTIVO)">Aggiuntivo</option>');
+        $('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.RISPOSTA)">Risposta</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)">Monitoraggio</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">DCR</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	});
+
+    document.getElementById('btnAggiungiDocumento_Monitoraggio').addEventListener('click', function () {
+		waiting(true);
+		resetModalDocumento();
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)">Monitoraggio</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	});
+
+	function AggiungiDocumento_Risposta(ctrl, uid) {
+		waiting(true);
+		resetModalDocumento();
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.RISPOSTA)">Risposta</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+
+		$('#idRisposta').val(uid);
+
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	}
+
+	document.getElementById('btnAggiungiDocumento_InformazioniGenerali').addEventListener('click', function () {
+		waiting(true);
+		resetModalDocumento();
+		$('#tipi-documento-select').empty();
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.AGGIUNTIVO)">Aggiuntivo</option>');
+		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
+		$('#tipi-documento-select').formSelect();
+		waiting(false);
+		$('#modalDocumento').modal("open");
+	});
+
+	async function btnSalvaDocumento(){
+
+        // Ottieni i dati dalla modale
+        var tipoDocumentoValue = $('#tipi-documento-select').val();
+        var tipoDocumentoText = $('#tipi-documento-select option:selected').text();
+
+        var inputsAllegatoGenerico = $('input[name=document_object]');
+        if (inputsAllegatoGenerico.length != 0) {
+            var inputFileAllegatoGenerico = inputsAllegatoGenerico[0];
+            if (!inputFileAllegatoGenerico.files) {
+                alert("This browser doesn't seem to support the `files` property of file inputs.");
+                return; // Uscire in caso di errore
+            }
+
+            if (inputFileAllegatoGenerico.files.length > 0) {
+                // Creazione del FormData per inviare il file e altri dati
+                var formData = new FormData();
+                formData.append("UIDAtto", '@Html.Raw(Model.Atto.UIDAtto)');
+                formData.append("TipoDocumento", tipoDocumentoValue); // Invia il tipo di documento selezionato
+                formData.append("Documento", inputFileAllegatoGenerico.files[0]); // Aggiungi il file PDF
+
+				var uidRisposta = $('#idRisposta').val();
+				if (uidRisposta) {
+					formData.append("Uid", uidRisposta);
+					$('#idRisposta').val("");
+				}
+
+                var url = '@Url.Action("Salva_Documento", "DASI")';
+
+                try {
+
+					waiting(true);
+
+                    // Invia i dati usando fetch
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData // Non impostare il content-type, fetch lo farà automaticamente con FormData
+                    });
+
+                    if (!response.ok) {
+						waiting(false);
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const result = await response.json();
+                    if (result.message) {
+						waiting(false);
+                        throw new Error(result.message);
+                    }
+
+					if (uidRisposta) {
+						aggiornaRigaConDocumentoRisposta(uidRisposta, result);
+					} else if (tipoDocumentoValue == @Html.Raw((int)TipoDocumentoEnum.AGGIUNTIVO)) {
+						aggiornaTabellaDocumentiAggiuntivi(result);
+					} else if (tipoDocumentoValue == @Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)) {
+						aggiornaTabellaDocumentiMonitoraggio(result);
+					} else if (tipoDocumentoValue == @Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)) {
+						aggiornaTabellaDocumentiChiusuraIter(result);
+					}
+
+					aggiornaTabellaDocumentiGenerali(result);
+
+                    // Mostra il messaggio di successo
+                    M.toast({
+                        html: `<span>Documento salvato con successo</span>`,
+                        classes: 'rounded',
+                        displayLength: 5000
+                    });
+
+                    window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+
+					$('#modalDocumento').modal("close");
+                } catch (error) {
+                    waiting(false);
+                    console.error('Errore durante il salvataggio del documento:', error);
+                    M.toast({
+                        html: `<span>Errore: ${error.message}</span>`,
+                        classes: 'rounded',
+                        displayLength: 5000
+                    });
+                }
+            } else {
+                alert("Seleziona un file PDF da caricare.");
+            }
+        } else {
+            alert("Input file non trovato.");
+        }
+
+		waiting(false);
+    }
+
+	function aggiornaTabellaDocumentiGenerali(documento) {
+		// Trova il corpo della tabella
+		const tableBody = document.querySelector('#tableDocumentiGenerali tbody');
+		if (!tableBody) {
+			console.error("Tabella documenti generali non trovata");
+			return;
+		}
+
+		// Determina il valore del checkbox Pubblico
+		const checkboxPubblico = documento.Pubblico
+			? `<input type="checkbox" checked="checked" onclick='pubblicaDocumento(this, "${documento.Uid}")' />`
+			: `<input type="checkbox" onclick='pubblicaDocumento(this, "${documento.Uid}")' />`;
+
+		// Crea una nuova riga per il documento
+		const nuovaRiga = `
+        <tr>
+            <td>${documento.Tipo}</td>
+            <td>${documento.Titolo}</td>
+            <td>
+                <p>
+                    <label>
+                        ${checkboxPubblico}
+                        <span></span>
+                    </label>
+                </p>
+            </td>
+            <td>
+                <a class="blue-text" href="${documento.Link}" target="_blank">
+                    ${documento.Titolo}
+                </a>
+            </td>
+            <td class="center">
+                <button type="button" class="btn-flat red-text" onclick='rimuoviDocumento(this, "${documento.Titolo}", "${documento.Uid}")'>
+                    <i class="material-icons">close</i>
+                </button>
+            </td>
+        </tr>
+    `;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+
+
+	function aggiornaTabellaDocumentiAggiuntivi(documento) {
+		// Trova il corpo della tabella
+		const tableBody = document.querySelector('#tableDocumentiAggiuntivi tbody');
+		if (!tableBody) {
+			console.error("Tabella documenti aggiuntivi non trovata");
+			return;
+		}
+
+		// Crea una nuova riga per il documento
+		const nuovaRiga = `
+        <tr>
+            <td>${documento.Titolo}</td>
+            <td>
+                <a class="blue-text" href="${documento.Link}" target="_blank">
+                    ${documento.Titolo}
+                </a>
+            </td>
+            <td class="center">
+                 <td class="center">
+                     <button type="button" class="btn-flat red-text" onclick='rimuoviDocumento(this, "${documento.Titolo}", "${documento.Uid}")'>
+                         <i class="material-icons">close</i>
+                     </button>
+                 </td>
+            </td>
+        </tr>
+    `;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+	
+	function aggiornaTabellaDocumentiMonitoraggio(documento) {
+		// Trova il corpo della tabella
+		const tableBody = document.querySelector('#tableDocumentiMonitoraggio tbody');
+		if (!tableBody) {
+			console.error("Tabella documenti monitoraggio non trovata");
+			return;
+		}
+
+		// Crea una nuova riga per il documento
+		const nuovaRiga = `
+        <tr>
+            <td>${documento.Titolo}</td>
+            <td>
+                <a class="blue-text" href="${documento.Link}" target="_blank">
+                    ${documento.Titolo}
+                </a>
+            </td>
+            <td class="center">
+                 <td class="center">
+                     <button type="button" class="btn-flat red-text" onclick='rimuoviDocumento(this, "${documento.Titolo}", "${documento.Uid}")'>
+                         <i class="material-icons">close</i>
+                     </button>
+                 </td>
+            </td>
+        </tr>
+    `;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+	
+	function aggiornaTabellaDocumentiChiusuraIter(documento) {
+		// Trova il corpo della tabella
+		const tableBody = document.querySelector('#tableDocumentiChiusuraIter tbody');
+		if (!tableBody) {
+			console.error("Tabella documenti chiusura iter non trovata");
+			return;
+		}
+
+		// Crea una nuova riga per il documento
+		const nuovaRiga = `
+        <tr>
+            <td>${documento.Titolo}</td>
+            <td>
+                <a class="blue-text" href="${documento.Link}" target="_blank">
+                    ${documento.Titolo}
+                </a>
+            </td>
+            <td class="center">
+                <td class="center">
+                     <button type="button" class="btn-flat red-text" onclick='rimuoviDocumento(this, "${documento.Titolo}", "${documento.Uid}")'>
+                         <i class="material-icons">close</i>
+                     </button>
+                 </td>
+            </td>
+        </tr>
+    `;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+	}
+
+	function aggiornaRigaConDocumentoRisposta(uidRisposta, documento) {
+		// Trova la riga corrispondente al `uidRisposta`
+		const row = document.querySelector(`table tbody tr[id="${uidRisposta}"]`);
+		if (!row) {
+			console.error(`Riga con UID ${uidRisposta} non trovata`);
+			return;
+		}
+
+		// Trova la penultima colonna
+		const cellDocumento = row.querySelector('td:nth-last-child(2)');
+		if (cellDocumento) {
+			// Aggiorna la cella con i dettagli del documento
+			cellDocumento.innerHTML = `
+            <a class="blue-text" href="${documento.Link}" target="_blank">
+                ${documento.Titolo}
+            </a>
+             <button type="button" class="btn-flat red-text" onclick='rimuoviDocumento(this, "${documento.Titolo}", "${documento.Uid}")'>
+                 <i class="material-icons">close</i>
+             </button>
+        `;
+		} else {
+			console.error(`Penultima colonna non trovata per la riga con UID ${uidRisposta}`);
+		}
+	}
+
+	async function pubblicaDocumento(ctrl, uid) {
+		waiting(true);
+
+		var isChecked = ctrl.checked;
+		var statusMessage = isChecked ? "Documento pubblicato" : "Documento rimosso dalla pubblicazione";
+
+		// Simula la richiesta al server per rimuovere i dati
+		var url = '@Url.Action("Salva_PubblicaDocumento", "DASI")';
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ Uid: uid })
+		});
+
+		if (!response.ok) {
+			waiting(false);
+			throw new Error('Network response was not ok');
+		}
+
+		try {
+			const errorData = await response.json();
+						if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+		} catch (error) {
+			// ignored
+		}
+		waiting(false);
+		M.toast({
+			html: `<span>${statusMessage}</span>`,
+			classes: 'rounded',
+			displayLength: 5000
+		});
+	}
+
+	function rimuoviDocumento(ctrl, titolo, uid) {
+	    swal({
+		    title: "Rimuovi documento " + titolo,
+		    text: "Sei sicuro di voler rimuovere questa documento?",
+		    icon: "warning",
+		    buttons: ["Annulla", "Rimuovi"]
+	    }).then(async (answer) => {
+		    if (answer) {
+                waiting(true);
+			    // Simula la richiesta al server per rimuovere i dati
+			    var url = '@Url.Action("Salva_RimuoviDocumento", "DASI")';
+			    const response = await fetch(url, {
+				    method: 'POST',
+				    headers: {
+					    'Content-Type': 'application/json'
+				    },
+				    body: JSON.stringify({ Uid: uid })
+			    });
+
+			    if (!response.ok) {
+					waiting(false);
+				    throw new Error('Network response was not ok');
+			    }
+
+			    try {
+				    const errorData = await response.json();
+					if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+			    } catch (error) {
+				    // ignored
+					waiting(false);
+			    }
+
+			    M.toast({
+				    html: `<span>Documento rimosso con successo. Aggiornamento pagina in corso..</span>`,
+				    classes: 'rounded',
+				    displayLength: 2000
+			    });
+
+                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+
+				setTimeout(function () {
+					location.reload();
+				}, 1000);
+		    }
+	    });
+}
+
+function resetModalDocumento() {
+	// Resetta il campo file
+	const inputFile = document.querySelector('input[name=document_object]');
+	if (inputFile) {
+		inputFile.value = '';
+	}
+
+	// Resetta il percorso del file visibile
+	const filePathInput = document.querySelector('.file-path');
+	if (filePathInput) {
+		filePathInput.value = '';
+	}
+}
+
+</script>
+

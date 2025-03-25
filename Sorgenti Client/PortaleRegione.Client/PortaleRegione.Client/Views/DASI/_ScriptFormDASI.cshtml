@@ -69,7 +69,9 @@
                         }
                     }).then((value) => {
                         if (value) {
+                            waiting(true);
 							SalvaAttoCartaceo(true);
+                            waiting(false);
 							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                         }
                     });
@@ -87,7 +89,11 @@
         });
 
     function SalvaAttoCartaceo(presenta) {
+        waiting(true)
         var proponente = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").val();
+        var relatore1 = $('select[id="Atto_UIDPersonaRelatore1"]').children("option:selected").val();
+        var relatore2 = $('select[id="Atto_UIDPersonaRelatore2"]').children("option:selected").val();
+        var relatoreMinoranza = $('select[id="Atto_UIDPersonaRelatoreMinoranza"]').children("option:selected").val();
 
         var container_premesse = $("#Atto_Premesse").parent();
         var editor_premesse = $(container_premesse).find(".trumbowyg-editor");
@@ -128,11 +134,35 @@
                 form_data.append("DocAllegatoGenerico", inputFileAllegatoGenerico.files[0]);
         }
 
-        var firme_cartacee = GetFirmeCartacee();
-        form_data.append("FirmeCartacee_string", JSON.stringify(firme_cartacee));
-
         if (presenta) {
             form_data.append("IDStato", @((int)StatiAttoEnum.PRESENTATO));
+        }
+
+        if ($("#Atto_Tipo").val() == @((int)TipoAttoEnum.RIS)) {
+            var selectedOptionsProponenti = document.querySelectorAll('#Atto_UIDPersonaProponente option:checked');
+			var valuesProponenti = Array.from(selectedOptionsProponenti).map(option => option.value);
+            var commissioniProponenti = [];
+			for (var i = 0; i < valuesProponenti.length; i++) {
+				var item = valuesProponenti[i];
+				commissioniProponenti.push({uid: item});
+			}
+
+			var selectedOptionsCommissioni = document.querySelectorAll('#Atto_CommissioniProponenti option:checked');
+			var valuesCommissioni = Array.from(selectedOptionsCommissioni).map(option => option.value);
+			for (var i = 0; i < valuesCommissioni.length; i++) {
+				var item = valuesCommissioni[i];
+				commissioniProponenti.push({ id: item });
+			}
+			form_data.append("CommissioniProponenti_string", JSON.stringify(commissioniProponenti));
+
+			form_data.append("Progressivo", $('#Atto_Progressivo').val());
+
+			form_data.append("UIDPersonaRelatore1", relatore1);
+			form_data.append("UIDPersonaRelatore2", relatore2);
+			form_data.append("UIDPersonaRelatoreMinoranza", relatoreMinoranza);
+        } else {
+			var firme_cartacee = GetFirmeCartacee();
+			form_data.append("FirmeCartacee_string", JSON.stringify(firme_cartacee));
         }
 
         $.ajax({
@@ -142,6 +172,7 @@
             processData: false,
             contentType: false
         }).done(function(data) {
+			waiting(false)
             if (data.message) {
                 swal({
                     title: "Errore",
@@ -165,6 +196,7 @@
                 });
             }
         }).fail(function(err) {
+			waiting(false)
             console.log("error", err);
             Error(err);
         });
@@ -174,7 +206,7 @@
         e.preventDefault();
     }).validate({
         submitHandler: function(form) {
-
+			waiting(true)
             var proponente;
             if ($('input[name="Atto.UIDPersonaProponente"]').val())
                 proponente = $('input[name="Atto.UIDPersonaProponente"]').val();
@@ -228,7 +260,7 @@
                 processData: false,
                 contentType: false
             }).done(function(data) {
-                console.log(data);
+				waiting(false)
                 if (data.message) {
                     swal({
                         title: "Errore",
@@ -245,6 +277,7 @@
                     });
                 }
             }).fail(function(err) {
+				waiting(false)
                 console.log("error", err);
                 Error(err);
             });
@@ -301,6 +334,9 @@
     }
 
     $('.trumbowyg').trumbowyg({
+		//semantic: true, // Usa tag semantici validi
+		//tagsToKeep: ['b', 'i', 'u', 'strong', 'em'], // Specifica i tag consentiti
+		//removeformatPasted: true, // Rimuovi formattazioni strane durante il paste
         lang: 'it',
         btns: [
             ['viewHTML'],

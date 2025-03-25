@@ -1,4 +1,5 @@
-﻿<div id="modalGeasiView" class="modal">
+﻿@using PortaleRegione.Client.Helpers
+<div id="modalGeasiView" class="modal">
     <div class="modal-content">
         <div class="row" style="margin: unset!important">
             <div class="col s12 right-align">
@@ -55,62 +56,70 @@
 </div>
 
 <script>
-    var ticketGeasi = "";
 
-    async function goToGeasi(tipoatto, natto, idlegislatura) {
+   async function goToGeasi(uidAtto, tipoatto, natto, idlegislatura) {
         try {
-            if (ticketGeasi == "") {
-                ticketGeasi = await LoginGeasi();
-            }
-            console.log("ticket", ticketGeasi);
+            waiting(true);
+            var res = await SearchPublicApi(uidAtto);
+            var response = JSON.parse(res);
+            console.log("res", response);
 
-            var response = await SearchGeasi(tipoatto, natto, idlegislatura);
-            var responseJSON = JSON.parse(response);
-            var data = responseJSON.rows[0];
-            console.log("data", data)
             var title = tipoatto + " N. " + natto;
             $('#modalGeasiView_Atto').text(title);
-            $('#modalGeasiView_Oggetto').text(data.oggettoAtto);
-            $('#Geasi_DataPresentazione').text(data.dataPresentazione);
-            $('#Geasi_Area').text(data.area);
-            $('#Geasi_Annunzio').text(data.dataAnnunzio);
-            $('#Geasi_TipoRichiesta').text(data.tipoRispostaRichiesta);
-            $('#Geasi_TipoRisposta').text(data.tipoRispostaFornita);
-            $('#Geasi_Stato').text(data.stato);
-            $('#Geasi_PrimoFirmatario').text(data.primiFirmatari[0].nomeFirmatario);
-        } catch (e) {
-            console.log(e)
-        }
+            $('#modalGeasiView_Oggetto').text(response.oggetto);
+            $('#Geasi_DataPresentazione').text(response.data_presentazione);
+            $('#Geasi_Area').text(response.area_politica);       // Assicurati che il campo sia presente nella response
+            $('#Geasi_Annunzio').text(response.data_annunzio);
+            $('#Geasi_TipoRichiesta').text(response.tipo_risposta_richiesta);
+            $('#Geasi_TipoRisposta').text(response.tipo_risposta_fornita);
+            $('#Geasi_Stato').text(response.stato + " - " + response.stato_iter);
 
-        $('#Geasi_LINK').attr("href", "https://www.consiglio.regione.lombardia.it/wps/portal/crl/home/leggi-e-banche-dati/Atti-di-indirizzo-e-controllo/Dettaglio-atto-di-indirizzo-e-controllo?tipoatto="+tipoatto+"&numeroatto="+natto+"&idlegislatura="+idlegislatura);
+            // Se il tipo atto è RIS, nascondiamo il terzo elemento della collection,
+            // altrimenti lo mostriamo e impostiamo il testo
+            if (tipoatto === "RIS") {
+                $('#Geasi_PrimoFirmatario').closest("li.collection-item").hide();
+            } else {
+                $('#Geasi_PrimoFirmatario').closest("li.collection-item").show();
+                // Imposta il valore del primo firmatario se presente nella response
+                if (response.firme && response.firme.length > 0) {
+                    $('#Geasi_PrimoFirmatario').text(response.firme[0].firmaCert);
+                }
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        waiting(false);
+        $('#Geasi_LINK').attr("href", "@AppSettingsConfiguration.URL_WEB_PUBLIC_CLIENT?tipoatto=" + tipoatto + "&numeroatto=" + natto + "&idlegislatura=" + idlegislatura);
         $('#modalGeasiView').modal("open");
     }
 
-    function LoginGeasi() {
+    
+    function SearchPublicApi(uidAtto) {
+        var url = "public/web/" + uidAtto;
+        console.log(url)
         return new Promise(async function (resolve, reject) {
             $.ajax({
-                url: baseUrl + "/geasi/login",
-                type: "GET",
-            }).done(function (result) {
-                resolve(result);
-            }).fail(function (err) {
-                console.log("error", err);
-                Error(err);
-            });
-        });
-    }
-
-    function SearchGeasi(tipoatto, natto, idlegislatura) {
-        return new Promise(async function (resolve, reject) {
-            $.ajax({
-                url: baseUrl + "/geasi/search?ticket=" + ticketGeasi + "&tipoatto=" + tipoatto + "&natto=" + natto + "&idlegislatura=" + idlegislatura,
-                type: "GET",
-            }).done(function (result) {
-                resolve(result);
-            }).fail(function (err) {
-                console.log("error", err);
-                Error(err);
-            });
+                    url: url,
+                    type: "GET",
+                    dataType: "json" // Assicuriamoci che la risposta venga interpretata come JSON
+                })
+                .done(function (result) {
+                    // Se il risultato contiene una proprietà 'message' che include "Error"
+                    if (result && result.message && result.message.indexOf("Error") !== -1) {
+                        // Chiamiamo il metodo Error() passandogli il messaggio
+                        ErrorAlert(result.message);
+                        // Rifiutiamo la promise
+                        reject(result.message);
+                    } else {
+                        // Altrimenti, risolviamo la promise con il risultato
+                        resolve(result);
+                    }
+                })
+                .fail(function (err) {
+                    console.log("error", err);
+                    // Rifiutiamo la promise in caso di errore AJAX
+                    reject(err);
+                });
         });
     }
 </script>

@@ -19,10 +19,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
@@ -63,7 +68,6 @@ namespace PortaleRegione.Common
             TipoAttoEnum.REF,
             TipoAttoEnum.REL,
             TipoAttoEnum.ORG,
-            TipoAttoEnum.RIS,
             TipoAttoEnum.ALTRO
         };
 
@@ -204,6 +208,40 @@ namespace PortaleRegione.Common
             }
         }
 
+        public static string GetText_TipoEstesoDASI(int tipoAtto)
+        {
+            switch ((TipoAttoEnum)tipoAtto)
+            {
+                case TipoAttoEnum.ITR:
+                    return "Interrogazione";
+                case TipoAttoEnum.IQT:
+                    return "Interrogazione question time"; // #1268
+                case TipoAttoEnum.ITL:
+                    return "Interpellanza";
+                case TipoAttoEnum.MOZ:
+                    return "Mozione";
+                case TipoAttoEnum.ODG:
+                    return "Ordine del giorno";
+                case TipoAttoEnum.RIS:
+                    return "Risoluzione";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
+            }
+        }
+
+        public static string GetText_TipoOrganoDASI(int tipoOrgano)
+        {
+            switch ((TipoOrganoEnum)tipoOrgano)
+            {
+                case TipoOrganoEnum.COMMISSIONE:
+                    return "Commissione";
+                case TipoOrganoEnum.GIUNTA:
+                    return "Giunta";
+                default:
+                    return string.Empty;
+            }
+        }
+
         public static string GetText_TipoMOZDASI(int tipoMOZ)
         {
             switch ((TipoMOZEnum)tipoMOZ)
@@ -221,6 +259,48 @@ namespace PortaleRegione.Common
             }
         }
 
+        public static string GetText_TipoMOZDettaglioDASI(int tipoMOZ)
+        {
+            switch ((TipoMOZEnum)tipoMOZ)
+            {
+                case TipoMOZEnum.ORDINARIA:
+                    return "Ordinaria";
+                case TipoMOZEnum.ABBINATA:
+                    return "Abbinata";
+                case TipoMOZEnum.URGENTE:
+                    return "Urgente";
+                case TipoMOZEnum.SFIDUCIA:
+                    return "Sfiducia";
+                case TipoMOZEnum.CENSURA:
+                    return "Censura";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoMOZ), tipoMOZ, null);
+            }
+        }
+
+        public static string GetText_AreaPolitica(int area)
+        {
+            switch ((AreaPoliticaIntEnum)area)
+            {
+                case AreaPoliticaIntEnum.Maggioranza:
+                    return AreaPoliticaEnum.Maggioranza;
+                case AreaPoliticaIntEnum.Minoranza:
+                    return AreaPoliticaEnum.Minoranza;
+                case AreaPoliticaIntEnum.Misto_Maggioranza:
+                    return AreaPoliticaEnum.Misto_Maggioranza;
+                case AreaPoliticaIntEnum.Misto_Minoranza:
+                    return AreaPoliticaEnum.Misto_Minoranza;
+                case AreaPoliticaIntEnum.Misto:
+                    return AreaPoliticaEnum.Misto;
+                case AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza:
+                    return AreaPoliticaEnum.Misto_Maggioranza_Minoranza;
+                case AreaPoliticaIntEnum.Nessuno: // #1300
+                    return AreaPoliticaEnum.Nessuno;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(area), area, null);
+            }
+        }
+
         public static string GetText_StatoDASI(int stato, bool excel = true)
         {
             switch ((StatiAttoEnum)stato)
@@ -235,30 +315,46 @@ namespace PortaleRegione.Common
                 }
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return "In trattazione";
-                case StatiAttoEnum.CHIUSO:
-                    return "Chiuso";
-                case StatiAttoEnum.CHIUSO_RITIRATO:
-                    return "Chiuso Ritirato";
-                case StatiAttoEnum.CHIUSO_DECADUTO:
-                    return "Chiuso Decaduto";
+                case StatiAttoEnum.COMPLETATO:
+                    return "Concluso"; // #1281
                 case StatiAttoEnum.TUTTI:
                     return "Tutti";
                 case StatiAttoEnum.BOZZA_CARTACEA:
                     return "Bozza cartacea";
-                case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
-                    return "Comunicazione assemblea";
-
-                case StatiAttoEnum.CHIUSO_DECADENZA_PER_FINE_LEGISLATURA:
-                    return "Chiuso decaduto per fine legislatura";
-
-                case StatiAttoEnum.CHIUSO_INAMMISSIBILE:
-                    return "Chiuso inammissibile";
-
-                case StatiAttoEnum.TRATTAZIONE_IN_ASSEMBLEA:
-                    return "Trattazione in assemblea";
-
                 default:
                     return "Stato non valido";
+            }
+        }
+
+        public static string GetText_ChiusuraIterDASI(int? stato)
+        {
+            if (stato == null)
+                return "--";
+
+            switch ((TipoChiusuraIterEnum)stato)
+            {
+                case TipoChiusuraIterEnum.RESPINTO:
+                    return "Respinto";
+                case TipoChiusuraIterEnum.APPROVATO:
+                    return "Approvato";
+                case TipoChiusuraIterEnum.RITIRATO:
+                    return "Ritirato";
+                case TipoChiusuraIterEnum.DECADUTO:
+                    return "Decaduto";
+                case TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA:
+                    return "Decaduto per fine legislatura";
+                case TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE:
+                    return "Decaduto per fine mandato consigliere";
+                case TipoChiusuraIterEnum.INAMMISSIBILE:
+                    return "Inammissibile";
+                case TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA:
+                    return "Comunicazione all'assemblea";
+                case TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA:
+                    return "Trattazione in assemblea";
+                case TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI:
+                    return "Chiusura per motivi diversi";
+                default:
+                    return "--";
             }
         }
 
@@ -287,7 +383,57 @@ namespace PortaleRegione.Common
                     return "Iter in assemblea + commissione";
                 }
                 default:
-                    return "";
+                    return string.Empty;
+            }
+        }
+
+        public static string GetText_TipoVotazioneDASI(int? tipoVotazioneIter)
+        {
+            try
+            {
+                if (!tipoVotazioneIter.HasValue) return "";
+
+                switch ((TipoVotazioneIterEnum)tipoVotazioneIter)
+                {
+                    case TipoVotazioneIterEnum.NESSUNO:
+                        return string.Empty;
+                    case TipoVotazioneIterEnum.APPELLO_NOMINALE:
+                        return "Appello nominale";
+                    case TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO:
+                        return "Palese alzata di mano";
+                    case TipoVotazioneIterEnum.SCRUTINIO_SEGRETO:
+                        return "Scrutinio segreto";
+                    default:
+                        return string.Empty;
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
+        public static string GetText_RisultatoVotazioneDASI(int? risultatoVotazioneIter)
+        {
+            try
+            {
+                if (!risultatoVotazioneIter.HasValue) return "";
+
+                switch ((RisultatoVotazioneIterEnum)risultatoVotazioneIter)
+                {
+                    case RisultatoVotazioneIterEnum.NESSUNO:
+                        return string.Empty;
+                    case RisultatoVotazioneIterEnum.MAGGIORNAZA:
+                        return "A maggioranza";
+                    case RisultatoVotazioneIterEnum.UNANIMITÀ:
+                        return "All'unanimità";
+                    default:
+                        return string.Empty;
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
             }
         }
 
@@ -356,6 +502,59 @@ namespace PortaleRegione.Common
             }
         }
 
+        public static string GetText_TipoNotaDASI(int tipoNota)
+        {
+            try
+            {
+                switch ((TipoNotaEnum)tipoNota)
+                {
+                    case TipoNotaEnum.GENERALE_PRIVATA:
+                        return "Privata";
+                    case TipoNotaEnum.GENERALE_PUBBLICA:
+                        return "Pubblica";
+                    case TipoNotaEnum.CHIUSURA_ITER:
+                        return "Chiusura iter";
+                    case TipoNotaEnum.RISPOSTA:
+                        return "Risposta";
+                    case TipoNotaEnum.PRIVACY:
+                        return "Privacy";
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(tipoNota),
+                            tipoNota, null);
+                }
+            }
+            catch (Exception)
+            {
+                return " ";
+            }
+        }
+
+        public static string GetNomeDocumentoStandard(int tipoDocumento)
+        {
+            switch ((TipoDocumentoEnum)tipoDocumento)
+            {
+                case TipoDocumentoEnum.TESTO_ALLEGATO:
+                    return "Allegato parte integrante atto";
+                case TipoDocumentoEnum.AGGIUNTIVO:
+                    return "Documento aggiuntivo";
+                case TipoDocumentoEnum.MONITORAGGIO:
+                    return "Documento monitoraggio";
+                case TipoDocumentoEnum.ABBINAMENTO:
+                    return "Documento abbinamento";
+                case TipoDocumentoEnum.CHIUSURA_ITER:
+                    return "Testo approvato";
+                case TipoDocumentoEnum.RISPOSTA:
+                case TipoDocumentoEnum.TESTO_RISPOSTA:
+                    return "Testo risposta";
+                case TipoDocumentoEnum.TESTO_PRIVACY:
+                    return "Documento privacy";
+                case TipoDocumentoEnum.VERBALE_VOTAZIONE:
+                    return "Verbale votazione";
+                default:
+                    throw new ArgumentOutOfRangeException($"Tipo documento non riconosciuto: {tipoDocumento}");
+            }
+        }
+
         /// <summary>
         ///     Metodo per convertire un enum in KeyValueDto
         /// </summary>
@@ -379,6 +578,7 @@ namespace PortaleRegione.Common
         public static void AddFilter_ByNUM(ref BaseRequest<EmendamentiDto> model, string numero_em)
         {
             if (!string.IsNullOrEmpty(numero_em))
+            {
                 model.filtro.Add(new FilterStatement<EmendamentiDto>
                 {
                     PropertyId = nameof(EmendamentiDto.N_EM),
@@ -386,6 +586,7 @@ namespace PortaleRegione.Common
                     Value = numero_em,
                     Connector = FilterStatementConnector.And
                 });
+            }
         }
 
         /// <summary>
@@ -779,6 +980,30 @@ namespace PortaleRegione.Common
             return Regex.Replace(input, "<.*?>", string.Empty).Replace("&nbsp;", " ");
         }
 
+        public static string StripWordMarkup(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return string.Empty;
+
+            // Rimuove i commenti condizionali di Word (<!--[if gte mso 9]><xml>...</xml><![endif]-->)
+            string withoutComments = Regex.Replace(input, @"<!--\[if.*?\]\>.*?<!\[endif\]-->", string.Empty, RegexOptions.Singleline);
+
+            // Rimuove tutti i tag XML/HTML (inclusi quelli di Word come <w:p>, <w:r>, <o:OfficeDocumentSettings>)
+            string withoutTags = Regex.Replace(withoutComments, "<[^>]+>", string.Empty);
+
+            // Rimuove anche eventuali tag incompleti o parole chiave XML che iniziano con "<w:" o "<o:"
+            string cleaned = Regex.Replace(withoutTags, @"<\w+:[^\s>]+.*?", string.Empty);
+
+            // Decodifica le entità HTML (&nbsp;, &amp;, etc.)
+            string decodedText = HttpUtility.HtmlDecode(cleaned);
+
+            // Rimuove eventuali caratteri di controllo Unicode invisibili
+            string finalText = Regex.Replace(decodedText, @"[\u200B-\u200D\uFEFF]", string.Empty);
+
+            // Normalizza gli spazi multipli e rimuove spazi iniziali/finali
+            return Regex.Replace(finalText, @"\s+", " ").Trim();
+        }
+
         private static string RegexPatterSubstitute(string text, string substitute, string regex_pattern)
         {
             var regex = new Regex(regex_pattern);
@@ -804,19 +1029,19 @@ namespace PortaleRegione.Common
             return displayNameAttribute?.DisplayName ?? propertyName;
         }
 
-        public static List<List<T>> Split<T>(IList<T> source)
+        public static List<List<T>> Split<T>(IList<T> source, int slice = 100)
         {
             return source
                 .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / 100)
+                .GroupBy(x => x.Index / slice)
                 .Select(x => x.Select(v => v.Value).ToList())
                 .ToList();
         }
 
         public static string ConvertiCaratteriSpeciali(string input)
         {
-            StringBuilder sb = new StringBuilder(input);
-        
+            var sb = new StringBuilder(input);
+
             sb.Replace("À", "&Agrave;");
             sb.Replace("à", "&agrave;");
             sb.Replace("È", "&Egrave;");
@@ -827,7 +1052,7 @@ namespace PortaleRegione.Common
             sb.Replace("ò", "&ograve;");
             sb.Replace("Ù", "&Ugrave;");
             sb.Replace("ù", "&ugrave;");
-        
+
             sb.Replace("Á", "&Aacute;");
             sb.Replace("á", "&aacute;");
             sb.Replace("É", "&Eacute;");
@@ -838,11 +1063,298 @@ namespace PortaleRegione.Common
             sb.Replace("ó", "&oacute;");
             sb.Replace("Ú", "&Uacute;");
             sb.Replace("ú", "&uacute;");
-            
+
             sb.Replace("\"", "&quot;");
             sb.Replace("'", "&#39;");
 
             return sb.ToString();
+        }
+
+        public static HttpResponseMessage ComposeFileResponse(string path)
+        {
+            var stream = new MemoryStream();
+            using (var fileStream = new FileStream(path, FileMode.Open))
+            {
+                fileStream.CopyTo(stream);
+            }
+
+            stream.Position = 0;
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(stream.GetBuffer())
+            };
+            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = Path.GetFileName(path)
+            };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+
+            return result;
+        }
+
+        public static string FormatDateToISO(string dateStr)
+        {
+            var parts = dateStr.Split('/');
+            return $"{parts[2]}-{parts[1].PadLeft(2, '0')}-{parts[0].PadLeft(2, '0')}";
+        }
+
+        public static bool IsDateProperty(string propertyName)
+        {
+            return propertyName == nameof(AttoDASIDto.Timestamp)
+                   || propertyName == nameof(AttoDASIDto.DataAnnunzio)
+                   || propertyName == nameof(AttoDASIDto.DataComunicazioneAssemblea)
+                   || propertyName == nameof(AttoDASIDto.DataTrasmissione)
+                   || propertyName == nameof(AttoDASIDto.DataTrattazione)
+                   || propertyName == nameof(AttoDASIDto.DataRisposta)
+                   || propertyName == nameof(AttoDASIDto.DataChiusuraIter)
+                   || propertyName == nameof(AttoDASIDto.DataIscrizioneSeduta)
+                   || propertyName == nameof(AttoDASIDto.UIDSeduta);
+        }
+
+        public static List<FilterStatement<AttoDASIDto>> ParseFilterDasi(List<FilterItem> clientFilters)
+        {
+            var result = new List<FilterStatement<AttoDASIDto>>();
+            if (clientFilters == null)
+                return result;
+
+            if (clientFilters.Any(f => f.property.Equals(nameof(AttoDASIDto.id_gruppo_firmatari))))
+            {
+                var gruppi_firmatari =
+                    clientFilters.First(f => f.property.Equals(nameof(AttoDASIDto.id_gruppo_firmatari)));
+                if (string.IsNullOrEmpty(gruppi_firmatari.value))
+                {
+                    clientFilters.Remove(gruppi_firmatari);
+                }
+            }
+
+            foreach (var filterItem in clientFilters)
+            {
+                if (filterItem.not_empty)
+                {
+                    if (filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
+                    {
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.DCRL),
+                            Operation = Operation.IsNotEmpty,
+                            Connector = FilterStatementConnector.And
+                        });
+                        continue;
+                    }
+
+                    result.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = filterItem.property,
+                        Operation = Operation.IsNotNullNorWhiteSpace,
+                        Connector = FilterStatementConnector.And
+                    });
+
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(filterItem.value))
+                {
+                    if (IsDateProperty(filterItem.property)
+                        || filterItem.property.Equals(nameof(AttoDASIDto.TipoVotazioneIter))
+                        || filterItem.property.Equals(nameof(AttoDASIDto.TipoChiusuraIter))
+                        || filterItem.property.Equals(nameof(AttoDASIDto.Risposte))
+                        || filterItem.property.Equals(nameof(AttoDASIDto.Organi)))
+                    {
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.IsNull,
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+                    else
+                    {
+                        if (filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.EqualTo,
+                                Value = 0,
+                                Connector = FilterStatementConnector.And
+                            });
+
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = nameof(AttoDASIDto.DCCR),
+                                Operation = Operation.EqualTo,
+                                Value = 0,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                        else
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.IsEmpty,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                    }
+
+                    continue;
+                }
+
+                var values = filterItem.value.Split(',');
+                if (values.Length > 1
+                    && !filterItem.property.Equals(nameof(AttoDASIDto.NAtto))
+                    && !filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
+                {
+                    if (IsDateProperty(filterItem.property))
+                    {
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.GreaterThan,
+                            Value = DateTime.Parse(values[0].Trim()).ToString("yyyy-MM-dd") + " 00:00:00",
+                            Connector = FilterStatementConnector.And
+                        });
+
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.LessThan,
+                            Value = DateTime.Parse(values[1].Trim()).ToString("yyyy-MM-dd") + " 23:59:59",
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+                    else if (filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
+                    {
+                        if (int.Parse(values[0].Trim()) > 0)
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.EqualTo,
+                                Value = int.Parse(values[0].Trim()),
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+
+                        if (int.Parse(values[1].Trim()) > 0)
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = nameof(AttoDASIDto.DCCR),
+                                Operation = Operation.EqualTo,
+                                Value = int.Parse(values[1].Trim()),
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                    }
+                    else
+                    {
+                        var orStatements = values.Select(value => new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.EqualTo,
+                            Value = value.Trim(),
+                            Connector = FilterStatementConnector.Or
+                        }).ToList();
+
+                        // Add the first statement to the main list
+                        result.Add(orStatements.First());
+
+                        // Link the remaining statements with 'Or' connectors
+                        for (var i = 1; i < orStatements.Count; i++)
+                        {
+                            orStatements[i].Connector = FilterStatementConnector.Or;
+                            result.Add(orStatements[i]);
+                        }
+                    }
+                }
+                else
+                {
+                    if (IsDateProperty(filterItem.property) 
+                        && !Guid.TryParse(filterItem.value, out var resGuid))
+                    {
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.GreaterThan,
+                            Value = DateTime.Parse(filterItem.value.Trim()).ToString("yyyy-MM-dd") + " 00:00:00",
+                            Connector = FilterStatementConnector.And
+                        });
+
+                        result.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = filterItem.property,
+                            Operation = Operation.LessThan,
+                            Value = DateTime.Parse(filterItem.value.Trim()).ToString("yyyy-MM-dd") + " 23:59:59",
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+                    else
+                    {
+                        if (filterItem.property.Equals(nameof(AttoDASIDto.Protocollo))
+                            || filterItem.property.Equals(nameof(AttoDASIDto.CodiceMateria))
+                            || filterItem.property.Equals(nameof(AttoDASIDto.BURL)))
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.Contains,
+                                Value = filterItem.value,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                        else
+                        {
+                            result.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = filterItem.property,
+                                Operation = Operation.EqualTo,
+                                Value = filterItem.value,
+                                Connector = FilterStatementConnector.And
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static DateTime ParseDateTime(string dateTime)
+        {
+            try
+            {
+                // Definisci una cultura specifica per il parsing (italiano)
+                var italianCulture = new CultureInfo("it-IT");
+                string[] supportedFormats = {
+                    "yyyy-MM-dd HH:mm:ss", // Formato ISO senza "T"
+                    "yyyy-MM-ddTHH:mm:ss", // Formato ISO con "T"
+                    "dd/MM/yyyy HH:mm:ss", // Formato italiano standard
+                };
+                
+                if (dateTime.Contains("T"))
+                {
+                    // Parsing con il formato italiano
+                    try
+                    {
+                        var dateT = DateTime.ParseExact(dateTime.Substring(0, 19).Replace("T", " "), supportedFormats, italianCulture, DateTimeStyles.None);
+                        return dateT;
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception($"Data in errore: {dateTime}, modificata in {dateTime.Substring(0, 19).Replace("T", " ")}", e);
+                    }
+                }
+
+                // Parsing della stringa con la cultura italiana
+                var date = DateTime.ParseExact(dateTime, supportedFormats, italianCulture, DateTimeStyles.None);
+                return date;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Data in errore: {dateTime}", e);
+            }
         }
     }
 }

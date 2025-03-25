@@ -1,79 +1,218 @@
-﻿@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
-<a class="btn-floating btn-large halfway-fab waves-effect waves-light pink tooltipped"
+<button type="button" role="button" class="btn-floating btn-large halfway-fab waves-effect waves-light pink tooltipped"
    onclick="openPanelCartacei()"
    style="position: fixed; top: 100px; right: 24px;"
    data-tooltip="Visualizza atti cartacei"
-   data-position="left">
+   data-position="bottom">
     <i class="material-icons">insert_drive_file</i>
-</a>
+</button>
 
-<ul id="slide-atti-cartacei" class="sidenav sidenav-search" style="overflow: auto !important">
-    <li>
-        <ul id="table-atti-cartacei" class="collection">
-        </ul>
-    </li>
-</ul>
+
+<div id="slide-atti-cartacei" class="sidenav sidenav-search" style="overflow: auto !important">
+    <ul>
+        <li>
+            <ul id="table-atti-cartacei" class="collection">
+            </ul>
+        </li>
+    </ul>
+	
+    <div id="pnlNuovoCartaceoDASI" class="fixed-action-btn" style="display: block; bottom:80px">
+        <button type="button" role="button" id="btnNuovoCartaceoDASI" class="btn-floating btn-large blue darken-3">
+            <i class="large material-icons">add</i>
+        </button>
+    </div>
+</div>
+<div id="modalNuovoCartaceo" class="modal">
+	<div class="modal-content">
+		<h4>Presentazione cartacea</h4>
+		<p>seleziona il tipo di atto e il tipo di risposta se necessario</p>
+		<div class="row">
+			<div class="input-field col s4">
+				<select id="NuovoCartaceo_Tipo" onchange="ShowHideTipoRisposta()">
+				</select>
+				<label for="NuovoCartaceo_Tipo">Tipo</label>
+			</div>
+			<div class="input-field col s4" id="panelTipoRispostaCartaceo" style="display: none;">
+				<select id="NuovoCartaceo_TipoRisposta">
+				</select>
+				<label for="NuovoCartaceo_TipoRisposta">Tipo Risposta</label>
+			</div>
+			<div class="input-field col s4">
+				<input id="NuovoCartaceo_Salto" type="number" min="1" step="1" value="1">
+				<label for="NuovoCartaceo_Salto">Quantità</label>
+			</div>
+		</div>
+
+	</div>
+	<div class="modal-footer">
+		<button type="button" role="button" id="NuovoCartaceo_Presenta" href="#!" class="modal-close btn-flat">Presenta</button>
+	</div>
+</div>
 
 <script>
-    var atti_cartacei = [];
-    $(window).on('load', async function() {
-        atti_cartacei = await GetAttiCartacei();
-        var table = $('#table-atti-cartacei');
-        table.empty();
+	var atti_cartacei = [];
+	$(window).on('load', async function () {
+		await LoadCartaceiPanel();
+	});
+    
+    async function LoadCartaceiPanel(){
+		atti_cartacei = await GetAttiCartacei();
+		var table = $('#table-atti-cartacei');
+		table.empty();
 
-        table.append('<li class="collection-item"><div class="input-field col s6"><input placeholder="Cerca" type="text" onkeyup="SearchCartacei(this);"></div></li>');
+		table.append('<li class="collection-item"><div class="input-field col s6"><input placeholder="Cerca" type="text" onkeyup="SearchCartacei(this);"></div></li>');
 
-        $.each(atti_cartacei, function(index, item) {
-            var text = item.Display;
-            var url = item.UIDAtto + "/edit";
-            table.append('<li id="row_' + item.UIDAtto +'" class="collection-item"><div>' + text + '<a class="secondary-content" href="'+url+'" target="_blank"><i class="material-icons blue-text">edit</i></a></div></li>');
-        });
-    });
-
-    function SearchCartacei(ctrl) {
-        var q = $(ctrl).val().toLowerCase();
-        if (q.length >= 2) {
-            $.each(atti_cartacei,
-                function(index, item) {
-                    var text = item.Display;
-                    var row = $('#row_' + item.UIDAtto);
-                    if (text.toLowerCase().search(q) === -1) {
-                        $(row).hide(); // Not match
-                    } else {
-                        // Match
-                        if (!$(row).is(":visible")) {
-                            $(row).show();
-                        }
-                    }
-                });
-        }
-        if (q === "") {
-            $.each(atti_cartacei, function (index, item) {
-                var row = $('#row_' + item.UIDAtto);
-                if (!$(row).is(":visible")) {
-                    $(row).show();
-                }
-            });
-        }
+		$.each(atti_cartacei, function (index, item) {
+			var text = item.DisplayTipo;
+            if (item.Display) {
+                text = item.Display;
+            }
+			var url = item.UIDAtto + "/edit";
+			table.append('<li id="row_' + item.UIDAtto + '" class="collection-item"><div>' + text + '<a class="secondary-content" href="' + url + '" target="_blank"><i class="material-icons blue-text">edit</i></a></div></li>');
+		});
     }
 
-    function openPanelCartacei() {
-        var elems = document.querySelector("#slide-atti-cartacei");
-        var instances = M.Sidenav.init(elems,
-            {
-                edge: "right",
-                draggable: true,
-                onOpenStart: function () {
-                    // Menu laterale SX sotto a layer opaco
-                    $("#slide-out").css("z-index", 997);
-                },
-                onCloseEnd: function () {
-                    // Ripristino menu laterale SX
-                    $("#slide-out").css("z-index", 999);
-                }
-            });
+	function SearchCartacei(ctrl) {
+		var q = $(ctrl).val().toLowerCase();
+		if (q.length >= 2) {
+			$.each(atti_cartacei,
+				function (index, item) {
+					var text = item.Display;
+					var row = $('#row_' + item.UIDAtto);
+					if (text.toLowerCase().search(q) === -1) {
+						$(row).hide(); // Not match
+					} else {
+						// Match
+						if (!$(row).is(":visible")) {
+							$(row).show();
+						}
+					}
+				});
+		}
+		if (q === "") {
+			$.each(atti_cartacei, function (index, item) {
+				var row = $('#row_' + item.UIDAtto);
+				if (!$(row).is(":visible")) {
+					$(row).show();
+				}
+			});
+		}
+	}
 
-        instances.open();
-    }
+	function openPanelCartacei() {
+		var elems = document.querySelector("#slide-atti-cartacei");
+		var instances = M.Sidenav.init(elems,
+			{
+				edge: "right",
+				draggable: true,
+				onOpenStart: function () {
+					// Menu laterale SX sotto a layer opaco
+					$("#slide-out").css("z-index", 997);
+				},
+				onCloseEnd: function () {
+					// Ripristino menu laterale SX
+					$("#slide-out").css("z-index", 999);
+				}
+			});
+
+		instances.open();
+	}
+
+	 var itl_tipi_risposta = [
+     { id: @((int)TipoRispostaEnum.ORALE), value: '@(TipoRispostaEnum.ORALE)'},
+     { id: @((int)TipoRispostaEnum.SCRITTA), value: '@(TipoRispostaEnum.SCRITTA)'},
+     { id: @((int)TipoRispostaEnum.COMMISSIONE), value: '@(TipoRispostaEnum.COMMISSIONE)'}
+ ];
+ var itr_tipi_risposta = [
+     { id: @((int)TipoRispostaEnum.SCRITTA), value: '@(TipoRispostaEnum.SCRITTA)'},
+     { id: @((int)TipoRispostaEnum.COMMISSIONE), value: '@(TipoRispostaEnum.COMMISSIONE)'}
+ ];
+ var iqt_tipi_risposta = [
+     { id: @((int)TipoRispostaEnum.IMMEDIATA), value: '@(TipoRispostaEnum.IMMEDIATA)'}
+ ];
+
+ function ShowHideTipoRisposta() {
+     $('#panelTipoRispostaCartaceo').hide();
+     var tipo = $('select[id="NuovoCartaceo_Tipo"]').children("option:selected").val();
+     if (tipo == @((int)TipoAttoEnum.ITL)
+         || tipo == @((int)TipoAttoEnum.ITR)
+         || tipo == @((int)TipoAttoEnum.IQT)) {
+         $('#panelTipoRispostaCartaceo').show();
+         var select = $('#NuovoCartaceo_TipoRisposta');
+         select.empty();
+
+         var tipi_risposta = [];
+         if (tipo == @((int)TipoAttoEnum.ITL)) {
+             tipi_risposta = itl_tipi_risposta;
+         }else if (tipo == @((int)TipoAttoEnum.ITR)) {
+             tipi_risposta = itr_tipi_risposta;
+         }else if (tipo == @((int)TipoAttoEnum.IQT)) {
+             tipi_risposta = iqt_tipi_risposta;
+         }
+
+         $.each(tipi_risposta,
+             function(index, item) {
+                 var template = "<option></option>";
+                 select.append($(template).val(item.id).html(item.value));
+             });
+
+         var elems = document.querySelectorAll("#NuovoCartaceo_TipoRisposta");
+         M.FormSelect.init(elems, null);
+     }
+ }
+
+ $('#btnNuovoCartaceoDASI').on("click",
+     async function() {
+         $('#panelTipoRispostaCartaceo').hide();
+
+         var tipi = await GetTipiDASI();
+         if (tipi.length > 0) {
+             var select = $("#NuovoCartaceo_Tipo");
+             select.empty();
+             $.each(tipi,
+                 function(index, item) {
+                     if (item.IDTipoAtto != @Html.Raw((int)TipoAttoEnum.TUTTI)) {
+                         var template = "<option></option>";
+                         select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
+                     }
+                 });
+
+             var elems = document.querySelectorAll("#NuovoCartaceo_Tipo");
+             M.FormSelect.init(elems, null);
+             ShowHideTipoRisposta();
+         }
+         $('#modalNuovoCartaceo').modal("open");
+     });
+
+ $('#NuovoCartaceo_Presenta').on("click",
+     function() {
+         var obj = {};
+         obj.Tipo = $('select[id="NuovoCartaceo_Tipo"]').children("option:selected").val();
+         obj.TipoRisposta = $('select[id="NuovoCartaceo_TipoRisposta"]').children("option:selected").val();
+         obj.Salto = $('#NuovoCartaceo_Salto').val();
+         $.ajax({
+             url: '@Url.Action("PresentazioneCartacea")',
+             method: "POST",
+             data: JSON.stringify(obj),
+             contentType: "application/json; charset=utf-8",
+             dataType: "json"
+         }).done(function(data) {
+             if (data.message) {
+                 swal({
+                     title: "Esito salvataggio",
+                     text: data.message,
+                     icon: "error",
+                     button: "OK"
+                 });
+             } else {
+				 M.toast({ html: 'Inserito nuovo atto cartaceo', classes: 'rounded' })
+				 LoadCartaceiPanel();
+             }
+         }).fail(function(err) {
+             console.log("error", err);
+             Error(err);
+         });
+     });
 </script>

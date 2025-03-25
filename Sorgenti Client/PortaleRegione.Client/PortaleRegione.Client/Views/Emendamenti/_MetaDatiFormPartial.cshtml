@@ -10,21 +10,18 @@
                 </h5>
             </div>
             <div class="col l6 right-align">
-                <a id="btnSposta_MetaDatiPartial" href="#!" class="waves-effect waves-green btn-flat orange-text" style="font-weight: bold;">
-                    Sposta EM
-                    <i class="material-icons">chevron_right</i>
-                </a>
-                <a id="btnSpostaUP_MetaDatiPartial" href="#!" class="waves-effect waves-green btn-flat orange-text" style="font-weight: bold;" onclick="SpostaUP_EMTrattazione()">
-                    Sposta EM UP
-                    <i class="material-icons">arrow_upward</i>
-                </a>
-                <a id="btnSpostaDOWN_MetaDatiPartial" href="#!" class="waves-effect waves-green btn-flat orange-text" style="font-weight: bold;" onclick="SpostaDOWN_EMTrattazione()">
-                    Sposta EM DOWN
-                    <i class="material-icons">arrow_downward</i>
-                </a>
+                <button type="button" role="button" id="btnSposta_MetaDatiPartial" class="btn-flat orange-text" style="font-weight: bold;">
+                    Sposta EM IN POSIZIONE
+                </button>
+                <button type="button" role="button" id="btnSpostaUP_MetaDatiPartial" class="btn-flat orange-text" style="font-weight: bold;" onclick="SpostaUP_EMTrattazione()">
+                    Sposta EM SU
+                </button>
+                <button type="button" role="button" id="btnSpostaDOWN_MetaDatiPartial" class="btn-flat orange-text" style="font-weight: bold;" onclick="SpostaDOWN_EMTrattazione()">
+                    Sposta EM GIU
+                </button>
 
-                <a id="btnSalvaMetaDatiPartial" href="#!" class="waves-effect waves-green btn-flat green-text" style="font-weight: bold;">Salva</a>
-                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+                <button type="button" role="button" id="btnSalvaMetaDatiPartial" class="btn-flat green-text" style="font-weight: bold;">Salva</button>
+                <button type="button" role="button" class="modal-close btn-flat grey-text">Chiudi</button>
             </div>
         </div>
 
@@ -54,6 +51,7 @@
                                 <option value="@((int)AreaPoliticaIntEnum.Minoranza)">@AreaPoliticaEnum.Minoranza</option>
                                 <option value="@((int)AreaPoliticaIntEnum.Misto_Maggioranza)">@AreaPoliticaEnum.Misto_Maggioranza</option>
                                 <option value="@((int)AreaPoliticaIntEnum.Misto_Minoranza)">@AreaPoliticaEnum.Misto_Minoranza</option>
+                                <option value="@((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)">@AreaPoliticaEnum.Misto_Maggioranza_Minoranza</option>
                             </select>
                         </div>
 

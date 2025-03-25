@@ -137,6 +137,8 @@ namespace PortaleRegione.BAL
                 if (notifica.UIDEM == Guid.Empty)
                 {
                     var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser);
+                    if (atto_dasi == null)
+                        continue;
                     notifica.ATTO_DASI = atto_dasi;
                     idGruppo = notifica.ATTO_DASI.id_gruppo;
                 }
@@ -311,8 +313,9 @@ namespace PortaleRegione.BAL
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        throw new Exception("Errore salvataggio a database", e); //#984
                     }
+
                     // #954
                     bodyMail +=
                         $@"[{atto.Display}] (proponente {atto.PersonaProponente.DisplayName} - {atto.gruppi_politici.codice_gruppo}) - {atto.OggettoView()}
@@ -418,7 +421,7 @@ namespace PortaleRegione.BAL
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        throw new Exception("Errore salvataggio a database", e); //#984
                     }
 
                     var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
@@ -639,7 +642,8 @@ namespace PortaleRegione.BAL
             if (!string.IsNullOrEmpty(check_presentazione))
             {
                 var attoInDb = await _unitOfWork.DASI.Get(notifica.UIDAtto);
-                attoInDb.IDStato = (int)StatiAttoEnum.CHIUSO_DECADUTO;
+                attoInDb.IDStato = (int)StatiAttoEnum.COMPLETATO;
+                attoInDb.TipoChiusuraIter = (int)TipoChiusuraIterEnum.DECADUTO;
                 attoInDb.DataRitiro = DateTime.Now;
 
                 await _unitOfWork.CompleteAsync();

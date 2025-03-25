@@ -30,6 +30,7 @@ namespace PortaleRegione.DTO.Domain
         public string nome_gruppo { get; set; }
         public string codice_gruppo { get; set; }
         public DateTime data_inizio { get; set; }
+        public DateTime? data_fine { get; set; }
         public bool giunta { get; set; }
         public bool abilita_em_privati { get; set; }
         public int id_legislatura { get; set; }

@@ -22,12 +22,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PortaleRegione.Client.Models;
+using PortaleRegione.Common;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using PortaleRegione.Logger;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -39,7 +41,7 @@ namespace PortaleRegione.Client.Controllers
     public class StampeController : BaseController
     {
         // GET
-        public async Task<ActionResult> Index(int page = 1, int size = 50)
+        public async Task<ActionResult> Index(int page = 1, int size = 20)
         {
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.Stampe.Get(page, size);
@@ -111,42 +113,51 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> NuovaStampaDasi(StampaModel model)
         {
             var apiGateway = new ApiGateway(Token);
-            var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
-
-            if (model.Tutti)
+            try
             {
-                var requestAtti = new BaseRequest<AttoDASIDto>
+                if (model.Tutti)
                 {
-                    page = 1,
-                    size = modelInCache.Data.Paging.Total,
-                    filtro = modelInCache.Data.Filters,
-                    ordine = OrdinamentoEnum.Crescente,
-                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
-                };
-                var list = await apiGateway.DASI.GetSoloIds(requestAtti);
+                    var request = new BaseRequest<AttoDASIDto>
+                    {
+                        page = 1,
+                        size = 99999,
+                        param = new Dictionary<string, object>
+                    {
+                        { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }
+                    }
+                    };
 
-                if (model.Lista != null)
-                    foreach (var guid in model.Lista)
-                        list.Remove(guid);
+                    request.filtro.AddRange(Utility.ParseFilterDasi(model.filters_dasi));
 
-                model.Lista = list;
-            }
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
-            var res = model.Lista.ToList();
-            if (model.da > 0 && model.a > 0)
-                if (model.da >= 1 && model.a <= res.Count)
-                {
-                    var range = res.GetRange(model.da - 1, model.a - (model.da - 1));
-                    res = range.ToList();
+                    if (model.Lista != null)
+                        foreach (var guid in model.Lista)
+                            list.Remove(guid);
+
+                    model.Lista = list;
                 }
 
-            return Json(await apiGateway.Stampe.InserisciStampa(new NuovaStampaRequest
-            {
-                Lista = res,
-                Modulo = ModuloStampaEnum.DASI,
-                Da = model.da,
-                A = model.a
-            }), JsonRequestBehavior.AllowGet);
+                var res = model.Lista.ToList();
+                if (model.da > 0 && model.a > 0)
+                    if (model.da >= 1 && model.a <= res.Count)
+                    {
+                        var range = res.GetRange(model.da - 1, model.a - (model.da - 1));
+                        res = range.ToList();
+                    }
+
+                return Json(await apiGateway.Stampe.InserisciStampa(new NuovaStampaRequest
+                {
+                    Lista = res,
+                    Modulo = ModuloStampaEnum.DASI,
+                    Da = model.da,
+                    A = model.a
+                }), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex) {
+                Log.Error("Aggiungi Stampa", ex);
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }            
         }
 
         /// <summary>
@@ -162,6 +173,29 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 var file = await apiGateway.Stampe.DownloadStampa(id);
+                return File(file.Content, "application/pdf",
+                    file.FileName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        ///     Controller per scaricare una stampa
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("fascicolo/{nomeFile}")]
+        public async Task<ActionResult> DownloadFascicoloStampa(string nomeFile)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var file = await apiGateway.Stampe.DownloadStampa(nomeFile);
                 return File(file.Content, "application/pdf",
                     file.FileName);
             }

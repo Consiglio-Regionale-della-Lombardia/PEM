@@ -12,8 +12,8 @@
                 </h5>
             </div>
             <div class="col l6 right-align">
-                <a id="btnSalvaMetaDatiPartial" href="#!" class="waves-effect waves-green btn-flat green-text" style="font-weight: bold;">Salva</a>
-                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+                <button type="button" role="button" id="btnSalvaMetaDatiPartial" class="btn-flat green-text">Salva</button>
+                <button type="button" role="button" class="modal-close btn-flat grey-text">Chiudi</button>
             </div>
         </div>
 
@@ -46,13 +46,13 @@
                             <p style="padding-left: 10px">
                                 <label>
                                     <input name="Oggetto" type="radio" value="1"/>
-                                    <span>Oggetto Modificato</span>
+                                    <span>Oggetto Modificato/Privacy</span>
                                 </label>
                             </p>
                             <p style="padding-left: 10px">
                                 <label>
                                     <input name="Oggetto" type="radio" value="2"/>
-                                    <span>Oggetto Privacy</span>
+                                    <span>Oggetto Approvato</span>
                                 </label>
                             </p>
                         </span>
@@ -131,6 +131,15 @@
 </div>
 
 <script>
+
+	async function openMetaDatiDASI(attoUId) {
+        waiting(true);
+		var atto = await GetAtto(attoUId);
+		waiting(false);
+		await LoadMetaDatiAtto(atto);
+		$("#modalMetaDati").modal("open");
+	}
+
     async function LoadMetaDatiAtto(atto) {
         await SetupMetaDati(atto);
 
@@ -161,10 +170,10 @@
                         $('#EditorOggetto').val(atto.Oggetto_Modificato);
                     $('#metaDatiOggetto> .form-group > p').show();
                 }else if (this.value == 2) {
-                    if (atto.Oggetto_Privacy == null || atto.Oggetto_Privacy == "")
+                    if (atto.Oggetto_Approvato == null || atto.Oggetto_Approvato == "")
                         $('#EditorOggetto').val(atto.Oggetto);
                     else
-                        $('#EditorOggetto').val(atto.Oggetto_Privacy);
+                        $('#EditorOggetto').val(atto.Oggetto_Approvato);
                     $('#metaDatiOggetto> .form-group > p').show();
                 }
             } else {
@@ -244,10 +253,14 @@
             //waiting(true);
 
             var oggetto_modificabile = $("input[type=radio][name='Oggetto']:checked")[0];
-            if ($(oggetto_modificabile).val() == 1) {
+			if ($(oggetto_modificabile).val() == 0) {
+                atto.Oggetto_Modificato = "";
+				atto.Oggetto_Approvato = "";
+            }else if ($(oggetto_modificabile).val() == 1) {
                 atto.Oggetto_Modificato = $('#EditorOggetto').val();
+				atto.Oggetto_Approvato = "";
             } else if ($(oggetto_modificabile).val() == 2) {
-                atto.Oggetto_Privacy = $('#EditorOggetto').val();
+                atto.Oggetto_Approvato = $('#EditorOggetto').val();
             }
 
             var premesse_modificabile = $("input[type=radio][name='Premesse']:checked")[0];
@@ -297,7 +310,7 @@
 
     async function SetupMetaDati(atto) {
         waiting(true);
-        $('#NAtto').text($('div[id*="atto_' + atto.UIDAtto + '"]').data("nome-atto"));
+        $('#NAtto').text(atto.Display);
         LoadMetaDati_Oggetto(atto);
         LoadMetaDati_Premesse(atto);
         LoadMetaDati_Richiesta(atto);
@@ -365,8 +378,9 @@
     }
 
     function LoadMetaDati_Oggetto(atto) {
-        console.log(atto);
-        if (atto.Oggetto_Modificato != null && atto.Oggetto_Modificato !== "") {
+		if (atto.Oggetto_Approvato != null && atto.Oggetto_Approvato !== "") {
+			$("input[type=radio][name='Oggetto'][value=2]").prop("checked", true);
+		} else if (atto.Oggetto_Modificato != null && atto.Oggetto_Modificato !== "") {
             $("input[type=radio][name='Oggetto'][value=1]").prop("checked", true);
         } else {
             $("input[type=radio][name='Oggetto'][value=0]").prop("checked", true);
@@ -378,6 +392,9 @@
             $('#metaDatiOggetto' + '> .form-group > p').hide();
         } else if ($(oggetto_checked).val() == 1) {
             $('#EditorOggetto').val(atto.Oggetto_Modificato);
+            $('#metaDatiOggetto' + '> .form-group > p').show();
+        } else if ($(oggetto_checked).val() == 2) {
+			$('#EditorOggetto').val(atto.Oggetto_Approvato);
             $('#metaDatiOggetto' + '> .form-group > p').show();
         }
     }
@@ -419,5 +436,6 @@
             $('#metaDatiRichiesta' + '> .form-group > p').show();
         }
     }
+
 
 </script>

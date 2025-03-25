@@ -42,7 +42,7 @@
 <div id="pnlViewStandard">
     <div class="row">
         <div class="col s12">
-            <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
+            <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@url">
                 <i class="material-icons">arrow_back</i>
             </a>
             <div class="row valign-wrapper" style="margin-bottom: 0px !important">
@@ -52,10 +52,26 @@
                         <b>@ViewBag.Title</b>
                         @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
                         {
-                            <a class="btn-flat pink-text tooltipped"
-                               href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" data-tooltip="Scarica testo">
-                                <i class="material-icons right pink-text">cloud_download</i> SCARICA
-                            </a>
+                            <button type="button" role="button" class="btn-flat pink-text"
+                               href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })">
+                               SCARICA DOCUMENTO ATTO
+                            </button>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
+                        {
+                            <button type="button" role="button" class="btn-flat orange-text"
+                                    href="@Model.Atto.LinkFascicoloPresentazione"
+                                    target="_blank">
+                                Scarica fascicolo em/subem presentazione
+                            </button>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
+                        {
+							<button type="button" role="button" class="btn-flat orange-text"
+									href="@Model.Atto.LinkFascicoloVotazione"
+									target="_blank">
+								Scarica fascicolo em/subem votazione
+							</button>
                         }
                     </h3>
                 </div>
@@ -71,19 +87,19 @@
                     @if (!filtri_attivi)
                     {
                         <li class="tab col s3">
-                            <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</a>
+                            <button type="button" role="button" class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</button>
                         </li>
                         <li class="tab col s3">
-                            <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</a>
+                            <button type="button" role="button" class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</button>
                         </li>
                     }
                     else
                     {
                         <li class="tab col s3">
-                            <a class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</a>
+                            <button type="button" role="button" class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</button>
                         </li>
                         <li class="tab col s3">
-                            <a class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</a>
+                            <button type="button" role="button" class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</button>
                         </li>
                     }
                 </ul>
@@ -97,10 +113,10 @@
     <div class="card-content">
         <div class="row">
             <div class="col l12 right-align">
-                <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="viewStandard();">
+                <button type="button" role="button" class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="viewStandard();">
                     <i class="material-icons right pink-text">apps</i>
                     VISUALIZZA EM
-                </a>
+                </button>
             </div>
             <div class="col l12">
                 <table id="tableTesti" class="tableTesti">

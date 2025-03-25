@@ -67,6 +67,28 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint logout
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.Autenticazione.Logout)]
+        public async Task<IHttpActionResult> Logout()
+        {
+            try
+            {
+                var session = Session;
+                await _authLogic.Logout(session._currentUId);
+                
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logout", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
         ///     Endpoint login
         /// </summary>
         /// <param name="loginModel"></param>
@@ -78,7 +100,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var result = await _authLogic.Login(loginModel);
-
+                
                 return Ok(result);
             }
             catch (Exception e)

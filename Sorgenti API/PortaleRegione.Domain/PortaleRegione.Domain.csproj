@@ -39,8 +39,14 @@
   <ItemGroup>
     <Compile Include="ARTICOLI.cs" />
     <Compile Include="ATTI.cs" />
+    <Compile Include="ATTI_ABBINAMENTI.cs" />
     <Compile Include="ATTI_COMMISSIONI.cs" />
     <Compile Include="ATTI_DASI.cs" />
+    <Compile Include="ATTI_DOCUMENTI.cs" />
+    <Compile Include="ATTI_MONITORAGGIO.cs" />
+    <Compile Include="ATTI_NOTE.cs" />
+    <Compile Include="ATTI_PROPONENTI.cs" />
+    <Compile Include="ATTI_RISPOSTE.cs" />
     <Compile Include="ATTI_DASI_CONTATORI.cs" />
     <Compile Include="ATTI_FIRME.cs" />
     <Compile Include="ATTI_RELATORI.cs" />
@@ -48,6 +54,7 @@
     <Compile Include="cariche.cs" />
     <Compile Include="COMMI.cs" />
     <Compile Include="EM.cs" />
+    <Compile Include="FILTRI.cs" />
     <Compile Include="FIRME.cs" />
     <Compile Include="gruppi_politici.cs" />
     <Compile Include="join_gruppi_politici_legislature.cs" />
@@ -68,14 +75,17 @@
     <Compile Include="PINS.cs" />
     <Compile Include="PINS_NoCons.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="REPORTS.cs" />
     <Compile Include="RUOLI.cs" />
     <Compile Include="RUOLI_UTENTE.cs" />
     <Compile Include="SEDUTE.cs" />
+    <Compile Include="Sessioni.cs" />
     <Compile Include="STAMPE.cs" />
     <Compile Include="STAMPE_INFO.cs" />
     <Compile Include="STATI_EM.cs" />
     <Compile Include="TAGS.cs" />
     <Compile Include="tbl_recapiti.cs" />
+    <Compile Include="TEMPLATES.cs" />
     <Compile Include="TIPI_ATTO.cs" />
     <Compile Include="TIPI_EM.cs" />
     <Compile Include="TIPI_NOTIFICA.cs" />
@@ -83,19 +93,23 @@
     <Compile Include="TITOLI_MISSIONI.cs" />
     <Compile Include="UTENTI_NoCons.cs" />
     <Compile Include="View_assessori_in_carica.cs" />
+    <Compile Include="View_Atti.cs" />
     <Compile Include="View_CAPIGRUPPO.cs" />
     <Compile Include="View_cariche_assessori_in_carica.cs" />
     <Compile Include="View_cariche_assessori_per_legislatura.cs" />
+    <Compile Include="View_Commissioni.cs" />
     <Compile Include="View_Commissioni_attive.cs" />
     <Compile Include="View_Commissioni_per_legislatura.cs" />
     <Compile Include="View_Composizione_GiuntaRegionale.cs" />
     <Compile Include="View_CONSIGLIERE_GRUPPO.cs" />
     <Compile Include="View_consiglieri_in_carica.cs" />
     <Compile Include="View_CONSIGLIERI_PEM.cs" />
+    <Compile Include="View_consiglieri.cs" />
     <Compile Include="View_consiglieri_per_legislatura.cs" />
     <Compile Include="View_Conteggi_EM_Area_Politica.cs" />
     <Compile Include="View_Conteggi_EM_Gruppi_Politici.cs" />
     <Compile Include="View_gruppi_politici_con_giunta.cs" />
+    <Compile Include="View_gruppi_politici_ws.cs" />
     <Compile Include="View_PINS.cs" />
     <Compile Include="View_UTENTI.cs" />
   </ItemGroup>

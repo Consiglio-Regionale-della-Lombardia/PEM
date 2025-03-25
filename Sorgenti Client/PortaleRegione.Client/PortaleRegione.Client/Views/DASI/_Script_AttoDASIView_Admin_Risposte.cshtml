@@ -1,0 +1,748 @@
+﻿@using Newtonsoft.Json
+@using PortaleRegione.Client.Helpers
+@model PortaleRegione.DTO.Model.DASIFormModel
+
+<div id="modalRisposte" class="modal">
+	<div class="modal-content">
+		<h4>Risposte</h4>
+		<p>Inserisci risposta per l'atto @Model.Atto.Display</p>
+		<div class="row" id="pnlSearchOrganiCommissioneRisposta">
+			<div class="input-field col s12">
+				<i class="material-icons prefix">search</i>
+				<input type="text" id="organi-autocomplete" class="autocomplete">
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+        <button class="modal-close btn-flat green-text">Chiudi</button>
+		<button id="btnInserisciRisposta" class="btn-flat blue-text" onclick="InserisciRisposta()">Inserisci</button>
+	</div>
+</div>
+
+<div id="modalDettaglioRisposta" class="modal">
+	<div class="modal-content">
+		<h4>Date risposta</h4>
+		<hr />
+		<div class="row">
+			<div class="input-field col s12 m12 l12" style="display: @((Model.Atto.IsMOZ())? "none":"block")">
+				<input id="dataRisposta" type="date" />
+				<label>Data risposta</label>
+			</div>
+			<div class="input-field col s12 m12 l12" style="display: @((Model.Atto.IsIQT())? "none":"block")">
+				<input id="dataTrasmissione" type="date" />
+				<label>Data trasmissione</label>
+			</div>
+			<div class="input-field col s12 m12 l12" style="display: @((Model.Atto.IsIQT() || Model.Atto.IsITL() || Model.Atto.IsITR())? "none":"block")">
+				<input id="dataTrattazione" type="date" />
+				<label>Data trattazione</label>
+			</div>
+			<div class="input-field col s12 m12 l12" style="display: @((Model.Atto.IsMOZ())? "block":"none")">
+				<input id="dataRevoca" type="date" />
+				<label>Data revoca</label>
+			</div>
+		</div>
+
+		<input id="idRisposta" type="hidden" />
+
+	</div>
+	<div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            <button onclick="btnSalvaDettagliRisposta()" class="btn-flat blue-text">Salva</button>
+        }
+    </div>
+</div>
+
+<div id="modalInformazioniRisposta" class="modal">
+    <div class="modal-content">
+        <h4>Informazioni risposta</h4>
+        <hr />
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-informazioni-risposta-autocomplete" class="autocomplete">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-close btn-flat grey-text">Chiudi</button>
+    </div>
+</div>
+
+<script>
+
+async function AggiungiInformazioneRisposta(element, idRisposta) {
+    waiting(true);
+
+    var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+    var data = [];
+    organi.forEach(function (item) {
+        data.push({
+	        tag: `${item.nome_organo}`,
+	        id: `${item.id_organo}`
+        });
+    });
+	var elems = document.querySelectorAll('#organi-informazioni-risposta-autocomplete');
+    var instances = M.Autocomplete.init(elems, {
+        data: data,
+        limit: 20,
+        minLength: 2,
+        onAutocomplete: function (txt, key) {
+	        swal({
+		        title: "Inserimento nuovo organo",
+		        text: "Sei sicuro di voler inserire " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+		        icon: "warning",
+		        buttons: ["Annulla", "Inserisci"]
+	        }).then(async (answer) => {
+
+		        if (answer) {
+
+			        let tipoOrgano;
+			        let displayTipoOrgano;
+
+			        if (txt.includes("Commissione")) {
+				        tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+				        displayTipoOrgano = "Commissione";
+			        } else {
+				        tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+				        displayTipoOrgano = "Giunta";
+			        }
+
+					var tipoRispostaValue = $('#tipi-risposta-select').val();
+					var tipoRispostaText = $('#tipi-risposta-select option:selected').text();
+
+					var request = {
+						UIDAtto: '@Model.Atto.UIDAtto',
+						IdOrgano: `${key}`,
+						Tipo: tipoRispostaValue,
+						TipoOrgano: tipoOrgano,
+						DisplayTipoOrgano: displayTipoOrgano,
+						DescrizioneOrgano: txt,
+						Uid: idRisposta
+					}
+
+					var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+					// Send the data using fetch
+					const response = await fetch(url, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify(request)
+					});
+
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+
+					try {
+						const data = await response.json();
+						if (data.message) { ErrorAlert(data.message); return; }
+
+						//Seleziona la lista `ul` di cui fa parte il pulsante cliccato
+						const collection = element.closest("ul");
+
+						// Crea un nuovo elemento di lista
+						const newItem = document.createElement("li");
+						newItem.id = data.Uid;
+						newItem.className = "collection-item";
+
+						// Aggiungi il contenuto desiderato al nuovo item
+						newItem.innerHTML = `
+							  <div>
+								  ${txt}
+								  <button type="button" role="button" class="secondary-content btn-small btn-flat red-text" style="margin-top: -5px" onclick="rimuoviInformazioniRisposta(this, '${data.Uid}')"><i class="material-icons">close</i></button>
+							  </div>
+						  `;
+
+						// Inserisci il nuovo item subito prima dell'ultimo elemento (il pulsante "add")
+						collection.insertBefore(newItem, collection.lastElementChild);
+
+						M.toast({
+							html: `<span>${txt} inserito con successo all'atto @Html.Raw(Model.Atto.Display)</span>`,
+							classes: 'rounded',
+							displayLength: 5000
+						});			
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+
+					} catch (error) {
+						// ignored
+					}
+				}
+				document.getElementById('organi-informazioni-risposta-autocomplete').value = "";
+				$('#modalInformazioniRisposta').modal("close");
+		    });
+	    }
+    });
+	waiting(false);
+	$('#modalInformazioniRisposta').modal("open");
+}
+
+async function InserisciRisposta() {
+    waiting(true);
+    // Simula la richiesta al server per salvare i dati
+    var request = {
+		UIDAtto: '@Model.Atto.UIDAtto'
+    }
+
+    var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+    // Send the data using fetch
+    const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+		throw new Error('Network response was not ok');
+    }
+
+    try {
+		const data = await response.json();
+		if (data.message) { ErrorAlert(data.message); return; }
+
+		const atto = @Html.Raw(JsonConvert.SerializeObject(new {
+                         UIDAtto = Model.Atto.UIDAtto,
+                         IsMOZ = Model.Atto.IsMOZ(),
+                         IsIQT = Model.Atto.IsIQT(),
+                         IsITL = Model.Atto.IsITL(),
+                         IsITR = Model.Atto.IsITR()
+                     }));
+        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+		aggiungiRigaAllaTabellaRisposta(data, atto);
+
+    } catch (error) {
+		// ignored
+    }
+
+	waiting(false);
+}
+
+if (document.getElementById('btnAggiungiRisposta')) {
+	document.getElementById('btnAggiungiRisposta').addEventListener('click', async function () {
+	waiting(true);
+
+	var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+	var data = [];
+	organi.forEach(function (item) {
+		data.push({
+			tag: `${item.nome_organo}`,
+			id: `${item.id_organo}`
+		});
+	});
+	var elems = document.querySelectorAll('#organi-autocomplete');
+	var instances = M.Autocomplete.init(elems, {
+		data: data,
+		limit: 20,
+		minLength: 2,
+		onAutocomplete: function (txt, key) {
+			swal({
+				title: "Inserimento nuovo organo",
+				text: "Sei sicuro di voler inserire " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+				icon: "warning",
+				buttons: ["Annulla", "Inserisci"]
+			}).then(async (answer) => {
+
+					if (answer) {
+
+						let tipoOrgano;
+						let displayTipoOrgano;
+
+						if (txt.includes("Commissione")) {
+							tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+							displayTipoOrgano = "Commissione";
+						} else {
+							tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+							displayTipoOrgano = "Giunta";
+						}
+
+						// Simula la richiesta al server per salvare i dati
+						var request = {
+							UIDAtto: '@Model.Atto.UIDAtto',
+							IdOrgano: `${key}`,
+							TipoOrgano: tipoOrgano,
+							DisplayTipoOrgano: displayTipoOrgano,
+							DescrizioneOrgano: txt
+						}
+
+						var url = '@Url.Action("Salva_NuovaRisposta", "DASI")';
+						// Send the data using fetch
+						const response = await fetch(url, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify(request)
+						});
+
+						if (!response.ok) {
+							throw new Error('Network response was not ok');
+						}
+
+						try {
+							const data = await response.json();
+							if (data.message) { ErrorAlert(data.message); return; }
+
+							const atto = @Html.Raw(JsonConvert.SerializeObject(new {
+                                             UIDAtto = Model.Atto.UIDAtto,
+                                             IsMOZ = Model.Atto.IsMOZ(),
+                                             IsIQT = Model.Atto.IsIQT(),
+                                             IsITL = Model.Atto.IsITL(),
+                                             IsITR = Model.Atto.IsITR()
+                                         }));
+                            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+							aggiungiRigaAllaTabellaRisposta(data, atto);
+
+						} catch (error) {
+							// ignored
+						}					
+
+						document.querySelector('#organi-autocomplete').value = '';
+					}
+				});
+			}
+		});
+		waiting(false);
+		$('#modalRisposte').modal("open");
+	});
+}
+
+function rimuoviRisposta(ctrl, uid) {
+	const row = $(ctrl).closest('tr'); // Trova la riga associata al pulsante cliccato
+
+	swal({
+		title: "Elimina risposta",
+		text: "Sei sicuro di voler eliminare questa risposta?",
+		icon: "warning",
+		buttons: ["Annulla", "Rimuovi"]
+	}).then(async (answer) => {
+		if (answer) {
+			// Simula la richiesta al server per rimuovere i dati
+			const url = '@Url.Action("Salva_RimuoviRisposta", "DASI")';
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ uid: uid })
+			});
+
+			if (!response.ok) {
+				ErrorAlert("Errore durante l'eliminazione della risposta");
+				return;
+			}
+
+			try {
+				const result = await response.json();
+				if (result.message) {
+					ErrorAlert(result.message);
+					return;
+				}
+
+				// Rimuovi la riga dalla tabella
+				row.fadeOut(300, () => {
+					row.remove();
+				});
+
+				M.toast({
+					html: `<span>Risposta eliminata con successo</span>`,
+					classes: 'rounded',
+					displayLength: 5000
+				});
+                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+			} catch (error) {
+				ErrorAlert("Errore durante l'elaborazione della risposta");
+			}
+		}
+	});
+}
+
+function rimuoviInformazioniRisposta(ctrl, uid) {
+
+	// Trova la riga corrispondente al `uid_risposta`
+	const row = document.querySelector(`li[id="${uid}"]`);
+	if (!row) {
+		console.error(`Riga con UID ${uid} non trovata`);
+		return;
+	}
+
+	swal({
+		title: "Elimina risposta",
+		text: "Sei sicuro di voler eliminare questa risposta?",
+		icon: "warning",
+		buttons: ["Annulla", "Rimuovi"]
+	}).then(async (answer) => {
+		if (answer) {
+			// Simula la richiesta al server per rimuovere i dati
+			const url = '@Url.Action("Salva_RimuoviRisposta", "DASI")';
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ uid: uid })
+			});
+
+			if (!response.ok) {
+				ErrorAlert("Errore durante l'eliminazione della risposta");
+				return;
+			}
+
+			try {
+				const result = await response.json();
+				if (result.message) {
+					ErrorAlert(result.message);
+					return;
+				}
+				
+				// Rimuovi la riga dalla tabella
+				row.remove();
+
+				M.toast({
+					html: `<span>Risposta eliminata con successo</span>`,
+					classes: 'rounded',
+					displayLength: 5000
+				});
+                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+			} catch (error) {
+				ErrorAlert("Errore durante l'elaborazione della risposta");
+			}
+		}
+	});
+}
+
+/*function modificaDettagliRisposta(ctrl, uid, dataRisposta, dataTrasmissione, dataTrattazione) {*/
+function modificaDettagliRisposta(ctrl) {
+	var risp = ctrl.getAttribute('data-risposta');
+	var risposta = JSON.parse(risp);
+
+	// Precompila i controlli nella modale
+	$('#dataRisposta').val(formatDateTForInput(risposta.Data)); // Setta la data risposta
+	$('#dataTrasmissione').val(formatDateTForInput(risposta.DataTrasmissione)); // Setta la data trasmissione
+	$('#dataTrattazione').val(formatDateTForInput(risposta.DataTrattazione)); // Setta la data trattazione
+	$('#dataRevoca').val(formatDateTForInput(risposta.DataRevoca)); // Setta la data revoca
+	$('#idRisposta').val(risposta.Uid);
+
+	// Apri la modale
+	$('#modalDettaglioRisposta').modal('open');
+}
+
+	function aggiungiRigaAllaTabellaRisposta(risposta, atto) {
+		const tableBody = document.querySelector('#tableRisposte tbody');
+
+		var rispostaObj = {
+			Uid: risposta.Uid,
+			DataTrasmissione: risposta.DataTrasmissione,
+			DataTrattazione: risposta.DataTrattazione,
+			DataRevoca: risposta.DataRevoca,
+			Data: risposta.Data
+		};
+
+		// Costruzione dinamica delle colonne basate sulle condizioni di `atto`
+		let colonneDinamiche = '';
+
+		if (atto.IsMOZ) {
+			colonneDinamiche += `
+        <td class="center">
+		    ${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </button>
+        </td>
+        <td class="center">
+		    ${risposta.DataTrattazione ? risposta.DataTrattazione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </button>
+        </td>
+        <td class="center">
+		    ${risposta.DataRevoca ? risposta.DataRevoca : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </button>
+        </td>
+    `;
+		} else if (atto.IsIQT) {
+			colonneDinamiche += `
+        <td class="center">
+		    ${risposta.Data ? risposta.Data : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </button>
+        </td>
+    `;
+		} else if (atto.IsITR || atto.IsITL) {
+			colonneDinamiche += `
+        <td class="center">
+		    ${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </button>
+        </td>
+        <td class="center">
+		    ${risposta.Data ? risposta.Data : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </button>
+        </td>
+    `;
+		} else {
+			colonneDinamiche += `
+        <td class="center">
+		    ${risposta.DataTrasmissione ? risposta.DataTrasmissione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </button>
+        </td>
+        <td class="center">
+		    ${risposta.Data ? risposta.Data : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </button>
+        </td>
+        <td class="center">
+                ${risposta.DataTrattazione ? risposta.DataTrattazione : ''}
+                    <button type="button" role="button" class="btn-small btn-flat black-text" style="margin-top: -5px" data-risposta='${JSON.stringify(rispostaObj)}' onclick="modificaDettagliRisposta(this)">
+                        <i class="material-icons">edit</i>
+                    </button>
+        </td>
+    `;
+		}
+
+        var colonnaInfoRisposta = "";
+		if (atto.IsIQT || atto.IsMOZ) {
+            // ignored
+        } else {
+			colonnaInfoRisposta = `<td>
+    <ul class="collection">
+        ${(risposta.RisposteAssociate || []).map(r => `
+            <li class="collection-item" id="${r.Uid}">
+                ${r.DescrizioneOrgano}
+                <button type="button" role="button" class="secondary-content btn-small btn-flat red-text" style="margin-top: -5px" onclick="rimuoviInformazioniRisposta(this, '${r.Uid}')">
+                    <i class="material-icons">close</i>
+                </button>			
+            </li>
+        `).join('')}
+        <li class="collection-item">
+                <button type="button" role="button" class="secondary-content btn-small btn-flat black-text" onclick="AggiungiInformazioneRisposta(this, '${risposta.Uid}')">
+                    <i class="material-icons">add</i>
+                </button>
+        </li>
+    </ul>
+</td>`;
+        }
+
+
+		// Costruisci l'intera riga con le colonne dinamiche
+		const nuovaRiga = `
+    <tr id="${risposta.Uid}">
+        <td>${risposta.DescrizioneOrgano}</td>
+        ${colonneDinamiche}
+		${colonnaInfoRisposta}	
+        <td>
+            ${risposta.UIDDocumento ? `
+                <a href="${risposta.Link}" target="_blank" style="text-decoration: underline">
+                    ${risposta.Titolo}
+                </a>
+                <button type="button" role="button" class="btn-small btn-flat red-text" onclick="rimuoviDocumento(this, '${risposta.Titolo}', '${risposta.UIDDocumento}')">
+                    <i class="material-icons">close</i>
+                </button>
+            ` : `
+                <button type="button" role="button" class="btn-small btn-flat pink-text" onclick="AggiungiDocumento_Risposta(this, '${risposta.Uid}')">
+                    Carica
+                </button>
+            `}
+        </td>
+        <td class="center">
+            <button type="button" role="button" class="btn-small btn-flat red-text" onclick="rimuoviRisposta(this, '${risposta.Uid}')">
+                Elimina
+            </button>
+        </td>
+    </tr>
+`;
+
+		// Aggiungi la riga alla tabella
+		tableBody.insertAdjacentHTML('beforeend', nuovaRiga);
+
+        $('#modalRisposte').modal("close");
+	}
+
+	function aggiornaDateRigaRisposta(risposta, atto) {
+		// Trova la riga corrispondente al `uid_risposta`
+		const row = document.querySelector(`table tbody tr[id="${risposta.Uid}"]`);
+		if (!row) {
+			console.error(`Riga con UID ${risposta.Uid} non trovata`);
+			return;
+		}
+		console.log("riga trovata")
+
+        // Aggiorna le celle in base al tipo di `atto`
+        if (atto.IsMOZ) {
+            aggiornaTestoCella(row.querySelector('td:nth-child(2)'), risposta.DataTrasmissione);
+            aggiornaTestoCella(row.querySelector('td:nth-child(3)'), risposta.DataTrattazione);
+            aggiornaTestoCella(row.querySelector('td:nth-child(4)'), risposta.DataRevoca);
+        } else if (atto.IsIQT) {
+            aggiornaTestoCella(row.querySelector('td:nth-child(2)'), risposta.Data);
+        } else if (atto.IsITR || atto.IsITL) {
+            aggiornaTestoCella(row.querySelector('td:nth-child(2)'), risposta.DataTrasmissione);
+            aggiornaTestoCella(row.querySelector('td:nth-child(3)'), risposta.Data);
+        } else {
+            aggiornaTestoCella(row.querySelector('td:nth-child(2)'), risposta.DataTrasmissione);
+            aggiornaTestoCella(row.querySelector('td:nth-child(3)'), risposta.Data);
+            aggiornaTestoCella(row.querySelector('td:nth-child(4)'), risposta.DataTrattazione);
+        }
+
+        // Aggiorna l'attributo `data-risposta` sui pulsanti di modifica
+        const editLinks = row.querySelectorAll('button[data-risposta]');
+        if (editLinks.length > 0) {
+            const rispostaObj = {
+                Uid: risposta.Uid,
+                DataTrasmissione: risposta.DataTrasmissione,
+                DataTrattazione: risposta.DataTrattazione,
+                DataRevoca: risposta.DataRevoca,
+                Data: risposta.Data
+            };
+
+            editLinks.forEach(link => {
+                link.setAttribute('data-risposta', JSON.stringify(rispostaObj));
+            });
+        }
+	}
+
+    // Funzione di supporto per aggiornare solo il testo di una cella mantenendo il pulsante
+    function aggiornaTestoCella(cella, valore) {
+        if (cella) {
+            // Trova il bottone dentro la cella (se esiste)
+            const button = cella.querySelector('button');
+
+            // Rimuove tutti i nodi di testo nella cella
+            cella.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    node.remove();
+                }
+            });
+
+            // Inserisce il nuovo testo prima del bottone (se presente)
+            if (button) {
+                cella.insertBefore(document.createTextNode(valore ? formatDateForDisplay(valore) : ''), button);
+            } else {
+                cella.textContent = valore ? formatDateForDisplay(valore) : '';
+            }
+        } else {
+            console.log("Cella non trovata");
+        }
+    }
+
+	async function btnSalvaDettagliRisposta() {
+	// Ottieni i dati dalla modale
+	var dataRisposta = $('#dataRisposta').val();
+	var dataTrasmissione = $('#dataTrasmissione').val();
+	var dataTrattazione = $('#dataTrattazione').val();
+	var dataRevoca = $('#dataRevoca').val();
+	var uid_risposta = $('#idRisposta').val();
+
+	// Prepara i dati per il salvataggio
+	var requestData = {
+		Uid: uid_risposta,
+		Data: dataRisposta,
+		DataTrasmissione: dataTrasmissione,
+		DataTrattazione: dataTrattazione,
+		DataRevoca: dataRevoca
+	};
+
+	var url = '@Url.Action("Salva_DettagliRisposta", "DASI")';
+
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(requestData)
+	});
+
+	if (!response.ok) {
+		throw new Error('Network response was not ok');
+	}
+
+	try {
+		const errorData = await response.json();
+		if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+		const atto = @Html.Raw(JsonConvert.SerializeObject(new {
+                         UIDAtto = Model.Atto.UIDAtto,
+                         IsMOZ = Model.Atto.IsMOZ(),
+                         IsIQT = Model.Atto.IsIQT(),
+                         IsITL = Model.Atto.IsITL(),
+                         IsITR = Model.Atto.IsITR()
+                     }));
+
+        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+		aggiornaDateRigaRisposta(requestData, atto);
+
+	} catch (error) {
+		// ignored
+	}
+
+	M.toast({
+		html: `<span>Dettagli della risposta salvati con successo</span>`,
+		classes: 'rounded',
+		displayLength: 5000
+	});
+
+	// Chiudi la modale
+	$('#modalDettaglioRisposta').modal('close');
+}
+
+async function salvaInformazioniRisposta() {
+    waiting(true);
+    const selectElementRispostaFornita = document.getElementById('tipi-risposta-fornita-select');
+    const dateSeduta = document.querySelector('input[name="Atto.DataSedutaRisposta"]');
+    const dateComunicazioneRisposta = document.querySelector('input[name="Atto.DataComunicazioneAssembleaRisposta"]');
+    let iterMultiplo = false;
+
+	if (document.querySelector('input[name="Atto.IterMultiplo"]')) {
+		iterMultiplo = document.querySelector('input[name="Atto.IterMultiplo"]').checked;
+    }
+
+    const data = {
+        UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+        DataSedutaRisposta: dateSeduta ? dateSeduta.value : '',
+        DataComunicazioneAssembleaRisposta: dateComunicazioneRisposta ? dateComunicazioneRisposta.value : '',
+        IDTipo_Risposta_Effettiva: selectElementRispostaFornita.value,
+		IterMultiplo: iterMultiplo
+    };
+
+    const url = '@Url.Action("Salva_InformazioniRisposta", "DASI")';
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const responseData = await response.json();
+        if (responseData !== "OK") {
+            M.toast({ html: `<span>${responseData.message}</span>`, classes: 'rounded red', displayLength: 5000 });
+            return;
+        }
+
+        M.toast({ html: `<span>Informazioni salvate con successo</span>`, classes: 'rounded', displayLength: 5000 });
+        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+    } catch (error) {
+        console.error('Errore durante il salvataggio:', error);
+    }
+
+    waiting(false);
+}
+
+</script>

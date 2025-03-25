@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.Common
+﻿@using Newtonsoft.Json
+@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.DASIFormModel
 
@@ -9,7 +10,7 @@
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,17 +29,37 @@
     <script src="~/Scripts/moment.js"></script>
 </head>
 <body>
-	<script>
+<script>
 		$(document).ready(function () {
 			$('#btnSearch').hide();
 		});
 	</script>
 
+    <div id="waiting" class="modal" style="height: 120px">
+	    <div class="modal-content center">
+		    <div class="preloader-wrapper active">
+			    <div class="spinner-layer spinner-blue-only">
+				    <div class="circle-clipper left">
+					    <div class="circle"></div>
+				    </div>
+				    <div class="gap-patch">
+					    <div class="circle"></div>
+				    </div>
+				    <div class="circle-clipper right">
+					    <div class="circle"></div>
+				    </div>
+			    </div>
+		    </div>
+
+		    <div id="waiting_info_message"></div>
+	    </div>
+    </div>
+
 	<div class="row">
 		<div class="col l1 s2">
-			<a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
+			<button type="button" role="button" class="btn-floating waves-effect waves-light grey darken-3 header-back" onclick="window.close()">
 				<i class="material-icons">close</i>
-			</a>
+			</button>
 		</div>
 		<div class="col l11 s10">
 			<h4>
@@ -55,9 +76,16 @@
 			<div class="row">
 				<div class="col s12 center">
 					<h5>
-						<b>
-							<span>@PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
-						</b>
+                        <b>
+							@if (string.IsNullOrEmpty(Model.Atto.Etichetta) && Model.Atto.Tipo == (int)TipoAttoEnum.RIS)
+                            {
+                                <span>@Model.Atto.DisplayTipo</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Atto.Display</span>
+                            }
+                        </b>
 					</h5>
 				</div>
 			</div>
@@ -68,10 +96,8 @@
 						@Html.AntiForgeryToken()
 
 						@Html.HiddenFor(m => m.Atto.UIDAtto)
-						@Html.HiddenFor(m => m.Atto.UIDPersonaProponente)
 						@Html.HiddenFor(m => m.Atto.UIDPersonaCreazione)
 						@Html.HiddenFor(m => m.Atto.idRuoloCreazione)
-						@Html.HiddenFor(m => m.Atto.Progressivo)
 						@Html.HiddenFor(m => m.Atto.IDStato)
 						@Html.HiddenFor(m => m.Atto.id_gruppo)
 						@Html.HiddenFor(m => m.Atto.DataCreazione)
@@ -79,13 +105,81 @@
 						@Html.HiddenFor(m => m.Atto.UIDPersonaModifica)
 						@Html.HiddenFor(m => m.Atto.UID_QRCode)
 						@Html.HiddenFor(m => m.Atto.Tipo)
+						
+                        if (Model.Atto.Tipo == (int)TipoAttoEnum.RIS)
+                        {
+                            <div class="form-group">
+                                @Html.LabelFor(s => s.Atto.NAtto)
+                                @Html.TextBoxFor(model => model.Atto.Progressivo, new { @class = "form-control" })
+                            </div>
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Commissioni proponenti: </label>
+                                    @Html.DropDownListFor(m => m.Atto.CommissioniProponenti, new SelectList(Model.CommissioniAttive, "id_organo", "nome_organo"), "Seleziona commissione proponente", new { @class = "form-control", multiple = "multiple" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Relatore primario: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore1, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Relatore secondario: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatore2, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona relatore", new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Relatore di minoranza: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaRelatoreMinoranza, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona relatore di minoranza", new { @class = "form-control" })
+                                </div>
+                            </div>
 
-						<div class="row">
-							<div class="col s12 form-group">
-								<label>Proponente: </label>
-								@Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
-							</div>
-						</div>
+							<script>
+								 $(document).ready(function () {
+									// Ottieni l'array di oggetti dalla proprietà del modello
+									 var commissioniProponentiString = `@(Html.Raw(JsonConvert.SerializeObject(Model.Atto.CommissioniProponenti.ToArray())))`;
+									 var commissioniProponenti = JSON.parse(commissioniProponentiString);
+
+									// Ottieni le select
+									var ddlProponenti = document.getElementById("Atto_UIDPersonaProponente");
+									var ddlCommissioni = document.getElementById("Atto_CommissioniProponenti");
+
+									// Array per memorizzare gli id da selezionare
+									var proponentiIds = [];
+									var commissioniIds = [];
+
+									// Itera sugli oggetti e seleziona le liste appropriate
+									commissioniProponenti.forEach(function (item) {
+										if (item.id > 0) {
+											commissioniIds.push(item.id);
+										} else {
+											proponentiIds.push(item.uid);
+										}
+									});
+
+									// Seleziona i valori corrispondenti nella select "Commissioni proponenti"
+									Array.from(ddlCommissioni.options).forEach(function (option) {
+										if (commissioniIds.includes(parseInt(option.value))) {
+											option.selected = true;
+										}
+									});
+									 $('#Atto_CommissioniProponenti').formSelect();
+								});
+
+							</script>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div class="col s12 form-group">
+                                    <label>Proponente: </label>
+                                    @Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        }
 
 						@Html.Partial("_TipoMOZPartial", Model)
 						@Html.Partial("_TipoODGPartial", Model)
@@ -115,7 +209,7 @@
 								</div>
 							}
 							else if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
-						   && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
+									 && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
 							{
 								<div class="row">
 									<div class="col s12">
@@ -195,11 +289,11 @@
 									<div class="col s12 center">
 										<div class="card-panel grey lighten-4">
 											<span class="black-text">
-												<a class="btn pink tooltipped"
-												   data-tooltip="Iscrizione in seduta"
+												<button type="button" role="button" class="btn pink tooltipped"
+                                                        data-tooltip="Iscrizione in seduta"
 												   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
 													Iscrizione in seduta
-												</a>
+												</button>
 											</span>
 										</div>
 									</div>
@@ -216,7 +310,7 @@
 													var tooltipSeduta = "Richiesta in attesa di elaborazione";
 												}
 
-												<span class="tooltipped" data-tooltip="@tooltipSeduta">
+                                                <span class="tooltipped" data-tooltip="@tooltipSeduta">
 													<i>@textSeduta</i>
 													@if (Model.Atto.Tipo != (int)TipoAttoEnum.ODG)
 													{
@@ -228,8 +322,11 @@
 									</div>
 								</div>
 							}
-
-							@Html.Partial("_FirmatariUfficioPanel", Model)
+                            
+                            if (Model.Atto.Tipo != (int)TipoAttoEnum.RIS)
+                            {
+                                @Html.Partial("_FirmatariUfficioPanel", Model)
+                            }
 						}
 					}
 
@@ -237,10 +334,10 @@
 					{
 						<div class="fixed-action-btn">
 							<button id="btnSaveCartaceo"
-									class="btn-floating btn-large blue tooltipped"
+									class="btn-floating btn-large blue darken-3 tooltipped"
 									type="button"
-									data-tooltip="Salva atto cartaceo"
-									data-position="left">
+                                    data-tooltip="Salva atto cartaceo"
+									data-position="bottom">
 								<i class="large material-icons">save</i>
 							</button>
 						</div>
@@ -249,10 +346,10 @@
 					{
 						<div class="fixed-action-btn">
 							<button id="btnSave"
-									class="btn-floating btn-large blue tooltipped"
+									class="btn-floating btn-large blue darken-3 tooltipped"
 									type="button"
 									data-tooltip="Salva atto"
-									data-position="left">
+									data-position="bottom">
 								<i class="large material-icons">save</i>
 							</button>
 						</div>

@@ -52,7 +52,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}")]
         public async Task<ActionResult> RiepilogoEmendamenti(Guid id,
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1,
-            int size = 50)
+            int size = 20)
         {
             var mode = ClientModeEnum.GRUPPI;
             var contextMode = HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
@@ -211,11 +211,8 @@ namespace PortaleRegione.Client.Controllers
                 em.BodyEM = em.EM_Certificato;
 
             em.Firme = await Utility.GetFirmatari(
-                await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
-                CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, Token);
-            em.Firme_dopo_deposito = await Utility.GetFirmatari(
-                await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
-                CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, Token);
+                await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.TUTTE),
+                CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, Token);
             if (em.IDStato <= (int)StatiEnum.Depositato)
                 em.Destinatari =
                     await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(id), Token);

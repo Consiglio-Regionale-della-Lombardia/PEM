@@ -30,15 +30,14 @@ namespace PortaleRegione.Gateway
     {
         Task AddInfo(Guid id, string message);
         Task<FileResponse> DownloadStampa(Guid stampaUId);
+        Task<FileResponse> DownloadStampa(string nomeFile);
         Task EliminaStampa(Guid id);
         Task<StampaDto> Get(Guid id);
         Task<BaseResponse<StampaDto>> Get(int page, int size);
         Task<IEnumerable<Stampa_InfoDto>> GetInfo();
         Task<IEnumerable<Stampa_InfoDto>> GetInfo(Guid id);
         Task<FileResponse> Stampa(string uid);
-        Task<StampaDto> InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model);
-        Task<StampaDto> InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model);
-        Task<StampaDto> InserisciStampa(NuovaStampaRequest request);
+        Task<List<StampaDto>> InserisciStampa(NuovaStampaRequest request);
         Task JobErrorStampa(Guid stampaUId, string errorMessage);
         Task<BaseResponse<EmendamentiDto>> JobGetEmendamenti(string query, int page, int size = 20);
         Task<BaseResponse<AttoDASIDto>> JobGetDASI(string query, int page, int size = 20);

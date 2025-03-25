@@ -1,0 +1,219 @@
+﻿@using PortaleRegione.Client.Helpers
+@model PortaleRegione.DTO.Model.DASIFormModel
+
+<div id="modalMonitoraggio" class="modal">
+    <div class="modal-content">
+        <h4>Monitoraggio</h4>
+        <p>Ricerca organi da monitorare all'atto @Model.Atto.Display</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-monitoraggio-autocomplete" class="autocomplete">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-close btn-flat grey-text">Annulla</button>
+    </div>
+</div>
+
+<script>
+
+	document.getElementById('btnAggiungiMonitoraggio').addEventListener('click', async function () {
+	waiting(true);
+
+	var organi = await GetOrganiDisponibili(@Html.Raw(Model.Atto.Legislatura));
+	var data = [];
+	organi.forEach(function (item) {
+		data.push({
+			tag: `${item.nome_organo}`,
+			id: `${item.id_organo}`
+		});
+	});
+	var elems = document.querySelectorAll('#organi-monitoraggio-autocomplete');
+	var instances = M.Autocomplete.init(elems, {
+		data: data,
+		limit: 20,
+		minLength: 2,
+		onAutocomplete: function (txt, key) {
+			swal({
+				title: "Inserimento nuovo organo",
+				text: "Sei sicuro di voler inserire " + txt + " all'atto @Html.Raw(Model.Atto.Display)?",
+				icon: "warning",
+				buttons: ["Annulla", "Inserisci"]
+			}).then(async (answer) => {
+
+				if (answer) {
+
+					let tipoOrgano;
+					let displayTipoOrgano;
+
+					if (txt.includes("Commissione")) {
+						tipoOrgano = 1; // TipoOrganoEnum.COMMISSIONE
+						displayTipoOrgano = "Commissione";
+					} else {
+						tipoOrgano = 2; // TipoOrganoEnum.GIUNTA
+						displayTipoOrgano = "Giunta";
+					}
+
+					// Simula la richiesta al server per salvare i dati
+					var request = {
+						UIDAtto: '@Model.Atto.UIDAtto',
+						IdOrgano: `${key}`,
+						TipoOrgano: tipoOrgano,
+						DisplayTipoOrgano: displayTipoOrgano,
+						DescrizioneOrgano: txt,
+					}
+
+					var url = '@Url.Action("Salva_NuovoMonitoraggio", "DASI")';
+					// Send the data using fetch
+					const response = await fetch(url, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify(request)
+					});
+
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+
+					// Aggiungi una nuova riga alla tabella
+					var newRow = document.createElement('tr');
+					newRow.innerHTML = `
+						<td>${request.DisplayTipoOrgano}</td>
+						<td>${request.DescrizioneOrgano}</td>
+						<td>
+							<button type="button" role="button" class="btn-flat red-text" onclick="rimuoviMonitoraggio(this, ${key})"><i class="material-icons">close</i></button>
+						</td>
+					`;
+
+						document.querySelector('#tableMonitoraggio tbody').appendChild(newRow);
+
+						M.toast({
+							html: `<span>${txt} inserito con successo all'atto @Html.Raw(Model.Atto.Display)</span>`,
+							classes: 'rounded',
+							displayLength: 5000
+						});
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+					}
+					document.getElementById('organi-monitoraggio-autocomplete').value = "";
+				});
+			}
+		});
+	waiting(false);
+	$('#modalMonitoraggio').modal("open");
+});
+
+function rimuoviMonitoraggio(ctrl, organoId) {
+	var row = $(ctrl).closest('tr');
+	var id = organoId;
+
+	swal({
+		title: "Rimuovi monitoraggio",
+		text: "Sei sicuro di voler rimuovere questo monitoraggio?",
+		icon: "warning",
+		buttons: ["Annulla", "Rimuovi"]
+	}).then(async (answer) => {
+		if (answer) {
+			// Simula la richiesta al server per rimuovere i dati
+			var url = '@Url.Action("Salva_RimuoviMonitoraggio", "DASI")';
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ IdOrgano: id, UIDAtto: '@Model.Atto.UIDAtto' })
+			});
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			try {
+				const errorData = await response.json();
+				if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+			} catch (error) {
+				// ignored
+			}
+
+			// Rimuovi la riga dalla tabella
+			row.remove();
+
+			M.toast({
+				html: `<span>Monitoraggio rimosso con successo</span>`,
+				classes: 'rounded',
+				displayLength: 5000
+			});
+            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+		}
+	});
+}
+
+document.getElementById('btnSalva_InformazioniAggiuntiveMonitoraggio').addEventListener('click', async function () {
+
+    swal({
+        title: "Salvataggio informazioni monitoraggio",
+        text: "Sei sicuro di voler salvare le informazioni di monitoraggio?",
+        icon: "warning",
+        buttons: ["Annulla", "Salva"]
+    }).then(async (answer) => {
+        if (answer) {
+			var container_altri_soggetti = $("#Atto_AltriSoggetti").parent();
+			var editor_altri_soggetti = $(container_altri_soggetti).find(".trumbowyg-editor");
+			var container_area_tematica = $("#Atto_AreaTematica").parent();
+			var editor_area_tematica = $(container_area_tematica).find(".trumbowyg-editor");
+			var container_competenza_monitoraggio = $("#Atto_CompetenzaMonitoraggio").parent();
+			var editor_competenza_monitoraggio = $(container_competenza_monitoraggio).find(".trumbowyg-editor");
+			var container_impegni_scadenze = $("#Atto_ImpegniScadenze").parent();
+			var editor_impegni_scadenze = $(container_impegni_scadenze).find(".trumbowyg-editor");
+			var container_stato_attuazione = $("#Atto_StatoAttuazione").parent();
+			var editor_stato_attuazione = $(container_stato_attuazione).find(".trumbowyg-editor");
+
+            var data = {
+                UIDAtto: '@Html.Raw(Model.Atto.UIDAtto)',
+                AltriSoggetti: editor_altri_soggetti.html(),
+                AreaTematica: editor_area_tematica.html(),
+                CompetenzaMonitoraggio: editor_competenza_monitoraggio.html(),
+				ImpegniScadenze: editor_impegni_scadenze.html(),
+				StatoAttuazione: editor_stato_attuazione.html(),
+                DataTrasmissioneMonitoraggio: $('#Atto_DataTrasmissioneMonitoraggio').val(),
+                MonitoraggioConcluso: document.querySelector('input[name="Atto.MonitoraggioConcluso"]').checked
+            };
+
+            var url = '@Url.Action("Salva_InformazioniMonitoraggio", "DASI")';
+            // Send the data using fetch
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+			}
+
+			try {
+				const errorData = await response.json();
+				if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+			} catch (error) {
+				// ignored
+			}
+
+            M.toast({
+                html: `<span>Informazioni di monitoraggio salvate con successo</span>`,
+                classes: 'rounded',
+                displayLength: 5000
+            });
+            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+        }
+    });
+});
+
+</script>
+

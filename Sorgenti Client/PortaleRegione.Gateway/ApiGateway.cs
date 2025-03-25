@@ -8,6 +8,7 @@
         {
             Persone = new PersoneGateway();
             Emendamento_Pubblico = new EMGateway_Pubblico();
+            DASI_Pubblico = new DASIGateway_Pubblico();
         }
 
         public ApiGateway(string token)
@@ -24,6 +25,7 @@
             Admin = new AdminGateway(_token);
             DASI = new DASIGateway(_token);
             Legislature = new LegislatureGateway(_token);
+            Templates = new TemplatesGateway(_token);
         }
 
         public void SetToken(string token)
@@ -37,10 +39,12 @@
         public IStampeGateway Stampe { get; }
         public IEsportaGateway Esporta { get; }
         public IEMGateway_Pubblico Emendamento_Pubblico { get; }
+        public IDASIGateway_Pubblico DASI_Pubblico { get; }
         public IEMGateway Emendamento { get; }
         public IAttiGateway Atti { get; }
         public IAdminGateway Admin { get; }
         public IDASIGateway DASI { get; set; }
         public ILegislatureGateway Legislature { get; set; }
+        public ITemplatesGateway Templates { get; set; }
     }
 }

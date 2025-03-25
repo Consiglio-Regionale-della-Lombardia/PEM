@@ -16,6 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Runtime.Caching;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
 using AutoMapper;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.Common;
@@ -27,17 +39,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Routes;
 using PortaleRegione.Logger;
 using QRCoder;
-using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime.Caching;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace PortaleRegione.BAL
 {
@@ -160,12 +161,20 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        public async Task<HttpResponseMessage> Download(string path)
+        public HttpResponseMessage Download(string path)
         {
             var complete_path = Path.Combine(
                 AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
                 Path.GetFileName(path));
-            var result = await ComposeFileResponse(complete_path);
+
+            if (!path.Contains("~"))
+            {
+                complete_path = Path.Combine(
+                    AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                    path);
+            }
+
+            var result = Utility.ComposeFileResponse(complete_path);
             return result;
         }
 
@@ -250,6 +259,7 @@ namespace PortaleRegione.BAL
                 switch (templateType)
                 {
                     case TemplateTypeEnum.PDF:
+                    case TemplateTypeEnum.HTML_PDF:
                         path = HttpContext.Current.Server.MapPath("~/templates/template_pdf.html");
                         break;
                     case TemplateTypeEnum.PDF_COPERTINA:
@@ -277,6 +287,7 @@ namespace PortaleRegione.BAL
                 switch (templateType)
                 {
                     case TemplateTypeEnum.PDF:
+                    case TemplateTypeEnum.HTML_PDF:
                         path = HttpContext.Current.Server.MapPath("~/templates/dasi/template_pdf.html");
                         break;
                     case TemplateTypeEnum.PDF_COPERTINA:
@@ -298,6 +309,14 @@ namespace PortaleRegione.BAL
                     case TemplateTypeEnum.INDICE_DASI:
                         path = HttpContext.Current.Server.MapPath(
                             "~/templates/dasi/template_indice.html");
+                        break;
+                    case TemplateTypeEnum.REPORT_HEADER_DEFAULT:
+                        path = HttpContext.Current.Server.MapPath(
+                            "~/templates/dasi/template_report_header_default.html");
+                        break;
+                    case TemplateTypeEnum.REPORT_ITEM_CARD:
+                        path = HttpContext.Current.Server.MapPath(
+                            "~/templates/dasi/template_report_item_card.html");
                         break;
                 }
 
@@ -335,7 +354,7 @@ namespace PortaleRegione.BAL
             //Allegato Tecnico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoTecnico))
                 allegato_tecnico =
-                    $"<div class=\"chip white black-text\"><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></div>";
+                    $"<div class=\"chip white black-text\"><a class='blue-text' href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></div>";
 
             #endregion
 
@@ -344,7 +363,7 @@ namespace PortaleRegione.BAL
             //Allegato Generico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoGenerico))
                 allegato_generico =
-                    $"<div class=\"chip white black-text\"><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></div>";
+                    $"<div class=\"chip white black-text\"><a class='blue-text' href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></div>";
 
             #endregion
 
@@ -359,7 +378,14 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_END}", "");
 
                 body = body.Replace("{lblTitoloPDLEMView}", atto.ODG_Atto_PEM);
-                body = body.Replace("{lblSubTitoloPDLEMView}", atto.ODG_Atto_Oggetto_PEM);
+                if (!string.IsNullOrEmpty(atto.ODG_Atto_Oggetto_PEM))
+                {
+                    body = body.Replace("{lblSubTitoloPDLEMView}", $"\"{atto.ODG_Atto_Oggetto_PEM}\"");
+                }
+                else
+                {
+                    body = body.Replace("{lblSubTitoloPDLEMView}", string.Empty);
+                }
             }
             else
             {
@@ -367,8 +393,71 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_END}", "-->");
             }
 
+            if (atto.Tipo == (int)TipoAttoEnum.RIS)
+            {
+                body = body.Replace("{PROPONENTI_COMMENTO_START}", "");
+                body = body.Replace("{PROPONENTI_COMMENTO_END}", "");
+                body = body.Replace("{lblProponentiATTOView}",
+                    atto.CommissioniProponenti.Select(s => s.descr).Aggregate((i, j) => i + "<br>" + j));
+
+                if (atto.UIDPersonaRelatore1.HasValue)
+                {
+                    body = body.Replace("{RELATORE1_COMMENTO_START}", "");
+                    body = body.Replace("{RELATORE1_COMMENTO_END}", "");
+                    body = body.Replace("{RELATORE1}", atto.PersonaRelatore1.DisplayName);
+                }
+                else
+                {
+                    body = body.Replace("{RELATORE1_COMMENTO_START}", "<!--");
+                    body = body.Replace("{RELATORE1_COMMENTO_END}", "-->");
+                }
+
+                if (atto.UIDPersonaRelatore2.HasValue)
+                {
+                    body = body.Replace("{RELATORE2_COMMENTO_START}", "");
+                    body = body.Replace("{RELATORE2_COMMENTO_END}", "");
+                    body = body.Replace("{RELATORE2}", atto.PersonaRelatore2.DisplayName);
+                }
+                else
+                {
+                    body = body.Replace("{RELATORE2_COMMENTO_START}", "<!--");
+                    body = body.Replace("{RELATORE2_COMMENTO_END}", "-->");
+                }
+
+                if (atto.UIDPersonaRelatoreMinoranza.HasValue)
+                {
+                    body = body.Replace("{RELATOREMINORANZA_COMMENTO_START}", "");
+                    body = body.Replace("{RELATOREMINORANZA_COMMENTO_END}", "");
+                    body = body.Replace("{RELATOREMINORANZA}", atto.PersonaRelatoreMinoranza.DisplayName);
+                }
+                else
+                {
+                    body = body.Replace("{RELATOREMINORANZA_COMMENTO_START}", "<!--");
+                    body = body.Replace("{RELATOREMINORANZA_COMMENTO_END}", "-->");
+                }
+
+                body = body.Replace("{DEFAULT_INTESTAZIONE}", "");
+                body = body.Replace("{DEFAULT_INTESTAZIONE_ALIGN}", "center");
+            }
+            else
+            {
+                body = body.Replace("{PROPONENTI_COMMENTO_START}", "<!--");
+                body = body.Replace("{PROPONENTI_COMMENTO_END}", "-->");
+
+                body = body.Replace("{RELATORE1_COMMENTO_START}", "<!--");
+                body = body.Replace("{RELATORE1_COMMENTO_END}", "-->");
+                body = body.Replace("{RELATORE2_COMMENTO_START}", "<!--");
+                body = body.Replace("{RELATORE2_COMMENTO_END}", "-->");
+                body = body.Replace("{RELATOREMINORANZA_COMMENTO_START}", "<!--");
+                body = body.Replace("{RELATOREMINORANZA_COMMENTO_END}", "-->");
+
+                body = body.Replace("{DEFAULT_INTESTAZIONE}", "Al Presidente del Consiglio regionale della Lombardia");
+                body = body.Replace("{DEFAULT_INTESTAZIONE_ALIGN}", "right-align");
+            }
+
             if (atto.Tipo == (int)TipoAttoEnum.MOZ
-                || atto.Tipo == (int)TipoAttoEnum.ODG)
+                || atto.Tipo == (int)TipoAttoEnum.ODG
+                || atto.Tipo == (int)TipoAttoEnum.RIS)
             {
                 body = body.Replace("{TIPO_RISPOSTA_COMMENTO_START}", "<!--");
                 body = body.Replace("{TIPO_RISPOSTA_COMMENTO_END}", "-->");
@@ -378,33 +467,39 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{TIPO_RISPOSTA_COMMENTO_START}", "");
                 body = body.Replace("{TIPO_RISPOSTA_COMMENTO_END}", "");
                 body = body.Replace("{lblTipoRispostaATTOView}",
-                    DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum)atto.IDTipo_Risposta, atto.Commissioni));
+                    DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum)atto.IDTipo_Risposta, atto.Organi));
             }
 
             var oggetto = atto.Oggetto;
             var premesse = atto.Premesse;
             var richieste = atto.Richiesta;
 
-            if (!string.IsNullOrEmpty(atto.Oggetto_Privacy) && privacy) oggetto = atto.Oggetto_Privacy; //#631
-            if (!string.IsNullOrEmpty(atto.Premesse_Modificato) && privacy) premesse = atto.Premesse_Modificato;
-            if (!string.IsNullOrEmpty(atto.Richiesta_Modificata) && privacy) richieste = atto.Richiesta_Modificata;
+            if (privacy)
+            {
+                oggetto = atto.OggettoView();
+                if (!string.IsNullOrEmpty(atto.Premesse_Modificato)) premesse = atto.Premesse_Modificato;
+                if (!string.IsNullOrEmpty(atto.Richiesta_Modificata)) richieste = atto.Richiesta_Modificata;
+            }
 
             body = body.Replace("{lblSubTitoloATTOView}", oggetto);
             body = body.Replace("{lblPremesseATTOView}", premesse);
             body = body.Replace("{lblRichiestaATTOView}", richieste);
 
-            var allegato_generico = string.Empty;
+            var allegato_generico = new StringBuilder();
 
-            #region Allegato Generico
+            if (atto.Documenti.Any())
+            {
+                if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
+                {
+                    foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
+                    {
+                        allegato_generico.AppendLine(
+                            $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a class='blue-text' href='{doc.Link}' target='_blank'>SCARICA - {doc.Titolo}</a></td></tr>");
+                    }
+                }
+            }
 
-            //Allegato Generico
-            if (!string.IsNullOrEmpty(atto.PATH_AllegatoGenerico))
-                allegato_generico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.DASI.DownloadDoc}?path={atto.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO</a></td></tr>";
-
-            #endregion
-
-            body = body.Replace("{lblAllegati}", allegato_generico);
+            body = body.Replace("{lblAllegati}", allegato_generico.ToString());
         }
 
         public void GetBody(EmendamentiDto emendamento, AttiDto atto, List<FirmeDto> firme,
@@ -476,14 +571,6 @@ namespace PortaleRegione.BAL
                                 {firme}
                             </div>
                         </div>";
-            var TemplatefirmePOST = @"<div>
-                             <div style='width:100%;'>
-                                      <h6>Firmatari dopo il deposito</h6>
-                              </div>
-                              <div style='text-align:left'>
-                                {firme}
-                            </div>
-                        </div>";
 
             if (emendamento.IDStato >= (int)StatiEnum.Depositato)
             {
@@ -493,25 +580,19 @@ namespace PortaleRegione.BAL
                         ? "Emendamento Presentato d'ufficio"
                         : $"Emendamento Presentato il {emendamento.Timestamp:dd/MM/yyyy HH:mm}");
 
-                var firmeAnte = firme.Where(f => f.Timestamp <= emendamento.Timestamp).Select(i => (AttiFirmeDto)i);
-                var firmePost = firme.Where(f => f.Timestamp > emendamento.Timestamp).Select(i => (AttiFirmeDto)i);
+                var firmeAnte = firme.Select(i => (AttiFirmeDto)i).ToList();
 
                 if (firmeAnte.Any())
-                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm")))
+                    body = body.Replace("{radGridFirmeView}",
+                            TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm")))
                         .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
                         .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
                 else
                     body = body.Replace("{radGridFirmePostView}", string.Empty)
                         .Replace("{FIRMEANTE_COMMENTO_START}", "<!--").Replace("{FIRMEANTE_COMMENTO_END}", "-->");
 
-                if (firmePost.Any())
-                    body = body.Replace("{radGridFirmePostView}",
-                            TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost, "dd/MM/yyyy HH:mm")))
-                        .Replace("{FIRME_COMMENTO_START}", string.Empty)
-                        .Replace("{FIRME_COMMENTO_END}", string.Empty);
-                else
-                    body = body.Replace("{radGridFirmePostView}", string.Empty)
-                        .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
+                body = body.Replace("{radGridFirmePostView}", string.Empty)
+                    .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
             }
             else
             {
@@ -594,20 +675,50 @@ namespace PortaleRegione.BAL
             body = body.Replace("{QRCode}", textQr);
         }
 
-        public void GetBody(AttoDASIDto atto, string tipoAtto, IEnumerable<AttiFirmeDto> firme,
+        public void GetBody(AttoDASIDto atto,
             PersonaDto currentUser,
             bool enableQrCode,
             bool privacy,
+            bool enableLogo,
             ref string body)
         {
-            var firmeDtos = firme.ToList();
-            var title = $"{tipoAtto} {atto.NAtto}";
+            var firmeDtos = new List<AttiFirmeDto>();
+            if (atto.FirmeAnte.Any())
+            {
+                firmeDtos.AddRange(atto.FirmeAnte);
+            }
+
+            if (atto.FirmePost.Any())
+            {
+                firmeDtos.AddRange(atto.FirmePost);
+            }
+
+            var title = atto.Display;
             if (atto.Non_Passaggio_In_Esame) title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
 
             body = body.Replace("{lblTitoloATTOView}", title);
-            body = body.Replace("{GRUPPO_POLITICO}", atto.gruppi_politici.nome_gruppo);
+            if (atto.Tipo == (int)TipoAttoEnum.RIS)
+            {
+                body = body.Replace("{GRUPPO_POLITICO}", $"{atto.GetLegislatura()} LEGISLATURA <br> {atto.Protocollo}");
+            }
+            else
+            {
+                body = body.Replace("{GRUPPO_POLITICO}", atto.id_gruppo > 0 ? atto.gruppi_politici.nome_gruppo : "");
+            }
+
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
-            body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
+            if (enableLogo)
+            {
+                body = body.Replace("{LOGO_COMMENTO_START}", "");
+                body = body.Replace("{LOGO_COMMENTO_END}", "");
+
+                body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
+            }
+            else
+            {
+                body = body.Replace("{LOGO_COMMENTO_START}", "<!--");
+                body = body.Replace("{LOGO_COMMENTO_END}", "-->");
+            }
 
             if (privacy || string.IsNullOrEmpty(atto.Atto_Certificato))
             {
@@ -636,7 +747,7 @@ namespace PortaleRegione.BAL
             {
                 //DEPOSITATO
                 body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
-                
+
                 if (firmeDtos.Any())
                     body = body.Replace("{radGridFirmeView}",
                         TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeDtos)));

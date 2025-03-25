@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Contracts;
-using PortaleRegione.DataBase;
-using PortaleRegione.Domain;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.Contracts;
+using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -42,7 +42,8 @@ namespace PortaleRegione.Persistance
         public async Task<int> Legislatura_Attiva()
         {
             PRContext.legislature.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-            var result = await PRContext.legislature.Where(l => l.attiva).OrderBy(l => l.id_legislatura).FirstOrDefaultAsync();
+            var result = await PRContext.legislature.Where(l => l.attiva).OrderBy(l => l.id_legislatura)
+                .FirstOrDefaultAsync();
             return result?.id_legislatura ?? 0;
         }
 
@@ -52,6 +53,7 @@ namespace PortaleRegione.Persistance
 
             var query = PRContext
                 .legislature
+                .Where(l => l.id_legislatura >= 24)
                 .OrderByDescending(l => l.durata_legislatura_da);
 
             return await query.ToListAsync();

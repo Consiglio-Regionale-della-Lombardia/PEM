@@ -17,6 +17,7 @@
  */
 
 using AutoMapper;
+using Newtonsoft.Json;
 using PortaleRegione.Logger;
 using System.Web;
 using System.Web.Http;
@@ -43,6 +44,11 @@ namespace PortaleRegione.API
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+
+            GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            };
         }
     }
 }

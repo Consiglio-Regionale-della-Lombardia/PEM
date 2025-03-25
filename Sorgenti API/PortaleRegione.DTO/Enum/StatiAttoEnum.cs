@@ -25,15 +25,7 @@ namespace PortaleRegione.DTO.Enum
         BOZZA = 2,
         PRESENTATO = 3,
         IN_TRATTAZIONE = 4,
-        CHIUSO = 14,
-        CHIUSO_RITIRATO = 15,
-        CHIUSO_DECADUTO = 16,
+        COMPLETATO = 14,
         BOZZA_CARTACEA = 20,
-
-        // GEDASI
-        COMUNICAZIONE_ASSEMBLEA = 21,
-        CHIUSO_DECADENZA_PER_FINE_LEGISLATURA = 22,
-        CHIUSO_INAMMISSIBILE= 23,
-        TRATTAZIONE_IN_ASSEMBLEA= 24,
     }
 }

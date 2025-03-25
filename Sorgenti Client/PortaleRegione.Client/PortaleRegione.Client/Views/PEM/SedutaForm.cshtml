@@ -13,7 +13,7 @@
 
 <div class="row">
     <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
+        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
             <i class="material-icons">arrow_back</i>
         </a>
     </div>
@@ -133,7 +133,7 @@
             </div>
 
             <div class="fixed-action-btn">
-                <button class="btn-floating btn-large blue" id="btnSave" type="button">
+                <button class="btn-floating btn-large blue darken-3" id="btnSave" type="button">
                     <i class="large material-icons">save</i>
                 </button>
             </div>
@@ -141,15 +141,15 @@
     </div>
 </div>
 
-<div id="modalDeleteSeduta" class="modal" style="max-height: 20%">
+<div id="modalDeleteSeduta" class="modal">
     <div class="modal-content">
         <h5>Attenzione</h5>
         <p>Sei sicuro di voler eliminare questa seduta?</p>
-        <div class="modal-footer">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaEliminazione" class="btn red" href="#">Elimina</a>
-        </div>
     </div>
+    <div class="modal-footer">
+    <button type="button" class="btn modal-close grey">Annulla</button>
+    <a id="btnConfermaEliminazione" class="btn red" href="#">Elimina</a>
+</div>
 </div>
 
 

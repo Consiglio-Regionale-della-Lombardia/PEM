@@ -150,10 +150,10 @@ namespace ExpressionBuilder.Builders
             var constant = GetConstantExpression(member, statement.Value);
             var constant2 = GetConstantExpression(member, statement.Value2);
 
-            if (Nullable.GetUnderlyingType(member.Type) != null && statement.Value != null)
-            {
-                return Expression.Equal(member, constant);
-            }
+            //if (Nullable.GetUnderlyingType(member.Type) != null && statement.Value != null)
+            //{
+            //    return Expression.Equal(member, constant);
+            //}
 
             var safeStringExpression = GetSafeStringExpression(member, statement.Operation, constant, constant2);
             resultExpr = resultExpr != null

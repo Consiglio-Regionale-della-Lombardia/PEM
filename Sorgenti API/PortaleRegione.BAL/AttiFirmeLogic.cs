@@ -25,6 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace PortaleRegione.BAL
 {
@@ -35,7 +37,13 @@ namespace PortaleRegione.BAL
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<AttiFirmeDto>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo)
+        public async Task<List<AttiFirmeDto>> GetFirme(AttoDASIDto atto, FirmeTipoEnum tipo)
+        {
+            var attoInDb = Mapper.Map<AttoDASIDto, ATTI_DASI>(atto);
+            return await GetFirme(attoInDb, tipo);
+        }
+
+        public async Task<List<AttiFirmeDto>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo)
         {
             try
             {
@@ -84,7 +92,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetFirme - DASI", e);
+                Log.Error($"Logic - GetFirme - DASI - {atto.Etichetta}", e);
                 throw e;
             }
         }

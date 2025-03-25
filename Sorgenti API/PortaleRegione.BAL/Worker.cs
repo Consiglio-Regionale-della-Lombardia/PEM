@@ -149,10 +149,7 @@ namespace PortaleRegione.BAL
                     foreach (var item in group)
                         try
                         {
-                            var firme = await _logicAttiFirme.GetFirme(item.UIDAtto);
-                            var bodyPDF = await _logicDasi.GetBodyDASI(
-                                Mapper.Map<AttoDASIDto, ATTI_DASI>(item),
-                                firme,
+                            var bodyPDF = _logicDasi.GetBodyDASI(item,
                                 null
                                 , TemplateTypeEnum.PDF,
                                 true);

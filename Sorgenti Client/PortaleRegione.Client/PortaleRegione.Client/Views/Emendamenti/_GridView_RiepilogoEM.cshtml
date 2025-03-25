@@ -94,7 +94,7 @@ else
 
                                 @if (itemEM.IDStato >= (int)StatiEnum.Depositato)
                                 {
-                                    <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 10px; min-width: unset;">
+                                    <div class="chip deep-purple lighten-4 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 10px; min-width: unset;">
                                         @if (itemEM.Firma_da_ufficio)
                                         {
                                             <b>@itemEM.Firma_ufficio.FirmaCert</b>
@@ -122,7 +122,7 @@ else
 
                                         @if (itemEM.ConteggioFirme > 1)
                                         {
-                                            <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset">
+                                            <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset; margin-bottom: unset !important;">
                                                 + @(itemEM.ConteggioFirme - 1)
                                             </span>
                                         }
@@ -170,15 +170,15 @@ else
                             </h6>
                         </div>
                         <div class="col s6 right-align">
-                            <a class="btn-floating white black-text tooltipped activator" data-tooltip="Visualizza tags"onclick="RevealTags('@itemEM.UIDEM')">
-                                <i class="material-icons">filter_frames</i>
-                            </a>
-                            <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })">
-                                <i class="material-icons">print</i>
-                            </a>
-                            <a class="btn-floating white black-text tooltipped" data-tooltip="Visualizza EM" onclick="goIntoOtherTab('@Url.Action("ViewEmendamento", new { id = itemEM.UIDEM })')">
-                                <i class="material-icons">chevron_right</i>
-                            </a>
+							<button type="button" class="btn-floating white black-text tooltipped activator" data-tooltip="Visualizza tags" onclick="RevealTags('@itemEM.UIDEM')">
+								<i class="material-icons">filter_frames</i>
+							</button>
+							<button type="button" class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })">
+								<i class="material-icons">print</i>
+							</button>
+							<button type="button" class="btn-floating white black-text tooltipped" data-tooltip="Visualizza EM" onclick="goIntoOtherTab('@Url.Action("ViewEmendamento", new { id = itemEM.UIDEM })')">
+								<i class="material-icons">chevron_right</i>
+							</button>
                         </div>
                     </div>
                 </div>

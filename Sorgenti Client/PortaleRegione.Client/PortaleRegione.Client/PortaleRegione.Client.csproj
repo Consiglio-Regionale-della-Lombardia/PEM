@@ -125,10 +125,11 @@
     <Compile Include="Controllers\AutenticazioneController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\DASIController.cs" />
+    <Compile Include="Controllers\DASIPublicController.cs" />
     <Compile Include="Controllers\EMPublicController.cs" />
-    <Compile Include="Controllers\GEASIController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
+    <Compile Include="Controllers\TemplateController.cs" />
     <Compile Include="Models\StampaModel.cs" />
     <Compile Include="Helpers\AppSettingsConfiguration.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
@@ -334,14 +335,11 @@
     <Content Include="fonts\text-security-disc.eot" />
     <Content Include="fonts\text-security-disc.ttf" />
     <Content Include="fonts\text-security-disc.woff" />
-    <None Include="packages.config" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.min.js" />
-    <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
-    <Content Include="Scripts\jquery-3.7.1.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
@@ -356,6 +354,7 @@
     <Content Include="Content\editor\plugins\specialchars\ui\sass\trumbowyg.specialchars.scss" />
     <Content Include="Content\editor\plugins\table\ui\sass\trumbowyg.table.scss" />
     <Content Include="Content\editor\ui\sass\trumbowyg.scss" />
+    <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile2.pubxml" />
@@ -486,6 +485,23 @@
     <Content Include="Views\DASI\_CartaceoPanelPartial.cshtml" />
     <Content Include="Views\Emendamenti\_OrdinamentoAttoScript.cshtml" />
     <Content Include="Views\Emendamenti\_ComandiOrdinamento.cshtml" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.7.1.min.map" />
+    <Content Include="Views\DASI\AttoDASIView_Admin.cshtml" />
+    <Content Include="Views\DASI\Filtri\_FiltriRapidiDASIPanel.cshtml" />
+    <Content Include="Views\DASI\Filtri\_ReportConfigModal.cshtml" />
+    <Content Include="Views\DASI\Filtri\_FiltroConfigModal.cshtml" />
+    <Content Include="Views\DASI\Filtri\_DettaglioFiltroModal.cshtml" />
+    <Content Include="Views\DASI\_PannelloRicercheConsiglieri.cshtml" />
+    <Content Include="Views\Template\View.cshtml" />
+    <Content Include="Views\Template\TemplateForm.cshtml" />
+    <Content Include="Views\AdminPanel\RiepilogoSessioni.cshtml" />
+    <Content Include="Views\DASIPublic\Index.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Risposte.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Note.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Documenti.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Monitoraggio.cshtml" />
+    <Content Include="Views\DASI\_Script_AttoDASIView_Admin_Abbinamenti.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -505,6 +521,10 @@
     <ProjectReference Include="..\..\..\Sorgenti API\PortaleRegione.DTO\PortaleRegione.DTO.csproj">
       <Project>{a7ada419-a178-40da-85cc-63f6875e5793}</Project>
       <Name>PortaleRegione.DTO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Sorgenti API\PortaleRegione.Logger\PortaleRegione.Logger.csproj">
+      <Project>{1f9eec0b-08cc-481f-820e-c07b8327ac25}</Project>
+      <Name>PortaleRegione.Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj">
       <Project>{34c5c26e-50bd-49f3-8500-62a8c209273b}</Project>
@@ -529,7 +549,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>58019</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:58020/</IISUrl>
+          <IISUrl>http://localhost:58019/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

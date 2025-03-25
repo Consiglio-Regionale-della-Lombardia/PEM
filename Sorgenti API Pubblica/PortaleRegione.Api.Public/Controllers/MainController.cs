@@ -119,6 +119,25 @@ namespace PortaleRegione.Api.Public.Controllers
                 return Task.FromResult(ErrorHandler(e));
             }
         }
+        
+        /// <summary>
+        ///     Restituisce un elenco degli stati di chiusura disponibili per gli atti.
+        /// </summary>
+        /// <returns>Un'azione risultato con gli stati degli atti.</returns>
+        [Route(ApiRoutes.GetStatiChiusura)]
+        public Task<IHttpActionResult> GetStatiChiusura()
+        {
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+            try
+            {
+                return Task.FromResult<IHttpActionResult>(Ok(_logic.GetStatiChiusura()));
+            }
+            catch (Exception e)
+            {
+                Log.Error(currentMethod, e);
+                return Task.FromResult(ErrorHandler(e));
+            }
+        }
 
         /// <summary>
         ///     Recupera l'elenco dei gruppi disponibili per una data legislatura.
@@ -236,6 +255,28 @@ namespace PortaleRegione.Api.Public.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Scarica i documenti di un atto
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.ScaricaDocumento)]
+        public async Task<IHttpActionResult> Download(string path)
+        {
+            try
+            {
+                var response = ResponseMessage(_logic.ScaricaDocumento(path));
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Download Allegato Atto", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Restituisce i dettagli di un atto specifico, identificato dall'UID fornito nella richiesta.
@@ -254,7 +295,7 @@ namespace PortaleRegione.Api.Public.Controllers
                 if (!parseguid)
                     throw new InvalidOperationException("L'identificativo dell'atto non è valido.");
 
-                return Ok(await _logic.GetAtto(guid));
+                return Ok(await _logic.GetAtto(guid, Request.RequestUri.OriginalString.Replace(Request.RequestUri.PathAndQuery, "")));
             }
             catch (Exception e)
             {

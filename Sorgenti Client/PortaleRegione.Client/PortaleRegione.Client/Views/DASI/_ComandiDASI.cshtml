@@ -4,29 +4,30 @@
 @using PortaleRegione.DTO.Enum
 @using Utility = PortaleRegione.Common.Utility
 <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
-    <a class="btn-floating btn-large pink">
+    <button type="button" role="button" class="btn-floating btn-large pink">
         <i class="large material-icons">playlist_add</i>
-    </a>
+    </button>
     <ul>
         <li>
-            <a class="btn-floating btn-large tooltipped btn-firma" data-position="left" data-tooltip="Firma" onclick="FirmaMassivo_DASI()">
+            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="bottom" 
+                    data-tooltip="Firma" onclick="FirmaMassivo_DASI()">
                 <i class="material-icons">gavel</i>
-            </a>
+            </button>
         </li>
         <li>
-            <a class="btn-floating btn-large tooltipped btn-presenta" data-position="left" data-tooltip="Deposita" onclick="PresentaMassivo_DASI()">
+            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="bottom" data-tooltip="Deposita" onclick="PresentaMassivo_DASI()">
                 <i class="material-icons">lock</i>
-            </a>
+            </button>
         </li>
         <li>
-            <a class="btn-floating btn-large tooltipped btn-invita" data-position="left" data-tooltip="Invita" onclick="InvitoMassivo_DASI()">
+            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="bottom" data-tooltip="Invita" onclick="InvitoMassivo_DASI()">
                 <i class="material-icons">send</i>
-            </a>
+            </button>
         </li>
         <li>
-            <a class="btn-floating btn-large grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="resetGridSelection()" data-position="bottom" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
-            </a>
+            </button>
         </li>
     </ul>
 </div>
@@ -55,38 +56,38 @@
     var block = mode == (int)ClientModeEnum.GRUPPI || mode == 0 ? "block" : "none";
 }
 <div id="pnlNuovoDASI" class="fixed-action-btn" style="display: @Html.Raw(block)">
-    <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1">
+    <button type="button" role="button" id="btnNuovoDASI" class="btn-floating btn-large blue darken-3">
         <i class="large material-icons">add</i>
-    </a>
+    </button>
     <ul>
         @if (AppSettingsConfiguration.EnableITL)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITL + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITL })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITL)</a>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITL + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITL })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITL)</button>
             </li>
         }
         @if (AppSettingsConfiguration.EnableITR)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITR + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITR })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITR)</a>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITR + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITR })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITR)</button>
             </li>
         }
         @if (AppSettingsConfiguration.EnableIQT)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.IQT + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.IQT })')">@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)</a>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.IQT + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.IQT })')">@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)</button>
             </li>
         }
         @if (AppSettingsConfiguration.EnableMOZ)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.MOZ + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.MOZ })')">@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)</a>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.MOZ + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.MOZ })')">@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)</button>
             </li>
         }
         @if (AppSettingsConfiguration.EnableODG)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ODG + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ODG })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ODG)</a>
+                <button type="button" role="button" class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ODG + "_ico") black white-text" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ODG })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ODG)</button>
             </li>
         }
     </ul>
@@ -97,7 +98,7 @@
 <script>
 	$(document).ready(function () {
 		$('.fixed-action-btn').floatingActionButton({
-			hoverEnabled: false
+			hoverEnabled: true
 		});
 	});
 	

@@ -1,7 +1,4 @@
-USE [dbEmendamenti]
-GO
-
-/****** Object:  Table [dbo].[STAMPE]    Script Date: 22/06/2022 11:20:59 ******/
+/****** Object:  Table [dbo].[STAMPE]    Script Date: 09/01/2025 16:54:27 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -30,7 +27,9 @@ CREATE TABLE [dbo].[STAMPE](
 	[Query] [varchar](max) NULL,
 	[Notifica] [bit] NOT NULL,
 	[UIDEM] [uniqueidentifier] NULL,
-	[DASI] [bit] NOT NULL
+	[DASI] [bit] NOT NULL,
+	[UIDFascicolo] [uniqueidentifier] NULL,
+	[NumeroFascicolo] [int] NOT NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -54,4 +53,8 @@ GO
 
 ALTER TABLE [dbo].[STAMPE] ADD  CONSTRAINT [DF_STAMPE_DASI]  DEFAULT ((0)) FOR [DASI]
 GO
+
+ALTER TABLE [dbo].[STAMPE] ADD  CONSTRAINT [DF_STAMPE_NumeroFascicolo]  DEFAULT ((0)) FOR [NumeroFascicolo]
+GO
+
 

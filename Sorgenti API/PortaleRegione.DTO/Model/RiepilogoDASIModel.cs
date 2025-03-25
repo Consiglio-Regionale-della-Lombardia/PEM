@@ -16,26 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections;
 using System.Collections.Generic;
-using System.Web.Mvc;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
 
-namespace PortaleRegione.DTO.Model
-{
-    public class RiepilogoDASIModel
-    {
-        public BaseResponse<AttoDASIDto> Data { get; set; } = new BaseResponse<AttoDASIDto>();
-        public StatiAttoEnum Stato { get; set; }
-        public TipoAttoEnum Tipo { get; set; }
-        public CountBarData CountBarData { get; set; } = new CountBarData();
-        public ClientModeEnum ClientMode { get; set; } = ClientModeEnum.GRUPPI;
-        public ViewModeEnum ViewMode { get; set; } = ViewModeEnum.GRID;
-        public CommandRiepilogoModel CommandRiepilogo { get; set; } = new CommandRiepilogoModel();
+namespace PortaleRegione.DTO.Model;
 
-        public PersonaDto CurrentUser { get; set; } = new PersonaDto();
-        public List<CommissioneDto> CommissioniAttive { get; set; } = new List<CommissioneDto>();
-    }
+public class RiepilogoDASIModel
+{
+    public BaseResponse<AttoDASIDto> Data { get; set; } = new BaseResponse<AttoDASIDto>();
+    public StatiAttoEnum Stato { get; set; }
+    public TipoAttoEnum Tipo { get; set; }
+    public CountBarData CountBarData { get; set; } = new CountBarData();
+    public ClientModeEnum ClientMode { get; set; } = ClientModeEnum.GRUPPI;
+    public ViewModeEnum ViewMode { get; set; } = ViewModeEnum.GRID;
+    public CommandRiepilogoModel CommandRiepilogo { get; set; } = new CommandRiepilogoModel();
+
+    public PersonaDto CurrentUser { get; set; } = new PersonaDto();
+    public List<OrganoDto> CommissioniAttive { get; set; } = new List<OrganoDto>();
 }

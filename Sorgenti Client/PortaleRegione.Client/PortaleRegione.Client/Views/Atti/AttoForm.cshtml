@@ -11,7 +11,7 @@
 }
 <div class="row">
     <div class="col s1">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})">
+        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})">
             <i class="material-icons">arrow_back</i>
         </a>
     </div>
@@ -40,10 +40,10 @@
             </div>
         </div>
         <div class="col s8">
-            <a class="btn chip hoverable yellow center black-text" onclick="spostaAtto('@Model.Atto.UIDAtto')">
+            <button type="button" role="button" class="btn-flat yellow-text" onclick="spostaAtto('@Model.Atto.UIDAtto')">
                 Sposta
                 <i class="material-icons right">call_missed_outgoing</i>
-            </a>
+            </button>
         </div>
     </div>
 }
@@ -202,7 +202,7 @@
             </div>
 
             <div class="fixed-action-btn">
-                <button id="btnSalvaAtto" class="btn-floating btn-large blue">
+                <button id="btnSalvaAtto" class="btn-floating btn-large blue darken-3">
                     <i class="large material-icons">save</i>
                 </button>
             </div>

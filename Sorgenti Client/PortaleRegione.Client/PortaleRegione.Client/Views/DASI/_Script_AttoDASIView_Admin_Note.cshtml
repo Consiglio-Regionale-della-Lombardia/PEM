@@ -1,0 +1,270 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.DASIFormModel
+
+<div id="modalNota" class="modal">
+    <div class="modal-content">
+        <h4>Nota</h4>
+        <div class="row">
+            <div class="input-field col s12">
+                <select id="tipi-nota-select">
+                </select>
+                <label>Tipo nota</label>
+            </div>
+            <label>Nota</label>
+
+            <div class="input-field col s12">
+                <textarea id="txtNota_Testo" class="materialize-textarea"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-close btn-flat grey-text">Annulla</button>
+        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            <button onclick="btnSalvaNota()" class="btn-flat blue-text">Salva</button>
+        }
+    </div>
+</div>
+
+<script>
+
+    async function btnSalvaNota() {
+	// Ottieni i dati dalla modale
+	var tipoNotaValue = $('#tipi-nota-select').val();
+	if (tipoNotaValue == 0) {
+		ErrorAlert("Impostare il tipo di nota.");
+		return;
+	}
+	var tipoNotaText = $('#tipi-nota-select option:selected').text();
+	var nota_testo = $('#txtNota_Testo').val();
+	if (nota_testo == "") {
+		ErrorAlert("Non è possibile inserire una nota vuota..");
+		return;
+	}
+	// Prepara i dati per il salvataggio
+	var requestData = {
+		UIDAtto: '@Model.Atto.UIDAtto',
+		TipoEnum: tipoNotaValue,
+		Nota: nota_testo
+	};
+
+	var url = '@Url.Action("Salva_Nota", "DASI")';
+	waiting(true);
+
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(requestData)
+	});
+
+	if (!response.ok) {
+		waiting(false);
+		throw new Error('Network response was not ok');
+	}
+
+	try {
+		waiting(false);
+		const errorData = await response.json();
+		if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+	} catch (error) {
+		waiting(false);
+	}
+
+    window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+
+    // Aggiungi una nuova riga se non esiste
+    var newRow = document.createElement('tr');
+    newRow.innerHTML = `
+	<td>${tipoNotaText}</td>
+	<td>${nota_testo}</td>
+	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
+	<td class="center">
+		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
+	</td>
+`;
+
+    document.querySelector('#tableNoteGenerali tbody').appendChild(newRow);
+
+	if (tipoNotaValue == @((int)TipoNotaEnum.PRIVACY)) {
+
+        // Aggiungi una nuova riga se non esiste nella tabella Privacy
+        var newPrivacyRow = document.createElement('tr');
+        newPrivacyRow.innerHTML = `
+	<td>${nota_testo}</td>
+	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
+	<td class="center">
+		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
+	</td>
+`;
+        document.querySelector('#tableNote_Privacy tbody').appendChild(newPrivacyRow);
+	}
+
+	if (tipoNotaValue == @((int)TipoNotaEnum.CHIUSURA_ITER)) {
+		var chiusuraIterRow = $('#tableNote_ChiusuraIter tbody tr').filter(function () {
+			return $(this).find('td:eq(0)').text().trim() === tipoNotaText;
+		});
+
+		if (chiusuraIterRow.length > 0) {
+			// Aggiorna la riga esistente nella tabella Privacy
+			chiusuraIterRow.find('td:eq(0)').text(nota_testo);
+			chiusuraIterRow.find('td:eq(1)').text('@Html.Raw(Model.CurrentUser.DisplayName)');
+		} else {
+			// Aggiungi una nuova riga se non esiste nella tabella Privacy
+			var newchiusuraIterRow = document.createElement('tr');
+			newchiusuraIterRow.innerHTML = `
+				<td>${nota_testo}</td>
+				<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
+				<td class="center">
+					<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
+				</td>
+			`;
+			document.querySelector('#tableNote_ChiusuraIter tbody').appendChild(newchiusuraIterRow);
+		}
+	}
+    
+    if (tipoNotaValue == @((int)TipoNotaEnum.RISPOSTA)) {
+        // Aggiungi una nuova riga se non esiste nella tabella Privacy
+        var newrisposteRow = document.createElement('tr');
+        newrisposteRow.innerHTML = `
+	<td>${nota_testo}</td>
+	<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
+	<td class="center">
+		<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
+	</td>
+`;
+        document.querySelector('#tableNote_Risposte tbody').appendChild(newrisposteRow);
+	}
+	waiting(false);
+	M.toast({
+		html: `<span>Nota salvata con successo</span>`,
+		classes: 'rounded',
+		displayLength: 5000
+	});
+
+	// Chiudi la modale
+	$('#modalNota').modal('close');
+}
+
+function rimuoviNota(ctrl, tipoNota) {
+	var row = $(ctrl).closest('tr');
+	var id = tipoNota;
+
+	swal({
+		title: "Rimuovi nota",
+		text: "Sei sicuro di voler rimuovere questa nota?",
+		icon: "warning",
+		buttons: ["Annulla", "Rimuovi"]
+	}).then(async (answer) => {
+		if (answer) {
+			// Simula la richiesta al server per rimuovere i dati
+			var url = '@Url.Action("Salva_RimuoviNota", "DASI")';
+			waiting(true);
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ TipoEnum: id, UIDAtto: '@Model.Atto.UIDAtto' })
+			});
+
+			if (!response.ok) {
+				waiting(false);
+				throw new Error('Network response was not ok');
+			}
+
+			try {
+				waiting(false);
+				const errorData = await response.json();
+				if (errorData !== "OK") { ErrorAlert(errorData.message); return; }
+
+			} catch (error) {
+				waiting(false);
+			}
+
+			waiting(false);
+			// Rimuovi la riga dalla tabella
+			row.remove();
+
+			M.toast({
+				html: `<span>Nota rimossa con successo. Aggiorna la pagina per vedere le modifiche aggiornate.</span>`,
+				classes: 'rounded',
+				displayLength: 5000
+			});
+            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+		}
+	});
+}
+
+function modificaNota(ctrl) {
+	// Ottieni la riga selezionata
+	var row = $(ctrl).closest('tr');
+
+	// Ottieni i dati dalla riga
+	var tipoNotaText = row.find('td:eq(0)').text().trim(); // Tipo nota
+	var notaTesto = row.find('td:eq(1)').text().trim(); // Testo della nota
+
+	// Trova il valore del tipo di nota nel select utilizzando il testo
+	$('#tipi-nota-select option').each(function () {
+		if ($(this).text().trim() === tipoNotaText) {
+			// Se il testo corrisponde, seleziona questa opzione
+			$('#tipi-nota-select').val($(this).val()).formSelect();
+		}
+	});
+
+	// Precompila il campo di testo della nota
+	$('#txtNota_Testo').val(notaTesto);
+
+	// Apri la modale
+	$('#modalNota').modal('open');
+}
+
+document.getElementById('btnAggiungiNota').addEventListener('click', async function () {
+	waiting(true);
+	$("#txtNota_Testo").val("")
+	$('#tipi-nota-select').empty();
+	$('#tipi-nota-select').append(new Option("Seleziona", 0, true, true));
+	$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PRIVATA))", @((int)TipoNotaEnum.GENERALE_PRIVATA), false, false));
+	$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.GENERALE_PUBBLICA))", @((int)TipoNotaEnum.GENERALE_PUBBLICA), false, false));
+	$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER))", @((int)TipoNotaEnum.CHIUSURA_ITER), false, false));
+	$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA))", @((int)TipoNotaEnum.RISPOSTA), false, false));
+	$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.PRIVACY))", @((int)TipoNotaEnum.PRIVACY), false, false));
+	$('#tipi-nota-select').formSelect();
+	waiting(false);
+	$('#modalNota').modal("open");
+});
+
+document.getElementById('btnAggiungiNota_Privacy').addEventListener('click', async function () {
+	waiting(true);
+	$("#txtNota_Testo").val("")
+	$('#tipi-nota-select').empty();
+	$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.PRIVACY))", @((int)TipoNotaEnum.PRIVACY), true, true)); // Aggiunge e seleziona l'opzione
+	$('#tipi-nota-select').formSelect();
+	waiting(false);
+	$('#modalNota').modal("open");
+});
+
+document.getElementById('btnAggiungiNota_ChiusuraIter').addEventListener('click', async function () {
+	waiting(true);
+	$("#txtNota_Testo").val("")
+	$('#tipi-nota-select').empty();
+	$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.CHIUSURA_ITER))", @((int)TipoNotaEnum.CHIUSURA_ITER), true, true)); // Aggiunge e seleziona l'opzione
+	$('#tipi-nota-select').formSelect();
+	waiting(false);
+	$('#modalNota').modal("open");
+});
+
+document.getElementById('btnAggiungiNota_Risposte').addEventListener('click', async function () {
+	waiting(true);
+	$("#txtNota_Testo").val("")
+	$('#tipi-nota-select').empty();
+	$('#tipi-nota-select').append(new Option("@Html.Raw(PortaleRegione.Common.Utility.GetText_TipoNotaDASI((int)TipoNotaEnum.RISPOSTA))", @((int)TipoNotaEnum.RISPOSTA), true, true)); // Aggiunge e seleziona l'opzione
+	$('#tipi-nota-select').formSelect();
+	waiting(false);
+	$('#modalNota').modal("open");
+});
+
+</script>

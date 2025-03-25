@@ -1,0 +1,560 @@
+﻿@using System.ComponentModel
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+<div id="modalReportConfig" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h4>Report</h4>
+        <div id="chips-container-report-config">
+
+        </div>
+        <div id="chips-container-report-sort">
+
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <input placeholder="Placeholder" id="report_name" type="text" class="validate">
+                <label for="report_name">Nome report</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s6">
+				<select name="exportFormat" onchange="exportFormat_onChange(this)">
+					<option value="@Html.Raw((int)ExportFormatEnum.EXCEL)">EXCEL</option>
+					<option value="@Html.Raw((int)ExportFormatEnum.PDF)">PDF</option>
+					<option value="@Html.Raw((int)ExportFormatEnum.WORD)">WORD</option>
+                    <option value="@Html.Raw((int)ExportFormatEnum.EXCEL_SITUAZIONE)">CONTEGGIO RISPOSTE ATTI ISPETTIVI (xlsx)</option>
+					<option value="@Html.Raw((int)ExportFormatEnum.EXCEL_COMMISSIONI)">CONTEGGIO ATTI IN COMMISSIONE (xlsx)</option>
+				</select>
+                <label>Formato esportazione</label>
+            </div>
+            <div class="input-field col s6" id="columns-select-panel">
+                <select name="columns" id="columns-select" multiple>
+                    <option value="" disabled>Scegli colonne</option>
+                    @foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
+                    {
+                        var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                            .Cast<DisplayNameAttribute>()
+                            .FirstOrDefault()?.DisplayName ?? prop.Name;
+
+                        <option value="@prop.Name">@displayName</option>
+                    }
+                </select>
+                <label>Colonne da visualizzare</label>
+                <p>
+                    <label>
+                        <input type="checkbox" id="select-all-columns"/>
+                        <span>Seleziona tutte le colonne</span>
+                    </label>
+                </p>
+            </div>
+        </div>
+        <div class="row" id="extraOptions-panel" style="display: none;">
+            <div class="input-field col s6">
+                <select name="coverType">
+                    <option value="" selected>Scegli la copertina</option>
+                </select>
+                <label>Copertina</label>
+            </div>
+            <div class="input-field col s6">
+                <select name="dataViewType" onchange="dataViewType_onChange(this)">
+                    <option value="0" disabled>Scegli tipo visualizzazione</option>
+                    <option value="@Html.Raw((int)DataViewTypeEnum.GRID)">TABELLARE</option>
+                    <option value="@Html.Raw((int)DataViewTypeEnum.CARD)">LISTA</option>
+                    <option value="@Html.Raw((int)DataViewTypeEnum.TEMPLATE)">TEMPLATE</option>
+                </select>
+                <label>Visualizzazione dati</label>
+                <div id="panelDataViewType_Templates" style="display: none;">
+                    <select name="dataViewType_Templates">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn-flat modal-close">Annulla</button>
+        <button type="button" id="btnSalvaReport" class="btn-flat blue-text">Salva report</button>
+        <button type="button" id="btnGeneraZIP" class="btn-flat orange-text">Estrai testi (ZIP)</button>
+        <button type="button" id="btnGenerateReport" class="btn-flat pink-text">Genera report</button>
+    </div>
+</div>
+
+<script>
+	var reportsArray = [];
+	if (document.getElementById('btnReportConfig')) {
+        document.getElementById('btnReportConfig').addEventListener('click', async function () {
+            await openModalWithContent_Report("", localStorage.getItem('filtriDasi'));
+        });
+    }
+
+	 function exportFormat_onChange(ctrl) {
+        var exportFormat = $(ctrl).val();
+        var extraOptions = document.getElementById('extraOptions-panel');
+		 if (exportFormat == '@Html.Raw((int)ExportFormatEnum.PDF)'
+			|| exportFormat == '@Html.Raw((int)ExportFormatEnum.WORD)' ) {
+				extraOptions.style.display = 'block';
+			} else {
+				extraOptions.style.display = 'none';
+			}
+
+		var columnsOptions = document.getElementById('columns-select-panel');
+		if (exportFormat == '@Html.Raw((int)ExportFormatEnum.EXCEL_SITUAZIONE)'
+			|| exportFormat == '@Html.Raw((int)ExportFormatEnum.EXCEL_COMMISSIONI)' ) {
+				columnsOptions.style.display = 'none';
+			} else {
+				columnsOptions.style.display = 'block';
+			}
+
+            var $dataViewTypeElement = $('[name="dataViewType"]');
+            if ($dataViewTypeElement.length > 0) {
+				console.log("INIT dataviewType")
+                $dataViewTypeElement.val('0'); // Assegna il valore iniziale
+                $dataViewTypeElement.formSelect(); // Inizializza la lista
+                $dataViewTypeElement.trigger('change'); // Attiva l'evento onchange
+            }
+
+    }
+
+	function dataViewType_onChange(ctrl){
+		var dataViewType = $(ctrl).val();
+		var extraOptions = document.getElementById('panelDataViewType_Templates');
+        var columnsOptions = document.getElementById('columns-select-panel');
+		if (dataViewType == '@Html.Raw((int)DataViewTypeEnum.TEMPLATE)') {
+            extraOptions.style.display = 'block';
+            columnsOptions.style.display = 'none';
+        } else {
+            extraOptions.style.display = 'none';
+            columnsOptions.style.display = 'block';
+        }
+	}
+
+	$('#select-all-columns').change(function () {
+		var isChecked = this.checked;
+		$('#columns-select option').not(':disabled').each(function () {
+			$(this).prop('selected', isChecked);
+		});
+		$('#columns-select').formSelect(); // Update UI if needed
+	});
+
+	document.getElementById('btnSalvaReport').addEventListener('click', async function () {
+		var request = {};
+		request.filters = localStorage.getItem('filtriDasi');
+		request.reportname = document.getElementById('report_name').value;
+		request.covertype = document.querySelector('select[name="coverType"]').value;
+		request.dataviewtype = document.querySelector('select[name="dataViewType"]').value;
+		request.dataviewtype_template = document.querySelector('select[name="dataViewType_Templates"]').value;
+		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
+		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
+
+		request.sorting = localStorage.getItem('selectedSortColumns');
+
+        var url = '@Url.Action("SalvaReport", "DASI")';
+		const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request),
+        });
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		const data = await response.json();
+		if (data.message) {
+			ErrorAlert(data.message);
+			return;
+		}
+
+		M.toast({
+			html: `<span><b class="yellow-text">${document.getElementById('report_name').value}</b> salvato con successo</span>`, classes: 'rounded', displayLength: 5000
+		});
+		var index = reportsArray.findIndex(el => el.reportname === request.reportname);
+		if (index !== -1) {
+			reportsArray.splice(index, 1);
+		}
+		reportsArray.push(request);
+		creaPannelloReportLaterale();
+	});
+
+	document.getElementById('btnGenerateReport').addEventListener('click', function () {
+		var request = {};
+		var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+        var filtriList = [];
+		$.each(filtri, function (index, item) {
+			if (item.val.indexOf("Non vuoto") !== -1) {
+				filtriList.push({
+					property: item.key,
+					value: item.val,
+					not_empty: true
+				});
+			} else {
+				filtriList.push({
+					property: item.key,
+					value: item.val
+				});
+			}
+
+        });
+		request.filters = JSON.stringify(filtriList);
+		request.sorting = localStorage.getItem('selectedSortColumns');
+		request.reportname = document.getElementById('report_name').value;
+		request.covertype = document.querySelector('select[name="coverType"]').value;
+		request.dataviewtype = document.querySelector('select[name="dataViewType"]').value;
+		request.dataviewtype_template = document.querySelector('select[name="dataViewType_Templates"]').value;
+		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
+		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
+
+        var url = '@Url.Action("GeneraReport", "DASI")';
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: JSON.stringify(request),
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function() {
+                console.log("RICHIESTA INVIATA");
+                waiting(true, "Elaborazione in corso...");
+            },
+            success: function (response) {
+                console.log("Risposta ricevuta", response);
+                var a = document.createElement("a");
+                a.href = response;
+				a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                $('#modalReportConfig').modal("close");
+            },
+            error: function(xhr, status, error) {
+                console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                waiting(false);
+            },
+            complete: function() {
+                console.log("Chiamata completata");
+                waiting(false);
+            }
+        });
+
+		$('#modalReportConfig').modal("close");
+	});
+
+	document.getElementById('btnGeneraZIP').addEventListener('click', function () {
+		var request = {};
+        var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+        var filtriList = [];
+        $.each(filtri, function(index, item){
+	        filtriList.push({
+		        property: item.key,
+		        value: item.val
+	        });
+        });
+        request.filters = JSON.stringify(filtriList);
+
+        var url = '@Url.Action("GeneraZIP", "DASI")';
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: JSON.stringify(request),
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function() {
+                console.log("RICHIESTA INVIATA");
+                waiting(true, "Elaborazione in corso...");
+            },
+            success: function (response) {
+                console.log("Risposta ricevuta", response);
+                var a = document.createElement("a");
+                a.href = response;
+		        a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                $('#modalReportConfig').modal("close");
+            },
+            error: function(xhr, status, error) {
+                console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                waiting(false);
+            },
+            complete: function() {
+                console.log("Chiamata completata");
+                waiting(false);
+            }
+        });
+
+        $('#modalReportConfig').modal("close");
+	});
+
+	async function openModalWithContent_Report(name, filters) {
+		waiting(true);
+		$('#select-all-columns').prop('checked', false);
+		document.getElementById('columns-select-panel').style.display = 'block';
+		document.getElementById('extraOptions-panel').style.display = 'none';
+		document.getElementById('panelDataViewType_Templates').style.display = 'none';
+
+		var cardTemplates = await GetCardTemplates();
+		var cardTemplatesTypeSelect = $('select[name="dataViewType_Templates"]');
+		cardTemplatesTypeSelect.empty();
+		cardTemplatesTypeSelect.append('<option value="" selected>Scegli il template</option>');
+		if (cardTemplates.length > 0) {
+			cardTemplates.forEach(function (template) {
+				cardTemplatesTypeSelect.append(`<option value="${template.Uid}">${template.Nome}</option>`);
+			});
+		}
+		cardTemplatesTypeSelect.formSelect();
+
+		var copertine = await GetCopertine();
+		var coverTypeSelect = $('select[name="coverType"]');
+		coverTypeSelect.empty();
+
+		coverTypeSelect.append('<option value="" selected>Scegli la copertina</option>');
+		if (copertine.length > 0) {
+			copertine.forEach(function (copertina) {
+				coverTypeSelect.append(`<option value="${copertina.Uid}">${copertina.Nome}</option>`);
+			});
+		}
+
+		coverTypeSelect.formSelect();
+
+		$('#chips-container-report-config').empty();
+		$('#chips-container-report-sort').empty();
+
+        $('select[name="columns"]').val([]);
+        $('select[name="columns"]').find('option').each(function () {
+            $(this).prop('selected', false);
+        });
+
+		var existingChip = document.querySelector(`div[data-selected-report]`);
+		if (existingChip) {
+			var report_name = $(existingChip).data("selected-report");
+			var index = reportsArray.findIndex(el => el.reportname === report_name);
+			var selectedReport = reportsArray[index];
+
+			$('#report_name').val(selectedReport.reportname);
+			$('select[name="coverType"]').val(selectedReport.covertype).formSelect();
+			$('select[name="dataViewType"]').val(selectedReport.dataviewtype).formSelect();
+			$('select[name="dataViewType_Templates"]').val(selectedReport.dataviewtype_template).formSelect();
+			$('select[name="exportFormat"]').val(selectedReport.exportformat).formSelect();
+
+			var columns = JSON.parse(selectedReport.columns);
+			columns.forEach(function (columnId) {
+                $('select[name="columns"]').find(`option[value="${columnId}"]`).prop('selected', true);
+			});
+			$('select[name="columns"]').formSelect();
+
+            const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+            if (savedSortColumns.length > 0) {
+                savedSortColumns.forEach(function (sortInfo) {
+                    addChipReportSorting('Ordinato per ' + sortInfo.displayText + ' ' + (sortInfo.sortDirection == 1 ? "Crescente": "Decrescente"));
+                });
+            }
+
+			if (selectedReport.exportformat != '@Html.Raw((int)ExportFormatEnum.EXCEL)'){
+				document.getElementById('extraOptions-panel').style.display = 'block';
+			}
+			if (selectedReport.dataviewtype == '@Html.Raw((int)DataViewTypeEnum.TEMPLATE)'){
+				document.getElementById('panelDataViewType_Templates').style.display = 'block';
+			}
+		}else{
+			$('#report_name').val('');
+			$('select[name="coverType"]').prop('selectedIndex', 0).formSelect();
+			$('select[name="dataViewType"]').prop('selectedIndex', 0).formSelect();
+			$('select[name="dataViewType_Templates"]').prop('selectedIndex', 0).formSelect();
+			$('select[name="exportFormat"]').prop('selectedIndex', 0).formSelect();
+
+            const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+            if (savedSortColumns.length > 0) {
+                savedSortColumns.forEach(function (sortInfo) {
+                    addChipReportSorting('Ordinato per ' + sortInfo.displayText + ' ' + (sortInfo.sortDirection == 1 ? "Crescente": "Decrescente"));
+                });
+            }
+
+            const savedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
+            const defaultColumn = { propertyName: "Display", displayText: "Display" };
+            savedColumns.unshift(defaultColumn);
+            const columnsSelect = document.getElementById("columns-select");
+
+            if (savedColumns.length > 0 && columnsSelect) {
+                savedColumns.forEach(function (column) {
+
+					// #1224
+					if (column.propertyName.includes("@Html.Raw(nameof(AttoDASIReportDto.Firme))")) {
+                        let option = Array.from(columnsSelect.options).find(opt => opt.value === "@Html.Raw(nameof(AttoDASIReportDto.Iniziativa))");
+
+                        if (option) {
+                            option.selected = true;
+                        }
+                    } else {
+                        // Trova l'opzione corrispondente nella select
+                        const option = Array.from(columnsSelect.options).find(opt => opt.value === column.propertyName);
+
+                        // Se l'opzione esiste, la selezioniamo
+                        if (option) {
+                            option.selected = true;
+                        }
+                    }
+                });
+
+                $("#columns-select").formSelect();
+            }
+		}
+
+		const filtri = JSON.parse(filters);
+		if (filtri) {
+			filtri.forEach(function (filtro) {
+				addChipReportConfig(filtro.chipText);
+			});
+		}
+
+		$('#modalReportConfig').modal("open");
+		waiting(false);
+	}
+
+	function addChipReportConfig(chipText) {
+		var chipsContainer = document.getElementById('chips-container-report-config');
+		var newChip = document.createElement('div');
+		newChip.classList.add('chip', 'yellow', 'black-text');
+		newChip.textContent = chipText;
+
+		chipsContainer.appendChild(newChip);
+	}
+
+	function addChipReportSorting(chipText) {
+		var chipsContainer = document.getElementById('chips-container-report-sort');
+		var newChip = document.createElement('div');
+		newChip.classList.add('chip', 'amber', 'black-text');
+		newChip.textContent = chipText;
+
+		chipsContainer.appendChild(newChip);
+	}
+
+	async function ripristinaReports() {
+		var reports = await GetReportsDASI();
+		reportsArray = [];
+		$.each(reports, function (index, item) {
+			reportsArray.push(item);
+		});
+	}
+
+    function creaPannelloReportLaterale() {
+		var collection = document.getElementById('data-collection-report');
+		$('#data-collection-report').empty();
+		reportsArray.forEach(function (item) {
+			var li = document.createElement('a');
+			li.className = 'collection-item';
+			li.textContent = item.reportname;
+			li.onclick = function (event) {
+				event.stopPropagation();
+
+				resetSelezionePreferiti();
+                localStorage.setItem('selectedSortColumns', item.sorting);
+				localStorage.setItem('filtriDasi', item.filters);
+				chipsKeys = [];
+
+                ripristinaOrdinamento();
+				ripristinaFiltri();
+
+				$('#chips-container-selected-report').empty();
+				var btnGeneraReport = document.getElementById('btnReportConfig');
+				btnGeneraReport.textContent = "Genera report: " + item.reportname;
+
+				var chipsContainer = document.getElementById('chips-container-selected-report');
+				var selectedReportChip = document.createElement('div');
+				selectedReportChip.classList.add('red-text');
+				selectedReportChip.textContent = "Deseleziona report";
+				selectedReportChip.setAttribute('data-selected-report', item.reportname);
+
+				var removeSelectedReportIcon = document.createElement('i');
+				removeSelectedReportIcon.className = 'material-icons secondary-content red-text tiny';
+				removeSelectedReportIcon.style.marginLeft = '10px';
+				removeSelectedReportIcon.style.marginTop = '4px';
+				removeSelectedReportIcon.textContent = 'close';
+				selectedReportChip.onclick = async function (event) {
+					btnGeneraReport.textContent = "Genera report"
+					selectedReportChip.remove();
+				};
+				selectedReportChip.appendChild(removeSelectedReportIcon);
+				chipsContainer.appendChild(selectedReportChip);
+			};
+
+			var deleteIcon = document.createElement('i');
+			deleteIcon.className = 'material-icons secondary-content';
+			deleteIcon.style.marginRight = '10px';
+			deleteIcon.textContent = 'delete';
+			deleteIcon.classList.add('red-text');
+			deleteIcon.onclick = async function (event) {
+				event.stopPropagation();
+				swal(`Sei sicuro di voler eliminare il report "${item.reportname}"?`, {
+					buttons: ["No", "Si"],
+				}).then(async (value) => {
+					if (value == true){
+						try {
+							var deleteUrl = '@Url.Action("EliminaReport", "DASI")';
+							deleteUrl = `${deleteUrl}?nomeReport=${encodeURIComponent(item.reportname)}`;
+							let response = await fetch(deleteUrl, {
+								method: 'GET',
+								headers: {
+									'Content-Type': 'application/json',
+								}
+							});
+							if (!response.ok) {
+								throw new Error('Network response was not ok');
+							}
+
+							let data = await response.json();
+							if(data.message){
+								ErrorAlert(data.message);
+								return;
+							}
+
+							M.toast({
+								html: `<span><b class="yellow-text">${item.reportname}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
+
+							li.remove();
+							var indexToRemove = reportsArray.findIndex(el => el.reportname === item.reportname);
+
+							if (indexToRemove !== -1) {
+								reportsArray.splice(indexToRemove, 1);
+							}
+						} catch (error) {
+							console.error('Errore di fetch:', error);
+							ErrorAlert(error.message);
+						}
+					}
+				});
+			};
+	    li.appendChild(deleteIcon);
+        collection.appendChild(li);
+    });
+}
+
+	function GetCopertine() {
+		return new Promise(async function (resolve, reject) {
+			$.ajax({
+				url: baseUrl + "/dasi/view-reports-covers",
+				type: "GET"
+			}).done(function (result) {
+				resolve(result);
+			}).fail(function (err) {
+				console.log("error", err);
+				Error(err);
+			});
+		});
+	}
+
+	function GetCardTemplates() {
+		return new Promise(async function (resolve, reject) {
+			$.ajax({
+				url: baseUrl + "/dasi/view-reports-card-templates",
+				type: "GET"
+			}).done(function (result) {
+				resolve(result);
+			}).fail(function (err) {
+				console.log("error", err);
+				Error(err);
+			});
+		});
+	}
+
+</script>

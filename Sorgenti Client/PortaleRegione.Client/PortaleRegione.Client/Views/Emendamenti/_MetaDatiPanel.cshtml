@@ -9,7 +9,7 @@
     }
 }
 <div class="form-group">
-    @Html.LabelFor(s => s.Emendamento.IDParte)
+    @Html.LabelFor(s => s.Emendamento.IDParte) <span class="red-text" aria-label="Obbligatorio">(*)</span>
     <div class="row">
         <div class="col s12">
             @foreach (var partiTestoDto in Model.ListaPartiEmendabili)
@@ -176,36 +176,36 @@
     </div>
 </div>
 <div class="form-group">
-    @Html.LabelFor(s => s.Emendamento.IDTipo_EM)
-    <div class="row">
-        <div class="col s12">
-            @foreach (var tipoDto in Model.ListaTipiEmendamento)
-            {
-                var tooltip_text = "";
-                switch ((TipiEMEnum)tipoDto.IDTipo_EM)
-                {
-                    case TipiEMEnum.SOPPRESSIVO:
-                        tooltip_text = "Utilizzare 'soppressivo' quando si intende sopprimere un intero articolo o comma o lettera";
-                        break;
-                    case TipiEMEnum.MODIFICATIVO:
-                        tooltip_text = "Utilizzare 'modificativo' quando si intende modificare una o più parole della parte selezionata";
-                        break;
-                    case TipiEMEnum.AGGIUNTIVO:
-                        tooltip_text = "Utilizzare 'aggiuntivo' quando si intende aggiungere un nuovo articolo o comma o lettera";
-                        break;
-                    case TipiEMEnum.SOSTITUTIVO:
-                        tooltip_text = "Utilizzare 'sostitutivo' quando si intende sostituire un intero articolo o comma o lettera";
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-                <label class="black-text tooltipped" data-position="bottom" data-tooltip="@tooltip_text" style="margin-left: 20px">
-                    <input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" @Html.Raw(Model.Emendamento.IDTipo_EM == tipoDto.IDTipo_EM ? "checked='checked'" : "") name="Emendamento.IDTipo_EM" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
-                    <span>@tipoDto.Tipo_EM</span>
-                </label>
-            }
-        </div>
-    </div>
+	@Html.LabelFor(s => s.Emendamento.IDTipo_EM) <span class="red-text" aria-label="Obbligatorio">(*)</span>
+	<div class="row">
+		<div class="col s12">
+			@foreach (var tipoDto in Model.ListaTipiEmendamento)
+			{
+				var tooltip_text = "";
+				switch ((TipiEMEnum)tipoDto.IDTipo_EM)
+				{
+					case TipiEMEnum.SOPPRESSIVO:
+						tooltip_text = "Utilizzare 'soppressivo' quando si intende sopprimere un intero articolo o comma o lettera";
+						break;
+					case TipiEMEnum.MODIFICATIVO:
+						tooltip_text = "Utilizzare 'modificativo' quando si intende modificare una o più parole della parte selezionata";
+						break;
+					case TipiEMEnum.AGGIUNTIVO:
+						tooltip_text = "Utilizzare 'aggiuntivo' quando si intende aggiungere un nuovo articolo o comma o lettera";
+						break;
+					case TipiEMEnum.SOSTITUTIVO:
+						tooltip_text = "Utilizzare 'sostitutivo' quando si intende sostituire un intero articolo o comma o lettera";
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+				<label class="black-text tooltipped" data-position="bottom" data-tooltip="@tooltip_text" style="margin-left: 20px">
+					<input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" @Html.Raw(Model.Emendamento.IDTipo_EM == tipoDto.IDTipo_EM ? "checked='checked'" : "") name="Emendamento.IDTipo_EM" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+					<span>@tipoDto.Tipo_EM</span>
+				</label>
+			}
+		</div>
+	</div>
 </div>
 <input type="hidden" id="hdParteId"/>
 <input type="hidden" id="hdTipoId"/>

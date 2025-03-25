@@ -18,7 +18,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
 using ExpressionBuilder.Common;
@@ -85,17 +88,21 @@ namespace PortaleRegione.Api.Public.Business_Layer
         ///     Recupera un elenco di legislature disponibili dal database.
         /// </summary>
         /// <returns>Una task che, al suo completamento, restituisce una lista di KeyValueDto con le legislature.</returns>
-        public async Task<List<KeyValueDto>> GetLegislature()
+        public async Task<List<LegislaturaDto>> GetLegislature()
         {
             var legislature = await _unitOfWork.Legislature.GetLegislature();
 
-            var result = new List<KeyValueDto>();
+            // #1089
+            var result = new List<LegislaturaDto>();
             foreach (var legislatura in legislature)
             {
-                result.Add(new KeyValueDto
+                result.Add(new LegislaturaDto
                 {
-                    id = legislatura.id_legislatura,
-                    descr = legislatura.num_legislatura
+                    id_legislatura = legislatura.id_legislatura,
+                    num_legislatura = legislatura.num_legislatura,
+                    attiva = legislatura.attiva,
+                    durata_legislatura_da = legislatura.durata_legislatura_da,
+                    durata_legislatura_a = legislatura.durata_legislatura_a
                 });
             }
 
@@ -156,6 +163,26 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
+        ///     Recupera un elenco di stati di chiusura.
+        /// </summary>
+        /// <returns>Una lista di KeyValueDto che rappresenta gli stati degli atti.</returns>
+        public List<KeyValueDto> GetStatiChiusura()
+        {
+            var result = new List<KeyValueDto>();
+            var stati = Enum.GetValues(typeof(TipoChiusuraIterEnum));
+            foreach (var stato in stati)
+            {
+                result.Add(new KeyValueDto
+                {
+                    id = (int)stato,
+                    descr = Utility.GetText_ChiusuraIterDASI((int)stato)
+                });
+            }
+
+            return result;
+        }
+
+        /// <summary>
         ///     Ottiene un elenco di gruppi per una data legislatura.
         /// </summary>
         /// <param name="idLegislatura">L'identificativo della legislatura di interesse.</param>
@@ -204,36 +231,137 @@ namespace PortaleRegione.Api.Public.Business_Layer
         /// </summary>
         /// <param name="uidAtto">L'identificativo unico dell'atto.</param>
         /// <returns>Una task che, al suo completamento, restituisce un AttoDasiPublicDto con i dettagli dell'atto.</returns>
-        public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto)
+        public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto, string hostUrl)
         {
-            var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
-            if (attoInDb == null)
-                throw new KeyNotFoundException($"Identificativo {uidAtto} non trovato.");
-            var attoDto = new AttoDasiPublicDto
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+            try
             {
-                uidAtto = attoInDb.UIDAtto,
-                oggetto = attoInDb.Oggetto,
-                display = GetDisplayFromEtichetta(attoInDb.Etichetta),
-                stato = Utility.GetText_StatoDASI(attoInDb.IDStato),
-                tipo = Utility.GetText_Tipo(attoInDb.Tipo),
-                data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
-                    AppSettingsConfigurationHelper.masterKey),
-                premesse = attoInDb.Premesse,
-                richiesta = attoInDb.Richiesta,
-                tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
-                area_politica = "",
-                data_iscrizione = attoInDb.DataIscrizioneSeduta?.ToString("dd/MM/yyyy")
-            };
+                var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
+                if (attoInDb == null)
+                    throw new KeyNotFoundException($"Identificativo {uidAtto} non trovato.");
+                KeyValueDto gruppo = null;
+                PersonaPublicDto proponente = null;
+                PersonaPublicDto personaRelatore1 = null;
+                PersonaPublicDto personaRelatore2 = null;
+                PersonaPublicDto personaRelatoreMinoranza = null;
+                List<KeyValueDto> proponenti = new List<KeyValueDto>();
+                if (attoInDb.Tipo != (int)TipoAttoEnum.RIS)
+                {
+                    gruppo = await _unitOfWork.Persone.GetGruppo(attoInDb.id_gruppo);
+                    proponente = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaProponente.Value);
+                }
+                else
+                {
+                    proponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
 
-            var firmeAnte = await GetFirme(attoInDb, FirmeTipoEnum.PRIMA_DEPOSITO);
-            var firmePost = await GetFirme(attoInDb, FirmeTipoEnum.DOPO_DEPOSITO);
-            attoDto.firme = firmeAnte;
-            attoDto.firme_dopo_deposito = firmePost;
+                    if (attoInDb.UIDPersonaRelatore1.HasValue)
+                        personaRelatore1 = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatore1.Value);
+                    if (attoInDb.UIDPersonaRelatore2.HasValue)
+                        personaRelatore2 = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatore2.Value);
+                    if (attoInDb.UIDPersonaRelatoreMinoranza.HasValue)
+                        personaRelatoreMinoranza = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatoreMinoranza.Value);
+                }
 
-            return attoDto;
+                if (gruppo != null)
+                    proponente.DisplayName += $" ({gruppo.sigla.Trim()})";
+
+                var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);
+                var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+                var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
+                {
+                    data = r.Data,
+                    data_trasmissione = r.DataTrasmissione,
+                    data_trattazione = r.DataTrattazione,
+                    organo = r.DescrizioneOrgano,
+                    id_organo = r.IdOrgano,
+                    tipo_risposta = Utility.GetText_TipoRispostaDASI(r.Tipo),
+                    tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
+                }).ToList();
+                var documentiInDb = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
+                var documenti = documentiInDb.Select(d => new AttiDocumentiPublicDto
+                {
+                    Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
+                    Titolo = d.Titolo,
+                    Link = $"{hostUrl}/{ApiRoutes.ScaricaDocumento}?path={d.Path}",
+                    TipoEnum = (TipoDocumentoEnum)d.Tipo
+                }).ToList();
+
+                var note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
+                note = note.Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA).ToList();
+
+                var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
+                var firme = await GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
+
+                var linkTestoOriginale = $"{AppSettingsConfigurationHelper.urlDASI_Originale.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+                var linkTestoTrattazione = $"{AppSettingsConfigurationHelper.urlDASI_Trattazione.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+
+                var attoDto = new AttoDasiPublicDto
+                {
+                    uidAtto = attoInDb.UIDAtto,
+                    oggetto = attoInDb.OggettoView(),
+                    display = GetDisplayFromEtichetta(attoInDb.Etichetta),
+                    id_stato = attoInDb.IDStato,
+                    stato = Utility.GetText_StatoDASI(attoInDb.IDStato),
+                    id_tipo = attoInDb.Tipo,
+                    tipo = Utility.GetText_Tipo(attoInDb.Tipo),
+                    tipo_esteso = Utility.GetText_TipoEstesoDASI(attoInDb.Tipo),
+                    n_atto = attoInDb.NAtto_search.ToString(),
+                    data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
+                        AppSettingsConfigurationHelper.masterKey),
+                    tipo_risposta_richiesta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
+                    tipo_risposta_fornita = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta_Effettiva.GetValueOrDefault(0)),
+                    area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
+                    data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
+                    data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
+                    data_comunicazione_assemblea = attoInDb.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy"), // #1088
+                    stato_iter =
+                        Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue
+                            ? attoInDb.TipoChiusuraIter.Value
+                            : 0),
+                    gruppo = gruppo,
+                    proponente = proponente,
+                    commissioni = commissioni,
+                    risposte = risposte,
+                    documenti = documenti,
+                    abbinamenti = abbinamenti,
+                    dcrl = attoInDb.DCRL,
+                    dcr = attoInDb.DCR,
+                    dcrc = attoInDb.DCCR,
+                    firme = firme,
+                    burl = attoInDb.BURL,
+                    note = note,
+                    link_testo_originale = linkTestoOriginale,
+                    link_testo_trattazione = linkTestoTrattazione
+                };
+
+                if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+                {
+                    attoDto.proponenti = proponenti;
+                    attoDto.relatore1 = personaRelatore1;
+                    attoDto.relatore2 = personaRelatore2;
+                    attoDto.relatore_minoranza = personaRelatoreMinoranza;
+                }
+                else
+                {
+                    if(attoInDb.UIDPersonaProponente.HasValue)
+                        attoDto.uid_proponente = attoInDb.UIDPersonaProponente.Value;
+
+                    if (attoInDb.TipoMOZ > 0)
+                    {
+                        attoDto.tipo_mozione = Utility.GetText_TipoMOZDASI(attoInDb.TipoMOZ);
+                    }
+                }
+
+                return attoDto;
+            }
+            catch (Exception e)
+            {
+                Log.Error(currentMethod, e);
+                throw e;
+            }
         }
 
-        private async Task<List<AttiFirmeDto>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo)
+        private async Task<List<AttiFirmePublicDto>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo)
         {
             try
             {
@@ -243,31 +371,31 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
                 var firme = firmeInDb.ToList();
 
-                if (!firme.Any()) return new List<AttiFirmeDto>();
+                if (!firme.Any()) return new List<AttiFirmePublicDto>();
 
-                var result = new List<AttiFirmeDto>();
+                var result = new List<AttiFirmePublicDto>();
                 foreach (var firma in firme)
                 {
-                    var dto = new AttiFirmeDto
+                    var gruppo = await _unitOfWork.Persone.GetGruppo(firma.id_gruppo);
+                    var dto = new AttiFirmePublicDto()
                     {
-                        UIDAtto = firma.UIDAtto,
                         UID_persona = firma.UID_persona,
                         id_persona = Users.First(u => u.UID_persona == firma.UID_persona).id_persona,
                         FirmaCert = CryptoHelper.DecryptString(firma.FirmaCert,
                             AppSettingsConfigurationHelper.masterKey),
                         PrimoFirmatario = firma.PrimoFirmatario,
-                        id_gruppo = firma.id_gruppo,
-                        ufficio = firma.ufficio,
+                        Gruppo = gruppo,
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
                             : CryptoHelper.DecryptString(firma.Data_ritirofirma,
                                 AppSettingsConfigurationHelper.masterKey),
-                        Timestamp = firma.Timestamp,
-                        Capogruppo = firma.Capogruppo,
-                        id_AreaPolitica = firma.id_AreaPolitica,
-                        Data_firma = firma.Timestamp.ToString("dd/MM/yyyy"),
-                        Prioritario = firma.Prioritario
+                        Data_firma = firma.Timestamp.ToString("dd/MM/yyyy")
                     };
+
+                    if (firma.id_AreaPolitica.HasValue)
+                    {
+                        dto.AreaPolitica = Utility.GetText_AreaPolitica(firma.id_AreaPolitica.Value);
+                    }
 
                     result.Add(dto);
                 }
@@ -286,46 +414,43 @@ namespace PortaleRegione.Api.Public.Business_Layer
         /// </summary>
         /// <param name="request">L'oggetto richiesta contenente i criteri di ricerca.</param>
         /// <returns>Una task che, al suo completamento, restituisce un oggetto BaseResponse con i risultati della ricerca.</returns>
-        public async Task<BaseResponse<AttoDASILightDto>> Cerca(CercaRequest request)
+        public async Task<BaseResponse<AttoLightDto>> Cerca(CercaRequest request)
         {
             var filtroFromRequest = GetFiltroCercaFromRequest(request);
+
             var filtroBase = new Filter<ATTI_DASI>();
             filtroBase.ImportStatements(filtroFromRequest);
             var res = await _unitOfWork.DASI.GetAll(
                 request.page,
                 request.size,
-                filtroBase);
-            var tot = await _unitOfWork.DASI.Count(filtroBase);
-            return new BaseResponse<AttoDASILightDto>(
+                filtroBase,
+                request);
+            var tot = await _unitOfWork.DASI.Count(filtroBase,
+                request);
+
+            return new BaseResponse<AttoLightDto>(
                 request.page,
                 request.size,
-                res.Select(a => new AttoDASILightDto
+                res.Select(a => new AttoLightDto()
                 {
                     uidAtto = a.UIDAtto,
                     oggetto = a.Oggetto,
-                    display = GetDisplayFromEtichetta(a.Etichetta)
+                    natto = a.NAtto_search.ToString(),
+                    display = GetDisplayFromEtichetta(a.Etichetta),
+                    tipo = Utility.GetText_Tipo(a.Tipo),
+                    tipo_esteso = Utility.GetText_TipoEstesoDASI(a.Tipo)
                 }).ToList(),
                 filtroFromRequest,
                 tot);
         }
 
-        private List<FilterStatement<AttoDASILightDto>> GetFiltroCercaFromRequest(CercaRequest request)
+        private List<FilterStatement<AttoLightDto>> GetFiltroCercaFromRequest(CercaRequest request)
         {
-            var res = new List<FilterStatement<AttoDASILightDto>>();
-            if (request.id_tipo.HasValue && request.id_tipo > 0)
-            {
-                res.Add(new FilterStatement<AttoDASILightDto>
-                {
-                    PropertyId = nameof(ATTI_DASI.Tipo),
-                    Value = request.id_tipo.Value,
-                    Operation = Operation.EqualTo,
-                    Connector = FilterStatementConnector.And
-                });
-            }
+            var res = new List<FilterStatement<AttoLightDto>>();
 
             if (request.id_legislatura.HasValue && request.id_legislatura > 0)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Legislatura),
                     Value = request.id_legislatura.Value,
@@ -334,31 +459,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 });
             }
 
-            if (request.id_stato.HasValue && request.id_stato > 0)
-            {
-                res.Add(new FilterStatement<AttoDASILightDto>
-                {
-                    PropertyId = nameof(ATTI_DASI.IDStato),
-                    Value = request.id_stato.Value,
-                    Operation = Operation.EqualTo,
-                    Connector = FilterStatementConnector.And
-                });
-            }
-
-            if (request.id_tipo_risposta.HasValue && request.id_tipo_risposta > 0)
-            {
-                res.Add(new FilterStatement<AttoDASILightDto>
-                {
-                    PropertyId = nameof(ATTI_DASI.IDTipo_Risposta),
-                    Value = request.id_tipo_risposta.Value,
-                    Operation = Operation.EqualTo,
-                    Connector = FilterStatementConnector.And
-                });
-            }
-
             if (request.id_gruppo.HasValue && request.id_gruppo > 0)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.id_gruppo),
                     Value = request.id_gruppo.Value,
@@ -373,7 +476,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 {
                     var n_attoSplit = request.n_atto.Split('-');
 
-                    res.Add(new FilterStatement<AttoDASILightDto>
+                    res.Add(new FilterStatement<AttoLightDto>
                     {
                         PropertyId = nameof(ATTI_DASI.NAtto_search),
                         Value = int.Parse(n_attoSplit[0]),
@@ -384,7 +487,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 }
                 else
                 {
-                    res.Add(new FilterStatement<AttoDASILightDto>
+                    res.Add(new FilterStatement<AttoLightDto>
                     {
                         PropertyId = nameof(ATTI_DASI.NAtto_search),
                         Value = int.Parse(request.n_atto),
@@ -396,7 +499,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (request.data_presentazione_da.HasValue)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Timestamp),
                     Value = request.data_presentazione_da.Value,
@@ -407,11 +510,55 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             if (request.data_presentazione_a.HasValue)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Timestamp),
                     Value = request.data_presentazione_a.Value,
                     Operation = Operation.LessThanOrEqualTo,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (!string.IsNullOrEmpty(request.oggetto))
+            {
+                res.Add(new FilterStatement<AttoLightDto>
+                {
+                    PropertyId = nameof(ATTI_DASI.Oggetto),
+                    Value = request.oggetto,
+                    Operation = Operation.Contains,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (!string.IsNullOrEmpty(request.burl))
+            {
+                res.Add(new FilterStatement<AttoLightDto>
+                {
+                    PropertyId = nameof(ATTI_DASI.BURL),
+                    Value = request.burl,
+                    Operation = Operation.Contains,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (request.dcr.HasValue)
+            {
+                res.Add(new FilterStatement<AttoLightDto>
+                {
+                    PropertyId = nameof(ATTI_DASI.DCR),
+                    Value = request.dcr.Value,
+                    Operation = Operation.EqualTo,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (request.dccr.HasValue)
+            {
+                res.Add(new FilterStatement<AttoLightDto>
+                {
+                    PropertyId = nameof(ATTI_DASI.DCCR),
+                    Value = request.dccr.Value,
+                    Operation = Operation.EqualTo,
                     Connector = FilterStatementConnector.And
                 });
             }
@@ -456,6 +603,23 @@ namespace PortaleRegione.Api.Public.Business_Layer
             }).ToList();
 
             Users = personeInDbLight;
+        }
+
+        public HttpResponseMessage ScaricaDocumento(string path)
+        {
+            var complete_path = Path.Combine(
+                AppSettingsConfigurationHelper.PercorsoCompatibilitaDocumenti,
+                Path.GetFileName(path));
+
+            if (!path.Contains("~"))
+            {
+                complete_path = Path.Combine(
+                    AppSettingsConfigurationHelper.PercorsoCompatibilitaDocumenti,
+                    path);
+            }
+
+            var result = Utility.ComposeFileResponse(complete_path);
+            return result;
         }
     }
 }

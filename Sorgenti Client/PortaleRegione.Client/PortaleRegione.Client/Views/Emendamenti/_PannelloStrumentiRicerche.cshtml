@@ -144,14 +144,14 @@
                 </div>
             </div>
         }
-        <div class="row">
+        <div class="row" style="margin-top: 40px !important;">
             <div class="col s12 center">
-                <a class="btn chip hoverable blue center white-text" onclick="filtra(1)">
-                    <i class="icon material-icons">search</i> Filtra
-                </a>
-                <a class="btn chip hoverable grey center white-text" onclick="reset()">
-                    <i class="icon material-icons">close</i> Reset
-                </a>
+                <button type="button" role="button" class="btn-flat blue-text" onclick="filtra(1)">
+                    Filtra
+                </button>
+                <button type="button" role="button" class="btn-flat grey-text" onclick="reset()">
+                    Reset
+                </button>
             </div>
         </div>
     </div>
@@ -261,22 +261,21 @@
     <div class="collapsible-header light-blue lighten-4"><i class="material-icons">import_export</i>Esporta</div>
     <div class="collapsible-body">
         <div class="container">
-            <a id="btnExportXLS" class="btn chip hoverable green lighten-1 center white-text" data-href="@Url.Action("EsportaXLS", "Emendamenti")" style="width: 100%">
-                <i class="icon material-icons">
-                    grid_on</i> EXCEL
-            </a>
+            <button type="button" role="button" id="btnExportXLS" class="btn-flat green-text" data-href="@Url.Action("EsportaXLS", "Emendamenti")" style="width: 100%">
+                EXCEL
+            </button>
 
             @if (User.IsInRole(RuoliExt.Segreteria_Assemblea)
                 || User.IsInRole(RuoliExt.Amministratore_PEM))
             {
-                <a id="btnExportXLS_Segreteria" class="btn chip hoverable green lighten-1 center white-text" data-href="@Url.Action("EsportaXLS_UOLA", "Emendamenti")" style="width: 100%">
-                    <i class="icon material-icons">grid_on</i> EXCEL SEGRETERIA
-                </a>
+                <button type="button" role="button" id="btnExportXLS_Segreteria" class="btn-flat green-text" data-href="@Url.Action("EsportaXLS_UOLA", "Emendamenti")" style="width: 100%">
+                    EXCEL SEGRETERIA
+                </button>
             }
 
-            <a id="btnExportDOCX" class="btn chip hoverable blue lighten-1 center white-text" data-href="@Url.Action("EsportaDOC", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)Model.Ordinamento, mode=(int)Model.Mode})" style="width: 100%">
-                <i class="icon material-icons">font_download</i> WORD
-            </a>
+            <button id="btnExportDOCX" class="btn-flat blue-text" data-href="@Url.Action("EsportaDOC", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)Model.Ordinamento, mode=(int)Model.Mode})" style="width: 100%">
+                WORD
+            </button>
         </div>
     </div>
 </li>

@@ -43,22 +43,8 @@ namespace PortaleRegione.Gateway
             var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Print}?uid={uid}";
             return await GetFile(requestUrl, _token);
         }
-
-        public async Task<StampaDto> InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.InserisciStampaDifferita}";
-            var body = JsonConvert.SerializeObject(model);
-            return JsonConvert.DeserializeObject<StampaDto>(await Post(requestUrl, body, _token));
-        }
-
-        public async Task<StampaDto> InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.InserisciStampaDifferita}";
-            var body = JsonConvert.SerializeObject(model);
-            return JsonConvert.DeserializeObject<StampaDto>(await Post(requestUrl, body, _token));
-        }
         
-        public async Task<StampaDto> InserisciStampa(NuovaStampaRequest request)
+        public async Task<List<StampaDto>> InserisciStampa(NuovaStampaRequest request)
         {
             var requestUrl = $"{apiUrl}/";
             if (request.Modulo == ModuloStampaEnum.PEM)
@@ -67,9 +53,9 @@ namespace PortaleRegione.Gateway
                 requestUrl += $"{ApiRoutes.DASI.InserisciStampaMassiva}";
 
             var body = JsonConvert.SerializeObject(request);
-            return JsonConvert.DeserializeObject<StampaDto>(await Post(requestUrl, body, _token));
+            return JsonConvert.DeserializeObject<List<StampaDto>>(await Post(requestUrl, body, _token));
         }
-
+        
         public async Task EliminaStampa(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Delete.Replace("{id}", id.ToString())}";
@@ -202,6 +188,14 @@ namespace PortaleRegione.Gateway
         public async Task<FileResponse> DownloadStampa(Guid stampaUId)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Download.Replace("{id}", stampaUId.ToString())}";
+            var lst = await GetFile(requestUrl, _token);
+            return lst;
+        }
+
+        
+        public async Task<FileResponse> DownloadStampa(string nomeFile)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.DownloadFolder.Replace("{nomeFile}", nomeFile)}";
             var lst = await GetFile(requestUrl, _token);
             return lst;
         }

@@ -6,7 +6,7 @@ namespace PortaleRegione.BAL
 {
     public static class DASIHelper
     {
-        public static string GetDescrizioneRisposta(TipoRispostaEnum tipoRisposta, List<CommissioneDto> commissioni)
+        public static string GetDescrizioneRisposta(TipoRispostaEnum tipoRisposta, List<OrganoDto> organi)
         {
             string result;
 

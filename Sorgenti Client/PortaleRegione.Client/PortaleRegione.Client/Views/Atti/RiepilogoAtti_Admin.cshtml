@@ -23,7 +23,7 @@
 
 <div class="row">
     <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
+        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
             <i class="material-icons">arrow_back</i>
         </a>
         <div class="row valign-wrapper">
@@ -64,19 +64,19 @@
         if (atto.Chiuso)
         {
             statoAtto = "Chiuso";
-            coloreStatoAtto = "grey";
+            coloreStatoAtto = "grey-text";
         }
         else
         {
             if (!atto.Data_apertura.HasValue)
             {
                 statoAtto = "Chiuso";
-                coloreStatoAtto = "grey";
+                coloreStatoAtto = "grey-text";
             }
             else if (atto.Data_apertura.Value < DateTime.Now)
             {
                 statoAtto = "Aperto";
-                coloreStatoAtto = "green";
+                coloreStatoAtto = "green-text";
             }
             else
             {
@@ -98,7 +98,7 @@
                 {
                     statoAtto = $"Apertura prevista: {atto.Data_apertura.Value:dd/MM/yyyy HH:mm}";
                 }
-                coloreStatoAtto = "amber darken-3";
+                coloreStatoAtto = "pink-text";
             }
         }
 
@@ -142,23 +142,23 @@
                         <div class="col s6 right-align">
                             @if (atto.CanMoveUp)
                             {
-                                <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveUp", "Atti", new { id = atto.UIDAtto })')" title="Sposta su">
-                                    <i class="material-icons" style="margin-top: 15px">arrow_upward</i>
-                                </a>
+                                <button type="button" role="button" class="btn-flat orange-text" onclick="go('@Url.Action("MoveUp", "Atti", new { id = atto.UIDAtto })')" title="Sposta su">
+                                    SPOSTA SU
+                                </button>
                             }
                             @if (atto.CanMoveDown)
                             {
-                                <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveDown", "Atti", new { id = atto.UIDAtto })')" title="Sposta giù">
-                                    <i class="material-icons" style="margin-top: 15px">arrow_downward</i>
-                                </a>
+                                <button type="button" role="button" class="btn-flat orange-text" onclick="go('@Url.Action("MoveDown", "Atti", new { id = atto.UIDAtto })')" title="Sposta giù">
+                                    SPOSTA GIU
+                                </button>
                             }
 
-                            <a class="hoverable center blue-text" onclick="go('@Url.Action("ModificaAtto", "Atti", new { id = atto.UIDAtto })')" title="Modifica">
-                                <i class="material-icons" style="margin-top: 15px">edit</i>
-                            </a>
-                            <a class="hoverable center red-text" onclick="openDeleteModal('@atto.UIDAtto')" title="Elimina">
-                                <i class="material-icons">delete</i>
-                            </a>
+                            <button type="button" role="button" class="btn-flat blue-text" onclick="go('@Url.Action("ModificaAtto", "Atti", new { id = atto.UIDAtto })')" title="Modifica">
+                                MODIFICA
+                            </button>
+                            <button type="button" role="button" class="btn-flat red-text" onclick="openDeleteModal('@atto.UIDAtto')" title="Elimina">
+                                ELIMINA
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -170,17 +170,17 @@
                                     <b>@titolo_atto</b>
                                     @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                     {
-                                        <a class="btn-flat pink-text hide-on-large-only"
-                                           href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
-                                            <i class="material-icons right pink-text">cloud_download</i>
-                                        </a>
+                                        <button type="button" role="button" class="btn-flat pink-text hide-on-large-only"
+                                                onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')" title="Scarica documento">
+                                            SCARICA TESTO
+                                        </button>
                                     }
                                 </h5>
                             </div>
                             <div class="col s4 right-align">
                                 @if (!string.IsNullOrEmpty(statoAtto))
                                 {
-                                    <div class="chip white @coloreStatoAtto-text" style="min-width: unset; border: 1px solid @coloreStatoAtto">@statoAtto</div>
+                                    <h6 class="@coloreStatoAtto"><b>@statoAtto</b></h6>
                                 }
                             </div>
                         </div>
@@ -192,37 +192,36 @@
                             </div>
                         </div>
                         <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
-                            <div class="col s4">
+                            <div class="col s8 left-align">
                                 @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                 {
-                                    <a class="btn-flat pink-text hide-on-med-and-down"
-                                       href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
-                                        <i class="material-icons right pink-text">cloud_download</i>
+                                    <button type="button" role="button" class="btn-flat pink-text hide-on-med-and-down"
+                                            onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')" title="Scarica documento">
                                         SCARICA TESTO
-                                    </a>
+                                    </button>
                                 }
                             </div>
-                            @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL)
-                            {
-                                <div class="col s7 right-align">
-                                    @if (atto.Fascicoli_Da_Aggiornare)
+                            <div class="col s2 center-align">
+                                @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL)
+                                {
+                                    if (atto.Fascicoli_Da_Aggiornare)
                                     {
-                                        <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale" style="margin-top: 4px">report</i>
+                                        <i class="material-icons red-text right tooltipped" data-position="bottom" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale"
+                                            style="margin-top: 4px">report</i>
                                     }
                                     <h6 class="black-text">
                                         @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
                                     </h6>
-
-                                </div>
-                                <div class="col s1 right-align">
-                                    @if (atto.Data_apertura.HasValue)
-                                    {
-                                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')" title="Riepilogo emendamenti">
-                                            <i class="material-icons" style="line-height: unset">chevron_right</i>
-                                        </a>
-                                    }
-                                </div>
-                            }
+                                }
+                            </div>
+                            <div class="col s2 right-align">
+                                @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL && atto.Data_apertura.HasValue)
+                                {
+                                    <button type="button" role="button" class="btn-flat black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')" title="Riepilogo emendamenti/subemendamenti">
+                                        RIEPILOGO EM/SUBEM
+                                    </button>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -232,7 +231,7 @@
 </div>
 
 <div class="fixed-action-btn">
-    <a id="btnCreaAtto" class="btn-floating btn-large blue darken-1">
+    <a id="btnCreaAtto" class="btn-floating btn-large blue darken-3">
         <i class="large material-icons">add</i>
     </a>
 </div>
@@ -254,8 +253,5 @@
         setListaEmendamenti([]);
         setSelezionaTutti(false);
         set_Filtri_EM({});
-        set_ListaArticoliEM([]);
-        set_ListaCommiEM([]);
-        set_ListaLettereEM([]);
     </script>
 }

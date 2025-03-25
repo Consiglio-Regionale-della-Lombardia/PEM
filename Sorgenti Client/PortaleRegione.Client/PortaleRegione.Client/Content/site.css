@@ -26,13 +26,13 @@ main { margin-bottom: 150px; }
 .sidenav li > a { padding: 0 16px !important; }
 
 .patreon-ad {
-	position: fixed;
-	left: 0;
-	bottom: 0;
-	width: 299px;
 	background-color: #fff;
+	border-top: 1px solid rgba(0, 0, 0, 0.14);
+	bottom: 0;
+	left: 0;
+	position: fixed;
+	width: 299px;
 	z-index: 1000;
-	border-top: 1px solid rgba(0,0,0,0.14);
 }
 
 .bold-text {
@@ -42,47 +42,185 @@ main { margin-bottom: 150px; }
 .btn-flat {
 	font-weight: bold !important;
 }
+.btn-flat { font-weight: bold !important; }
 
-.btn-flat.black-text {
-	border: 1px black solid;
-	border-radius: 5px;
+	.btn-flat.black-text {
+		border: 2px black solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #e0e0e0;
+	}
+
+.black-text {
 	color: black !important;
 }
 
-.btn-flat.pink-text {
-	border: 1px #e91e63 solid;
-	border-radius: 5px;
-	color: black !important;
+a.black-text {
+	text-decoration: underline;
+}
+
+	.btn-flat.yellow-text {
+		border: 2px #f57f17 solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #fff176;
+	}
+
+.yellow-text {
+	color: #f57f17 !important;
+}
+
+a.yellow-text {
+	text-decoration: underline;
+}
+
+	.btn-flat.pink-text {
+		border: 2px #880e4f solid;
+		border-radius: 5px;
+		color: black !important;
+		background-color: #f06292;
+	}
+
+.pink-text {
+	color: #880e4f !important;
+}
+
+a.pink-text {
+	text-decoration: underline;
 }
 
 .btn-flat.blue-text {
-	border: 1px #2196F3 solid;
+	border: 2px #1565c0 solid;
 	border-radius: 5px;
 	color: black !important;
+	background-color: #64b5f6;
+}
+
+.blue-text {
+	color: #1565c0 !important;
+}
+
+a.blue-text {
+	text-decoration: underline;
 }
 
 .btn-flat.red-text {
-	border: 1px #F44336 solid;
+	border: 2px #b71c1c solid;
 	border-radius: 5px;
 	color: black !important;
+	background-color: #e57373;
+}
+
+.red-text {
+	color: #b71c1c !important;
+}
+
+a.red-text {
+	text-decoration: underline;
 }
 
 .btn-flat.green-text {
-	border: 1px #4CAF50 solid;
+	border: 2px #2e7d32 solid;
 	border-radius: 5px;
 	color: black !important;
+	background-color: #81c784;
+}
+
+.green-text {
+	color: #1b5e20 !important;
+}
+
+a.green-text {
+	text-decoration: underline;
 }
 
 .btn-flat.purple-text {
-	border: 1px #9c27b0 solid;
+	border: 2px #4a148c solid;
 	border-radius: 5px;
 	color: black !important;
+	background-color: #ce93d8;
+}
+
+.purple-text {
+	color: #4a148c !important;
+}
+
+a.purple-text {
+	text-decoration: underline;
 }
 
 .btn-flat.orange-text {
-	border: 1px #ff9800 solid;
+	border: 2px #e65100 solid;
 	border-radius: 5px;
 	color: black !important;
+	background-color: #ffb74d;
+}
+
+.orange-text {
+	color: #e65100 !important;
+}
+
+a.orange-text {
+	text-decoration: underline;
+}
+
+.btn-floating.btn-large.pink {
+	background-color: #880e4f !important;
+}
+
+.btn-floating.btn-large.white.black-text {
+	border: 2px solid black;
+}
+.btn-floating.btn-large.white.green-text {
+	border: 2px solid #1b5e20;
+}
+.btn-floating.btn-large.white.purple-text {
+	border: 2px solid #4a148c;
+}
+.btn-floating.btn-large.white.orange-text {
+	border: 2px solid #e65100;
+}
+.btn-floating.btn-large.white.grey-text {
+	border: 2px solid #636363;
+}
+
+	.btn-floating.btn-large.white.black-text > i,
+	.btn-floating.btn-large.white.green-text > i,
+	.btn-floating.btn-large.white.purple-text > i,
+	.btn-floating.btn-large.white.orange-text > i {
+		margin-left: -4px;
+		margin-top: -4px;
+	}
+
+.btn-floating.white.black-text > i,
+.btn-floating.white.green-text > i,
+.btn-floating.white.purple-text > i,
+.btn-floating.white.orange-text > i,
+.btn-floating.white.blue-text-text > i,
+.btn-floating.white.red-text > i {
+	margin-left: -2px !important;
+	margin-top: -1px !important;
+}
+
+.btn-floating.white.black-text {
+	border: 2px solid black;
+}
+
+.btn-floating.white.orange-text {
+	border: 2px solid #e65100;
+}
+
+.btn-floating.white.green-text {
+	border: 2px solid #1b5e20;
+}
+.btn-floating.white.purple-text {
+	border: 2px solid #4a148c;
+}
+.btn-floating.white.red-text {
+	border: 2px solid #b71c1c;
+}
+.btn-floating.white.blue-text {
+	border: 2px solid #1565c0;
 }
 
 .btn-floating > i { color: unset; }
@@ -161,7 +299,7 @@ label {
 	padding-left: 8px;
 }
 
-.chip { cursor: pointer; }
+.chip { cursor: pointer; height:unset!important; }
 
 .chip-centered {
 	cursor: pointer;
@@ -177,9 +315,23 @@ div.chips.chips-autocomplete > .chip {
 	text-decoration: underline;
 }
 
-.chips > .chip { min-width: unset !important; }
+.chips > .chip { 
+	min-width: unset !important;
+}
 
-div.form-group > .chip { min-width: unset !important; }
+.chip {
+	color: black;
+	background-color: #e0e0e0;
+	border: 1px #9e9e9e solid;
+}
+
+	.chip.filter-chip, .chip.order-chip, .chip.deep-purple {
+		border: 2px black solid;
+	}
+
+div.form-group > .chip {
+	min-width: unset !important;
+}
 
 div.chip > i.material-icons {
 	margin-left: 5px;
@@ -290,7 +442,7 @@ div.sidenav {
 
 .sidenav-search {
 	top: 0 !important;
-	width: 60% !important;
+	width: 30% !important;
 }
 
 /*.sidenav.sidenav-fixed { z-index: 998 !important; }*/
@@ -410,121 +562,134 @@ div.input-field > label { line-height: initial; }
 
 .bozza {
 	background-color: white;
-	border: 1px solid black;
-	color: black;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .depositato {
 	background-color: white;
-	border: 1px solid #2196F3;
-	color: #2196F3;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .approvato {
 	background-color: white;
-	border: 1px solid #4CAF50;
-	color: #4CAF50;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .approvatomod {
 	background-color: white;
-	border: 1px solid #00796b;
-	color: #00796b;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .NOapprovato {
 	background-color: white;
-	border: 1px solid #F44336;
-	color: #F44336;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .ritirato {
 	background-color: white;
-	border: 1px solid #9E9E9E;
-	color: #9E9E9E;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .decaduto {
 	background-color: white;
-	border: 1px solid #9C27B0;
-	color: #9C27B0;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold;
 }
 
 .inammissibile {
 	background-color: white;
-	border: 1px solid #FFC107;
-	color: #FFC107;
+	border: 2px solid black!important;
+	color: black!important;
 	font-weight: bold;
 }
 
 .bozzaT {
+	border: 2px solid black !important;
 	color: black !important;
 	font-weight: bold !important;
 }
 
 .depositatoT {
-	color: #2196F3 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .approvatoT {
-	color: #4CAF50 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .approvatomodT {
-	color: #00796b !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .NOapprovatoT {
-	color: #F44336 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .ritiratoT {
-	color: #9E9E9E !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .decadutoT {
-	color: #9C27B0 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .inammissibileT {
-	color: #FFC107 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .trattazioneT {
-	color: #00cee6 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .comunicazioneAssembleaT {
-	color: #00e676 !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .trattazioneAssembleaT {
-	color: #546e7a !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .altroT {
-	color: #546e7a !important;
+	border: 2px solid black !important;
+	color: black !important;
 	font-weight: bold !important;
 }
 
 .chiusoT {
+	border: 2px solid black !important;
 	color: black !important;
 	font-weight: bold !important;
 }
@@ -601,6 +766,15 @@ div.input-field > label { line-height: initial; }
 	background-color: white;
 	border: 1px solid #4caf50;
 	border-left: 1em solid #4caf50;
+	color: black;
+	font-weight: bold;
+	min-width: unset !important;
+}
+
+.badgeRIS {
+	background-color: white;
+	border: 1px solid #009688;
+	border-left: 1em solid #009688;
 	color: black;
 	font-weight: bold;
 	min-width: unset !important;
@@ -707,8 +881,8 @@ div.input-field > label { line-height: initial; }
 
 .trattazione {
 	background-color: white;
-	border: 1px solid #00cee6;
-	color: #00cee6;
+	border: 1px solid #009688;
+	color: #009688;
 	font-weight: bold;
 }
 
@@ -881,4 +1055,58 @@ span.highlight { background-color: yellow; }
 .empty-room {
 	background-color: yellow;
 	height: 44px;
+}
+
+.pagination-container {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+}
+
+.pagination-container .pagination {
+	margin: 0; /* Rimuove margini predefiniti per allineare meglio gli elementi */
+}
+
+.pagination-container .chip {
+	margin: 0; /* Opzionale: Rimuove margini predefiniti dal chip se necessario */
+}
+
+.modal .select-dropdown.dropdown-content {
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.swal-button{
+	color: black !important;
+}
+
+a.collection-item{
+	color: black!important;
+}
+
+.dropdown-content li > a, .dropdown-content li > span{
+	color:black!important;
+}
+
+.material-icons.prefix {
+	color: black !important;
+}
+
+.btn-flat {
+	text-align: center !important;
+	max-width: 90%; /* Evita che il bottone occupi troppo spazio */
+	width: auto;
+	display: inline-block; /* Mantieni il layout flessibile */
+	margin: 5px;
+}
+
+select.readonly {
+	pointer-events: none; /* Disabilita i clic */
+	background-color: #f9f9f9; /* Colore di sfondo simile a readonly */
+	color: #555; /* Colore del testo */
+}
+
+:focus {
+	outline: 4px solid #007BFF; /* Un bordo visibile e chiaro */
+	outline-offset: 4px;
 }

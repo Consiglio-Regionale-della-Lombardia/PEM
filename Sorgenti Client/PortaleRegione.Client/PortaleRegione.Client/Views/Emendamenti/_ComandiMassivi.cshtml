@@ -3,7 +3,7 @@
 @if (!Model.Atto.Chiuso)
 {
     <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
-        <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
+        <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="bottom">
             <i class="large material-icons">playlist_add</i>
         </a>
         <ul>
@@ -12,9 +12,9 @@
                 if (Model.Mode != ClientModeEnum.TRATTAZIONE) // #808 Trattazione AULA: operazioni consentite
                 {
                     <li>
-                        <a id="btnDepositaMassivo" class="btn-floating btn-large purple darken-1 tooltipped" onclick="RevealMassivo(@Html.Raw((int)ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
+                        <button type="button" role="button" id="btnDepositaMassivo" class="btn-floating btn-large black white-text tooltipped" onclick="RevealMassivo(@Html.Raw((int)ActionEnum.DEPOSITA))" data-position="bottom" data-tooltip="Deposito massivo">
                             <i class="material-icons">lock</i>
-                        </a>
+                        </button>
                     </li>
                 }
             }else if (User.IsInRole(RuoliExt.Consigliere_Regionale)
@@ -22,33 +22,33 @@
                 || User.IsInRole(RuoliExt.Presidente_Regione))
             {
                 <li>
-                    <a id="btnFirmaMassivo" class="btn-floating btn-large green tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.FIRMA))" data-position="left" data-tooltip="Firma massiva">
+                    <button type="button" role="button" id="btnFirmaMassivo" class="btn-floating btn-large black white-text tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.FIRMA))" data-position="bottom" data-tooltip="Firma massiva">
                         <i class="material-icons">gavel</i>
-                    </a>
+                    </button>
                 </li>
                 <li>
-                    <a id="btnDepositaMassivo" class="btn-floating btn-large purple darken-1 tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
+                    <button type="button" role="button" id="btnDepositaMassivo" class="btn-floating btn-large black white-text tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.DEPOSITA))" data-position="bottom" data-tooltip="Deposito massivo">
                         <i class="material-icons">lock</i>
-                    </a>
+                    </button>
                 </li>
             }
 
             <li>
-                <a id="btnInvitaMassivo" class="btn-floating btn-large amber tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.INVITA))" data-position="left" data-tooltip="Invito massivo">
+                <button type="button" role="button" id="btnInvitaMassivo" class="btn-floating btn-large black white-text tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.INVITA))" data-position="bottom" data-tooltip="Invito massivo">
                     <i class="material-icons">send</i>
-                </a>
+                </button>
             </li>
             <li>
-                <a class="btn-floating btn-large grey tooltipped" onclick="DeselectALLEM()" data-position="left" data-tooltip="Annulla">
+                <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="DeselectALLEM()" data-position="bottom" data-tooltip="Annulla">
                     <i class="material-icons">undo</i>
-                </a>
+                </button>
             </li>
         </ul>
     </div>
 
     <div id="btnNuovoEM" class="fixed-action-btn" style="display: block">
-        <a id="btnCreaEM" class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo emendamento">
+        <button type="button" role="button" id="btnCreaEM" class="btn-floating btn-large blue darken-3 tooltipped" data-position="bottom" data-tooltip="Nuovo emendamento">
             <i class="large material-icons">add</i>
-        </a>
+        </button>
     </div>
 }

@@ -42,6 +42,7 @@
     <Compile Include="ICommiRepository.cs" />
     <Compile Include="IDASIRepository.cs" />
     <Compile Include="IEmendamentiRepository.cs" />
+    <Compile Include="IFiltriRepository.cs" />
     <Compile Include="IFirmeRepository.cs" />
     <Compile Include="IGruppiRepository.cs" />
     <Compile Include="ILegislatureRepository.cs" />
@@ -49,11 +50,14 @@
     <Compile Include="INotificheRepository.cs" />
     <Compile Include="INotifiche_DestinatariRepository.cs" />
     <Compile Include="IPersoneRepository.cs" />
+    <Compile Include="IReportsRepository.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="IAttiRepository.cs" />
     <Compile Include="IRuoliRepository.cs" />
     <Compile Include="ISeduteRepository.cs" />
+    <Compile Include="ISessionsRepository.cs" />
     <Compile Include="IStampeRepository.cs" />
+    <Compile Include="ITemplatesRepository.cs" />
     <Compile Include="IUnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

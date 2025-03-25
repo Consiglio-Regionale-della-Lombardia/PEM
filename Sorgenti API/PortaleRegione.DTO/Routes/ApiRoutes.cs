@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json.Linq;
+
 namespace PortaleRegione.DTO.Routes
 {
     public static class ApiRoutes
@@ -38,6 +40,7 @@ namespace PortaleRegione.DTO.Routes
             public const string EliminaUtente = Base + "/persone/{id}/elimina";
             public const string SalvaGruppo = Base + "/gruppi/salva-gruppo";
             public const string GetGruppi = Base + "/gruppi/all";
+            public const string GetSessions = Base + "/users/sessions";
         }
 
         public static class Autenticazione
@@ -46,6 +49,8 @@ namespace PortaleRegione.DTO.Routes
             private const string Base = Root + "/auth";
 
             public const string Login = Base + "/login";
+            public const string Logout = Base + "/logout";
+
             public const string CambioRuolo = Base + "/cambio-ruolo/{ruolo}";
             public const string CambioGruppo = Base + "/cambio-gruppo/{gruppo}";
         }
@@ -195,6 +200,25 @@ namespace PortaleRegione.DTO.Routes
             public const string GetModificaModello = Base + "/edit/model/{id}";
             public const string AggiornaMetaDati = Base + "/edit/model/meta";
             public const string Save = Base + "/save";
+            public const string Save_GeneralInfos = Base + "/save/general-infos";
+            public const string Save_AddReference = Base + "/save/add-reference";
+            public const string Remove_Reference = Base + "/save/remove-reference";
+            public const string Save_AddAnswer = Base + "/save/add-answer";
+            public const string Remove_Answer = Base + "/save/remove-answer";
+            public const string Save_DetailAnswer = Base + "/save/detail-answer";
+            public const string Save_InfoAnswer = Base + "/save/information-answer";
+            public const string Save_AddMonitoring = Base + "/save/add-monitoring";
+            public const string Remove_Monitoring = Base + "/save/remove-monitoring";
+            public const string Save_InfoMonitoring = Base + "/save/info-monitoring";
+            public const string Save_InfoClosureFlow = Base + "/save/info-closure-flow";
+            public const string Save_Note = Base + "/save/note";
+            public const string Remove_Note = Base + "/save/remove-note";
+            public const string Save_Privacy = Base + "/save/privacy";
+            public const string Save_Document = Base + "/save/document";
+            public const string Remove_Document = Base + "/save/remove-document";
+            public const string Public_Document = Base + "/save/public-document";
+            public const string Save_MassiveCommand = Base + "/save/massive";
+
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";
             public const string GetAll_SoloIds = Base + "/all/solo-ids";
@@ -236,9 +260,22 @@ namespace PortaleRegione.DTO.Routes
             public const string StampaImmediata = Base + "/{id}/stampa-immediata";
             public const string StampaImmediataPrivacy = Base + "/{id}/stampa-immediata-privacy";
             public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
-            public const string SaveCartaceo = Base + "/save-draft";
-            public const string CambiaPrioritaFirma = Base + "/change-signature-priority";
             public const string CambiaOrdineVisualizzazioneFirme = Base + "/change-signature-order-view";
+            public const string SaveCartaceo = Base + "/salva-bozza-cartacea";
+            public const string CambiaPrioritaFirma = Base + "/cambia-priorità-firma";
+            public const string SalvaFiltriPreferiti = Base + "/filters/salva";
+            public const string GetFiltriPreferiti = Base + "/filters";
+            public const string EliminaFiltriPreferiti = Base + "/filters/elimina";
+            public const string GeneraReport = Base + "/reports/genera";
+            public const string GeneraZIP = Base + "/reports/genera-zip";
+            public const string SalvaReport = Base + "/reports/salva";
+            public const string EliminaReport = Base + "/reports/elimina";
+            public const string GetReports = Base + "/reports";
+            public const string GetAbbinamentiDisponibili = Base + "/filters/abbinamenti-disponibili";
+            public const string GetGruppiDisponibili = Base + "/filters/gruppi-disponibili";
+            public const string GetOrganiDisponibili = Base + "/filters/organi-disponibili";
+            public const string GetReportsCovers = Base + "/reports/templates/covers";
+            public const string GetReportsCardTemplates = Base + "/reports/templates/cards";
         }
 
         public static class Notifiche
@@ -288,6 +325,7 @@ namespace PortaleRegione.DTO.Routes
 
             public const string EsportaGrigliaZip = Base + "/dasi/griglia-zip";
             public const string EsportaGrigliaExcelDasi = Base + "/dasi/griglia-xlsx";
+            public const string EsportaGrigliaExcelConsiglieriDasi = Base + "/dasi/griglia-xlsx-consiglieri";
             public const string EsportaGrigliaExcel = Base + "/pem/griglia-xls";
             public const string EsportaGrigliaExcelUOLA = Base + "/pem/griglia-xls-uola";
             public const string EsportaGrigliaWord = Base + "/pem/griglia-doc/{id}/{ordine}/{mode}";
@@ -299,10 +337,12 @@ namespace PortaleRegione.DTO.Routes
             private const string Base = Root + "/persone";
 
             public const string GetAll = Base + "/all";
+            public const string GetProponentiFirmatari = Base + "/proponenti-firmatari";
             public const string GetPersona = Base + "/{id}/{is_giunta}";
             public const string CheckPin = Base + "/check-pin";
             public const string CambioPin = Base + "/cambio-pin";
             public const string ResetPin = Base + "/reset-pin";
+
         }
 
         public static class Public
@@ -310,7 +350,8 @@ namespace PortaleRegione.DTO.Routes
             // api/public
             private const string Base = Root + "/public";
 
-            public const string ViewEM = Base + "/{id}";
+            public const string ViewEM = Base + "/em/{id}";
+            public const string ViewDASI = Base + "/dasi/{id}/{approvato}";
         }
 
         public static class Ruoli
@@ -335,6 +376,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetInfo = Base + "/{id}/info";
             public const string GetAllInfo = Base + "/all/info";
             public const string Print = Base + "/print";
+            public const string DownloadFolder = Base + "/folder/{nomeFile}/download";
         }
 
         public static class Util
@@ -363,6 +405,16 @@ namespace PortaleRegione.DTO.Routes
                 public const string GetEmendamenti = Base + "/emendamenti";
                 public const string GetAtti = Base + "/atti";
             }
+        }
+
+        public static class Templates
+        {
+            private const string Base = Root + "/templates";
+
+            public const string GetAll = Base + "/all";
+            public const string Get = Base + "/{id}";
+            public const string Delete = Base + "/{id}/delete";
+            public const string Save = Base + "/save";
         }
     }
 }

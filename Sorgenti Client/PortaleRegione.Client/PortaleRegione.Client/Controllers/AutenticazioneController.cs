@@ -32,6 +32,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using static PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -229,16 +230,21 @@ namespace PortaleRegione.Client.Controllers
         }
 
         [HttpPost]
-        public ActionResult Logout()
+        public async Task<ActionResult> Logout()
         {
-            LogoutFlow();
+            await LogoutFlow();
             return RedirectToAction("FormAutenticazione", "Autenticazione");
         }
 
-        private void LogoutFlow()
+        private async Task LogoutFlow()
         {
             if (Response != null)
             {
+                var currentUser = CurrentUser;
+                
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.Persone.Logout(currentUser.UID_persona);
+
                 if (Response.Cookies.AllKeys.Contains("PRCookies1"))
                     Response.Cookies.Remove("PRCookies1");
                 if (Response.Cookies.AllKeys.Contains("PRCookies2"))

@@ -1,77 +1,473 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
 <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
-    <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
+    <button type="button" role="button" class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="bottom">
         <i class="large material-icons">playlist_add</i>
-    </a>
+    </button>
     <ul>
         <li>
-            <a class="btn-floating btn-large approvato tooltipped" onclick="IscriviASedutaMassivoDASI()" data-position="left" data-tooltip="Iscrivi alla seduta">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="IscriviASedutaMassivoDASI()" data-position="bottom" data-tooltip="Iscrivi alla seduta">
                 <i class="material-icons">assignment_turned_in</i> Assegna a seduta
-            </a>
+            </button>
         </li>
         
         <li>
-            <a class="btn-floating btn-large tooltipped depositato" data-position="left" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@StatiAttoEnum.PRESENTATO')">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="bottom" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))')">
                 <i class="material-icons">lock</i>
-            </a>
+            </button>
         </li>
         <li>
-            <a class="btn-floating btn-large tooltipped trattazione" data-position="left" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@StatiAttoEnum.IN_TRATTAZIONE')">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="bottom" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))')">
                 <i class="material-icons">settings_input_antenna</i>
-            </a>
+            </button>
         </li>
         <li>
-            <a class="btn-floating btn-large tooltipped chiuso" data-position="left" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.CHIUSO), '@StatiAttoEnum.CHIUSO')">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="bottom" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.COMPLETATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.COMPLETATO))')">
                 <i class="material-icons">storage</i>
-            </a>
+            </button>
         </li>
         <li>
-            <a class="btn-floating btn-large grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="bottom" data-tooltip="Modifica massiva dati" onclick="openModificaMassiva()">
+                <i class="material-icons">content_copy</i>
+            </button>
+        </li>
+        <li>
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="resetGridSelection()" data-position="bottom" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
-            </a>
+            </button>
         </li>
     </ul>
 </div>
 
-<div id="pnlNuovoCartaceoDASI" class="fixed-action-btn" style="display: block">
-    <a id="btnNuovoCartaceoDASI" class="btn-floating btn-large blue darken-1">
-        <i class="large material-icons">add</i>
-    </a>
-</div>
-
-<div id="modalNuovoCartaceo" class="modal">
+<div id="modalModificaMassiva" class="modal">
     <div class="modal-content">
-        <h4>Presentazione cartacea</h4>
-        <p>seleziona il tipo di atto e il tipo di risposta se necessario</p>
+        <h4>Modifica massiva dati</h4>
+        <ul class="collapsible">
+            <li class="active">
+                <div class="collapsible-header"><i class="material-icons">format_list_bulleted</i>Lista atti selezionati</div>
+                <div class="collapsible-body">
+                    <div class="row">
+                        <div class="col s12 l4 hide-on-med-and-down">
+                        </div>
+                        <div class="col s12 l4 hide-on-med-and-down">
+                            
+                        </div>
+						<div class="col s12 l4 right-align">
+							<button id="btnAutocompletamentoDCR" class="btn-flat blue-text waves-effect waves-green">Auto DCR</button>
+							<button id="btnAutocompletamentoDCCR" class="btn-flat blue-text waves-effect waves-green">Auto DCCR</button>
+						</div>
+                    </div>
+                    <ul class="collection" id="listaMassivaAtti">
+                    </ul>
+                </div>
+            </li>
+            <li>
+                <div class="collapsible-header"><i class="material-icons">tune</i>Dati modificabili massivamente</div>
+                <div class="collapsible-body">
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <select id='Atto_Stato' name='Atto.Stato'>
+                                <option value="" disabled selected>Seleziona stato</option>
+                                <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
+                                <option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
+                                <option value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
+                            </select>
+                            <label for="Atto_Stato">Stato</label>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name='Atto.Stato.Check' />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <input type="date" class="form-control" name="Atto.DataAnnunzio"/>
+                            <label>Data annunzio</label>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="Atto.DataAnnunzio.Check" />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <select id='Atto_TipoChiusuraIter' name='Atto.TipoChiusuraIter'>
+                                <option value="" disabled selected>Seleziona</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)</option>
+                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)</option>
+                            </select>
+                            <label for="Atto_TipoChiusuraIter">Tipo chiusura iter</label>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name='Atto.TipoChiusuraIter.Check' />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <input type="date" class="form-control" name="Atto.DataChiusuraIter"/>
+                            <label>Data chiusura iter</label>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="Atto.DataChiusuraIter.Check" />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <select id='Atto_TipoVotazione' name='Atto.TipoVotazione'>
+                                <option value="" disabled selected>Seleziona</option>
+                                <option value="@Html.Raw((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)</option>
+                                <option value="@Html.Raw((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)</option>
+                                <option value="@Html.Raw((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)</option>
+                            </select>
+                            <label for="Atto_TipoVotazione">Tipo votazione</label>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name='Atto.TipoVotazione.Check' />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <input type="date" class="form-control" name="Atto.DataComunicazioneAssemblea"/>
+                            <label>Data comunicazione assemblea</label>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="Atto.DataComunicazioneAssemblea.Check" />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <p>
+                                <label>
+                                    <input name="Atto.Emendato" type="checkbox" value="true"/>
+                                    <span>Emendato</span>
+                                </label>
+                            </p>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="Atto.Emendato.Check" />
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <p>
+                                <label>
+                                    <input name="Atto.Pubblicato" type="checkbox" value="true"/>
+                                    <span>Pubblicato</span>
+                                </label>
+                            </p>
+                        </div>
+                        <div class="col s4 center">
+                            <p>
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="Atto.Pubblicato.Check"/>
+                                    <span>Abilitato / Disabilitato</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
         <div class="row">
-            <div class="input-field col s4">
-                <select id="NuovoCartaceo_Tipo" onchange="ShowHideTipoRisposta()">
-                </select>
-                <label for="NuovoCartaceo_Tipo">Tipo</label>
-            </div>
-            <div class="input-field col s4" id="panelTipoRispostaCartaceo" style="display: none;">
-                <select id="NuovoCartaceo_TipoRisposta">
-                </select>
-                <label for="NuovoCartaceo_TipoRisposta">Tipo Risposta</label>
-            </div>
-            <div class="input-field col s4">
-                <input id="NuovoCartaceo_Salto" type="number" min="1" step="1" value="1">
-                <label for="NuovoCartaceo_Salto">Quantità</label>
+            <div class="col s12 right-align">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Annulla</a>
+                <a id="btnSalvaModificaMassiva" class="blue-text waves-effect waves-green btn-flat">Salva</a>
             </div>
         </div>
-        
-    </div>
-    <div class="modal-footer">
-        <a id="NuovoCartaceo_Presenta" href="#!" class="modal-close waves-effect waves-green btn-flat">Presenta</a>
     </div>
 </div>
 
 <script>
 	$(document).ready(function () {
 		$('.fixed-action-btn').floatingActionButton({
-			hoverEnabled: false
+			hoverEnabled: true
 		});
-	});
+    });
+
+    var selectedUid = [];
+
+	function openModificaMassiva() {
+		waiting(true);
+
+		// Seleziona tutti i checkbox che hanno un ID che inizia con "chk_Atto_"
+		const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_Atto_"]:checked');
+
+		// Pulisci la lista esistente
+		const listaMassivaAtti = document.getElementById('listaMassivaAtti');
+		listaMassivaAtti.innerHTML = '';
+
+		// Crea un array per tracciare gli atti già aggiunti
+		const addedItems = new Set();
+
+		// Itera sui checkbox selezionati
+		selectedCheckboxes.forEach(checkbox => {
+			// Trova la riga padre del checkbox
+			const row = checkbox.closest('tr');
+			const displayColumn = row.querySelector('td:nth-child(2) .chip');
+
+			if (displayColumn) {
+				const displayText = displayColumn.getAttribute('data-text');
+				const displayId = displayColumn.getAttribute('data-id');
+
+				const oggettoTrovato = risultatiTabella.find(item => item.UIDAtto === displayId);
+				// Aggiungi l'elemento alla lista solo se non è già stato aggiunto
+				if (!addedItems.has(displayId)) {
+					const listItem = document.createElement('li');
+					listItem.className = 'collection-item';
+
+					// Crea gli input per Protocollo, DCR e DCCR
+					listItem.innerHTML = `
+					<span><b>${displayText}</b></span>
+					<div class="row">
+						<div class="input-field col s4">
+							<input type="text" id="protocollo_${displayId}" name="Protocollo_${displayId}" placeholder="Protocollo" value="${oggettoTrovato.Protocollo}">
+							<label for="protocollo_${displayId}" class="active">Protocollo</label>
+						</div>
+						<div class="input-field col s4">
+							<input type="text" id="dcr_${displayId}" name="DCR_${displayId}" placeholder="DCR" value="${oggettoTrovato.DCR}">
+							<label for="dcr_${displayId}" class="active">DCR</label>
+						</div>
+						<div class="input-field col s4">
+							<input type="text" id="dccr_${displayId}" name="DCCR_${displayId}" placeholder="DCCR" value="${oggettoTrovato.DCCR}">
+							<label for="dccr_${displayId}" class="active">DCCR</label>
+						</div>
+					</div>
+				`;
+
+					// Aggiungi l'elemento alla lista
+					listaMassivaAtti.appendChild(listItem);
+					addedItems.add(displayId);
+
+					// Aggiungi l'UID alla lista degli elementi selezionati
+					selectedUid.push(displayId);
+				}
+			}
+		});
+
+		waiting(false);
+		$("#modalModificaMassiva").modal("open");
+	}
+
+
+	document.getElementById('btnAutocompletamentoDCR').addEventListener('click', function() {
+        $("#modalModificaMassiva").modal("close");
+
+        swal({
+            text: "Inserisci il numero iniziale della DCR per poter procedere con l'auto-incremento?",
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "Numero iniziale DCR",
+                    type: "text"
+                }
+            },
+            icon: "info",
+            buttons: ["Annulla", "Procedi"]
+        }).then((value) => {
+            if (value) {
+                console.log("Numero inserito:", value);
+
+                // Converti il valore iniziale in numero
+                let currentValue = parseInt(value, 10);
+
+                selectedUid.forEach(uid => {
+                    let dcrInput = document.getElementById(`dcr_${uid}`);
+                    let dcrValue = parseInt(dcrInput.value, 10);
+
+                    if (dcrValue === 0) {
+                        // Assegna il valore incrementato
+                        dcrInput.value = currentValue;
+                        console.log(`Assegnato ${currentValue} all'input dcr_${uid}`);
+                        // Incrementa il valore per il prossimo input
+                        currentValue++;
+                    }
+                });
+            } else {
+                console.log("Operazione annullata");
+            }
+
+			$("#modalModificaMassiva").modal("open");
+        });
+    });
+    
+    document.getElementById('btnAutocompletamentoDCCR').addEventListener('click', function() {
+        $("#modalModificaMassiva").modal("close");
+
+        swal({
+            text: "Inserisci il numero iniziale della DCCR per poter procedere con l'auto-incremento?",
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "Numero iniziale DCCR",
+                    type: "text"
+                }
+            },
+            icon: "info",
+            buttons: ["Annulla", "Procedi"]
+        }).then((value) => {
+            if (value) {
+                console.log("Numero inserito:", value);
+
+                // Converti il valore iniziale in numero
+                let currentValue = parseInt(value, 10);
+
+                selectedUid.forEach(uid => {
+                    let dcrInput = document.getElementById(`dccr_${uid}`);
+                    let dcrValue = parseInt(dcrInput.value, 10);
+
+                    if (dcrValue === 0) {
+                        // Assegna il valore incrementato
+                        dcrInput.value = currentValue;
+                        console.log(`Assegnato ${currentValue} all'input dccr_${uid}`);
+                        // Incrementa il valore per il prossimo input
+                        currentValue++;
+                    }
+                });
+            } else {
+                console.log("Operazione annullata");
+            }
+
+			$("#modalModificaMassiva").modal("open");
+        });
+    });
+
+    document.getElementById('btnSalvaModificaMassiva').addEventListener('click', function () {
+		swal({
+			title: "Salvataggio massivo",
+			text: "Sei sicuro di voler aggiornare massivamente i campi selezionati?",
+			icon: "info",
+			buttons: ["Annulla", "Procedi"]
+		}).then(async (answer) => {
+			if (answer) {
+				waiting(true);
+				var request = {};
+				request.Lista = [];
+				selectedUid.forEach(uid => {
+					let protocollo = document.getElementById(`protocollo_${uid}`).value;
+					let dcr = document.getElementById(`dcr_${uid}`).value;
+					let dccr = document.getElementById(`dccr_${uid}`).value;
+
+					// Crea un oggetto per ogni atto
+					let attoData = {
+						uid: uid,
+						protocollo: protocollo,
+						dcr: dcr,
+						dccr: dccr
+					};
+
+					// Aggiungi l'oggetto alla lista di dati da inviare
+					request.Lista.push(attoData);
+				});
+
+				let datiDaInviare = {};
+
+				// Raccogli sia il valore del checkbox che il valore del campo associato
+				datiDaInviare.statoCheck = document.querySelector("input[name='Atto.Stato.Check']").checked;
+				datiDaInviare.stato = document.querySelector("select[name='Atto.Stato']").value;
+
+				datiDaInviare.dataAnnunzioCheck = document.querySelector("input[name='Atto.DataAnnunzio.Check']").checked;
+				datiDaInviare.dataAnnunzio = document.querySelector("input[name='Atto.DataAnnunzio']").value;
+
+				datiDaInviare.tipoChiusuraIterCheck = document.querySelector("input[name='Atto.TipoChiusuraIter.Check']").checked;
+				datiDaInviare.tipoChiusuraIter = document.querySelector("select[name='Atto.TipoChiusuraIter']").value;
+
+				datiDaInviare.dataChiusuraIterCheck = document.querySelector("input[name='Atto.DataChiusuraIter.Check']").checked;
+				datiDaInviare.dataChiusuraIter = document.querySelector("input[name='Atto.DataChiusuraIter']").value;
+
+				datiDaInviare.tipoVotazioneCheck = document.querySelector("input[name='Atto.TipoVotazione.Check']").checked;
+				datiDaInviare.tipoVotazione = document.querySelector("select[name='Atto.TipoVotazione']").value;
+
+				datiDaInviare.dataComunicazioneAssembleaCheck = document.querySelector("input[name='Atto.DataComunicazioneAssemblea.Check']").checked;
+				datiDaInviare.dataComunicazioneAssemblea = document.querySelector("input[name='Atto.DataComunicazioneAssemblea']").value;
+
+				datiDaInviare.emendatoCheck = document.querySelector("input[name='Atto.Emendato.Check']").checked;
+				datiDaInviare.emendato = document.querySelector("input[name='Atto.Emendato']").checked;
+
+				datiDaInviare.pubblicatoCheck = document.querySelector("input[name='Atto.Pubblicato.Check']").checked;
+				datiDaInviare.pubblicato = document.querySelector("input[name='Atto.Pubblicato']").checked;
+
+				request.Dati = datiDaInviare;
+
+                var url = '@Url.Action("Salva_ComandoMassivo", "DASI")';
+
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(request)
+				});
+
+				if (!response.ok) {
+					waiting(false);
+					throw new Error('Network response was not ok');
+				}
+
+				try {
+					const errorData = await response.json();
+					if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+				} catch (error) {
+					// ignored
+				}
+
+				M.toast({
+					html: `<span>Salva dati massivi completato con successo</span>`,
+					classes: 'rounded',
+					displayLength: 5000
+				});
+
+				setTimeout(function () {
+					location.reload();
+				}, 5000);
+            }
+        });
+
+        
+
+	    waiting(false);
+    });
 
     function ModificaMetaDASI(tipo) {
         openFormDASI(tipo, true);
@@ -100,116 +496,17 @@
 
         if (lchk.length > 0 || $("#checkAll")[0].checked || selezionaTutti) {
             $("#btnComandiMassivi").show();
-            $("#pnlNuovoCartaceoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();
-            $("#pnlNuovoCartaceoDASI").show();
         }
     }
 
-    var itl_tipi_risposta = [
-        { id: @((int)TipoRispostaEnum.ORALE), value: '@(TipoRispostaEnum.ORALE)'},
-        { id: @((int)TipoRispostaEnum.SCRITTA), value: '@(TipoRispostaEnum.SCRITTA)'},
-        { id: @((int)TipoRispostaEnum.COMMISSIONE), value: '@(TipoRispostaEnum.COMMISSIONE)'}
-    ];
-    var itr_tipi_risposta = [
-        { id: @((int)TipoRispostaEnum.SCRITTA), value: '@(TipoRispostaEnum.SCRITTA)'},
-        { id: @((int)TipoRispostaEnum.COMMISSIONE), value: '@(TipoRispostaEnum.COMMISSIONE)'}
-    ];
-    var iqt_tipi_risposta = [
-        { id: @((int)TipoRispostaEnum.IMMEDIATA), value: '@(TipoRispostaEnum.IMMEDIATA)'}
-    ];
-
-    function ShowHideTipoRisposta() {
-        $('#panelTipoRispostaCartaceo').hide();
-        var tipo = $('select[id="NuovoCartaceo_Tipo"]').children("option:selected").val();
-        if (tipo == @((int)TipoAttoEnum.ITL)
-            || tipo == @((int)TipoAttoEnum.ITR)
-            || tipo == @((int)TipoAttoEnum.IQT)) {
-            $('#panelTipoRispostaCartaceo').show();
-            var select = $('#NuovoCartaceo_TipoRisposta');
-            select.empty();
-
-            var tipi_risposta = [];
-            if (tipo == @((int)TipoAttoEnum.ITL)) {
-                tipi_risposta = itl_tipi_risposta;
-            }else if (tipo == @((int)TipoAttoEnum.ITR)) {
-                tipi_risposta = itr_tipi_risposta;
-            }else if (tipo == @((int)TipoAttoEnum.IQT)) {
-                tipi_risposta = iqt_tipi_risposta;
-            }
-
-            $.each(tipi_risposta,
-                function(index, item) {
-                    var template = "<option></option>";
-                    select.append($(template).val(item.id).html(item.value));
-                });
-
-            var elems = document.querySelectorAll("#NuovoCartaceo_TipoRisposta");
-            M.FormSelect.init(elems, null);
-        }
-    }
-
-    $('#btnNuovoCartaceoDASI').on("click",
-        async function() {
-            $('#panelTipoRispostaCartaceo').hide();
-
-            var tipi = await GetTipiDASI();
-            if (tipi.length > 0) {
-                var select = $("#NuovoCartaceo_Tipo");
-                select.empty();
-                $.each(tipi,
-                    function(index, item) {
-                        if (item.IDTipoAtto != @Html.Raw((int)TipoAttoEnum.TUTTI)) {
-                            var template = "<option></option>";
-                            select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
-                        }
-                    });
-
-                var elems = document.querySelectorAll("#NuovoCartaceo_Tipo");
-                M.FormSelect.init(elems, null);
-                ShowHideTipoRisposta();
-            }
-            $('#modalNuovoCartaceo').modal("open");
-        });
-
-    $('#NuovoCartaceo_Presenta').on("click",
-        function() {
-            var obj = {};
-            obj.Tipo = $('select[id="NuovoCartaceo_Tipo"]').children("option:selected").val();
-            obj.TipoRisposta = $('select[id="NuovoCartaceo_TipoRisposta"]').children("option:selected").val();
-            obj.Salto = $('#NuovoCartaceo_Salto').val();
-            $.ajax({
-                url: '@Url.Action("PresentazioneCartacea")',
-                method: "POST",
-                data: JSON.stringify(obj),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
-            }).done(function(data) {
-                if (data.message) {
-                    swal({
-                        title: "Esito salvataggio",
-                        text: data.message,
-                        icon: "error",
-                        button: "OK"
-                    });
-                } else {
-                    swal({
-                        title: "Operazione completata",
-                        icon: "success",
-                        buttons: { cancel: "Annulla", confirm: "Ricarica pagina" }
-                    }).then((value) => {
-                        if (value == null || value == "")
-                            return;
-                
-                        location.reload();
-                    });
-                }
-            }).fail(function(err) {
-                console.log("error", err);
-                Error(err);
-            });
-        });
+    $("#checkAll").click(function() {
+        setSelezionaTutti_DASI(this.checked);
+        setListaAtti([]);
+        $('input[id^="chk_Atto_"]').not(this).prop('checked', this.checked);
+        AbilitaComandiMassivi_DASI(null);
+    });
 
     function resetGridSelection() {
         $("#checkAll").prop("checked", false);

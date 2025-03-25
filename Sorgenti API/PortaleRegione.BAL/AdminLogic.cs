@@ -783,5 +783,93 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
+        public async Task<BaseResponse<TemplatesItemDto>> GetTemplates(PersonaDto currentUser, Uri url)
+        {
+            var resFromDb = await _unitOfWork.Templates.GetAll(currentUser.IsAmministratorePEM);
+            var results = new List<TemplatesItemDto>();
+
+            foreach (var item in resFromDb)
+            {
+                results.Add(new TemplatesItemDto
+                {
+                    Uid = item.Uid,
+                    Nome = item.Nome,
+                    Corpo = item.Corpo,
+                    Testata = item.Testata,
+                    Tipo = item.Tipo,
+                    Visibile = item.Visibile
+                });
+            }
+
+            return new BaseResponse<TemplatesItemDto>(
+                1,
+                150,
+                results,
+                null,
+                results.Count,
+                url);
+        }
+
+        public async Task<TemplatesItemDto> GetTemplateFromDb(Guid uid)
+        {
+            var item = await _unitOfWork.Templates.Get(uid);
+            return new TemplatesItemDto
+            {
+                Uid = item.Uid,
+                Nome = item.Nome,
+                Corpo = item.Corpo,
+                Testata = item.Testata,
+                Tipo = item.Tipo,
+                Visibile = item.Visibile
+            };
+        }
+
+        public async Task DeleteTemplate(TEMPLATES template)
+        {
+           _unitOfWork.Templates.Remove(template);
+           await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task<TemplatesItemDto> SaveTemplate(TemplatesItemDto request)
+        {
+            if (request.Uid.Equals(Guid.Empty))
+            {
+                // Nuovo inserimento
+                var template = new TEMPLATES
+                {
+                    Uid = Guid.NewGuid(),
+                    Nome = request.Nome,
+                    Corpo = request.Corpo,
+                    Testata = request.Testata,
+                    Tipo = request.Tipo,
+                    Visibile = request.Visibile
+                };
+
+                _unitOfWork.Templates.Add(template);
+
+                await _unitOfWork.CompleteAsync();
+
+                request.Uid = template.Uid;
+
+                return request;
+            }
+
+            var templateInDb = await _unitOfWork.Templates.Get(request.Uid);
+            templateInDb.Tipo = request.Tipo; // #1038
+            templateInDb.Corpo = request.Corpo;
+            templateInDb.Testata = request.Testata;
+            templateInDb.Nome = request.Nome;
+            templateInDb.Visibile = request.Visibile;
+            
+            await _unitOfWork.CompleteAsync();
+
+            return request;
+        }
+
+        public async Task<List<SessioniDto>> GetSessioni()
+        {
+            return await _unitOfWork.Sessioni.Get();
+        }
     }
 }

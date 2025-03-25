@@ -1,130 +1,415 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using System.ComponentModel
+@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 @{
-    ViewBag.Title = "DASI";
+	ViewBag.Title = "DASI";
 
-    var classTabPresentati = "";
-    var classTabInTrattazione = "";
-    var classTabChiuso = "";
-    switch (Model.Stato)
-    {
-        case StatiAttoEnum.PRESENTATO:
-            classTabPresentati = "active";
-            break;
-        case StatiAttoEnum.IN_TRATTAZIONE:
-            classTabInTrattazione = "active";
-            break;
-        case StatiAttoEnum.CHIUSO:
-            classTabChiuso = "active";
-            break;
-    }
-    var url = Url.Action("Index", "Home");
+	var url = Url.Action("Index", "Home");
 
-    if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
-    {
-        var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
-        url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
-    }
+	if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
+	{
+		var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
+		url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
+	}
 
-    var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
-    var textTitoloRicerca = filtri_attivi? " - Ricerca": string.Empty;
+	var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
+	var textTitoloRicerca = filtri_attivi ? " - Ricerca" : string.Empty;
 }
 
 <div class="row" style="margin-bottom: unset!important">
-    <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
-            <i class="material-icons">arrow_back</i>
-        </a>
-        <div class="row valign-wrapper">
+	<div class="col s12">
+		<a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@url">
+			<i class="material-icons">arrow_back</i>
+		</a>
+		<div class="row valign-wrapper">
+			<div class="col s12">
+				@if (Model.ClientMode == ClientModeEnum.GRUPPI)
+				{
+					<h4>
+						<b>Riepilogo atti di indirizzo e di sindacato ispettivo @textTitoloRicerca</b>
+					</h4>
+				}
+				else
+				{
+					var tipo = Convert.ToInt16(Model.Tipo);
+					<h4>
+						<div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
+							@PortaleRegione.Common.Utility.GetText_Tipo(tipo)
+						</div>
+						<b> - Riepilogo atti di indirizzo e di sindacato ispettivo  @textTitoloRicerca</b>
+					</h4>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+<hr />
+@{
+    Html.RenderPartial("Filtri/_FiltriRapidiDASIPanel", Model);
+}
+
+<div class="card">
+    <div class="card-content">
+        <div id="contentTable" class="row">
             <div class="col s12">
-                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
-                {
-                    <h4>
-                        <b>Riepilogo atti di indirizzo e di sindacato ispettivo @textTitoloRicerca</b>
-                    </h4>
-                }
-                else
-                {
-                    var tipo = Convert.ToInt16(Model.Tipo);
-                    <h4>
-                        <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
-                            @PortaleRegione.Common.Utility.GetText_Tipo(tipo)
+                <div class="row valign-wrapper">
+                    <div class="col l6 s6">
+                        <label>
+                            <input type="checkbox" id="checkAll"/>
+                            <span for="checkAll">
+                                Seleziona tutti
+                            </span>
+                        </label>
+                    </div>
+					<div class="col l6 s6 right-align">
+                        <button type="button" role="button" class="btn-floating white black-text tooltipped" 
+                                data-tooltip="Ordinamento risultati"
+                                id="btnOrdinamentoRisultati">
+                            <i class="material-icons">sort_by_alpha</i>
+                        </button>
+                        <button type="button" role="button" class="btn-floating white black-text tooltipped" data-tooltip="Colonne griglia" 
+                                id="btnSelezionaColonne">
+                            <i class="material-icons">apps</i>
+                        </button>
+                        <button type="button" role="button" class="btn-floating white black-text tooltipped activator" data-tooltip="Conteggi">
+                            <i class="material-icons">insert_chart</i>
+                        </button>
+                        <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa">
+                            <i class="material-icons">print</i>
+                        </button>
+                        <button type="button" role="button" id="btnExportZip" class="btn-floating white orange-text tooltipped" data-tooltip="Estrazione zip" data-href="@Url.Action("EsportaZipRapido", "DASI")">
+                            <i class="material-icons">archive</i>
+                        </button>
+                        @* #994 *@
+                        <button type="button" role="button" id="btnExportXLS" class="btn-floating white green-text tooltipped" data-tooltip="Estrazione rapida in excel"
+                                data-href="@Url.Action("EsportaXLSRapido", "DASI")">
+                            <i class="material-icons left">grid_on</i>
+                        </button>
+                       
+                        <button type="button" role="button" id="btnGoToPreviewAdmin" class="btn-floating white black-text tooltipped" onclick="gotoPreviewModeAdmin()" data-tooltip="">
+                            
+                        </button>
+					</div>
+				</div>
+                <div class="row">
+                    <div class="col s12">
+                        <div id="paginazione-container-top" class="pagination-container">
+     
                         </div>
-                        <b> - Riepilogo atti di indirizzo e di sindacato ispettivo  @textTitoloRicerca</b>
-                    </h4>
-                }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <div id="loadingSpinner" class="progress">
+                            <div class="indeterminate"></div>
+                        </div>
+                        <div id="tableResults">
+                            <div class="card-panel blue lighten-5 center">
+                                <span class="center">
+                                    <p>Esegui una ricerca per poter visualizzare gli atti</p>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <div id="paginazione-container-bottom" class="pagination-container">
+     
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<hr />
-@if (Model.ClientMode == ClientModeEnum.GRUPPI)
-{
-    <div class="row center">
-        @{
-            Html.RenderPartial("_CounterBar_RiepilogoDASI", Model);
-        }
-    </div>
-}
-
-<div id="contentTable" class="row">
-    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
-    {
-        if (string.IsNullOrEmpty(classTabPresentati)
-        && string.IsNullOrEmpty(classTabInTrattazione)
-        && string.IsNullOrEmpty(classTabChiuso))
-        {
-
-        }
-        else
-        {
-            <div class="col s12">
-                <ul class="tabs">
-                    <li class="tab col l4 s12">
-                        <a class="@classTabPresentati" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.PRESENTATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
-                            Depositati (@Model.CountBarData.PRESENTATI)
-                        </a>
-                    </li>
-                    <li class="tab col l4 s12">
-                        <a class="@classTabInTrattazione" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.IN_TRATTAZIONE));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
-                            In Trattazione (@Model.CountBarData.IN_TRATTAZIONE)
-                        </a>
-                    </li>
-                    <li class="tab col l4 s12">
-                        <a class="@classTabChiuso" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.CHIUSO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
-                            Chiusi (@Model.CountBarData.CHIUSO)
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        }
-    }
-    
-    <div class="col s12">
-        @{
-            if (Model.ViewMode == ViewModeEnum.GRID)
-            {
-                Html.RenderPartial("_GridView_RiepilogoDASI_Admin", Model);
-            }else
-            {
-                Html.RenderPartial("_ZoomView_RiepilogoDASI", Model);
-            }
-        }
+    <div class="card-reveal">
+        <span class="card-title grey-text text-darken-4">Conteggi <i class="material-icons right">close</i></span>
+        <ul class="collection with-header">
+            <li class="collection-header"><h4>Tipi atto</h4></li>
+            <li class="collection-item">
+                <div>TOTALE <span class="secondary-content">@Model.CountBarData.TUTTI</span></div></li>
+            <li class="collection-item">
+                <div>ITL <span class="secondary-content">@Model.CountBarData.ITL</span></div></li>
+            <li class="collection-item">
+                <div>ITR <span class="secondary-content">@Model.CountBarData.ITR</span></div></li>
+            <li class="collection-item">
+                <div>IQT <span class="secondary-content">@Model.CountBarData.IQT</span></div></li>
+            <li class="collection-item">
+                <div>MOZ <span class="secondary-content">@Model.CountBarData.MOZ</span></div></li>
+            <li class="collection-item">
+                <div>ODG <span class="secondary-content">@Model.CountBarData.ODG</span></div></li>
+            <li class="collection-item">
+                <div>RIS <span class="secondary-content">@Model.CountBarData.RIS</span></div></li>
+        </ul>
+        <ul class="collection with-header">
+            <li class="collection-header"><h4>Stati atto</h4></li>
+			@if (!Model.CurrentUser.IsSegreteriaAssemblea)
+			{
+			    <li class="collection-item">
+                    <div>BOZZE <span class="secondary-content">@Model.CountBarData.BOZZE</span></div></li>
+			}
+            <li class="collection-item">
+				<div>PRESENTATI <span class="secondary-content">@Model.CountBarData.PRESENTATI</span></div></li>
+            <li class="collection-item">
+				<div>IN TRATTAZIONE <span class="secondary-content">@Model.CountBarData.IN_TRATTAZIONE</span></div></li>
+            <li class="collection-item">
+				<div>CHIUSO <span class="secondary-content">@Model.CountBarData.CHIUSO</span></div></li>
+        </ul>
     </div>
 </div>
+
 
 @{
-    Html.RenderPartial("_IscriviASedutaModal");
-    Html.RenderPartial("_PannelloRicerche", Model);
-    Html.RenderPartial("_ComandiDASI_Admin");
-    Html.RenderPartial("_MetaDatiPanelPartial", Model);
-    Html.RenderPartial("_GeasiViewPartial");
-    Html.RenderPartial("_StampaModal");
-    Html.RenderPartial("_CartaceoPanelPartial", Model);
+	Html.RenderPartial("_IscriviASedutaModal");
+	Html.RenderPartial("_PannelloRicerche", Model);
+	Html.RenderPartial("_ComandiDASI_Admin");
+	Html.RenderPartial("_MetaDatiPanelPartial", Model);
+	Html.RenderPartial("_GeasiViewPartial");
+	Html.RenderPartial("_StampaModal");
+	Html.RenderPartial("_CartaceoPanelPartial", Model);
 
-    Html.RenderPartial("_ScriptRiepilogoDASI", Model);
+	Html.RenderPartial("_ScriptRiepilogoDASI", Model);
 }
 
+<div id="modalOrdinamentoRisultati" class="modal">
+    <div class="modal-content">
+        <h4>Seleziona le colonne della griglia da ordinare</h4>
+        <div class="row">
+            <div class="input-field col s12">
+                <select name="sort-columns-grid" id="sort-columns-grid-select" onchange="handleSortColumnChange()">
+                    <option value="" disabled selected>Seleziona</option>
+                    @foreach (var prop in typeof(AttiDASISorting).GetProperties())
+                    {
+                        var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                            .Cast<DisplayNameAttribute>()
+                            .FirstOrDefault()?.DisplayName ?? prop.Name;
+
+                        <option value="@prop.Name">@displayName</option>
+                    }
+                </select>
+            </div>
+            <div class="col s12">
+                <table class="highlight">
+                    <thead>
+                    <tr>
+                        <th>Colonna</th>
+                        <th>Ordinamento</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="sort-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" role="button" href="#!" class="modal-close btn-flat">Annulla</button>
+        <button type="button" role="button" onclick="btnResetOrdinamentoColonneGriglia()" class="btn-flat red-text">Reset</button>
+        <button type="button" role="button" onclick="btnSalvaOrdinamentoColonneGriglia()" class="btn-flat blue-text">Salva</button>
+    </div>
+</div>
+
+<div id="modalColonneGriglia" class="modal">
+    <div class="modal-content">
+        <div class="row">
+            <div class="col s12">
+                <h4>Seleziona le colonne della griglia</h4>
+                <ul id="columns-grid-list" class="collection" style="height: 450px; overflow-y:auto">
+                    @foreach (var prop in typeof(AttiDASIColums).GetProperties())
+                    {
+                        var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                            .Cast<DisplayNameAttribute>()
+                            .FirstOrDefault()?.DisplayName ?? prop.Name;
+                        <li class="collection-item">
+                            <label>
+                                <!-- The checkbox value will be the property name -->
+                                <input type="checkbox" value="@prop.Name"/>
+                                <span>@displayName</span>
+                            </label>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+	<div class="modal-footer">
+		<button type="button" class="btn-flat modal-close">Annulla</button>
+		<button type="button" onclick="btnResetColonneGriglia()" class="btn-flat red-text">Reset</button>
+		<button type="button" onclick="btnSalvaColonneGriglia()" class="btn-flat blue-text">Salva</button>
+	</div>
+</div>
+
+<script>
+    document.getElementById('btnSelezionaColonne').addEventListener('click', function () {
+        waiting(true);
+
+        // Retrieve the saved columns (an array of objects with propertyName and displayText)
+        const savedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
+
+        // For each checkbox in the list, check if its value is among the saved columns
+        document.querySelectorAll('#columns-grid-list input[type="checkbox"]').forEach(chk => {
+            const isSelected = savedColumns.some(col => col.propertyName === chk.value);
+            chk.checked = isSelected;
+        });
+
+        waiting(false);
+        $('#modalColonneGriglia').modal("open");
+    });
+	
+	document.getElementById('btnOrdinamentoRisultati').addEventListener('click', function () {
+		openOrdinamentoModal();
+	});
+
+    function openOrdinamentoModal() {
+		const savedColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+
+		const sortList = document.getElementById('sort-list');
+		sortList.innerHTML = ''; // Svuota la lista corrente
+
+		savedColumns.forEach(item => {
+			// Crea una riga per ciascuna colonna salvata
+			const row = document.createElement("tr");
+
+			row.innerHTML = `
+                <td>${item.displayText}</td>
+                <td>
+                    <select data-column="${item.propertyName}" onchange="updateSortDirection('${item.propertyName}', this.value)">
+                        <option value="1" ${item.sortDirection === "1" ? "selected" : ""}>Crescente</option>
+                        <option value="-1" ${item.sortDirection === "-1" ? "selected" : ""}>Decrescente</option>
+                    </select>
+                </td>
+                <td>
+                    <button type="button" role="button" onclick="removeSortColumn('${item.propertyName}', this)" class="btn-flat red-text">Rimuovi</button>
+                </td>
+            `;
+
+			// Aggiunge la riga alla tabella
+			sortList.appendChild(row);
+		});
+
+		// Inizializza i selettori di Materialize (se necessario)
+		$("select").formSelect();
+
+		$('#modalOrdinamentoRisultati').modal("open");
+    }
+
+	function handleSortColumnChange() {
+		const select = document.getElementById("sort-columns-grid-select");
+		const selectedColumn = select.options[select.selectedIndex].value;
+		const displayText = select.options[select.selectedIndex].text;
+
+		// Controlla se la colonna è già presente nella lista
+		if (!selectedSortColumns.includes(selectedColumn)) {
+			selectedSortColumns.push(selectedColumn);
+
+			// Crea una nuova riga per la colonna selezionata con l'opzione di ordinamento
+			const sortList = document.getElementById("sort-list");
+			const row = document.createElement("tr");
+
+			// Imposta il contenuto della riga
+			row.innerHTML = `
+            <td>${displayText}</td>
+            <td>
+                <select data-column="${selectedColumn}" onchange="updateSortDirection('${selectedColumn}', this.value)">
+                    <option value="1">Crescente</option>
+                    <option value="-1">Decrescente</option>
+                </select>
+            </td>
+            <td>
+                <button type="button" role="button" onclick="removeSortColumn('${selectedColumn}', this)" class="btn-flat red-text">Rimuovi</button>
+            </td>
+        `;
+
+			// Aggiungi la nuova riga alla tabella
+			sortList.appendChild(row);
+
+			// Reinizializza il selettore per Materialize
+			$("select").formSelect();
+		}
+	}
+
+	// Funzione per aggiornare la direzione dell’ordinamento
+	function updateSortDirection(column, direction) {
+		selectedSortColumns = selectedSortColumns.map(item =>
+			item === column ? { column, direction: parseInt(direction) } : item
+		);
+	}
+
+	// Funzione per rimuovere la colonna di ordinamento
+	function removeSortColumn(column, element) {
+		// Rimuovi la colonna dalla lista
+		selectedSortColumns = selectedSortColumns.filter(item => item.column !== column);
+
+		// Rimuovi la riga dalla tabella
+		const row = element.closest("tr");
+		row.remove();
+	}
+
+    function btnResetColonneGriglia() {
+        // Reset saved columns in local storage
+        localStorage.setItem('selectedColumns', JSON.stringify([]));
+
+        // Uncheck all checkboxes in the collection
+        document.querySelectorAll('#columns-grid-list input[type="checkbox"]').forEach(chk => {
+            chk.checked = false;
+        });
+
+        // Refresh your grid or chip data as needed
+        inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+    }
+
+    function btnSalvaColonneGriglia() {
+        // Gather selected columns from the checkboxes
+        const selectedColumns = Array.from(
+            document.querySelectorAll('#columns-grid-list input[type="checkbox"]:checked')
+        ).map(chk => ({
+            propertyName: chk.value,  // the property name value
+            displayText: chk.parentElement.querySelector("span").textContent // the display text
+        }));
+
+        // Save the selected columns to local storage
+        localStorage.setItem('selectedColumns', JSON.stringify(selectedColumns));
+
+        // Refresh the grid/chips data based on the new selection
+        inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+
+        // Close the modal
+        $('#modalColonneGriglia').modal('close');
+    }
+
+	// Salva l'ordinamento selezionato
+	function btnSalvaOrdinamentoColonneGriglia() {
+		const selectedColumns = Array.from(document.querySelectorAll('#sort-list tr')).map(row => {
+			const propertyName = row.querySelector('select').getAttribute('data-column');
+			const displayText = row.querySelector('td:first-child').innerText;
+			const sortDirection = row.querySelector('select').value; // Direzione ordinamento
+
+			return {
+				propertyName: propertyName,
+				displayText: displayText,
+				sortDirection: sortDirection
+			};
+		});
+
+		// Salva le colonne selezionate con l'ordinamento nel local storage
+		localStorage.setItem('selectedSortColumns', JSON.stringify(selectedColumns));
+        		
+		location.reload();
+	}
+
+	function btnResetOrdinamentoColonneGriglia() {
+		// Cancella l'ordinamento salvato dal local storage
+		localStorage.removeItem('selectedSortColumns');
+
+		// Ripristina l'elenco delle colonne e aggiorna la tabella
+		selectedSortColumns = [];
+
+		// Svuota l'elemento di visualizzazione dell'ordinamento
+		document.getElementById('sort-list').innerHTML = '';
+		location.reload();
+	}
+</script>

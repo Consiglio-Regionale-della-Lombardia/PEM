@@ -18,6 +18,7 @@
 
 using System.Collections.Generic;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.DTO.Model
 {
@@ -27,7 +28,8 @@ namespace PortaleRegione.DTO.Model
         public IEnumerable<PersonaDto> ListaGruppo { get; set; }
         public IEnumerable<PersonaDto> ListaAssessori { get; set; }
         public IEnumerable<PersonaDto> ListaConsiglieri { get; set; }
-        public List<CommissioneDto> CommissioniAttive { get; set; }
+        public IEnumerable<PersonaPublicDto> ListaConsiglieriPublic { get; set; }
+        public List<OrganoDto> CommissioniAttive { get; set; }
         public PersonaDto CurrentUser { get; set; }
     }
 }

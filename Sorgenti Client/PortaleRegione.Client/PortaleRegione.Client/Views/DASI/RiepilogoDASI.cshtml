@@ -21,7 +21,7 @@
         case StatiAttoEnum.IN_TRATTAZIONE:
             classTabTrattazione = "active";
             break;
-        case StatiAttoEnum.CHIUSO:
+        case StatiAttoEnum.COMPLETATO:
             classTabChiusi = "active";
             break;
     }
@@ -42,7 +42,7 @@
 
 <div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
+        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@url">
             <i class="material-icons">arrow_back</i>
         </a>
         <div class="row valign-wrapper">
@@ -104,7 +104,7 @@
                         </a>
                     </li>
                     <li class="tab col l3 s12">
-                        <a class="@classTabChiusi" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.CHIUSO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
+                        <a class="@classTabChiusi" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.COMPLETATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
                             Chiusi (@Model.CountBarData.CHIUSO)
                         </a>
                     </li>
@@ -132,7 +132,7 @@
     Html.RenderPartial("_ProponiMozioneUrgenteModal");
     Html.RenderPartial("_ProponiMozioneAbbinataModal");
     Html.RenderPartial("_RichiestaIscrizioneASedutaModal", true);
-    Html.RenderPartial("_PannelloRicerche");
+    Html.RenderPartial("_PannelloRicercheConsiglieri");
     Html.RenderPartial("_ComandiDASI");
     Html.RenderPartial("_GeasiViewPartial");
     Html.RenderPartial("_ScriptRiepilogoDASI");
@@ -261,8 +261,8 @@ function ConfirmActionDASI(id, name, action) {
         <h5 id="attoActionDisplayName"></h5>
         <p id="attoActionMessage"></p>
         <div class="modal-footer" style="position: unset !important;">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaActionDASI" class="btn red" href="#">Elimina</a>
+            <button type="button" role="button" class="btn-flat modal-close grey-text">Annulla</button>
+            <button type="button" role="button" id="btnConfermaActionDASI" class="btn-flat red-text" href="#">Elimina</button>
         </div>
     </div>
 </div>

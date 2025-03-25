@@ -3,7 +3,7 @@
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
@@ -137,11 +137,11 @@
                             <p>UOLA</p>
                         </div>
                         <div class="card-action">
-                            <a class="btn-flat blue-text"
+                            <button type="button" role="button" class="btn-flat blue-text"
                                onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new { id = new Guid("ac98da99-862d-4cff-90e7-d5b324aaa7ae") })')" title="Entra">
                                 <i class="material-icons right">lock_open</i>
                                 Entra
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -151,11 +151,11 @@
                             <p>Consigliere Capogruppo (PD)</p>
                         </div>
                         <div class="card-action">
-                            <a class="btn-flat blue-text"
+                            <button type="button" role="button" class="btn-flat blue-text"
                                onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new { id = new Guid("8870e6d1-fe1b-4038-a185-d8f26cb07044") })')" title="Entra">
                                 <i class="material-icons right">lock_open</i>
                                 Entra
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -165,11 +165,11 @@
                             <p>Consigliere (M5S)</p>
                         </div>
                         <div class="card-action">
-                            <a class="btn-flat blue-text"
+                            <button type="button" role="button" class="btn-flat blue-text"
                                onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new { id = new Guid("3e77df9c-9e3c-e811-910f-00155d4d0224") })')" title="Entra">
                                 <i class="material-icons right">lock_open</i>
                                 Entra
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -184,6 +184,9 @@
 
 <script>
     $('.trumbowyg').trumbowyg({
+		//semantic: true, // Usa tag semantici validi
+		//tagsToKeep: ['b', 'i', 'u', 'strong', 'em'], // Specifica i tag consentiti
+		//removeformatPasted: true, // Rimuovi formattazioni strane durante il paste
         lang: 'it',
         btns: [
             ['viewHTML'],
@@ -208,6 +211,7 @@
             }
         }
     });
+
     var devPanelCounter = 0;
     $("body").on("keyup",
         function(event) {

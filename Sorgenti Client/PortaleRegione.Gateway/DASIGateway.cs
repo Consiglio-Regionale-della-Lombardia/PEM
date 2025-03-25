@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using PortaleRegione.Common;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.Gateway
 {
@@ -54,6 +55,133 @@ namespace PortaleRegione.Gateway
             var body = JsonConvert.SerializeObject(request);
             var result = JsonConvert.DeserializeObject<AttoDASIDto>(await Post(requestUrl, body, _token));
             return result;
+        }
+
+        public async Task Salva_InformazioniGenerali(AttoDASI_InformazioniGeneraliDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_GeneralInfos}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_AddReference}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Rimuovi_Abbinamento(AttiAbbinamentoDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Reference}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+        
+        public async Task Rimuovi_Risposta(AttiRisposteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Answer}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Salva_DettagliRisposta(AttiRisposteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_DetailAnswer}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+        
+        public async Task Salva_InformazioniRisposta(AttoDASIDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_InfoAnswer}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Salva_NuovoMonitoraggio(AttiRisposteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_AddMonitoring}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+        
+        public async Task Rimuovi_Monitoraggio(AttiRisposteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Monitoring}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Salva_InfoMonitoraggio(AttoDASIDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_InfoMonitoring}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+        
+        public async Task Salva_InfoChiusuraIter(AttoDASIDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_InfoClosureFlow}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task<AttiRisposteDto> Salva_NuovaRisposta(AttiRisposteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_AddAnswer}";
+            var body = JsonConvert.SerializeObject(request);
+            var risposta = JsonConvert.DeserializeObject<AttiRisposteDto>(await Post(requestUrl, body, _token));
+            return risposta;
+        }
+        
+        public async Task Salva_Nota(NoteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_Note}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+        
+        public async Task Rimuovi_Nota(NoteDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Note}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Salva_PrivacyAtto(AttoDASIDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_Privacy}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task<AttiDocumentiDto> Salva_DocumentoAtto(SalvaDocumentoRequest request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_Document}";
+            var body = JsonConvert.SerializeObject(request);
+            var documento = JsonConvert.DeserializeObject<AttiDocumentiDto>(await Post(requestUrl, body, _token));
+            return documento;
+        }
+
+        public async Task Rimuovi_Documento(AttiDocumentiDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_Document}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+        public async Task Pubblica_Documento(AttiDocumentiDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Public_Document}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_MassiveCommand}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
         }
 
         public async Task<AttoDASIDto> Get(Guid id)
@@ -239,7 +367,7 @@ namespace PortaleRegione.Gateway
             var model = new BaseRequest<AttoDASIDto>
             {
                 page = 1,
-                size = 50,
+                size = 20,
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.TRATTAZIONE } }
             };
             var filtroSeduta = new FilterStatement<AttoDASIDto>
@@ -257,7 +385,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<RiepilogoDASIModel> GetBySeduta_Trattazione(Guid id, TipoAttoEnum tipoAtto, string uidAtto,
             int page = 1,
-            int size = 50)
+            int size = 20)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll}";
             var request = new BaseRequest<AttoDASIDto>
@@ -570,6 +698,97 @@ namespace PortaleRegione.Gateway
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.CambiaOrdineVisualizzazioneFirme}";
             var body = JsonConvert.SerializeObject(firme);
             await Post(requestUrl, body, _token);
+        }
+
+        public async Task SalvaGruppoFiltri(FiltroPreferitoDto model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.SalvaFiltriPreferiti}";
+            var body = JsonConvert.SerializeObject(model);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task<List<FiltroPreferitoDto>> GetGruppoFiltri()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetFiltriPreferiti}";
+            var lst = JsonConvert.DeserializeObject<List<FiltroPreferitoDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task EliminaGruppoFiltri(string nomeFiltro)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.EliminaFiltriPreferiti}?nomeFiltro={nomeFiltro}";
+            await Delete(requestUrl, _token);
+        }
+
+        public async Task<FileResponse> GeneraReport(ReportDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GeneraReport}";
+            var body = JsonConvert.SerializeObject(request);
+            var lst = await GetFile(requestUrl, body, _token);
+            return lst;
+        }
+        
+        public async Task<FileResponse> GeneraZIP(ReportDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GeneraZIP}";
+            var body = JsonConvert.SerializeObject(request);
+            var lst = await GetFile(requestUrl, body, _token);
+            return lst;
+        }
+
+        public async Task SalvaReport(ReportDto report)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.SalvaReport}";
+            var body = JsonConvert.SerializeObject(report);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task<List<ReportDto>> GetReports()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetReports}";
+            var lst = JsonConvert.DeserializeObject<List<ReportDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAbbinamentiDisponibili}?legislaturaId={legislaturaId}&page={page}&size={size}";
+            var lst = JsonConvert.DeserializeObject<List<AttoLightDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task<List<GruppiDto>> GetGruppiDisponibili(int legislaturaId, int page, int size)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetGruppiDisponibili}?legislaturaId={legislaturaId}&page={page}&size={size}";
+            var lst = JsonConvert.DeserializeObject<List<GruppiDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetOrganiDisponibili}?legislaturaId={legislaturaId}";
+            var lst = JsonConvert.DeserializeObject<List<OrganoDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task EliminaReport(string nomeReport)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.EliminaReport}?nomeReport={nomeReport}";
+            await Delete(requestUrl, _token);
+        }
+
+        public async Task<List<TemplatesItemDto>> GetReportsCovers()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetReportsCovers}";
+            var lst = JsonConvert.DeserializeObject<List<TemplatesItemDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task<List<TemplatesItemDto>> GetReportsCardTemplates()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetReportsCardTemplates}";
+            var lst = JsonConvert.DeserializeObject<List<TemplatesItemDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)

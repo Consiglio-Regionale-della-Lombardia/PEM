@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
+using System;
 using System.Collections.Generic;
 
 namespace PortaleRegione.Client.Models
@@ -14,5 +16,9 @@ namespace PortaleRegione.Client.Models
 
         public ICollection<Guid> Lista { get; set; }
         public bool Tutti { get; set; } = false;
+
+        public List<FilterItem> filters_dasi { get; set; } = new List<FilterItem>();
+        public List<SortingInfo> sort_settings_dasi { get; set; } = new List<SortingInfo>();
+
     }
 }

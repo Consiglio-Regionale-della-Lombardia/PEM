@@ -16,20 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using ExpressionBuilder.Generics;
-using PortaleRegione.Common;
-using PortaleRegione.Contracts;
-using PortaleRegione.DataBase;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ExpressionBuilder.Generics;
+using ExpressionBuilder.Interfaces;
+using PortaleRegione.BAL;
+using PortaleRegione.Common;
+using PortaleRegione.Contracts;
+using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Routes;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -49,224 +55,145 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, 
-            OrdinamentoEnum ordinamento,
+        public async Task<List<Guid>> GetAll(PersonaDto currentUser,
+            int page,
+            int size,
             ClientModeEnum mode,
-            Filter<ATTI_DASI> filtro = null,
-            List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null,
-            List<int> stati = null, List<Guid> atti_da_firmare = null)
+            Filter<ATTI_DASI> filtro,
+            QueryExtendedRequest queryExtended,
+            List<SortingInfo> dettaglioOrdinamento)
         {
+            var ordinamento_numero_atto = filtro.Statements.Any(f => f.PropertyId == nameof(ATTI_DASI.NAtto));
+            List<int> userOrder = null;
             var query = PRContext
                 .DASI
-                .Where(item => !item.Eliminato);
+                .Where(item => !item.Eliminato
+                               && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
-            var filtro2 = new Filter<ATTI_DASI>();
-            foreach (var f in filtro.Statements)
+            query = ApplyFilters(query, filtro.Statements, queryExtended, mode, currentUser, ref userOrder);
+
+            // #990
+            if (dettaglioOrdinamento != null && dettaglioOrdinamento.Any())
             {
-                if (f.PropertyId == nameof(ATTI_DASI.DataIscrizioneSeduta))
+                var properties = typeof(AttiDASISorting).GetProperties();
+                IOrderedQueryable<ATTI_DASI> orderedQuery = null;
+
+                foreach (var dettaglio in dettaglioOrdinamento)
                 {
-                    var data_iscrizione = Convert.ToDateTime(f.Value.ToString());
-                    query = query.Where(item => item.DataIscrizioneSeduta.Value.Year == data_iscrizione.Year
-                                                && item.DataIscrizioneSeduta.Value.Month == data_iscrizione.Month
-                                                && item.DataIscrizioneSeduta.Value.Day == data_iscrizione.Day);
-                }
-                else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
-                {
-                    query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
-                                                || item.Oggetto_Modificato.Contains(f.Value.ToString())
-                                                || item.Richiesta_Modificata.Contains(f.Value.ToString())
-                                                || item.Premesse.Contains(f.Value.ToString())
-                                                || item.Premesse_Modificato.Contains(f.Value.ToString())
-                                                || item.Richiesta.Contains(f.Value.ToString()));
-                }
-                else
-                    filtro2._statements.Add(f);
-            }
-
-            filtro2.BuildExpression(ref query);
-
-            if (mode == ClientModeEnum.GRUPPI)
-            {
-                query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
-                                            || (atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
-                                                && (atto.UIDPersonaCreazione == persona.UID_persona
-                                                    || atto.UIDPersonaProponente == persona.UID_persona)));
-
-                if (!persona.IsSegreteriaAssemblea
-                    && !persona.IsPresidente)
-                    query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
-            }
-            else
-            {
-                query = query.Where(item => item.DataIscrizioneSeduta.HasValue
-                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
-            }
-
-            if (stati != null)
-            {
-                if (stati.Any())
-                    query = query.Where(i => stati.Contains(i.IDStato));
-            }
-
-            if (soggetti != null)
-                if (soggetti.Count > 0)
-                {
-                    //Avvio ricerca soggetti
-                    var list = await PRContext
-                        .ATTI_SOGGETTI_INTERROGATI
-                        .Where(f => soggetti.Contains(f.id_carica))
-                        .Select(f => f.UIDAtto)
-                        .ToListAsync();
-                    query = query
-                        .Where(item => list.Contains(item.UIDAtto));
-                }
-
-            if (proponenti != null)
-                if (proponenti.Count > 0)
-                    //Avvio ricerca proponenti;
-                    query = query
-                        .Where(atto => proponenti.Contains(atto.UIDPersonaProponente.Value));
-
-            if (provvedimenti != null)
-                if (provvedimenti.Count > 0)
-                    // #541 Avvio ricerca provvedimenti;
-                    query = query
-                        .Where(atto => provvedimenti.Contains(atto.UID_Atto_ODG.Value));
-
-            if (atti_da_firmare != null)
-                if (atti_da_firmare.Any())
-                {
-                    query = query.Where(i => atti_da_firmare.Contains(i.UIDAtto));
-                }
-
-            if (stati != null)
-            {
-                if (stati.Any())
-                {
-                    if (stati.Any(item => item.Equals((int)StatiAttoEnum.BOZZA)))
+                    // Cercare la proprietà corrispondente
+                    var propertyInfo = properties.FirstOrDefault(p => p.Name == dettaglio.propertyName);
+                    if (propertyInfo != null)
                     {
-                        // #946
+                        var parameter = Expression.Parameter(typeof(ATTI_DASI), "item");
+                        var property = Expression.Property(parameter, dettaglio.propertyName);
+                        var lambda = Expression.Lambda(property, parameter);
 
-                        if (ordinamento == OrdinamentoEnum.Crescente)
+                        // Ordinamento crescente o decrescente
+                        if (dettaglio.sortDirection == 1) // Crescente
                         {
-                            query = query
-                                .OrderBy(item => item.Tipo)
-                                .ThenBy(item => item.DataCreazione);
+                            orderedQuery = orderedQuery == null
+                                ? Queryable.OrderBy((dynamic)query, (dynamic)lambda)
+                                : Queryable.ThenBy((dynamic)orderedQuery, (dynamic)lambda);
                         }
-                        else
+                        else // Decrescente
                         {
-                            query = query
-                                .OrderBy(item => item.Tipo)
-                                .ThenByDescending(item => item.DataCreazione);
+                            orderedQuery = orderedQuery == null
+                                ? Queryable.OrderByDescending((dynamic)query, (dynamic)lambda)
+                                : Queryable.ThenByDescending((dynamic)orderedQuery, (dynamic)lambda);
                         }
 
+                        // Se la proprietà corrente è "DCR", aggiungi l'ordinamento su "DCCR"
+                        if (dettaglio.propertyName == nameof(ATTI_DASI.DCR))
+                        {
+                            var secondaryProperty = Expression.Property(parameter, nameof(ATTI_DASI.DCCR));
+                            var secondaryLambda = Expression.Lambda(secondaryProperty, parameter);
+
+                            if (dettaglio.sortDirection == 1) // Crescente
+                            {
+                                orderedQuery = Queryable.ThenBy((dynamic)orderedQuery, (dynamic)secondaryLambda);
+                            }
+                            else // Decrescente
+                            {
+                                orderedQuery =
+                                    Queryable.ThenByDescending((dynamic)orderedQuery, (dynamic)secondaryLambda);
+                            }
+                        }
+                    }
+                }
+
+                if (orderedQuery != null)
+                {
+                    query = orderedQuery;
+
+                    if (page > 0 && size > 0)
                         return await query
                             .Select(item => item.UIDAtto)
                             .Skip((page - 1) * size)
                             .Take(size)
                             .ToListAsync();
-                    }
-                }
-            }
 
-            // #946
-
-            if (ordinamento == OrdinamentoEnum.Crescente)
-            {
-                query = query
-                    .OrderBy(item => item.Tipo)
-                    .ThenBy(item => item.NAtto_search);
-            }
-            else
-            {
-                query = query
-                    .OrderBy(item => item.Tipo)
-                    .ThenByDescending(item => item.NAtto_search);
-            }
-
-            return await query
-                .Select(item => item.UIDAtto)
-                .Skip((page - 1) * size)
-                .Take(size)
-                .ToListAsync();
-        }
-
-        public async Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro,
-            List<int> soggetti, List<int> stati, List<Guid> atti_da_firmare = null)
-        {
-            var query = PRContext
-                .DASI
-                .Where(item => !item.Eliminato && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA);
-
-            var filtro2 = new Filter<ATTI_DASI>();
-            foreach (var f in filtro.Statements)
-                if (f.PropertyId == nameof(ATTI_DASI.DataIscrizioneSeduta))
-                {
-                    var data_iscrizione = Convert.ToDateTime(f.Value.ToString());
-                    query = query.Where(item => item.DataIscrizioneSeduta.Value.Year == data_iscrizione.Year
-                                                && item.DataIscrizioneSeduta.Value.Month == data_iscrizione.Month
-                                                && item.DataIscrizioneSeduta.Value.Day == data_iscrizione.Day);
-                }
-                else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
-                {
-                    query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
-                                                || item.Oggetto_Modificato.Contains(f.Value.ToString())
-                                                || item.Richiesta_Modificata.Contains(f.Value.ToString())
-                                                || item.Premesse.Contains(f.Value.ToString())
-                                                || item.Premesse_Modificato.Contains(f.Value.ToString())
-                                                || item.Richiesta.Contains(f.Value.ToString()));
-                }
-                else
-                    filtro2._statements.Add(f);
-
-            filtro2.BuildExpression(ref query);
-
-            if (mode == ClientModeEnum.GRUPPI)
-            {
-                query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
-                                            || (atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
-                                                && (atto.UIDPersonaCreazione == persona.UID_persona
-                                                    || atto.UIDPersonaProponente == persona.UID_persona)));
-
-                if (!persona.IsSegreteriaAssemblea
-                    && !persona.IsPresidente)
-                    query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
-            }
-            else
-            {
-                query = query.Where(item => item.DataIscrizioneSeduta.HasValue
-                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
-            }
-
-            if (stati.Any())
-                query = query.Where(i => stati.Contains(i.IDStato));
-
-            if (soggetti != null)
-                if (soggetti.Count > 0)
-                {
-                    //Avvio ricerca soggetti
-                    var list = await PRContext
-                        .ATTI_SOGGETTI_INTERROGATI
-                        .Where(f => soggetti.Contains(f.id_carica))
-                        .Select(f => f.UIDAtto)
+                    return await query
+                        .Select(item => item.UIDAtto)
                         .ToListAsync();
-                    query = query
-                        .Where(item => list.Contains(item.UIDAtto));
                 }
-
-            if (atti_da_firmare == null)
-                return await query
-                    .CountAsync();
-
-            if (atti_da_firmare.Any())
-            {
-                query = query.Where(i => atti_da_firmare.Contains(i.UIDAtto));
             }
 
+            if (queryExtended.Stati.Any())
+                if (queryExtended.Stati.Any(item => item.Equals((int)StatiAttoEnum.BOZZA)))
+                {
+                    if (page > 0 && size > 0)
+                        return await query
+                            .OrderBy(item => item.Tipo)
+                            .ThenByDescending(item => item.DataCreazione)
+                            .Select(item => item.UIDAtto)
+                            .Skip((page - 1) * size)
+                            .Take(size)
+                            .ToListAsync();
+
+                    return await query
+                        .OrderBy(item => item.Tipo)
+                        .ThenByDescending(item => item.DataCreazione)
+                        .Select(item => item.UIDAtto)
+                        .ToListAsync();
+                }
+
+            if (ordinamento_numero_atto)
+            {
+                if (page > 0 && size > 0)
+                {
+                    var resultReorderPaginated = await query
+                        .OrderBy(a => a.Eliminato)
+                        .Select(item => new { item.UIDAtto, item.NAtto_search })
+                        .Skip((page - 1) * size)
+                        .Take(size)
+                        .ToListAsync();
+
+                    return resultReorderPaginated.OrderBy(r => userOrder.IndexOf(r.NAtto_search)).Select(r => r.UIDAtto)
+                        .ToList();
+                }
+
+                var result = await query
+                    .OrderBy(a => a.Eliminato)
+                    .Select(item => new { item.UIDAtto, item.NAtto_search })
+                    .ToListAsync();
+
+                return result.OrderBy(r => userOrder.IndexOf(r.NAtto_search)).Select(r => r.UIDAtto).ToList();
+            }
+
+            if (page > 0 && size > 0)
+                return await query
+                    .OrderBy(item => item.Tipo)
+                    .ThenByDescending(item => item.NAtto_search)
+                    .Select(item => item.UIDAtto)
+                    .Skip((page - 1) * size)
+                    .Take(size)
+                    .ToListAsync();
+
             return await query
-                .CountAsync();
+                .OrderBy(item => item.Tipo)
+                .ThenByDescending(item => item.NAtto_search)
+                .Select(item => item.UIDAtto)
+                .ToListAsync();
         }
 
         public async Task<int> Count(Filter<ATTI_DASI> filtro)
@@ -293,117 +220,11 @@ namespace PortaleRegione.Persistance
                 .CountAsync();
         }
 
-        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid? sedutaId,
-            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro, List<int> soggetti, List<Guid> proponenti, List<Guid> atti_da_firmare)
-        {
-            try
-            {
-                var query = PRContext
-                    .DASI
-                    .Where(item => !item.Eliminato && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA);
-
-                var filtro2 = new Filter<ATTI_DASI>();
-                foreach (var f in filtro.Statements)
-                    if (f.PropertyId == nameof(ATTI_DASI.DataIscrizioneSeduta))
-                    {
-                        var data_iscrizione = Convert.ToDateTime(f.Value.ToString());
-                        query = query.Where(item => item.DataIscrizioneSeduta.Value.Year == data_iscrizione.Year
-                                                    && item.DataIscrizioneSeduta.Value.Month == data_iscrizione.Month
-                                                    && item.DataIscrizioneSeduta.Value.Day == data_iscrizione.Day);
-                    }
-                    else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
-                    {
-                        query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
-                                                    || item.Oggetto_Modificato.Contains(f.Value.ToString())
-                                                    || item.Richiesta_Modificata.Contains(f.Value.ToString())
-                                                    || item.Premesse.Contains(f.Value.ToString())
-                                                    || item.Premesse_Modificato.Contains(f.Value.ToString())
-                                                    || item.Richiesta.Contains(f.Value.ToString()));
-                    }
-                    else
-                        filtro2._statements.Add(f);
-
-                filtro2?.BuildExpression(ref query);
-
-                if (clientMode == ClientModeEnum.GRUPPI)
-                {
-                    query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
-                                                || (atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
-                                                    && (atto.UIDPersonaCreazione == persona.UID_persona
-                                                        || atto.UIDPersonaProponente == persona.UID_persona)));
-
-                    if (!persona.IsSegreteriaAssemblea
-                        && !persona.IsPresidente)
-                        query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
-
-                    if (stato != StatiAttoEnum.TUTTI)
-                    {
-                        if (stato == StatiAttoEnum.CHIUSO)
-                            query = query.Where(FilterByClosed());
-                        else
-                            query = query.Where(item => item.IDStato == (int)stato);
-                    }
-                    else
-                    {
-                        if (persona.IsSegreteriaAssemblea)
-                            query = query.Where(item => !Utility.statiNonVisibili_Segreteria.Contains(item.IDStato));
-                    }
-
-                    if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int)tipo);
-                }
-                else
-                {
-                    query = query.Where(item => item.DataIscrizioneSeduta.HasValue
-                                                && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                                && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
-                    if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato == (int)stato);
-                    if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int)tipo);
-                }
-
-                if (soggetti != null)
-                    if (soggetti.Count > 0)
-                    {
-                        //Avvio ricerca soggetti
-                        var list = await PRContext
-                            .ATTI_SOGGETTI_INTERROGATI
-                            .Where(f => soggetti.Contains(f.id_carica))
-                            .Select(f => f.UIDAtto)
-                            .ToListAsync();
-                        query = query
-                            .Where(item => list.Contains(item.UIDAtto));
-                    }
-
-                if (proponenti.Any())
-                {
-                    query = query.Where(i => proponenti.Contains(i.UIDPersonaProponente.Value));
-                }
-
-                if (atti_da_firmare == null)
-                    return await query
-                        .CountAsync();
-
-                if (atti_da_firmare.Any())
-                {
-                    query = query.Where(i => atti_da_firmare.Contains(i.UIDAtto));
-                }
-
-                return await query
-                    .CountAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
-
         public async Task<ATTI_DASI_CONTATORI> GetContatore(int tipo, int tipo_risposta)
         {
             if (tipo == (int)TipoAttoEnum.MOZ
                 || tipo == (int)TipoAttoEnum.ODG)
-            {
                 tipo_risposta = 0;
-            }
 
             var query = PRContext
                 .DASI_CONTATORI
@@ -428,11 +249,11 @@ namespace PortaleRegione.Persistance
             switch (persona.CurrentRole)
             {
                 case RuoliIntEnum.Consigliere_Regionale:
-                    {
-                        if (persona.IsCapoGruppo) return dto.id_gruppo == persona.Gruppo.id_gruppo;
+                {
+                    if (persona.IsCapoGruppo) return dto.id_gruppo == persona.Gruppo.id_gruppo;
 
-                        return dto.UIDPersonaProponente == persona.UID_persona;
-                    }
+                    return dto.UIDPersonaProponente == persona.UID_persona;
+                }
                 case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
                 case RuoliIntEnum.Presidente_Regione:
                 case RuoliIntEnum.Amministratore_PEM:
@@ -551,7 +372,17 @@ namespace PortaleRegione.Persistance
                 .ATTI_COMMISSIONI
                 .Where(item => item.UIDAtto == UidAtto)
                 .ToListAsync();
-            PRContext.ATTI_COMMISSIONI.RemoveRange(commissioni);
+            if (commissioni.Any())
+                PRContext.ATTI_COMMISSIONI.RemoveRange(commissioni);
+        }
+
+        public async Task RimuoviCommissioniProponenti(Guid UidAtto)
+        {
+            var commissioniProponenti = await PRContext
+                .ATTI_PROPONENTI
+                .Where(item => item.UIDAtto == UidAtto)
+                .ToListAsync();
+            PRContext.ATTI_PROPONENTI.RemoveRange(commissioniProponenti);
         }
 
         public void AggiungiCommissione(Guid UidAtto, int organo)
@@ -562,6 +393,28 @@ namespace PortaleRegione.Persistance
                 UIDAtto = UidAtto,
                 id_organo = organo
             });
+        }
+
+        public async Task AggiungiCommissioneProponente(Guid UidAtto, KeyValueDto organo)
+        {
+            var newObject = new ATTI_PROPONENTI
+            {
+                Uid = Guid.NewGuid(),
+                UIDAtto = UidAtto
+            };
+
+            if (organo.id > 0)
+            {
+                newObject.IdOrgano = organo.id;
+                var organoInDb = await PRContext.View_Commissioni_attive.FindAsync(organo.id);
+                newObject.DescrizioneOrgano = organoInDb.nome_organo;
+            }
+            else
+            {
+                newObject.UidPersona = new Guid(organo.uid);
+            }
+
+            PRContext.ATTI_PROPONENTI.Add(newObject);
         }
 
         public async Task<List<View_Commissioni_attive>> GetCommissioni(Guid uidAtto)
@@ -666,9 +519,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .DASI
-                .SqlQuery(model.Query)
-                .Skip((model.page - 1) * 100)
-                .Take(100);
+                .SqlQuery(model.Query);
 
             return query
                 .Select(item => item.UIDAtto)
@@ -712,9 +563,7 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.Where(item => item.DataIscrizioneSeduta.HasValue
-                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                            && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
             }
 
             if (stati.Any())
@@ -783,6 +632,498 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
+        public async Task<List<AttiRisposteDto>> GetRisposte(Guid uidAtto)
+        {
+            var dataFromDb = await PRContext
+                .ATTI_RISPOSTE
+                .Where(r => r.UIDAtto == uidAtto)
+                .OrderByDescending(r => r.Data)
+                .ToListAsync();
+
+            var res = new List<AttiRisposteDto>();
+            foreach (var r in dataFromDb.Where(risp =>
+                         !risp.UIDRispostaAssociata.HasValue || risp.UIDRispostaAssociata == Guid.Empty))
+            {
+                var risposta = new AttiRisposteDto
+                {
+                    UIDAtto = r.UIDAtto,
+                    Data = r.Data,
+                    DataTrasmissione = r.DataTrasmissione,
+                    DataTrattazione = r.DataTrattazione,
+                    DataRevoca = r.DataRevoca,
+                    DescrizioneOrgano = r.DescrizioneOrgano,
+                    IdOrgano = r.IdOrgano,
+                    Uid = r.Uid,
+                    Tipo = r.Tipo,
+                    DisplayTipo = Utility.GetText_TipoRispostaDASI(r.Tipo),
+                    TipoOrgano = r.TipoOrgano,
+                    DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(r.TipoOrgano),
+                    UIDDocumento = r.UIDDocumento,
+                    UIDRispostaAssociata = r.UIDRispostaAssociata
+                };
+
+                var risposteAssociate = dataFromDb.Where(risp => risp.UIDRispostaAssociata == r.Uid).ToList();
+
+                if (risposteAssociate.Any())
+                {
+                    foreach (var rispostaAssociata in risposteAssociate)
+                    {
+                        risposta.RisposteAssociate.Add(new AttiRisposteDto
+                        {
+                            UIDAtto = rispostaAssociata.UIDAtto,
+                            DescrizioneOrgano = rispostaAssociata.DescrizioneOrgano,
+                            IdOrgano = rispostaAssociata.IdOrgano,
+                            Uid = rispostaAssociata.Uid,
+                            Tipo = rispostaAssociata.Tipo,
+                            DisplayTipo = Utility.GetText_TipoRispostaDASI(rispostaAssociata.Tipo),
+                            TipoOrgano = rispostaAssociata.TipoOrgano,
+                            DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(rispostaAssociata.TipoOrgano)
+                        });
+                    }
+                }
+
+                res.Add(risposta);
+            }
+
+            return res;
+        }
+
+        public async Task<List<AttiMonitoraggioDto>> GetMonitoraggi(Guid uidAtto)
+        {
+            var dataFromDb = await PRContext
+                .ATTI_MONITORAGGIO
+                .Where(r => r.UIDAtto == uidAtto)
+                .ToListAsync();
+
+            return dataFromDb.Select(r => new AttiMonitoraggioDto
+            {
+                UIDAtto = r.UIDAtto,
+                DescrizioneOrgano = r.DescrizioneOrgano,
+                IdOrgano = r.IdOrgano,
+                TipoOrgano = r.TipoOrgano,
+                DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
+            }).ToList();
+        }
+
+        public async Task<List<AttiDocumentiDto>> GetDocumenti(Guid uidAtto)
+        {
+            var docInDB = await PRContext
+                .ATTI_DOCUMENTI
+                .Where(d => d.UIDAtto == uidAtto)
+                .OrderBy(d => d.Data)
+                .ToListAsync();
+
+            return docInDB
+                .Select(d => new AttiDocumentiDto
+                {
+                    Uid = d.Uid,
+                    Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
+                    Titolo = d.Titolo,
+                    Pubblico = d.Pubblica,
+                    Link = $"{AppSettingsConfiguration.URL_API}/{ApiRoutes.DASI.DownloadDoc}?path={d.Path}",
+                    TipoEnum = (TipoDocumentoEnum)d.Tipo
+                })
+                .ToList();
+        }
+
+        public async Task<List<KeyValueDto>> GetCommissioniProponenti(Guid uidAtto)
+        {
+            var proponentiInDb = await PRContext
+                .ATTI_PROPONENTI
+                .Where(d => d.UIDAtto == uidAtto)
+                .ToListAsync();
+            var res = new List<KeyValueDto>();
+            foreach (var item in proponentiInDb)
+            {
+                if (item.IdOrgano.HasValue)
+                    res.Add(new KeyValueDto()
+                    {
+                        descr = item.DescrizioneOrgano,
+                        id = item.IdOrgano.Value
+                    });
+                else
+                {
+                    var persona = await PRContext.View_UTENTI.FindAsync(item.UidPersona.Value);
+                    res.Add(new KeyValueDto()
+                    {
+                        descr = $"{persona.cognome} {persona.nome}",
+                        uid = persona.UID_persona.Value.ToString()
+                    });
+                }
+            }
+
+            return res.OrderBy(p => p.descr).ToList();
+        }
+
+        public void AggiungiAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato)
+        {
+            PRContext.ATTI_ABBINAMENTI.Add(new ATTI_ABBINAMENTI
+            {
+                Uid = Guid.NewGuid(),
+                Data = DateTime.Now,
+                UIDAtto = requestUidAbbinamento,
+                UIDAttoAbbinato = requestUidAttoAbbinato
+            });
+        }
+
+        public async Task<ATTI_ABBINAMENTI> GetAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato)
+        {
+            return await PRContext.ATTI_ABBINAMENTI.FirstOrDefaultAsync(a => a.UIDAtto == requestUidAbbinamento
+                                                                             && a.UIDAttoAbbinato ==
+                                                                             requestUidAttoAbbinato);
+        }
+
+        public void RimuoviAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb)
+        {
+            PRContext.ATTI_ABBINAMENTI.Remove(abbinamentoInDb);
+        }
+
+        public void AggiungiRisposta(ATTI_RISPOSTE risposta)
+        {
+            PRContext.ATTI_RISPOSTE.Add(risposta);
+        }
+
+        public void RimuoviRisposta(ATTI_RISPOSTE risposta)
+        {
+            PRContext.ATTI_RISPOSTE.Remove(risposta);
+        }
+
+        public async Task<ATTI_RISPOSTE> GetRisposta(Guid requestUid)
+        {
+            return await PRContext.ATTI_RISPOSTE.FirstOrDefaultAsync(r => r.Uid == requestUid);
+        }
+
+        public async Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUid)
+        {
+            return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.Uid == requestUid);
+        }
+
+        public void AggiungiMonitoraggio(ATTI_MONITORAGGIO monitoraggio)
+        {
+            PRContext.ATTI_MONITORAGGIO.Add(monitoraggio);
+        }
+
+        public void RimuoviMonitoraggio(ATTI_MONITORAGGIO monitoraggioInDb)
+        {
+            PRContext.ATTI_MONITORAGGIO.Remove(monitoraggioInDb);
+        }
+
+        public async Task<ATTI_NOTE> GetNota(Guid requestUidAtto, TipoNotaEnum requestTipoEnum)
+        {
+            return await PRContext.ATTI_NOTE.FirstOrDefaultAsync(n => n.UIDAtto == requestUidAtto
+                                                                      && n.Tipo == (int)requestTipoEnum);
+        }
+
+        public void RimuoviNota(ATTI_NOTE notaInDb)
+        {
+            PRContext.ATTI_NOTE.Remove(notaInDb);
+        }
+
+        public void AggiungiNota(ATTI_NOTE notaInDb)
+        {
+            PRContext.ATTI_NOTE.Add(notaInDb);
+        }
+
+        public void AggiungiDocumento(ATTI_DOCUMENTI doc)
+        {
+            PRContext.ATTI_DOCUMENTI.Add(doc);
+        }
+
+        public async Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid)
+        {
+            return await PRContext.ATTI_DOCUMENTI.FirstAsync(d => d.Uid.Equals(requestUid));
+        }
+
+        public void RimuoviDocumento(ATTI_DOCUMENTI doc)
+        {
+            PRContext.ATTI_DOCUMENTI.Remove(doc);
+        }
+
+        public async Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva)
+        {
+            return await PRContext.DASI.FirstOrDefaultAsync(atto => atto.Etichetta.Equals(etichettaProgressiva));
+        }
+
+        public async Task<Guid> GetByQR(Guid id)
+        {
+            var res = await PRContext
+                .DASI
+                .FirstAsync(atto => atto.UID_QRCode == id);
+
+            return res.UIDAtto;
+        }
+
+        public async Task<bool> CheckDCR(string dcrl, string dcr, string dccr)
+        {
+            var query = PRContext
+                .DASI
+                .Where(a => a.DCRL.Equals(dcrl));
+
+            var intDcr = int.Parse(dcr);
+            var intDccr = int.Parse(dccr);
+
+            if (intDcr > 0)
+            {
+                query = query.Where(a => a.DCR.Value.Equals(intDcr));
+            }
+
+            if (intDccr > 0)
+            {
+                query = query.Where(a => a.DCCR.Value.Equals(intDccr));
+            }
+
+            var res = await query.AnyAsync();
+            return res;
+        }
+
+        public async Task<List<NoteDto>> GetNote(Guid uidAtto)
+        {
+            var noteInDB = await PRContext
+                .ATTI_NOTE
+                .Where(d => d.UIDAtto == uidAtto)
+                .OrderByDescending(d => d.Data)
+                .ToListAsync();
+            var res = new List<NoteDto>();
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
+            foreach (var nota in noteInDB)
+            {
+                var persona = await PRContext.View_UTENTI.FindAsync(nota.UIDPersona);
+                res.Add(new NoteDto
+                {
+                    Tipo = Utility.GetText_TipoNotaDASI(nota.Tipo),
+                    TipoEnum = (TipoNotaEnum)nota.Tipo,
+                    Data = nota.Data,
+                    Uid = nota.Uid,
+                    Nota = nota.Nota,
+                    Persona = new PersonaLightDto(persona.cognome, persona.nome)
+                });
+            }
+
+            return res;
+        }
+
+        public async Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto)
+        {
+            var abbinamentiInDB = await PRContext
+                .ATTI_ABBINAMENTI
+                .Where(a => a.UIDAtto.Equals(uidAtto))
+                .OrderBy(a => a.Data)
+                .ToListAsync();
+
+            var res = new List<AttiAbbinamentoDto>();
+            foreach (var attiAbbinamenti in abbinamentiInDB)
+            {
+                var abbinata = new AttiAbbinamentoDto
+                {
+                    UidAbbinamento = attiAbbinamenti.Uid,
+                    Data = attiAbbinamenti.Data
+                };
+
+                if (!string.IsNullOrEmpty(attiAbbinamenti.TipoAttoAbbinato)
+                    || !string.IsNullOrEmpty(attiAbbinamenti.NumeroAttoAbbinato)
+                    || !string.IsNullOrEmpty(attiAbbinamenti.OggettoAttoAbbinato))
+                {
+                    abbinata.OggettoAttoAbbinato = attiAbbinamenti.OggettoAttoAbbinato;
+                    abbinata.TipoAttoAbbinato = attiAbbinamenti.TipoAttoAbbinato;
+                    abbinata.NumeroAttoAbbinato = attiAbbinamenti.NumeroAttoAbbinato;
+                }
+                else if (attiAbbinamenti.UIDAttoAbbinato.HasValue)
+                {
+                    var attoAbbinato = await PRContext
+                        .VIEW_ATTI
+                        .Where(a => a.UIDAtto.Equals(attiAbbinamenti.UIDAttoAbbinato.Value))
+                        .FirstOrDefaultAsync();
+
+                    if (attoAbbinato == null)
+                        continue;
+
+                    abbinata.OggettoAttoAbbinato = attoAbbinato.Oggetto;
+                    abbinata.TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinato.Tipo);
+                    abbinata.NumeroAttoAbbinato = attoAbbinato.NAtto;
+                    abbinata.UidAttoAbbinato = attoAbbinato.UIDAtto;
+                }
+
+                res.Add(abbinata);
+            }
+
+            return res;
+        }
+
+        public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
+        {
+            var query = PRContext
+                .VIEW_ATTI
+                .Where(a => a.Legislatura.Equals(legislaturaId))
+                .Select(a => new AttoLightDto
+                {
+                    tipo = a.Tipo.ToString(),
+                    natto = a.NAtto,
+                    uidAtto = a.UIDAtto,
+                    oggetto = a.Oggetto
+                });
+
+            return await query
+                .OrderBy(abb => abb.tipo)
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToListAsync();
+        }
+
+        public async Task<List<GruppiDto>> GetGruppiDisponibili(int legislaturaId, int page, int size)
+        {
+            var query = PRContext
+                .View_gruppi_politici_ws
+                .Where(a => a.id_legislatura.Equals(legislaturaId))
+                .Select(a => new GruppiDto()
+                {
+                    id_gruppo = a.id_gruppo,
+                    nome_gruppo = a.nome_gruppo,
+                    codice_gruppo = a.codice_gruppo,
+                    data_inizio = a.data_inizio,
+                    data_fine = a.data_fine
+                });
+
+            return await query
+                .OrderBy(abb => abb.nome_gruppo)
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToListAsync();
+        }
+
+        public async Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId)
+        {
+            var result = new List<OrganoDto>();
+
+            var queryCommissioni = PRContext
+                .View_Commissioni_per_legislatura
+                .Where(a => a.id_legislatura.Equals(legislaturaId))
+                .Select(a => new OrganoDto
+                {
+                    tipo_organo = TipoOrganoEnum.COMMISSIONE,
+                    nome_organo = a.nome_organo,
+                    id_organo = a.id_organo
+                });
+
+            result.AddRange(await queryCommissioni.ToListAsync());
+
+            var queryOrgani = PRContext
+                .View_cariche_assessori_per_legislatura
+                .Where(a => a.id_legislatura.Equals(legislaturaId))
+                .Select(a => new OrganoDto
+                {
+                    tipo_organo = TipoOrganoEnum.GIUNTA,
+                    nome_organo = a.nome_carica,
+                    id_organo = a.id_carica
+                });
+
+            result.AddRange(await queryOrgani.ToListAsync());
+
+            return result;
+        }
+
+        public async Task<int> CountByTipo(PersonaDto persona, TipoAttoEnum tipo)
+        {
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato
+                               && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
+
+            if (persona.Gruppo != null)
+            {
+                if (persona.Gruppo.id_gruppo > 0)
+                {
+                    query = query.Where(item => item.id_gruppo.Equals(persona.Gruppo.id_gruppo));
+                }
+            }
+
+            if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo.Equals((int)tipo));
+
+            return await query
+                .CountAsync();
+        }
+
+        public async Task<int> CountByStato(PersonaDto persona, List<int> tipo, StatiAttoEnum stato)
+        {
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato
+                               && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
+
+            if (persona.Gruppo != null)
+            {
+                if (persona.Gruppo.id_gruppo > 0)
+                {
+                    query = query.Where(item => item.id_gruppo.Equals(persona.Gruppo.id_gruppo));
+                }
+            }
+
+            if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato.Equals((int)stato));
+            if (tipo.Any()) query = query.Where(item => tipo.Contains(item.Tipo));
+
+            return await query
+                .CountAsync();
+        }
+
+        public async Task<int> Count(PersonaDto currentUser, TipoAttoEnum tipo, ClientModeEnum clientMode,
+            Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended)
+        {
+            var userOrder = new List<int>();
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato
+                               && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
+
+            if (!currentUser.IsSegreteriaAssemblea)
+            {
+                queryExtended.Tipi.Clear();
+                queryExtended.Stati.Clear();
+            }
+
+            query = ApplyFilters(query, queryFilter.Statements, queryExtended, clientMode, currentUser, ref userOrder);
+
+            if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo.Equals((int)tipo));
+
+            var res = await query.CountAsync();
+            return res;
+        }
+
+        public async Task<int> Count(PersonaDto currentUser, StatiAttoEnum stato, ClientModeEnum clientMode,
+            Filter<ATTI_DASI> queryFilter, QueryExtendedRequest queryExtended)
+        {
+            var userOrder = new List<int>();
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato
+                               && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
+
+            if (!currentUser.IsSegreteriaAssemblea)
+            {
+                queryExtended.Stati.Clear();
+            }
+
+            query = ApplyFilters(query, queryFilter.Statements, queryExtended, clientMode, currentUser, ref userOrder);
+            if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato.Equals((int)stato));
+
+            return await query
+                .CountAsync();
+        }
+
+        public async Task<int> Count(PersonaDto currentUser, ClientModeEnum clientMode, Filter<ATTI_DASI> queryFilter,
+            QueryExtendedRequest queryExtended)
+        {
+            var userOrder = new List<int>();
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato
+                               && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
+
+            query = ApplyFilters(query, queryFilter.Statements, queryExtended, clientMode, currentUser, ref userOrder);
+
+            return await query
+                .CountAsync();
+        }
+
         public async Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId)
         {
             var query = PRContext
@@ -817,9 +1158,7 @@ namespace PortaleRegione.Persistance
                                                      && atto.id_gruppo == gruppoId
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
+                                                     && !atto.TipoChiusuraIter.HasValue);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 
@@ -832,14 +1171,9 @@ namespace PortaleRegione.Persistance
                                                      && atto.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
                                                      && atto.Tipo == (int)tipo
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
+                                                     && !atto.TipoChiusuraIter.HasValue);
 
-            if (tipoMoz != TipoMOZEnum.ORDINARIA)
-            {
-                query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
-            }
+            if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 
             return await query.ToListAsync();
         }
@@ -852,8 +1186,7 @@ namespace PortaleRegione.Persistance
                                     && item.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                     && item.UID_Atto_ODG == uidAtto
                                     && item.DataIscrizioneSeduta.HasValue
-                                    && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                    && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
+                                    && !item.TipoChiusuraIter.HasValue);
         }
 
         public async Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona)
@@ -864,14 +1197,14 @@ namespace PortaleRegione.Persistance
                 .Where(i => i.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
                             && i.Tipo == (int)TipoAttoEnum.IQT
                             && i.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO)
+                            && !i.TipoChiusuraIter.HasValue)
                 .ToListAsync();
 
             foreach (var attiDasi in atti_proposti_in_seduta)
             {
                 var firmatari = await PRContext.ATTI_FIRME
-                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma) && i.Prioritario)
+                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma) &&
+                                i.Prioritario)
                     .ToListAsync();
                 if (firmatari.Any(i => i.UID_persona == uidPersona)) res = false;
             }
@@ -885,8 +1218,7 @@ namespace PortaleRegione.Persistance
             var atti_proposti_in_seduta = await PRContext.DASI
                 .Where(i => !i.Eliminato
                             && i.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
-                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO
+                            && !i.TipoChiusuraIter.HasValue
                             && (i.UIDSeduta == seduta.UIDSeduta
                                 || i.DataRichiestaIscrizioneSeduta == dataSedutaEncrypt)
                             && i.Tipo == (int)TipoAttoEnum.MOZ
@@ -897,7 +1229,8 @@ namespace PortaleRegione.Persistance
             foreach (var attiDasi in atti_proposti_in_seduta)
             {
                 var firmatari = await PRContext.ATTI_FIRME
-                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma) && i.Prioritario)
+                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma) &&
+                                i.Prioritario)
                     .ToListAsync();
                 if (firmatari.Any(i => i.UID_persona == personaUID))
                 {
@@ -928,11 +1261,645 @@ namespace PortaleRegione.Persistance
             return true;
         }
 
-        private Expression<Func<ATTI_DASI, bool>> FilterByClosed()
+        private IQueryable<ATTI_DASI> ApplyFilters(IQueryable<ATTI_DASI> query,
+            IEnumerable<IFilterStatement> statements, QueryExtendedRequest queryExtended, ClientModeEnum mode,
+            PersonaDto currentUser, ref List<int> userOrder)
         {
-            return x => x.IDStato == (int)StatiAttoEnum.CHIUSO
-                        || x.IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
-                        || x.IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
+            var filtro2 = new Filter<ATTI_DASI>();
+            foreach (var f in statements)
+                if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                {
+                    query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
+                                                || item.Oggetto_Modificato.Contains(f.Value.ToString())
+                                                || item.Oggetto_Approvato.Contains(f.Value.ToString())
+                                                || item.Richiesta_Modificata.Contains(f.Value.ToString())
+                                                || item.Premesse.Contains(f.Value.ToString())
+                                                || item.Premesse_Modificato.Contains(f.Value.ToString())
+                                                || item.Richiesta.Contains(f.Value.ToString()));
+                }
+                else if (f.PropertyId == nameof(AttoDASIDto.Note))
+                {
+                    var noteQuery = PRContext.ATTI_NOTE
+                        .Where(nota => nota.Nota.Contains(f.Value.ToString()))
+                        .Select(nota => nota.UIDAtto);
+
+                    query = query
+                        .Join(
+                            noteQuery,
+                            atto => atto.UIDAtto,
+                            doc => doc,
+                            (atto, doc) => atto
+                        );
+                }
+                else if (f.PropertyId == nameof(ATTI_DASI.NAtto))
+                {
+                    var nAttoFilters = f.Value.ToString().Split(',');
+                    var singleNumbers = new List<int>();
+                    userOrder = new List<int>();
+                    Expression<Func<ATTI_DASI, bool>> combinedRangePredicate = null;
+
+                    foreach (var nAttoFilter in nAttoFilters)
+                    {
+                        if (string.IsNullOrEmpty(nAttoFilter))
+                            continue;
+
+                        if (nAttoFilter.Contains('-'))
+                        {
+                            var parts = nAttoFilter.Split('-').Select(int.Parse).ToArray();
+                            var start = Math.Min(parts[0], parts[1]);
+                            var end = Math.Max(parts[0], parts[1]);
+
+                            for (var i = start; i <= end; i++) userOrder.Add(i);
+
+                            // Crea un'espressione per l'intervallo
+                            Expression<Func<ATTI_DASI, bool>> rangePredicate = item =>
+                                item.NAtto_search >= start && item.NAtto_search <= end;
+
+                            // Combina l'espressione corrente con le espressioni precedenti
+                            if (combinedRangePredicate == null)
+                                combinedRangePredicate = rangePredicate;
+                            else
+                                combinedRangePredicate =
+                                    ExpressionExtensions.CombineExpressions(combinedRangePredicate, rangePredicate);
+                        }
+                        else
+                        {
+                            userOrder.Add(int.Parse(nAttoFilter));
+                            singleNumbers.Add(int.Parse(nAttoFilter));
+                        }
+                    }
+
+                    if (singleNumbers.Any())
+                    {
+                        Expression<Func<ATTI_DASI, bool>> singleNumbersPredicate =
+                            item => singleNumbers.Contains(item.NAtto_search);
+                        combinedRangePredicate = combinedRangePredicate == null
+                            ? singleNumbersPredicate
+                            : ExpressionExtensions.CombineExpressions(combinedRangePredicate, singleNumbersPredicate);
+                    }
+
+                    if (combinedRangePredicate != null)
+                        query = query.Where(combinedRangePredicate);
+                }
+                else if (f.PropertyId == nameof(ATTI_DASI.DCR) || f.PropertyId == nameof(ATTI_DASI.DCCR))
+                {
+                    var values = f.Value.ToString().Split(';');
+                    var dcrFilters = values.Length > 0 ? values[0].Split(',') : Array.Empty<string>();
+                    var dccrFilters = values.Length > 1 ? values[1].Split(',') : Array.Empty<string>();
+
+                    // Creiamo i predicati per DCR
+                    Expression<Func<ATTI_DASI, bool>> dcrPredicate = null;
+                    var dcrSingleNumbers = new List<int>();
+
+                    foreach (var filter in dcrFilters)
+                    {
+                        if (string.IsNullOrEmpty(filter)) continue;
+
+                        if (filter.Contains('-'))
+                        {
+                            var rangeParts = filter.Split('-').Select(int.Parse).ToArray();
+                            var start = Math.Min(rangeParts[0], rangeParts[1]);
+                            var end = Math.Max(rangeParts[0], rangeParts[1]);
+
+                            Expression<Func<ATTI_DASI, bool>> rangePredicate = item =>
+                                item.DCR >= start && item.DCR <= end;
+
+                            dcrPredicate = dcrPredicate == null
+                                ? rangePredicate
+                                : ExpressionExtensions.CombineExpressions(dcrPredicate, rangePredicate);
+                        }
+                        else
+                        {
+                            dcrSingleNumbers.Add(int.Parse(filter));
+                        }
+                    }
+
+                    if (dcrSingleNumbers.Any())
+                    {
+                        Expression<Func<ATTI_DASI, bool>> singlePredicate = item =>
+                            dcrSingleNumbers.Contains((int)item.DCR);
+                        dcrPredicate = dcrPredicate == null
+                            ? singlePredicate
+                            : ExpressionExtensions.CombineExpressions(dcrPredicate, singlePredicate);
+                    }
+
+                    if (dcrPredicate != null)
+                        query = query.Where(dcrPredicate);
+
+                    // Creiamo i predicati per DCCR
+                    Expression<Func<ATTI_DASI, bool>> dccrPredicate = null;
+                    var dccrSingleNumbers = new List<int>();
+
+                    foreach (var filter in dccrFilters)
+                    {
+                        if (string.IsNullOrEmpty(filter)) continue;
+
+                        if (filter.Contains('-'))
+                        {
+                            var rangeParts = filter.Split('-').Select(int.Parse).ToArray();
+                            var start = Math.Min(rangeParts[0], rangeParts[1]);
+                            var end = Math.Max(rangeParts[0], rangeParts[1]);
+
+                            Expression<Func<ATTI_DASI, bool>> rangePredicate = item =>
+                                item.DCCR >= start && item.DCCR <= end;
+
+                            dccrPredicate = dccrPredicate == null
+                                ? rangePredicate
+                                : ExpressionExtensions.CombineExpressions(dccrPredicate, rangePredicate);
+                        }
+                        else
+                        {
+                            dccrSingleNumbers.Add(int.Parse(filter));
+                        }
+                    }
+
+                    if (dccrSingleNumbers.Any())
+                    {
+                        Expression<Func<ATTI_DASI, bool>> singlePredicate = item =>
+                            dccrSingleNumbers.Contains((int)item.DCCR);
+                        dccrPredicate = dccrPredicate == null
+                            ? singlePredicate
+                            : ExpressionExtensions.CombineExpressions(dccrPredicate, singlePredicate);
+                    }
+
+                    if (dccrPredicate != null)
+                        query = query.Where(dccrPredicate);
+                }
+
+                else
+                {
+                    filtro2._statements.Add(f);
+                }
+
+            filtro2.BuildExpression(ref query);
+
+            #region Filtri semplici
+
+            if (mode == ClientModeEnum.GRUPPI)
+            {
+                query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
+                                            || (atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
+                                                && (atto.UIDPersonaCreazione == currentUser.UID_persona
+                                                    || atto.UIDPersonaProponente == currentUser.UID_persona)));
+
+                if (!currentUser.IsSegreteriaAssemblea
+                    && !currentUser.IsPresidente)
+                    query = query.Where(item => item.id_gruppo == currentUser.Gruppo.id_gruppo);
+
+                if (currentUser.IsSegreteriaAssemblea && !queryExtended.Stati.Any())
+                {
+                    query = query.Where(atto => atto.IDStato == (int)StatiAttoEnum.PRESENTATO
+                                                || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
+                                                || atto.IDStato == (int)StatiAttoEnum.COMPLETATO);
+                }
+            }
+            else
+            {
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
+            }
+
+            if (queryExtended.Stati.Any())
+                query = query.Where(i => queryExtended.Stati.Contains(i.IDStato));
+
+            if (queryExtended.GruppiProponenti.Any())
+                query = query.Where(i => queryExtended.GruppiProponenti.Contains(i.id_gruppo));
+
+            if (queryExtended.AreaPolitica.Any())
+                query = query.Where(i => queryExtended.AreaPolitica.Contains(i.AreaPolitica));
+
+            if (queryExtended.Tipi.Any())
+                query = query.Where(i => queryExtended.Tipi.Contains(i.Tipo));
+
+            if (queryExtended.TipiRispostaRichiesta.Any())
+                query = query.Where(i => queryExtended.TipiRispostaRichiesta.Contains(i.IDTipo_Risposta));
+
+            if (queryExtended.TipiChiusura.Any())
+                query = query.Where(i => queryExtended.TipiChiusura.Contains(i.TipoChiusuraIter.Value));
+
+            if (queryExtended.TipiVotazione.Any())
+                query = query.Where(i => queryExtended.TipiVotazione.Contains(i.TipoVotazioneIter.Value));
+
+            if (queryExtended.DataChiusuraIterIsNull)
+                query = query
+                    .Where(atto => atto.DataChiusuraIter == null);
+
+            if (queryExtended.DataComunicazioneAssembleaIsNull)
+                query = query
+                    .Where(atto => atto.DataComunicazioneAssemblea == null);
+
+            if (queryExtended.DataPresentazioneIsNull)
+                query = query
+                    .Where(atto => atto.Timestamp == null);
+
+            if (queryExtended.DataAnnunzioIsNull)
+                query = query
+                    .Where(atto => atto.DataAnnunzio == null);
+
+            if (queryExtended.AttiDaFirmare.Any())
+                query = query.Where(i => queryExtended.AttiDaFirmare.Contains(i.UIDAtto));
+
+            #endregion
+
+            #region Filtri complessi
+
+            if (queryExtended.GruppiFirmatari.Any())
+            {
+                var firmeQuery = PRContext.ATTI_FIRME
+                    .Where(firma => queryExtended.GruppiFirmatari.Contains(firma.id_gruppo))
+                    .Select(firma => firma.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => firmeQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.Firmatari.Any())
+            {
+                var firmeQuery = PRContext.ATTI_FIRME
+                    .Where(firma => queryExtended.Firmatari.Contains(firma.UID_persona))
+                    .Select(firma => firma.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => firmeQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.DocumentiMancanti && queryExtended.TipiDocumento.Any())
+            {
+                var docsQuery = PRContext.ATTI_DOCUMENTI
+                    .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
+                    .Select(f => f.UIDAtto)
+                    .Distinct()
+                    .ToList();
+                query = query.Where(i => !docsQuery.Contains(i.UIDAtto));
+            }
+            else if (queryExtended.TipiDocumento.Any() && !queryExtended.DocumentiMancanti)
+            {
+                var documentQuery = PRContext.ATTI_DOCUMENTI
+                    .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
+                    .Select(f => f.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => documentQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.RispostaMancante)
+            {
+                var risposteQuery = PRContext.ATTI_RISPOSTE
+                    .Select(f => f.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
+            }
+            else if (queryExtended.Risposte.Any())
+            {
+                var risposteEffettiveQuery = PRContext.ATTI_RISPOSTE
+                    .Where(f => queryExtended.Risposte.Contains(f.Tipo))
+                    .Select(f => f.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => risposteEffettiveQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.Proponenti.Any())
+            {
+                var proponentiQuery = PRContext
+                    .ATTI_PROPONENTI
+                    .Where(proponenteRIS => queryExtended.Proponenti.Contains(proponenteRIS.UidPersona.Value))
+                    .Select(proponente => proponente.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query
+                    .Where(atto => queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value)
+                                   || proponentiQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.Provvedimenti.Any())
+            {
+                var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
+                    .Where(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value))
+                    .Select(abb => abb.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query
+                    .Where(atto =>
+                        queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value) ||
+                        abbinamentiQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.OrganiIsNull)
+            {
+                var commissioniQuery = PRContext.ATTI_COMMISSIONI
+                    .Select(f => f.UIDAtto)
+                    .Distinct()
+                    .ToList();
+                query = query.Where(atto => commissioniQuery.Contains(atto.UIDAtto));
+            }
+            else if (queryExtended.Organi.Any())
+            {
+                var organiQuery = PRContext.ATTI_COMMISSIONI
+                    .Where(organo => queryExtended.Organi.Contains(organo.id_organo))
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                var risposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                var monitoraggioQuery = PRContext.ATTI_MONITORAGGIO
+                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                var commissioniProponentiQuery = PRContext
+                    .ATTI_PROPONENTI
+                    .Where(commissione => queryExtended.Organi.Contains(commissione.IdOrgano.Value))
+                    .Select(commissione => commissione.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => organiQuery.Contains(atto.UIDAtto)
+                                            || risposteQuery.Contains(atto.UIDAtto)
+                                            || commissioniProponentiQuery.Contains(atto.UIDAtto)
+                                            || monitoraggioQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.Organi_Commissione.Any())
+            {
+                var risposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(organo => queryExtended.Organi_Commissione.Contains(organo.IdOrgano)
+                                     && organo.TipoOrgano.Equals((int)TipoOrganoEnum.COMMISSIONE))
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.Organi_Giunta.Any())
+            {
+                var risposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(organo => queryExtended.Organi_Giunta.Contains(organo.IdOrgano)
+                                     && organo.TipoOrgano.Equals((int)TipoOrganoEnum.GIUNTA))
+                    .Select(organo => organo.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.DataSeduta.Any())
+            {
+                if (queryExtended.DataSeduta.Count > 1)
+                {
+                    var startDate = queryExtended.DataSeduta[0];
+                    var endDate = queryExtended.DataSeduta[1];
+
+                    var seduteQuery = PRContext
+                        .SEDUTE
+                        .Where(seduta => seduta.Data_seduta >= startDate && seduta.Data_seduta <= endDate)
+                        .Select(seduta => seduta.UIDSeduta)
+                        .Distinct()
+                        .ToList();
+
+                    query = query
+                        .Where(atto => seduteQuery.Contains(atto.UIDSeduta.Value));
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataSeduta[0];
+
+                    var seduteQuery = PRContext
+                        .SEDUTE
+                        .Where(seduta => singleDate.Date == seduta.Data_seduta.Date)
+                        .Select(seduta => seduta.UIDSeduta)
+                        .Distinct()
+                        .ToList();
+
+                    query = query
+                        .Where(atto => seduteQuery.Contains(atto.UIDSeduta.Value));
+                }
+            }
+
+            if (queryExtended.DataTrasmissione.Any())
+            {
+                if (queryExtended.DataTrasmissione.Count > 1)
+                {
+                    var startDate = queryExtended.DataTrasmissione[0];
+                    var endDate = queryExtended.DataTrasmissione[1];
+
+                    var risposteTrasmesseQuery = PRContext.ATTI_RISPOSTE
+                        .Where(risposta => risposta.DataTrasmissione >= startDate
+                                           && risposta.DataTrasmissione <= endDate)
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct()
+                        .ToList();
+
+                    query = query
+                        .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataTrasmissione[0];
+
+                    var risposteTrasmesseQuery = PRContext.ATTI_RISPOSTE
+                        .Where(risposta =>
+                            singleDate.Date == risposta.DataTrasmissione.Value.Date)
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct()
+                        .ToList();
+
+                    query = query
+                        .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
+                }
+            }
+
+            if (queryExtended.DataTrasmissioneIsNull)
+            {
+                var risposteTrasmesseNulleQuery = PRContext.ATTI_RISPOSTE
+                    .Where(risposta => risposta.DataTrasmissione == null)
+                    .Select(risposta => risposta.UIDAtto)
+                    .Distinct()
+                    .ToList();
+
+                query = query
+                    .Where(atto => risposteTrasmesseNulleQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.DataTrattazione.Any())
+            {
+                if (queryExtended.DataTrattazione.Count > 1)
+                {
+                    var startDate = queryExtended.DataTrattazione[0];
+                    var endDate = queryExtended.DataTrattazione[1];
+
+                    var risposteTrasmesseQuery = PRContext.ATTI_RISPOSTE
+                        .Where(risposta => risposta.DataTrattazione >= startDate
+                                           && risposta.DataTrattazione <= endDate)
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct()
+                        .ToList();
+
+                    query = query
+                        .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataTrattazione[0];
+
+                    var risposteTrasmesseQuery = PRContext.ATTI_RISPOSTE
+                        .Where(risposta =>
+                            singleDate.Date == risposta.DataTrattazione.Value.Date)
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct()
+                        .ToList();
+
+                    query = query
+                        .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
+                }
+            }
+
+            if (queryExtended.DataTrattazioneIsNull)
+            {
+                var risposteTrattateNulleQuery = PRContext.ATTI_RISPOSTE
+                    .Where(risposta => !risposta.DataTrattazione.HasValue)
+                    .Select(risposta => risposta.UIDAtto);
+
+                query = query
+                    .Where(atto => risposteTrattateNulleQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.DataChiusuraIter.Any())
+            {
+                if (queryExtended.DataChiusuraIter.Count > 1)
+                {
+                    var startDate = queryExtended.DataChiusuraIter[0];
+                    var endDate = queryExtended.DataChiusuraIter[1];
+                    query = query
+                        .Where(atto => atto.DataChiusuraIter >= startDate
+                                       && atto.DataChiusuraIter <= endDate);
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataChiusuraIter[0];
+                    query = query
+                        .Where(atto => singleDate.Date == atto.DataChiusuraIter.Value.Date);
+                }
+            }
+
+            if (queryExtended.DataComunicazioneAssemblea.Any())
+            {
+                if (queryExtended.DataComunicazioneAssemblea.Count > 1)
+                {
+                    var startDate = queryExtended.DataComunicazioneAssemblea[0];
+                    var endDate = queryExtended.DataComunicazioneAssemblea[1];
+                    query = query
+                        .Where(atto => atto.DataComunicazioneAssemblea >= startDate
+                                       && atto.DataComunicazioneAssemblea <= endDate);
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataComunicazioneAssemblea[0];
+                    query = query
+                        .Where(atto => singleDate.Date == atto.DataComunicazioneAssemblea.Value.Date);
+                }
+            }
+
+            if (queryExtended.DataPresentazione.Any())
+            {
+                if (queryExtended.DataPresentazione.Count > 1)
+                {
+                    var startDate = queryExtended.DataPresentazione[0];
+                    var endDate = queryExtended.DataPresentazione[1];
+                    query = query
+                        .Where(atto => atto.Timestamp >= startDate && atto.Timestamp <= endDate);
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataPresentazione[0];
+                    query = query
+                        .Where(atto => singleDate.Date == atto.Timestamp.Value.Date);
+                }
+            }
+
+            if (queryExtended.DataAnnunzio.Any())
+            {
+                if (queryExtended.DataAnnunzio.Count > 1)
+                {
+                    var startDate = queryExtended.DataAnnunzio[0];
+                    var endDate = queryExtended.DataAnnunzio[1];
+                    query = query
+                        .Where(atto => atto.DataAnnunzio >= startDate
+                                       && atto.DataAnnunzio <= endDate);
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataAnnunzio[0];
+                    query = query
+                        .Where(atto => singleDate.Date == atto.DataAnnunzio.Value.Date);
+                }
+            }
+
+            if (queryExtended.DataRisposta.Any())
+            {
+                if (queryExtended.DataRisposta.Count > 1)
+                {
+                    var startDate = queryExtended.DataRisposta[0];
+                    var endDate = queryExtended.DataRisposta[1];
+
+                    var risposteDateQuery = PRContext.ATTI_RISPOSTE
+                        .Where(risposta => risposta.Data >= startDate
+                                           && risposta.Data <= endDate)
+                        .Select(risposta => risposta.UIDAtto);
+
+                    query = query
+                        .Where(atto => risposteDateQuery.Contains(atto.UIDAtto));
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataRisposta[0];
+
+                    var risposteDateQuery = PRContext.ATTI_RISPOSTE
+                        .Where(risposta =>
+                            singleDate.Date == risposta.Data.Value.Date)
+                        .Select(risposta => risposta.UIDAtto);
+
+                    query = query
+                        .Where(atto => risposteDateQuery.Contains(atto.UIDAtto));
+                }
+            }
+
+            if (queryExtended.DataRispostaIsNull)
+            {
+                var risposteDateNulleQuery = PRContext.ATTI_RISPOSTE
+                    .Where(risposta =>
+                        !risposta.Data.HasValue)
+                    .Select(risposta => risposta.UIDAtto);
+
+                query = query
+                    .Where(atto => risposteDateNulleQuery.Contains(atto.UIDAtto));
+            }
+
+            if (queryExtended.Ritardo.HasValue)
+            {
+                if (queryExtended.Ritardo.Value)
+                    query = query.Where(atto => atto.Ritardo > 0);
+                else
+                    query = query.Where(atto => atto.Ritardo.Equals(0));
+            }
+
+            #endregion
+
+            return query;
         }
     }
 }

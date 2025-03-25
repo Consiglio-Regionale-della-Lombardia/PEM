@@ -25,6 +25,7 @@ using PortaleRegione.Gateway;
 using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PortaleRegione.Logger;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -44,7 +45,7 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [Route("{id:guid}")]
         public async Task<ActionResult> RiepilogoAtti(Guid id, ClientModeEnum mode = ClientModeEnum.GRUPPI,
-            int page = 1, int size = 50)
+            int page = 1, int size = 20)
         {
             Session["RiepilogoEmendamenti"] = null;
             var apiGateway = new ApiGateway(Token);
@@ -185,7 +186,7 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="path">Percorso del documento atto</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("file")]
+        [Route("scarica-file-atto")]
         public async Task<ActionResult> Download(string path)
         {
             try
@@ -197,7 +198,7 @@ namespace PortaleRegione.Client.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Log.Error("Download Atto", e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }

@@ -34,6 +34,7 @@ namespace PortaleRegione.DTO.Enum
         public const string Segreteria_Assemblea = "10";
         public const string Utente = "11";
         public const string SERVIZIO_JOB = "12";
+        public const string Segreteria_Assemblea_Read = "13"; // #1035
 
         public static string ConvertToAD(RuoliIntEnum ruolo)
         {
@@ -61,6 +62,8 @@ namespace PortaleRegione.DTO.Enum
                     return "PEM_Segr_Assemblea";
                 case RuoliIntEnum.Utente:
                     return "PEM_Generic";
+                case RuoliIntEnum.Segreteria_Assemblea_Read: // #1035
+                    return "PEM_Segr_Assemblea_read";
                 case RuoliIntEnum.SERVIZIO_JOB:
                     return default;
                 default:
@@ -82,6 +85,7 @@ namespace PortaleRegione.DTO.Enum
         Presidente_Regione = 9,
         Segreteria_Assemblea = 10,
         Utente = 11,
-        SERVIZIO_JOB = 12
+        SERVIZIO_JOB = 12,
+        Segreteria_Assemblea_Read = 13 // #1035
     }
 }

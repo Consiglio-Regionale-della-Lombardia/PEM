@@ -21,7 +21,7 @@
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -48,16 +48,16 @@
 
 	<div class="row">
 		<div class="col s12">
-			<a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
+			<button type="button" role="button" class="btn-floating grey darken-3 header-back" onclick="window.close()">
 				<i class="material-icons">close</i>
-			</a>
+			</button>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col s12">
 			<div class="card">
 				<div class="card-action grey lighten-4 center">
-					<div class="chip @Model.STATI_EM.CssClass" style="min-width: unset; position: absolute; right: 10px; top: -18px;">@Model.STATI_EM.Stato</div>
+					<div class="chip @Model.STATI_EM.CssClass white" style="min-width: unset; position: absolute; right: 10px; top: -18px;">@Model.STATI_EM.Stato</div>
 					<h6>
 						<b>
 							<span>@Html.Raw(gruppoText)</span>
@@ -71,39 +71,39 @@
 							<div class="col s12" style="margin-top: 5px">
 								@if (Model.Firmabile)
 								{
-									<div class="btn chip hoverable green center white-text" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.FIRMA))">
-										<i class="icon material-icons">gavel</i> Firma
-									</div>
+									<button class="btn-flat green-text truncate" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.FIRMA))">
+										Firma
+									</button>
 								}
 								@if (Model.Depositabile)
 								{
-									<div class="btn chip hoverable purple center white-text" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.DEPOSITA))">
-										<i class="icon material-icons">lock</i> Presenta
-									</div>
+									<button class="btn-flat purple-text truncate" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.DEPOSITA))">
+										Presenta
+									</button>
 								}
 								@if (Model.Modificabile)
 								{
-									<div class="btn chip hoverable blue center white-text" onclick="go('@Url.Action("ModificaEmendamento", new { id = Model.UIDEM })')">
-										<i class="icon material-icons">edit</i> Modifica
-									</div>
+									<button class="btn-flat blue-text truncate" onclick="go('@Url.Action("ModificaEmendamento", new { id = Model.UIDEM })')">
+										Modifica
+									</button>
 								}
 								@if (Model.Invito_Abilitato)
 								{
-									<div class="btn chip hoverable amber center" onclick="NotificaAEM('@Model.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI))">
-										<i class="icon material-icons">share</i> Invita
-									</div>
+									<button class="btn-flat orange-text truncate" onclick="NotificaAEM('@Model.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI))">
+										Invita
+									</button>
 								}
 								@if (Model.Eliminabile)
 								{
-									<div class="btn chip hoverable red center white-text" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.ELIMINA))">
-										<i class="icon material-icons">delete</i> Elimina
-									</div>
+									<button class="btn-flat red-text truncate" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.ELIMINA))">
+										Elimina
+									</button>
 								}
 								@if (Model.Ritirabile)
 								{
-									<div class="btn chip hoverable red white-text center" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.RITIRA))">
-										<i class="icon material-icons">settings_backup_restore</i> Ritira EM/SUBEM
-									</div>
+									<button class="btn-flat red-text truncate" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.RITIRA))">
+										Ritira EM/SUBEM
+									</button>
 								}
 							</div>
 						</div>
@@ -170,11 +170,6 @@
 								<label class="black-text">
 									<b>@testoDeposito il @Html.Raw(Model.DataDeposito)</b>
 								</label>
-							}
-
-							@if (!string.IsNullOrEmpty(Model.Firme_dopo_deposito))
-							{
-								@Html.Raw(Model.Firme_dopo_deposito)
 							}
 						</div>
 					</div>
@@ -260,7 +255,7 @@
 	</div>
 
 	<div class="fixed-action-btn">
-		<a class="btn-floating btn-large white tooltipped" data-position="left" data-tooltip="Stampa" target="_blank" style="margin-right: 15px;" href="@Url.Action("Download", "Emendamenti", new { id = Model.UIDEM })">
+		<a class="btn-floating btn-large white tooltipped" data-position="bottom" data-tooltip="Stampa" target="_blank" style="margin-right: 15px;" href="@Url.Action("Download", "Emendamenti", new { id = Model.UIDEM })">
 			<i style="color: black;" class="large material-icons">print</i>
 		</a>
 	</div>

@@ -18,12 +18,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -31,6 +33,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using Utility = PortaleRegione.Common.Utility;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -39,17 +42,28 @@ namespace PortaleRegione.Client.Controllers
     /// </summary>
     [Authorize]
     [RoutePrefix("dasi")]
-    public class 
-        DASIController : BaseController
+    public class DASIController : BaseController
     {
         /// <summary>
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
         /// </summary>
         /// <returns></returns>
-        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
+        [Route("riepilogo")]
+        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 20, int view = (int)ViewModeEnum.GRID,
             int stato = (int)StatiAttoEnum.BOZZA, int tipo = (int)TipoAttoEnum.TUTTI)
         {
             var currentUser = CurrentUser;
+            if (CanAccess(new List<RuoliIntEnum>
+                    { RuoliIntEnum.Amministratore_PEM
+                        , RuoliIntEnum.Segreteria_Assemblea
+                        , RuoliIntEnum.Segreteria_Assemblea_Read }))
+            {
+                return View("RiepilogoDASI_Admin", new RiepilogoDASIModel
+                {
+                    CurrentUser = currentUser
+                });
+            }
+
             CheckCacheClientMode(ClientModeEnum.GRUPPI);
             await CheckCacheGruppiAdmin(currentUser.CurrentRole);
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
@@ -69,9 +83,127 @@ namespace PortaleRegione.Client.Controllers
             }
 
             Session["RiepilogoDASI"] = model;
+            return View("RiepilogoDASI", model);
+        }
+
+        [HttpPost]
+        [Route("riepilogoUOLA")]
+        public async Task<ActionResult> Riepilogo(FilterRequest model)
+        {
+            try
+            {
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = 20,
+                    param = new Dictionary<string, object>
+                    {
+                        { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI },
+                        { nameof(FilterRequest.viewMode), model.viewMode }
+                    }
+                };
+
+                if (!model.filters.Any())
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                // #990
+                if (model.sort_settings.Any())
+                {
+                    request.dettagliOrdinamento = model.sort_settings;
+                }
+                
+                // #1191
+                if (model.columns_settings.Any())
+                {
+                    request.columns = model.columns_settings;
+                }
+
+                request.page = model.page;
+                request.size = model.size;
+
+                var apiGateway = new ApiGateway(Token);
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
+
+                var res = await apiGateway.DASI.Get(request);
+                res.CurrentUser = CurrentUser;
+
+                return Json(res);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [Route("salva-gruppo-filtri")]
+        public async Task<ActionResult> SalvaGruppoFiltri(FiltroPreferitoDto model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.SalvaGruppoFiltri(model);
+                return Json("OK");
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("elimina-gruppo-filtri")]
+        public async Task<ActionResult> EliminaGruppoFiltri(string nomeFiltro)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.EliminaGruppoFiltri(nomeFiltro);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("gruppo-filtri")]
+        public async Task<ActionResult> GetGruppoFiltri()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetGruppoFiltri();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ActionResult> RiepilogoDASI()
+        {
+            var model = new RiepilogoDASIModel
+            {
+                CurrentUser = CurrentUser
+            };
 
             if (CanAccess(new List<RuoliIntEnum>
-                    { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                    { RuoliIntEnum.Amministratore_PEM
+                        , RuoliIntEnum.Segreteria_Assemblea
+                        , RuoliIntEnum.Segreteria_Assemblea_Read }))
                 return View("RiepilogoDASI_Admin", model);
 
             return View("RiepilogoDASI", model);
@@ -103,7 +235,7 @@ namespace PortaleRegione.Client.Controllers
         [HttpGet]
         [Route("seduta")]
         public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo = (int)TipoAttoEnum.TUTTI,
-            int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
+            int page = 1, int size = 20, int view = (int)ViewModeEnum.GRID,
             int stato = (int)StatiAttoEnum.PRESENTATO, string uidAtto = "")
         {
             var apiGateway = new ApiGateway(Token);
@@ -123,7 +255,9 @@ namespace PortaleRegione.Client.Controllers
             Session["RiepilogoDASI"] = model;
 
             if (CanAccess(new List<RuoliIntEnum>
-                    { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                    { RuoliIntEnum.Amministratore_PEM
+                        , RuoliIntEnum.Segreteria_Assemblea
+                        , RuoliIntEnum.Segreteria_Assemblea_Read }))
                 return View("RiepilogoDASI_Admin", model);
 
             return View("RiepilogoDASI", model);
@@ -171,12 +305,15 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
                 var apiGateway = new ApiGateway(Token);
                 var result = await apiGateway.DASI.Salva(request);
                 Session["RiepilogoDASI"] = null;
                 return Json(Url.Action("ViewAtto", "DASI", new
                 {
-                    id = result.UIDAtto
+                    id = result.UIDAtto,
+                    name = currentUser.DisplayName,
+                    codice_gruppo = currentUser.Gruppo.codice_gruppo
                 }), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -206,12 +343,12 @@ namespace PortaleRegione.Client.Controllers
                 atto.FirmeAnte = firme_ante.ToList();
                 atto.FirmePost = firme_post.ToList();
 
-                atto.Firme = await Utility.GetFirmatariDASI(
+                atto.Firme = await Helpers.Utility.GetFirmatariDASI(
                     atto.FirmeAnte,
                     currentUser.UID_persona,
                     FirmeTipoEnum.PRIMA_DEPOSITO,
                     Token);
-                atto.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
+                atto.Firme_dopo_deposito = await Helpers.Utility.GetFirmatariDASI(
                     atto.FirmePost,
                     currentUser.UID_persona,
                     FirmeTipoEnum.DOPO_DEPOSITO,
@@ -219,13 +356,31 @@ namespace PortaleRegione.Client.Controllers
 
                 if (!atto.IsChiuso)
                     atto.Destinatari =
-                        await Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
+                        await Helpers.Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
 
-                return View("AttoDASIView", new DASIFormModel
+
+                var result = new DASIFormModel
                 {
                     CurrentUser = currentUser,
                     Atto = atto
-                });
+                };
+                if (atto.Tipo == (int)TipoAttoEnum.RIS)
+                {
+                    var consiglieriPublic =
+                        await apiGateway.Persone.GetProponentiFirmatari(atto.Legislatura.ToString());
+
+                    if (consiglieriPublic.Any())
+                    {
+                        result.ListaConsiglieriPublic = consiglieriPublic;
+                    }
+                }
+
+                if (currentUser.IsSegreteriaAssemblea)
+                {
+                    return View("AttoDASIView_Admin", result);
+                }
+
+                return View("AttoDASIView", result);
             }
             catch (Exception e)
             {
@@ -915,6 +1070,116 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per esportare gli atti
         /// </summary>
         /// <returns></returns>
+        [HttpPost]
+        [Route("excel-rapido")]
+        public async Task<ActionResult> EsportaXLSRapido(FilterRequest model)
+        {
+            try
+            {
+                // #994
+
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = 20,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+                };
+
+                if (model == null)
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                if (!model.filters.Any())
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                request.page = model.page;
+                request.size = model.size;
+
+                var apiGateway = new ApiGateway(Token);
+
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
+
+                var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                var file = await apiGateway.Esporta.EsportaXLSDASI(soloIds);
+
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per esportare gli atti
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("zip-rapido")]
+        public async Task<ActionResult> EsportaZipRapido(FilterRequest model)
+        {
+            try
+            {
+                // #994
+
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = 20,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+                };
+
+                if (model == null)
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                if (!model.filters.Any())
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                request.page = model.page;
+                request.size = model.size;
+
+                var apiGateway = new ApiGateway(Token);
+
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
+
+                var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                var file = await apiGateway.Esporta.EsportaZipDASI(soloIds);
+
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per esportare gli atti
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("esportaXLS")]
         public async Task<ActionResult> EsportaXLS()
@@ -933,6 +1198,36 @@ namespace PortaleRegione.Client.Controllers
                 };
                 var soloIds = await apiGateway.DASI.GetSoloIds(request);
                 var file = await apiGateway.Esporta.EsportaXLSDASI(soloIds);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        ///     Controller per esportare gli atti per consiglieri
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("esporta-xls-consiglieri")]
+        public async Task<ActionResult> EsportaXLSConsiglieri()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var model = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = model.Data.Paging.Page,
+                    size = model.Data.Paging.Total,
+                    filtro = model.Data.Filters,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)model.ClientMode } }
+                };
+                var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                var file = await apiGateway.Esporta.EsportaXLSConsiglieriDASI(soloIds);
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1031,7 +1326,8 @@ namespace PortaleRegione.Client.Controllers
             {
                 modelInCache = new RiepilogoDASIModel
                 {
-                    ClientMode = (ClientModeEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE))),
+                    ClientMode =
+                        (ClientModeEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE))),
                     Stato = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
                     Tipo = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
                 };
@@ -1069,12 +1365,12 @@ namespace PortaleRegione.Client.Controllers
                     atti.FirmeAnte = firme_ante.ToList();
                     atti.FirmePost = firme_post.ToList();
 
-                    atti.Firme = await Utility.GetFirmatariDASI(
+                    atti.Firme = await Helpers.Utility.GetFirmatariDASI(
                         atti.FirmeAnte,
                         resultPreview.CurrentUser.UID_persona,
                         FirmeTipoEnum.PRIMA_DEPOSITO,
                         Token);
-                    atti.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
+                    atti.Firme_dopo_deposito = await Helpers.Utility.GetFirmatariDASI(
                         atti.FirmePost,
                         resultPreview.CurrentUser.UID_persona,
                         FirmeTipoEnum.DOPO_DEPOSITO,
@@ -1088,34 +1384,37 @@ namespace PortaleRegione.Client.Controllers
                 return View("RiepilogoDASI", resultPreview);
             }
 
-            if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
+            if (modelInCache != null)
             {
-                var request = new BaseRequest<AttoDASIDto>
+                if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
                 {
-                    page = modelInCache.Data.Paging.Page,
-                    size = modelInCache.Data.Paging.Limit,
-                    filtro = modelInCache.Data.Filters,
-                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
-                };
-                var resultGrid = await apiGateway.DASI.Get(request);
-                resultGrid.CurrentUser = CurrentUser;
-                resultGrid.ClientMode = modelInCache.ClientMode;
-                SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo,
-                    (int)resultGrid.Stato,
-                    Convert.ToInt16(view));
+                    var request = new BaseRequest<AttoDASIDto>
+                    {
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
+                        filtro = modelInCache.Data.Filters,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
+                    };
+                    var resultGrid = await apiGateway.DASI.Get(request);
+                    resultGrid.CurrentUser = CurrentUser;
+                    resultGrid.ClientMode = modelInCache.ClientMode;
+                    SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo,
+                        (int)resultGrid.Stato,
+                        Convert.ToInt16(view));
 
-                Session["RiepilogoDASI"] = resultGrid;
+                    Session["RiepilogoDASI"] = resultGrid;
 
-                if (CanAccess(new List<RuoliIntEnum>
-                        { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
-                    return View("RiepilogoDASI_Admin", resultGrid);
+                    if (CanAccess(new List<RuoliIntEnum>
+                            { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                        return View("RiepilogoDASI_Admin", resultGrid);
 
-                return View("RiepilogoDASI", resultGrid);
+                    return View("RiepilogoDASI", resultGrid);
+                }
             }
 
             var modeCache = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
             var mode = modeCache != 0 ? (ClientModeEnum)modeCache : ClientModeEnum.GRUPPI;
-            
+
             if (mode == ClientModeEnum.TRATTAZIONE)
             {
                 if (reset_enabled == 1)
@@ -1177,7 +1476,7 @@ namespace PortaleRegione.Client.Controllers
             }
 
             Session["RiepilogoDASI"] = null;
-            
+
             if (reset_enabled == 1)
             {
                 return RedirectToAction("RiepilogoDASI", "DASI");
@@ -1241,7 +1540,7 @@ namespace PortaleRegione.Client.Controllers
             util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
             util.AddFilter_ByStato(ref model, filtro_stato, CurrentUser);
             util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
-            util.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
+            util.AddFilter_ByTipo(ref model, filtro_tipo_trattazione, mode);
             util.AddFilter_ByMozioneUrgente(ref model, filtro_mozione_urgente);
             util.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
             util.AddFilter_BySeduta(ref model, filtro_seduta);
@@ -1480,6 +1779,964 @@ namespace PortaleRegione.Client.Controllers
             }
             catch (Exception e)
             {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per generare la dcr dell'atto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-dcr")]
+        public async Task<ActionResult> GeneraReportDcr(Guid id, int tipo)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    wordsize = (int)WordSizeEnum.A4
+                };
+
+                if (tipo.Equals((int)TipoAttoEnum.MOZ))
+                {
+                    request.dataviewtype_template = AppSettingsConfiguration.MOZ_UIDTemplateReportDCR;
+                }
+                else if (tipo.Equals((int)TipoAttoEnum.ODG))
+                {
+                    request.dataviewtype_template = AppSettingsConfiguration.ODG_UIDTemplateReportDCR;
+                }
+
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per generare la copertina per il presidente
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-copertina-presidente")]
+        public async Task<ActionResult> GeneraReportCopertinaPresidente(Guid id, int tipo, int tipo_risposta)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    wordsize = (int)WordSizeEnum.A3
+                };
+
+                switch ((TipoAttoEnum)tipo)
+                {
+                    case TipoAttoEnum.ITL:
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_SCRITTA_UIDTemplateReportCopertinaPresidente;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_ORALE_UIDTemplateReportCopertinaPresidente;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_COMMISSIONE_UIDTemplateReportCopertinaPresidente;
+                        }
+
+                        break;
+                    }
+                    case TipoAttoEnum.ITR:
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_SCRITTA_UIDTemplateReportCopertinaPresidente;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_COMMISSIONE_UIDTemplateReportCopertinaPresidente;
+                        }
+
+                        break;
+                    }
+                    case TipoAttoEnum.IQT:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.IQT_UIDTemplateReportCopertinaPresidente;
+                        break;
+                    case TipoAttoEnum.MOZ:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.MOZ_UIDTemplateReportCopertinaPresidente;
+                        break;
+                    case TipoAttoEnum.ODG:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ODG_UIDTemplateReportCopertinaPresidente;
+                        break;
+                    case TipoAttoEnum.RIS:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.RIS_UIDTemplateReportCopertinaPresidente;
+                        break;
+                }
+
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per generare la copertina per l'ufficio
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-copertina-ufficio")]
+        public async Task<ActionResult> GeneraReportCopertinaUfficio(Guid id, int tipo, int tipo_risposta)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    wordsize = (int)WordSizeEnum.A3
+                };
+
+                switch ((TipoAttoEnum)tipo)
+                {
+                    case TipoAttoEnum.ITL:
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_SCRITTA_UIDTemplateReportCopertinaUfficio;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_ORALE_UIDTemplateReportCopertinaUfficio;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_COMMISSIONE_UIDTemplateReportCopertinaUfficio;
+                        }
+
+                        break;
+                    }
+                    case TipoAttoEnum.ITR:
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_SCRITTA_UIDTemplateReportCopertinaUfficio;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_COMMISSIONE_UIDTemplateReportCopertinaUfficio;
+                        }
+
+                        break;
+                    }
+                    case TipoAttoEnum.IQT:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.IQT_UIDTemplateReportCopertinaUfficio;
+                        break;
+                    case TipoAttoEnum.MOZ:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.MOZ_UIDTemplateReportCopertinaUfficio;
+                        break;
+                    case TipoAttoEnum.ODG:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ODG_UIDTemplateReportCopertinaUfficio;
+                        break;
+                    case TipoAttoEnum.RIS:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.RIS_UIDTemplateReportCopertinaUfficio;
+                        break;
+                }
+
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per generare la copertina per l'ufficio
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-lettera")]
+        public async Task<ActionResult> GeneraReportLettera(Guid id, int tipo, int tipo_risposta)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    wordsize = (int)WordSizeEnum.A4
+                };
+
+                switch ((TipoAttoEnum)tipo)
+                {
+                    case TipoAttoEnum.ITL:
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_SCRITTA_UIDTemplateReportLettera;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.ORALE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_ORALE_UIDTemplateReportLettera;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITL_COMMISSIONE_UIDTemplateReportLettera;
+                        }
+
+                        break;
+                    }
+                    case TipoAttoEnum.ITR:
+                    {
+                        if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.SCRITTA)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_SCRITTA_UIDTemplateReportLettera;
+                        }
+                        else if ((TipoRispostaEnum)tipo_risposta == TipoRispostaEnum.COMMISSIONE)
+                        {
+                            request.dataviewtype_template =
+                                AppSettingsConfiguration.ITR_COMMISSIONE_UIDTemplateReportLettera;
+                        }
+
+                        break;
+                    }
+                    case TipoAttoEnum.MOZ:
+                    {
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.MOZ_UIDTemplateReportLettera;
+
+                        break;
+                    }
+                    case TipoAttoEnum.ODG:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.ODG_UIDTemplateReportLettera;
+                        break;
+                    case TipoAttoEnum.RIS:
+                        request.dataviewtype_template =
+                            AppSettingsConfiguration.RIS_UIDTemplateReportLettera;
+                        break;
+                }
+
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        ///     Controller per generare la copertina per l'ufficio
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("genera-report-lettera-assemblea-moz")]
+        public async Task<ActionResult> GeneraReportLetteraAssembleaMOZ(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+
+                var filters = new List<FilterItem>
+                {
+                    new FilterItem
+                    {
+                        property = nameof(AttoDASIDto.UIDAtto),
+                        value = id.ToString()
+                    }
+                };
+                var request = new ReportDto
+                {
+                    filters = JsonConvert.SerializeObject(filters),
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    dataviewtype = (int)DataViewTypeEnum.TEMPLATE,
+                    wordsize = (int)WordSizeEnum.A4
+                };
+
+                request.dataviewtype_template =
+                    AppSettingsConfiguration.MOZ_COMMISSIONE_UIDTemplateReportLettera;
+
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per scaricare il documento pdf dell'atto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("genera-report")]
+        public async Task<ActionResult> GeneraReport(ReportDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var file = await apiGateway.DASI.GeneraReport(request);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [Route("salva-report")]
+        public async Task<ActionResult> SalvaReport(ReportDto report)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.SalvaReport(report);
+                return Json("OK");
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("elimina-report")]
+        public async Task<ActionResult> EliminaReport(string nomeReport)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.EliminaReport(nomeReport);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("get-reports")]
+        public async Task<ActionResult> GetReports()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetReports();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("view-abbinamenti-disponibili")]
+        public async Task<ActionResult> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetAbbinamentiDisponibili(legislaturaId, page, size);
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("view-gruppi-disponibili")]
+        public async Task<ActionResult> GetGruppiDisponibili(int legislaturaId, int page, int size)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetGruppiDisponibili(legislaturaId, page, size);
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("view-organi-disponibili")]
+        public async Task<ActionResult> GetOrganiDisponibili(int legislaturaId)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetOrganiDisponibili(legislaturaId);
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("view-reports-covers")]
+        public async Task<ActionResult> GetReportsCovers()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetReportsCovers();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("view-reports-card-templates")]
+        public async Task<ActionResult> GetReportsCardTemplates()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetReportsCardTemplates();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [Route("genera-zip")]
+        public async Task<ActionResult> GeneraZip(ReportDto report)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var file = await apiGateway.DASI.GeneraZIP(report);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per il salvataggio dell' atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-info-generali")]
+        public async Task<ActionResult> Salva_InformazioniGeneraliAtto(AttoDASI_InformazioniGeneraliDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_InformazioniGenerali(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per il aggiungere un nuovo abbinamento all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-abbinamento")]
+        public async Task<ActionResult> Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_NuovoAbbinamento(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere un abbinamento all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-abbinamento")]
+        public async Task<ActionResult> Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Rimuovi_Abbinamento(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per aggiungere una risposta all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-nuova-risposta")]
+        public async Task<ActionResult> Salva_NuovaRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var risposta = await apiGateway.DASI.Salva_NuovaRisposta(request);
+                return Json(risposta, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere una risposta all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-risposta")]
+        public async Task<ActionResult> Salva_RimuoviRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Rimuovi_Risposta(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare i dettagli di una risposta all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-dettagli-risposta")]
+        public async Task<ActionResult> Salva_DettagliRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_DettagliRisposta(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare le informazioni di una risposta all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-informazioni-risposta")]
+        public async Task<ActionResult> Salva_InformazioniRisposta(AttoDASIDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_InformazioniRisposta(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per aggiungere un organo monitorato all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-monitoraggio")]
+        public async Task<ActionResult> Salva_NuovoMonitoraggio(AttiRisposteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_NuovoMonitoraggio(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere il monitoraggio all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-monitoraggio")]
+        public async Task<ActionResult> Salva_RimuoviMonitoraggio(AttiRisposteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Rimuovi_Monitoraggio(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere il monitoraggio all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-info-monitoraggio")]
+        public async Task<ActionResult> Salva_InformazioniMonitoraggio(AttoDASIDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_InfoMonitoraggio(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare le informazioni di chiusura iter
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-info-chiusura-iter")]
+        public async Task<ActionResult> Salva_InformazioniChiusuraIter(AttoDASIDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_InfoChiusuraIter(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare una nota all'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-nota")]
+        public async Task<ActionResult> Salva_Nota(NoteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_Nota(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere una nota dall'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-nota")]
+        public async Task<ActionResult> Salva_RimuoviNota(NoteDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Rimuovi_Nota(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare le informazioni riguardanti la privacy dall'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-privacy")]
+        public async Task<ActionResult> Salva_PrivacyAtto(AttoDASIDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_PrivacyAtto(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare un documento caricato dall'utente per un atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-documento")]
+        public async Task<ActionResult> Salva_Documento()
+        {
+            // Verifica che la richiesta contenga dei file
+            if (Request.Files == null || Request.Files.Count == 0)
+            {
+                ;
+                return Json(new ErrorResponse("Nessun file caricato."), JsonRequestBehavior.AllowGet);
+            }
+
+            // Ottieni il file dalla richiesta
+            var file = Request.Files[0];
+
+            // Valida il file (es. tipo MIME, dimensione massima)
+            if (file.ContentLength <= 0)
+            {
+                return Json(new ErrorResponse("Il file è vuoto."), JsonRequestBehavior.AllowGet);
+            }
+
+            if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(new ErrorResponse("Formato file non valido. Solo PDF accettati."),
+                    JsonRequestBehavior.AllowGet);
+            }
+
+            try
+            {
+                // Converte il file in un array di byte
+                byte[] fileData;
+                using (var binaryReader = new BinaryReader(file.InputStream))
+                {
+                    fileData = binaryReader.ReadBytes(file.ContentLength);
+                }
+
+                var request = new SalvaDocumentoRequest
+                {
+                    UIDAtto = Guid.Parse(Request.Form["UIDAtto"]),
+                    Tipo = int.Parse(Request.Form["TipoDocumento"]),
+                    Nome = file.FileName,
+                    Contenuto = fileData
+                };
+
+                if (!string.IsNullOrEmpty(Request.Form["Uid"]))
+                {
+                    request.Uid = Guid.Parse(Request.Form["Uid"]);
+                }
+
+                var apiGateway = new ApiGateway(Token);
+                var documento = await apiGateway.DASI.Salva_DocumentoAtto(request);
+                return Json(documento, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere un documento dall'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-documento")]
+        public async Task<ActionResult> Salva_RimuoviDocumento(AttiDocumentiDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Rimuovi_Documento(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per pubblicare un documento dall'atto
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("pubblica-documento")]
+        public async Task<ActionResult> Salva_PubblicaDocumento(AttiDocumentiDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Pubblica_Documento(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare massivamente i dati di una lista di atti
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-comando-massivo")]
+        public async Task<ActionResult> Salva_ComandoMassivo(SalvaComandoMassivoRequest request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Salva_ComandoMassivo(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }

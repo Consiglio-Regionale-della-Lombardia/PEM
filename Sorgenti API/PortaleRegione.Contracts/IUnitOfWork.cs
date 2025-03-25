@@ -42,6 +42,10 @@ namespace PortaleRegione.Contracts
         INotifiche_DestinatariRepository Notifiche_Destinatari { get; }
         IDASIRepository DASI { get; }
         IAttiFirmeRepository Atti_Firme { get; }
+        IFiltriRepository Filtri { get; }
+        IReportsRepository Reports { get; }
+        ITemplatesRepository Templates { get; }
+        ISessionsRepository Sessioni { get; }
 
         /// <summary>
         /// Salva le operazioni fatte finora nel Context

@@ -111,11 +111,11 @@ namespace PortaleRegione.Persistance
             var result = await PRContext
                 .ATTI_FIRME
                 .Where(f => f.UIDAtto == attoUId && f.Valida)
-                .OrderBy(f => f.Timestamp)
-                .ThenBy(f => f.OrdineVisualizzazione)
                 .ToListAsync();
-
-            return result;
+            //#983
+            return result.OrderBy(f => f.Timestamp.Date)
+                .ThenBy(f => f.OrdineVisualizzazione)
+                .ToList();
         }
 
         public async Task<List<ATTI_FIRME>> GetFirmatari(List<Guid> guids, int max_result)
@@ -127,8 +127,12 @@ namespace PortaleRegione.Persistance
                     .ATTI_FIRME
                     .Where(f => guid == f.UIDAtto && f.Valida && string.IsNullOrEmpty(f.Data_ritirofirma) &&
                                 f.Prioritario)
-                    .OrderBy(f => f.Timestamp)
                     .ToListAsync();
+                //#983
+                result = result.OrderBy(f => f.Timestamp.Date)
+                    .ThenBy(f => f.OrdineVisualizzazione)
+                    .ToList();
+
                 result.AddRange(res.Take(max_result));
             }
 
@@ -178,6 +182,41 @@ namespace PortaleRegione.Persistance
 
             return false;
         }
+        
+        /// <summary>
+        ///     Controlla che l'atto sia firmabile
+        /// </summary>
+        /// <param name="atto"></param>
+        /// <param name="persona"></param>
+        /// <returns></returns>
+        public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, List<AttiFirmeDto> firme, PersonaDto persona, bool firma_ufficio = false)
+        {
+            if (persona == null)
+                return false;
+            // #721
+            if (!persona.IsConsigliereRegionale && !firma_ufficio)
+                return false;
+            if (atto.IsChiuso) return false;
+            if (atto.DataIscrizioneSeduta.HasValue) return false;
+            if (atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
+                && (atto.Tipo == (int)TipoAttoEnum.ITL
+                    && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
+                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA
+                    || atto.Tipo == (int)TipoAttoEnum.ITR
+                    && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
+                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA))
+            {
+                return false;
+            }
+
+            var firma_personale = firme.Any(f=> f.UID_persona.Equals(persona.UID_persona));
+            var firma_proponente = atto.Firmato_Dal_Proponente;
+
+            if (firma_personale == false && (firma_proponente || atto.UIDPersonaProponente == persona.UID_persona))
+                return true;
+
+            return false;
+        }
 
         /// <summary>
         ///     Controlla se l'ufficio ha firmato l'atto
@@ -216,15 +255,20 @@ namespace PortaleRegione.Persistance
 
             var firmaProponente = await PRContext
                 .ATTI_FIRME
-                .SingleOrDefaultAsync(f =>
+                .FirstOrDefaultAsync(f =>
                     f.UIDAtto == atto.UIDAtto
-                    && f.UID_persona == atto.UIDPersonaProponente
+                    && f.PrimoFirmatario
                     && f.Valida);
+
+            if (firmaProponente == null)
+            {
+                return new List<ATTI_FIRME>();
+            }
 
             var query = PRContext
                 .ATTI_FIRME
                 .Where(f => f.UIDAtto == atto.UIDAtto
-                            && f.UID_persona != atto.UIDPersonaProponente
+                            && f.UID_persona != firmaProponente.UID_persona
                             && f.Valida);
             switch (tipo)
             {
@@ -241,6 +285,9 @@ namespace PortaleRegione.Persistance
                 case FirmeTipoEnum.ATTIVI:
                     query = query.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
                     break;
+                case FirmeTipoEnum.RITIRATI:
+                    query = query.Where(f => !string.IsNullOrEmpty(f.Data_ritirofirma));
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
             }
@@ -252,7 +299,10 @@ namespace PortaleRegione.Persistance
             var lst = await query
                 .ToListAsync();
 
-            if (firmaProponente != null && tipo != FirmeTipoEnum.DOPO_DEPOSITO) lst.Insert(0, firmaProponente);
+            if (firmaProponente != null 
+                && tipo != FirmeTipoEnum.DOPO_DEPOSITO
+                && tipo != FirmeTipoEnum.RITIRATI) 
+                lst.Insert(0, firmaProponente);
 
             return lst;
         }

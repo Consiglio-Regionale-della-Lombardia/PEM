@@ -137,7 +137,12 @@ namespace PortaleRegione.BAL
                 var lRuoli = Gruppi_Utente.Select(@group => $"CONSIGLIO\\{@group}").ToList();
 
                 var token = await GetToken(persona, lRuoli);
-
+                await _unitOfWork.Sessioni.NuovaSessione(new Sessioni
+                {
+                    DataIngresso = DateTime.Now,
+                    uidSessione = Guid.NewGuid(),
+                    uidUtente = persona.UID_persona
+                });
                 return new LoginResponse
                 {
                     jwt = token,
@@ -333,6 +338,11 @@ namespace PortaleRegione.BAL
             {
                 throw e;
             }
+        }
+
+        public async Task Logout(Guid currentUid)
+        {
+            await _unitOfWork.Sessioni.ChiudiSessione(currentUid);
         }
     }
 }

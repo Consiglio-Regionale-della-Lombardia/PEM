@@ -9,7 +9,7 @@
     ViewBag.Title = "Autenticazione";
 }
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,6 +24,14 @@
             float: none !important;
             margin-left: auto;
             margin-right: auto;
+        }
+
+        .versione {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            padding: 10px;
+            font-size: 14px;
         }
     </style>
 
@@ -70,9 +78,9 @@
                 </div>
             </div>
             <div class="card-action right-align">
-                <div class="btn chip hoverable green lighten-1 center white-text" onclick="login()">
-                    <i class="icon material-icons">lock_open</i> Accedi
-                </div>
+                <button type="button" role="button" class="btn-flat green-text" onclick="login()">
+                    Accedi
+                </button>
 
                 @{
                     if (!string.IsNullOrEmpty(Model.LoginRequest.MessaggioErrore))
@@ -89,20 +97,13 @@
     </div>
 </div>
 
-<div class="row" style="max-width: 500px">
+<div class="versione">
     <div class="col s12 center">
-        <div class="card">
-            <div class="card-content">
-				<b>versione @Model.versione</b>
-            </div>
-        </div>
-        
+        <b>versione @Model.versione</b>
     </div>
 </div>
 
-
 <script>
-
     document.addEventListener("DOMContentLoaded",
         function() {
             // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/

@@ -78,5 +78,8 @@ namespace PortaleRegione.DTO.Domain.Essentials
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int id { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public Guid uid { get; set; }
     }
 }

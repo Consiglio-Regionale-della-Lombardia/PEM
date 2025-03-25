@@ -67,23 +67,23 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<STAMPE>> GetAll(int? page, int? size)
+        public async Task<IEnumerable<STAMPE>> GetAll(int page, int size)
         {
-            // #961
-            var lockedCount = await PRContext.STAMPE.CountAsync(s => s.Lock && !s.DataFineEsecuzione.HasValue);
-
-            if (lockedCount >= 5)
-            {
-                return new List<STAMPE>();
-            }
-
             return await PRContext
                 .STAMPE
                 .Where(s => !s.Lock)
-                .OrderByDescending(s => s.CurrentRole)
-                .ThenBy(s => s.DataRichiesta)
-                .Skip((page.Value - 1) * size.Value)
-                .Take(size.Value)
+                .OrderBy(s => s.Query.Length)
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<STAMPE>> GetStampeFascicolo(Guid uidFascicolo)
+        {
+            return await PRContext
+                .STAMPE
+                .Where(s => s.UIDFascicolo.Value.Equals(uidFascicolo))
+                .OrderBy(s => s.NumeroFascicolo)
                 .ToListAsync();
         }
 

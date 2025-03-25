@@ -76,6 +76,9 @@
     <Reference Include="EPPlus.System.Drawing, Version=6.1.1.0, Culture=neutral, PublicKeyToken=2308d35469c9bac0, processorArchitecture=MSIL">
       <HintPath>packages\EPPlus.System.Drawing.6.1.1\lib\net462\EPPlus.System.Drawing.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.IO.RecyclableMemoryStream, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.IO.RecyclableMemoryStream.3.0.0\lib\netstandard2.0\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
     </Reference>
@@ -104,6 +107,7 @@
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Security" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -123,6 +127,10 @@
     <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.Common\PortaleRegione.Common.csproj">
+      <Project>{4948DD2A-A842-46A9-B987-A537894487BF}</Project>
+      <Name>PortaleRegione.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.Crypto\PortaleRegione.Crypto.csproj">
       <Project>{CE1501B2-58D4-47AC-8D15-E2AA307E401B}</Project>
       <Name>PortaleRegione.Crypto</Name>
@@ -130,10 +138,6 @@
     <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.DTO\PortaleRegione.DTO.csproj">
       <Project>{a7ada419-a178-40da-85cc-63f6875e5793}</Project>
       <Name>PortaleRegione.DTO</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Sorgenti Client\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj">
-      <Project>{34C5C26E-50BD-49F3-8500-62A8C209273B}</Project>
-      <Name>PortaleRegione.Gateway</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

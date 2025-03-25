@@ -9,11 +9,13 @@
         }
 </style>
 
+
+
 {ODG_RIFERIMENTO_COMMENTO_START}
 <div class="row">
     <div class="col s12 center">
         <h5>
-            Al <b>{lblTitoloPDLEMView}</b> "{lblSubTitoloPDLEMView}"
+            Al <b>{lblTitoloPDLEMView}</b> {lblSubTitoloPDLEMView}
         </h5>
     </div>
 </div>
@@ -28,10 +30,11 @@
     </div>
 </div>
 {TIPO_RISPOSTA_COMMENTO_END}
+
 <div class="row">
-    <div class="col s12 right-align">
+    <div class="col s12 {DEFAULT_INTESTAZIONE_ALIGN}">
         <h6>
-            <b>Al Presidente del Consiglio regionale della Lombardia</b>
+            <b>{DEFAULT_INTESTAZIONE}</b>
         </h6>
     </div>
 </div>
@@ -42,6 +45,45 @@
         </h6>
     </div>
 </div>
+{PROPONENTI_COMMENTO_START}
+<div class="row">
+    <div class="col s12 center">
+        <span>
+            {lblProponentiATTOView}
+        </span>
+    </div>
+</div>
+{PROPONENTI_COMMENTO_END}
+
+{RELATORE1_COMMENTO_START}
+<div class="row">
+    <div class="col s12 left-align">
+        <span>
+            <b>Relatore primario:</b> <i>{RELATORE1}</i>
+        </span>
+    </div>
+</div>
+{RELATORE1_COMMENTO_END}
+
+{RELATORE2_COMMENTO_START}
+<div class="row">
+    <div class="col s12 left-align">
+        <span>
+            <b>Relatore secondario:</b> <i>{RELATORE2}</i>
+        </span>
+    </div>
+</div>
+{RELATORE2_COMMENTO_END}
+
+{RELATOREMINORANZA_COMMENTO_START}
+<div class="row">
+    <div class="col s12 left-align">
+        <span>
+            <b>Relatore minoranza:</b> <i>{RELATOREMINORANZA}</i>
+        </span>
+    </div>
+</div>
+{RELATOREMINORANZA_COMMENTO_END}
 <div class="row">
     <div class="col s12 left-align">
         {lblPremesseATTOView}

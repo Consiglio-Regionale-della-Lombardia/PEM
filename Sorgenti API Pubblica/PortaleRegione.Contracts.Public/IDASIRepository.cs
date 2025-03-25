@@ -21,7 +21,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request.Public;
 
 namespace PortaleRegione.Contracts.Public
 {
@@ -44,15 +48,17 @@ namespace PortaleRegione.Contracts.Public
         /// <param name="page">La pagina di risultati da recuperare.</param>
         /// <param name="size">Il numero di elementi per pagina.</param>
         /// <param name="filtro">Un filtro opzionale per restringere i risultati.</param>
+        /// <param name="request"></param>
         /// <returns>Un elenco paginato di ATTI_DASI che soddisfano i criteri di filtro.</returns>
-        Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro = null);
+        Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro, CercaRequest request);
 
         /// <summary>
         ///     Conta il numero di ATTI_DASI che soddisfano un determinato filtro.
         /// </summary>
         /// <param name="filtro">Un filtro opzionale per restringere i risultati.</param>
+        /// <param name="request"></param>
         /// <returns>Il conteggio degli ATTI_DASI che soddisfano i criteri di filtro.</returns>
-        Task<int> Count(Filter<ATTI_DASI> filtro = null);
+        Task<int> Count(Filter<ATTI_DASI> filtro,CercaRequest request);
 
         /// <summary>
         ///     Recupera le firme associate a un specifico atto DASI.
@@ -61,5 +67,30 @@ namespace PortaleRegione.Contracts.Public
         /// <param name="tipo">Il tipo di firme da recuperare.</param>
         /// <returns>Un elenco di ATTI_FIRME associate all'atto specificato.</returns>
         Task<List<ATTI_FIRME>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo);
+
+        /// <summary>
+        ///     Ottiene le commissioni di un atto
+        /// </summary>
+        /// <param name="uidAtto"></param>
+        /// <returns></returns>
+        Task<List<KeyValueDto>> GetCommissioniPerAtto(Guid uidAtto);
+
+        /// <summary>
+        ///     Ottiene le risposte all'atto
+        /// </summary>
+        /// <param name="uidAtto"></param>
+        /// <returns></returns>
+        Task<List<ATTI_RISPOSTE>> GetRisposte(Guid uidAtto);
+
+        /// <summary>
+        ///     Ottiene i documenti dell'atto
+        /// </summary>
+        /// <param name="uidAtto"></param>
+        /// <returns></returns>
+        Task<List<ATTI_DOCUMENTI>> GetDocumenti(Guid uidAtto);
+
+        Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto);
+        Task<List<NoteDto>> GetNote(Guid uidAtto);
+        Task<List<KeyValueDto>> GetCommissioniProponenti(Guid uidAtto);
     }
 }

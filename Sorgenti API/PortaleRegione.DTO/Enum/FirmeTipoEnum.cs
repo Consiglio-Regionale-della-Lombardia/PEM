@@ -23,6 +23,7 @@ namespace PortaleRegione.DTO.Enum
         TUTTE,
         PRIMA_DEPOSITO,
         DOPO_DEPOSITO,
-        ATTIVI
+        ATTIVI,
+        RITIRATI
     }
 }

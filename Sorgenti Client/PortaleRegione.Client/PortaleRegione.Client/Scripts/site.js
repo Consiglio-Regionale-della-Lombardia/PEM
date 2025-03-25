@@ -9,10 +9,73 @@ document.addEventListener("DOMContentLoaded",
         // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/
         M.AutoInit();
         loaderView(false);
+
+        Accessibilita_Truncate();
+        Accessibilita_TabIndex();
+        Accessibilita_Tooltip();
+        ensureButtonAttributes();
     });
 
+function Accessibilita_Truncate() {
+	document.querySelectorAll('.btn-flat').forEach(element => {
+		element.classList.add('truncate');
+	});
+}
+
+function Accessibilita_TabIndex() {
+	const interactiveElements = document.querySelectorAll(
+		"a, button, input, select, textarea, [tabindex]"
+	);
+
+	let tabindex = 1;
+	interactiveElements.forEach(el => {
+		// Assegna tabindex solo se non è già impostato
+		if (!el.hasAttribute("tabindex")) {
+			el.setAttribute("tabindex", tabindex);
+			tabindex++;
+		}
+	});
+}
+
+function Accessibilita_Tooltip() {
+	// Seleziona tutti gli elementi con l'attributo data-tooltip
+	const tooltipElements = document.querySelectorAll("[data-tooltip]");
+
+	tooltipElements.forEach(el => {
+		const tooltipText = el.getAttribute("data-tooltip");
+
+		// Aggiungi aria-label solo se non esiste già
+		if (tooltipText && !el.hasAttribute("aria-label")) {
+			el.setAttribute("aria-label", tooltipText);
+		}
+	});
+}
+
+// Funzione per controllare e aggiungere attributi ai pulsanti
+function ensureButtonAttributes() {
+	// Seleziona tutti i pulsanti nella pagina
+	const buttons = document.querySelectorAll('button');
+
+	// Itera attraverso ogni pulsante
+	buttons.forEach(button => {
+		// Controlla e aggiunge l'attributo type="button" se non esiste
+		if (!button.hasAttribute('type')) {
+			button.setAttribute('type', 'button');
+		}
+
+		// Controlla e aggiunge l'attributo role="button" se non esiste
+		if (!button.hasAttribute('role')) {
+			button.setAttribute('role', 'button');
+		}
+	});
+}
+
+function getUrlParameter(name) {
+	const urlParams = new URLSearchParams(window.location.search);
+	return urlParams.get(name);
+}
+
 function loaderView(enable) {
-    console.log("ENABLE", enable)
     if (enable) {
         $("body").removeClass("loaded");
     } else {
@@ -180,12 +243,6 @@ async function openMetaDati(emendamentoUId) {
         function() {
             SpostaDOWN_EMTrattazione(em);
         });
-}
-
-async function openMetaDatiDASI(attoUId) {
-    var atto = await GetAtto(attoUId);
-    await LoadMetaDatiAtto(atto);
-    $("#modalMetaDati").modal("open");
 }
 
 function Sposta_EMTrattazione(em) {
@@ -945,7 +1002,7 @@ function CambioStatoMassivoDASI(stato, descr) {
     var text = "";
     var listaAtti = getListaAtti();
     var selezionaTutti = getSelezionaTutti_DASI();
-    var text_counter = GetCounterAlert(listaAtti, selezionaTutti);
+    var text_counter = GetCounterAlertStampa(listaAtti, selezionaTutti);
     text = "Cambia stato di " + text_counter + " atti in " + descr;
 
     swal(text,
@@ -969,6 +1026,7 @@ function CambioStatoMassivoDASI(stato, descr) {
                 dataType: "json"
             }).done(function(data) {
                 waiting(false);
+                setListaAtti([])
                 DeselectALLEM();
                 location.reload();
             }).fail(function(err) {
@@ -1080,7 +1138,7 @@ async function GetArticoliAtto(attoUId) {
     var table = $("#tableArticoli");
     table.empty();
 
-    table.append('<li class="collection-item"><div>Nuovo articolo <a onclick="CreaArticolo(\'' +
+    table.append('<li class="collection-item"><div>Nuovo articolo <button type="button" role="button" onclick="CreaArticolo(\'' +
         attoUId +
         '\')" class="secondary-content blue-text"><i class="material-icons">add</i></a></div></li>');
 
@@ -1093,9 +1151,9 @@ async function GetArticoliAtto(attoUId) {
                 '"><div>' +
                 item.Articolo +
                 " " +
-                '<a onclick="EliminaArticolo(\'' +
+                '<button type="button" role="button" onclick="EliminaArticolo(\'' +
                 item.UIDArticolo +
-                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></a>' +
+                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></button>' +
                 "</div></li>");
         });
 }
@@ -1113,9 +1171,9 @@ async function GetCommiArticolo(articoloUId) {
     var table = $("#tableCommi");
     table.empty();
 
-    table.append('<li class="collection-item"><div>Nuovo comma <a onclick="CreaComma(\'' +
+    table.append('<li class="collection-item"><div>Nuovo comma <button type="button" role="button" onclick="CreaComma(\'' +
         articoloUId +
-        '\')" class="secondary-content blue-text"><i class="material-icons">add</i></a></div></li>');
+        '\')" class="secondary-content blue-text"><i class="material-icons">add</i></button></div></li>');
 
     $.each(commi,
         function(index, item) {
@@ -1126,9 +1184,9 @@ async function GetCommiArticolo(articoloUId) {
                 '"><div>' +
                 item.Comma +
                 " " +
-                '<a onclick="EliminaComma(\'' +
+                '<button type="button" role="button" onclick="EliminaComma(\'' +
                 item.UIDComma +
-                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></a>' +
+                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></button>' +
                 "</div></li>");
         });
 }
@@ -1141,9 +1199,9 @@ async function GetLettereComma(commaUId) {
     var table = $("#tableLettere");
     table.empty();
 
-    table.append('<li class="collection-item"><div>Nuova lettera <a onclick="CreaLettera(\'' +
+    table.append('<li class="collection-item"><div>Nuova lettera <button type="button" role="button" onclick="CreaLettera(\'' +
         commaUId +
-        '\')" class="secondary-content blue-text"><i class="material-icons">add</i></a></div></li>');
+        '\')" class="secondary-content blue-text"><i class="material-icons">add</i></button></div></li>');
 
     $.each(lettere,
         function(index, item) {
@@ -1152,9 +1210,9 @@ async function GetLettereComma(commaUId) {
                 "'><div>" +
                 item.Lettera +
                 " " +
-                '<a onclick="EliminaLettera(\'' +
+                '<button type="button" role="button" onclick="EliminaLettera(\'' +
                 item.UIDLettera +
-                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></a>' +
+                '\')" class="secondary-content"><i class="material-icons red-text">delete</i></button>' +
                 "</div></li>");
         });
 }
@@ -1537,6 +1595,36 @@ function StampaUOLA(ctrl) {
             }
         });
     }
+    
+    function StampaReportRapido(ctrl) {
+        var url = $(ctrl).data("url");
+        $.ajax({
+            url: url,
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function() {
+                console.log("RICHIESTA INVIATA");
+                waiting(true, "Elaborazione in corso...");
+            },
+            success: function (response) {
+                console.log("Risposta ricevuta", response);
+                var a = document.createElement("a");
+                a.href = response;
+				a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            },
+            error: function(xhr, status, error) {
+                console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                waiting(false);
+            },
+            complete: function() {
+                console.log("Chiamata completata");
+                waiting(false);
+            }
+        });
+    }
 
 // NOTIFICATION SWEETALERT.JS
 
@@ -1625,3 +1713,37 @@ function removeA(arr) {
     }
     return arr;
 }
+
+function formatDateToISO(dateStr) {
+  var parts = dateStr.split('/');
+  return `${parts[2]}-${('0' + parts[1]).slice(-2)}-${('0' + parts[0]).slice(-2)}`;
+}
+
+function handleDateValue(currentValue) {
+	 if (!currentValue) {
+    return { date1: '', date2: '' };
+  }
+  var dates = currentValue.split(',');
+  if (dates.length === 1) {
+    return { date1: formatDateToISO(dates[0]), date2: '' };
+  } else if (dates.length === 2) {
+    return { date1: formatDateToISO(dates[0]), date2: formatDateToISO(dates[1]) };
+  }
+  return { date1: '', date2: '' };
+}
+
+// Verifica se il valore è nel formato /Date(XXXXXXXXXXXX)/
+		const dateRegex = /\/Date\((\d+)\)\//;
+
+const formatDate = (data) => {
+			const match = data.match(dateRegex);
+			if (match) {
+				const timestamp = parseInt(match[1], 10);
+				const date = new Date(timestamp);
+				const day = String(date.getDate()).padStart(2, '0');
+				const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+				const year = date.getFullYear();
+				return `${day}/${month}/${year}`;
+			}
+			return '';
+		};

@@ -10,7 +10,7 @@
 
 <div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="javascript:history.go(-1)">
+        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="javascript:history.go(-1)">
             <i class="material-icons">arrow_back</i>
         </a>
         <div class="row valign-wrapper">
@@ -65,39 +65,39 @@
                         </span>
                         @if (!seduta.Data_apertura.HasValue)
                         {
-                            <div class="chip white grey-text hide-on-med-and-down" style="border: 1px solid grey; min-width: unset;">Chiusa</div>
+                            <div class="btn-flat grey-text hide-on-med-and-down">Chiusa</div>
                         }
                         else if (seduta.Data_apertura > DateTime.Now)
                         {
-                            <div class="chip white grey-text hide-on-med-and-down" style="border: 1px solid grey; min-width: unset;">Chiusa</div>
+                            <div class="btn-flat grey-text hide-on-med-and-down">Chiusa</div>
                         }
                         else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                         {
-                            <div class="chip white green-text hide-on-med-and-down" style="border: 1px solid green; min-width: unset;">Aperta</div>
+                            <div class="btn-flat green-text hide-on-med-and-down">Aperta</div>
                         }
                         @if (!string.IsNullOrEmpty(seduta.Note))
                         {
-                            <div class="chip chip-centered white black-text hide-on-med-and-down" style="border: 1px solid black; min-width: unset;">@seduta.Note</div>
+                            <div class="btn-flat purple-text hide-on-med-and-down">@seduta.Note</div>
                         }
                     </div>
 
                     @*COMANDI*@
                     <div class="col s3 right-align hide-on-med-and-down" style="margin: 5px;">
-                        <a class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
-                            <i class="material-icons" style="margin-right:5px">edit</i>
-                        </a>
-                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
-                            <i class="material-icons" style="margin-right:5px">chevron_right</i>
-                        </a>
+                        <button type="button" role="button" class="btn-flat blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                            MODIFICA
+                        </button>
+                        <button type="button" role="button" class="btn-flat black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                            RIEPILOGO ATTI
+                        </button>
                     </div>
                     @*COMANDI MOBILE*@
                     <div class="col s3 right-align hide-on-large-only" style="margin: 5px;">
-                        <a class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                        <button type="button" role="button" class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
                             <i class="material-icons" style="margin-right:5px">edit</i>
-                        </a>
-                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                        </button>
+                        <button type="button" role="button" class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
                             <i class="material-icons" style="margin-right:5px">chevron_right</i>
-                        </a>
+                        </button>
                     </div>
                 </div>
                 <div class="collapsible-body">
@@ -198,9 +198,9 @@
 </div>
 
 <div class="fixed-action-btn">
-    <a id="btnCreaSeduta" class="btn-floating btn-large blue darken-1">
+    <button type="button" role="button" id="btnCreaSeduta" class="btn-floating btn-large blue darken-3" onclick="go('@Url.Action("NuovaSeduta", "PEM")')">
         <i class="large material-icons">add</i>
-    </a>
+    </button>
 </div>
 
 
@@ -232,7 +232,6 @@
         Filtri_Sedute_CaricaDa("filter_sedute_da");
         Filtri_Sedute_CaricaA("filter_sedute_a");
 
-        $('#btnCreaSeduta').attr('href', '@Url.Action("NuovaSeduta", "PEM")');
         $('#btnSearch').on("click",
             function() {
                 openSearch();

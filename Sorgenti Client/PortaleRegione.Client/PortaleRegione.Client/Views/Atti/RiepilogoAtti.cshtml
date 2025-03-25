@@ -14,7 +14,7 @@
 
 <div class="row">
     <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
+        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
             <i class="material-icons">arrow_back</i>
         </a>
         <div class="row valign-wrapper">
@@ -57,7 +57,7 @@
             if (atto.Data_chiusura.Value < DateTime.Now)
             {
                 statoAtto = "Chiuso";
-                coloreStatoAtto = "grey";
+                coloreStatoAtto = "grey-text";
             }
         }
         if (string.IsNullOrEmpty(statoAtto))
@@ -65,12 +65,12 @@
             if (!atto.Data_apertura.HasValue)
             {
                 statoAtto = "Chiuso";
-                coloreStatoAtto = "grey";
+                coloreStatoAtto = "grey-text";
             }
             else if (atto.Data_apertura.Value < DateTime.Now)
             {
                 statoAtto = "Aperto";
-                coloreStatoAtto = "green";
+                coloreStatoAtto = "green-text";
             }
             else
             {
@@ -86,7 +86,7 @@
                     statoAtto = $"Apertura prevista: {atto.Data_apertura.Value:dd/MM/yyyy HH:mm}";
                 }
 
-                coloreStatoAtto = "green";
+                coloreStatoAtto = "green-text";
             }
         }
 
@@ -100,17 +100,17 @@
                                     <b>@titolo_atto</b>
                                     @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                     {
-                                        <a class="btn-flat pink-text hide-on-large-only"
-                                           href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
-                                            <i class="material-icons right pink-text">cloud_download</i>
-                                        </a>
+                                        <button type="button" role="button" class="btn-flat pink-text hide-on-large-only"
+                                                onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')" title="Scarica documento">
+                                            SCARICA TESTO
+                                        </button>
                                     }
                                 </h5>
                             </div>
                             <div class="col s4 right-align">
                                 @if (!string.IsNullOrEmpty(statoAtto))
                                 {
-                                    <div class="chip white @coloreStatoAtto-text" style="min-width: unset; border: 1px solid @coloreStatoAtto">@statoAtto</div>
+                                    <h6 class="@coloreStatoAtto"><b>@statoAtto</b></h6>
                                 }
                             </div>
                         </div>
@@ -125,11 +125,10 @@
                             <div class="col s4">
                                 @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                 {
-                                    <a class="btn-flat pink-text hide-on-med-and-down"
-                                       href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})" title="Scarica documento">
-                                        <i class="material-icons right pink-text">cloud_download</i>
+                                    <button type="button" role="button" class="btn-flat pink-text hide-on-med-and-down"
+                                            onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')" title="Scarica documento">
                                         SCARICA TESTO
-                                    </a>
+                                    </button>
                                 }
 
                             </div>
@@ -143,9 +142,9 @@
                                 <div class="col s2 right-align">
                                     @if (atto.Data_apertura.HasValue)
                                     {
-                                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
+                                        <button type="button" role="button" class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti/subemendamenti">
                                             <i class="material-icons" style="line-height: unset">chevron_right</i>
-                                        </a>
+                                        </button>
                                     }
                                 </div>
                             }
@@ -164,8 +163,5 @@
         setListaEmendamenti([]);
         setSelezionaTutti(false);
         set_Filtri_EM({});
-        set_ListaArticoliEM([]);
-        set_ListaCommiEM([]);
-        set_ListaLettereEM([]);
     </script>
 }

@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Enum;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Domain
 {
@@ -43,7 +43,7 @@ namespace PortaleRegione.Domain
 
         public string Oggetto { get; set; }
         public string Oggetto_Modificato { get; set; }
-        public string Oggetto_Privacy { get; set; }
+        public string Oggetto_Approvato { get; set; }
         public string Premesse { get; set; }
         public string Premesse_Modificato { get; set; }
         public string Richiesta { get; set; }
@@ -81,7 +81,7 @@ namespace PortaleRegione.Domain
         public int id_gruppo { get; set; }
         public bool Eliminato { get; set; } = false;
         public string chkf { get; set; }
-        public DateTime Timestamp { get; set; } = new DateTime(1970, 1, 1);
+        public DateTime? Timestamp { get; set; }
         public string Atto_Certificato { get; set; }
         public Guid? UIDPersonaElimina { get; set; }
         public DateTime? DataElimina { get; set; }
@@ -102,9 +102,82 @@ namespace PortaleRegione.Domain
 
         // #558
 
-        public bool IsChiuso => IDStato == (int)StatiAttoEnum.CHIUSO
-                                || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
+        public bool IsChiuso => IDStato == (int)StatiAttoEnum.COMPLETATO;
 
+
+        public DateTime? DataAnnunzio { get; set; }
+        public string CodiceMateria { get; set; }
+        public string Protocollo { get; set; } = string.Empty;
+        public int? IDTipo_Risposta_Effettiva { get; set; }
+        public bool Pubblicato { get; set; }
+        public bool Sollecito { get; set; }
+        public int? TipoChiusuraIter { get; set; }
+        public DateTime? DataChiusuraIter { get; set; }
+        public string NoteChiusuraIter { get; set; }
+        public bool Emendato { get; set; }
+        public int? TipoVotazioneIter { get; set; }
+        public string AreaTematica { get; set; }
+        public string AltriSoggetti { get; set; }
+
+        public int? DCR { get; set; } = 0;
+        public int? DCCR { get; set; } = 0;
+        public string DCRL { get; set; }
+        public string BURL { get; set; }
+
+        public bool Privacy_Dati_Personali_Giudiziari { get; set; }
+        public bool Privacy_Divieto_Pubblicazione_Salute { get; set; }
+        public bool Privacy_Divieto_Pubblicazione_Vita_Sessuale { get; set; }
+        public bool Privacy_Divieto_Pubblicazione { get; set; }
+        public bool Privacy_Dati_Personali_Sensibili { get; set; }
+        public bool Privacy_Divieto_Pubblicazione_Altri { get; set; }
+        public bool Privacy_Dati_Personali_Semplici { get; set; }
+        public bool Privacy { get; set; }
+
+        public DateTime? DataComunicazioneAssemblea { get; set; }
+
+        public bool IterMultiplo { get; set; } = false;
+        public string ImpegniScadenze { get; set; }
+        public string StatoAttuazione { get; set; }
+        public string CompetenzaMonitoraggio { get; set; }
+        public bool MonitoraggioConcluso { get; set; }
+        public DateTime? DataTrasmissioneMonitoraggio { get; set; }
+
+        public Guid? UIDPersonaRelatore1 { get; set; }
+        public Guid? UIDPersonaRelatore2 { get; set; }
+        public Guid? UIDPersonaRelatoreMinoranza { get; set; }
+        public DateTime? DataSedutaRisposta { get; set; }
+        public DateTime? DataComunicazioneAssembleaRisposta { get; set; }
+        public DateTime? DataProposta { get; set; }
+        public DateTime? DataTrasmissione { get; set; }
+        public int? TipoChiusuraIterCommissione { get; set; }
+        public DateTime? DataChiusuraIterCommissione { get; set; }
+        public int? TipoVotazioneIterCommissione { get; set; }
+        public int? RisultatoVotazioneIterCommissione { get; set; }
+        public bool FlussoRespingi { get; set; } = false;
+
+        public int Ritardo { get; set; } = 0;
+        public Guid? UIDPersonaFlussoRespingi { get; set; }
+        public DateTime? DataFlussoRespingi { get; set; }
+
+        public string GetLegislatura()
+        {
+            if (!string.IsNullOrEmpty(Etichetta))
+            {
+                var parti = Etichetta.Split('_');
+                if (parti.Length > 0)
+                    return parti[parti.Length - 1];
+            }
+
+            return string.Empty;
+        }
+
+        public string OggettoView()
+        {
+            if (!string.IsNullOrEmpty(Oggetto_Approvato))
+                return Oggetto_Approvato;
+            if (!string.IsNullOrEmpty(Oggetto_Modificato))
+                return Oggetto_Modificato;
+            return Oggetto;
+        }
     }
 }

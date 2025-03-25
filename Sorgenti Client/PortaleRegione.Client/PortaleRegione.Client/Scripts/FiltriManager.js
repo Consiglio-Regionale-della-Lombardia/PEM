@@ -102,6 +102,143 @@ function GetLegislature() {
     });
 }
 
+function GetProponenti(idLegislatura) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/persone/proponenti-firmatari?legislaturaId=" + idLegislatura,
+            type: "GET"
+        }).done(function(result) {
+            set_ListaProponenti(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+let cacheAbbinamentiDisponibili = {
+    timestamp: null,
+    data: null,
+    legislatura: null
+};
+
+function GetAbbinamentiDisponibili(legislaturaId) {
+    return new Promise(async function(resolve, reject) {
+        const now = new Date().getTime();
+        const oneHour = 60 * 60 * 1000;
+
+        // Verifica se i dati sono in cache e non sono scaduti
+        if (cacheAbbinamentiDisponibili.timestamp && (now - cacheAbbinamentiDisponibili.timestamp < oneHour) && cacheAbbinamentiDisponibili.legislatura == legislaturaId) {
+            resolve(cacheAbbinamentiDisponibili.data);
+            return;
+        }
+
+        let page = 1;
+        const size = 20; // possiamo impostare una dimensione di pagina standard
+        let allResults = [];
+
+        try {
+            while (true) {
+                const result = await $.ajax({
+                    url: `${baseUrl}/dasi/view-abbinamenti-disponibili`,
+                    type: "GET",
+                    data: {
+                        legislaturaId: legislaturaId,
+                        page: page,
+                        size: size
+                    }
+                });
+
+                if (result && result.length > 0) {
+                    allResults = allResults.concat(result);
+                    page++;
+                } else {
+                    break;
+                }
+            }
+
+            // Memorizza i dati nella cache e aggiorna il timestamp
+            cacheAbbinamentiDisponibili.data = allResults;
+            cacheAbbinamentiDisponibili.timestamp = now;
+            cacheAbbinamentiDisponibili.legislatura = legislaturaId;
+
+            resolve(allResults);
+        } catch (err) {
+            console.log("error", err);
+            reject(err);
+        }
+    });
+}
+
+let cacheGruppiByLegislatura = {
+    timestamp: null,
+    data: null,
+    legislatura: null
+};
+
+function GetGruppiByLegislatura(legislaturaId) {
+    return new Promise(async function (resolve, reject) {
+        const now = new Date().getTime();
+        const oneHour = 60 * 60 * 1000;
+
+        // Verifica se i dati sono in cache e non sono scaduti
+        if (cacheGruppiByLegislatura.timestamp && (now - cacheGruppiByLegislatura.timestamp < oneHour) && cacheGruppiByLegislatura.legislatura == legislaturaId) {
+            resolve(cacheGruppiByLegislatura.data);
+            return;
+        }
+
+        let page = 1;
+        const size = 20; // possiamo impostare una dimensione di pagina standard
+        let allResults = [];
+
+        try {
+            while (true) {
+                const result = await $.ajax({
+                    url: `${baseUrl}/dasi/view-gruppi-disponibili`,
+                    type: "GET",
+                    data: {
+                        legislaturaId: legislaturaId,
+                        page: page,
+                        size: size
+                    }
+                });
+
+                if (result && result.length > 0) {
+                    allResults = allResults.concat(result);
+                    page++;
+                } else {
+                    break;
+                }
+            }
+
+            // Memorizza i dati nella cache e aggiorna il timestamp
+            cacheGruppiByLegislatura.data = allResults;
+            cacheGruppiByLegislatura.timestamp = now;
+            cacheGruppiByLegislatura.legislatura = legislaturaId;
+
+            resolve(allResults);
+        } catch (err) {
+            console.log("error", err);
+            reject(err);
+        }
+    });
+}
+
+function GetOrganiDisponibili(legislaturaId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/view-organi-disponibili?legislaturaId=" + legislaturaId,
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
 function GetSedutaByData(dataSeduta) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
@@ -373,6 +510,34 @@ function GetStatiDASI() {
             type: "GET"
         }).done(function(result) {
             set_ListaStatiDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetFiltriPreferitiDASI() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/gruppo-filtri",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetReportsDASI() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/get-reports",
+            type: "GET"
+        }).done(function(result) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);

@@ -26,6 +26,7 @@ namespace PortaleRegione.DTO.Enum
         public const string MOZ = "badgeMOZ";
         public const string ODG = "badgeODG";
         public const string CARTACEO = "badgeCARTACEO";
+        public const string RIS = "badgeRIS";
         public const string TUTTI = "badgeALL";
     }
 }

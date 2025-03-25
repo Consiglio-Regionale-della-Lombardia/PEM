@@ -20,6 +20,7 @@ using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Enum;
 using System;
 using System.Collections.Generic;
+using PortaleRegione.DTO.Domain;
 
 namespace PortaleRegione.DTO.Request
 {
@@ -45,6 +46,7 @@ namespace PortaleRegione.DTO.Request
         public BaseRequest()
         {
             filtro = new List<FilterStatement<T>>();
+            dettagliOrdinamento = new List<SortingInfo>();
         }
 
         public Guid id { get; set; }
@@ -59,5 +61,8 @@ namespace PortaleRegione.DTO.Request
         public OrdinamentoEnum ordine { get; set; } = OrdinamentoEnum.Default;
         
         public IDictionary<string, object> param { get; set; }
+        
+        public List<SortingInfo> dettagliOrdinamento { get; set; }
+        public List<string> columns { get; set; }
     }
 }

@@ -15,13 +15,10 @@
 }
 
 <div class="row">
-    <div class="col s6">
-        <a class="btn-floating waves-effect waves-light grey" href="@Url.Action("Archivio")">
+    <div class="col s12">
+        <a class="btn-floating waves-effect waves-light grey darken-3" href="@Url.Action("Archivio")">
             <i class="material-icons">arrow_back</i>
         </a>
-    </div>
-    <div class="col s6 right-align">
-        <span class="chip red white-text" style="min-width: unset !important;">AULA</span>
     </div>
 </div>
 <div class="row valign-wrapper" style="margin-bottom: 0px !important">
@@ -82,11 +79,10 @@
                                         {
                                             <div class="row">
                                                 <div class="col s12 l12 right-align">
-                                                    <a class="btn-flat pink-text"
+                                                    <button type="button" role="button" class="btn-flat pink-text"
                                                        href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
-                                                        <i class="material-icons right">download</i>
                                                         Scarica atto
-                                                    </a>
+                                                    </button>
                                                 </div>
                                             </div>
                                         }
@@ -102,7 +98,7 @@
                                         </label>
                                         <br/>
                                         <div class="chip" style="margin-left: 5px; min-width: unset;">
-                                            <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
+                                            <img src="https://pubblicazioniweb.consiglio.regione.lombardia.it/fotocons/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
                                             @attoPem.PersonaAssessore.DisplayName
                                         </div>
                                     </div>
@@ -120,22 +116,38 @@
 
                             </div>
                             <div class="col l6 s12 right-align">
+                                @if (!string.IsNullOrEmpty(attoPem.LinkFascicoloPresentazione))
+                                {
+                                    <button type="button" role="button" class="btn-flat orange-text"
+                                       href="@attoPem.LinkFascicoloPresentazione"
+                                       target="_blank">
+                                        Scarica fascicolo presentazione
+                                    </button>
+                                }
+
+                                @if (!string.IsNullOrEmpty(attoPem.LinkFascicoloVotazione))
+                                {
+                                    <button type="button" role="button" class="btn-flat orange-text"
+                                       href="@attoPem.LinkFascicoloVotazione"
+                                       target="_blank">
+                                        Scarica fascicolo votazione
+                                    </button>
+                                }
+
                                 @if (attoPem.Data_apertura.HasValue && attoPem.Emendabile)
                                 {
-                                    <a class="btn-flat blue-text tooltipped"
-                                       onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = attoPem.UIDAtto })')" data-tooltip="Riepilogo emendamenti">
-                                        <i class="material-icons right">chevron_right</i>
-                                        Riepilogo EM In Seduta
-                                    </a>
+                                    <button class="btn-flat blue-text tooltipped"
+                                            onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = attoPem.UIDAtto })')" data-tooltip="Riepilogo emendamenti/subemendamenti">
+                                        Riepilogo EM/SUBEM
+                                    </button>
                                 }
 
                                 @if (attoPem.CounterODG > 0)
                                 {
-                                    <a class="btn-flat blue-text tooltipped"
-                                       onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = attoPem.UIDSeduta, tipo = (int)TipoAttoEnum.ODG, uidAtto = attoPem.UIDAtto })')" data-tooltip="Riepilogo ordini del giorno">
-                                        <i class="material-icons right">chevron_right</i>
-                                        Riepilogo Ordini del giorno
-                                    </a>
+                                    <button class="btn-flat blue-text tooltipped"
+                                            onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = attoPem.UIDSeduta, tipo = (int)TipoAttoEnum.ODG, uidAtto = attoPem.UIDAtto })')" data-tooltip="Riepilogo ordini del giorno">
+                                        Riepilogo ODG
+                                    </button>
                                 }
                             </div>
                         </div>
@@ -175,11 +187,10 @@
                     <div class="collapsible-body">
                         <div class="row">
                             <div class="col s12 right-align">
-                                <a class="btn-flat blue-text"
+                                <button type="button" role="button" class="btn-flat blue-text"
                                    onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = sedutaUid, tipo = (int)TipoAttoEnum.ITL })')" title="Riepilogo atti in seduta">
-                                    <i class="material-icons right">chevron_right</i>
                                     Riepilogo Atti In Seduta
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -198,11 +209,10 @@
                     <div class="collapsible-body">
                         <div class="row">
                             <div class="col s12 right-align">
-                                <a class="btn-flat blue-text"
+                                <button type="button" role="button" class="btn-flat blue-text"
                                    onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = sedutaUid, tipo = (int)TipoAttoEnum.IQT })')" title="Riepilogo atti in seduta">
-                                    <i class="material-icons right">chevron_right</i>
                                     Riepilogo Atti In Seduta
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -221,11 +231,10 @@
                     <div class="collapsible-body">
                         <div class="row">
                             <div class="col s12 right-align">
-                                <a class="btn-flat blue-text"
+                                <button type="button" role="button" class="btn-flat blue-text"
                                    onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = sedutaUid, tipo = (int)TipoAttoEnum.MOZ })')" title="Riepilogo atti in seduta">
-                                    <i class="material-icons right">chevron_right</i>
                                     Riepilogo Atti In Seduta
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>

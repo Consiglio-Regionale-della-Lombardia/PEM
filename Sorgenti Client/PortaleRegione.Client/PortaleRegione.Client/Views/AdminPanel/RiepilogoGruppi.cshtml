@@ -42,7 +42,7 @@
                     <i class="icon material-icons white-text tooltipped" style="cursor: pointer" data-tooltip="@gruppoDto.Error_AD_Message">info</i>
                     <i class="icon material-icons blue-text activator" style="cursor: pointer">edit</i>
                 </div>
-                <div class="card-content" onclick="">
+                <div class="card-content">
                     <div class="row" style="margin: unset !important">
                         <h5>@gruppo.nome_gruppo</h5>
                         <hr/>
@@ -110,7 +110,7 @@
                     {
                         <div class="row" style="margin-bottom: 0 !important; margin-top: 0 !important;">
                             <div class="col s12 right-align">
-                                <a class="btn chip blue white-text" style="min-width: unset" onclick="SalvaGruppo(@gruppo.id_gruppo)">Salva e Aggiorna</a>
+                                <button type="button" role="button" class="btn-flat blue-text" style="min-width: unset" onclick="SalvaGruppo(@gruppo.id_gruppo)">Salva e Aggiorna</button>
                             </div>
                         </div>
                     }

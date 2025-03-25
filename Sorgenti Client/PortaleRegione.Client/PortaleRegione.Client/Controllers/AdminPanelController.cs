@@ -47,7 +47,7 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("users/view")]
-        public async Task<ActionResult> RiepilogoUtenti(int page = 1, int size = 50)
+        public async Task<ActionResult> RiepilogoUtenti(int page = 1, int size = 20)
         {
             var request = new BaseRequest<PersonaDto> { page = page, size = size };
             var apiGateway = new ApiGateway(Token);
@@ -438,6 +438,18 @@ namespace PortaleRegione.Client.Controllers
                 Console.WriteLine(e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
+        }
+        
+        /// <summary>
+        ///     Controller per visualizzare le sessioni
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("users/sessions")]
+        public async Task<ActionResult> RiepilogoSessioni()
+        {
+            var apiGateway = new ApiGateway(Token);
+            return View("RiepilogoSessioni", await apiGateway.Admin.GetSessioni());
         }
     }
 }

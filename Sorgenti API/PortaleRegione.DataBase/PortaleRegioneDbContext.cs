@@ -17,6 +17,7 @@
  */
 
 using System.Data.Entity;
+using System.Threading.Tasks;
 using PortaleRegione.Domain;
 
 namespace PortaleRegione.DataBase
@@ -38,6 +39,12 @@ namespace PortaleRegione.DataBase
             Configuration.LazyLoadingEnabled = false;
         }
 
+        public PortaleRegioneDbContext(string connectionString)
+            : base(connectionString)
+        {
+            Configuration.LazyLoadingEnabled = false;
+        }
+        
         // Di seguito, vengono definiti i set di dati per ogni tabella del database.
         // Ogni DbSet rappresenta una collezione di entità che mappa una specifica tabella nel database.
 
@@ -83,6 +90,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_CONSIGLIERE_GRUPPO> View_CONSIGLIERE_GRUPPO { get; set; }
         public virtual DbSet<View_CONSIGLIERI_PEM> View_CONSIGLIERI_PEM { get; set; }
         public virtual DbSet<View_gruppi_politici_con_giunta> View_gruppi_politici_con_giunta { get; set; }
+        public virtual DbSet<View_gruppi_politici_ws> View_gruppi_politici_ws { get; set; }
         public virtual DbSet<View_PINS> View_PINS { get; set; }
         public virtual DbSet<View_UTENTI> View_UTENTI { get; set; }
         public virtual DbSet<View_CAPIGRUPPO> View_CAPIGRUPPO { get; set; }
@@ -90,6 +98,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_Conteggi_EM_Area_Politica> View_Conteggi_EM_Area_Politica { get; set; }
         public virtual DbSet<View_consiglieri_in_carica> View_consiglieri_in_carica { get; set; }
         public virtual DbSet<View_consiglieri_per_legislatura> View_consiglieri_per_legislatura { get; set; }
+        public virtual DbSet<View_consiglieri> View_consiglieri { get; set; }
         public virtual DbSet<View_assessori_in_carica> View_assessori_in_carica { get; set; }
         public virtual DbSet<ATTI_DASI> DASI { get; set; } // DASI - Atti
         public virtual DbSet<ATTI_FIRME> ATTI_FIRME { get; set; } // DASI - Firme
@@ -110,12 +119,24 @@ namespace PortaleRegione.DataBase
             ATTI_SOGGETTI_INTERROGATI { get; set; } // DASI - Soggetti interrogati
 
         public virtual DbSet<View_Commissioni_attive> View_Commissioni_attive { get; set; } // DASI - Commissioni
+        public virtual DbSet<View_Commissioni> View_Commissioni { get; set; } // DASI - Commissioni
 
         public virtual DbSet<View_Commissioni_per_legislatura>
             View_Commissioni_per_legislatura { get; set; } // DASI - Commissioni per legislatura
 
         public virtual DbSet<ATTI_COMMISSIONI> ATTI_COMMISSIONI { get; set; } // DASI - Commissioni risposta
+        public virtual DbSet<ATTI_RISPOSTE> ATTI_RISPOSTE { get; set; } // DASI - Risposte
+        public virtual DbSet<ATTI_MONITORAGGIO> ATTI_MONITORAGGIO { get; set; } // DASI - Monitoraggi
+        public virtual DbSet<ATTI_DOCUMENTI> ATTI_DOCUMENTI { get; set; } // DASI - Documenti
+        public virtual DbSet<ATTI_NOTE> ATTI_NOTE { get; set; } // DASI - Note
+        public virtual DbSet<ATTI_PROPONENTI> ATTI_PROPONENTI { get; set; } // DASI - Commissioni proponenti
+        public virtual DbSet<ATTI_ABBINAMENTI> ATTI_ABBINAMENTI { get; set; } // DASI - Abbinamenti
+        public virtual DbSet<View_Atti> VIEW_ATTI { get; set; } // ATTI + ATTI_DASI
         public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
+        public virtual DbSet<FILTRI> FILTRI { get; set; } // Filtri personalizzati
+        public virtual DbSet<REPORTS> REPORTS { get; set; } // Reports personalizzati
+        public virtual DbSet<TEMPLATES> TEMPLATES { get; set; } // Templates
+        public virtual DbSet<Sessioni> Sessioni { get; set; } // Sessioni
 
         /// <summary>
         ///     Override del metodo OnModelCreating per configurare i modelli di entità quando il modello per questo contesto viene

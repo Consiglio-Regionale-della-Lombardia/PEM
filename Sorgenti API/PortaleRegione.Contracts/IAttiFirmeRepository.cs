@@ -42,6 +42,7 @@ namespace PortaleRegione.Contracts
         Task CancellaFirme(Guid attoUId);
         Task<bool> CheckFirmato(Guid attoUId, Guid? personaUId);
         Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona, bool firma_ufficio = false);
+        Task<bool> CheckIfFirmabile(AttoDASIDto atto, List<AttiFirmeDto> firme, PersonaDto persona, bool firma_ufficio = false);
         Task<bool> CheckFirmatoDaUfficio(Guid attoUId);
         Task<ATTI_FIRME> FindInCache(Guid attoUId, Guid personaUId);
         Task<ATTI_FIRME> Get(Guid attoUId, Guid personaUId);

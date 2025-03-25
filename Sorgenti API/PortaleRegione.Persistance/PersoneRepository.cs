@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using ExpressionBuilder.Generics;
-using PortaleRegione.Contracts;
-using PortaleRegione.DataBase;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using ExpressionBuilder.Generics;
+using PortaleRegione.Contracts;
+using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -68,7 +68,8 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, PersonaDto persona = null, Filter<View_UTENTI> filtro = null)
+        public async Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, PersonaDto persona = null,
+            Filter<View_UTENTI> filtro = null)
         {
             var query = PRContext
                 .View_UTENTI
@@ -99,7 +100,8 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
             if (filtro._statements.Any(i => i.PropertyId == nameof(PersonaDto.nome)))
             {
-                var q_nome = filtro._statements.First(i => i.PropertyId == nameof(PersonaDto.nome)).Value.ToString().ToLower();
+                var q_nome = filtro._statements.First(i => i.PropertyId == nameof(PersonaDto.nome)).Value.ToString()
+                    .ToLower();
                 result = result.Where(i => i.nome.ToLower().Contains(q_nome)
                                            || i.cognome.ToLower().Contains(q_nome)
                                            || i.userAD.ToLower().Contains(q_nome))
@@ -109,7 +111,8 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, PersonaDto persona = null, Filter<View_UTENTI> filtro = null, List<string> userAd = null)
+        public async Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, PersonaDto persona = null,
+            Filter<View_UTENTI> filtro = null, List<string> userAd = null)
         {
             var query = PRContext
                 .View_UTENTI
@@ -148,7 +151,8 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
             if (filtro._statements.Any(i => i.PropertyId == nameof(PersonaDto.nome)))
             {
-                var q_nome = filtro._statements.First(i => i.PropertyId == nameof(PersonaDto.nome)).Value.ToString().ToLower();
+                var q_nome = filtro._statements.First(i => i.PropertyId == nameof(PersonaDto.nome)).Value.ToString()
+                    .ToLower();
                 result = result.Where(i => i.nome.ToLower().Contains(q_nome)
                                            || i.cognome.ToLower().Contains(q_nome)
                                            || i.userAD.ToLower().Contains(q_nome))
@@ -207,7 +211,8 @@ namespace PortaleRegione.Persistance
 
             if (filtro._statements.Any(i => i.PropertyId == nameof(PersonaDto.nome)))
             {
-                var q_nome = filtro._statements.First(i => i.PropertyId == nameof(PersonaDto.nome)).Value.ToString().ToLower();
+                var q_nome = filtro._statements.First(i => i.PropertyId == nameof(PersonaDto.nome)).Value.ToString()
+                    .ToLower();
                 result = result.Where(i => i.nome.ToLower().Contains(q_nome)
                                            || i.cognome.ToLower().Contains(q_nome)
                                            || i.userAD.ToLower().Contains(q_nome))
@@ -422,6 +427,19 @@ namespace PortaleRegione.Persistance
                                && item.pass_locale_crypt == password)
                 .FirstOrDefaultAsync();
             return user != null;
+        }
+
+        public async Task<List<View_consiglieri>> GetProponentiFirmatari(string legislaturaId)
+        {
+            if (int.TryParse(legislaturaId, out int idLegislatura))
+            {
+                return await PRContext
+                    .View_consiglieri
+                    .Where(c => c.id_legislatura == idLegislatura)
+                    .ToListAsync();
+            }
+
+            throw new ArgumentException($"L'ID [{legislaturaId}] della legislatura fornito non è valido.");
         }
     }
 }

@@ -12,7 +12,7 @@
 
 <div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="javascript:history.go(-1)">
+        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="javascript:history.go(-1)">
             <i class="material-icons">arrow_back</i>
         </a>
         <div class="row valign-wrapper">
@@ -72,11 +72,12 @@
                             }
                             else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                             {
-                                <div class="chip white green-text hide-on-med-and-down" style="min-width: unset; border: 1px solid green">Aperta</div>
+                                <div class="btn-flat green-text hide-on-med-and-down">Aperta</div>
+
                             }
                             @if (!string.IsNullOrEmpty(seduta.Note))
                             {
-                                <div class="chip chip-centered white black-text hide-on-med-and-down" style="min-width: unset; border: 1px solid black">@seduta.Note</div>
+                                <div class="btn-flat purple-text hide-on-med-and-down">@seduta.Note</div>
                             }
                         </div>
 
@@ -84,13 +85,13 @@
                     <div class="col s4 right-align" style="margin-top: 15px;">
                         @if (!chiusa)
                         {
-                            <a class="btn-floating white black-text tooltipped" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" data-tooltip="Riepilogo atti">
-                                <i class="material-icons" style="margin-right: 5px">chevron_right</i>
-                            </a>
+                            <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" data-tooltip="Riepilogo atti">
+                                <i class="material-icons" style="margin-left: 2px!important;">chevron_right</i>
+                            </button>
                         }
                         else
                         {
-                            <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
+                            <div class="btn-flat grey-text hide-on-med-and-down">Chiusa</div>
                         }
                     </div>
                     </div>

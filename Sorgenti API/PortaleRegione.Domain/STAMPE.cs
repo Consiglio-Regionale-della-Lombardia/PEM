@@ -71,6 +71,10 @@ namespace PortaleRegione.Domain
 
         public bool DASI { get; set; } = false;
 
+        public Guid? UIDFascicolo { get; set; }
+
+        public int NumeroFascicolo { get; set; } = 0;
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ATTI ATTI { get; set; }
 
@@ -105,7 +109,9 @@ namespace PortaleRegione.Domain
                 Scadenza = stampaDto.Scadenza,
                 Tentativi = stampaDto.Tentativi,
                 UIDStampa = stampaDto.UIDStampa,
-                UIDUtenteRichiesta = stampaDto.UIDUtenteRichiesta
+                UIDUtenteRichiesta = stampaDto.UIDUtenteRichiesta,
+                UIDFascicolo = stampaDto.UIDFascicolo,
+                NumeroFascicolo = stampaDto.NumeroFascicolo
             };
 
             return result;
@@ -136,7 +142,9 @@ namespace PortaleRegione.Domain
                 Scadenza = Scadenza,
                 Tentativi = Tentativi,
                 UIDStampa = UIDStampa,
-                UIDUtenteRichiesta = UIDUtenteRichiesta
+                UIDUtenteRichiesta = UIDUtenteRichiesta,
+                UIDFascicolo = UIDFascicolo,
+                NumeroFascicolo = NumeroFascicolo
             };
 
             return result;

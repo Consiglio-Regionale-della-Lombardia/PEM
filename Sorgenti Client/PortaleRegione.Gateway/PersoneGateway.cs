@@ -15,16 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.DTO.Routes;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
@@ -34,7 +36,6 @@ namespace PortaleRegione.Gateway
 
         protected internal PersoneGateway()
         {
-
         }
 
         protected internal PersoneGateway(string token)
@@ -90,7 +91,8 @@ namespace PortaleRegione.Gateway
 
         public async Task<PersonaDto> Get(Guid id, bool isGiunta = false)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.GetPersona.Replace("{id}", id.ToString()).Replace("{is_giunta}", isGiunta.ToString())}";
+            var requestUrl =
+                $"{apiUrl}/{ApiRoutes.Persone.GetPersona.Replace("{id}", id.ToString()).Replace("{is_giunta}", isGiunta.ToString())}";
             var lst = JsonConvert.DeserializeObject<PersonaDto>(await Get(requestUrl, _token));
             return lst;
         }
@@ -104,7 +106,8 @@ namespace PortaleRegione.Gateway
 
         public async Task<RuoliDto> GetRuolo(RuoliIntEnum ruolo)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.Ruoli.GetRuolo.Replace("{id}", ((int)ruolo).ToString())}"; // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/888
+            var requestUrl =
+                $"{apiUrl}/{ApiRoutes.Ruoli.GetRuolo.Replace("{id}", ((int)ruolo).ToString())}"; // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/888
             var lst = JsonConvert.DeserializeObject<RuoliDto>(await Get(requestUrl, _token));
             return lst;
         }
@@ -115,11 +118,25 @@ namespace PortaleRegione.Gateway
             var body = JsonConvert.SerializeObject(model);
             await Post(requestUrl, body, _token);
         }
+
         public async Task SalvaPin(CambioPinModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.CambioPin}";
             var body = JsonConvert.SerializeObject(model);
             await Post(requestUrl, body, _token);
+        }
+
+        public async Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.GetProponentiFirmatari}?legislaturaId={legislaturaId}";
+            var lst = JsonConvert.DeserializeObject<List<PersonaPublicDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task Logout(Guid uidPersona)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Autenticazione.Logout}";
+            await Get(requestUrl, _token);
         }
 
         public async Task<IEnumerable<PersonaDto>> GetGiuntaRegionale()

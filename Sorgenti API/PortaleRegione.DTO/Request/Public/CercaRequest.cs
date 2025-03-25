@@ -27,25 +27,28 @@ namespace PortaleRegione.DTO.Request.Public
         public int? id_legislatura { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? id_tipo { get; set; }
-        
+        public int[] id_tipo { get; set; } = Array.Empty<int>();
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? id_firmatario { get; set; }
+        public int[] id_proponente { get; set; } = Array.Empty<int>();
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? id_gruppo { get; set; }
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? id_carica { get; set; }
+        public int[] id_tipo_risposta { get; set; } = Array.Empty<int>();
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? id_tipo_risposta { get; set; }
-        
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? id_commissione { get; set; }
+        public int[] organi { get; set; } = Array.Empty<int>();
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] 
-        public int? id_stato { get; set; }
+        public int[] stati { get; set; } = Array.Empty<int>();
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] 
+        public int[] stati_chiusura { get; set; } = Array.Empty<int>();
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] 
+        public int[] firmatari { get; set; } = Array.Empty<int>();
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string oggetto { get; set; }
@@ -58,6 +61,15 @@ namespace PortaleRegione.DTO.Request.Public
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string n_atto { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string burl { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? dcr { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? dccr { get; set; }
         
         public int page { get; set; } = 1;
         public int size { get; set; } = 20;

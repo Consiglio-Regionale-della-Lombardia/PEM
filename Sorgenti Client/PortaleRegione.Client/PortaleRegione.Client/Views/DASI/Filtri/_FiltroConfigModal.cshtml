@@ -1,0 +1,244 @@
+﻿<div id="modalFiltroConfig" class="modal">
+    <div class="modal-content">
+        <h4>Filtro</h4>
+        <div id="chips-container-config">
+
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <input placeholder="Placeholder" id="filter_name" type="text" class="validate">
+                <label for="first_name">Nome filtro</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <p>
+                    <label>
+                        <input id="filter_favourite" type="checkbox"/>
+                        <span>Preferito</span>
+                    </label>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn-flat modal-close">Annulla</button>
+        <button type="button" id="btnSalvaConfig" class="btn-flat blue-text">Salva</button>
+    </div>
+</div>
+
+<script>
+	var filtriPreferitiArray = [];
+	if (document.getElementById('btnFiltroConfig')) {
+        document.getElementById('btnFiltroConfig').addEventListener('click', function () {
+            openModalWithContent_Preferiti("", localStorage.getItem('filtriDasi'));
+        });
+    }
+    document.getElementById('btnSalvaConfig').addEventListener('click', async function () {
+        var request = {};
+        var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+        request.filters = JSON.stringify(filtri);
+        request.name = document.getElementById('filter_name').value;
+        request.favourite = document.getElementById('filter_favourite').checked;
+
+        // Invia la richiesta al server
+        const response = await fetch('@Url.Action("SalvaGruppoFiltri")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        if(data.message){
+            ErrorAlert(data.message);
+	        return;
+        }
+
+        addChipIfNotExists_Preferiti(request.name, request.filters, request.favourite);
+	    M.toast({
+		    html: `<span><b class="yellow-text">${request.name}</b> aggiunto con successo</span>`, classes: 'rounded', displayLength: 5000 });
+
+        $('#modalFiltroConfig').modal("close");
+    });
+
+	function openModalWithContent_Preferiti(name, filters) {
+		$('#filter_favourite').prop("checked", false);
+		$('#filter_name').val(name);
+		$('#chips-container-config').empty();
+		const filtri = JSON.parse(filters);
+		if (filtri) {
+			filtri.forEach(function (filtro) {
+				addChipConfig(filtro.chipText);
+			});
+		}
+		$('#modalFiltroConfig').modal("open");
+	}
+
+	function addChipConfig(chipText) {
+		var chipsContainer = document.getElementById('chips-container-config');
+		var newChip = document.createElement('div');
+		newChip.classList.add('chip', 'yellow', 'black-text');
+		newChip.textContent = chipText;
+
+		chipsContainer.appendChild(newChip);
+	}
+
+	function addChipIfNotExists_Preferiti(name, filters, favourite) {
+
+		var existingChip = document.querySelector(`.chip[data-nome-gruppo-filtri="${name}"]`);
+
+		if (existingChip) {
+			return;
+		}
+		var item = {};
+		item.name = name;
+		item.favourite = favourite;
+		item.filters = filters;
+		filtriPreferitiArray.push(item);
+
+		creaPannelloFiltriLaterale();
+
+		if (!favourite) {
+			return;
+		}
+
+		var chipsContainer = document.getElementById('chips-container-groups');
+		var newChip = document.createElement('div');
+		newChip.classList.add('chip', 'white', 'black-text');
+		newChip.setAttribute('data-nome-gruppo-filtri', name);
+		newChip.textContent = name;
+
+		var starIcon = document.createElement('i');
+		starIcon.classList.add('material-icons', 'tiny');
+		starIcon.style.setProperty('margin-left', '10px');
+		starIcon.style.setProperty('top', '2px');
+		starIcon.textContent = 'star';
+		newChip.appendChild(starIcon);
+
+		newChip.onclick = function (event) {
+			event.stopPropagation();
+			resetSelezionePreferiti();
+			newChip.classList.replace("white", "yellow");
+			localStorage.setItem('filtriDasi', filters);
+			chipsKeys = [];
+
+			ripristinaFiltri();
+		};
+
+		chipsContainer.appendChild(newChip);
+	}
+
+	function creaPannelloFiltriLaterale() {
+        var collection = document.getElementById('data-collection');
+        $('#data-collection').empty();
+        filtriPreferitiArray.forEach(function (item) {
+	        var li = document.createElement('a');
+		    if (item.favourite){
+			    li.className = 'collection-item badgeStarCollectionFilter';
+		    }else {
+			    li.className = 'collection-item badgeCollectionFilter';
+		    }
+
+	        li.textContent = item.name;
+		    li.onclick = function (event) {
+                event.stopPropagation();
+
+			    if (item.favourite){
+				    $(`[data-nome-gruppo-filtri="${item.name}"]`).click();
+			    }else {
+				    resetSelezionePreferiti();
+				    localStorage.setItem('filtriDasi', item.filters);
+				    chipsKeys = [];
+				    
+				    ripristinaFiltri();
+			    }
+            };
+
+		    var deleteIcon = document.createElement('i');
+		    deleteIcon.className = 'material-icons secondary-content';
+		    deleteIcon.style.marginRight = '10px';
+		    deleteIcon.textContent = 'delete';
+		    deleteIcon.classList.add('red-text');
+		    deleteIcon.onclick = async function (event) {
+			    event.stopPropagation();
+			    swal(`Sei sicuro di voler eliminare il gruppo di filtri "${item.name}"?`, {
+				    buttons: ["No", "Si"],
+			    }).then(async (value) => {
+				    if (value == true){
+					    try {
+						    var deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
+						    deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
+						    let response = await fetch(deleteUrl, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                }
+                            });
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+
+                            let data = await response.json();
+                            if(data.message){
+                                ErrorAlert(data.message);
+                                return;
+                            }
+
+						    M.toast({
+							    html: `<span><b class="yellow-text">${item.name}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
+
+						    li.remove();
+						    var indexToRemove = filtriPreferitiArray.findIndex(el => el.name === item.name);
+
+						    if (indexToRemove !== -1) {
+							    filtriPreferitiArray.splice(indexToRemove, 1);
+						    }
+						    $(`[data-nome-gruppo-filtri="${item.name}"]`).remove();
+					    } catch (error) {
+						    console.error('Errore di fetch:', error);
+						    ErrorAlert(error.message);
+					    }
+				    }
+			    });
+		    };
+		    li.appendChild(deleteIcon);
+	        collection.appendChild(li);
+        });
+
+        availableFilterArray.forEach(function (item) {
+	        var li = document.createElement('a');
+	        li.className = 'collection-item';
+	        li.textContent = item.tag;
+
+	        li.onclick = async function (event) {
+		        event.stopPropagation();
+		        await openModalWithContent(item.id, item.tag, false, 0);
+	        };
+	        collection.appendChild(li);
+        });
+    }
+
+	function resetSelezionePreferiti() {
+		var chipsContainer = document.getElementById('chips-container-groups');
+		var chips = chipsContainer.getElementsByClassName('chip');
+		$.each(chips, function (index, chip) {
+			chip.className = 'chip white black-text';
+		});
+	}
+	
+	async function ripristinaPreferiti() {
+		var filtri = await GetFiltriPreferitiDASI();
+		filtriPreferitiArray = [];
+		$.each(filtri, function (index, item) {
+			addChipIfNotExists_Preferiti(item.name, item.filters, item.favourite)
+		});
+	}
+</script>

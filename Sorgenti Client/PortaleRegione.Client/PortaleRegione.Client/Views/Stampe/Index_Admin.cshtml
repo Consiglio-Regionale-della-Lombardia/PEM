@@ -95,9 +95,9 @@
                             @if (stampa.ATTI != null)
                             {
                                 @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
-                                <a class="blue-text tooltipped" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = stampa.UIDAtto, mode = (int)ClientModeEnum.GRUPPI })')" data-position="bottom" data-tooltip="Vai all'atto">
+                                <button type="button" role="button" class="btn-flat blue-text tooltipped" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = stampa.UIDAtto, mode = (int)ClientModeEnum.GRUPPI })')" data-position="bottom" data-tooltip="Vai all'atto">
                                     <i class="material-icons">call_made</i>
-                                </a>
+                                </button>
                             }
                         </td>
                         <td>
@@ -176,7 +176,7 @@
                         {
                             if (stampa.DataFineEsecuzione.HasValue)
                             {
-                                <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
+                                <div class="green-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
                                     Completata
                                 </div>
                             }
@@ -184,7 +184,7 @@
                             {
                                 if (stampa.DataFineEsecuzione.HasValue)
                                 {
-                                    <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
+                                    <div class="green-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
                                         Completata
                                     </div>
                                 }
@@ -192,14 +192,14 @@
                                 {
                                     abilitaReset = true;
 
-                                    <div class="chip center amber white-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
+                                    <div class="amber-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
                                         In lavorazione
                                     </div>
                                 }
                             }
                             else
                             {
-                                <div class="chip center grey white-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
+                                <div class="grey-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
                                     In attesa
                                 </div>
                             }
@@ -208,16 +208,16 @@
                         {
                             abilitaReset = true;
 
-                            <div class="chip center red white-text tooltipped" data-position="bottom" data-tooltip="Messaggio di errore: @stampa.MessaggioErrore" style="min-width: unset">
+                            <div class="red-text tooltipped" data-position="bottom" data-tooltip="Messaggio di errore: @stampa.MessaggioErrore" style="min-width: unset">
                                 Errore
                             </div>
                         }
 
                         @if (abilitaReset && stampa.Lock)
                         {
-                            <a class="btn-floating pink tooltipped" data-position="bottom" data-tooltip="Ristampa" onclick="ResetStampa('@stampa.UIDStampa', '@Url.Action("Index")')">
+                            <button type="button" role="button" class="btn-floating pink tooltipped" data-position="bottom" data-tooltip="Ristampa" onclick="ResetStampa('@stampa.UIDStampa', '@Url.Action("Index")')">
                                 <i class="material-icons">settings_backup_restore</i>
-                            </a>
+                            </button>
                         }
                         else
                         {

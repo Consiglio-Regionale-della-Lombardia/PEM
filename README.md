@@ -1,14 +1,16 @@
-# Portale digitalizzazione atti (PEM-DASI)
+# Portale digitalizzazione atti (GeDASI)
 
-Il portale PEM-DASI è stato realizzato per digitalizzare e gestire a distanza la fase di presentazioni degli Atti di iniziativa dei consiglieri regionali ed automatizzare alcune fasi del loro iter. Il suo sviluppo è stato inizialmente studiato per digitalizzare la presentazione degli emendamenti/subemendamenti ai progetti di legge (modulo PEM) e, a seguito del riscontro positivo da parte degli utilizzatori, è stato esteso alla presentazione degli atti di indirizzo e sindacato ispettivo, realizzando il modulo DASI.
+Il progetto GeDASI è il risultato di diverse fasi di sviluppo che hanno portato alla costruzione di uno stack tecnologico, che comprende:
+- il modulo PEM, per la presentazione degli Emendamenti ai progetti di legge, nell’ambiente quindi legato a una specifica seduta e attivato in concomitanza della stessa.
+- il modulo DASI, per la presentazione e la gestione degli ATTI di indirizzo e sindacato ispettivo, non necessariamente legato a una specifica seduta del Consiglio.
 
-Il modulo DASI e il modulo PEM sono ospitati nella medesima piattaforma, ci sarà quindi un doppio canale di accesso:
+Il portale è stato inizialmente studiato per digitalizzare la presentazione degli emendamenti/subemendamenti ai progetti di legge (modulo PEM) e, a seguito del riscontro positivo da parte degli utilizzatori, è stato esteso alla presentazione degli atti di indirizzo e sindacato ispettivo, realizzando il modulo DASI. In una terza fase il modulo DASI è stato esteso con una serie di funzionalità, dedicate al personale del Servizio Segreteria dell’Assemblea consiliare, che consento di gestire tutte le informazioni correlate agli atti di indirizzo e di sindacato ispettivo (ad esempio date di trattazione, note, ecc) e memorizzare i documenti relativi al fascicolo che compone la vita dell’atto (ad esempio le risposte fornite dalla Giunta in merito ad una interrogazione o interpellanza di un consigliere). A seguito di questa terza fase di sviluppo la piattaforma ha preso il nome di GeDASI.
 
-1. un canale per la presentazione degli Emendamenti ai progetti di legge, nell’ambiente quindi legato a una specifica seduta e attivato in concomitanza della stessa;
+A differenza degli emendamenti che si concludono con la votazione (approvato/respinto), gli atti di indirizzo e sindacato ispettivo hanno un iter complesso che si sviluppa in una serie di passaggi, da tracciare, e di documenti da generare e memorizzare. 
 
-2. un canale per la presentazione degli ATTI di indirizzo e sindacato ispettivo, non necessariamente legato a una specifica seduta del Consiglio.
+Per chiarezza espositiva tratteremo separatamente il modulo per la presentazione dematerializzata degli emendamenti (PEM) il modulo per la presentazione dematerializzata degli atti di indirizzo e di sindacato ispettivo (DASI) e il terzo modulo che consente la gestione di questi ultimi.
 
-Va puntualizzato che, per i due canali di accesso, la categoria di utenti non è coincidente: gli assessori, in quanto non sono consiglieri o sono sospesi dalla carica, non accederanno al canale DASI.
+L’accesso al portale è rimasto comunque unico per tutti i moduli, le varie sezioni sono visibili solo ai profili autorizzati. Il nuovo sviluppo per la gestione degli atti di indirizzo e di sindacato ispettivo è accessibile solo al personale del Servizio Segreteria dell’Assemblea. Va puntualizzato che, per i due canali di accesso, la categoria di utenti non è coincidente: gli assessori, in quanto non sono consiglieri o sono sospesi dalla carica, non accederanno al canale DASI.
 
 ## Modulo PEM - Presentazione Emendamenti
   
@@ -26,7 +28,17 @@ Gli strumenti di indirizzo politico, denominati ATTI DI INDIRIZZO, previsti dal 
 
 La funzione di controllo invece, come definita a livello parlamentare, si estrinseca (anche) nell’attività di sindacato ispettivo (ATTI DI SINDACATO ISPETTIVO), e viene tradizionalmente esercitata attraverso gli strumenti tipici dell’interpellanza (ITL), dell’interrogazione (ITR) e dell’interrogazione a risposta immediata (IQT).
 
-### Note sul copyright
+## Funzionalità di gestione avanzata
+
+Nel suo complesso il GeDASI offre alcuni strumenti avanzati come la ricerca effettuata tramite la configurazione di filtri custom, la gestione massiva e puntuale degli atti. Il sistema è anche in grado di fornire una reportistica basata su una configurazione completamente personalizzata e memorizzabile di:
+
+- criteri di ricerca
+- tipo di documento (word, xls e pdf)
+- tipo di visualizzazione
+- template per le copertine e l'impaginazione
+- dati esposti
+
+# Note sul copyright
 - Copyright: Consiglio regionale della Lombardia
 - Stato del progetto: Beta
 - Mantenimento in carico Namirial S.p.A. a socio unico - https://www.namirial.it/
@@ -48,7 +60,7 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
 
 # Introduzione
 
-Questo repository contiene il codice sorgente e la documentazione del portale PEM-DASI. 
+Questo repository contiene il codice sorgente e la documentazione del portale GeDASI. 
 L'obiettivo del Portale è di informatizzare e rendere più efficiente e funzionale la procedura di deposito (numerazione e marcatura temporale) degli emendamenti ai progetti di legge e degli atti di indirizzo e di sindacato ispettivo, con un’applicazione multiutente con livelli di informatizzazione e automazione più o meno ampi, a seconda delle varie fasi del processo. L'applicazione, unica, è stata divisa a livello funzionale in due moduli denominati modulo PEM e modulo DASI.
  
 Il Modulo PEM permette di:
@@ -64,6 +76,10 @@ Il Modulo DASI permette di:
 - garantire autenticità del testo, intesa come integrità del testo, provenienza del documento dal suo autore e certezza temporale sulla sua presentazione;
 - snellire le operazioni per la lavorazione degli ATTI (numerazione, marcatura, autenticazione, ecc…);
 - ridurre l’utilizzo della carta e dei supporti per la stampa.
+- gestire massivamente gli atti
+- gestire puntualmente i dati associati agli atti
+- configurare la ricerca ricorrente degli atti
+- customizzare la reportistica
 
 Maggiori dettagli sulle funzionalità possono essere lette nella documentazione per l’utente finale:
 
@@ -75,19 +91,19 @@ Maggiori dettagli sulle funzionalità possono essere lette nella documentazione 
   
   - Database: struttura di configurazione del database e sua documentazione
   
-  - Documentazione: documentazione varia sull'installazione e sull'utilizzo del Portale PEM-DASI
+  - Documentazione: documentazione varia sull'installazione e sull'utilizzo del Portale GeDASI
   
-  - Sorgenti API: sorgenti dei moduli API utilizzati dal Portale PEM-DASI
+  - Sorgenti API: sorgenti dei moduli API utilizzati dal Portale GeDASI
   
-  - Sorgenti Client: sorgenti della parte client del Portale PEM-DASI
+  - Sorgenti Client: sorgenti della parte client del Portale GeDASI
   
   - Sorgenti modulo di stampa asincrona: Sorgenti del modulo di stampa asincrona degli Emendamenti in formato pdf
   
 Il repository corrente ha 3 branches:
 
-- Branch master: contiene il codice e la documentazione di PEM-DASI nella versione attuale e su cui verranno effettuati gli aggiornamenti e le ulteriori modifiche evolutive
+- Branch master: contiene il codice e la documentazione di GeDASI nella versione attuale e su cui verranno effettuati gli aggiornamenti e le ulteriori modifiche evolutive
 
-- Branch v2.2-beta: contiene il codice e la documentazione di PEM-DASI in versione 2.2 ovvero il modulo PEM con le ultime modifiche evolutive e il modulo DASI per la digitalizzazione della presentazione degli atti di sindacato ispettivo e d'indirizzo 
+- Branch v2.2-beta: contiene il codice e la documentazione di GeDASI in versione 2.2 ovvero il modulo PEM con le ultime modifiche evolutive e il modulo DASI per la digitalizzazione della presentazione degli atti di sindacato ispettivo e d'indirizzo 
 
 - Branch v2.0-stable: contiene il codice e la documentazione della versione PEM 2.0 ovvero il modulo PEM per la digitalizzazione della presentazione degli emendamenti senza le ultime modifiche evolutive effettuate
 
@@ -95,21 +111,28 @@ Il repository corrente ha 3 branches:
 
 #### INTRODUZIONE
 
-La versione pubblicata del software PEM-DASI è l’evoluzione di una prima versione di PEM (PEM v 1.0), sviluppata con tecnologia Microsoft ASP.net su Framework .NET 4.5.
-La nuova versione (PEM 2.0) è stata realizzata con l’obiettivo di migliorare e superare alcuni limiti del vecchio portale offrendo i seguenti vantaggi:
+La versione pubblicata del software GeDASI è l’evoluzione di una prima versione di PEM (PEM v 1.0) e della sua successiva, PEM-DASI, sviluppata con tecnologia Microsoft ASP.net su Framework .NET 4.5.
+La nuova versione è stata realizzata con l’obiettivo di migliorare e superare alcuni limiti del vecchio portale offrendo i seguenti vantaggi:
 -	Eliminazione di librerie di terze parti coperte da licenza non opensource;
--	Separazione della parte client da quella server realizzando API dedicate che gestiscono tutta la logica applicativa di PEM-DASI e facilitano l'eventuale sviluppo di applicazioni mobile per dispositivi Apple e Android;
+-	Separazione della parte client da quella server realizzando API dedicate che gestiscono tutta la logica applicativa di GeDASI e facilitano l'eventuale sviluppo di applicazioni mobile per dispositivi Apple e Android;
 -	Aumento della modularità per consentire l’evoluzione del portale per la gestione di altre tipologie di ATTI (es. atti d’indirizzo e di sindacato ispettivo);
 -	Miglioramento delle performance soprattutto nella parte di generazione delle stampe;
 -	Miglioramento della sicurezza;
 -	Introduzione di funzionalità che permetto di utilizzare la piattaforma in modalità stand-alone, gestendo in modalità nativa le funzioni di autenticazione, profilazione e di anagrafica.
  
-La nuova versione (PEM 2.0) è stata sviluppata utilizzando la tecnologia Microsoft MVC (model view controller) utilizzando C# come linguaggio di programmazione e il Framework .NET 4.7.2. 
+La nuova versione è stata sviluppata utilizzando la tecnologia Microsoft MVC (model view controller) utilizzando C# come linguaggio di programmazione e il Framework .NET 4.7.2. 
 
 Successivamente la piattaforma PEM v2.0, utilizzata per digitalizzare gli emendamenti/subemendamenti ai progetti di legge, è stata estesa per la digitalizzazione degli altri atti tipici delle assemblee regionali sviluppando il modulo DASI per la Digitalizzazione Atti di Sindacato ispettivo e d'Indirizzo PEM-DASI v2.2
 
+La piattaforma GeDASI offre un nuovo incremento alle funzionalità del sistema, tra cui:
+- filtraggio configurabile
+- reportistica custom
+- CRUD sul singolo atto
+- gestione massiva atti
+- gestione dei template per report lettere e copertine
+
 ### STRUTTURA DEL SISTEMA
-Il portale PEM-DASI è stato progettato e sviluppato in modo da separare in maniera netta la parte server da quella client e allo stesso tempo fornire intefacce progrmmabili (API) di tipo web che possono essere richiamate ed utilizzate per altri scopi da altre applicazioni. 
+Il portale GeDASI è stato progettato e sviluppato in modo da separare in maniera netta la parte server da quella client e allo stesso tempo fornire intefacce progrmmabili (API) di tipo web che possono essere richiamate ed utilizzate per altri scopi da altre applicazioni. 
 
 ![Struttura_sistema](/Documentazione/Screenshot/Struttura_sistema.jpg)
  
@@ -117,7 +140,7 @@ Le componenti principale del sistema risultano essere quelle in figura e descrit
 -	DATABASE:
 Motore di database contenente i dati dell’applicazione, le funzioni e le procedure di basso livello. Si è scelto di utilizzate MS Sql Server come DBMS.
 -	API:
-È la parte core del sistema che contiene tutta la logica applicativa e di interfacciamento ad alto livello, tramite la modellazione di opportune classi, con la base dati di PEM-DASI. L’interfacciamento con la base dati è stato realizzato utilizzando un layer con EntityFramework 6
+È la parte core del sistema che contiene tutta la logica applicativa e di interfacciamento ad alto livello, tramite la modellazione di opportune classi, con la base dati di GeDASI. L’interfacciamento con la base dati è stato realizzato utilizzando un layer con EntityFramework 6
 -	CLIENT:
 È il modulo che interroga l’API e genera l’output finale (html, javascript, css) da inviare ai dispositivi client.
 -	PROXYAD (WEBSERVICES DI AUTENTICAZIONE):
@@ -129,7 +152,7 @@ NOTA:
 Il progetto in produzione presso il Consiglio regionale della Lombardia utilizza un ulteriore webservices per la pubblicazione dei dai dati relativi agli emendamenti sul dataset dedicato all’interno del portale www.dati.lombardia.it. Questa funzionzionalità non è attiva nel sorgente pubblicato e tutte le chiamate al webservices sono state disabilitate attraverso l’impostazione della chiave presente nel web.config (AbilitaOpenData = 0)
 
 ### API
-Come accennato il modulo API è la parte core della soluzione PEM-DASI e contiene tutta la logica applicativa e di interfacciamento alla base dati.
+Come accennato il modulo API è la parte core della soluzione GeDASI e contiene tutta la logica applicativa e di interfacciamento alla base dati.
 L’API dialoga pertanto sia con il modulo client, per l’invio di tutte le informazioni necessarie alla creazione delle pagine web finali, sia con il DBMS per la lettura e la memorizzazione dei dati.
 Per l’interfacciamento con il database è stato sviluppato un layer con EntityFramework 6. Questo agevola l’utilizzo anche di altri provider nel caso non si voglia usare Microsoft SQL server. Per tutti i database supportati fare riferimento alla guida [Panoramica di Entity Framework 6 - EF6 | Microsoft Docs](https://docs.microsoft.com/it-it/ef/ef6/)
 
@@ -139,7 +162,7 @@ Per informazioni più dettagliate su JWT token si può consultare la seguente gu
 
 Per evitare il proliferare di utenze e password, in Consiglio regionale della Lombardia, si è scelto di utilizzare, come primo livello di accesso al portale, gli stessi user name e password utilizzati per l’accesso al dominio di rete interna. Per effettuare l’autenticazione viene utilizzato un webservice soap che si interfaccia con il repository delle utenze di rete.
 
-Per rendere il portale PEM-DASI immediatamente riusabile, è possibile utilizzare delle credenziali (username e password) memorizzate sul database interno di PEM-DASI. Per attivare questo tipo di autenticazione è necessario impostare la chiave AutenticazioneAD = 0 nel web.config dell’applicazione.
+Per rendere il portale GeDASI immediatamente riusabile, è possibile utilizzare delle credenziali (username e password) memorizzate sul database interno di GeDASI. Per attivare questo tipo di autenticazione è necessario impostare la chiave AutenticazioneAD = 0 nel web.config dell’applicazione.
 
 #### API – STRUTTURA (SOTTO-PROGETTI)
 Il modulo API è stato sviluppato secondo una logica di sotto-progetti per separare logicamente le diverse tipologie di operazioni.
@@ -176,12 +199,12 @@ Il sotto-progetto API costituisce la parte principale della parte API in quanto 
 -	ADMINCONTROLLER: contiene le funzioni per la gestione amministrativa del portale (definizione di utenti e password, impostazione dei ruoli, reset pin, configurazione gruppi politici, ecc.)
 
 #### API – LIBRERIE
-La parte API di PEM-DASI è stata realizzata utilizzando librerie opensource in modo da rendere tutta l'applicazione priva di strumenti coperti da licenze proprietarie e quindi con codice sorgente non modificabile. Per quanto riguarda la stampa in PDF degli Atti di Sindacato ispettivo e d'Indirizzo (Modulo DASI), per migliorare le performance, la qualità dell'output e soprattutto gestire le criticità dovute all'inserimento di testi complessi effettuando il "copia/incolla" da documenti Microsoft Word, la libreria opensource ITextSharp è stata sostituita con libreria **a pagamento** IronPDF (vedere il paragrafo "Licenze dei componenti di terze parti" per costi e maggiori informazioni).
+La parte API di GeDASI è stata realizzata utilizzando librerie opensource in modo da rendere tutta l'applicazione priva di strumenti coperti da licenze proprietarie e quindi con codice sorgente non modificabile. Per quanto riguarda la stampa in PDF degli Atti di Sindacato ispettivo e d'Indirizzo (Modulo DASI), per migliorare le performance, la qualità dell'output e soprattutto gestire le criticità dovute all'inserimento di testi complessi effettuando il "copia/incolla" da documenti Microsoft Word, la libreria opensource ITextSharp è stata sostituita con libreria **a pagamento** IronPDF (vedere il paragrafo "Licenze dei componenti di terze parti" per costi e maggiori informazioni).
 
 Nel progetto è comunque disponibile la libreria opensource ITextSharp, ancora utilizzata per la stampa degli emendamenti, e  il codice per generare le stampe pdf utilizzando questa libreria, mettendo così a disposizione una versione completamente opensource e gratuita di PEM/DASI (il codice è tenuto aggiornato e compatibile con la libreria ITextSharp **fino** alla versione corrente della piattaforma - ver 2.2 - nelle versioni successive non si garantisce lo sviluppo di codice che utilizza ITextSharp)
 
 ### CLIENT
-Il modulo client si occupa si generare le pagine web finali composte da html e librerie javscript e css. Le pagine vengono inviate ai web-browser per la visualizzazione. Il modulo CLIENT dialoga con il modulo API per la creazione delle pagine e la gestione dei diversi comandi e funzionalità del portale PEM-DASI. Come detto tutta la logica applicativa, la gestione dei permessi e l’interfacciamento con il database viene effettuato dal modulo API. Questo tipo di struttura separa in maniera netta l’interfaccia utente dalle logiche di business consentendo un’agevole sostituzione della parte client, ad esempio con un’App per dispositivi mobili Apple o Android.
+Il modulo client si occupa si generare le pagine web finali composte da html e librerie javscript e css. Le pagine vengono inviate ai web-browser per la visualizzazione. Il modulo CLIENT dialoga con il modulo API per la creazione delle pagine e la gestione dei diversi comandi e funzionalità del portale GeDASI. Come detto tutta la logica applicativa, la gestione dei permessi e l’interfacciamento con il database viene effettuato dal modulo API. Questo tipo di struttura separa in maniera netta l’interfaccia utente dalle logiche di business consentendo un’agevole sostituzione della parte client, ad esempio con un’App per dispositivi mobili Apple o Android.
 
 #### CLIENT – STRUTTURA (SOTTO-PROGETTI)
 Così come effettuato per il modulo API anche il modulo CLIENT è stato sviluppato secondo una logica di sotto-progetti per separare logicamente le diverse tipologie di operazioni per agevolare il riuso dell’applicazione permettendo la sostituzione/rielaborazione di singole componenti. 
@@ -209,13 +232,13 @@ Il sotto-progetto Client costituisce la parte principale della parte CLIENT. Sec
 -	VIDEOTUTORIAL: Contiene i tutorial per l’utilizzo del PEM.
 
 #### CLIENT – LIBRERIE
-La parte di interfaccia utente di PEM-DASI è stata realizzata utilizzando le tecnologie attualmente più evolute che consentono la visualizzazione responsive dell’applicazione. Particolare attenzione è stata dedicata alla scelta di librerie opensource in modo da rendere tutta l'applicazione priva di strumenti coperti da licenze proprietarie e quindi con codice sorgente non modificabile. In quest'ottica si può affermare che la piattaforma PEM-DASI è pianmente in linea con la logica del riuso e consente la più ampia possibilità di personalizzazione. In particolare, sono stati utilizzati:
+La parte di interfaccia utente di GeDASI è stata realizzata utilizzando le tecnologie attualmente più evolute che consentono la visualizzazione responsive dell’applicazione. Particolare attenzione è stata dedicata alla scelta di librerie opensource in modo da rendere tutta l'applicazione priva di strumenti coperti da licenze proprietarie e quindi con codice sorgente non modificabile. In quest'ottica si può affermare che la piattaforma GeDASI è pianmente in linea con la logica del riuso e consente la più ampia possibilità di personalizzazione. In particolare, sono stati utilizzati:
 -	Materialize (stile) - [Documentation - Materialize (materializecss.com)](https://materializecss.com/)
 -	jQuery (javascript) - [jQuery](https://jquery.com/)
 -	Trumbowyg (editor testo) - [https://alex-d.github.io/Trumbowyg/](https://alex-d.github.io/Trumbowyg/))
 
 #### TEMPLATE
-Per rendere il portale PEM-DASI adattabile ad esigenze di layout differenti e personalizzabili, la visualizzazione e la stampa degli atti e dei fascicoli è stata sviluppata utilizzando dei templates html. Attraverso questi templates, contenuti nella cartella Template nel progetto API, è possibile personalizzare il layout degli emendamenti, degli atti e dei fascicoli sia nella versione html (per visualizzazione a video e per invio tramite email) sia nella versione pdf.
+Per rendere il portale GeDASI adattabile ad esigenze di layout differenti e personalizzabili, la visualizzazione e la stampa degli atti e dei fascicoli è stata sviluppata utilizzando dei templates html. Attraverso questi templates, contenuti nella cartella Template nel progetto API, è possibile personalizzare il layout degli emendamenti, degli atti e dei fascicoli sia nella versione html (per visualizzazione a video e per invio tramite email) sia nella versione pdf.
 
 #### GESTIONE DELLE STAMPE
 Come detto precedentemente, per una questione di performance, le stampe in pdf vengono generalmente effettuate in modalità asincrona.
@@ -245,11 +268,16 @@ La soluzione del progetto in Visual Studio risulta quella in figura:
 
 ![Soluzione_VisualStudio_JobStampa](/Documentazione/Screenshot/Soluzione_VisualStudio_JobStampa.jpg)
 
+#### WebService pubblico
+Di seguito la documentazione del WebService pubblico:
+
+[Strutturazione dei web services](/Documentazione/Strutturazione_dei_web_services.pdf)
+
 # Installazione
 
 ## Note sulla release
 
-Il codice sorgente pubblicato è relativo alla piattaforma PEM-DASI nella release 2.2, che integra il modulo PEM e il modulo DASI ed è l'evoluzione di una prima versione di PEM sviluppata in asp.net.
+Il codice sorgente pubblicato è relativo alla piattaforma GeDASI nella release 2.2, che integra il modulo PEM e il modulo DASI ed è l'evoluzione di una prima versione di PEM sviluppata in asp.net.
 La versione 2.0 separa la parte client dell’applicazione da quella server attraverso lo sviluppo di API dedicate e introduce miglioramenti nelle performance e nella gestione delle stampe pdf. L’introduzione delle API per la gestione dei dati e delle elaborazioni principali facilita lo sviluppo di App per dispositivi mobili (Apple e Android).
 
 La piattaforma PEM/DASI è stata realizzata con librerie opensource gratuite e tutte le sue funzionalità sono state sviluppate utilizzando queste librerie.
@@ -262,16 +290,16 @@ NOTA: Io modulo DASI è attualmente in fase di test e viene rilasciato in versio
 
 ## Requisiti del sistema
 
-Specifiche tecniche server:
+Specifiche tecniche server consigliate:
 
-- Sistema Operativo: Windows 2008 Server R2 o superiore + Active Directory
-- Web e Application server: IIS 7.5 o superiore + Entity Framework 6.0
-- Database: Microsoft SQL server 2012 o superiore
+- Sistema Operativo: Windows Server 2022 + Active Directory
+- Web e Application server: IIS 10 + Entity Framework 6.0
+- Database: Microsoft SQL server 2019
 
 Specifiche tecniche client:
-- Sistema Operativo: Microsoft windows (7 – 8 - 10), Mac OsX
-- Browser: Internet Explorer (ver. 9.0-10.0-11.0), FireFox, Chrome, Safari
-- Dispositivi mobile (tablet/cellulari): iOS, Android - il portale è completamente responsive escluso le pagine contenenti la griglia di lavoro dedicata alla Segreteria dell'Assemblea
+- Sistema Operativo: Microsoft windows 10 o superiore, Mac OsX
+- Browser: Edge, FireFox, Chrome, Safari
+- Dispositivi mobile (tablet/cellulari): iOS, Android - il portale è responsive ad esclusione di alcune parti.
 
 ## Procedura di installazione
 
@@ -286,14 +314,14 @@ Per la procedura completa di installazione fare riferimento alla documentazione 
 
 ## Autore / Copyright
 
-Portale PEM-DASI - Presentazione EMendamenti e Digitalizzazione Atti di Sindacato ispettivo e d'Indirizzo
+Portale GeDASI - Presentazione EMendamenti e Digitalizzazione Atti di Sindacato ispettivo e d'Indirizzo
 2020-2022 (c) Consiglio Regionale dell Lombardia
 
 Concesso in licenza [GNU Affero General Public Licence version 3](https://www.gnu.org/licenses/agpl-3.0.html) (SPDX: AGPL-3.0)
 
 ## Licenze dei componenti di terze parti
 
-All'interno del codice del Portale PEM-DASI sono stati utilizzati i seguenti componenti di terze parti, nell'ambito delle relative licenze qui indicate:
+All'interno del codice del Portale GeDASI sono stati utilizzati i seguenti componenti di terze parti, nell'ambito delle relative licenze qui indicate:
   
 - Log4net
  https://github.com/apache/logging-log4net

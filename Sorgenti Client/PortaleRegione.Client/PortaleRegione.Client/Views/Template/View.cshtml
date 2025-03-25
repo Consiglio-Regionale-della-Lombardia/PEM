@@ -1,0 +1,255 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.TemplatesItemDto>
+@{
+	ViewBag.Title = "Templates";
+}
+
+<script>
+	$(document).ready(function () {
+		$('#btnSearch').hide();
+	});
+</script>
+
+<div class="row">
+	<div class="col s12">
+		<h4>
+			<b>@ViewBag.Title</b>
+		</h4>
+	</div>
+</div>
+<div class="row">
+    <div class="input-field col s6">
+        <i class="material-icons prefix">search</i>
+        <input type="text" id="filter-templates-input">
+        <label for="filter-templates-input">Ricerca templates</label>
+    </div>
+    <div class="input-field col s6">
+        <div class="row">
+            <div class="col s12">
+                <button id="export-json" class="btn-flat blue-text">Esporta in JSON</button>
+                <button id="export-xml" class="btn-flat green-text">Esporta in XML</button>
+                <button id="export-sql" class="btn-flat yellow-text">Esporta in SQL</button>
+            </div>
+        </div>
+	</div>
+</div>
+
+@{
+	Html.RenderPartial("_PaginationBar", Model.Paging);
+}
+
+
+<div id="contentTable" class="row">
+
+	@if (!Model.Results.Any())
+	{
+		<div class="row">
+			<div class="col s12">
+				<div class="card-panel panel-warning center">
+					<span class="center">
+						Non ci sono template.
+					</span>
+				</div>
+			</div>
+		</div>
+	}
+
+	<ul id="templateList" class="collapsible">
+		@foreach (var item in Model.Results)
+		{
+			<li>
+				<div class="collapsible-header">
+					@if (item.Visibile)
+					{
+						if (item.Tipo == (int)TemplateTypeEnum.REPORT_COVER)
+						{
+							<i class="material-icons">description</i>
+						}
+						else
+						{
+							<i class="material-icons">article</i>
+						}
+					}
+					else
+					{
+						<i class="material-icons">visibility_off</i>
+					}
+
+					@item.Nome
+				</div>
+				<div class="collapsible-body">
+					<div class="row">
+						<div class="col s12">
+							<button type="button" role="button" class="btn-flat blue-text" onclick="editTemplate(this)" data-uid="@item.Uid">Modifica</button>
+							<button type="button" role="button" class="btn-flat red-text" onclick="removeTemplate(this)" data-uid="@item.Uid" data-name="@item.Nome">Elimina</button>
+						</div>
+					</div>
+				</div>
+			</li>
+		}
+	</ul>
+</div>
+<div id="pnlNuovoDASI" class="fixed-action-btn">
+	<button type="button" role="button" id="btnNuovoTemplate" class="btn-floating btn-large blue darken-3" onclick="goIntoOtherTab('@Url.Action("NewTemplate")')">
+		<i class="large material-icons">add</i>
+	</button>
+</div>
+
+<script>
+    function removeTemplate(ctrl)
+    {
+        var uid = ctrl.getAttribute('data-uid');
+        var nome_template = ctrl.getAttribute('data-name');
+
+        swal("Verrà rimosso il template " + nome_template + ". Sei sicuro?",
+            {
+                buttons: {
+                    cancel: "Annulla",
+                    confirm: {
+                        className: "red white-text",
+                        title: "Elimina template",
+                        value: true
+                    }
+                }
+            }).then((value) => {
+            if (value == true) {
+                var url = '@Url.Action("RemoveTemplate", "Template")';
+                var templateIds = [];
+                templateIds.push(uid);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: JSON.stringify(templateIds),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    if (data.message) {
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
+                    }else
+                    {
+                        location.reload();
+                    }
+
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            }
+        });
+    }
+
+    function editTemplate(ctrl)
+    {
+        var uid = ctrl.getAttribute('data-uid');
+        goIntoOtherTab(`@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/templates/${uid}/edit`)
+    }
+
+    window.addEventListener("message", (event) => {
+        // Controlla l'origine del messaggio per motivi di sicurezza
+        if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") { // sostituisci con il tuo dominio
+            return;
+        }
+
+        if (event.data === "aggiornaPadre") {
+            location.reload(); // Ricarica la pagina padre
+        }
+    }, false);
+
+</script>
+
+<script>
+	// Funzione di ricerca
+	document.getElementById('filter-templates-input').addEventListener('input', function () {
+		const searchValue = this.value.toLowerCase();
+		const collapsibleItems = document.querySelectorAll('#templateList li');
+
+		collapsibleItems.forEach(item => {
+			const headerText = item.querySelector('div .collapsible-header').textContent.toLowerCase();
+			item.style.display = headerText.includes(searchValue) ? 'block' : 'none';
+		});
+	});
+</script>
+
+<script>
+    // Serializzazione dei dati nel Model.Results in formato JSON
+    const modelResults = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Results));
+
+    // Funzione per scaricare i file
+    function downloadFile(data, filename, type) {
+        const blob = new Blob([data], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Esporta in JSON
+    document.getElementById('export-json').addEventListener('click', function () {
+        const jsonData = JSON.stringify(modelResults, null, 2);
+        downloadFile(jsonData, 'templates.json', 'application/json');
+    });
+
+    // Esporta in XML
+    document.getElementById('export-xml').addEventListener('click', function () {
+        let xmlData = '<?xml version="1.0" encoding="UTF-8"?>\n<Templates>\n';
+
+        modelResults.forEach(item => {
+            xmlData += '  <Template>\n';
+            for (const [key, value] of Object.entries(item)) {
+                xmlData += `    <${key}>${value}</${key}>\n`;
+            }
+            xmlData += '  </Template>\n';
+        });
+
+        xmlData += '</Templates>';
+        downloadFile(xmlData, 'templates.xml', 'application/xml');
+    });
+
+    // Funzione per generare i comandi INSERT
+    function generateSQLInsertCommands(data) {
+        const tableName = "TEMPLATES"; // Nome della tabella
+        const sqlCommands = [];
+
+        data.forEach(item => {
+            // Genera il comando INSERT con gestione di stringhe vuote
+            const command = `INSERT INTO ${tableName} (Uid, Nome, Corpo, Testata, Tipo, Visibile) VALUES (
+            '${item.Uid}', 
+            '${item.Nome.replace(/'/g, "''")}', 
+            '${item.Corpo ? item.Corpo.replace(/'/g, "''") : ""}', 
+            '${item.Testata ? item.Testata.replace(/'/g, "''") : ""}', 
+            ${item.Tipo}, 
+            ${item.Visibile ? 1 : 0}
+        );`;
+
+            sqlCommands.push(command);
+        });
+
+        return sqlCommands.join("\n");
+    }
+
+    // Funzione per scaricare il file SQL
+    function downloadSQLFile(sqlData, filename) {
+        const blob = new Blob([sqlData], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Genera e scarica i comandi SQL
+    document.getElementById("export-sql").addEventListener("click", function () {
+        const sqlData = generateSQLInsertCommands(modelResults);
+        downloadSQLFile(sqlData, "templates.sql");
+    });
+</script>

@@ -81,7 +81,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _dasiLogic.NuovoModello(tipo, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                var result = await _dasiLogic.NuovoModello(tipo, currentUser);
                 return Ok(result);
             }
             catch (Exception e)
@@ -101,14 +107,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
-                var currentUser = CurrentUser;
                 if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea)
                     return NotFound();
 
                 var countFirme = await _attiFirmeLogic.CountFirme(id);
-                if (countFirme > 1)
+                if (countFirme > 1 && (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea))
                     throw new InvalidOperationException(
                         $"Non è possibile modificare l'atto. Ci sono ancora {countFirme} firme attive.");
 
@@ -132,6 +143,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
                 var nuovoAtto = await _dasiLogic.Salva(request, CurrentUser);
 
                 return Created(new Uri(Request.RequestUri.ToString()), Mapper.Map<ATTI_DASI, AttoDASIDto>(nuovoAtto));
@@ -139,6 +156,479 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Salva Atto DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per salvare le informazioni generali di un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_GeneralInfos)]
+        public async Task<IHttpActionResult> Salva_InformazioniGenerali(AttoDASI_InformazioniGeneraliDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_InformazioniGenerali(request, currentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva informazioni generali DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per aggiungere una risposta ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_AddAnswer)]
+        public async Task<IHttpActionResult> Salva_NuovaRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                var risposta = await _dasiLogic.Salva_NuovaRisposta(request, currentUser);
+                return Ok(risposta);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nuovo risposta DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per aggiungere una risposta ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Remove_Answer)]
+        public async Task<IHttpActionResult> Salva_RimuoviRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_RimuoviRisposta(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi risposta DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per aggiungere un abbinamento ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_AddReference)]
+        public async Task<IHttpActionResult> Salva_NuovoAbbinamento(AttiAbbinamentoDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                await _dasiLogic.Salva_NuovoAbbinamento(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nuovo abbinamento DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere un abbinamento ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Remove_Reference)]
+        public async Task<IHttpActionResult> Salva_RimuoviAbbinamento(AttiAbbinamentoDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_RimuoviAbbinamento(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi abbinamento DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per salvare i dettagli di una risposta ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_DetailAnswer)]
+        public async Task<IHttpActionResult> Salva_DettagliRisposta(AttiRisposteDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_DettagliRisposta(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi abbinamento DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare le informazioni di una risposta ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_InfoAnswer)]
+        public async Task<IHttpActionResult> Salva_InformazioniRisposta(AttoDASIDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                await _dasiLogic.Salva_InformazioniRisposta(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi abbinamento DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per aggiungere un monitoraggio ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_AddMonitoring)]
+        public async Task<IHttpActionResult> Salva_NuovoMonitoraggio(AttiRisposteDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
+                await _dasiLogic.Salva_NuovoMonitoraggio(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nuovo monitoraggio DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere un monitoraggio ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Remove_Monitoring)]
+        public async Task<IHttpActionResult> Salva_RimuoviMonitoraggio(AttiRisposteDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_RimuoviMonitoraggio(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva rimuovi monitoraggio DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per salvare le informazioni del monitoraggio ad un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_InfoMonitoring)]
+        public async Task<IHttpActionResult> Salva_InformazioniMonitoraggio(AttoDASIDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_InformazioniMonitoraggio(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva info monitoraggio DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per salvare le informazioni di chiusura iter dell' atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_InfoClosureFlow)]
+        public async Task<IHttpActionResult> Salva_InformazioniChiusuraIter(AttoDASIDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_InformazioniChiusuraIter(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva info monitoraggio DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per salvare le note di un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_Note)]
+        public async Task<IHttpActionResult> Salva_Nota(NoteDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_Nota(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nota DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere le note da un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Remove_Note)]
+        public async Task<IHttpActionResult> Salva_RimuoviNota(NoteDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_RimuoviNota(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva nota DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare un documento caricato dall'utente per un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_Document)]
+        public async Task<IHttpActionResult> Salva_Documento(SalvaDocumentoRequest request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                var documento = await _dasiLogic.Salva_Documento(request, currentUser);
+                return Ok(documento);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva documento atto DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere un documento caricato dall'utente per un atto
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Remove_Document)]
+        public async Task<IHttpActionResult> Rimuovi_Documento(AttiDocumentiDto request)
+        {   
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Rimuovi_Documento(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Rimuovi documento atto DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per pubblicare o rimuovere dalla pubblicazione un documento1
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Public_Document)]
+        public async Task<IHttpActionResult> Pubblica_Documento(AttiDocumentiDto request)
+        {   
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Pubblica_Documento(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Pubblica documento atto DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per salvare massivamente i dati di una lista di atti
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_MassiveCommand)]
+        public async Task<IHttpActionResult> Salva_ComandoMassivo(SalvaComandoMassivoRequest request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_ComandoMassivo(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva massivamente dati DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per salvare le informazioni riguardanti la privacy
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Save_Privacy)]
+        public async Task<IHttpActionResult> Salva_PrivacyAtto(AttoDASIDto request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Salva_Privacy(request, currentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva privacy DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -154,7 +644,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.SalvaCartaceo(request, CurrentUser);
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.SalvaCartaceo(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -174,6 +669,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.CambiaPrioritaFirma(firma);
                 return Ok();
             }
@@ -194,6 +694,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+
                 await _dasiLogic.CambiaOrdineVisualizzazione(firme);
                 return Ok();
             }
@@ -241,7 +747,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _dasiLogic.Get(request, CurrentUser, Request.RequestUri));
+                var result = await _dasiLogic.Get(request, CurrentUser, Request.RequestUri);
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -261,7 +768,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _dasiLogic.GetSoloIds(request, CurrentUser, Request.RequestUri));
+                var result = await _dasiLogic.GetSoloIds(request, CurrentUser, Request.RequestUri);
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -300,18 +808,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var user = CurrentUser;
-                var firmaUfficio = user.IsSegreteriaAssemblea;
+                var currentUser = CurrentUser;
+                var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                         throw new InvalidOperationException("Pin inserito non valido");
 
-                    return Ok(await _dasiLogic.Firma(firmaModel, user, null, true));
+                    return Ok(await _dasiLogic.Firma(firmaModel, currentUser, null, true));
                 }
 
-                var pinInDb = await _personeLogic.GetPin(user);
+                var pinInDb = await _personeLogic.GetPin(currentUser);
                 if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
                 if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
@@ -319,7 +827,7 @@ namespace PortaleRegione.API.Controllers
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                     throw new InvalidOperationException("Pin inserito non valido");
 
-                return Ok(await _dasiLogic.Firma(firmaModel, user, pinInDb));
+                return Ok(await _dasiLogic.Firma(firmaModel, currentUser, pinInDb));
             }
             catch (Exception e)
             {
@@ -339,18 +847,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var user = CurrentUser;
-                var firmaUfficio = user.IsSegreteriaAssemblea;
+                var currentUser = CurrentUser;
+                var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                         throw new InvalidOperationException("Pin inserito non valido");
 
-                    return Ok(await _dasiLogic.RitiroFirma(firmaModel, user));
+                    return Ok(await _dasiLogic.RitiroFirma(firmaModel, currentUser));
                 }
 
-                var pinInDb = await _personeLogic.GetPin(user);
+                var pinInDb = await _personeLogic.GetPin(currentUser);
                 if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
                 if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
@@ -358,7 +866,7 @@ namespace PortaleRegione.API.Controllers
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                     throw new InvalidOperationException("Pin inserito non valido");
 
-                return Ok(await _dasiLogic.RitiroFirma(firmaModel, user));
+                return Ok(await _dasiLogic.RitiroFirma(firmaModel, currentUser));
             }
             catch (Exception e)
             {
@@ -378,19 +886,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var user = CurrentUser;
-
-                var firmaUfficio = user.IsSegreteriaAssemblea;
+                var currentUser = CurrentUser;
+                var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                         throw new InvalidOperationException("Pin inserito non valido");
 
-                    return Ok(await _dasiLogic.EliminaFirma(firmaModel, user));
+                    return Ok(await _dasiLogic.EliminaFirma(firmaModel, currentUser));
                 }
 
-                var pinInDb = await _personeLogic.GetPin(user);
+                var pinInDb = await _personeLogic.GetPin(currentUser);
                 if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
                 if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
@@ -398,7 +905,7 @@ namespace PortaleRegione.API.Controllers
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                     throw new InvalidOperationException("Pin inserito non valido");
 
-                return Ok(await _dasiLogic.EliminaFirma(firmaModel, user));
+                return Ok(await _dasiLogic.EliminaFirma(firmaModel, currentUser));
             }
             catch (Exception e)
             {
@@ -418,22 +925,22 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
                 if (ManagerLogic.BloccaPresentazione)
                     throw new InvalidOperationException(
                         "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
 
-                var user = CurrentUser;
-                var presentazioneUfficio = user.IsSegreteriaAssemblea;
+                var presentazioneUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (presentazioneUfficio)
                 {
                     if (presentazioneModel.Pin != AppSettingsConfiguration.MasterPIN)
                         throw new InvalidOperationException("Pin inserito non valido");
 
-                    return Ok(await _dasiLogic.Presenta(presentazioneModel, user));
+                    return Ok(await _dasiLogic.Presenta(presentazioneModel, currentUser));
                 }
 
-                var pinInDb = await _personeLogic.GetPin(user);
+                var pinInDb = await _personeLogic.GetPin(currentUser);
                 if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
                 if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
@@ -441,7 +948,7 @@ namespace PortaleRegione.API.Controllers
                 if (presentazioneModel.Pin != pinInDb.PIN_Decrypt)
                     throw new InvalidOperationException("Pin inserito non valido");
 
-                return Ok(await _dasiLogic.Presenta(presentazioneModel, user));
+                return Ok(await _dasiLogic.Presenta(presentazioneModel, currentUser));
             }
             catch (Exception e)
             {
@@ -483,7 +990,6 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [AllowAnonymous]
         [HttpPost]
         [Route(ApiRoutes.DASI.GetBody)]
         public async Task<IHttpActionResult> GetBody(GetBodyModel model)
@@ -493,8 +999,7 @@ namespace PortaleRegione.API.Controllers
                 var atto = await _dasiLogic.Get(model.Id);
                 if (atto == null) return NotFound();
 
-                var body = await _dasiLogic.GetBodyDASI(atto
-                    , await _attiFirmeLogic.GetFirme(atto, FirmeTipoEnum.TUTTE)
+                var body = await _dasiLogic.GetBodyDASI(model.Id
                     , CurrentUser
                     , model.Template,
                     model.privacy);
@@ -543,7 +1048,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var response = ResponseMessage(await _dasiLogic.Download(path));
+                var response = ResponseMessage(_dasiLogic.Download(path));
 
                 return response;
             }
@@ -690,7 +1195,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.RimuoviSeduta(model);
+                await _dasiLogic.RimuoviSeduta(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -1023,28 +1528,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-
-        /// <summary>
-        ///     Endpoint per accodare una stampa DASI
-        /// </summary>
-        /// <param name="model">Modello specifico per richiesta stampa</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route(ApiRoutes.DASI.InserisciStampaDifferita)]
-        public async Task<IHttpActionResult> InserisciStampaDifferitaDASI(BaseRequest<AttoDASIDto, StampaDto> model)
-        {
-            try
-            {
-                var result = await _stampeLogic.InserisciStampa(model, CurrentUser);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Inserisci stampa", e);
-                return ErrorHandler(e);
-            }
-        }
-
+        
         /// <summary>
         ///     Endpoint per accodare una stampa DASI massiva
         /// </summary>
@@ -1062,6 +1546,291 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Inserisci stampa", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare un gruppo di filtri
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.SalvaFiltriPreferiti)]
+        public async Task<IHttpActionResult> SalvaGruppoFiltri(FiltroPreferitoDto request)
+        {
+            try
+            {
+                await _dasiLogic.SalvaGruppoFiltri(request, CurrentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva gruppo di filtri", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere il proprio gruppo di filtri preferito
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetFiltriPreferiti)]
+        public async Task<IHttpActionResult> GetGruppoFiltri()
+        {
+            try
+            {
+                var res = await _dasiLogic.GetGruppoFiltri(CurrentUser);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get filtri preferiti", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per eliminare un gruppo di filtri preferiti
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route(ApiRoutes.DASI.EliminaFiltriPreferiti)]
+        public async Task<IHttpActionResult> EliminaGruppoFiltri(string nomeFiltro)
+        {
+            try
+            {
+                await _dasiLogic.EliminaGruppoFiltri(nomeFiltro, CurrentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Elimina filtri preferiti", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per generare i report
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.GeneraReport)]
+        public async Task<IHttpActionResult> GeneraReport(ReportDto request)
+        {
+            try
+            {
+                var file = await _dasiLogic.GeneraReport(request, CurrentUser);
+
+                return ResponseMessage(file);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Genera report", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per generare l'estratto degli atti in zip
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.GeneraZIP)]
+        public async Task<IHttpActionResult> GeneraZIP(ReportDto request)
+        {
+            try
+            {
+                var file = await _dasiLogic.GeneraZip(request, CurrentUser);
+
+                return ResponseMessage(file);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Genera report", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per salvare un report
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.SalvaReport)]
+        public async Task<IHttpActionResult> SalvaReport(ReportDto report)
+        {
+            try
+            {
+                await _dasiLogic.SalvaReport(report, CurrentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva report", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere i report
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetReports)]
+        public async Task<IHttpActionResult> GetReports()
+        {
+            try
+            {
+                var res = await _dasiLogic.GetReports(CurrentUser);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get reports", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per eliminare un report
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route(ApiRoutes.DASI.EliminaReport)]
+        public async Task<IHttpActionResult> EliminaReport(string nomeReport)
+        {
+            try
+            {
+                await _dasiLogic.EliminaReport(nomeReport, CurrentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Elimina report", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere tutti gli abbinamenti per una data legislatura
+        /// </summary>
+        /// <param name="legislaturaId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetAbbinamentiDisponibili)]
+        public async Task<IHttpActionResult> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
+        {
+            try
+            {
+                var res = await _dasiLogic.GetAbbinamentiDisponibili(legislaturaId, page, size);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get abbinamenti disponibili", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere tutti i gruppi per una data legislatura
+        /// </summary>
+        /// <param name="legislaturaId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetGruppiDisponibili)]
+        public async Task<IHttpActionResult> GetGruppiDisponibili(int legislaturaId, int page, int size)
+        {
+            try
+            {
+                var res = await _dasiLogic.GetGruppiDisponibili(legislaturaId, page, size);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get gruppi disponibili", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per avere tutti gli organi per una data legislatura
+        /// </summary>
+        /// <param name="legislaturaId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetOrganiDisponibili)]
+        public async Task<IHttpActionResult> GetOrganiDisponibili(int legislaturaId)
+        {
+            try
+            {
+                var res = await _dasiLogic.GetOrganiDisponibili(legislaturaId);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get abbinamenti disponibili", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per avere le copertine disponibili da apporre ai report
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetReportsCovers)]
+        public async Task<IHttpActionResult> GetReportsCovers()
+        {
+            try
+            {
+                var res = await _unitOfWork.Templates.GetAllByType(TemplateTypeEnum.REPORT_COVER);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get copertine disponibili", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per avere i template delle card disponibili
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetReportsCardTemplates)]
+        public async Task<IHttpActionResult> GetReportsCardTemplates()
+        {
+            try
+            {
+                var itemCardsList = await _unitOfWork.Templates.GetAllByType(TemplateTypeEnum.REPORT_ITEM_CARD);
+                var itemGridList = await _unitOfWork.Templates.GetAllByType(TemplateTypeEnum.REPORT_ITEM_GRID);
+                var res = new List<TEMPLATES>();
+                res.AddRange(itemCardsList);
+                res.AddRange(itemGridList);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get templates cards disponibili", e);
                 return ErrorHandler(e);
             }
         }

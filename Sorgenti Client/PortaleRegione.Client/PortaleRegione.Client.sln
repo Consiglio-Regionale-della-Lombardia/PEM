@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30309.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35913.81 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Client", "PortaleRegione.Client\PortaleRegione.Client.csproj", "{A02AC8C7-9905-4D72-80F7-8B89465F17D3}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionBuilder", "..\..\Sorgenti API\ExpressionBuilder\ExpressionBuilder.csproj", "{70BF550D-5943-4162-8FAB-0BBA743A3D93}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Gateway", "..\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj", "{34C5C26E-50BD-49F3-8500-62A8C209273B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Logger", "..\..\Sorgenti API\PortaleRegione.Logger\PortaleRegione.Logger.csproj", "{1F9EEC0B-08CC-481F-820E-C07B8327AC25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{34C5C26E-50BD-49F3-8500-62A8C209273B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34C5C26E-50BD-49F3-8500-62A8C209273B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34C5C26E-50BD-49F3-8500-62A8C209273B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F9EEC0B-08CC-481F-820E-C07B8327AC25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F9EEC0B-08CC-481F-820E-C07B8327AC25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F9EEC0B-08CC-481F-820E-C07B8327AC25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F9EEC0B-08CC-481F-820E-C07B8327AC25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

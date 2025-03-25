@@ -1,0 +1,3199 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Common.Utility
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
+
+<div style="display: @Html.Raw((Model.ClientMode == ClientModeEnum.GRUPPI) ? "block" : "none");">
+    <div class="row">
+        <div class="input-field col s12">
+            <i class="material-icons prefix">search</i>
+            <input type="text" id="autocomplete-input" class="autocomplete">
+            <label for="autocomplete-input">Ricerca filtri disponibili</label>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col l7 m12 s12 left-align">
+            <div id="chips-container"></div>
+            <div id="chips-container-sorting"></div>
+            <div id="chips-container-groups"></div>
+        </div>
+        <div class="col l5 m12 s12 right-align">
+            <button id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</button>
+            <button id="btnReportConfig" class="btn-flat pink-text">Genera report</button>
+            <div class="row">
+                <div class="col s12">
+                    <div id="chips-container-selected-report"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Structure -->
+<script>
+    var selectedSortColumns = [];
+
+    var availableFilterArray = [
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))", id: "@nameof(AttoDASIDto.Legislatura)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIReportDto), nameof(AttoDASIReportDto.IDStato))", id: "@nameof(AttoDASIDto.IDStato)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "@nameof(AttoDASIDto.Tipo)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDTipo_Risposta))", id: "@nameof(AttoDASIDto.IDTipo_Risposta)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.NAtto))", id: "@nameof(AttoDASIDto.NAtto)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Timestamp))", id: "@nameof(AttoDASIDto.Timestamp)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDSeduta))", id: "@nameof(AttoDASIDto.UIDSeduta)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataIscrizioneSeduta))", id: "@nameof(AttoDASIDto.DataIscrizioneSeduta)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDPersonaProponente))", id: "@nameof(AttoDASIDto.UIDPersonaProponente)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataAnnunzio))", id: "@nameof(AttoDASIDto.DataAnnunzio)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoMOZ))", id: "@nameof(AttoDASIDto.TipoMOZ)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Abbinamenti))", id: "@nameof(AttoDASIDto.Abbinamenti)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.id_gruppo))", id: "@nameof(AttoDASIDto.id_gruppo)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.id_gruppo_firmatari))", id: "@nameof(AttoDASIDto.id_gruppo_firmatari)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Firme))", id: "@nameof(AttoDASIDto.Firme)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Sollecito))", id: "@nameof(AttoDASIDto.Sollecito)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Pubblicato))", id: "@nameof(AttoDASIDto.Pubblicato)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Protocollo))", id: "@nameof(AttoDASIDto.Protocollo)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.CodiceMateria))", id: "@nameof(AttoDASIDto.CodiceMateria)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Emendato))", id: "@nameof(AttoDASIDto.Emendato)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.TipoVotazioneIter))", id: "@nameof(AttoDASIDto.TipoVotazioneIter)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIReportDto), nameof(AttoDASIReportDto.TipoChiusuraIter))", id: "@nameof(AttoDASIDto.TipoChiusuraIter)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DCR))", id: "@nameof(AttoDASIDto.DCR)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataChiusuraIter))", id: "@nameof(AttoDASIDto.DataChiusuraIter)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIReportDto), nameof(AttoDASIReportDto.Documenti))", id: "@nameof(AttoDASIDto.Documenti)" },
+        { tag: "Tipo risposta fornita", id: "@nameof(AttoDASIDto.Risposte)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi))", id: "@nameof(AttoDASIDto.Organi)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi_Commissione))", id: "@nameof(AttoDASIDto.Organi_Commissione)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Organi_Giunta))", id: "@nameof(AttoDASIDto.Organi_Giunta)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataTrasmissione))", id: "@nameof(AttoDASIDto.DataTrasmissione)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataTrattazione))", id: "@nameof(AttoDASIDto.DataTrattazione)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataComunicazioneAssemblea))", id: "@nameof(AttoDASIDto.DataComunicazioneAssemblea)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataRisposta))", id: "@nameof(AttoDASIDto.DataRisposta)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy))", id: "@nameof(AttoDASIDto.Privacy)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici))", id: "@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri))", id: "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.AreaPolitica))", id: "@nameof(AttoDASIDto.AreaPolitica)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.BURL))", id: "@nameof(AttoDASIDto.BURL)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Note))", id: "@nameof(AttoDASIDto.Note)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IterMultiplo))", id: "@nameof(AttoDASIDto.IterMultiplo)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Ritardo))", id: "@nameof(AttoDASIDto.Ritardo)" },
+        { tag: "Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)" },
+    ];
+
+    var chipsKeys = {};
+
+    document.addEventListener('DOMContentLoaded',
+        async function() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            var isTrattazione = @Html.Raw((int)Model.ClientMode);
+            if (isTrattazione == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
+                console.log("### TRATTAZIONE ###");
+
+                ripristinaFiltriTrattazione();
+                return;
+            }
+            ripristinaFiltri();
+            ripristinaOrdinamento();
+
+            await ripristinaPreferiti();
+            await ripristinaReports();
+            creaPannelloFiltriLaterale();
+            creaPannelloReportLaterale();
+
+            document.getElementById('addFiltersButton').addEventListener('click',
+                function() {
+                    var key = document.getElementById('modal-filter-id-hidden').value;
+                    var keyLabel = document.getElementById('modal-content').textContent;
+                    var val, text, chipText;
+                    if (key === "@nameof(AttoDASIDto.NAtto)") {
+                        val = document.getElementById('n_atto').value;
+                        text = val;
+                        chipText = keyLabel + ": " + val;
+                    } else if (key === "@nameof(AttoDASIDto.Oggetto)") {
+                        val = document.getElementById('oggetto').value;
+                        text = val;
+                        chipText = keyLabel + ": " + val;
+                    } else if (key === "@nameof(AttoDASIDto.BURL)") {
+                        val = document.getElementById('burl').value;
+                        text = val;
+                        chipText = keyLabel + ": " + val;
+                    } else if (key === "@nameof(AttoDASIDto.Note)") {
+                        val = document.getElementById('note').value;
+                        text = val;
+                        chipText = keyLabel + ": " + val;
+                    } else if (key === "@nameof(AttoDASIDto.Protocollo)") {
+                        val = document.getElementById('protocollo').value;
+                        text = val;
+                        chipText = keyLabel + ": " + val;
+                    } else if (key === "@nameof(AttoDASIDto.DCR)") {
+                        var dcrValue = document.getElementById('dcr').value.trim();
+                        var dcrcValue = document.getElementById('dcrc').value.trim();
+                        var nonEmptyChecked = document.getElementById('dcr_non_empty').checked;
+
+                        dcrValue = dcrValue === "" ? "0" : dcrValue;
+                        dcrcValue = dcrcValue === "" ? "0" : dcrcValue;
+
+                        if (nonEmptyChecked) {
+                            val = 'Non vuoto';
+                        } else if (dcrcValue !== "0") {
+                            val = dcrValue + (dcrValue ? '; ' : '') + dcrcValue;
+                        } else {
+                            val = dcrValue;
+                        }
+
+                        text = val;
+                        chipText = "DCR: " + dcrValue + "; DCCR: " + dcrcValue;
+                    } else if (key === "@nameof(AttoDASIDto.IDStato)") {
+                        var selectedOptions = document.querySelectorAll('#stati-select option:checked');
+                        var values = Array.from(selectedOptions).map(option => option.value);
+                        var texts = Array.from(selectedOptions).map(option => option.text);
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.AreaPolitica)") {
+                        var selectedOptions = document.querySelectorAll('#area-politica-select option:checked');
+                        var values = Array.from(selectedOptions).map(option => option.value);
+                        var texts = Array.from(selectedOptions).map(option => option.text);
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Tipo)") {
+                        var selectedOptions = document.querySelectorAll('#tipi-select option:checked');
+                        var values = Array.from(selectedOptions).map(option => option.value);
+                        var texts = Array.from(selectedOptions).map(option => option.text);
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.IDTipo_Risposta)") {
+                        var selectedOptions = document.querySelectorAll('#tipi-risposta-select option:checked');
+                        var values = Array.from(selectedOptions).map(option => option.value);
+                        var texts = Array.from(selectedOptions).map(option => option.text);
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.TipoChiusuraIter)") {
+                        var selectedOptions = document.querySelectorAll('#tipi-chiusura-iter-select option:checked');
+                        var values = Array.from(selectedOptions).map(option => option.value);
+                        var texts = Array.from(selectedOptions).map(option => option.text);
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.TipoVotazioneIter)") {
+                        var selectedOptions = document.querySelectorAll('#tipi-votazione-iter-select option:checked');
+                        var values = Array.from(selectedOptions).map(option => option.value);
+                        var texts = Array.from(selectedOptions).map(option => option.text);
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Documenti)") {
+                        var selectedOptions = document.querySelectorAll('#tipi-documento-select option:checked');
+                        var checkedOption = document.querySelector('#chkDocumentiMancanti');
+                        var values = Array.from(selectedOptions).map(option => option.value);
+                        var texts = Array.from(selectedOptions).map(option => (checkedOption && checkedOption.checked) ? option.text + " mancanti" : option.text);
+
+                        if (checkedOption && checkedOption.checked) {
+                            values.push('_NOT_');
+                        }
+
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Risposte)") {
+                        var selectedOptions = document.querySelectorAll('#tipi-risposta-effettiva-select option:checked');
+                        var values = Array.from(selectedOptions).map(option => option.value);
+                        var texts = Array.from(selectedOptions).map(option => option.text);
+
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.CodiceMateria)") {
+                        val = document.getElementById('codice_materia').value;
+                        text = val;
+                        chipText = keyLabel + ": " + val;
+                    } else if (key === "@nameof(AttoDASIDto.Sollecito)") {
+                        val = document.getElementById('sollecito').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.IterMultiplo)") {
+                        val = document.getElementById('iter-multiplo').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Ritardo)") {
+                        val = document.getElementById('ritardo').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Emendato)") {
+                        val = document.getElementById('emendato').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.PresentatoOltreITermini)") {
+                        val = document.getElementById('presentato-oltre-i-termini').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Privacy)") {
+                        val = document.getElementById('privacy').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)") {
+                        val = document.getElementById('privacy_giudiziari').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)") {
+                        val = document.getElementById('privacy_semplici').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)") {
+                        val = document.getElementById('privacy_sensibili').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)") {
+                        val = document.getElementById('privacy_pubblicazione').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)") {
+                        val = document.getElementById('privacy_pubblicazione_altri').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)") {
+                        val = document.getElementById('privacy_pubblicazione_salute').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)") {
+                        val = document.getElementById('privacy_pubblicazione_sessuale').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Pubblicato)") {
+                        val = document.getElementById('pubblicato').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Timestamp)") {
+                        text = "";
+                        val = "";
+                        var data_da_str = document.getElementById('data_presentazione_da').value;
+                        var date_da_obj = new Date(data_da_str);
+                        if (!isNaN(date_da_obj.getTime())) {
+                            var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+                            val = data_da_formatted_date;
+                            text = data_da_formatted_date;
+                        }
+
+                        if (document.getElementById('data_presentazione_a').value !== '') {
+                            var data_a_str = document.getElementById('data_presentazione_a').value;
+                            var date_a_obj = new Date(data_a_str);
+                            if (!isNaN(date_a_obj.getTime())) {
+                                var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+                                val += "," + data_a_formatted_date;
+                                text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+                            }
+                        }
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.DataComunicazioneAssemblea)") {
+                        text = "";
+                        val = "";
+                        var data_da_str = document.getElementById('data_comunicazione_da').value;
+                        var date_da_obj = new Date(data_da_str);
+                        if (!isNaN(date_da_obj.getTime())) {
+                            var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+                            val = data_da_formatted_date;
+                            text = data_da_formatted_date;
+                        }
+
+                        if (document.getElementById('data_comunicazione_a').value !== '') {
+                            var data_a_str = document.getElementById('data_comunicazione_a').value;
+                            var date_a_obj = new Date(data_a_str);
+                            if (!isNaN(date_a_obj.getTime())) {
+                                var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+                                val += "," + data_a_formatted_date;
+                                text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+                            }
+                        }
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.DataRisposta)") {
+                        text = "";
+                        val = "";
+                        var data_da_str = document.getElementById('data_risposta_da').value;
+                        var date_da_obj = new Date(data_da_str);
+                        if (!isNaN(date_da_obj.getTime())) {
+                            var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+                            val = data_da_formatted_date;
+                            text = data_da_formatted_date;
+                        }
+
+                        if (document.getElementById('data_risposta_a').value !== '') {
+                            var data_a_str = document.getElementById('data_risposta_a').value;
+                            var date_a_obj = new Date(data_a_str);
+                            if (!isNaN(date_a_obj.getTime())) {
+                                var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+                                val += "," + data_a_formatted_date;
+                                text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+                            }
+                        }
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.DataChiusuraIter)") {
+                        val = "";
+                        text = "";
+                        var data_da_str = document.getElementById('data_chiusura_iter_da').value;
+                        var date_da_obj = new Date(data_da_str);
+                        if (!isNaN(date_da_obj.getTime())) {
+                            var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+                            val = data_da_formatted_date;
+                            text = data_da_formatted_date;
+                        }
+
+                        if (document.getElementById('data_chiusura_iter_a').value !== '') {
+                            var data_a_str = document.getElementById('data_chiusura_iter_a').value;
+                            var date_a_obj = new Date(data_a_str);
+                            if (!isNaN(date_a_obj.getTime())) {
+                                var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+                                val += "," + data_a_formatted_date;
+                                text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+                            }
+                        }
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.DataTrasmissione)") {
+                        val = "";
+                        text = "";
+                        var data_da_str = document.getElementById('data_trasmissione_da').value;
+                        var date_da_obj = new Date(data_da_str);
+                        if (!isNaN(date_da_obj.getTime())) {
+                            var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+                            val = data_da_formatted_date;
+                            text = data_da_formatted_date;
+                        }
+
+                        if (document.getElementById('data_trasmissione_a').value !== '') {
+                            var data_a_str = document.getElementById('data_trasmissione_a').value;
+                            var date_a_obj = new Date(data_a_str);
+                            if (!isNaN(date_a_obj.getTime())) {
+                                var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+                                val += "," + data_a_formatted_date;
+                                text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+                            }
+                        }
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.DataTrattazione)") {
+                        val = "";
+                        text = "";
+                        var data_da_str = document.getElementById('data_trattazione_da').value;
+                        var date_da_obj = new Date(data_da_str);
+                        if (!isNaN(date_da_obj.getTime())) {
+                            var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+                            val = data_da_formatted_date;
+                            text = data_da_formatted_date;
+                        }
+
+                        if (document.getElementById('data_trattazione_a').value !== '') {
+                            var data_a_str = document.getElementById('data_trattazione_a').value;
+                            var date_a_obj = new Date(data_a_str);
+                            if (!isNaN(date_a_obj.getTime())) {
+                                var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+                                val += "," + data_a_formatted_date;
+                                text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+                            }
+                        }
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.UIDSeduta)") {
+                        text = "";
+                        val = "";
+                        var data_da_str = document.getElementById('data_seduta_da').value;
+                        var date_da_obj = new Date(data_da_str);
+                        if (!isNaN(date_da_obj.getTime())) {
+                            var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+                            val = data_da_formatted_date;
+                            text = data_da_formatted_date;
+                        }
+
+                        if (document.getElementById('data_seduta_a').value !== '') {
+                            var data_a_str = document.getElementById('data_seduta_a').value;
+                            var date_a_obj = new Date(data_a_str);
+                            if (!isNaN(date_a_obj.getTime())) {
+                                var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+                                val += "," + data_a_formatted_date;
+                                text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+                            }
+                        }
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.DataIscrizioneSeduta)") {
+                        text = "";
+                        val = "";
+                        var data_iscrizione_seduta_str = document.getElementById('data_iscrizione_seduta_da').value;
+                        var data_iscrizione_seduta_obj = new Date(data_iscrizione_seduta_str);
+                        if (!isNaN(data_iscrizione_seduta_obj.getTime())) {
+                            var data_iscrizione_seduta_formatted_date = ('0' + data_iscrizione_seduta_obj.getDate()).slice(-2) + '/' + ('0' + (data_iscrizione_seduta_obj.getMonth() + 1)).slice(-2) + '/' + data_iscrizione_seduta_obj.getFullYear();
+                            val = data_iscrizione_seduta_formatted_date;
+                            text = data_iscrizione_seduta_formatted_date;
+                        }
+
+                        if (document.getElementById('data_iscrizione_seduta_a').value !== '') {
+                            var data_a_str = document.getElementById('data_iscrizione_seduta_a').value;
+                            var date_a_obj = new Date(data_a_str);
+                            if (!isNaN(date_a_obj.getTime())) {
+                                var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+                                val += "," + data_a_formatted_date;
+                                text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+                            }
+                        }
+
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.DataAnnunzio)") {
+                        text = "";
+                        val = "";
+                        var data_da_str = document.getElementById('data_annunzio_da').value;
+                        var data_da_obj = new Date(data_da_str);
+                        if (!isNaN(data_da_obj.getTime())) {
+                            var data_da_formatted_date = ('0' + data_da_obj.getDate()).slice(-2) + '/' + ('0' + (data_da_obj.getMonth() + 1)).slice(-2) + '/' + data_da_obj.getFullYear();
+                            val = data_da_formatted_date;
+                            text = data_da_formatted_date;
+                        }
+
+                        if (document.getElementById('data_annunzio_a').value !== '') {
+                            var data_a_str = document.getElementById('data_annunzio_a').value;
+                            var date_a_obj = new Date(data_a_str);
+                            if (!isNaN(date_a_obj.getTime())) {
+                                var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+                                val += "," + data_a_formatted_date;
+                                text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+                            }
+                        }
+
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.UIDPersonaProponente)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll(`.chip[data-proponente-uid]`);
+                        existingChips.forEach(function(item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE)
+                                .map(node => node.textContent.trim())
+                                .join('');
+                            if (index > 0) {
+                                text += ", ";
+                                val += ",";
+                            }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-proponente-uid');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Firme)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll(`.chip[data-firme-uid]`);
+                        existingChips.forEach(function(item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE)
+                                .map(node => node.textContent.trim())
+                                .join('');
+                            if (index > 0) {
+                                text += ", ";
+                                val += ",";
+                            }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-firme-uid');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Abbinamenti)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll(`.chip[data-abbinamento-uid]`);
+                        existingChips.forEach(function(item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE)
+                                .map(node => node.textContent.trim())
+                                .join('');
+                            if (index > 0) {
+                                text += ", ";
+                                val += ",";
+                            }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-abbinamento-uid');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.id_gruppo)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll(`.chip[data-gruppo-id]`);
+                        existingChips.forEach(function(item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE)
+                                .map(node => node.textContent.trim())
+                                .join('');
+                            if (index > 0) {
+                                text += ", ";
+                                val += ",";
+                            }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-gruppo-id');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.id_gruppo_firmatari)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll(`.chip[data-gruppo-firmatari-id]`);
+                        existingChips.forEach(function(item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE)
+                                .map(node => node.textContent.trim())
+                                .join('');
+                            if (index > 0) {
+                                text += ", ";
+                                val += ",";
+                            }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-gruppo-firmatari-id');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Organi)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll(`.chip[data-organo-id]`);
+                        existingChips.forEach(function(item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE)
+                                .map(node => node.textContent.trim())
+                                .join('');
+                            if (index > 0) {
+                                text += ", ";
+                                val += ",";
+                            }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-organo-id');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Organi_Commissione)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll(`.chip[data-organo-commissione-id]`);
+                        existingChips.forEach(function(item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE)
+                                .map(node => node.textContent.trim())
+                                .join('');
+                            if (index > 0) {
+                                text += ", ";
+                                val += ",";
+                            }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-organo-commissione-id');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Organi_Giunta)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll(`.chip[data-organo-giunta-id]`);
+                        existingChips.forEach(function(item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE)
+                                .map(node => node.textContent.trim())
+                                .join('');
+                            if (index > 0) {
+                                text += ", ";
+                                val += ",";
+                            }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-organo-giunta-id');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(AttoDASIDto.Legislatura)") {
+                        var selectedOptions = document.querySelectorAll('#legislature-select option:checked');
+                        var values = Array.from(selectedOptions).map(option => option.value);
+                        var texts = Array.from(selectedOptions).map(option => option.text);
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else {
+                        // Per altri filtri che usano una select
+                        var selectedOption = document.querySelector('#dynamic-select-container select');
+                        val = selectedOption.options[selectedOption.selectedIndex].value;
+                        text = selectedOption.options[selectedOption.selectedIndex].text;
+                        chipText = keyLabel + ": " + text;
+                    }
+
+                    addChipIfNotExists(key, keyLabel, val, text, chipText, true);
+                    resetSelezionePreferiti();
+                    // Chiudi la modal
+                    $('#infoModal').modal("close");
+                });
+
+            var elems = document.querySelectorAll('#autocomplete-input');
+            var instances = M.Autocomplete.init(elems,
+                {
+                    data: availableFilterArray,
+                    onAutocomplete: async function(txt, key) {
+                        // Mostra i dettagli dell'elemento selezionato nella modal
+                        await openModalWithContent(key, txt, false, 0);
+                    }
+                });
+
+            if (document.getElementById('autocomplete-input')) {
+                document.getElementById('autocomplete-input').addEventListener('keydown',
+                    function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault(); // Previene l'invio del form, se necessario
+
+                            // Ottieni l'elenco dei suggerimenti dell'autocompletamento
+                            var autocompleteList = document.querySelectorAll('.autocomplete-content.dropdown-content li');
+                            if (autocompleteList.length > 0 && !autocompleteList[0].classList.contains('disabled')) {
+                                // Simula un click sul primo suggerimento visibile
+                                autocompleteList[0].click();
+                            }
+                        }
+                    });
+            }
+        });
+
+    async function inviaDatiChips(page, size) {
+        console.log("INVIO DATI");
+        if (!page) {
+            page = 1;
+        }
+        if (!size) {
+            size = 20;
+        }
+
+        var view = localStorage.getItem('viewModeDasi');
+        if (!view) {
+            localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
+            view = localStorage.getItem('viewModeDasi');
+        }
+
+        var paging = {};
+        paging.page = page;
+        paging.size = size;
+        localStorage.setItem('pagingDasi', JSON.stringify(paging));
+
+        document.getElementById('tableResults').innerHTML = "";
+        document.getElementById('paginazione-container-top').innerHTML = "";
+        document.getElementById('paginazione-container-bottom').innerHTML = "";
+        document.getElementById('loadingSpinner').style.display = 'block';
+
+        var request = {};
+        var chipsData = [];
+        document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function(chip) {
+            if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
+                chipsData.push({
+                    property: chip.getAttribute('data-filterby'),
+                    value: '',
+                    not_empty: true
+                });
+            } else {
+                chipsData.push({
+                    property: chip.getAttribute('data-filterby'),
+                    value: chip.getAttribute('data-val')
+                });
+            }
+        });
+
+        try {
+            request.filters = chipsData;
+            request.page = page;
+            request.size = size;
+            request.viewMode = view;
+
+            const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+
+            // Aggiungi le impostazioni di ordinamento alla richiesta
+            request.sort_settings = savedSortColumns;
+
+            const selectedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
+            request.columns_settings = [];
+            // Aggiungi le impostazioni delle colonne visibili alla richiesta
+            selectedColumns.forEach(function(item) {
+                request.columns_settings.push(item.propertyName);
+            });
+
+            // Invia la richiesta al server
+            const response = await fetch('@Url.Action("Riepilogo")',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(request)
+                });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            responseData = await response.json();
+            if (responseData.message) {
+                ErrorAlert(responseData.message);
+                return;
+            }
+
+            if (responseData.Data && responseData.Data.Results && responseData.Data.Results.length > 0) {
+                CreaTabella();
+            } else {
+                if (chipsData.length == 0) {
+                    document.getElementById('tableResults').innerHTML = `<div class="card-panel blue lighten-5 center">
+<span class="center">
+    <p>Esegui una ricerca per poter visualizzare gli atti</p>
+</span>
+</div>`;
+                } else {
+                    // Se non ci sono risultati, mostra il messaggio
+                    document.getElementById('tableResults').innerHTML = `<div class="card-panel panel-warning center">
+<span class="center">
+     <p>Nessun atto trovato</p>
+</span>
+</div>`;
+                }
+            }
+            creaPaginazione(responseData);
+            AggiornaContatori(responseData);
+            document.getElementById('loadingSpinner').style.display = 'none';
+        } catch (error) {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            console.error('Errore durante l\'invio dei dati delle chips:', error);
+        }
+
+        initPreviewUI();
+        waiting(false);
+    }
+
+    var responseData = {};
+    var risultatiTabella = [];
+//function createCard(result) {
+//	const rowCard = document.createElement('div');
+//	rowCard.className = "row card";
+
+//	const rowContent = document.createElement('div');
+//	rowContent.className = "col s12 card-content";
+//	rowContent.innerHTML = result.BodyAtto;
+
+//	rowCard.appendChild(rowContent);
+//	return rowCard;
+//}
+    function createCard(result) {
+        console.log(result)
+        const rowCard = document.createElement('div');
+        rowCard.className = "row card";
+
+        // Crea un contenitore per i pulsanti
+        const btnContainer = document.createElement('div');
+        btnContainer.className = "col s12 right-align";
+        btnContainer.style.position = "absolute";
+        btnContainer.style.marginTop = "10px";
+        // Inserisci i due pulsanti, utilizzando il template literal per iniettare il valore dinamico
+        btnContainer.innerHTML = `
+      <button type="button" role="button" class="btn-flat blue-text tooltipped"
+              onclick="openMetaDatiDASI('${result.UIDAtto}')" style="margin: 2px"
+              data-position="bottom" data-tooltip="Modifica meta-dati">
+          <i class="material-icons">edit</i>
+      </button>
+      <button type="button" role="button" class="btn-flat green-text tooltipped"
+              onclick="goIntoOtherTab('/dasi/${result.UIDAtto}')" style="margin: 2px"
+              data-position="bottom" data-tooltip="Visualizza atto">
+          <i class="material-icons">chevron_right</i>
+      </button>
+    `;
+
+        // Crea il contenuto della card
+        const rowContent = document.createElement('div');
+        rowContent.className = "col s12 card-content";
+        rowContent.innerHTML = result.BodyAtto;
+
+        // Aggiungi il contenitore dei pulsanti prima del contenuto
+        rowCard.appendChild(btnContainer);
+        rowCard.appendChild(rowContent);
+
+        return rowCard;
+    }
+
+    function CreaTabella() {
+        // Recupera le colonne selezionate dal local storage
+        const selectedColumns = JSON.parse(localStorage.getItem('selectedColumns')) || [];
+
+        var viewMode = responseData.ViewMode;
+        risultatiTabella = responseData.Data.Results;
+        // Pulisci i risultati precedenti
+        const tableResults = document.getElementById('tableResults');
+        tableResults.innerHTML = '';
+
+        if (viewMode == @Html.Raw((int)ViewModeEnum.PREVIEW)) {
+            responseData.Data.Results.forEach(result => {
+                tableResults.appendChild(createCard(result));
+            });
+            return;
+        }
+
+        // Crea la struttura della tabella
+        const table = document.createElement('table');
+        table.className = 'highlight';
+
+        // Crea l'intestazione della tabella
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        const thCheckbox = document.createElement('th');
+        thCheckbox.textContent = '';
+        headerRow.appendChild(thCheckbox);
+        const thDispayAtto = document.createElement('th');
+        thDispayAtto.textContent = 'Atto';
+        headerRow.appendChild(thDispayAtto);
+
+        selectedColumns.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col.displayText;
+            headerRow.appendChild(th);
+        });
+
+        const thCommands = document.createElement('th');
+        thCommands.innerHTML = ``;
+        headerRow.appendChild(thCommands);
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Crea il corpo della tabella e popolalo con i dati
+        const tbody = document.createElement('tbody');
+        responseData.Data.Results.forEach(result => {
+
+            var htmlFirme = ``;
+            if (result.id_gruppo != 0) {
+                if (result.Firmato_Dal_Proponente == false) {
+                    htmlFirme = `<span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato" aria-label="Il Proponente non ha ancora firmato">${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</span>`;
+                } else {
+                    htmlFirme = `<b>${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</b>`;
+                }
+            }
+
+            if (result.ConteggioFirme > 1) {
+                htmlFirme += `<br/><a class='chip tooltipped blue darken-3 white-text' data-position='left' data-tooltip='${result.Firme}' style="min-width: unset;">
++ ${result.ConteggioFirme - 1} <i class='icon material-icons right hide-on-med-and-down' style="margin-left: unset">group</i>
+</a>`
+            }
+
+            var iconChipAggiuntiva = "";
+            if (result.Abbinamenti.length > 0 || result.ODG_Atto_PEM) {
+                iconChipAggiuntiva += `<i class="close material-icons blue-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata" aria-label="Proposta di abbinata">insert_link</i>`;
+            }
+
+            if (result.PresentatoOltreITermini == true) {
+                iconChipAggiuntiva += `<i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini" aria-label="Presentato oltre i termini">warning</i>`;
+            }
+
+            if (result.Privacy == true || result.Privacy_Divieto_Pubblicazione) {
+                iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Modificato per privacy" aria-label="Modificato per privacy">lock</i>`;
+            }
+
+            const row = document.createElement('tr');
+            const tdCheckBoxValue = document.createElement('td');
+            tdCheckBoxValue.style.width = '1%';
+            tdCheckBoxValue.innerHTML = `<p>
+    <label>
+        <input type="checkbox" id="chk_Atto_${result.UIDAtto}" onclick="AbilitaComandiMassivi_DASI('${result.UIDAtto}');"/>
+        <span></span>
+    </label>
+</p>`;
+            row.appendChild(tdCheckBoxValue);
+            const tdDisplayValue = document.createElement('td');
+            tdDisplayValue.style.width = '10%';
+            tdDisplayValue.innerHTML = `<button type="button" role="button" class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')" data-text='${result.Display}' data-id='${result.UIDAtto}'>${result.Display}${iconChipAggiuntiva}</button>`;
+            row.appendChild(tdDisplayValue);
+
+            // Aggiungi le colonne selezionate alle righe della tabella
+            selectedColumns.forEach(col => {
+                const td = document.createElement('td');
+                if (col.propertyName === '@nameof(AttoDASIDto.IDStato)') {
+                    td.textContent = result.DisplayStato;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.DCR)') {
+                    if (result.DCR > 0) {
+                        td.textContent = `${result.DCRL}/${result.DCR}`;
+                        if (result.DCCR > 0) {
+                            td.textContent += `/${result.DCCR}`;
+                        }
+                    } else {
+                        td.textContent = "";
+                    }
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Pubblicato)') {
+                    var isPubblicato = result.Pubblicato ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPubblicato}/>
+		<span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Sollecito)') {
+                    var isSollecito = result.Sollecito ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isSollecito}/>
+		<span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Emendato)') {
+                    var isEmendato = result.Emendato ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isEmendato}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Privacy)') {
+                    var isPrivacy = result.Privacy ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)') {
+                    var isPrivacy_Dati_Personali_Semplici = result.Privacy_Dati_Personali_Semplici ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Dati_Personali_Semplici}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)') {
+                    var isPrivacy_Divieto_Pubblicazione_Altri = result.Privacy_Divieto_Pubblicazione_Altri ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Divieto_Pubblicazione_Altri}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)') {
+                    var isPrivacy_Dati_Personali_Sensibili = result.Privacy_Dati_Personali_Sensibili ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Dati_Personali_Sensibili}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)') {
+                    var isPrivacy_Divieto_Pubblicazione = result.Privacy_Divieto_Pubblicazione ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Divieto_Pubblicazione}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)') {
+                    var isPrivacy_Divieto_Pubblicazione_Vita_Sessuale = result.Privacy_Divieto_Pubblicazione_Vita_Sessuale ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Divieto_Pubblicazione_Vita_Sessuale}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)') {
+                    var isPrivacy_Divieto_Pubblicazione_Salute = result.Privacy_Divieto_Pubblicazione_Salute ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Divieto_Pubblicazione_Salute}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)') {
+                    var isPrivacy_Dati_Personali_Giudiziari = result.Privacy_Dati_Personali_Giudiziari ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isPrivacy_Dati_Personali_Giudiziari}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.IterMultiplo)') {
+                    var isIterMultiplo = result.IterMultiplo ? 'checked="checked"' : '';
+                    td.innerHTML = `<p>
+      <label>
+        <input type="checkbox" ${isIterMultiplo}/>
+		 <span></span>
+      </label>
+    </p>`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Tipo)') {
+                    td.textContent = result.DisplayTipo;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.TipoMOZ)') {
+                    td.textContent = result.DisplayTipoMozione;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.IDTipo_Risposta)') {
+                    td.textContent = result.DisplayTipoRispostaRichiesta;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.IDTipo_Risposta_Effettiva)') {
+                    td.textContent = result.DisplayTipoRispostaFornita;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.TipoChiusuraIter)') {
+                    td.textContent = result.DisplayTipoChiusuraIter;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.TipoVotazioneIter)') {
+                    td.textContent = result.DisplayTipoVotazioneIter;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.AreaPolitica)') {
+                    td.textContent = result.DisplayAreaPolitica;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.id_gruppo)') {
+                    if (result.id_gruppo > 0) {
+                        td.textContent = result.gruppi_politici.codice_gruppo;
+                    } else {
+                        td.textContent = "";
+                    }
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Legislatura)') {
+                    const parts = result.Etichetta.split('_');
+                    td.textContent = parts[parts.length - 1];
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Risposte)') {
+                    td.innerHTML += `<ul>`;
+                    result.Risposte.forEach(abb => {
+                        let testo_risposta = ``;
+                        let dataRisposta = ``;
+                        let dataTrasmissioneRisposta = ``;
+
+                        if (abb.Data) {
+                            dataRisposta = `<b>${formatDate(abb.Data)}</b>`;
+                        }
+
+                        if (abb.DataTrasmissione) {
+                            dataTrasmissioneRisposta = `<b>${formatDate(abb.DataTrasmissione)}</b>`;
+                        }
+
+                        // Identificare il tipo di risposta
+                        switch (result.IDTipo_Risposta_Effettiva) {
+                        case @Html.Raw((int)TipoRispostaEnum.SCRITTA):
+                            testo_risposta = `Scritta: Risposta fornita da ${abb.DescrizioneOrgano} il ${dataRisposta || "non ancora disponibile"}`;
+                            break;
+                        case @Html.Raw((int)TipoRispostaEnum.ORALE):
+                        case @Html.Raw((int)TipoRispostaEnum.IMMEDIATA):
+                            testo_risposta = `Orale: Risposta fornita da ${abb.DescrizioneOrgano} il ${dataRisposta || "non ancora disponibile"}`;
+                            break;
+                        case @Html.Raw((int)TipoRispostaEnum.COMMISSIONE):
+                            if (abb.RisposteAssociate?.length > 0) {
+                                const assessori_associati = abb.RisposteAssociate
+                                    .map(associazione => associazione.DescrizioneOrgano)
+                                    .join(", ");
+                                testo_risposta = `In commissione: Risposta fornita da ${assessori_associati} in ${abb.DescrizioneOrgano} il ${dataRisposta || "non ancora disponibile"}`;
+                            } else {
+                                // Se non ci sono risposte associate e mancano dati
+                                testo_risposta = `In commissione: Risposta richiesta in ${abb.DescrizioneOrgano} non ancora fornita`;
+                            }
+                            break;
+                        case @Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA):
+                            testo_risposta = `Atto trattato in assemblea`;
+                            break;
+                        case @Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE):
+                            testo_risposta = `${abb.DescrizioneOrgano}`;
+                            break;
+                        default:
+                            testo_risposta = `Risposta di tipo non specificato da ${abb.DescrizioneOrgano}`;
+                        }
+
+                        if (dataTrasmissioneRisposta) {
+                            testo_risposta += ` - Trasmessa il: ${dataTrasmissioneRisposta}`;
+                        }
+
+                        // Aggiungere il testo generato come elemento della lista
+                        td.innerHTML += `<li>${testo_risposta}</li>`;
+                    });
+                    td.innerHTML += "</ul>";
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Monitoraggi)') {
+                    td.innerHTML += "<ul>";
+                    result.Monitoraggi.forEach(monitoraggio => {
+                        td.innerHTML += `<li>${monitoraggio.DescrizioneOrgano}</li>`;
+                    });
+                    td.innerHTML += "</ul>";
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Organi)') {
+                    td.innerHTML += "<ul>";
+                    result.Organi.forEach(organo => {
+                        td.innerHTML += `<li>${organo.nome_organo}</li>`;
+                    });
+                    td.innerHTML += "</ul>";
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Abbinamenti)') {
+
+					if (result.UID_Atto_ODG) {
+                        td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">${result.ODG_Atto_PEM}</a></p>`;
+                    }
+
+                    result.Abbinamenti.forEach(abb => {
+						td.innerHTML += `<p class="blue-text" style="text-decoration: underline;">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</p>`;
+                    });
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Documenti)') {
+                    result.Documenti.forEach(abb => {
+                        td.innerHTML += `<p>${abb.Tipo} - <a class="blue-text" style="text-decoration: underline;" href="${abb.Link}" target="_blank">${abb.Titolo}</a></p>`;
+                    });
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Note)') {
+                    result.Note.forEach(abb => {
+                        td.innerHTML += `<p><b>${abb.Persona.DisplayName}<b><br> ${abb.Tipo}<br> ${abb.Nota}</p>`;
+                    });
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Firme)') {
+                    td.innerHTML = htmlFirme;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Firme_dopo_deposito)') {
+                    td.innerHTML = result.Firme_dopo_deposito;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Firme_ritirate)') {
+                    td.innerHTML = result.Firme_ritirate;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.CommissioniProponenti)') {
+                    if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.RIS)') {
+                        td.innerHTML += "<ul>";
+                        result.CommissioniProponenti.forEach(prop => {
+                            td.innerHTML += `<li>${prop.descr}</li>`;
+                        });
+                        td.innerHTML += "</ul>";
+                    }
+                } else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
+                    td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Oggetto)') {
+                    if (result.Oggetto_Approvato != null && result.Oggetto_Approvato != "") {
+                        td.innerHTML = `${result.Oggetto_Approvato}`;
+                    } else if (result.Oggetto_Modificato != null && result.Oggetto_Modificato != "") {
+                        td.innerHTML = `${result.Oggetto_Modificato}`;
+                    } else {
+                        td.innerHTML = `${result.Oggetto}`;
+                    }
+                } else if (col.propertyName === '@nameof(AttoDASIDto.UIDSeduta)') {
+
+                    if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.ITR)' || (result.Tipo == '@Html.Raw((int)TipoAttoEnum.ITL)' && (result.IDTipo_Risposta == '@Html.Raw((int)TipoRispostaEnum.SCRITTA)' || result.IDTipo_Risposta == '@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)')) || '@Html.Raw((int)Model.ClientMode)' != '@Html.Raw((int)ClientModeEnum.GRUPPI)') {
+                        td.innerHTML = "";
+                    } else if (result.DataIscrizioneSeduta != null) {
+                        const matchDataSeduta = result.Seduta.Data_seduta.match(dateRegex);
+                        const timestampDataSeduta = parseInt(matchDataSeduta[1], 10);
+                        const dateDataSeduta = new Date(timestampDataSeduta);
+
+                        // Formattare la data in un formato leggibile (dd/MM/yyyy)
+                        const dayDataSeduta = String(dateDataSeduta.getDate()).padStart(2, '0');
+                        const monthDataSeduta = String(dateDataSeduta.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+                        const yearDataSeduta = dateDataSeduta.getFullYear();
+                        var textSeduta = `<b>Seduta del ${dayDataSeduta}/${monthDataSeduta}/${yearDataSeduta}<b>`;
+
+                        const matchIscrizioneSeduta = result.DataIscrizioneSeduta.match(dateRegex);
+                        const timestampIscrizioneSeduta = parseInt(matchIscrizioneSeduta[1], 10);
+                        const dateIscrizioneSeduta = new Date(timestampIscrizioneSeduta);
+
+                        // Formattare la data in un formato leggibile (dd/MM/yyyy)
+                        const dayIscrizioneSeduta = String(dateIscrizioneSeduta.getDate()).padStart(2, '0');
+                        const monthIscrizioneSeduta = String(dateIscrizioneSeduta.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+                        const yearIscrizioneSeduta = dateIscrizioneSeduta.getFullYear();
+
+                        var tooltipSeduta = `Iscritto dal ${dayIscrizioneSeduta}/${monthIscrizioneSeduta}/${yearIscrizioneSeduta}`;
+
+                        var tdText = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" aria-label="${tooltipSeduta}"`;
+                        if (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)) {
+                            tdText += ` onclick="RimuoviSedutaDASI('${result.UIDAtto}', '${result.Display}')"`;
+                        }
+                        tdText += ">";
+                        tdText += `${textSeduta}`;
+                        if (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)) {
+                            tdText += `<i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi" aria-label="Rimuovi">close</i>`;
+                        }
+                        tdText += `</span>`;
+                        td.innerHTML = tdText;
+                    } else if (result.DataRichiestaIscrizioneSeduta != null) {
+                        var textSeduta = `<i>Seduta del ${result.DataRichiestaIscrizioneSeduta}<i>`;
+                        var tooltipSeduta = `Richiesta in attesa di elaborazione`;
+                        var tdText = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" aria-label="${tooltipSeduta}"`;
+                        if (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)) {
+                            tdText += ` onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.Display}')"`;
+                        }
+                        tdText += ">";
+                        tdText += `${textSeduta}`;
+                        if (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)) {
+                            tdText += `<i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi" aria-label="Iscrivi">check</i>`;
+                        }
+
+                        tdText += `</span>`;
+                        td.innerHTML = tdText;
+                    } else if (result.DataIscrizioneSeduta == null && (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE))) {
+                        td.innerHTML = ` <button type="button" role="button" class="btn-flat yellow-text badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.Display}')">
+     Iscrivi
+ </button>`;
+                    }
+                } else {
+                    if (dateRegex.test(result[col.propertyName])) {
+                        const match = result[col.propertyName].match(dateRegex);
+                        const timestamp = parseInt(match[1], 10);
+                        const date = new Date(timestamp);
+
+                        // Formattare la data in un formato leggibile (dd/MM/yyyy)
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+                        const year = date.getFullYear();
+                        td.textContent = `${day}/${month}/${year}`;
+                    } else {
+                        td.innerHTML = result[col.propertyName];
+                    }
+                }
+                row.appendChild(td);
+            });
+
+            var linkGeasi = `https://www.consiglio.regione.lombardia.it/wps/portal/crl/home/leggi-e-banche-dati/Atti-di-indirizzo-e-controllo/Dettaglio-atto-di-indirizzo-e-controllo?tipoatto=${result.DisplayTipo}&numeroatto=${result.NAtto}&idlegislatura=${result.Legislatura}`;
+            const tdCommandsValue = document.createElement('td');
+            tdCommandsValue.classList.add('center');
+            tdCommandsValue.style.width = '5%';
+            tdCommandsValue.innerHTML = `<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" aria-label="Vai alla banca dati in internet"
+		onclick="goIntoOtherTab('${linkGeasi}')">
+    <i class="icon material-icons">remove_red_eye</i>
+</button>
+<button type="button" class="btn-floating white black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" aria-label="Stampa" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}"
+   data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI")?id=${result.UIDAtto}" onclick="StampaUOLA(this)">
+    <i class="material-icons">print</i>
+</button>
+<button type="button" class="btn-floating white black-text tooltipped" data-tooltip="Modifica Metadati" aria-label="Modifica Metadati" onclick="openMetaDatiDASI('${result.UIDAtto}')">
+    <i class="icon material-icons">edit</i>
+</button>`;
+            row.appendChild(tdCommandsValue);
+            tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+
+        table.style.backgroundColor = "#FFFFFF";
+        // Aggiungi la tabella al container dei risultati
+        tableResults.appendChild(table);
+
+        //reset tooltips
+        var elems = document.querySelectorAll('.tooltipped');
+        var instances = M.Tooltip.init(elems, {});
+    }
+
+    function creaPaginazione(data) {
+        if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
+            document.getElementById('paginazione-container-top').innerHTML = "";
+            document.getElementById('paginazione-container-bottom').innerHTML = "";
+            return;
+        }
+
+        // Dati della paginazione ottenuti dalla risposta JSON
+        var totalePagine = data.Data.Paging.Last_Page;
+        var paginaCorrente = data.Data.Paging.Page;
+        var totaleRisultati = data.Data.Paging.Total;
+        var risultatiPerPagina = data.Data.Paging.Limit;
+
+        // Elemento HTML per la paginazione
+        var paginationHTML = `<ul class="pagination">`;
+
+        // Aggiungi controlli di navigazione se necessario
+        if (data.Data.Paging.Has_Prev) {
+            paginationHTML += `
+            <li class="waves-effect" style="margin-top: 7px;">
+                <a onclick="filterByPage(1)">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina" aria-label="Prima pagina">first_page</i>
+                </a>
+            </li>
+            <li class="waves-effect" style="margin-top: 7px;">
+                <a onclick="filterByPage(${paginaCorrente - 1})">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente" aria-label="Pagina precedente">chevron_left</i>
+                </a>
+            </li>`;
+        }
+
+        // Informazioni sulla pagina corrente e input per selezione diretta della pagina
+        paginationHTML += `
+    <li class="waves-effect">
+        <div style="margin-top: -2px;">
+            Pagina <input type="number" id="page-input" min="1" max="${totalePagine}" value="${paginaCorrente}" style="width: 50px; text-align: center;" onchange="goToPage(this.value, ${totalePagine})">
+            di ${totalePagine}
+        </div>
+    </li>`;
+
+        // Aggiungi controlli di navigazione se necessario
+        if (data.Data.Paging.Has_Next) {
+            paginationHTML += `
+            <li class="waves-effect" style="margin-top: 7px;">
+                <a onclick="filterByPage(${paginaCorrente + 1})">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina" aria-label="Prossima pagina">chevron_right</i>
+                </a>
+            </li>
+            <li class="waves-effect" style="margin-top: 7px;">
+                <a onclick="filterByPage(${totalePagine})">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina" aria-label="Ultima pagina">last_page</i>
+                </a>
+            </li>`;
+        }
+
+        paginationHTML += `
+<li class="waves-effect" style="margin-top:5px;padding-left:10px;height:36px;">
+    <span class="chip deep-purple lighten-4">${totaleRisultati} risultati</span>
+</li>`;
+
+        paginationHTML += `</ul>`;
+
+        // Costruzione del selettore per i tagli di paginazione
+        var tagliPaginazione = [20, 50, 100];
+        var dropdownHTML_top = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
+        Paginazione
+        <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
+        <ul id="ddlPaginazione-top" class="dropdown-content">`;
+        var dropdownHTML_bottom = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
+        Paginazione
+        <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-bottom" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
+        <ul id="ddlPaginazione-bottom" class="dropdown-content">`;
+
+        tagliPaginazione.forEach(function(limite) {
+            // Verifica se il limite corrente è uguale al valore selezionato per aggiungere la classe "selected"
+            var selectedClass = risultatiPerPagina == limite ? 'class="selected"' : '';
+
+            dropdownHTML_top += `<li ${selectedClass}><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+            dropdownHTML_bottom += `<li ${selectedClass}><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+        });
+
+        dropdownHTML_top += `</ul></div>`;
+        dropdownHTML_bottom += `</ul></div>`;
+        var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/>
+    <input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>
+    <input id="hdTotaleDocumenti" type="hidden" value="${totaleRisultati}"/>`;
+
+        // Inserisci l'HTML nel DOM
+        document.getElementById('paginazione-container-top').innerHTML = paginationHTML + dropdownHTML_top;
+        document.getElementById('paginazione-container-bottom').innerHTML = paginationHTML + dropdownHTML_bottom + hiddenHTML;
+
+        // Inizializza il dropdown con Materialize
+        var elems = document.querySelectorAll('.dropdown-trigger.trigger-paginazione');
+        var instances = M.Dropdown.init(elems, { constrainWidth: true });
+    }
+
+// Funzione per andare alla pagina specificata dall'utente
+    function goToPage(pageNumber, totalePagine) {
+        var page = parseInt(pageNumber);
+        if (!isNaN(page) && page > 0 && page <= totalePagine) {
+            filterByPage(page);
+        } else {
+            ErrorAlert("Inserisci un numero di pagina valido tra 1 e " + totalePagine);
+        }
+    }
+
+
+    function AggiornaContatori(responseData) {
+        aggiornaConteggi('li.collection-item div', "TOTALE", responseData.CountBarData.TUTTI);
+        aggiornaConteggi('li.collection-item div', "ITL", responseData.CountBarData.ITL);
+        aggiornaConteggi('li.collection-item div', "ITR", responseData.CountBarData.ITR);
+        aggiornaConteggi('li.collection-item div', "IQT", responseData.CountBarData.IQT);
+        aggiornaConteggi('li.collection-item div', "MOZ", responseData.CountBarData.MOZ);
+        aggiornaConteggi('li.collection-item div', "ODG", responseData.CountBarData.ODG);
+        aggiornaConteggi('li.collection-item div', "RIS", responseData.CountBarData.RIS);
+
+        if (!responseData.CurrentUser.IsSegreteriaAssemblea) {
+            aggiornaConteggi('li.collection-item div', "BOZZE", responseData.CountBarData.BOZZE);
+        }
+        aggiornaConteggi('li.collection-item div', "PRESENTATI", responseData.CountBarData.PRESENTATI);
+        aggiornaConteggi('li.collection-item div', "IN TRATTAZIONE", responseData.CountBarData.IN_TRATTAZIONE);
+        aggiornaConteggi('li.collection-item div', "CHIUSO", responseData.CountBarData.CHIUSO);
+    }
+
+    function aggiornaConteggi(selector, testo, valore) {
+        document.querySelectorAll(selector).forEach(function(element) {
+            if (element.textContent.includes(testo)) {
+                element.querySelector('span').textContent = valore;
+            }
+        });
+    }
+
+    async function openModalWithContent(key, txt, isEditing, currentValue) {
+
+        waiting(true);
+
+        document.getElementById('autocomplete-input').value = "";
+        document.getElementById('modal-content').textContent = txt;
+        document.getElementById('modal-filter-id-hidden').value = key;
+        var selectHTML = '';
+        switch (key) {
+        case '@nameof(AttoDASIDto.Legislatura)':
+            var legislature = await GetLegislature();
+            selectHTML = '<select id="legislature-select" multiple>';
+            legislature.forEach(function(item) {
+                var selected = isEditing && currentValue > 0 && item.id_legislatura == currentValue ? 'selected' : '';
+                selectHTML += `<option value="${item.id_legislatura}" ${selected}>${item.num_legislatura}</option>`;
+            });
+            selectHTML += '</select>';
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.IDStato)':
+            var stati = await GetStatiDASI();
+            selectHTML = '<select id="stati-select" multiple>';
+            stati.forEach(function(item) {
+                if (item.IDStato != 0) {
+                    var selected = isEditing && currentValue > 0 && item.IDStato == currentValue ? 'selected' : '';
+                    selectHTML += `<option value="${item.IDStato}" ${selected}>${item.Stato}</option>`;
+                }
+            });
+            selectHTML += '</select>';
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.Tipo)':
+            var tipi = await GetTipiDASI();
+            selectHTML = '<select id="tipi-select" multiple>';
+            tipi.forEach(function(item) {
+                if (item.IDTipoAtto != 0) {
+                    var selected = isEditing && currentValue > 0 && item.IDTipoAtto == currentValue ? 'selected' : '';
+                    selectHTML += `<option value="${item.IDTipoAtto}" ${selected}>${item.Tipo_Atto}</option>`;
+                }
+            });
+            selectHTML += '</select>';
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.IDTipo_Risposta)':
+            var tipiRisposta = [
+                { id: @((int)TipoRispostaEnum.ORALE), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE))' },
+                { id: @((int)TipoRispostaEnum.SCRITTA), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA))' },
+                { id: @((int)TipoRispostaEnum.COMMISSIONE), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE))' },
+            ];
+
+            selectHTML = '<select id="tipi-risposta-select" multiple>';
+            tipiRisposta.forEach(function(item) {
+                if (item.id != 0) {
+                    var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+                    selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+                }
+            });
+            selectHTML += '</select>';
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.TipoVotazioneIter)':
+            var tipiVotazioneIter = [
+                { id: @((int)TipoVotazioneIterEnum.NESSUNO), text: '@(Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.NESSUNO))' },
+                { id: @((int)TipoVotazioneIterEnum.APPELLO_NOMINALE), text: '@(Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE))' },
+                { id: @((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO), text: '@(Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO))' },
+                { id: @((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO), text: '@(Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO))' },
+            ];
+
+            selectHTML = '<select id="tipi-votazione-iter-select" multiple>';
+            tipiVotazioneIter.forEach(function(item) {
+                if (item.id != 0) {
+                    var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+                    selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+                }
+            });
+            selectHTML += '</select>';
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.TipoChiusuraIter)':
+            var tipiChiusuraIter = [
+                { id: @((int)TipoChiusuraIterEnum.APPROVATO), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO))' },
+                { id: @((int)TipoChiusuraIterEnum.RESPINTO), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO))' },
+                { id: @((int)TipoChiusuraIterEnum.RITIRATO), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO))' },
+                { id: @((int)TipoChiusuraIterEnum.INAMMISSIBILE), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE))' },
+                { id: @((int)TipoChiusuraIterEnum.DECADUTO), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO))' },
+                { id: @((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA))' },
+                { id: @((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE))' },
+                { id: @((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI))' },
+                { id: @((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA))' },
+                { id: @((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA), text: '@(Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA))' },
+            ];
+
+            selectHTML = '<select id="tipi-chiusura-iter-select" multiple>';
+            tipiChiusuraIter.forEach(function(item) {
+                if (item.id != 0) {
+                    var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+                    selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+                }
+            });
+            selectHTML += '</select>';
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.AreaPolitica)':
+            var tipiAreaPolitica = [
+                { id: @((int)AreaPoliticaIntEnum.Nessuno), text: 'Nessuno' },
+                { id: @((int)AreaPoliticaIntEnum.Maggioranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza))' },
+                { id: @((int)AreaPoliticaIntEnum.Minoranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza))' },
+                { id: @((int)AreaPoliticaIntEnum.Misto_Maggioranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza))' },
+                { id: @((int)AreaPoliticaIntEnum.Misto_Minoranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza))' },
+                { id: @((int)AreaPoliticaIntEnum.Misto), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto))' },
+                { id: @((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza), text: '@(Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza))' },
+            ];
+
+            selectHTML = '<select id="area-politica-select" multiple>';
+            tipiAreaPolitica.forEach(function(item) {
+                if (item.id != 0) {
+                    var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+                    selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+                }
+            });
+            selectHTML += '</select>';
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.Documenti)':
+            var tipiDocumento = [
+                { id: @((int)TipoDocumentoEnum.TESTO_ALLEGATO), text: 'Testo allegato' },
+                { id: @((int)TipoDocumentoEnum.RISPOSTA), text: 'Risposta' },
+                { id: @((int)TipoDocumentoEnum.AGGIUNTIVO), text: 'Aggiuntivo' },
+                { id: @((int)TipoDocumentoEnum.ABBINAMENTO), text: 'Abbinamento' },
+                { id: @((int)TipoDocumentoEnum.CHIUSURA_ITER), text: 'DCR' },
+                { id: @((int)TipoDocumentoEnum.VERBALE_VOTAZIONE), text: 'Verbale votazione' },
+                { id: @((int)TipoDocumentoEnum.MONITORAGGIO), text: 'Monitoraggio' }
+            ];
+
+            selectHTML = '<select id="tipi-documento-select" multiple>';
+            tipiDocumento.forEach(function(item) {
+                var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+                selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+            });
+            selectHTML += '</select>';
+            selectHTML += `<p>
+                  <label>
+                    <input id="chkDocumentiMancanti" type="checkbox" />
+                    <span>Cerca allegati mancanti</span>
+                  </label>
+                </p>
+				 <div class="card blue lighten-5">
+					 <div class="card-content black-text">
+						 <span class="card-title">Informazioni</span>
+						 <p>La ricerca verifica la presenza o meno di un allegato: seleziona una o più tipologie per ricercare gli atti dove è presente l'allegato della tipologia selezionata.
+						 Spuntando "Cerca allegati mancanti" verranno estratti gli atti dove non sono stati caricati documenti della tipologia selezionata.
+						 </p>
+					 </div>
+				 </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.Risposte)':
+            var tipiRisposte = [
+                { id: @((int)TipoRispostaEnum.ORALE), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)' },
+                { id: @((int)TipoRispostaEnum.SCRITTA), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)' },
+                { id: @((int)TipoRispostaEnum.COMMISSIONE), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)' },
+                { id: @((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA)' },
+                { id: @((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE), text: '@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)' }
+            ];
+
+            selectHTML = '<select id="tipi-risposta-effettiva-select" multiple>';
+            tipiRisposte.forEach(function(item) {
+                var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+                selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+            });
+            selectHTML += `</select>
+			  <div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>Lasciare il campo vuoto per cercare atti senza riposta
+					</p>
+				</div>
+			</div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.NAtto)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="n_atto" type="text" ${currentValueFormatted} placeholder="Es. 100, 150-200">
+                <div class="card blue lighten-5">
+                    <div class="card-content black-text">
+                        <span class="card-title">Informazioni</span>
+                        <p>È possibile filtrare nei seguenti modi:
+                        <ul style="padding-left:40px">
+                            <li style="list-style-type: disc;">Singolo numero: 100</li>
+                            <li style="list-style-type: disc;">Intervallo: 150-200</li>
+                        </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Oggetto)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="oggetto" type="text" ${currentValueFormatted}/>
+            </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Protocollo)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="protocollo" type="text" ${currentValueFormatted}/>
+				<div class="card blue lighten-5">
+                    <div class="card-content black-text">
+                        <span class="card-title">Informazioni</span>
+                        <p>Lasciare vuoto per cercare gli atti senza protocollo</p>
+                    </div>
+                </div>
+            </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.BURL)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="burl" type="text" ${currentValueFormatted}/>
+				<div class="card blue lighten-5">
+                    <div class="card-content black-text">
+                        <span class="card-title">Informazioni</span>
+                        <p>Lasciare vuoto per cercare gli atti senza burl</p>
+                    </div>
+                </div>
+            </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Note)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="note" type="text" ${currentValueFormatted}/>
+            </div>
+			<div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>Ricerca full-text effettuata su tutte le note</p>
+				</div>
+			</div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.CodiceMateria)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="codice_materia" type="text" ${currentValueFormatted}/>
+				<div class="card blue lighten-5">
+                    <div class="card-content black-text">
+                        <span class="card-title">Informazioni</span>
+                        <p>Lasciare vuoto per cercare gli atti senza codice materia</p>
+                    </div>
+                </div>
+            </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Timestamp)':
+
+            var dateValues = handleDateValue(currentValue);
+            var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+            var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+            selectHTML = `<div class="input-field col s12">
+      <input id="data_presentazione_da" type="date" ${currentValueFormatted1}/>
+  </div>
+  <div class="input-field col s12">
+      <input id="data_presentazione_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.DataChiusuraIter)':
+
+            var dateValues = handleDateValue(currentValue);
+            var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+            var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+            selectHTML = `<div class="input-field col s12">
+      <input id="data_chiusura_iter_da" type="date" ${currentValueFormatted1}/>
+  </div>
+  <div class="input-field col s12">
+      <input id="data_chiusura_iter_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.DataTrasmissione)':
+
+            var dateValues = handleDateValue(currentValue);
+            var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+            var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+            selectHTML = `<div class="input-field col s12">
+      <input id="data_trasmissione_da" type="date" ${currentValueFormatted1}/>
+  </div>
+  <div class="input-field col s12">
+      <input id="data_trasmissione_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.DataTrattazione)':
+
+            var dateValues = handleDateValue(currentValue);
+            var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+            var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+            selectHTML = `<div class="input-field col s12">
+      <input id="data_trattazione_da" type="date" ${currentValueFormatted1}/>
+  </div>
+  <div class="input-field col s12">
+      <input id="data_trattazione_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.DataRisposta)':
+
+            var dateValues = handleDateValue(currentValue);
+            var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+            var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+            selectHTML = `<div class="input-field col s12">
+      <input id="data_risposta_da" type="date" ${currentValueFormatted1}/>
+  </div>
+  <div class="input-field col s12">
+      <input id="data_risposta_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.UIDSeduta)':
+
+            var dateValues = handleDateValue(currentValue);
+            var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+            var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+            selectHTML = `<div class="input-field col s12">
+    <input id="data_seduta_da" type="date" ${currentValueFormatted1}/>
+</div>
+<div class="input-field col s12">
+    <input id="data_seduta_a" type="date" ${currentValueFormatted2}/>
+</div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.DataComunicazioneAssemblea)':
+
+            var dateValues = handleDateValue(currentValue);
+            var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+            var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+            selectHTML = `<div class="input-field col s12">
+    <input id="data_comunicazione_da" type="date" ${currentValueFormatted1}/>
+</div>
+<div class="input-field col s12">
+    <input id="data_comunicazione_a" type="date" ${currentValueFormatted2}/>
+</div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.DataAnnunzio)':
+
+            var dateValues = handleDateValue(currentValue);
+            var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+            var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+            selectHTML = `<div class="input-field col s12">
+    <input id="data_annunzio_da" type="date" ${currentValueFormatted1}/>
+</div>
+<div class="input-field col s12">
+    <input id="data_annunzio_a" type="date" ${currentValueFormatted2}/>
+</div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.DataIscrizioneSeduta)':
+
+            var dateValues = handleDateValue(currentValue);
+            var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+            var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+            selectHTML = `<div class="input-field col s12">
+    <input id="data_iscrizione_seduta_da" type="date" ${currentValueFormatted1}/>
+</div>
+<div class="input-field col s12">
+    <input id="data_iscrizione_seduta_a" type="date" ${currentValueFormatted2}/>
+</div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.UIDPersonaProponente)':
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+                var persone = await GetProponenti(idLegislatura);
+                selectHTML = `<div class="input-field col s12">
+	            <i class="material-icons prefix">search</i>
+		        <input type="text" id="proponenti-autocomplete" class="autocomplete">
+
+				<div id="proponenti-selected"></div>
+		     </div>`;
+
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                var data = [];
+                persone.forEach(function(item) {
+                    data.push({
+                        tag: `${item.DisplayName}`,
+                        id: `${item.uid}`
+                    });
+                });
+                var elems = document.querySelectorAll('#proponenti-autocomplete');
+                var instances = M.Autocomplete.init(elems,
+                    {
+                        data: data,
+                        limit: 20,
+                        minLength: 2,
+                        onAutocomplete: function(txt, key) {
+
+                            var existingChip = document.querySelector(`.chip[data-proponente-uid="${key}"]`);
+                            if (!existingChip) {
+                                var chipsContainerProponenti = document.getElementById('proponenti-selected');
+                                var newChip = document.createElement('div');
+                                newChip.setAttribute('data-proponente-uid', key);
+                                newChip.classList.add('chip');
+                                newChip.textContent = txt;
+
+                                var closeIcon = document.createElement('i');
+                                closeIcon.classList.add('close', 'material-icons');
+                                closeIcon.style.setProperty('top', 'unset', 'important');
+                                closeIcon.textContent = 'close';
+                                closeIcon.onclick = function() {
+                                    newChip.remove();
+                                };
+                                newChip.appendChild(closeIcon);
+
+                                chipsContainerProponenti.appendChild(newChip);
+                            }
+
+                            document.getElementById('proponenti-autocomplete').value = "";
+                        }
+                    });
+
+                if (isEditing) {
+                    var currentValueArray = currentValue.split(',');
+                    var chipsContainerProponenti = document.getElementById('proponenti-selected');
+                    currentValueArray.forEach(function(guid) {
+                        var item = data.find(item => item.id === guid);
+                        if (item) {
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-proponente-uid', item.id);
+                            newChip.classList.add('chip');
+                            newChip.textContent = item.tag;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                newChip.remove();
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerProponenti.appendChild(newChip);
+                        }
+                    });
+                }
+            } else {
+                swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+                    .then(() => {
+                        $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                    });
+            }
+
+            break;
+        case '@nameof(AttoDASIDto.Firme)':
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+                var persone = await GetProponenti(idLegislatura);
+                selectHTML = `<div class="input-field col s12">
+	            <i class="material-icons prefix">search</i>
+		        <input type="text" id="firme-autocomplete" class="autocomplete">
+
+				<div id="firme-selected"></div>
+		     </div>`;
+
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                var data = [];
+                persone.forEach(function(item) {
+                    data.push({
+                        tag: `${item.DisplayName}`,
+                        id: `${item.uid}`
+                    });
+                });
+                var elems = document.querySelectorAll('#firme-autocomplete');
+                var instances = M.Autocomplete.init(elems,
+                    {
+                        data: data,
+                        limit: 20,
+                        minLength: 2,
+                        onAutocomplete: function(txt, key) {
+
+                            var existingChip = document.querySelector(`.chip[data-firme-uid="${key}"]`);
+                            if (!existingChip) {
+                                var chipsContainerProponenti = document.getElementById('firme-selected');
+                                var newChip = document.createElement('div');
+                                newChip.setAttribute('data-firme-uid', key);
+                                newChip.classList.add('chip');
+                                newChip.textContent = txt;
+
+                                var closeIcon = document.createElement('i');
+                                closeIcon.classList.add('close', 'material-icons');
+                                closeIcon.style.setProperty('top', 'unset', 'important');
+                                closeIcon.textContent = 'close';
+                                closeIcon.onclick = function() {
+                                    newChip.remove();
+                                };
+                                newChip.appendChild(closeIcon);
+
+                                chipsContainerProponenti.appendChild(newChip);
+                            }
+
+                            document.getElementById('firme-autocomplete').value = "";
+                        }
+                    });
+
+                if (isEditing) {
+                    var currentValueArray = currentValue.split(',');
+                    var chipsContainerProponenti = document.getElementById('firme-selected');
+                    currentValueArray.forEach(function(guid) {
+                        var item = data.find(item => item.id === guid);
+                        if (item) {
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-firme-uid', item.id);
+                            newChip.classList.add('chip');
+                            newChip.textContent = item.tag;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                newChip.remove();
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerProponenti.appendChild(newChip);
+                        }
+                    });
+                }
+            } else {
+                swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+                    .then(() => {
+                        $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                    });
+            }
+
+            break;
+        case '@nameof(AttoDASIDto.TipoMOZ)':
+            var tipiMozione = [
+                { id: @((int)TipoMOZEnum.URGENTE), text: '@(Utility.GetText_TipoMOZDettaglioDASI((int)TipoMOZEnum.URGENTE))' },
+                { id: @((int)TipoMOZEnum.ABBINATA), text: '@(Utility.GetText_TipoMOZDettaglioDASI((int)TipoMOZEnum.ABBINATA))' },
+                { id: @((int)TipoMOZEnum.CENSURA), text: '@(Utility.GetText_TipoMOZDettaglioDASI((int)TipoMOZEnum.CENSURA))' },
+                { id: @((int)TipoMOZEnum.SFIDUCIA), text: '@(Utility.GetText_TipoMOZDettaglioDASI((int)TipoMOZEnum.SFIDUCIA))' },
+            ];
+
+            selectHTML = '<select id="tipi-mozione-select">';
+            tipiMozione.forEach(function(item) {
+                if (item.id != 0) {
+                    var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+                    selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+                }
+            });
+            selectHTML += '</select>';
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            M.FormSelect.init(document.querySelectorAll('select'));
+            break;
+        case '@nameof(AttoDASIDto.Abbinamenti)':
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+                var abbinamenti = await GetAbbinamentiDisponibili(idLegislatura);
+                selectHTML = `<div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="abbinamenti-autocomplete" class="autocomplete">
+
+		        <div id="abbinamenti-selected"></div>
+             </div>
+			 <div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>La ricerca è effettuata su tutti gli atti abbinabili (progetti di legge, proposte di atto amministrativo, risoluzioni, mozioni, odg, ecc…)
+					</p>
+				</div>
+			</div>`;
+
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                var data = [];
+                abbinamenti.forEach(function(item) {
+                    data.push({
+                        tag: `${item.display}, con oggetto: ${item.oggetto}`,
+                        id: `${item.uidAtto}`
+                    });
+                });
+                var elems = document.querySelectorAll('#abbinamenti-autocomplete');
+                var instances = M.Autocomplete.init(elems,
+                    {
+                        data: data,
+                        limit: 20,
+                        minLength: 2,
+                        onAutocomplete: function(txt, key) {
+
+                            var existingChip = document.querySelector(`.chip[data-abbinamento-uid="${key}"]`);
+                            if (!existingChip) {
+                                var chipsContainerAbbinamento = document.getElementById('abbinamenti-selected');
+                                var newChip = document.createElement('div');
+                                newChip.setAttribute('data-abbinamento-uid', key);
+                                newChip.classList.add('chip');
+                                newChip.textContent = txt;
+
+                                var closeIcon = document.createElement('i');
+                                closeIcon.classList.add('close', 'material-icons');
+                                closeIcon.style.setProperty('top', 'unset', 'important');
+                                closeIcon.textContent = 'close';
+                                closeIcon.onclick = function() {
+                                    newChip.remove();
+                                };
+                                newChip.appendChild(closeIcon);
+
+                                chipsContainerAbbinamento.appendChild(newChip);
+                            }
+
+                            document.getElementById('abbinamenti-autocomplete').value = "";
+                        }
+                    });
+
+                if (isEditing) {
+                    var currentValueArray = currentValue.split(',');
+                    var chipsContainerAbbinamento = document.getElementById('abbinamenti-selected');
+                    currentValueArray.forEach(function(guid) {
+                        var item = data.find(item => item.id === guid);
+                        if (item) {
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-abbinamento-uid', item.id);
+                            newChip.classList.add('chip');
+                            newChip.textContent = item.tag;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                newChip.remove();
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerAbbinamento.appendChild(newChip);
+                        }
+                    });
+                }
+            } else {
+                swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+                    .then(() => {
+                        $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                    });
+            }
+            break;
+        case '@nameof(AttoDASIDto.id_gruppo)':
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+                var gruppi = await GetGruppiByLegislatura(idLegislatura);
+
+                var selectHTML = '<select id="gruppi-select">';
+                selectHTML += `<option value="0" disabled selected>Seleziona</option>`;
+
+                var data = [];
+
+                gruppi.forEach(function(item) {
+                    var tagText = `${item.nome_gruppo} (${item.codice_gruppo})`;
+                    if (item.data_fine) {
+                        tagText += ` fino al ` + formatDate(item.data_fine);;
+                    }
+                    selectHTML += `<option value="${item.id_gruppo}">${tagText}</option>`;
+
+                    data.push({
+                        tag: tagText,
+                        id: `${item.id_gruppo}`
+                    });
+                });
+                selectHTML += `</select>
+					<div id="gruppi-selected"></div>
+					<div class="card blue lighten-5">
+						<div class="card-content black-text">
+							<span class="card-title">Informazioni</span>
+							<p>Digita le prime lettere del gruppo politico per selezionarlo. E’ possibile indicare più gruppi politici</p>
+						</div>
+					</div>`;
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+
+                // Gestione evento di selezione
+                document.getElementById('gruppi-select').addEventListener("change",
+                    function(event) {
+                        const selectElement = event.target;
+                        const selectedOption = selectElement.options[selectElement.selectedIndex];
+                        const key = selectedOption.value; // Ottieni l'id del gruppo selezionato
+                        const txt = selectedOption.text; // Ottieni il testo del gruppo selezionato
+
+                        var existingChip = document.querySelector(`.chip[data-gruppo-id="${key}"]`);
+                        if (!existingChip) {
+                            var chipsContainerGruppi = document.getElementById('gruppi-selected');
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-gruppo-id', key);
+                            newChip.classList.add('chip');
+                            newChip.textContent = txt;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                newChip.remove();
+
+                                // Deseleziona l'opzione corrispondente nella select
+                                var option = document.querySelector(`#gruppi-select option[value="${key}"]`);
+                                if (option) {
+                                    option.selected = false;
+                                }
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerGruppi.appendChild(newChip);
+                        }
+
+                        // Resetta la select dopo la selezione
+                        selectElement.selectedIndex = 0;
+                    });
+
+                M.FormSelect.init(document.querySelectorAll('select'));
+
+                // Gestione dell'editing
+                if (isEditing) {
+                    // Assumiamo che `currentValue` sia una stringa separata da virgole con gli ID dei gruppi selezionati
+                    var currentValueArray = currentValue.split(',');
+                    var chipsContainerGruppi = document.getElementById('gruppi-selected');
+
+                    currentValueArray.forEach(function(guid) {
+                        var item = data.find(item => item.id === guid); // Trova l'elemento corrispondente
+                        if (item) {
+                            // Crea il chip per il gruppo già selezionato
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-gruppo-id', item.id);
+                            newChip.classList.add('chip');
+                            newChip.textContent = item.tag;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                // Rimuove il chip e aggiorna il valore corrente
+                                newChip.remove();
+
+                                // Aggiorna la select se necessario
+                                var option = document.querySelector(`#gruppi-select option[value="${item.id}"]`);
+                                if (option) {
+                                    option.selected = false; // Deseleziona l'opzione
+                                }
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerGruppi.appendChild(newChip);
+                        }
+                    });
+
+                    // Aggiorna lo stato della select per riflettere i valori correnti
+                    currentValueArray.forEach(function(guid) {
+                        var option = document.querySelector(`#gruppi-select option[value="${guid}"]`);
+                        if (option) {
+                            option.selected = true; // Seleziona le opzioni corrispondenti
+                        }
+                    });
+                }
+            } else {
+                swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+                    .then(() => {
+                        $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                    });
+            }
+            break;
+        case '@nameof(AttoDASIDto.id_gruppo_firmatari)':
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+                var gruppi = await GetGruppiByLegislatura(idLegislatura);
+
+                var selectHTML = '<select id="gruppi-firmatari-select">';
+                selectHTML += `<option value="0" disabled selected>Seleziona</option>`;
+
+                var data = [];
+
+                gruppi.forEach(function(item) {
+                    var tagText = `${item.nome_gruppo} (${item.codice_gruppo})`;
+                    if (item.data_fine) {
+                        tagText += ` fino al ` + formatDate(item.data_fine);;
+                    }
+                    selectHTML += `<option value="${item.id_gruppo}">${tagText}</option>`;
+
+                    data.push({
+                        tag: tagText,
+                        id: `${item.id_gruppo}`
+                    });
+                });
+                selectHTML += `</select>
+				<div id="gruppi-firmatari-selected"></div>
+				<div class="card blue lighten-5">
+					<div class="card-content black-text">
+						<span class="card-title">Informazioni</span>
+						<p>Digita le prime lettere del gruppo politico per selezionarlo. E’ possibile indicare più gruppi politici</p>
+					</div>
+				</div>`;
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+
+                // Gestione evento di selezione
+                document.getElementById('gruppi-firmatari-select').addEventListener("change",
+                    function(event) {
+                        const selectElement = event.target;
+                        const selectedOption = selectElement.options[selectElement.selectedIndex];
+                        const key = selectedOption.value; // Ottieni l'id del gruppo selezionato
+                        const txt = selectedOption.text; // Ottieni il testo del gruppo selezionato
+
+                        var existingChip = document.querySelector(`.chip[data-gruppo-firmatari-id="${key}"]`);
+                        if (!existingChip) {
+                            var chipsContainerGruppi = document.getElementById('gruppi-firmatari-selected');
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-gruppo-firmatari-id', key);
+                            newChip.classList.add('chip');
+                            newChip.textContent = txt;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                newChip.remove();
+
+                                // Deseleziona l'opzione corrispondente nella select
+                                var option = document.querySelector(`#gruppi-firmatari-select option[value="${key}"]`);
+                                if (option) {
+                                    option.selected = false;
+                                }
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerGruppi.appendChild(newChip);
+                        }
+
+                        // Resetta la select dopo la selezione
+                        selectElement.selectedIndex = 0;
+                    });
+
+                M.FormSelect.init(document.querySelectorAll('select'));
+
+                // Gestione dell'editing
+                if (isEditing) {
+                    // Assumiamo che `currentValue` sia una stringa separata da virgole con gli ID dei gruppi selezionati
+                    var currentValueArray = currentValue.split(',');
+                    var chipsContainerGruppi = document.getElementById('gruppi-firmatari-selected');
+
+                    currentValueArray.forEach(function(guid) {
+                        var item = data.find(item => item.id === guid); // Trova l'elemento corrispondente
+                        if (item) {
+                            // Crea il chip per il gruppo già selezionato
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-gruppo-firmatari-id', item.id);
+                            newChip.classList.add('chip');
+                            newChip.textContent = item.tag;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                // Rimuove il chip e aggiorna il valore corrente
+                                newChip.remove();
+
+                                // Aggiorna la select se necessario
+                                var option = document.querySelector(`#gruppi-firmatari-select option[value="${item.id}"]`);
+                                if (option) {
+                                    option.selected = false; // Deseleziona l'opzione
+                                }
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerGruppi.appendChild(newChip);
+                        }
+                    });
+
+                    // Aggiorna lo stato della select per riflettere i valori correnti
+                    currentValueArray.forEach(function(guid) {
+                        var option = document.querySelector(`#gruppi-firmatari-select option[value="${guid}"]`);
+                        if (option) {
+                            option.selected = true; // Seleziona le opzioni corrispondenti
+                        }
+                    });
+                }
+            } else {
+                swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+                    .then(() => {
+                        $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                    });
+            }
+            break;
+        case '@nameof(AttoDASIDto.Organi)':
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+
+                var organi = await GetOrganiDisponibili(idLegislatura);
+                selectHTML = `<div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-autocomplete" class="autocomplete">
+
+		        <div id="organi-selected"></div>
+             </div>
+			  <div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>La ricerca è effettuata sulle commissioni consiliari e sugli organi di Giunta
+					</p>
+				</div>
+			</div>`;
+
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                var data = [];
+                organi.forEach(function(item) {
+                    data.push({
+                        tag: `${item.nome_organo}`,
+                        id: `${item.id_organo}`
+                    });
+                });
+                var elems = document.querySelectorAll('#organi-autocomplete');
+                var instances = M.Autocomplete.init(elems,
+                    {
+                        data: data,
+                        limit: 20,
+                        minLength: 2,
+                        onAutocomplete: function(txt, key) {
+
+                            var existingChip = document.querySelector(`.chip[data-organo-id="${key}"]`);
+                            if (!existingChip) {
+                                var chipsContainerOrgano = document.getElementById('organi-selected');
+                                var newChip = document.createElement('div');
+                                newChip.setAttribute('data-organo-id', key);
+                                newChip.classList.add('chip');
+                                newChip.textContent = txt;
+
+                                var closeIcon = document.createElement('i');
+                                closeIcon.classList.add('close', 'material-icons');
+                                closeIcon.style.setProperty('top', 'unset', 'important');
+                                closeIcon.textContent = 'close';
+                                closeIcon.onclick = function() {
+                                    newChip.remove();
+                                };
+                                newChip.appendChild(closeIcon);
+
+                                chipsContainerOrgano.appendChild(newChip);
+                            }
+
+                            document.getElementById('organi-autocomplete').value = "";
+                        }
+                    });
+
+                if (isEditing) {
+                    var currentValueArray = currentValue.split(',');
+                    var chipsContainerOrgani = document.getElementById('organi-selected');
+                    currentValueArray.forEach(function(guid) {
+                        var item = data.find(item => item.id === guid);
+                        if (item) {
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-organo-id', item.id);
+                            newChip.classList.add('chip');
+                            newChip.textContent = item.tag;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                newChip.remove();
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerOrgani.appendChild(newChip);
+                        }
+                    });
+                }
+            } else {
+                swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+                    .then(() => {
+                        $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                    });
+            }
+            break;
+        case '@nameof(AttoDASIDto.Organi_Commissione)':
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+
+                var organi = await GetOrganiDisponibili(idLegislatura);
+                selectHTML = `<div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-autocomplete" class="autocomplete">
+
+		        <div id="organi-selected"></div>
+             </div>
+			  <div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>La ricerca è effettuata sulle commissioni.
+					</p>
+				</div>
+			</div>`;
+
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                var data = [];
+                organi.forEach(function(item) {
+                    data.push({
+                        tag: `${item.nome_organo}`,
+                        id: `${item.id_organo}`
+                    });
+                });
+                var elems = document.querySelectorAll('#organi-autocomplete');
+                var instances = M.Autocomplete.init(elems,
+                    {
+                        data: data,
+                        limit: 20,
+                        minLength: 2,
+                        onAutocomplete: function(txt, key) {
+
+                            var existingChip = document.querySelector(`.chip[data-organo-commissione-id="${key}"]`);
+                            if (!existingChip) {
+                                var chipsContainerOrgano = document.getElementById('organi-selected');
+                                var newChip = document.createElement('div');
+                                newChip.setAttribute('data-organo-commissione-id', key);
+                                newChip.classList.add('chip');
+                                newChip.textContent = txt;
+
+                                var closeIcon = document.createElement('i');
+                                closeIcon.classList.add('close', 'material-icons');
+                                closeIcon.style.setProperty('top', 'unset', 'important');
+                                closeIcon.textContent = 'close';
+                                closeIcon.onclick = function() {
+                                    newChip.remove();
+                                };
+                                newChip.appendChild(closeIcon);
+
+                                chipsContainerOrgano.appendChild(newChip);
+                            }
+
+                            document.getElementById('organi-autocomplete').value = "";
+                        }
+                    });
+
+                if (isEditing) {
+                    var currentValueArray = currentValue.split(',');
+                    var chipsContainerOrgani = document.getElementById('organi-selected');
+                    currentValueArray.forEach(function(guid) {
+                        var item = data.find(item => item.id === guid);
+                        if (item) {
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-organo-commissione-id', item.id);
+                            newChip.classList.add('chip');
+                            newChip.textContent = item.tag;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                newChip.remove();
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerOrgani.appendChild(newChip);
+                        }
+                    });
+                }
+            } else {
+                swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+                    .then(() => {
+                        $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                    });
+            }
+            break;
+        case '@nameof(AttoDASIDto.Organi_Giunta)':
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+
+                if (idLegislatura.indexOf(",") > -1) {
+                    swal("Attenzione!", "Per favore, imposta solo una legislatura nel filtro.", "warning")
+                        .then(() => {
+                            $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                        });
+                    break;
+                }
+                var organi = await GetOrganiDisponibili(idLegislatura);
+                selectHTML = `<div class="input-field col s12">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="organi-autocomplete" class="autocomplete">
+
+		        <div id="organi-selected"></div>
+             </div>
+			  <div class="card blue lighten-5">
+				<div class="card-content black-text">
+					<span class="card-title">Informazioni</span>
+					<p>La ricerca è effettuata sulla giunta.
+					</p>
+				</div>
+			</div>`;
+
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                var data = [];
+                organi.forEach(function(item) {
+                    data.push({
+                        tag: `${item.nome_organo}`,
+                        id: `${item.id_organo}`
+                    });
+                });
+                var elems = document.querySelectorAll('#organi-autocomplete');
+                var instances = M.Autocomplete.init(elems,
+                    {
+                        data: data,
+                        limit: 20,
+                        minLength: 2,
+                        onAutocomplete: function(txt, key) {
+
+                            var existingChip = document.querySelector(`.chip[data-organo-giunta-id="${key}"]`);
+                            if (!existingChip) {
+                                var chipsContainerOrgano = document.getElementById('organi-selected');
+                                var newChip = document.createElement('div');
+                                newChip.setAttribute('data-organo-giunta-id', key);
+                                newChip.classList.add('chip');
+                                newChip.textContent = txt;
+
+                                var closeIcon = document.createElement('i');
+                                closeIcon.classList.add('close', 'material-icons');
+                                closeIcon.style.setProperty('top', 'unset', 'important');
+                                closeIcon.textContent = 'close';
+                                closeIcon.onclick = function() {
+                                    newChip.remove();
+                                };
+                                newChip.appendChild(closeIcon);
+
+                                chipsContainerOrgano.appendChild(newChip);
+                            }
+
+                            document.getElementById('organi-autocomplete').value = "";
+                        }
+                    });
+
+                if (isEditing) {
+                    var currentValueArray = currentValue.split(',');
+                    var chipsContainerOrgani = document.getElementById('organi-selected');
+                    currentValueArray.forEach(function(guid) {
+                        var item = data.find(item => item.id === guid);
+                        if (item) {
+                            var newChip = document.createElement('div');
+                            newChip.setAttribute('data-organo-giunta-id', item.id);
+                            newChip.classList.add('chip');
+                            newChip.textContent = item.tag;
+
+                            var closeIcon = document.createElement('i');
+                            closeIcon.classList.add('close', 'material-icons');
+                            closeIcon.style.setProperty('top', 'unset', 'important');
+                            closeIcon.textContent = 'close';
+                            closeIcon.onclick = function() {
+                                newChip.remove();
+                            };
+                            newChip.appendChild(closeIcon);
+
+                            chipsContainerOrgani.appendChild(newChip);
+                        }
+                    });
+                }
+            } else {
+                swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
+                    .then(() => {
+                        $('#infoModal').modal('close'); // Chiudi la modal dopo l'allerta
+                    });
+            }
+            break;
+        case '@nameof(AttoDASIDto.PresentatoOltreITermini)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+                    <label>
+                        <input id="presentato-oltre-i-termini" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+                </div>
+				<div class="card blue lighten-5">
+		<div class="card-content black-text">
+			<span class="card-title">Informazioni</span>
+			<p>Spuntare per trovare tutti gli atti presentati oltre i termini. Lasciare vuoto per trovare tutti gli atti che non sono presentati oltre i termini.
+			</p>
+		</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.IterMultiplo)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="iter-multiplo" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti che hanno l'iter multiplo. Lasciare vuoto per trovare tutti gli atti che non hanno l'iter multiplo.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Ritardo)':
+            console.log("Rit", currentValue)
+            var isChecked = isEditing && currentValue == true ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="ritardo" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti che sono in ritardo. Lasciare vuoto per trovare tutti gli atti che non sono in ritardo.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Sollecito)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="sollecito" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con sollecito. Lasciare vuoto per trovare tutti gli atti che non hanno il sollecito.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Pubblicato)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="pubblicato" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti pubblicati. Lasciare vuoto per trovare tutti gli atti che non sono pubblicati.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Emendato)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="emendato" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti emendati. Lasciare vuoto per trovare tutti gli atti che non sono emendati.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Privacy)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="privacy" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy. Lasciare vuoto per trovare tutti gli atti senza privacy.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Giudiziari)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="privacy_giudiziari" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con dati personali giudiziari. Lasciare vuoto per trovare tutti gli atti senza privacy.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Semplici)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="privacy_semplici" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con dati personali semplici. Lasciare vuoto per trovare tutti gli atti senza privacy.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Privacy_Dati_Personali_Sensibili)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="privacy_sensibili" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+								<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con dati personali sensibili. Lasciare vuoto per trovare tutti gli atti senza privacy.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="privacy_pubblicazione" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione. Lasciare vuoto per trovare tutti gli atti senza divieto.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Altri)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="privacy_pubblicazione_altri" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione altro. Lasciare vuoto per trovare tutti gli atti senza divieto.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Salute)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="privacy_pubblicazione_salute" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione per motivi sanitari. Lasciare vuoto per trovare tutti gli atti senza divieto.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.Privacy_Divieto_Pubblicazione_Vita_Sessuale)':
+            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
+            selectHTML = `
+                <div class="input-field col s12">
+				<p>
+                    <label>
+                        <input id="privacy_pubblicazione_sessuale" type="checkbox" ${isChecked}/>
+                        <span>Si / No</span>
+                    </label>
+					</p>
+                </div>
+				<div class="card blue lighten-5">
+				<div class="card-content black-text">
+	<span class="card-title">Informazioni</span>
+	<p>Spuntare per trovare tutti gli atti con privacy con divieto di pubblicazione per motivi sessuali. Lasciare vuoto per trovare tutti gli atti senza divieto.
+	</p>
+</div></div>`;
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+        case '@nameof(AttoDASIDto.DCR)':
+
+            var dcrValue = '';
+            var dcrcValue = '';
+            var nonEmptyChecked = '';
+
+            // Controlla se currentValue contiene una virgola e quindi due valori separati
+            if (isEditing && currentValue) {
+                if (currentValue.indexOf("Non vuoto") !== -1) {
+                    nonEmptyChecked = 'checked';
+                } else {
+                    var parts = currentValue.split(',');
+                    if (parts.length > 1) {
+                        dcrValue = `value="${parts[0].trim()}"`; // Primo valore per DCR
+                        dcrcValue = `value="${parts[1].trim()}"`; // Secondo valore per DCRC
+                    } else {
+                        dcrValue = `value="${currentValue.trim()}"`; // Solo un valore, assegna a DCR
+                    }
+                }
+            }
+
+            selectHTML = `
+		<div class="input-field col s6">
+			<input id="dcr" type="text" ${dcrValue} placeholder="Es. 100, 150-200"/>
+			<label for="dcr" class="active">DCR</label>
+		</div>
+		<div class="input-field col s6">
+			<input id="dcrc" type="text" ${dcrcValue} placeholder="Es. 100, 150-200"/>
+			<label for="dcrc" class="active">DCCR</label>
+		</div>
+		<div class="input-field col s12">
+		<p>
+			<label>
+				<input id="dcr_non_empty" type="checkbox" ${nonEmptyChecked}/>
+				<span>Non vuoti</span>
+			</label>
+			</p>
+		</div>
+		<div class="card blue lighten-5">
+        <div class="card-content black-text">
+            <span class="card-title">Informazioni</span>
+            <p>È possibile filtrare nei seguenti modi:
+            <ul style="padding-left:40px">
+                <li style="list-style-type: disc;">Singolo numero: 100</li>
+                <li style="list-style-type: disc;">Intervallo: 150-200</li>
+            </ul>
+            </p>
+        </div>
+    </div>`;
+
+            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+
+        default:
+            console.log("Filtro non riconosciuto!");
+            break;
+        }
+
+        // Apri la modal
+        waiting(false);
+        $('#infoModal').modal("open");
+    }
+
+    function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh) {
+
+        var existingChip = document.querySelector(`.chip[data-filterby="${key}"]`);
+
+        if (!existingChip) {
+            // La chiave non esiste, quindi aggiungi la chip
+            var chipsContainer = document.getElementById('chips-container');
+            var newChip = document.createElement('div');
+            newChip.setAttribute('data-val', val);
+            newChip.setAttribute('data-label', label);
+            newChip.setAttribute('data-filterby', key);
+            newChip.setAttribute('data-filterby-label', keyLabel);
+            newChip.classList.add('chip');
+            newChip.classList.add('filter-chip');
+            newChip.textContent = chipText;
+
+            addIconsToChip(newChip, key, keyLabel, val);
+            chipsContainer.appendChild(newChip);
+
+            // Aggiorna l'elenco delle chiavi tracciate
+            chipsKeys[key] = true;
+        } else {
+            existingChip.setAttribute('data-val', val);
+            existingChip.setAttribute('data-label', label);
+            existingChip.setAttribute('data-filterby', key);
+            existingChip.setAttribute('data-filterby-label', keyLabel);
+            existingChip.textContent = chipText;
+            addIconsToChip(existingChip, key, keyLabel, val);
+        }
+
+        salvaFiltri();
+
+        if (refresh) {
+            console.log("refresh")
+            inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+        }
+    }
+
+    function addIconsToChip(chip, key, keyLabel, val) {
+
+        var isTrattazione = @Html.Raw((int)Model.ClientMode);
+        if (isTrattazione == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
+            return;
+        }
+
+        // Aggiungi un'icona per modificare la chip, se desiderato
+        var editIcon = document.createElement('i');
+        editIcon.classList.add('material-icons', 'tiny');
+        editIcon.style.setProperty('margin-left', '10px');
+        editIcon.style.setProperty('top', '2px');
+        editIcon.textContent = 'edit';
+        editIcon.onclick = async function(event) {
+            event.stopPropagation();
+            await openModalWithContent(key, keyLabel, true, val);
+        };
+        chip.appendChild(editIcon);
+
+        // Aggiungi un'icona per rimuovere la chip
+        var closeIcon = document.createElement('i');
+        closeIcon.classList.add('close', 'material-icons');
+        closeIcon.style.setProperty('top', 'unset', 'important');
+        closeIcon.textContent = 'close';
+        closeIcon.onclick = function() {
+            delete chipsKeys[key]; // Rimuovi la chiave dall'elenco tracciato quando la chip è rimossa
+            chip.remove();
+            resetSelezionePreferiti();
+            salvaFiltri();
+            console.log("rimuovi chip")
+            inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+        };
+        chip.appendChild(closeIcon);
+    }
+
+    function salvaFiltri() {
+        const filtri = [];
+        document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function(chip) {
+            const key = chip.getAttribute('data-filterby');
+            const keyLabel = chip.getAttribute('data-filterby-label');
+            const val = chip.getAttribute('data-val');
+            const label = chip.getAttribute('data-label');
+            // Rimuovi gli elementi icona dal testo della chip prima di salvarlo
+            const chipTextContent = chip.cloneNode(true); // Clona il nodo della chip
+            chipTextContent.querySelectorAll('.material-icons').forEach(icon => icon.remove()); // Rimuovi le icone
+            const chipText = chipTextContent.textContent.trim(); // Ottieni il testo pulito
+
+            filtri.push({
+                key: key,
+                keyLabel: keyLabel,
+                val: val,
+                label: label,
+                chipText: chipText
+            });
+        });
+        localStorage.setItem('filtriDasi', JSON.stringify(filtri));
+    }
+
+    function ripristinaFiltri() {
+        $('#chips-container').empty();
+        const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+        if (filtri) {
+            filtri.forEach(function(filtro) {
+                addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
+            });
+            const paging = JSON.parse(localStorage.getItem('pagingDasi'));
+            if (paging) {
+                inviaDatiChips(paging.page, paging.size);
+            } else {
+                inviaDatiChips(1, 20);
+            }
+        }
+    }
+
+    function ripristinaFiltriTrattazione() {
+        $('#chips-container').empty();
+
+        const idSeduta = getUrlParameter('id');
+        const tipo = getUrlParameter('tipo');
+        
+		var filtri = [];
+        filtri.push({
+            key: "@Html.Raw(nameof(AttoDASIDto.UIDSeduta))",
+            keyLabel: "",
+			val: idSeduta || "",
+            label: "",
+            chipText: ""
+        });
+        filtri.push({
+            key: "@Html.Raw(nameof(AttoDASIDto.Tipo))",
+            keyLabel: "",
+			val: tipo || "",
+            label: "",
+            chipText: ""
+        });
+        filtri.forEach(function(filtro) {
+            addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
+        });
+        const paging = JSON.parse(localStorage.getItem('pagingDasi'));
+        if (paging) {
+            inviaDatiChips(paging.page, paging.size);
+        } else {
+            inviaDatiChips(1, 20);
+        }
+    }
+
+    function ripristinaOrdinamento() {
+        $('#chips-container-sorting').empty();
+        const ordinamenti = JSON.parse(localStorage.getItem('selectedSortColumns'));
+        if (ordinamenti) {
+            ordinamenti.forEach(function(ordinamento) {
+                addSortChipIfNotExists(ordinamento.propertyName, ordinamento.sortDirection, ordinamento.displayText);
+            });
+        }
+    }
+    
+    function addSortChipIfNotExists(key, sortDirection, chipText) {
+
+        var existingChip = document.querySelector(`.chip[data-orderby="${key}"]`);
+
+        if (!existingChip) {
+            // La chiave non esiste, quindi aggiungi la chip
+            var chipsContainer = document.getElementById('chips-container-sorting');
+            var newChip = document.createElement('div');
+            newChip.setAttribute('data-order-direction', sortDirection);
+            newChip.setAttribute('data-orderby', key);
+            newChip.classList.add('chip');
+            newChip.classList.add('order-chip');
+            newChip.classList.add('amber');
+            newChip.classList.add('black-text');
+
+            var directionText = "";
+            if (sortDirection == "-1")
+                directionText = "Decrescente";
+            else
+                directionText = "Crescente";
+
+            newChip.textContent = "Ordinato per " + chipText + " " + directionText;
+
+            var isTrattazione = @Html.Raw((int)Model.ClientMode);
+            if (isTrattazione == @Html.Raw((int)ClientModeEnum.GRUPPI)) {
+                var editIcon = document.createElement('i');
+                editIcon.classList.add('material-icons', 'tiny');
+                editIcon.style.setProperty('margin-left', '10px');
+                editIcon.style.setProperty('top', '2px');
+                editIcon.textContent = 'edit';
+
+                newChip.onclick = async function(event) {
+                    event.stopPropagation();
+                    openOrdinamentoModal();
+                };
+                newChip.appendChild(editIcon);
+            }
+
+            chipsContainer.appendChild(newChip);
+        } else {
+            existingChip.setAttribute('data-order-direction', sortDirection);
+            existingChip.setAttribute('data-orderby', key);
+            existingChip.textContent = chipText;
+        }
+    }
+
+    function filterByPage(page) {
+        inviaDatiChips(page, $("#hdPaginazioneCorrente").val());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function filterBySize(page, size) {
+
+        inviaDatiChips(page, size);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function initPreviewUI() {
+        const view = localStorage.getItem('viewModeDasi');
+        if (view) {
+            $("#btnGoToPreviewAdmin").show();
+            if (view == @Html.Raw((int)ViewModeEnum.GRID)) {
+                $("#btnGoToPreviewAdmin").html('<i class="material-icons">desktop_windows</i>');
+                $("#btnGoToPreviewAdmin").attr('data-tooltip', 'Visualizza Atti in preview');
+            } else if (view == @Html.Raw((int)ViewModeEnum.PREVIEW)) {
+                $("#btnGoToPreviewAdmin").html('<i class="material-icons">developer_board</i>');
+                $("#btnGoToPreviewAdmin").attr('data-tooltip', 'Visualizza Atti in griglia');
+            }
+
+            M.Tooltip.init($("#btnGoToPreviewAdmin"));
+        } else {
+            $("#btnGoToPreviewAdmin").hide();
+        }
+    }
+
+    function gotoPreviewModeAdmin() {
+        const view = localStorage.getItem('viewModeDasi');
+        if (view) {
+            if (view == @Html.Raw((int)ViewModeEnum.GRID)) {
+                localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.PREVIEW));
+            } else if (view == @Html.Raw((int)ViewModeEnum.PREVIEW)) {
+                localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
+            }
+        } else {
+            localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
+        }
+        console.log("previeMode");
+        inviaDatiChips(1, $("#hdPaginazioneCorrente").val());
+    }
+</script>
+
+
+@{
+    Html.RenderPartial("Filtri/_DettaglioFiltroModal", Model);
+    Html.RenderPartial("Filtri/_FiltroConfigModal", Model);
+    Html.RenderPartial("Filtri/_ReportConfigModal", Model);
+}
