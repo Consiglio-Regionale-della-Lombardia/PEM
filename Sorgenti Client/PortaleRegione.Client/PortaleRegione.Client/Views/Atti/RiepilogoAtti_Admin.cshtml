@@ -170,10 +170,10 @@
                                     <b>@titolo_atto</b>
                                     @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                     {
-                                        <a class="btn-flat pink-text hide-on-large-only"
-                                           href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
-                                            Scarica documento
-                                        </a>
+                                        <button type="button" role="button" class="btn-flat pink-text hide-on-large-only"
+                                                onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')" title="Scarica documento">
+                                            SCARICA TESTO
+                                        </button>
                                     }
                                 </h5>
                             </div>
@@ -196,7 +196,7 @@
                                 @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                 {
                                     <button type="button" role="button" class="btn-flat pink-text hide-on-med-and-down"
-                                            href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
+                                            onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')" title="Scarica documento">
                                         SCARICA TESTO
                                     </button>
                                 }
@@ -253,8 +253,5 @@
         setListaEmendamenti([]);
         setSelezionaTutti(false);
         set_Filtri_EM({});
-        set_ListaArticoliEM([]);
-        set_ListaCommiEM([]);
-        set_ListaLettereEM([]);
     </script>
 }
