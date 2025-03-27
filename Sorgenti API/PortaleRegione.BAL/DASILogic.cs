@@ -5352,7 +5352,7 @@ namespace PortaleRegione.API.Controllers
         private string GetPropertyValueForHtmlGrid(AttoDASIDto dto, string propertyName)
         {
             var value = GetPropertyValue(dto, propertyName, ExportFormatEnum.EXCEL);
-            return value != null ? $"<td>{value}</td>" : null;
+            return value != null ? $"<td>{value}</td>" : "<td></td>"; // #1344
         }
 
         public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
