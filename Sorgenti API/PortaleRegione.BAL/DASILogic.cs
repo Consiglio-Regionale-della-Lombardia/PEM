@@ -4341,7 +4341,7 @@ namespace PortaleRegione.API.Controllers
             if (string.IsNullOrEmpty(model.reportname)) model.reportname = "Report";
 
             var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
-            string safeReportName = string.Join("_", model.reportname.Split(Path.GetInvalidFileNameChars()));
+            string safeReportName = string.Join("_", model.reportname.Split(Path.GetInvalidFileNameChars())); // #1343
             var filePath = Path.Combine(tempFolderPath, $"{safeReportName}_{DateTime.Now.Ticks}");
             switch ((ExportFormatEnum)model.exportformat)
             {
