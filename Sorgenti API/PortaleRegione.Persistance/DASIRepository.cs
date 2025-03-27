@@ -1561,7 +1561,8 @@ namespace PortaleRegione.Persistance
                     .Distinct()
                     .ToList();
 
-                query = query.Where(atto => risposteEffettiveQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => risposteEffettiveQuery.Contains(atto.UIDAtto)
+                    || queryExtended.Risposte.Contains(atto.IDTipo_Risposta_Effettiva.Value));
             }
 
             if (queryExtended.Proponenti.Any())
