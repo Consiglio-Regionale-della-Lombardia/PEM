@@ -1668,12 +1668,24 @@ namespace PortaleRegione.Persistance
                     var seduteQuery = PRContext
                         .SEDUTE
                         .Where(seduta => seduta.Data_seduta >= startDate && seduta.Data_seduta <= endDate)
-                        .Select(seduta => seduta.UIDSeduta)
                         .Distinct()
                         .ToList();
 
+                    var identificativiSedute = seduteQuery.Select(seduta => seduta.UIDSeduta).ToList();
+
                     query = query
-                        .Where(atto => seduteQuery.Contains(atto.UIDSeduta.Value));
+                        .Where(atto => identificativiSedute.Contains(atto.UIDSeduta.Value));
+
+                    // #1341
+                    var listaDateSedutaCrypt = new List<string>();
+                    foreach (var seduta in seduteQuery)
+                    {
+                        var dataSedutaCrypt = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"), AppSettingsConfiguration.masterKey);
+                        listaDateSedutaCrypt.Add(dataSedutaCrypt);
+                    }
+
+                    query = query
+                        .Where(atto => listaDateSedutaCrypt.Contains(atto.DataRichiestaIscrizioneSeduta));
                 }
                 else
                 {
