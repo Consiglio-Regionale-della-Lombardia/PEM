@@ -332,6 +332,13 @@ WHERE a.Legislatura IS NULL;
                                     throw new Exception("Atto eliminato in Alfresco. Non importato.");
                                 }
 
+                                // #1322
+                                var eliminatoDaInAlfresco = Convert.ToString(cellsAtti[row, 40].Value);
+                                if (!string.IsNullOrEmpty(eliminatoDaInAlfresco))
+                                {
+                                    throw new Exception("Atto eliminato in Alfresco. Non importato.");
+                                }
+
                                 var attoImportato = new AttoImportato();
                                 attoImportato.Legislatura = legislaturaFromAlfresco;
                                 attoImportato.Tipo = tipoAttoFromAlfresco;
