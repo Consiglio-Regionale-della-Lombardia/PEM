@@ -1672,10 +1672,6 @@ namespace PortaleRegione.Persistance
                         .ToList();
 
                     var identificativiSedute = seduteQuery.Select(seduta => seduta.UIDSeduta).ToList();
-
-                    query = query
-                        .Where(atto => identificativiSedute.Contains(atto.UIDSeduta.Value));
-
                     // #1341
                     var listaDateSedutaCrypt = new List<string>();
                     foreach (var seduta in seduteQuery)
@@ -1685,7 +1681,8 @@ namespace PortaleRegione.Persistance
                     }
 
                     query = query
-                        .Where(atto => listaDateSedutaCrypt.Contains(atto.DataRichiestaIscrizioneSeduta));
+                        .Where(atto => identificativiSedute.Contains(atto.UIDSeduta.Value)
+                        || listaDateSedutaCrypt.Contains(atto.DataRichiestaIscrizioneSeduta));
                 }
                 else
                 {
