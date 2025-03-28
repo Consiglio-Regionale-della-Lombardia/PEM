@@ -79,7 +79,7 @@ namespace PortaleRegione.BAL
             if (listaCount > 1000)
             {
                 // Suddividi la lista in slice da 1000
-                var listaSuddivisa = Utility.Split(request.Lista, 1000);
+                var listaSuddivisa = Utility.Split(request.Lista, 500);
 
                 // Ordine progressivo per ogni slice
                 var numeroFascicolo = 1;
