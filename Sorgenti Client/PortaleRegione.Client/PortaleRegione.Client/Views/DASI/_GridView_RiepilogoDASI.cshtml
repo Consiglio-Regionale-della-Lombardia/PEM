@@ -337,7 +337,7 @@ else
                     }
                     else
                     {
-                        <button type="button" role="button" class="btn-flat black-text" target="_blank" href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })">
+                        <button type="button" role="button" class="btn-flat black-text" onclick="goIntoOtherTab('@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })')">
                             Stampa
                         </button>
                     }

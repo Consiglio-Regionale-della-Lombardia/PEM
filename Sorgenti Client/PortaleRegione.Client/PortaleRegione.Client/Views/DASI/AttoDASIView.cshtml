@@ -600,8 +600,7 @@
         <button type="button" role="button"
                 class="btn-floating btn-large white black-text tooltipped"
            data-tooltip="Stampa"
-           target="_blank"
-           href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
+           onclick="goIntoOtherTab('@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })')"
            style="margin-right: 15px;">
             <i class="material-icons">print</i>
         </button>
