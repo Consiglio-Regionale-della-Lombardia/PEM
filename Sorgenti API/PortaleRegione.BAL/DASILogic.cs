@@ -5257,8 +5257,8 @@ namespace PortaleRegione.API.Controllers
             if (wordSize == WordSizeEnum.A3)
             {
                 var pageSize = new PageSize();
-                pageSize.Width = 16840; // Dimensione in twips per A3 (297 mm x 420 mm)
-                pageSize.Height = 11900;
+                pageSize.Width = 23808; // Dimensione in twips per A3 (297 mm x 420 mm)
+                pageSize.Height = 16838;
                 var sectionProps = new SectionProperties();
                 sectionProps.Append(pageSize);
                 mainPart.Document.Body.Append(sectionProps);
