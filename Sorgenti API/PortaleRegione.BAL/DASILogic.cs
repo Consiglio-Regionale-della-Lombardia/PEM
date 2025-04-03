@@ -4889,9 +4889,7 @@ namespace PortaleRegione.API.Controllers
 
                 return "";
             }
-
-            if (propertyName.Equals(nameof(AttoDASIDto.CodiceMateria))) return atto.CodiceMateria;
-
+            
             if (propertyName.Equals(nameof(AttoDASIDto.UIDSeduta)))
             {
                 if (atto.Seduta != null)
