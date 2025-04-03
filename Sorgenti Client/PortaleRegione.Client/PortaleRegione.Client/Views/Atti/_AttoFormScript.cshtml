@@ -43,7 +43,50 @@
             });
         await GetArticoliAtto($('#Atto_UIDAtto').val());
 
-        var tipi = await GetTipiPEM();
+		// GetTipiPEM
+        // PDL, PDA, PLP, PRE, PDN, DOC, REF, REL, ORG, RIS, ALTRO
+        var tipi = [];
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PDL),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PDL)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PDA),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PDA)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PLP),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PLP)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PRE),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PRE)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PDN),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PDN)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.DOC),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.DOC)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.REF),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.REF)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.ORG),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.ORG)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.RIS),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.RIS)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.ALTRO),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.ALTRO)"
+        });
+
         if (tipi.length > 0) {
             var select = $("#Atto_Tipo");
             select.empty();
