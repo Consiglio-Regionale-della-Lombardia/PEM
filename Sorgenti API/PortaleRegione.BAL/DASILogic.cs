@@ -5532,15 +5532,19 @@ namespace PortaleRegione.API.Controllers
                     atto.DCCR = 0;
                 }
 
-                if (!atto.DCR.Equals(int.Parse(datiInline.DCR))
-                    || !atto.DCCR.Equals(int.Parse(datiInline.DCCR)))
+                if (!string.IsNullOrEmpty(datiInline.DCR)
+                    && !string.IsNullOrEmpty(datiInline.DCCR))
                 {
-                    var res = await _unitOfWork.DASI.CheckDCR(atto.DCRL, datiInline.DCR, datiInline.DCCR);
+                    if (!atto.DCR.Equals(int.Parse(datiInline.DCR))
+                        || !atto.DCCR.Equals(int.Parse(datiInline.DCCR)))
+                    {
+                        var res = await _unitOfWork.DASI.CheckDCR(atto.DCRL, datiInline.DCR, datiInline.DCCR);
 
-                    if (res) continue;
+                        if (res) continue;
 
-                    atto.DCR = int.Parse(datiInline.DCR);
-                    atto.DCCR = int.Parse(datiInline.DCCR);
+                        atto.DCR = int.Parse(datiInline.DCR);
+                        atto.DCCR = int.Parse(datiInline.DCCR);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(datiInline.Protocollo))
