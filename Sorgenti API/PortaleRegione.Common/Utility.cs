@@ -1189,10 +1189,11 @@ namespace PortaleRegione.Common
                         }
                         else
                         {
+                            // #1330
                             result.Add(new FilterStatement<AttoDASIDto>
                             {
                                 PropertyId = filterItem.property,
-                                Operation = Operation.IsEmpty,
+                                Operation = Operation.IsNullOrWhiteSpace, 
                                 Connector = FilterStatementConnector.And
                             });
                         }

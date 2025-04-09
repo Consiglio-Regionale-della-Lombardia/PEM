@@ -568,6 +568,7 @@ namespace PortaleRegione.BAL
 
         private void FillSheetDASI_AttiUOLA(ExcelWorksheet sheet, IEnumerable<AttoDASIDto> attiList)
         {
+            // #1333
             try
             {
                 //HEADER

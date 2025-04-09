@@ -25,7 +25,6 @@ using PortaleRegione.Client.Models;
 using PortaleRegione.Common;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
@@ -122,10 +121,16 @@ namespace PortaleRegione.Client.Controllers
                         page = 1,
                         size = 99999,
                         param = new Dictionary<string, object>
-                    {
-                        { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }
-                    }
+                        {
+                            { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }
+                        }
                     };
+
+                    // #1340
+                    if (model.sort_settings_dasi.Any())
+                    {
+                        request.dettagliOrdinamento = model.sort_settings_dasi;
+                    }
 
                     request.filtro.AddRange(Utility.ParseFilterDasi(model.filters_dasi));
 
@@ -154,10 +159,11 @@ namespace PortaleRegione.Client.Controllers
                     A = model.a
                 }), JsonRequestBehavior.AllowGet);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Log.Error("Aggiungi Stampa", ex);
                 return Json(ex.Message, JsonRequestBehavior.AllowGet);
-            }            
+            }
         }
 
         /// <summary>
@@ -182,7 +188,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(e.Message, JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         ///     Controller per scaricare una stampa
         /// </summary>

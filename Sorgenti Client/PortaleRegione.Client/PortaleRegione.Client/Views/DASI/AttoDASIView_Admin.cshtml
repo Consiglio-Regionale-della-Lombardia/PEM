@@ -39,7 +39,6 @@
     @*Import Trumbowyg plugins style...*@
     <link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet"/>
 
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     @Scripts.Render("~/bundles/lib")
     @Scripts.Render("~/bundles/logic")
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
@@ -196,6 +195,21 @@
                                 </div>
                             </div>
                         }
+						
+                        <div class="row">
+							<div class="col s12 l4 hide-on-med-and-down"></div>
+                            <div class="col s12 l4 center">
+                                <button role="button" type="button" class="btn-flat blue-text tooltipped"
+                                        data-tooltip="Stampa"
+                                        data-url="@Url.Action("Download", "DASI", new { id = atto.UIDAtto })"
+                                        data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
+                                        onclick="StampaUOLA(this)"
+                                        style="margin-right: 15px; width: 100%">
+                                    Stampa atto
+                                </button>
+                            </div>
+                            <div class="col s12 l4 hide-on-med-and-down"></div>
+                        </div>
                     </div>
                 </div>
                 @if (atto.IsIQT()
@@ -1814,32 +1828,6 @@
 </li>
 </ul>
 </div>
-</div>
-
-<div class="fixed-action-btn">
-    @if (Model.CurrentUser.UID_persona == atto.UIDPersonaProponente)
-    {
-        <a class="btn-floating btn-large white black-text tooltipped"
-           data-position="bottom"
-           data-tooltip="Stampa"
-           data-url="@Url.Action("Download", "DASI", new { id = atto.UIDAtto })"
-           data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
-           onclick="StampaUOLA(this)"
-           style="margin-right: 15px;">
-            <i class="material-icons">print</i>
-        </a>
-    }
-    else
-    {
-        <a class="btn-floating btn-large white black-text tooltipped"
-           data-position="bottom"
-           data-tooltip="Stampa"
-           target="_blank"
-           href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
-           style="margin-right: 15px;">
-            <i class="material-icons">print</i>
-        </a>
-    }
 </div>
 
 <script>

@@ -4341,7 +4341,8 @@ namespace PortaleRegione.API.Controllers
             if (string.IsNullOrEmpty(model.reportname)) model.reportname = "Report";
 
             var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
-            var filePath = Path.Combine(tempFolderPath, $"{model.reportname}_{DateTime.Now.Ticks}");
+            string safeReportName = string.Join("_", model.reportname.Split(Path.GetInvalidFileNameChars())); // #1343
+            var filePath = Path.Combine(tempFolderPath, $"{safeReportName}_{DateTime.Now.Ticks}");
             switch ((ExportFormatEnum)model.exportformat)
             {
                 case ExportFormatEnum.PDF:
@@ -5350,7 +5351,7 @@ namespace PortaleRegione.API.Controllers
         private string GetPropertyValueForHtmlGrid(AttoDASIDto dto, string propertyName)
         {
             var value = GetPropertyValue(dto, propertyName, ExportFormatEnum.EXCEL);
-            return value != null ? $"<td>{value}</td>" : null;
+            return value != null ? $"<td>{value}</td>" : "<td></td>"; // #1344
         }
 
         public async Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size)
