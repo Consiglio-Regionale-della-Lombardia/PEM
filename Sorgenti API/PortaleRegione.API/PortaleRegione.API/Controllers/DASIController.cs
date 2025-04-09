@@ -694,12 +694,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var currentUser = CurrentUser;
-                if (currentUser.IsSegreteriaAssemblea_Read)
-                {
-                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
-                }
-
                 await _dasiLogic.CambiaOrdineVisualizzazione(firme);
                 return Ok();
             }

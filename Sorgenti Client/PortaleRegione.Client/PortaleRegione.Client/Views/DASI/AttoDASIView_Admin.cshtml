@@ -20,9 +20,11 @@
     firmeGroup.AddRange(atto.FirmeAnte);
     firmeGroup.AddRange(atto.FirmePost);
 
-    firmeGroup = firmeGroup
-        .OrderBy(f => f.OrdineVisualizzazione)
-        .ToList();
+    firmeGroup = firmeGroup.OrderBy(f => f.Timestamp.Year)
+            .ThenBy(f => f.Timestamp.Month)
+            .ThenBy(f => f.Timestamp.Day)
+            .ThenBy(f => f.OrdineVisualizzazione)
+            .ToList();
 }
 <!DOCTYPE html>
 <html lang="it">
