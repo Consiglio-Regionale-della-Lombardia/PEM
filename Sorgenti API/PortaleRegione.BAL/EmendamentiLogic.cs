@@ -427,9 +427,7 @@ namespace PortaleRegione.BAL
                     em.UIDPersonaModifica = persona.UID_persona;
                     em.DataModifica = DateTime.Now;
                 }
-
-                await _unitOfWork.CompleteAsync();
-
+                
                 if (model.DocAllegatoGenerico_Stream != null)
                 {
                     var path = ByteArrayToFile(model.DocAllegatoGenerico_Stream);
@@ -1118,9 +1116,7 @@ namespace PortaleRegione.BAL
 
                     var count_firme = await _unitOfWork.Firme.CountFirme(idGuid);
                     em.chkf = count_firme.ToString();
-
-                    await _unitOfWork.CompleteAsync();
-
+                    
                     results.Add(idGuid, $"{n_em} - OK");
 
                     _unitOfWork.Stampe.Add(new STAMPE
