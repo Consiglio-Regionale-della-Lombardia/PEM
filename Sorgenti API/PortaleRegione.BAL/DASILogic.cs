@@ -5383,11 +5383,28 @@ namespace PortaleRegione.API.Controllers
             var atto = await GetAttoDto(request.UIDAtto, currentUser);
             if (atto == null)
                 throw new Exception("Atto non trovato");
-
+            
+            if (string.IsNullOrEmpty(atto.Etichetta))
+            {
+                // Siamo in bozza, quindi il documento TESTO_ALLEGATO va sostituito
+                var docs_allegati = await _unitOfWork.DASI.GetDocumento(request.UIDAtto, TipoDocumentoEnum.TESTO_ALLEGATO);
+                foreach (var documento in docs_allegati)
+                {
+                    _unitOfWork.DASI.RimuoviDocumento(documento);
+                }
+            }
+            
             // #1031
             request.Nome = Utility.GetNomeDocumentoStandard(request.Tipo);
 
-            var dir = $"{atto.GetLegislatura()}/{Utility.GetText_Tipo(atto.Tipo)}/{atto.Etichetta}";
+            // #1390
+            var legislatura_atto = await _unitOfWork.Legislature.Get(atto.Legislatura);
+            var dir = $"{legislatura_atto.num_legislatura}/{Utility.GetText_Tipo(atto.Tipo)}";
+            if (!string.IsNullOrEmpty(atto.Etichetta))
+            {
+                dir += $"/{atto.Etichetta}";
+            }
+            
             var pathRepository = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{dir}";
 
             if (!Directory.Exists(pathRepository))

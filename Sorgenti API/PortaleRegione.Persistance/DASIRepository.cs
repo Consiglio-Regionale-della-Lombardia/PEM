@@ -834,6 +834,14 @@ namespace PortaleRegione.Persistance
             return await PRContext.ATTI_DOCUMENTI.FirstAsync(d => d.Uid.Equals(requestUid));
         }
 
+        public async Task<List<ATTI_DOCUMENTI>> GetDocumento(Guid UIdAtto, TipoDocumentoEnum tipoDocumento)
+        {
+            return await PRContext.ATTI_DOCUMENTI
+                .Where(d => d.UIDAtto.Equals(UIdAtto) 
+                            && d.Tipo.Equals((int)tipoDocumento))
+                .ToListAsync();
+        }
+
         public void RimuoviDocumento(ATTI_DOCUMENTI doc)
         {
             PRContext.ATTI_DOCUMENTI.Remove(doc);
@@ -1504,158 +1512,78 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.GruppiFirmatari.Any())
             {
-                var firmeQuery = PRContext.ATTI_FIRME
-                    .Where(firma => queryExtended.GruppiFirmatari.Contains(firma.id_gruppo))
-                    .Select(firma => firma.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query.Where(atto => firmeQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_FIRME
+                    .Any(firma => queryExtended.GruppiFirmatari.Contains(firma.id_gruppo) && firma.UIDAtto == atto.UIDAtto));
             }
 
             if (queryExtended.Firmatari.Any())
             {
-                var firmeQuery = PRContext.ATTI_FIRME
-                    .Where(firma => queryExtended.Firmatari.Contains(firma.UID_persona))
-                    .Select(firma => firma.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query.Where(atto => firmeQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_FIRME
+                    .Any(firma => queryExtended.Firmatari.Contains(firma.UID_persona) && firma.UIDAtto == atto.UIDAtto));
             }
 
             if (queryExtended.DocumentiMancanti && queryExtended.TipiDocumento.Any())
             {
-                var docsQuery = PRContext.ATTI_DOCUMENTI
-                    .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto)
-                    .Distinct()
-                    .ToList();
-                query = query.Where(i => !docsQuery.Contains(i.UIDAtto));
+                query = query.Where(atto => !PRContext.ATTI_DOCUMENTI
+                    .Any(f => queryExtended.TipiDocumento.Contains(f.Tipo) && f.UIDAtto == atto.UIDAtto));
             }
             else if (queryExtended.TipiDocumento.Any() && !queryExtended.DocumentiMancanti)
             {
-                var documentQuery = PRContext.ATTI_DOCUMENTI
-                    .Where(f => queryExtended.TipiDocumento.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query.Where(atto => documentQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_DOCUMENTI
+                    .Any(f => queryExtended.TipiDocumento.Contains(f.Tipo) && f.UIDAtto == atto.UIDAtto));
             }
 
             if (queryExtended.RispostaMancante)
             {
-                var risposteQuery = PRContext.ATTI_RISPOSTE
-                    .Select(f => f.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_RISPOSTE
+                    .Any(risposta => risposta.UIDAtto == atto.UIDAtto));
             }
             else if (queryExtended.Risposte.Any())
             {
-                var risposteEffettiveQuery = PRContext.ATTI_RISPOSTE
-                    .Where(f => queryExtended.Risposte.Contains(f.Tipo))
-                    .Select(f => f.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query.Where(atto => risposteEffettiveQuery.Contains(atto.UIDAtto)
-                    || queryExtended.Risposte.Contains(atto.IDTipo_Risposta_Effettiva.Value));
+                query = query.Where(atto => PRContext.ATTI_RISPOSTE
+                    .Any(f => queryExtended.Risposte.Contains(f.Tipo) && f.UIDAtto == atto.UIDAtto) || queryExtended.Risposte.Contains(atto.IDTipo_Risposta_Effettiva.Value));
             }
 
             if (queryExtended.Proponenti.Any())
             {
-                var proponentiQuery = PRContext
-                    .ATTI_PROPONENTI
-                    .Where(proponenteRIS => queryExtended.Proponenti.Contains(proponenteRIS.UidPersona.Value))
-                    .Select(proponente => proponente.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query
-                    .Where(atto => queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value)
-                                   || proponentiQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_PROPONENTI
+                    .Any(proponente => queryExtended.Proponenti.Contains(proponente.UidPersona.Value) && proponente.UIDAtto == atto.UIDAtto) || queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value));
             }
 
             if (queryExtended.Provvedimenti.Any())
             {
-                var abbinamentiQuery = PRContext.ATTI_ABBINAMENTI
-                    .Where(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value))
-                    .Select(abb => abb.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query
-                    .Where(atto =>
-                        queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value) ||
-                        abbinamentiQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_ABBINAMENTI
+                    .Any(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value) && abb.UIDAtto == atto.UIDAtto) || queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value));
             }
 
             if (queryExtended.OrganiIsNull)
             {
-                var commissioniQuery = PRContext.ATTI_COMMISSIONI
-                    .Select(f => f.UIDAtto)
-                    .Distinct()
-                    .ToList();
-                query = query.Where(atto => commissioniQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_COMMISSIONI
+                    .Any(f => f.UIDAtto == atto.UIDAtto));
             }
             else if (queryExtended.Organi.Any())
             {
-                var organiQuery = PRContext.ATTI_COMMISSIONI
-                    .Where(organo => queryExtended.Organi.Contains(organo.id_organo))
-                    .Select(organo => organo.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                var risposteQuery = PRContext.ATTI_RISPOSTE
-                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
-                    .Select(organo => organo.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                var monitoraggioQuery = PRContext.ATTI_MONITORAGGIO
-                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano))
-                    .Select(organo => organo.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                var commissioniProponentiQuery = PRContext
-                    .ATTI_PROPONENTI
-                    .Where(commissione => queryExtended.Organi.Contains(commissione.IdOrgano.Value))
-                    .Select(commissione => commissione.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query.Where(atto => organiQuery.Contains(atto.UIDAtto)
-                                            || risposteQuery.Contains(atto.UIDAtto)
-                                            || commissioniProponentiQuery.Contains(atto.UIDAtto)
-                                            || monitoraggioQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_COMMISSIONI
+                    .Where(organo => queryExtended.Organi.Contains(organo.id_organo) && organo.UIDAtto == atto.UIDAtto)
+                    .Any() || PRContext.ATTI_RISPOSTE
+                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano) && organo.UIDAtto == atto.UIDAtto)
+                    .Any() || PRContext.ATTI_MONITORAGGIO
+                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano) && organo.UIDAtto == atto.UIDAtto)
+                    .Any());
             }
 
             if (queryExtended.Organi_Commissione.Any())
             {
-                var risposteQuery = PRContext.ATTI_RISPOSTE
-                    .Where(organo => queryExtended.Organi_Commissione.Contains(organo.IdOrgano)
-                                     && organo.TipoOrgano.Equals((int)TipoOrganoEnum.COMMISSIONE))
-                    .Select(organo => organo.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_RISPOSTE
+                    .Any(organo => queryExtended.Organi_Commissione.Contains(organo.IdOrgano)
+                                   && organo.TipoOrgano.Equals((int)TipoOrganoEnum.COMMISSIONE) && organo.UIDAtto == atto.UIDAtto));
             }
 
             if (queryExtended.Organi_Giunta.Any())
             {
-                var risposteQuery = PRContext.ATTI_RISPOSTE
-                    .Where(organo => queryExtended.Organi_Giunta.Contains(organo.IdOrgano)
-                                     && organo.TipoOrgano.Equals((int)TipoOrganoEnum.GIUNTA))
-                    .Select(organo => organo.UIDAtto)
-                    .Distinct()
-                    .ToList();
-
-                query = query.Where(atto => risposteQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto => PRContext.ATTI_RISPOSTE
+                    .Any(organo => queryExtended.Organi_Giunta.Contains(organo.IdOrgano)
+                                   && organo.TipoOrgano.Equals((int)TipoOrganoEnum.GIUNTA) && organo.UIDAtto == atto.UIDAtto));
             }
 
             if (queryExtended.DataSeduta.Any())
@@ -1669,7 +1597,7 @@ namespace PortaleRegione.Persistance
                         .SEDUTE
                         .Where(seduta => seduta.Data_seduta >= startDate && seduta.Data_seduta <= endDate)
                         .Distinct()
-                        .ToList();
+                        .AsQueryable();
 
                     var identificativiSedute = seduteQuery.Select(seduta => seduta.UIDSeduta).ToList();
                     // #1341
@@ -1693,7 +1621,7 @@ namespace PortaleRegione.Persistance
                         .Where(seduta => singleDate.Date == seduta.Data_seduta.Date)
                         .Select(seduta => seduta.UIDSeduta)
                         .Distinct()
-                        .ToList();
+                        .AsQueryable();
 
                     query = query
                         .Where(atto => seduteQuery.Contains(atto.UIDSeduta.Value));
@@ -1712,7 +1640,7 @@ namespace PortaleRegione.Persistance
                                            && risposta.DataTrasmissione <= endDate)
                         .Select(risposta => risposta.UIDAtto)
                         .Distinct()
-                        .ToList();
+                        .AsQueryable();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1726,7 +1654,7 @@ namespace PortaleRegione.Persistance
                             singleDate.Date == risposta.DataTrasmissione.Value.Date)
                         .Select(risposta => risposta.UIDAtto)
                         .Distinct()
-                        .ToList();
+                        .AsQueryable();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1739,7 +1667,7 @@ namespace PortaleRegione.Persistance
                     .Where(risposta => risposta.DataTrasmissione == null)
                     .Select(risposta => risposta.UIDAtto)
                     .Distinct()
-                    .ToList();
+                    .AsQueryable();
 
                 query = query
                     .Where(atto => risposteTrasmesseNulleQuery.Contains(atto.UIDAtto));
@@ -1757,7 +1685,7 @@ namespace PortaleRegione.Persistance
                                            && risposta.DataTrattazione <= endDate)
                         .Select(risposta => risposta.UIDAtto)
                         .Distinct()
-                        .ToList();
+                        .AsQueryable();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1771,7 +1699,7 @@ namespace PortaleRegione.Persistance
                             singleDate.Date == risposta.DataTrattazione.Value.Date)
                         .Select(risposta => risposta.UIDAtto)
                         .Distinct()
-                        .ToList();
+                        .AsQueryable();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));

@@ -107,6 +107,7 @@ namespace PortaleRegione.Contracts
         void AggiungiNota(ATTI_NOTE notaInDb);
         void AggiungiDocumento(ATTI_DOCUMENTI doc);
         Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid);
+        Task<List<ATTI_DOCUMENTI>> GetDocumento(Guid UIdAtto, TipoDocumentoEnum tipoDocumento);
         void RimuoviDocumento(ATTI_DOCUMENTI doc);
         Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva);
         Task<Guid> GetByQR(Guid id);
