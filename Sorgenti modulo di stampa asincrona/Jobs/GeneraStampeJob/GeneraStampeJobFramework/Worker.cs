@@ -599,18 +599,24 @@ namespace GeneraStampeJobFramework
         {
             var em = listaEMendamenti.First();
             var emInDb = await _unitOfWork.Emendamenti.Get(em.Key);
+            var nEM = "";
             if (emInDb.Rif_UIDEM.HasValue)
             {
                 var emInDbRif = await _unitOfWork.Emendamenti.Get(emInDb.Rif_UIDEM.Value);
-                GetNomeEM(emInDb, emInDbRif);
+                nEM = GetNomeEM(emInDb, emInDbRif);
             }
             else
             {
-                GetNomeEM(emInDb, null);
+                nEM = GetNomeEM(emInDb, null);
+            }
+
+            if (nEM.Contains("Valore Corrotto"))
+            {
+                throw new Exception("Errore valore corrotto");
             }
 
             var nameFilePDF =
-                $"{emInDb.N_EM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                $"{nEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
 
             var content = await _stamper.CreaPDFInMemory(em.Value, nameFilePDF);
 
@@ -756,38 +762,39 @@ namespace GeneraStampeJobFramework
             return new Dictionary<Guid, string>();
         }
 
-        private void GetNomeEM(EM emendamento, EM riferimento)
+        private string GetNomeEM(EM emendamento, EM riferimento)
         {
             try
             {
+                var riferimentoText = "";
                 if (riferimento != null)
                 {
                     if (!string.IsNullOrEmpty(riferimento.N_EM))
-                        riferimento.N_EM = "EM " + BALHelper.DecryptString(riferimento.N_EM, _model.masterKey);
+                        riferimentoText = "EM " + BALHelper.DecryptString(riferimento.N_EM, _model.masterKey);
                     else
-                        riferimento.N_EM = "TEMP " + riferimento.Progressivo;
+                        riferimentoText = "TEMP " + riferimento.Progressivo;
                 }
 
                 if (emendamento.Rif_UIDEM.HasValue)
                 {
                     //SUB EMENDAMENTO
-
+                    var subRes = "";
                     if (!string.IsNullOrEmpty(emendamento.N_SUBEM))
-                        emendamento.N_EM = "SUBEM " +
+                        subRes = "SUBEM " +
                                            BALHelper.DecryptString(emendamento.N_SUBEM, _model.masterKey);
                     else
-                        emendamento.N_EM = "SUBEM TEMP " + emendamento.SubProgressivo;
+                        subRes = "SUBEM TEMP " + emendamento.SubProgressivo;
 
-                    emendamento.N_EM += $" all' {riferimento.N_EM}";
+                    subRes += $" all' {riferimentoText}";
+
+                    return subRes;
                 }
-                else
-                {
-                    if (!string.IsNullOrEmpty(emendamento.N_EM))
-                        emendamento.N_EM = "EM " +
-                                           BALHelper.DecryptString(emendamento.N_EM, _model.masterKey);
-                    else
-                        emendamento.N_EM = "TEMP " + emendamento.Progressivo;
-                }
+
+                if (!string.IsNullOrEmpty(emendamento.N_EM))
+                    return "EM " +
+                           BALHelper.DecryptString(emendamento.N_EM, _model.masterKey);
+                
+                return "TEMP " + emendamento.Progressivo;
             }
             catch (Exception e)
             {
