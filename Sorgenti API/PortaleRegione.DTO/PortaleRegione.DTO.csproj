@@ -193,6 +193,7 @@
     <Compile Include="Domain\TagDto.cs" />
     <Compile Include="Model\TestoAttoModel.cs" />
     <Compile Include="Request\BaseRequest.cs" />
+    <Compile Include="Request\CercaAttiGeaRequest.cs" />
     <Compile Include="Request\DatiInlineRequest.cs" />
     <Compile Include="Request\DatiMassiviRequest.cs" />
     <Compile Include="Request\NuovaStampaRequest.cs" />

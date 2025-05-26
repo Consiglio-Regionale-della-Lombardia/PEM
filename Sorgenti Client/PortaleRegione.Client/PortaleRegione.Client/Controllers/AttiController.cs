@@ -25,6 +25,7 @@ using PortaleRegione.Gateway;
 using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
 
 namespace PortaleRegione.Client.Controllers
@@ -514,9 +515,26 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
-        public ActionResult CercaAttiGea()
+      /// <summary>
+      ///   Endpoint di integrazione per cercari gli atti in GEA
+      /// </summary>
+      /// <param name="request"></param>
+      /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("cerca-atti-gea")]
+        [HttpPost]
+        public async Task<ActionResult> CercaAttiGea(CercaAttiGeaRequest request)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                return Json(await apiGateway.Atti.CercaAttiGea(request), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }

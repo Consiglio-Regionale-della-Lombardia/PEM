@@ -1,5 +1,4 @@
-﻿@using PortaleRegione.DTO.Domain
-@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.Client.Models.AttiViewModel
 
 @{
@@ -24,12 +23,15 @@
         </h4>
     </div>
     <div class="col s5 right-align">
-        <button type="button"
-                id="btnImportaDatiGEA"
-                class="btn-flat blue-text waves-effect waves-green"
-                onclick="$('#modalRicercaGEA').modal('open');">
-            Importa Dati GEA
-        </button>
+        @if (isNew)
+        {
+            <button type="button"
+                    id="btnImportaDatiGEA"
+                    class="btn-flat blue-text waves-effect waves-green"
+                    onclick="$('#modalRicercaGEA').modal('open');">
+                Importa Dati GEA
+            </button>    
+        }
     </div>
 </div>
 @if (!isNew)
@@ -267,16 +269,25 @@
 <script>
     
     async function CercaDatiGEA(){
-        // Controllare che il tipo documento abbai un valore valido, altrimenti rilanciare l'eccezione
-        var tipoValue = document.querySelector('.select[id="listaTipiAttoPerGEA"]');
+        // Recupera il tipo atto selezionato
+        var tipoSelect = document.getElementById("listaTipiAttoPerGEA");
+        var tipoValue = tipoSelect ? tipoSelect.value : null;
         if (!tipoValue) {
             ErrorAlert("Per favore, selezionare il tipo di atto da cercare in GEA.");
-            @*swal("Attenzione!", "Per favore, selezionare il tipo di atto da cercare in GEA.", "warning");*@            
             return;
         }
+
+        // Recupera i valori inseriti per numero atto e oggetto
+        var numeroAtto = document.getElementById("txtRicercaGEA_NumeroAtto").value.trim();
+        var oggetto = document.getElementById("txtRicercaGEA_Oggetto").value.trim();
+
+        // Costruisci l'oggetto della richiesta con i parametri
+        var request = {
+            tipoAtto: tipoValue,
+            numeroAtto: numeroAtto,
+            oggetto: oggetto
+        };
         
-        // Inviare la richiesta all'api
-        var request = {};
         const response = await fetch('@Url.Action("CercaAttiGEA")',
             {
                 method: 'POST',
@@ -295,14 +306,38 @@
             ErrorAlert(responseData.message);
             return;
         }
-        
-        // Visualizzare i risultati di ricerca come collection
-        @*<ul class="collection">
-            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
-            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
-            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
-            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
-        </ul>*@
+
+        const resultsContainer = document.getElementById("listaRisultatiRicercaGEA");
+        resultsContainer.innerHTML = ""; // Pulisce i risultati precedenti
+
+        if (!responseData || responseData.length === 0) {
+            resultsContainer.innerHTML = "<p>Nessun risultato trovato.</p>";
+            return;
+        }
+
+        // Creo la collection (ul con classe collection di Materialize)
+        var ul = document.createElement("ul");
+        ul.classList.add("collection");
+
+        responseData.forEach(item => {
+            var li = document.createElement("li");
+            li.classList.add("collection-item");
+
+            li.innerHTML = `
+                <div>
+                    <strong>Tipo:</strong> ${item.tipoAtto} <br/>
+                    <strong>Numero Atto:</strong> ${item.numeroAtto} <br/>
+                    <strong>Oggetto:</strong> ${item.oggetto} <br/>
+                    <a href="#!" class="secondary-content" onclick="">
+                        <i class="material-icons">send</i>
+                    </a>
+                </div>
+            `;
+            ul.appendChild(li);
+        });
+
+        // Inserisco la collection dentro il div
+        resultsContainer.appendChild(ul);
     }
     
 </script>
