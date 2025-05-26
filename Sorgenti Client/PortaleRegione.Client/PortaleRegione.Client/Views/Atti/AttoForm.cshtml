@@ -9,7 +9,7 @@
     Html.RenderPartial("_AttoFormScript", Model);
 
 }
-<div class="row">
+<div class="row valign-wrapper">
     <div class="col s1">
         <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})">
             <i class="material-icons">arrow_back</i>
@@ -22,6 +22,14 @@
                 <input id="hfMode" type="hidden" value="edit"/>
             </b>
         </h4>
+    </div>
+    <div class="col s5 right-align">
+        <button type="button"
+                id="btnImportaDatiGEA"
+                class="btn-flat blue-text waves-effect waves-green"
+                onclick="$('#modalRicercaGEA').modal('open');">
+            Importa Dati GEA
+        </button>
     </div>
 </div>
 @if (!isNew)
@@ -52,7 +60,7 @@
     <div class="col s12">
 
         @using (Html.BeginForm("SalvaAtto", "Atti", FormMethod.Post, new
-        { enctype = "multipart/form-data", id = "formAtto" }))
+                    { enctype = "multipart/form-data", id = "formAtto" }))
         {
             @Html.AntiForgeryToken()
 
@@ -210,39 +218,91 @@
     </div>
 </div>
 
+<div id="modalRicercaGEA" class="modal">
+    <div class="modal-content">
+        <h4>Ricerca</h4>
+        
+        <div class="row">
+            <div class="input-field col s6">
+                @*TIPO ATTO*@
+                <select id="listaTipiAttoPerGEA">
+                    <option value="" selected="selected">Seleziona</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PDL)">@Html.Raw(TipoAttoEnum.PDL)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PDA)">@Html.Raw(TipoAttoEnum.PDA)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.DOC)">@Html.Raw(TipoAttoEnum.DOC)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.ORG)">@Html.Raw(TipoAttoEnum.ORG)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PDN)">@Html.Raw(TipoAttoEnum.PDN)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PLP)">@Html.Raw(TipoAttoEnum.PLP)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PRE)">@Html.Raw(TipoAttoEnum.PRE)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.REF)">@Html.Raw(TipoAttoEnum.REF)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.REL)">@Html.Raw(TipoAttoEnum.REL)</option>
+                </select>
+                <label>Tipo Atto: </label>
+            </div>
+            <div class="input-field col s6">
+                <label class="active">Numero Atto: </label>
+                <input id="txtRicercaGEA_NumeroAtto"/>
+            </div>
+            <div class="input-field col s12">
+                <label class="active">Oggetto: </label>
+                <input id="txtRicercaGEA_Oggetto"/>
+            </div>
+            <div class="col s12">
+                <button type="button"
+                        id="btnRicercaDatiGEA"
+                        class="btn-flat blue-text waves-effect waves-green"
+                        onclick="CercaDatiGEA();">
+                    Cerca
+                </button>
+            </div>
+        </div>
+        <div id="listaRisultatiRicercaGEA"></div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-close btn-flat grey-text">Chiudi</button>
+        @*<button id="btnDatiGEA_Import" class="btn-flat blue-text">Importa</button>*@
+    </div>
+</div>
 
 <script>
-
-    function spostaAtto(uidAtto) {
-        var seduta = $('select[id="selectSpostaAtto"]').children("option:selected").val();
-
-        if (!seduta) {
+    
+    async function CercaDatiGEA(){
+        // Controllare che il tipo documento abbai un valore valido, altrimenti rilanciare l'eccezione
+        var tipoValue = document.querySelector('.select[id="listaTipiAttoPerGEA"]');
+        if (!tipoValue) {
+            ErrorAlert("Per favore, selezionare il tipo di atto da cercare in GEA.");
+            @*swal("Attenzione!", "Per favore, selezionare il tipo di atto da cercare in GEA.", "warning");*@            
             return;
         }
+        
+        // Inviare la richiesta all'api
+        var request = {};
+        const response = await fetch('@Url.Action("CercaAttiGEA")',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(request)
+            });
 
-        var url = baseUrl + '@Url.Action("SpostaInAltraSeduta", "Atti")?uidAtto=' + uidAtto + '&uidSeduta=' + seduta;
-        console.log("URL", url);
-        waiting(true);
-        $.ajax({
-            url: url,
-            type: "GET"
-        }).done(function(data) {
-            console.log(data);
-            if (data.message) {
-                waiting(false);
-                swal({
-                    title: "Errore",
-                    text: data.message,
-                    icon: "error"
-                });
-            } else {
-                go(data);
-            }
-        }).fail(function(err) {
-            waiting(false);
-            console.log("error", err);
-            Error(err);
-        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        var responseData = await response.json();
+        if (responseData.message) {
+            ErrorAlert(responseData.message);
+            return;
+        }
+        
+        // Visualizzare i risultati di ricerca come collection
+        @*<ul class="collection">
+            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
+            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
+            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
+            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
+        </ul>*@
     }
-
+    
 </script>

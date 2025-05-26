@@ -200,7 +200,36 @@
         });
     });
 
-    
+    function spostaAtto(uidAtto) {
+        var seduta = $('select[id="selectSpostaAtto"]').children("option:selected").val();
 
+        if (!seduta) {
+            return;
+        }
+
+        var url = baseUrl + '@Url.Action("SpostaInAltraSeduta", "Atti")?uidAtto=' + uidAtto + '&uidSeduta=' + seduta;
+        console.log("URL", url);
+        waiting(true);
+        $.ajax({
+            url: url,
+            type: "GET"
+        }).done(function(data) {
+            console.log(data);
+            if (data.message) {
+                waiting(false);
+                swal({
+                    title: "Errore",
+                    text: data.message,
+                    icon: "error"
+                });
+            } else {
+                go(data);
+            }
+        }).fail(function(err) {
+            waiting(false);
+            console.log("error", err);
+            Error(err);
+        });
+    }
     
 </script>

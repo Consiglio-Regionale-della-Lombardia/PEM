@@ -513,5 +513,10 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        public ActionResult CercaAttiGea()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
