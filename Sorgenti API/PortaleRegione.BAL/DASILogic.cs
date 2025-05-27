@@ -3979,15 +3979,16 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task DeclassaMozione(List<string> data)
+        public async Task DeclassaMozione(List<string> data, PersonaDto currentUser)
         {
             foreach (var moz_id in data)
             {
                 var moz = await Get(new Guid(moz_id));
 
-                if (moz.DataIscrizioneSeduta.HasValue)
-                    throw new Exception(
-                        "ERROR: L'atto è iscritto in seduta. Contatta la segreteria dell'assemblea per modificare l'atto.");
+                if (!currentUser.IsSegreteriaAssemblea)
+                    if (moz.DataIscrizioneSeduta.HasValue)
+                        throw new Exception(
+                            "ERROR: L'atto è iscritto in seduta. Contatta la segreteria dell'assemblea per modificare l'atto.");
 
                 if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA) moz.UID_MOZ_Abbinata = null;
                 moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;

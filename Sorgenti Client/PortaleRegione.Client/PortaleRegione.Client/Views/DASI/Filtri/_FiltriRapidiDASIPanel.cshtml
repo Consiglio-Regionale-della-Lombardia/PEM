@@ -885,6 +885,8 @@
             if(result.Tipo == @Html.Raw((int)TipoAttoEnum.MOZ) && result.TipoMOZ == @Html.Raw((int)TipoMOZEnum.URGENTE)){
                 iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Mozione urgente" aria-label="Mozione urgente">priority_high</i>`;
             }
+            
+            console.log("atto", result)
 
             const row = document.createElement('tr');
             const tdCheckBoxValue = document.createElement('td');
