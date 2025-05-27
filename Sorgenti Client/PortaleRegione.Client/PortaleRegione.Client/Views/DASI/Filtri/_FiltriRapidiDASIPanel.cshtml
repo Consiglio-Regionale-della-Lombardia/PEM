@@ -881,6 +881,10 @@
             if (result.Privacy == true || result.Privacy_Divieto_Pubblicazione) {
                 iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Modificato per privacy" aria-label="Modificato per privacy">lock</i>`;
             }
+            
+            if(result.Tipo == @Html.Raw((int)TipoAttoEnum.MOZ) && result.TipoMOZ == @Html.Raw((int)TipoMOZEnum.URGENTE)){
+                iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Mozione urgente" aria-label="Mozione urgente">priority_high</i>`;
+            }
 
             const row = document.createElement('tr');
             const tdCheckBoxValue = document.createElement('td');
@@ -893,7 +897,7 @@
 </p>`;
             row.appendChild(tdCheckBoxValue);
             const tdDisplayValue = document.createElement('td');
-            tdDisplayValue.style.width = '10%';
+            tdDisplayValue.style.width = '180px';
             tdDisplayValue.innerHTML = `<button type="button" role="button" class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')" data-text='${result.Display}' data-id='${result.UIDAtto}'>${result.Display}${iconChipAggiuntiva}</button>`;
             row.appendChild(tdDisplayValue);
 
