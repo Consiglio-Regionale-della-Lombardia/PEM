@@ -82,5 +82,9 @@ namespace PortaleRegione.BAL
         public static int MassimoODG => Convert.ToInt16(ConfigurationManager.AppSettings["MassimoODG"]);
         public static int MassimoODG_DuranteSeduta => Convert.ToInt16(ConfigurationManager.AppSettings["MassimoODG_DuranteSeduta"]);
         public static int MassimoODG_Jolly => Convert.ToInt16(ConfigurationManager.AppSettings["MassimoODG_Jolly"]);
+        
+        /*INTEGRAZIONE GEA*/
+        public static string GEA_Username => ConfigurationManager.AppSettings["GEA_Username"];
+        public static string GEA_Password => ConfigurationManager.AppSettings["GEA_Password"];
     }
 }

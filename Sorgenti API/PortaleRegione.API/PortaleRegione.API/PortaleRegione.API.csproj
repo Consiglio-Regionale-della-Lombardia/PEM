@@ -302,6 +302,10 @@
       <Project>{C13E361D-1C00-4ACE-989D-F2C00AB4F590}</Project>
       <Name>PortaleRegione.Persistance</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\PortaleRegione.SDK.GEA\PortaleRegione.SDK.GEA.csproj">
+      <Project>{3e76daec-94e6-44f9-a667-e9db68cd9200}</Project>
+      <Name>PortaleRegione.SDK.GEA</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

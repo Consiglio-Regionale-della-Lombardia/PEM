@@ -520,7 +520,6 @@ namespace PortaleRegione.Client.Controllers
       /// </summary>
       /// <param name="request"></param>
       /// <returns></returns>
-        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("cerca-atti-gea")]
         [HttpPost]
         public async Task<ActionResult> CercaAttiGea(CercaAttiGeaRequest request)
