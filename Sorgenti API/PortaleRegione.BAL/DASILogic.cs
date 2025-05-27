@@ -1514,11 +1514,7 @@ namespace PortaleRegione.API.Controllers
 
                     if (sedutaInDb != null)
                     {
-                        if (columns.Contains(nameof(AttiDASIColums.UIDSeduta)))
-                        {
-                            dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
-                        }
-
+                        dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
                         var presentato_oltre_termini = IsOutdate(dto);
                         dto.PresentatoOltreITermini = presentato_oltre_termini;
                     }
