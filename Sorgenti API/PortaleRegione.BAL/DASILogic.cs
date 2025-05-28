@@ -1548,17 +1548,17 @@ namespace PortaleRegione.API.Controllers
                 else if (dto.IsODG() && dto.Abbinamenti.Any())
                 {
                     var primoAbbinamentoUid = dto.Abbinamenti.First().UidAttoAbbinato;
-                    var primoAbbinamento = await _unitOfWork.Atti.Get(primoAbbinamentoUid);
-                    if (primoAbbinamento.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
+                    var primoAbbinamento = await _unitOfWork.Atti.GetAbbinamento(primoAbbinamentoUid);
+                    if (primoAbbinamento.TipoAttoAbbinato.Equals(Utility.GetText_Tipo((int)TipoAttoEnum.ALTRO)))
                     {
-                        dto.ODG_Atto_PEM = $"{primoAbbinamento.NAtto}";
+                        dto.ODG_Atto_PEM = $"{primoAbbinamento.NumeroAttoAbbinato}";
                     }
                     else
                     {
-                        dto.ODG_Atto_PEM = $"{Utility.GetText_Tipo(primoAbbinamento.IDTipoAtto)} {primoAbbinamento.NAtto}";
+                        dto.ODG_Atto_PEM = $"{primoAbbinamento.TipoAttoAbbinato} {primoAbbinamento.NumeroAttoAbbinato}";
                     }
                     
-                    dto.ODG_Atto_Oggetto_PEM = primoAbbinamento.Oggetto;
+                    dto.ODG_Atto_Oggetto_PEM = primoAbbinamento.OggettoAttoAbbinato;
                 }
 
                 dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);

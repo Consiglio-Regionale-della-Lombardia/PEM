@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.Common;
 
 namespace PortaleRegione.Persistance
 {
@@ -232,6 +233,17 @@ namespace PortaleRegione.Persistance
             }
 
             return result;
+        }
+
+        public async Task<AttiAbbinamentoDto> GetAbbinamento(Guid attoUId)
+        {
+            var atto = await PRContext.VIEW_ATTI.FirstAsync(a => a.UIDAtto.Equals(attoUId));
+            return new AttiAbbinamentoDto
+            {
+                OggettoAttoAbbinato = atto.Oggetto,
+                NumeroAttoAbbinato = atto.NAtto,
+                TipoAttoAbbinato = Utility.GetText_Tipo(atto.Tipo)
+            };
         }
     }
 }
