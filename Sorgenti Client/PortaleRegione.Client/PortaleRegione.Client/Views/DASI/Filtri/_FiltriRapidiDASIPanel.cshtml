@@ -2458,10 +2458,12 @@
                 document.getElementById('dynamic-select-container').innerHTML = selectHTML;
                 var data = [];
                 organi.forEach(function(item) {
-                    data.push({
-                        tag: `${item.nome_organo}`,
-                        id: `${item.id_organo}`
-                    });
+                    if (item.tipo_organo == @Html.Raw((int)TipoOrganoEnum.COMMISSIONE)){
+                        data.push({
+                            tag: `${item.nome_organo}`,
+                            id: `${item.id_organo}`
+                        });
+                    }
                 });
                 var elems = document.querySelectorAll('#organi-autocomplete');
                 var instances = M.Autocomplete.init(elems,
@@ -2556,11 +2558,14 @@
                 document.getElementById('dynamic-select-container').innerHTML = selectHTML;
                 var data = [];
                 organi.forEach(function(item) {
-                    data.push({
-                        tag: `${item.nome_organo}`,
-                        id: `${item.id_organo}`
-                    });
+                    if (item.tipo_organo == @Html.Raw((int)TipoOrganoEnum.GIUNTA)){
+                        data.push({
+                            tag: `${item.nome_organo}`,
+                            id: `${item.id_organo}`
+                        });
+                    }
                 });
+                
                 var elems = document.querySelectorAll('#organi-autocomplete');
                 var instances = M.Autocomplete.init(elems,
                     {
