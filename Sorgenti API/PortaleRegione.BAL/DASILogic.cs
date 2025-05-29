@@ -5399,10 +5399,19 @@ namespace PortaleRegione.API.Controllers
                     _unitOfWork.DASI.RimuoviDocumento(documento);
                 }
             }
-            
-            // #1031
-            request.Nome = Utility.GetNomeDocumentoStandard(request.Tipo);
 
+            if (request.Tipo.Equals((int)TipoDocumentoEnum.AGGIUNTIVO))
+            {
+                // #1385
+                var nomePulito = Utility.CleanFileName(request.Nome);
+                request.Nome = nomePulito;
+            }
+            else
+            {
+                // #1031
+                request.Nome = Utility.GetNomeDocumentoStandard(request.Tipo);    
+            }
+            
             // #1390
             var legislatura_atto = await _unitOfWork.Legislature.Get(atto.Legislatura);
             var dir = $"{legislatura_atto.num_legislatura}/{Utility.GetText_Tipo(atto.Tipo)}";

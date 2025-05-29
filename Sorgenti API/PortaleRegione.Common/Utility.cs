@@ -986,19 +986,20 @@ namespace PortaleRegione.Common
                 return string.Empty;
 
             // Rimuove i commenti condizionali di Word (<!--[if gte mso 9]><xml>...</xml><![endif]-->)
-            string withoutComments = Regex.Replace(input, @"<!--\[if.*?\]\>.*?<!\[endif\]-->", string.Empty, RegexOptions.Singleline);
+            var withoutComments = Regex.Replace(input, @"<!--\[if.*?\]\>.*?<!\[endif\]-->", string.Empty,
+                RegexOptions.Singleline);
 
             // Rimuove tutti i tag XML/HTML (inclusi quelli di Word come <w:p>, <w:r>, <o:OfficeDocumentSettings>)
-            string withoutTags = Regex.Replace(withoutComments, "<[^>]+>", string.Empty);
+            var withoutTags = Regex.Replace(withoutComments, "<[^>]+>", string.Empty);
 
             // Rimuove anche eventuali tag incompleti o parole chiave XML che iniziano con "<w:" o "<o:"
-            string cleaned = Regex.Replace(withoutTags, @"<\w+:[^\s>]+.*?", string.Empty);
+            var cleaned = Regex.Replace(withoutTags, @"<\w+:[^\s>]+.*?", string.Empty);
 
             // Decodifica le entità HTML (&nbsp;, &amp;, etc.)
-            string decodedText = HttpUtility.HtmlDecode(cleaned);
+            var decodedText = HttpUtility.HtmlDecode(cleaned);
 
             // Rimuove eventuali caratteri di controllo Unicode invisibili
-            string finalText = Regex.Replace(decodedText, @"[\u200B-\u200D\uFEFF]", string.Empty);
+            var finalText = Regex.Replace(decodedText, @"[\u200B-\u200D\uFEFF]", string.Empty);
 
             // Normalizza gli spazi multipli e rimuove spazi iniziali/finali
             return Regex.Replace(finalText, @"\s+", " ").Trim();
@@ -1018,6 +1019,73 @@ namespace PortaleRegione.Common
             text = RegexPatterSubstitute(text, "<a>", WORD_OPEN_A);
 
             return text;
+        }
+
+        public static string CleanFileName(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return string.Empty;
+
+            // 1. Rimuove caratteri non validi per nome file (secondo Windows)
+            //    Usa la lista dei caratteri invalidi per il filesystem
+            var invalidChars = Path.GetInvalidFileNameChars();
+
+            var sb = new StringBuilder();
+
+            foreach (var ch in fileName)
+            {
+                if (Array.IndexOf(invalidChars, ch) < 0)
+                {
+                    // Permettiamo solo caratteri ASCII stampabili e alcuni altri, altrimenti sostituiamo con _
+                    if (ch >= 32 && ch <= 126)
+                    {
+                        sb.Append(ch);
+                    }
+                    else
+                    {
+                        // sostituisci caratteri non ASCII o di controllo con underscore
+                        sb.Append('_');
+                    }
+                }
+                else
+                {
+                    sb.Append('_');
+                }
+            }
+
+            var cleaned = sb.ToString();
+
+            // 2. Ulteriore pulizia: rimuovi spazi all'inizio e alla fine e caratteri problematici nei link, come &, %, ?, #
+            cleaned = cleaned.Trim();
+
+            // 3. Rimuovo o sostituisco caratteri potenzialmente problematici per URL o sistemi vari
+            //    (opzionale: se vuoi solo ASCII lettere, numeri, trattini, underscore e punto)
+            cleaned = Regex.Replace(cleaned, @"[^a-zA-Z0-9\-\._]", "_");
+
+            // 4. Eventualmente limita la lunghezza a 100 caratteri (per sicurezza)
+            if (cleaned.Length > 100)
+            {
+                cleaned = cleaned.Substring(0, 100);
+            }
+
+            // 5. Evita nomi riservati come CON, PRN, AUX, NUL, ecc. (Windows)
+            var reservedNames = new string[]
+            {
+                "CON", "PRN", "AUX", "NUL",
+                "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+                "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+            };
+
+            foreach (var reserved in reservedNames)
+            {
+                if (string.Equals(cleaned, reserved, StringComparison.OrdinalIgnoreCase))
+                {
+                    cleaned = "_" + cleaned + "_";
+                    break;
+                }
+            }
+
+            return cleaned;
         }
 
         public static string GetDisplayName(Type objectType, string propertyName)
@@ -1193,7 +1261,7 @@ namespace PortaleRegione.Common
                             result.Add(new FilterStatement<AttoDASIDto>
                             {
                                 PropertyId = filterItem.property,
-                                Operation = Operation.IsNullOrWhiteSpace, 
+                                Operation = Operation.IsNullOrWhiteSpace,
                                 Connector = FilterStatementConnector.And
                             });
                         }
@@ -1272,7 +1340,7 @@ namespace PortaleRegione.Common
                 }
                 else
                 {
-                    if (IsDateProperty(filterItem.property) 
+                    if (IsDateProperty(filterItem.property)
                         && !Guid.TryParse(filterItem.value, out var resGuid))
                     {
                         result.Add(new FilterStatement<AttoDASIDto>
@@ -1328,23 +1396,27 @@ namespace PortaleRegione.Common
             {
                 // Definisci una cultura specifica per il parsing (italiano)
                 var italianCulture = new CultureInfo("it-IT");
-                string[] supportedFormats = {
+                string[] supportedFormats =
+                {
                     "yyyy-MM-dd HH:mm:ss", // Formato ISO senza "T"
                     "yyyy-MM-ddTHH:mm:ss", // Formato ISO con "T"
-                    "dd/MM/yyyy HH:mm:ss", // Formato italiano standard
+                    "dd/MM/yyyy HH:mm:ss" // Formato italiano standard
                 };
-                
+
                 if (dateTime.Contains("T"))
                 {
                     // Parsing con il formato italiano
                     try
                     {
-                        var dateT = DateTime.ParseExact(dateTime.Substring(0, 19).Replace("T", " "), supportedFormats, italianCulture, DateTimeStyles.None);
+                        var dateT = DateTime.ParseExact(dateTime.Substring(0, 19).Replace("T", " "), supportedFormats,
+                            italianCulture, DateTimeStyles.None);
                         return dateT;
                     }
                     catch (Exception e)
                     {
-                        throw new Exception($"Data in errore: {dateTime}, modificata in {dateTime.Substring(0, 19).Replace("T", " ")}", e);
+                        throw new Exception(
+                            $"Data in errore: {dateTime}, modificata in {dateTime.Substring(0, 19).Replace("T", " ")}",
+                            e);
                     }
                 }
 
