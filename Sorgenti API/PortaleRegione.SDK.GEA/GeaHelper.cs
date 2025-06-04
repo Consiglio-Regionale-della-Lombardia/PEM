@@ -21,6 +21,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using Newtonsoft.Json;
+using PortaleRegione.DTO.Request;
 using PortaleRegione.SDK.GEA.Contracts;
 
 namespace PortaleRegione.SDK.GEA
@@ -37,15 +40,39 @@ namespace PortaleRegione.SDK.GEA
             var response = await httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode();
             var responseData = await response.Content.ReadAsStringAsync();
-            // Analizza la risposta per estrarre il token
-            // Ritorna il token ottenuto
-            return responseData;
+            // Carico l’XML in un XDocument
+            var doc = XDocument.Parse(responseData);
+            var ticketValue = doc.Root?.Value;
+            return ticketValue ?? string.Empty;
         }
  
-        public async Task<object[]> RicercaAtti(string tipoAtto, string legislatura, string numeroAtto)
+        public async Task<object[]> RicercaAtti(string token, CercaAttiGeaRequest request)
         {
-            /*return await _geaApiService.RicercaAttiAsync(tipoAtto, legislatura, numeroAtto);*/
-            return null;
+            try
+            {
+                using var httpClient = new HttpClient();
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Basic", token);
+            
+                var endpoint = $"http://10.177.4.12:8082/alfresco/s/crl/atto/ricerca/avanzata";
+                var jsonRequest = JsonConvert.SerializeObject(request);
+                var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync(endpoint, content);
+                response.EnsureSuccessStatusCode();
+
+                // Leggo la risposta come stringa JSON
+                var responseData = await response.Content.ReadAsStringAsync();
+            
+                var result = JsonConvert.DeserializeObject<object[]>(responseData);
+                return result ?? Array.Empty<object>();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

@@ -34,17 +34,30 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+          <HintPath>..\PortaleRegione.API\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>
         <Reference Include="System.Net.Http" />
         <Reference Include="System.Xml"/>
+        <Reference Include="System.Xml.Linq" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="GeaHelper.cs" />
         <Compile Include="Contracts\IGeaApiService.cs" />
         <Compile Include="Persistance\GeaApiService.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\PortaleRegione.DTO\PortaleRegione.DTO.csproj">
+        <Project>{a7ada419-a178-40da-85cc-63f6875e5793}</Project>
+        <Name>PortaleRegione.DTO</Name>
+      </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="packages.config" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

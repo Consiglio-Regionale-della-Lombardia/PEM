@@ -23,4 +23,5 @@ public class CercaAttiGeaRequest
     public string tipoAtto { get; set; }
     public string numeroAtto { get; set; }
     public string oggetto { get; set; }
+    public string legislatura { get; set; }
 }
