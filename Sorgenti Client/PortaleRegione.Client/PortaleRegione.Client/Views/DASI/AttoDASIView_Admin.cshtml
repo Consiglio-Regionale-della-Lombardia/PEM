@@ -321,6 +321,22 @@
         <div class="card">
             <div class="card-content">
                 <div class="row">
+                    @if (atto.IsMOZ() && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE && !string.IsNullOrEmpty(atto.DataPresentazione_MOZ_URGENTE))
+                    {
+                        <div class="col s12 m12 l12">
+                            <label>Richiesta di mozione urgente effettuata il </label>
+                            <span>
+                                <b>@atto.DataPresentazione_MOZ_URGENTE</b>
+                            </span>
+                            
+                            @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                            {
+                                <button type="button" role="button" class="btn-flat red-text" onclick="DeclassaMozione('@atto.UIDAtto', '@atto.Display', 1)">
+                                    Rimuovi urgenza
+                                </button>
+                            }
+                        </div>
+                    }
                     <div class="input-field col s12 m12 l6">
                         <select id="Atto_Stato">
                             <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)" @Html.Raw(Model.Atto.IDStato == (int)StatiAttoEnum.PRESENTATO ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
@@ -2523,6 +2539,53 @@
                     }
                 });
             });
+    }
+
+    function DeclassaMozione(uidAtto, nome, tipo) {
+        var nome_atto = nome;
+        var azione = "l'urgenza";
+        if (tipo == 2) {
+            azione ="l'abbinamento";
+        }
+        swal("Verrà rimosso dall'atto " + nome_atto + " " + azione + ". Sei sicuro?",
+            {
+                buttons: {
+                    cancel: "Annulla",
+                    confirm: {
+                        className: "red white-text",
+                        title: "Rimuovi urgenza/abbinamento",
+                        value: true
+                    }
+                }
+            }).then((value) => {
+            if (value == true) {
+                var url = '@Url.Action("DeclassaMozione", "DASI")';
+                var mozs = [];
+                mozs.push(uidAtto);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: JSON.stringify(mozs),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    if (data.message) {
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
+                    }else
+                    {
+                        location.reload();
+                    }
+
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            }
+        });
     }
 
 </script>

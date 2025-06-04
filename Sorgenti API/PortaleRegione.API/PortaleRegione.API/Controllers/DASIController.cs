@@ -1514,7 +1514,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.DeclassaMozione(data);
+                await _dasiLogic.DeclassaMozione(data, CurrentUser);
                 return Ok();
             }
             catch (Exception e)

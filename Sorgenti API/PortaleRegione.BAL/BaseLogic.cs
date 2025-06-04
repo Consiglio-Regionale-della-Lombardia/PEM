@@ -692,6 +692,12 @@ namespace PortaleRegione.BAL
             {
                 firmeDtos.AddRange(atto.FirmePost);
             }
+            
+            firmeDtos = firmeDtos.OrderBy(f => f.Timestamp.Year)
+                .ThenBy(f => f.Timestamp.Month)
+                .ThenBy(f => f.Timestamp.Day)
+                .ThenBy(f => f.OrdineVisualizzazione)
+                .ToList();
 
             var title = atto.Display;
             if (atto.Non_Passaggio_In_Esame) title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";

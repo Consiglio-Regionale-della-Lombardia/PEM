@@ -83,6 +83,15 @@ namespace PortaleRegione.API.Controllers
             if (attoDto.UIDPersonaProponente == Guid.Empty)
                 throw new InvalidOperationException("Indicare un proponente");
 
+            // #1353 Per le ITR e le ITL con risposta in commissione, il consigliere deve obbligatoriamente indicare la commissione
+            if (attoDto.IDTipo_Risposta.Equals((int)TipoRispostaEnum.COMMISSIONE))
+            {
+                if (string.IsNullOrEmpty(attoDto.Commissioni_client))
+                {
+                    throw new InvalidOperationException("Indicare la commissione");
+                }
+            }
+
             var result = new ATTI_DASI();
             if (attoDto.UIDAtto == Guid.Empty)
             {
@@ -1514,11 +1523,7 @@ namespace PortaleRegione.API.Controllers
 
                     if (sedutaInDb != null)
                     {
-                        if (columns.Contains(nameof(AttiDASIColums.UIDSeduta)))
-                        {
-                            dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
-                        }
-
+                        dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
                         var presentato_oltre_termini = IsOutdate(dto);
                         dto.PresentatoOltreITermini = presentato_oltre_termini;
                     }
@@ -1552,17 +1557,17 @@ namespace PortaleRegione.API.Controllers
                 else if (dto.IsODG() && dto.Abbinamenti.Any())
                 {
                     var primoAbbinamentoUid = dto.Abbinamenti.First().UidAttoAbbinato;
-                    var primoAbbinamento = await _unitOfWork.Atti.Get(primoAbbinamentoUid);
-                    if (primoAbbinamento.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
+                    var primoAbbinamento = await _unitOfWork.Atti.GetAbbinamento(primoAbbinamentoUid);
+                    if (primoAbbinamento.TipoAttoAbbinato.Equals(Utility.GetText_Tipo((int)TipoAttoEnum.ALTRO)))
                     {
-                        dto.ODG_Atto_PEM = $"{primoAbbinamento.NAtto}";
+                        dto.ODG_Atto_PEM = $"{primoAbbinamento.NumeroAttoAbbinato}";
                     }
                     else
                     {
-                        dto.ODG_Atto_PEM = $"{Utility.GetText_Tipo(primoAbbinamento.IDTipoAtto)} {primoAbbinamento.NAtto}";
+                        dto.ODG_Atto_PEM = $"{primoAbbinamento.TipoAttoAbbinato} {primoAbbinamento.NumeroAttoAbbinato}";
                     }
                     
-                    dto.ODG_Atto_Oggetto_PEM = primoAbbinamento.Oggetto;
+                    dto.ODG_Atto_Oggetto_PEM = primoAbbinamento.OggettoAttoAbbinato;
                 }
 
                 dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
@@ -3979,15 +3984,16 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task DeclassaMozione(List<string> data)
+        public async Task DeclassaMozione(List<string> data, PersonaDto currentUser)
         {
             foreach (var moz_id in data)
             {
                 var moz = await Get(new Guid(moz_id));
 
-                if (moz.DataIscrizioneSeduta.HasValue)
-                    throw new Exception(
-                        "ERROR: L'atto è iscritto in seduta. Contatta la segreteria dell'assemblea per modificare l'atto.");
+                if (!currentUser.IsSegreteriaAssemblea)
+                    if (moz.DataIscrizioneSeduta.HasValue)
+                        throw new Exception(
+                            "ERROR: L'atto è iscritto in seduta. Contatta la segreteria dell'assemblea per modificare l'atto.");
 
                 if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA) moz.UID_MOZ_Abbinata = null;
                 moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
@@ -5393,10 +5399,19 @@ namespace PortaleRegione.API.Controllers
                     _unitOfWork.DASI.RimuoviDocumento(documento);
                 }
             }
-            
-            // #1031
-            request.Nome = Utility.GetNomeDocumentoStandard(request.Tipo);
 
+            if (request.Tipo.Equals((int)TipoDocumentoEnum.AGGIUNTIVO))
+            {
+                // #1385
+                var nomePulito = Utility.CleanFileName(request.Nome);
+                request.Nome = nomePulito;
+            }
+            else
+            {
+                // #1031
+                request.Nome = Utility.GetNomeDocumentoStandard(request.Tipo);    
+            }
+            
             // #1390
             var legislatura_atto = await _unitOfWork.Legislature.Get(atto.Legislatura);
             var dir = $"{legislatura_atto.num_legislatura}/{Utility.GetText_Tipo(atto.Tipo)}";
