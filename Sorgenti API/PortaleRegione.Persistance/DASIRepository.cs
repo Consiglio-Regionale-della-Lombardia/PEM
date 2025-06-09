@@ -983,6 +983,7 @@ namespace PortaleRegione.Persistance
             var query = PRContext
                 .View_gruppi_politici_ws
                 .Where(a => a.id_legislatura.Equals(legislaturaId))
+                .Distinct()
                 .Select(a => new GruppiDto()
                 {
                     id_gruppo = a.id_gruppo,
@@ -1006,6 +1007,7 @@ namespace PortaleRegione.Persistance
             var queryCommissioni = PRContext
                 .View_Commissioni_per_legislatura
                 .Where(a => a.id_legislatura.Equals(legislaturaId))
+                .Distinct()
                 .Select(a => new OrganoDto
                 {
                     tipo_organo = TipoOrganoEnum.COMMISSIONE,
@@ -1018,6 +1020,7 @@ namespace PortaleRegione.Persistance
             var queryOrgani = PRContext
                 .View_cariche_assessori_per_legislatura
                 .Where(a => a.id_legislatura.Equals(legislaturaId))
+                .Distinct()
                 .Select(a => new OrganoDto
                 {
                     tipo_organo = TipoOrganoEnum.GIUNTA,
@@ -1027,7 +1030,7 @@ namespace PortaleRegione.Persistance
 
             result.AddRange(await queryOrgani.ToListAsync());
 
-            return result;
+            return result.Distinct().ToList();
         }
 
         public async Task<int> CountByTipo(PersonaDto persona, TipoAttoEnum tipo)
