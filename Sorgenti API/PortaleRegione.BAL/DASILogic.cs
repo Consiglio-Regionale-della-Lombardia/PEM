@@ -1705,7 +1705,7 @@ namespace PortaleRegione.API.Controllers
             return (StatiAttoEnum)Convert.ToInt16(statusFilter.Value);
         }
 
-        public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel firmaModel, PersonaDto persona,
+        public async Task<Dictionary<string, string>> Firma(ComandiAzioneModel firmaModel, PersonaDto persona,
             PinDto pin, bool firmaUfficio = false)
         {
             try
@@ -1713,7 +1713,7 @@ namespace PortaleRegione.API.Controllers
                 if (!persona.IsConsigliereRegionale && !firmaUfficio)
                     throw new Exception("Ruolo non abilitato alla firma di atti");
 
-                var results = new Dictionary<Guid, string>();
+                var results = new Dictionary<string, string>();
                 var counterFirme = 1;
 
                 foreach (var idGuid in firmaModel.Lista)
@@ -1730,8 +1730,8 @@ namespace PortaleRegione.API.Controllers
 
                     if (!firmabile)
                     {
-                        results.Add(idGuid,
-                            $"ERROR: Atto {nome_atto} non è più sottoscrivibile");
+                        results.Add(nome_atto,
+                            "ERROR: Atto non è più sottoscrivibile");
                         continue;
                     }
 
@@ -1759,15 +1759,15 @@ namespace PortaleRegione.API.Controllers
                             if (string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
                                 if (atto.UIDPersonaProponente.Value == persona.UID_persona)
                                 {
-                                    results.Add(idGuid,
-                                        $"ERROR: E' necessario richiedere l'iscrizione dell'atto {nome_atto} in una seduta prima di poterlo firmare.");
+                                    results.Add(nome_atto,
+                                        "ERROR: E' necessario richiedere l'iscrizione dell'atto in una seduta prima di poterlo firmare.");
                                     continue;
                                 }
 
                         //Controllo la firma del proponente
                         if (!atto.Firmato_Dal_Proponente && atto.UIDPersonaProponente.Value != persona.UID_persona)
                         {
-                            results.Add(idGuid, $"ERROR: Il Proponente non ha ancora firmato l'atto {nome_atto}");
+                            results.Add(nome_atto, "ERROR: Il Proponente non ha ancora firmato l'atto.");
                             continue;
                         }
 
@@ -1899,7 +1899,7 @@ namespace PortaleRegione.API.Controllers
                             Log.Error("Invio Mail - Firma", e);
                         }
 
-                    results.Add(idGuid, $"{nome_atto} - {(valida ? "OK" : "?!?")}");
+                    results.Add(nome_atto, $"{(valida ? "OK" : "?!?")}");
                     counterFirme++;
                 }
 
@@ -1912,17 +1912,17 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<Dictionary<Guid, string>> RitiroFirma(ComandiAzioneModel firmaModel,
+        public async Task<Dictionary<string, string>> RitiroFirma(ComandiAzioneModel firmaModel,
             PersonaDto persona)
         {
-            var results = new Dictionary<Guid, string>();
+            var results = new Dictionary<string, string>();
 
             foreach (var idGuid in firmaModel.Lista)
             {
                 var atto = await _unitOfWork.DASI.Get(idGuid);
                 if (atto == null)
                 {
-                    results.Add(idGuid, "ERROR: NON TROVATO");
+                    results.Add("", $"ERROR: Id [{idGuid}] NON TROVATO");
                     continue;
                 }
 
@@ -2128,7 +2128,7 @@ namespace PortaleRegione.API.Controllers
                         AppSettingsConfiguration.masterKey);
 
                 await _unitOfWork.CompleteAsync();
-                results.Add(idGuid, $"{nome_atto} - OK");
+                results.Add(nome_atto, "OK");
 
                 //Matteo Cattapan #525 - Cambio di proponente a seguito di ritiro firma primo firmatario
                 if (atto.UIDPersonaProponente == persona.UID_persona

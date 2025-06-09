@@ -722,12 +722,12 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel firmaModel, PersonaDto persona,
+        public async Task<Dictionary<string, string>> Firma(ComandiAzioneModel firmaModel, PersonaDto persona,
             PinDto pin, bool firmaUfficio = false)
         {
             try
             {
-                var results = new Dictionary<Guid, string>();
+                var results = new Dictionary<string, string>();
                 var counterFirme = 1;
                 var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
@@ -744,7 +744,7 @@ namespace PortaleRegione.BAL
                     var em = await GetEM(idGuid);
                     if (em == null)
                     {
-                        results.Add(idGuid, "ERROR: NON TROVATO");
+                        results.Add("", $"ERROR: Id [{idGuid}] NON TROVATO");
                         continue;
                     }
 
@@ -753,7 +753,7 @@ namespace PortaleRegione.BAL
 
                     if (em.IDStato > (int)StatiEnum.Depositato)
                     {
-                        results.Add(idGuid, $"ERROR: Emendamento {n_em} già votato e non è più sottoscrivibile");
+                        results.Add(n_em, "ERROR: Emendamento già votato e non è più sottoscrivibile.");
                         continue;
                     }
 
@@ -764,7 +764,7 @@ namespace PortaleRegione.BAL
                         //Controllo se l'utente ha già firmato
                         if (emDto.Firma_da_ufficio)
                         {
-                            results.Add(idGuid, $"ERROR: Emendamento {n_em} già firmato dall'ufficio");
+                            results.Add(n_em, $"ERROR: Emendamento già firmato dall'ufficio.");
                             continue;
                         }
 
@@ -779,7 +779,7 @@ namespace PortaleRegione.BAL
                         //Controllo la firma del proponente
                         if (!emDto.Firmato_Dal_Proponente && em.UIDPersonaProponente != persona.UID_persona)
                         {
-                            results.Add(idGuid, $"ERROR: Il Proponente non ha ancora firmato l'emendamento {n_em}");
+                            results.Add(n_em, "ERROR: Il Proponente non ha ancora firmato l'emendamento.");
                             continue;
                         }
 
@@ -791,8 +791,8 @@ namespace PortaleRegione.BAL
 
                             if (check_notifica == null)
                             {
-                                results.Add(idGuid,
-                                    $"ERROR: Emendamento {n_em} non firmabile. Il proponente ha riservato la firma dell’emendamento a un gruppo ristretto.");
+                                results.Add(n_em,
+                                    "ERROR: Emendamento non firmabile. Il proponente ha riservato la firma dell’emendamento a un gruppo ristretto.");
                                 continue;
                             }
                         }
@@ -860,7 +860,7 @@ namespace PortaleRegione.BAL
                         await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(destinatario_notifica,
                             persona.UID_persona);
 
-                    results.Add(idGuid, $"{n_em} - OK");
+                    results.Add(n_em, "OK");
                     counterFirme++;
 
                     await PreCompilaAreaPolitica(em);
@@ -913,12 +913,12 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<Guid, string>> RitiroFirmaEmendamento(ComandiAzioneModel firmaModel,
+        public async Task<Dictionary<string, string>> RitiroFirmaEmendamento(ComandiAzioneModel firmaModel,
             PersonaDto persona)
         {
             try
             {
-                var results = new Dictionary<Guid, string>();
+                var results = new Dictionary<string, string>();
 
                 var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
@@ -932,7 +932,7 @@ namespace PortaleRegione.BAL
                     var em = await GetEM(idGuid);
                     if (em == null)
                     {
-                        results.Add(idGuid, "ERROR: NON TROVATO");
+                        results.Add("", $"ERROR: Id [{idGuid}] NON TROVATO");
                         continue;
                     }
 
@@ -944,7 +944,7 @@ namespace PortaleRegione.BAL
                     {
                         if (DateTime.Now > seduta.Data_seduta)
                         {
-                            results.Add(idGuid,
+                            results.Add(n_em,
                                 "ERROR: Non è possibile ritirare l'ultima firma, in quanto equivale al ritiro dell'emendamento: annuncia in Aula l'intenzione di ritiro della firma");
                             continue;
                         }
@@ -998,7 +998,7 @@ namespace PortaleRegione.BAL
                             });
 
                     await _unitOfWork.CompleteAsync();
-                    results.Add(idGuid, "OK");
+                    results.Add(n_em, "OK");
                     jumpMail = false;
                 }
 
