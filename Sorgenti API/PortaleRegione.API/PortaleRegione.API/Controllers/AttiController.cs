@@ -803,15 +803,13 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var geaHelper = new GeaHelper();
-                var accessTokenGea = await geaHelper.EffettuaLogin(AppSettingsConfiguration.GEA_Username, 
-                    AppSettingsConfiguration.GEA_Password);
                 
-                /*var legislaturaCorrente = await _legislatureLogic.GetLegislatura(await _legislatureLogic.GetLegislaturaAttuale());
-                request.legislatura = legislaturaCorrente.num_legislatura;*/
+                var legislaturaCorrente = await _legislatureLogic.GetLegislatura(await _legislatureLogic.GetLegislaturaAttuale());
+                request.legislatura = legislaturaCorrente.num_legislatura;
                 
-                var attiGea = await geaHelper.RicercaAtti(accessTokenGea, request);
+                var attiGea = await geaHelper.RicercaAtti(request);
                 
-                return Ok(new List<object>().ToArray());
+                return Ok(attiGea);
             }
             catch (Exception e)
             {

@@ -4180,7 +4180,7 @@ namespace PortaleRegione.API.Controllers
 
         private async Task PresentaCartaceo(ATTI_DASI atto, AttoDASIDto dto, PersonaDto persona)
         {
-            // #
+            // #1403
             ATTI attoPEM = null;
             SEDUTE seduta = null;
             var nome_atto = dto.Display;
@@ -4283,7 +4283,7 @@ namespace PortaleRegione.API.Controllers
                         if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
                         {
                             throw new InvalidOperationException(
-                                $"ERROR: {nome_atto} non depositabile. Il proponente non puoò depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                $"ERROR: {nome_atto} non depositabile. Il proponente non può depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                         }
                     }
                 }
@@ -5200,6 +5200,10 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.TipoVotazioneIter))) return atto.DisplayTipoVotazioneIter;
 
             if (propertyName.Equals(nameof(AttoDASIDto.Oggetto))) return atto.OggettoView();
+            
+            // #1367
+            if (propertyName.Equals(nameof(AttoDASIDto.Premesse))) return atto.PremesseView();
+            if (propertyName.Equals(nameof(AttoDASIDto.Richiesta))) return atto.RichiestaView();
 
             if (propertyName.Equals(nameof(AttoDASIDto.UIDPersonaProponente)))
             {

@@ -62,6 +62,6 @@ namespace PortaleRegione.Gateway
 
         Task<List<EmendamentoExtraLightDto>> GetGrigliaOrdinamento(Guid id);
         Task SpostaInAltraSeduta(Guid uidAtto, Guid uidSeduta);
-        Task<object[]> CercaAttiGea(CercaAttiGeaRequest request);
+        Task<string> CercaAttiGea(CercaAttiGeaRequest request);
     }
 }

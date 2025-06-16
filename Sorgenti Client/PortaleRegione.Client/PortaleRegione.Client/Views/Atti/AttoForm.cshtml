@@ -260,10 +260,6 @@
         </div>
         <div id="listaRisultatiRicercaGEA"></div>
     </div>
-    <div class="modal-footer">
-        <button class="modal-close btn-flat grey-text">Chiudi</button>
-        @*<button id="btnDatiGEA_Import" class="btn-flat blue-text">Importa</button>*@
-    </div>
 </div>
 
 <script>
@@ -302,39 +298,70 @@
         }
 
         var responseData = await response.json();
+        console.log("RES", responseData)
         if (responseData.message) {
             ErrorAlert(responseData.message);
             return;
         }
-
+        
+        var jsonObject = JSON.parse(responseData);
+        console.log("RES2", jsonObject)
+        
+        var jsonList = JSON.parse(jsonObject);
+        console.log("RES3", jsonList.List)
+        
         const resultsContainer = document.getElementById("listaRisultatiRicercaGEA");
         resultsContainer.innerHTML = ""; // Pulisce i risultati precedenti
 
-        if (!responseData || responseData.length === 0) {
+        if (!jsonList || jsonList.List.length === 0) {
             resultsContainer.innerHTML = "<p>Nessun risultato trovato.</p>";
             return;
         }
 
         // Creo la collection (ul con classe collection di Materialize)
-        var ul = document.createElement("ul");
+        var ul = document.createElement("div");
         ul.classList.add("collection");
 
-        responseData.forEach(item => {
-            var li = document.createElement("li");
+        jsonList.List.forEach(item => {
+            const atto = item.atto;
+
+            var li = document.createElement("a");
             li.classList.add("collection-item");
 
             li.innerHTML = `
-                <div>
-                    <strong>Tipo:</strong> ${item.tipoAtto} <br/>
-                    <strong>Numero Atto:</strong> ${item.numeroAtto} <br/>
-                    <strong>Oggetto:</strong> ${item.oggetto} <br/>
-                    <a href="#!" class="secondary-content" onclick="">
-                        <i class="material-icons">send</i>
-                    </a>
-                </div>
+                <span>
+                    <strong>Tipo:</strong> ${atto.tipo} <br/>
+                    <strong>Numero Atto:</strong> ${atto.numeroAtto} <br/>
+                    <strong>Oggetto:</strong> ${atto.oggetto} <br/>
+                </span>
             `;
+
+            // AGGIUNGI L'EVENTO ONCLICK
+            li.onclick = function () {
+                const tipoSelect = document.getElementById("Atto_Tipo");
+                const tipoText = atto.tipo.trim().toUpperCase();
+
+                for (let i = 0; i < tipoSelect.options.length; i++) {
+                    if (tipoSelect.options[i].text.trim().toUpperCase() === tipoText) {
+                        tipoSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+                document.getElementById("Atto_NAtto").value = atto.numeroAtto;
+                document.getElementById("Atto_Oggetto").value = atto.oggetto;
+
+                // trigger UI update (Materialize per select e textarea)
+                $('#Atto_Tipo').formSelect();
+                M.textareaAutoResize(document.getElementById("Atto_Oggetto"));
+
+                // chiudi la modale
+                const modal = M.Modal.getInstance(document.getElementById("modalRicercaGEA"));
+                modal.close();
+            };
+            
             ul.appendChild(li);
         });
+
 
         // Inserisco la collection dentro il div
         resultsContainer.appendChild(ul);

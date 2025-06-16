@@ -403,6 +403,20 @@ public class AttoDASIDto
             return Oggetto_Modificato;
         return Oggetto;
     }
+    
+    public string PremesseView()
+    {
+        if (!string.IsNullOrEmpty(Premesse_Modificato))
+            return Premesse_Modificato;
+        return Premesse;
+    }
+    
+    public string RichiestaView()
+    {
+        if (!string.IsNullOrEmpty(Richiesta_Modificata))
+            return Richiesta_Modificata;
+        return Richiesta;
+    }
 
     public string GetLegislatura()
     {

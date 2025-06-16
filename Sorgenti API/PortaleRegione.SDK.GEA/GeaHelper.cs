@@ -30,43 +30,34 @@ namespace PortaleRegione.SDK.GEA
 {
     public class GeaHelper
     {
-        public async Task<string> EffettuaLogin(string username, string password)
-        {
-            using var httpClient = new HttpClient();
-            httpClient.Timeout = TimeSpan.FromMinutes(10);
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var endpoint = $"http://10.177.4.12:8082/alfresco/s/api/login?u={username}&pw={password}";
-            var requestContent = new StringContent($"{{\"username\": \"{username}\", \"password\": \"{password}\"}}", Encoding.UTF8, "application/json");
-            var response = await httpClient.GetAsync(endpoint);
-            response.EnsureSuccessStatusCode();
-            var responseData = await response.Content.ReadAsStringAsync();
-            // Carico l’XML in un XDocument
-            var doc = XDocument.Parse(responseData);
-            var ticketValue = doc.Root?.Value;
-            return ticketValue ?? string.Empty;
-        }
- 
-        public async Task<object[]> RicercaAtti(string token, CercaAttiGeaRequest request)
+        public async Task<string> RicercaAtti(CercaAttiGeaRequest request)
         {
             try
             {
                 using var httpClient = new HttpClient();
                 httpClient.Timeout = TimeSpan.FromMinutes(10);
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var byteArray = Encoding.ASCII.GetBytes("gedasi-gea_read@consiglio.regione.lombardia.it:Consiglio123!!");
+                var token = Convert.ToBase64String(byteArray);
+
                 httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic", token);
             
                 var endpoint = $"http://10.177.4.12:8082/alfresco/s/crl/atto/ricerca/avanzata";
-                var jsonRequest = JsonConvert.SerializeObject(request);
+                var jsonRequest = JsonConvert.SerializeObject(
+                    new { atto = request },
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    });
                 var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
                 var response = await httpClient.PostAsync(endpoint, content);
                 response.EnsureSuccessStatusCode();
 
                 // Leggo la risposta come stringa JSON
                 var responseData = await response.Content.ReadAsStringAsync();
-            
-                var result = JsonConvert.DeserializeObject<object[]>(responseData);
-                return result ?? Array.Empty<object>();
+                return responseData;
             }
             catch (Exception e)
             {
