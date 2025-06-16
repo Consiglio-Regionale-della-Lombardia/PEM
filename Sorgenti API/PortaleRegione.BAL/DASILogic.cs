@@ -746,7 +746,11 @@ namespace PortaleRegione.API.Controllers
 
         private async Task GestioneCommissioni(AttoDASIDto attoDto, bool isUpdate = false)
         {
-            if (isUpdate) await _unitOfWork.DASI.RimuoviCommissioni(attoDto.UIDAtto);
+            if (isUpdate)
+            {
+                await _unitOfWork.DASI.RimuoviCommissioni(attoDto.UIDAtto);
+                await _unitOfWork.CompleteAsync();
+            }
 
             if (!string.IsNullOrEmpty(attoDto.Commissioni_client))
             {
@@ -756,9 +760,9 @@ namespace PortaleRegione.API.Controllers
                     .Select(item => Convert.ToInt32(item));
                 foreach (var commissione in commissioni)
                     _unitOfWork.DASI.AggiungiCommissione(attoDto.UIDAtto, commissione);
+                
+                await _unitOfWork.CompleteAsync();
             }
-
-            await _unitOfWork.CompleteAsync();
         }
 
         public async Task<ATTI_DASI> Get(Guid id)
