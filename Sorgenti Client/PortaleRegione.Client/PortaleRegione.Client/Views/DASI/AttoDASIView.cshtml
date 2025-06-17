@@ -60,7 +60,6 @@
     @*Import Trumbowyg plugins style...*@
     <link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet"/>
 
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     @Scripts.Render("~/bundles/lib")
     @Scripts.Render("~/bundles/logic")
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
@@ -597,15 +596,13 @@
     }
     else
     {
-        <button type="button" role="button"
+        <a
                 class="btn-floating btn-large white black-text tooltipped"
-           data-position="bottom"
            data-tooltip="Stampa"
-           target="_blank"
-           href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
+           onclick="goIntoOtherTab('@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })')"
            style="margin-right: 15px;">
             <i class="material-icons">print</i>
-        </button>
+        </a>
     }
 </div>
 

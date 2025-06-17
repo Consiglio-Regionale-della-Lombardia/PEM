@@ -881,6 +881,12 @@
             if (result.Privacy == true || result.Privacy_Divieto_Pubblicazione) {
                 iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Modificato per privacy" aria-label="Modificato per privacy">lock</i>`;
             }
+            
+            if(result.Tipo == @Html.Raw((int)TipoAttoEnum.MOZ) && result.TipoMOZ == @Html.Raw((int)TipoMOZEnum.URGENTE)){
+                iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Mozione urgente" aria-label="Mozione urgente">priority_high</i>`;
+            }
+            
+            console.log("atto", result)
 
             const row = document.createElement('tr');
             const tdCheckBoxValue = document.createElement('td');
@@ -893,7 +899,7 @@
 </p>`;
             row.appendChild(tdCheckBoxValue);
             const tdDisplayValue = document.createElement('td');
-            tdDisplayValue.style.width = '10%';
+            tdDisplayValue.style.width = '180px';
             tdDisplayValue.innerHTML = `<button type="button" role="button" class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')" data-text='${result.Display}' data-id='${result.UIDAtto}'>${result.Display}${iconChipAggiuntiva}</button>`;
             row.appendChild(tdDisplayValue);
 
@@ -1098,11 +1104,44 @@
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Abbinamenti)') {
 
 					if (result.UID_Atto_ODG) {
-                        td.innerHTML += `<p><a class="blue-text" style="text-decoration: underline;" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">${result.ODG_Atto_PEM}</a></p>`;
+                        td.innerHTML += `
+                            <p>
+                              <a class="blue-text" style="text-decoration: underline;"
+                                 onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">
+                                ${result.ODG_Atto_PEM}
+                              </a>
+                            </p>`;
                     }
-
+                    
                     result.Abbinamenti.forEach(abb => {
-						td.innerHTML += `<p class="blue-text" style="text-decoration: underline;">${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}</p>`;
+                        switch (abb.TipoAttoAbbinato) {
+                            case "PDL":
+                                td.innerHTML += `<p>
+                                      <a class="blue-text" style="text-decoration: underline;"
+                                         onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">
+                                        ${result.ODG_Atto_PEM}
+                                      </a>
+                                    </p>`;
+                                break;
+
+                            case "RIS":
+                            case "MOZ":
+                            case "ITL":
+                            case "ITR":
+                            case "IQT":
+                            case "ODG":
+                                td.innerHTML += `<p>
+                                      <a class="blue-text" style="text-decoration: underline;"
+                                         onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${abb.UID}')">
+                                        ${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}
+                                      </a>
+                                    </p>`;
+                                break;
+
+                            default:
+                                break;
+                        }
+
                     });
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Documenti)') {
                     result.Documenti.forEach(abb => {
@@ -2452,10 +2491,12 @@
                 document.getElementById('dynamic-select-container').innerHTML = selectHTML;
                 var data = [];
                 organi.forEach(function(item) {
-                    data.push({
-                        tag: `${item.nome_organo}`,
-                        id: `${item.id_organo}`
-                    });
+                    if (item.tipo_organo == @Html.Raw((int)TipoOrganoEnum.COMMISSIONE)){
+                        data.push({
+                            tag: `${item.nome_organo}`,
+                            id: `${item.id_organo}`
+                        });
+                    }
                 });
                 var elems = document.querySelectorAll('#organi-autocomplete');
                 var instances = M.Autocomplete.init(elems,
@@ -2550,11 +2591,14 @@
                 document.getElementById('dynamic-select-container').innerHTML = selectHTML;
                 var data = [];
                 organi.forEach(function(item) {
-                    data.push({
-                        tag: `${item.nome_organo}`,
-                        id: `${item.id_organo}`
-                    });
+                    if (item.tipo_organo == @Html.Raw((int)TipoOrganoEnum.GIUNTA)){
+                        data.push({
+                            tag: `${item.nome_organo}`,
+                            id: `${item.id_organo}`
+                        });
+                    }
                 });
+                
                 var elems = document.querySelectorAll('#organi-autocomplete');
                 var instances = M.Autocomplete.init(elems,
                     {

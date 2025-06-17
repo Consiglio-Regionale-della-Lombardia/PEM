@@ -202,6 +202,14 @@ namespace PortaleRegione.Gateway
             await Get(requestUrl, _token);
         }
 
+        public async Task<string> CercaAttiGea(CercaAttiGeaRequest request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.CercaAttiGea}";
+            var body = JsonConvert.SerializeObject(request);
+            var lst = await Post(requestUrl, body, _token);
+            return lst;
+        }
+
         public async Task<IEnumerable<ArticoliDto>> GetArticoli(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.Articoli.GetAll.Replace("{id}", id.ToString())}";

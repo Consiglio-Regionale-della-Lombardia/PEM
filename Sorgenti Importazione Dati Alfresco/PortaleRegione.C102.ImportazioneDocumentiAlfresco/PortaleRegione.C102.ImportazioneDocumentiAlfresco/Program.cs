@@ -74,7 +74,7 @@ internal class Program
                             }
 
                             var checkUfficio = CheckAttoUfficio(connection, atto.UIDAtto);
-                            if (checkUfficio == false)
+                            if (checkUfficio == false && !tipoAtto.Equals((int)TipoAttoEnum.RIS))
                             {
                                 continue;
                             }

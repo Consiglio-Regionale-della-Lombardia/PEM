@@ -188,8 +188,8 @@ public class AttoDASIDto
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public List<OrganoDto> Organi { get; set; } = new List<OrganoDto>();
-    public List<OrganoDto> Organi_Commissione { get; set; } = new List<OrganoDto>();
-    public List<OrganoDto> Organi_Giunta { get; set; } = new List<OrganoDto>();
+    [DisplayName("Organi Commissione")] public List<OrganoDto> Organi_Commissione { get; set; } = new List<OrganoDto>(); // #1328
+    [DisplayName("Organi Giunta")] public List<OrganoDto> Organi_Giunta { get; set; } = new List<OrganoDto>(); // #1328
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Commissioni_client { get; set; }
@@ -402,6 +402,20 @@ public class AttoDASIDto
         if (!string.IsNullOrEmpty(Oggetto_Modificato))
             return Oggetto_Modificato;
         return Oggetto;
+    }
+    
+    public string PremesseView()
+    {
+        if (!string.IsNullOrEmpty(Premesse_Modificato))
+            return Premesse_Modificato;
+        return Premesse;
+    }
+    
+    public string RichiestaView()
+    {
+        if (!string.IsNullOrEmpty(Richiesta_Modificata))
+            return Richiesta_Modificata;
+        return Richiesta;
     }
 
     public string GetLegislatura()

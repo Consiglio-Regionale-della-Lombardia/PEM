@@ -25,6 +25,7 @@ using PortaleRegione.Gateway;
 using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
 
 namespace PortaleRegione.Client.Controllers
@@ -506,6 +507,27 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.Atti.SpostaInAltraSeduta(uidAtto, uidSeduta);
                 return Json(Url.Action("RiepilogoAtti", "Atti", new { id = uidSeduta }), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+      /// <summary>
+      ///   Endpoint di integrazione per cercari gli atti in GEA
+      /// </summary>
+      /// <param name="request"></param>
+      /// <returns></returns>
+        [Route("cerca-atti-gea")]
+        [HttpPost]
+        public async Task<ActionResult> CercaAttiGea(CercaAttiGeaRequest request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                return Json(await apiGateway.Atti.CercaAttiGea(request), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

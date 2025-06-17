@@ -998,43 +998,77 @@ function CambioStatoMassivo(stato, descr) {
         });
 }
 
-function CambioStatoMassivoDASI(stato, descr) {
-    var text = "";
-    var listaAtti = getListaAtti();
-    var selezionaTutti = getSelezionaTutti_DASI();
-    var text_counter = GetCounterAlertStampa(listaAtti, selezionaTutti);
-    text = "Cambia stato di " + text_counter + " atti in " + descr;
 
-    swal(text,
-            {
-                buttons: { cancel: "Annulla", confirm: "Ok" }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
+async function CambioStatoMassivoDASI(stato, descr) {
+	waiting(true);
+	var request = {};
+	request.Lista = [];
 
-            var obj = {};
-            obj.Stato = stato;
-            obj.Lista = listaAtti;
-            obj.Tutti = selezionaTutti;
-            waiting(true);
-            $.ajax({
-                url: baseUrl + "/dasi/modifica-stato",
-                type: "POST",
-                data: JSON.stringify(obj),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
-            }).done(function(data) {
-                waiting(false);
-                setListaAtti([])
-                DeselectALLEM();
-                location.reload();
-            }).fail(function(err) {
-                waiting(false);
-                console.log("error", err);
-                Error(err);
-            });
-        });
+    var selectedUid = [];
+    const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_Atto_"]:checked');
+
+    // Itera sui checkbox selezionati
+    selectedCheckboxes.forEach(checkbox => {
+	    // Trova la riga padre del checkbox
+	    const row = checkbox.closest('tr');
+        const displayColumn = row.querySelector('td:nth-child(2) .chip');
+
+        if (displayColumn) {
+            const displayId = displayColumn.getAttribute('data-id');
+            selectedUid.push(displayId);
+        }
+    });
+
+    selectedUid.forEach(uid => {
+	    // Crea un oggetto per ogni atto
+	    let attoData = {
+		    uid: uid
+	    };
+
+	    // Aggiungi l'oggetto alla lista di dati da inviare
+	    request.Lista.push(attoData);
+    });
+
+    let datiDaInviare = {};
+    datiDaInviare.statoCheck = true;
+    datiDaInviare.stato = stato;
+
+    request.Dati = datiDaInviare;
+
+    var url = baseUrl + '/dasi/salva-comando-massivo';
+
+    const response = await fetch(url, {
+	    method: 'POST',
+	    headers: {
+		    'Content-Type': 'application/json'
+	    },
+	    body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+	    waiting(false);
+	    throw new Error('Network response was not ok');
+    }
+
+    waiting(false);
+
+    try {
+	    const errorData = await response.json();
+	    if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+    } catch (error) {
+	    // ignored
+    }
+
+    M.toast({
+	    html: `<span>Salva dati massivi completato con successo</span>`,
+	    classes: 'rounded',
+	    displayLength: 5000
+    });
+
+    setTimeout(function () {
+	    location.reload();
+    }, 1500);
 }
 
 function GetPersoneFromDB() {

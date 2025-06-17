@@ -47,5 +47,6 @@ namespace PortaleRegione.Contracts
 
         Task RimuoviFascicoliObsoleti(Guid attoUId, OrdinamentoEnum ordinamento);
         Task<IEnumerable<PersonaLightDto>> GetRelatori(Guid attoUId);
+        Task<AttiAbbinamentoDto> GetAbbinamento(Guid attoUId);
     }
 }

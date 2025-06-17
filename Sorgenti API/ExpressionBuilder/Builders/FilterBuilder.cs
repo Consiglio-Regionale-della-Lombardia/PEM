@@ -96,18 +96,25 @@ namespace ExpressionBuilder.Builders
             var connector = FilterStatementConnector.And;
             foreach (var statement in filter.Statements)
             {
-                Expression expr = null;
-                if (IsList(statement))
+                try
                 {
-                    expr = ProcessListStatement(param, statement);
-                }
-                else
-                {
-                    expr = GetExpression(param, statement);
-                }
+                    Expression expr = null;
+                    if (IsList(statement))
+                    {
+                        expr = ProcessListStatement(param, statement);
+                    }
+                    else
+                    {
+                        expr = GetExpression(param, statement);
+                    }
 
-                expression = expression == null ? expr : CombineExpressions(expression, expr, connector);
-                connector = statement.Connector;
+                    expression = expression == null ? expr : CombineExpressions(expression, expr, connector);
+                    connector = statement.Connector;
+                }
+                catch (Exception e)
+                {
+                    continue;
+                }
             }
 
             expression = expression ?? Expression.Constant(true);

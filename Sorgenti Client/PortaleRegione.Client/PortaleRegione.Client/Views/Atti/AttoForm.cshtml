@@ -1,5 +1,4 @@
-﻿@using PortaleRegione.DTO.Domain
-@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.Client.Models.AttiViewModel
 
 @{
@@ -9,7 +8,7 @@
     Html.RenderPartial("_AttoFormScript", Model);
 
 }
-<div class="row">
+<div class="row valign-wrapper">
     <div class="col s1">
         <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})">
             <i class="material-icons">arrow_back</i>
@@ -22,6 +21,17 @@
                 <input id="hfMode" type="hidden" value="edit"/>
             </b>
         </h4>
+    </div>
+    <div class="col s5 right-align">
+        @if (isNew)
+        {
+            <button type="button"
+                    id="btnImportaDatiGEA"
+                    class="btn-flat blue-text waves-effect waves-green"
+                    onclick="$('#modalRicercaGEA').modal('open');">
+                Importa Dati GEA
+            </button>    
+        }
     </div>
 </div>
 @if (!isNew)
@@ -52,7 +62,7 @@
     <div class="col s12">
 
         @using (Html.BeginForm("SalvaAtto", "Atti", FormMethod.Post, new
-        { enctype = "multipart/form-data", id = "formAtto" }))
+                    { enctype = "multipart/form-data", id = "formAtto" }))
         {
             @Html.AntiForgeryToken()
 
@@ -210,39 +220,151 @@
     </div>
 </div>
 
+<div id="modalRicercaGEA" class="modal">
+    <div class="modal-content">
+        <h4>Ricerca</h4>
+        
+        <div class="row">
+            <div class="input-field col s6">
+                @*TIPO ATTO*@
+                <select id="listaTipiAttoPerGEA">
+                    <option value="" selected="selected">Seleziona</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PDL)">@Html.Raw(TipoAttoEnum.PDL)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PDA)">@Html.Raw(TipoAttoEnum.PDA)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.DOC)">@Html.Raw(TipoAttoEnum.DOC)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.ORG)">@Html.Raw(TipoAttoEnum.ORG)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PDN)">@Html.Raw(TipoAttoEnum.PDN)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PLP)">@Html.Raw(TipoAttoEnum.PLP)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.PRE)">@Html.Raw(TipoAttoEnum.PRE)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.REF)">@Html.Raw(TipoAttoEnum.REF)</option>
+                    <option value="@Html.Raw(TipoAttoEnum.REL)">@Html.Raw(TipoAttoEnum.REL)</option>
+                </select>
+                <label>Tipo Atto: </label>
+            </div>
+            <div class="input-field col s6">
+                <label class="active">Numero Atto: </label>
+                <input id="txtRicercaGEA_NumeroAtto"/>
+            </div>
+            <div class="input-field col s12">
+                <label class="active">Oggetto: </label>
+                <input id="txtRicercaGEA_Oggetto"/>
+            </div>
+            <div class="col s12">
+                <button type="button"
+                        id="btnRicercaDatiGEA"
+                        class="btn-flat blue-text waves-effect waves-green"
+                        onclick="CercaDatiGEA();">
+                    Cerca
+                </button>
+            </div>
+        </div>
+        <div id="listaRisultatiRicercaGEA"></div>
+    </div>
+</div>
 
 <script>
-
-    function spostaAtto(uidAtto) {
-        var seduta = $('select[id="selectSpostaAtto"]').children("option:selected").val();
-
-        if (!seduta) {
+    
+    async function CercaDatiGEA(){
+        // Recupera il tipo atto selezionato
+        var tipoSelect = document.getElementById("listaTipiAttoPerGEA");
+        var tipoValue = tipoSelect ? tipoSelect.value : null;
+        if (!tipoValue) {
+            ErrorAlert("Per favore, selezionare il tipo di atto da cercare in GEA.");
             return;
         }
 
-        var url = baseUrl + '@Url.Action("SpostaInAltraSeduta", "Atti")?uidAtto=' + uidAtto + '&uidSeduta=' + seduta;
-        console.log("URL", url);
-        waiting(true);
-        $.ajax({
-            url: url,
-            type: "GET"
-        }).done(function(data) {
-            console.log(data);
-            if (data.message) {
-                waiting(false);
-                swal({
-                    title: "Errore",
-                    text: data.message,
-                    icon: "error"
-                });
-            } else {
-                go(data);
-            }
-        }).fail(function(err) {
-            waiting(false);
-            console.log("error", err);
-            Error(err);
-        });
-    }
+        // Recupera i valori inseriti per numero atto e oggetto
+        var numeroAtto = document.getElementById("txtRicercaGEA_NumeroAtto").value.trim();
+        var oggetto = document.getElementById("txtRicercaGEA_Oggetto").value.trim();
 
+        // Costruisci l'oggetto della richiesta con i parametri
+        var request = {
+            tipoAtto: tipoValue,
+            numeroAtto: numeroAtto,
+            oggetto: oggetto
+        };
+        
+        const response = await fetch('@Url.Action("CercaAttiGEA")',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(request)
+            });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        var responseData = await response.json();
+        console.log("RES", responseData)
+        if (responseData.message) {
+            ErrorAlert(responseData.message);
+            return;
+        }
+        
+        var jsonObject = JSON.parse(responseData);
+        console.log("RES2", jsonObject)
+        
+        var jsonList = JSON.parse(jsonObject);
+        console.log("RES3", jsonList.List)
+        
+        const resultsContainer = document.getElementById("listaRisultatiRicercaGEA");
+        resultsContainer.innerHTML = ""; // Pulisce i risultati precedenti
+
+        if (!jsonList || jsonList.List.length === 0) {
+            resultsContainer.innerHTML = "<p>Nessun risultato trovato.</p>";
+            return;
+        }
+
+        // Creo la collection (ul con classe collection di Materialize)
+        var ul = document.createElement("div");
+        ul.classList.add("collection");
+
+        jsonList.List.forEach(item => {
+            const atto = item.atto;
+
+            var li = document.createElement("a");
+            li.classList.add("collection-item");
+
+            li.innerHTML = `
+                <span>
+                    <strong>Tipo:</strong> ${atto.tipo} <br/>
+                    <strong>Numero Atto:</strong> ${atto.numeroAtto} <br/>
+                    <strong>Oggetto:</strong> ${atto.oggetto} <br/>
+                </span>
+            `;
+
+            // AGGIUNGI L'EVENTO ONCLICK
+            li.onclick = function () {
+                const tipoSelect = document.getElementById("Atto_Tipo");
+                const tipoText = atto.tipo.trim().toUpperCase();
+
+                for (let i = 0; i < tipoSelect.options.length; i++) {
+                    if (tipoSelect.options[i].text.trim().toUpperCase() === tipoText) {
+                        tipoSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+                document.getElementById("Atto_NAtto").value = atto.numeroAtto;
+                document.getElementById("Atto_Oggetto").value = atto.oggetto;
+
+                // trigger UI update (Materialize per select e textarea)
+                $('#Atto_Tipo').formSelect();
+                M.textareaAutoResize(document.getElementById("Atto_Oggetto"));
+
+                // chiudi la modale
+                const modal = M.Modal.getInstance(document.getElementById("modalRicercaGEA"));
+                modal.close();
+            };
+            
+            ul.appendChild(li);
+        });
+
+
+        // Inserisco la collection dentro il div
+        resultsContainer.appendChild(ul);
+    }
+    
 </script>

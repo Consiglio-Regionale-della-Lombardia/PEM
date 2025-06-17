@@ -43,7 +43,50 @@
             });
         await GetArticoliAtto($('#Atto_UIDAtto').val());
 
-        var tipi = await GetTipiPEM();
+		// GetTipiPEM
+        // PDL, PDA, PLP, PRE, PDN, DOC, REF, REL, ORG, RIS, ALTRO
+        var tipi = [];
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PDL),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PDL)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PDA),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PDA)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PLP),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PLP)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PRE),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PRE)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.PDN),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.PDN)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.DOC),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.DOC)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.REF),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.REF)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.ORG),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.ORG)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.RIS),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.RIS)"
+        });
+        tipi.push({
+            IDTipoAtto: @Html.Raw((int)TipoAttoEnum.ALTRO),
+            Tipo_Atto: "@Html.Raw(TipoAttoEnum.ALTRO)"
+        });
+
         if (tipi.length > 0) {
             var select = $("#Atto_Tipo");
             select.empty();
@@ -67,9 +110,9 @@
             M.FormSelect.init(elems, null);
         }
 
-        $("#btnSave").on("click",
+		$("#btnSalvaAtto").on("click",
             function() {
-                $("#btnSave").off("click");
+				$("#btnSalvaAtto").off("click");
                 setTimeout(function() {
                         $('body').removeClass('loaded');
                     },
@@ -157,7 +200,36 @@
         });
     });
 
-    
+    function spostaAtto(uidAtto) {
+        var seduta = $('select[id="selectSpostaAtto"]').children("option:selected").val();
 
+        if (!seduta) {
+            return;
+        }
+
+        var url = baseUrl + '@Url.Action("SpostaInAltraSeduta", "Atti")?uidAtto=' + uidAtto + '&uidSeduta=' + seduta;
+        console.log("URL", url);
+        waiting(true);
+        $.ajax({
+            url: url,
+            type: "GET"
+        }).done(function(data) {
+            console.log(data);
+            if (data.message) {
+                waiting(false);
+                swal({
+                    title: "Errore",
+                    text: data.message,
+                    icon: "error"
+                });
+            } else {
+                go(data);
+            }
+        }).fail(function(err) {
+            waiting(false);
+            console.log("error", err);
+            Error(err);
+        });
+    }
     
 </script>

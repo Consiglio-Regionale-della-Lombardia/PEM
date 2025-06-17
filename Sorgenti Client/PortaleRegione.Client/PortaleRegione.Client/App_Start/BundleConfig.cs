@@ -12,7 +12,8 @@ namespace PortaleRegione.Client
                 "~/Scripts/jquery.validate*",
                 "~/Scripts/jquery-hex-picker.js",
                 "~/Scripts/modernizr-*",
-                "~/Scripts/materialize.js"));
+                "~/Scripts/materialize.js",
+                "~/Scripts/sweetalert.min.js"));
             bundles.Add(new ScriptBundle("~/bundles/logic")
                 .Include("~/Scripts/loader.js", "~/Scripts/site.js",
                     "~/Scripts/SessionManager.js",

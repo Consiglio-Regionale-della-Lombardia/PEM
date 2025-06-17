@@ -136,6 +136,10 @@
 			request.page = 1;
 			request.size = 999999;
 
+			const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+            // Aggiungi le impostazioni di ordinamento alla richiesta
+            request.sort_settings = savedSortColumns;
+
 			// Invia la richiesta al server
 			const response = await fetch(url, {
 				method: 'POST',

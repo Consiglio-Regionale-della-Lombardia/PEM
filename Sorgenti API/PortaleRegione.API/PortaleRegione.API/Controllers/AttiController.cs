@@ -24,6 +24,7 @@ using System.Web.Http;
 using AutoMapper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using Microsoft.SqlServer.Server;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
@@ -34,6 +35,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Routes;
 using PortaleRegione.Logger;
+using PortaleRegione.SDK.GEA;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -784,6 +786,34 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("SpostaInAltraSeduta", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint di integrazione per cercari gli atti in GEA
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route(ApiRoutes.PEM.Atti.CercaAttiGea)]
+        public async Task<IHttpActionResult> CercaAttiGea(CercaAttiGeaRequest request)
+        {
+            try
+            {
+                var geaHelper = new GeaHelper();
+                
+                var legislaturaCorrente = await _legislatureLogic.GetLegislatura(await _legislatureLogic.GetLegislaturaAttuale());
+                request.legislatura = legislaturaCorrente.num_legislatura;
+                
+                var attiGea = await geaHelper.RicercaAtti(request);
+                
+                return Ok(attiGea);
+            }
+            catch (Exception e)
+            {
+                Log.Error("RicercaAttiGea", e);
                 return ErrorHandler(e);
             }
         }

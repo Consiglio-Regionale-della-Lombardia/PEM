@@ -111,11 +111,12 @@ namespace PortaleRegione.Persistance
             var result = await PRContext
                 .ATTI_FIRME
                 .Where(f => f.UIDAtto == attoUId && f.Valida)
+                // #955
+                .OrderBy(f => DbFunctions.TruncateTime(f.Timestamp))
+                .ThenBy(f => f.OrdineVisualizzazione)
                 .ToListAsync();
             //#983
-            return result.OrderBy(f => f.Timestamp.Date)
-                .ThenBy(f => f.OrdineVisualizzazione)
-                .ToList();
+            return result;
         }
 
         public async Task<List<ATTI_FIRME>> GetFirmatari(List<Guid> guids, int max_result)
@@ -127,11 +128,10 @@ namespace PortaleRegione.Persistance
                     .ATTI_FIRME
                     .Where(f => guid == f.UIDAtto && f.Valida && string.IsNullOrEmpty(f.Data_ritirofirma) &&
                                 f.Prioritario)
-                    .ToListAsync();
-                //#983
-                result = result.OrderBy(f => f.Timestamp.Date)
+                    // #955
+                    .OrderBy(f => DbFunctions.TruncateTime(f.Timestamp))
                     .ThenBy(f => f.OrdineVisualizzazione)
-                    .ToList();
+                    .ToListAsync();
 
                 result.AddRange(res.Take(max_result));
             }
