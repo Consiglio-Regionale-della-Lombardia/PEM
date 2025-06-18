@@ -450,7 +450,10 @@ namespace PortaleRegione.Client.Controllers
                         var resultFirma = await apiGateway.Emendamento.Firma(id, pin);
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma)
+                        {
+                            if (itemFirma.Value.Equals("OK", StringComparison.InvariantCultureIgnoreCase)) continue;
                             listaErroriFirma.Add($"{itemFirma.Value}");
+                        }
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
@@ -463,8 +466,11 @@ namespace PortaleRegione.Client.Controllers
                         var resultDeposita = await apiGateway.Emendamento.Deposita(id, pin);
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita)
+                        {
+                            if (itemDeposito.Value.Equals("OK", StringComparison.InvariantCultureIgnoreCase)) continue;
                             listaErroriDeposito.Add(
                                 $"{itemDeposito.Value}");
+                        }
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new
@@ -537,7 +543,10 @@ namespace PortaleRegione.Client.Controllers
                         var resultFirma = await apiGateway.Emendamento.Firma(model);
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma)
+                        {
+                            if (itemFirma.Value.Equals("OK", StringComparison.InvariantCultureIgnoreCase)) continue;
                             listaErroriFirma.Add($"{itemFirma.Value}");
+                        }
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
@@ -556,8 +565,11 @@ namespace PortaleRegione.Client.Controllers
                         var resultDeposita = await apiGateway.Emendamento.Deposita(model);
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita)
+                        {
+                            if (itemDeposito.Value.Equals("OK", StringComparison.InvariantCultureIgnoreCase)) continue;
                             listaErroriDeposito.Add(
                                 $"{itemDeposito.Value}");
+                        }
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new

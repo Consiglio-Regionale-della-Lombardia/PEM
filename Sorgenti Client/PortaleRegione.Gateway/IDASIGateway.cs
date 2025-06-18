@@ -43,8 +43,8 @@ namespace PortaleRegione.Gateway
         Task<Dictionary<Guid, string>> Presenta(Guid attoUId, string pin);
         Task<Dictionary<Guid, string>> EliminaFirma(ComandiAzioneModel model);
         Task<Dictionary<Guid, string>> EliminaFirma(Guid attoUId, string pin);
-        Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model);
-        Task<Dictionary<Guid, string>> Firma(Guid attoUId, string pin);
+        Task<Dictionary<string, string>> Firma(ComandiAzioneModel model);
+        Task<Dictionary<string, string>> Firma(Guid attoUId, string pin);
         Task<RiepilogoDASIModel> GetBySeduta(Guid sedutaUidSeduta);
         Task<RiepilogoDASIModel> GetBySeduta_Trattazione(Guid id, TipoAttoEnum tipoAtto, string uidAtto, int page = 1,
             int size = 20);

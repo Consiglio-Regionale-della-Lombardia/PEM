@@ -36,8 +36,8 @@ namespace PortaleRegione.Gateway
         Task<Dictionary<Guid, string>> Deposita(Guid emendamentoUId, string pin);
         Task<Dictionary<Guid, string>> EliminaFirma(ComandiAzioneModel model);
         Task<Dictionary<Guid, string>> EliminaFirma(Guid emendamentoUId, string pin);
-        Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model);
-        Task<Dictionary<Guid, string>> Firma(Guid emendamentoUId, string pin);
+        Task<Dictionary<string, string>> Firma(ComandiAzioneModel model);
+        Task<Dictionary<string, string>> Firma(Guid emendamentoUId, string pin);
         Task DOWN_EM_TRATTAZIONE(Guid id);
         Task Elimina(Guid id);
         Task<EmendamentiViewModel> Get(BaseRequest<EmendamentiDto> model);

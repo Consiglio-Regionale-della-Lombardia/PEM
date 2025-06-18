@@ -146,7 +146,7 @@ namespace PortaleRegione.Gateway
             JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
         }
 
-        public async Task<Dictionary<Guid, string>> Firma(Guid emendamentoUId, string pin)
+        public async Task<Dictionary<string, string>> Firma(Guid emendamentoUId, string pin)
         {
             var model = new ComandiAzioneModel
             {
@@ -156,12 +156,12 @@ namespace PortaleRegione.Gateway
             return await Firma(model);
         }
 
-        public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model)
+        public async Task<Dictionary<string, string>> Firma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Firma}";
             var body = JsonConvert.SerializeObject(model);
             var result =
-                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                JsonConvert.DeserializeObject<Dictionary<string, string>>(await Post(requestUrl, body, _token));
             return result;
         }
 

@@ -350,7 +350,7 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task<Dictionary<Guid, string>> Firma(Guid attoUId, string pin)
+        public async Task<Dictionary<string, string>> Firma(Guid attoUId, string pin)
         {
             var model = new ComandiAzioneModel
             {
@@ -484,11 +484,11 @@ namespace PortaleRegione.Gateway
         }
 
 
-        public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model)
+        public async Task<Dictionary<string, string>> Firma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Firma}";
             var body = JsonConvert.SerializeObject(model);
-            var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+            var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Post(requestUrl, body, _token));
             return result;
         }
 
