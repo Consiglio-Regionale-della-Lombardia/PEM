@@ -744,7 +744,7 @@ namespace PortaleRegione.BAL
                     var em = await GetEM(idGuid);
                     if (em == null)
                     {
-                        results.Add("", $"ERROR: Id [{idGuid}] NON TROVATO");
+                        results.Add(idGuid.ToString(), $"ERROR: Id [{idGuid}] NON TROVATO");
                         continue;
                     }
 
@@ -753,7 +753,7 @@ namespace PortaleRegione.BAL
 
                     if (em.IDStato > (int)StatiEnum.Depositato)
                     {
-                        results.Add(n_em, "ERROR: Emendamento già votato e non è più sottoscrivibile.");
+                        results.Add(idGuid.ToString(), $"ERROR: Emendamento {n_em} già votato e non è più sottoscrivibile.");
                         continue;
                     }
 
@@ -764,7 +764,7 @@ namespace PortaleRegione.BAL
                         //Controllo se l'utente ha già firmato
                         if (emDto.Firma_da_ufficio)
                         {
-                            results.Add(n_em, $"ERROR: Emendamento già firmato dall'ufficio.");
+                            results.Add(idGuid.ToString(), $"ERROR: Emendamento {n_em} già firmato dall'ufficio.");
                             continue;
                         }
 
@@ -779,7 +779,7 @@ namespace PortaleRegione.BAL
                         //Controllo la firma del proponente
                         if (!emDto.Firmato_Dal_Proponente && em.UIDPersonaProponente != persona.UID_persona)
                         {
-                            results.Add(n_em, "ERROR: Il Proponente non ha ancora firmato l'emendamento.");
+                            results.Add(idGuid.ToString(), $"ERROR: Il Proponente non ha ancora firmato l'emendamento {n_em}.");
                             continue;
                         }
 
@@ -791,8 +791,8 @@ namespace PortaleRegione.BAL
 
                             if (check_notifica == null)
                             {
-                                results.Add(n_em,
-                                    "ERROR: Emendamento non firmabile. Il proponente ha riservato la firma dell’emendamento a un gruppo ristretto.");
+                                results.Add(idGuid.ToString(),
+                                    $"ERROR: Emendamento {n_em} non firmabile. Il proponente ha riservato la firma dell’emendamento a un gruppo ristretto.");
                                 continue;
                             }
                         }
@@ -860,7 +860,7 @@ namespace PortaleRegione.BAL
                         await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(destinatario_notifica,
                             persona.UID_persona);
 
-                    results.Add(n_em, "OK");
+                    results.Add(idGuid.ToString(), $"{n_em} - OK");
                     counterFirme++;
 
                     await PreCompilaAreaPolitica(em);

@@ -1740,8 +1740,8 @@ namespace PortaleRegione.API.Controllers
 
                     if (!firmabile)
                     {
-                        results.Add(nome_atto,
-                            "ERROR: Atto non è più sottoscrivibile");
+                        results.Add(idGuid.ToString(),
+                            $"ERROR: Atto {nome_atto} non è più sottoscrivibile");
                         continue;
                     }
 
@@ -1769,15 +1769,15 @@ namespace PortaleRegione.API.Controllers
                             if (string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
                                 if (atto.UIDPersonaProponente.Value == persona.UID_persona)
                                 {
-                                    results.Add(nome_atto,
-                                        "ERROR: E' necessario richiedere l'iscrizione dell'atto in una seduta prima di poterlo firmare.");
+                                    results.Add(idGuid.ToString(),
+                                        $"ERROR: E' necessario richiedere l'iscrizione dell'atto {nome_atto} in una seduta prima di poterlo firmare.");
                                     continue;
                                 }
 
                         //Controllo la firma del proponente
                         if (!atto.Firmato_Dal_Proponente && atto.UIDPersonaProponente.Value != persona.UID_persona)
                         {
-                            results.Add(nome_atto, "ERROR: Il Proponente non ha ancora firmato l'atto.");
+                            results.Add(idGuid.ToString(), $"ERROR: Il Proponente non ha ancora firmato l'atto {nome_atto}.");
                             continue;
                         }
 
@@ -1909,7 +1909,7 @@ namespace PortaleRegione.API.Controllers
                             Log.Error("Invio Mail - Firma", e);
                         }
 
-                    results.Add(nome_atto, $"{(valida ? "OK" : "?!?")}");
+                    results.Add(idGuid.ToString(), $"{(valida ? $"{nome_atto} - OK" : "?!?")}");
                     counterFirme++;
                 }
 

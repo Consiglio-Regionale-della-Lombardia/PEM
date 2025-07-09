@@ -413,10 +413,7 @@ namespace PortaleRegione.Client.Controllers
                         var resultFirma = await apiGateway.DASI.Firma(id, pin);
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma)
-                        {
-                            if (itemFirma.Value.Equals("OK", StringComparison.InvariantCultureIgnoreCase)) continue;
                             listaErroriFirma.Add($"{itemFirma.Value}");
-                        }
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
@@ -429,11 +426,8 @@ namespace PortaleRegione.Client.Controllers
                         var resultDeposita = await apiGateway.DASI.Presenta(id, pin);
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita)
-                        {
-                            if (itemDeposito.Value.Equals("OK", StringComparison.InvariantCultureIgnoreCase)) continue;
                             listaErroriDeposito.Add(
                                 $"{itemDeposito.Value}");
-                        }
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new
@@ -497,7 +491,6 @@ namespace PortaleRegione.Client.Controllers
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma)
                         {
-                            if (itemFirma.Value.Equals("OK", StringComparison.InvariantCultureIgnoreCase)) continue;
                             listaErroriFirma.Add($"{itemFirma.Value}");
                         }
                         if (listaErroriFirma.Count > 0)
@@ -519,7 +512,6 @@ namespace PortaleRegione.Client.Controllers
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita)
                         {
-                            if (itemDeposito.Value.Equals("OK", StringComparison.InvariantCultureIgnoreCase)) continue;
                             listaErroriDeposito.Add(
                                 $"{itemDeposito.Value}");
                         }
