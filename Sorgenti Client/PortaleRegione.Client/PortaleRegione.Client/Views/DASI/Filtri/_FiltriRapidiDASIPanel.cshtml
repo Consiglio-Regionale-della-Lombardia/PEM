@@ -1112,6 +1112,16 @@
                               </a>
                             </p>`;
                     }
+
+                    if (result.MOZ_Abbinata) {
+                        td.innerHTML += `
+                            <p>
+                              <a class="blue-text" style="text-decoration: underline;"
+                                 onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UID_MOZ_Abbinata}')">
+                                ${result.MOZ_Abbinata}
+                              </a>
+                            </p>`;
+                    }
                     
                     result.Abbinamenti.forEach(abb => {
                         switch (abb.TipoAttoAbbinato) {

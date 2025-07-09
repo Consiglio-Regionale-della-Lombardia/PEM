@@ -538,9 +538,19 @@
 <li>
     <div class="collapsible-header collection-header-custom @cssClass">
         <i class="material-icons">insert_link</i>Abbinamenti
-        @if (atto.Abbinamenti.Any())
+        @if (atto.Abbinamenti.Any() || atto.UID_MOZ_Abbinata.HasValue)
         {
-            <div class="chip" style="left: 190px; margin-top: -4px; position: absolute;">@atto.Abbinamenti.Count</div>
+            var counterAbbinamenti = 0;
+            if (atto.Abbinamenti.Any())
+            {
+                counterAbbinamenti += atto.Abbinamenti.Count;
+            }else if (atto.UID_MOZ_Abbinata.HasValue)
+            {
+                counterAbbinamenti++;
+            }
+            <div class="chip" style="left: 190px; margin-top: -4px; position: absolute;">
+                @counterAbbinamenti
+            </div>
         }
     </div>
     <div class="collapsible-body">
@@ -571,6 +581,13 @@
                                     <button class="secondary-content btn-flat red-text" onclick="rimuoviAbbinamento(this, '@abb.UidAttoAbbinato')">
                                         <i class="material-icons">close</i>
                                     </button>
+                                </li>
+                            }
+                            
+                            @if (atto.UID_MOZ_Abbinata.HasValue)
+                            {
+                                <li class="collection-item">
+                                    @atto.MOZ_Abbinata
                                 </li>
                             }
                         </ul>

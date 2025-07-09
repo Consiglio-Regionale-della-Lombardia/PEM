@@ -1289,6 +1289,10 @@ namespace PortaleRegione.API.Controllers
             dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
             dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
             dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
+            if (attoInDb.UID_MOZ_Abbinata.HasValue)
+            {
+                
+            }
             dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
             if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
