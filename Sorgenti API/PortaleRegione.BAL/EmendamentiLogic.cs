@@ -1061,7 +1061,6 @@ namespace PortaleRegione.BAL
             {
                 var results = new Dictionary<Guid, string>();
 
-                ManagerLogic.BloccaDeposito = true;
                 var counterDepositi = 1;
                 var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
@@ -2377,6 +2376,17 @@ namespace PortaleRegione.BAL
             }
 
             return resFromJson;
+        }
+
+
+        public async Task<bool> TryAcquireDepositoLock(Guid userId)
+        {
+            return await _unitOfWork.Emendamenti.TryAcquireDepositoLock(userId);
+        }
+
+        public async Task ReleaseDepositoLock(Guid userId)
+        {
+            await _unitOfWork.Emendamenti.ReleaseDepositoLock(userId);
         }
     }
 }

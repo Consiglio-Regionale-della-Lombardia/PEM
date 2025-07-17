@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -882,6 +883,36 @@ namespace PortaleRegione.Persistance
 
             var res = await query.AnyAsync();
             return res;
+        }
+
+        public async Task<bool> TryAcquireDepositoLock(Guid userId)
+        {
+            try
+            {
+                PRContext.DepositoLock.Add(new DepositoLock
+                {
+                    Id = 1,
+                    LockedBy = userId,
+                    LockTime = DateTime.Now
+                });
+                await PRContext.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                // PK violation = lock già presente
+                return false;
+            }
+        }
+        
+        public async Task ReleaseDepositoLock(Guid userId)
+        {
+            var row = await PRContext.DepositoLock.FirstOrDefaultAsync(l => l.LockedBy == userId);
+            if (row != null)
+            {
+                PRContext.DepositoLock.Remove(row);
+                await PRContext.SaveChangesAsync();
+            }
         }
 
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)

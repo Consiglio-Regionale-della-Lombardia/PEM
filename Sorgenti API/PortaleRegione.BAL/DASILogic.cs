@@ -2230,7 +2230,6 @@ namespace PortaleRegione.API.Controllers
 
             var id_gruppo = 0;
 
-            ManagerLogic.BloccaPresentazione = true;
 
             var attachList = new List<AllegatoMail>();
             foreach (var idGuid in model.Lista)
@@ -5819,6 +5818,16 @@ namespace PortaleRegione.API.Controllers
                 .GetByQR(id);
 
             return await Get(uidAtto);
+        }
+
+        public async Task<bool> TryAcquireDepositoLock(Guid userId)
+        {
+            return await _unitOfWork.DASI.TryAcquireDepositoLock(userId);
+        }
+
+        public async Task ReleaseDepositoLock(Guid userId)
+        {
+            await _unitOfWork.DASI.ReleaseDepositoLock(userId);
         }
     }
 }

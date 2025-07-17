@@ -91,5 +91,7 @@ namespace PortaleRegione.Contracts
         Task<List<EM>> GetByArticolo(Guid guid);
         Task<List<EM>> GetGrigliaOrdinamento(Guid id);
         Task SetOrdineVotazione(Guid uidem, int pos);
+        Task<bool> TryAcquireDepositoLock(Guid userId);
+        Task ReleaseDepositoLock(Guid userId);
     }
 }
