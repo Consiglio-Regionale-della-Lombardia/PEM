@@ -1,9 +1,4 @@
-﻿using GamScheduler.BusinessLogic;
-using Quartz;
-using Quartz.Impl;
-using SchedulerService.BusinessLogic;
-using SchedulerService.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -11,6 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using GamScheduler.BusinessLogic;
+using log4net.Config;
+using Quartz;
+using Quartz.Impl;
+using SchedulerService.BusinessLogic;
+using SchedulerService.Models;
 
 namespace SchedulerService
 {
@@ -18,12 +19,14 @@ namespace SchedulerService
     {
         private JobLogic _jobLogic;
         private TriggerLogic _triggerLogic;
-        public List<Job> Jobs;
+        private List<Job> Jobs;
         private IScheduler scheduler;
-        public List<Trigger> Triggers;
+        private List<Trigger> Triggers;
 
         public async Task Start()
         {
+            XmlConfigurator.Configure();
+
             _jobLogic = new JobLogic();
             _triggerLogic = new TriggerLogic();
 

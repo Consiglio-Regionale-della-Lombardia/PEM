@@ -22,11 +22,13 @@ using PortaleRegione.DataBase;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.Gateway;
 using PortaleRegione.Persistance;
+using log4net;
 
 namespace GeneraStampeJobFramework
 {
     public class Manager
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof (Manager));
         private ThreadWorkerModel _model;
 
         public Manager(ThreadWorkerModel model)
@@ -38,46 +40,45 @@ namespace GeneraStampeJobFramework
 
         public async Task Run()
         {
+            log.Info((object) "Manager.Run() - Avvio procedura stampe...");
+            
             try
             {
                 BaseGateway.apiUrl = _model.UrlAPI;
                 var apiGateway = new ApiGateway();
+                log.Info((object) "Richiesta autenticazione tramite ApiGateway...");
                 var auth = await apiGateway.Persone.Login(new LoginRequest
                 {
                     Username = _model.Username,
                     Password = _model.Password
                 });
 
+                log.Info("Autenticazione eseguita con successo.");
+                
                 using (var context = new PortaleRegioneDbContext(_model.ConnectionString))
                 {
                     using (var unitOfWork = new UnitOfWork(context))
                     {
-                        // Recupera i dati dal database
-                        var stampeList = await unitOfWork.Stampe.GetAll(1, 5);
-
-                        // LOCK STAMPE
-                        foreach (var stampa in stampeList)
-                        {
-                            stampa.Lock = true;
-                            stampa.DataLock = DateTime.Now;
-                            stampa.DataInizioEsecuzione = DateTime.Now;
-                            stampa.Tentativi += 1;
-
-                            await unitOfWork.CompleteAsync();
-                        }
-
+                        log.Info("Recupero e lock delle stampe con PickAndLockStampe...");
+                        var stampeList = await unitOfWork.Stampe.PickAndLockStampe(5, 5);
+                        log.Info($"Numero stampe trovate e lockate: {stampeList.Count}");
+                        
                         var worker = new Worker(auth.jwt, unitOfWork, ref _model);
                         foreach (var stampa in stampeList)
                         {
+                            log.Info($"Elaborazione stampa UID={stampa.UIDStampa}");
                             await worker.ExecuteAsync(stampa.ToDto());
+                            log.Info($"Stampa UID={stampa.UIDStampa} completata.");
                         }
                     }
                 }
 
+                log.Info("Manager.Run() - Tutte le stampe sono state processate.");
                 OnManagerFinish?.Invoke(this, true);
             }
             catch (Exception e)
             {
+                log.Error("Errore in Manager.Run()", e);
                 OnManagerFinish?.Invoke(this, false);
                 Console.WriteLine(e);
                 throw e;
