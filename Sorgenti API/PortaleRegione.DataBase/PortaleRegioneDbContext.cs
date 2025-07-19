@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Threading.Tasks;
 using PortaleRegione.Domain;
@@ -147,6 +148,12 @@ namespace PortaleRegione.DataBase
         /// <param name="modelBuilder">Il costruttore del modello per il contesto di database.</param>
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<DepositoLock>()
+                .HasKey(x => x.Id);
+            modelBuilder.Entity<DepositoLock>()
+                .Property(x => x.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            
             modelBuilder.Entity<ARTICOLI>()
                 .Property(e => e.Articolo)
                 .IsUnicode(false);

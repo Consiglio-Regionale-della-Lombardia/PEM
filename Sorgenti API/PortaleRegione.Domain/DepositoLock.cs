@@ -26,6 +26,7 @@ namespace PortaleRegione.Domain
     public class DepositoLock
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public Guid LockedBy { get; set; }

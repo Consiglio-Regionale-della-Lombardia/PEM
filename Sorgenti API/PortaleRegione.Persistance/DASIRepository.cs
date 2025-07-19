@@ -887,21 +887,48 @@ namespace PortaleRegione.Persistance
 
         public async Task<bool> TryAcquireDepositoLock(Guid userId)
         {
-            try
+            var timeout = TimeSpan.FromMinutes(10); // durata lock valida
+            var now = DateTime.Now;
+
+            var existingLock = PRContext.DepositoLock.FirstOrDefault(x => x.Id == 1);
+
+            if (existingLock != null)
             {
-                PRContext.DepositoLock.Add(new DepositoLock
+                // Se il lock è scaduto, lo forzo a mano
+                if (existingLock.LockTime < now.Subtract(timeout))
+                {
+                    PRContext.DepositoLock.Remove(existingLock);
+                    await PRContext.SaveChangesAsync(); // elimina il vecchio lock
+
+                    // Ora provo a creare il mio lock
+                    var lockEntity = new DepositoLock
+                    {
+                        Id = 1,
+                        LockedBy = userId,
+                        LockTime = now
+                    };
+                    PRContext.DepositoLock.Add(lockEntity);
+                    await PRContext.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    // C'è già un lock attivo
+                    return false;
+                }
+            }
+            else
+            {
+                // Nessun lock, posso inserirlo
+                var lockEntity = new DepositoLock
                 {
                     Id = 1,
                     LockedBy = userId,
-                    LockTime = DateTime.Now
-                });
+                    LockTime = now
+                };
+                PRContext.DepositoLock.Add(lockEntity);
                 await PRContext.SaveChangesAsync();
                 return true;
-            }
-            catch (DbUpdateException ex)
-            {
-                // PK violation = lock già presente
-                return false;
             }
         }
         
