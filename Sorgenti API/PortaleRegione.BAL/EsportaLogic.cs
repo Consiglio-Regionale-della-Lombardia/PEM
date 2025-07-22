@@ -23,6 +23,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using AutoMapper;
@@ -1127,40 +1128,55 @@ namespace PortaleRegione.BAL
                 size = 1
             };
             var countEM = await _logicEm.CountEM(request, persona, (int)mode);
-            request.size = countEM;
+            
+            int totalToFetch = countEM;
+            const int pageSize = 500;
+            int page = 1;
+            int totalFetched = 0;
+            
+            request.size = pageSize;
 
             try
             {
-                var emList =
-                    await _logicEm.GetEmendamenti(request,
-                        persona,
-                        (int)mode,
-                        (int)ViewModeEnum.GRID,
-                        null,
-                        null);
+                var sb = new StringBuilder();
+                sb.Append("<html>");
+                sb.Append("<body style='page-orientation: landscape'>");
+                sb.Append("<table>");
+                sb.Append("<thead>");
+                sb.Append("<tr>");
+                sb.Append(ComposeHeaderColumn("EM/SUB"));
+                sb.Append(ComposeHeaderColumn("Testo"));
+                sb.Append(ComposeHeaderColumn("Relazione"));
+                sb.Append(ComposeHeaderColumn("Proponente"));
+                sb.Append(ComposeHeaderColumn("Stato"));
+                sb.Append("</tr>");
+                sb.Append("</thead>");
+                sb.Append("<tbody>");
+                
+                while (totalFetched < totalToFetch)
+                {
+                    request.page = page;
+                    var emList = await _logicEm.GetEmendamentiWord(
+                        request, persona, (int)mode, (int)ViewModeEnum.GRID, null, totalToFetch
+                    );
+                    if (emList?.Data?.Results == null || !emList.Data.Results.Any())
+                        break;
 
-                var body = "<html>";
-                body += "<body style='page-orientation: landscape'>";
-                body += "<table>";
+                    foreach (var em in emList.Data.Results)
+                    {
+                        sb.Append(ComposeBodyRow(em));
+                        totalFetched++;
+                    }
 
-                body += "<thead>";
-                body += "<tr>";
-                body += ComposeHeaderColumn("EM/SUB");
-                body += ComposeHeaderColumn("Testo");
-                body += ComposeHeaderColumn("Relazione");
-                body += ComposeHeaderColumn("Proponente");
-                body += ComposeHeaderColumn("Stato");
-                body += "</tr>";
-                body += "</thead>";
+                    page++;
+                }
+                
+                sb.Append("</tbody>");
+                sb.Append("</table>");
+                sb.Append("</body>");
+                sb.Append("</html>");
 
-                body += "<tbody>";
-                body = emList.Data.Results.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
-                body += "</tbody>";
-
-                body += "</table>";
-                body += "</body>";
-                body += "</html>";
-                return body;
+                return sb.ToString();
             }
             catch (Exception e)
             {

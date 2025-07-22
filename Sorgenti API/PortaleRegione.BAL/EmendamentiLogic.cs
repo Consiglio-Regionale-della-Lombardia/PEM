@@ -1368,6 +1368,12 @@ namespace PortaleRegione.BAL
             var em = await GetEM(emendamentoUId);
             return await GetEM_DTO(em, atto, persona, relatori, presidente_regione, enable_cmd);
         }
+        
+        public async Task<EmendamentiDto> GetEM_DTO_Word(Guid emendamentoUId)
+        {
+            var em = await GetEM(emendamentoUId);
+            return await GetEM_DTO(em);
+        }
 
         public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId)
         {
@@ -1500,7 +1506,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<EmendamentiDto> GetEM_DTO(EM em)
+        private async Task<EmendamentiDto> GetEM_DTO(EM em)
         {
             try
             {
@@ -1511,6 +1517,7 @@ namespace PortaleRegione.BAL
                         ? await GetEM_DTO(em.Rif_UIDEM.Value)
                         : null);
                 emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
+                
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                     emendamentoDto.DataDeposito = BALHelper.Decrypt(emendamentoDto.DataDeposito);
 
@@ -1774,6 +1781,78 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+        
+        public async Task<EmendamentiViewModel> GetEmendamentiWord(BaseRequest<EmendamentiDto> model,
+            PersonaDto persona, int CLIENT_MODE, int VIEW_MODE, PersonaDto presidente_regione, int total_em)
+        {
+            try
+            {
+                var queryFilter = new Filter<EM>();
+                var tags = new List<TagDto>();
+                var firmatari = new List<Guid>();
+                var proponenti = new List<Guid>();
+                var gruppi = new List<int>();
+                var stati = new List<int>();
+
+                queryFilter.ImportStatements(model.filtro);
+
+                var uidem_in_db = await _unitOfWork
+                    .Emendamenti
+                    .GetAll(persona,
+                        model.ordine,
+                        model.page,
+                        model.size,
+                        CLIENT_MODE,
+                        queryFilter,
+                        firmatari,
+                        proponenti,
+                        gruppi,
+                        stati,
+                        tags);
+
+                if (!uidem_in_db.Any())
+                    return new EmendamentiViewModel
+                    {
+                        Data = new BaseResponse<EmendamentiDto>(
+                            model.page,
+                            model.size,
+                            new List<EmendamentiDto>(),
+                            model.filtro,
+                            0),
+                        Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                        ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
+                        Ordinamento = model.ordine,
+                        CurrentUser = persona
+                    };
+
+                var result = new List<EmendamentiDto>();
+                foreach (var uId in uidem_in_db)
+                {
+                    var dto = await GetEM_DTO_Word(uId);
+                    result.Add(dto);
+                }
+
+                return new EmendamentiViewModel
+                {
+                    Data = new BaseResponse<EmendamentiDto>(
+                        model.page,
+                        model.size,
+                        result,
+                        model.filtro,
+                        total_em),
+                    Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                    ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
+                    Ordinamento = model.ordine,
+                    CurrentUser = persona
+                };
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetEmendamenti Word", e);
+                throw e;
+            }
+        }
+        
         public async Task<List<Guid>> GetEmendamentiSoloIds(BaseRequest<EmendamentiDto> model,
             PersonaDto persona, int CLIENT_MODE)
         {

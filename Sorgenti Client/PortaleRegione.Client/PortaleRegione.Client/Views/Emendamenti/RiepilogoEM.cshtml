@@ -57,22 +57,6 @@
                                SCARICA DOCUMENTO ATTO
                             </button>
                         }
-                        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
-                        {
-                            <button type="button" role="button" class="btn-flat orange-text"
-                                    href="@Model.Atto.LinkFascicoloPresentazione"
-                                    target="_blank">
-                                Scarica fascicolo em/subem presentazione
-                            </button>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
-                        {
-							<button type="button" role="button" class="btn-flat orange-text"
-									href="@Model.Atto.LinkFascicoloVotazione"
-									target="_blank">
-								Scarica fascicolo em/subem votazione
-							</button>
-                        }
                     </h3>
                 </div>
             </div>
@@ -87,19 +71,19 @@
                     @if (!filtri_attivi)
                     {
                         <li class="tab col s3">
-                            <button type="button" role="button" class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</button>
+                            <a type="button" role="button" class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</a>
                         </li>
                         <li class="tab col s3">
-                            <button type="button" role="button" class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</button>
+                            <a type="button" role="button" class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</a>
                         </li>
                     }
                     else
                     {
                         <li class="tab col s3">
-                            <button type="button" role="button" class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</button>
+                            <a type="button" role="button" class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</a>
                         </li>
                         <li class="tab col s3">
-                            <button type="button" role="button" class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</button>
+                            <a type="button" role="button" class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</a>
                         </li>
                     }
                 </ul>

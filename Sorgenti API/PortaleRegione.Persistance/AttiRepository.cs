@@ -213,7 +213,7 @@ namespace PortaleRegione.Persistance
             PRContext.STAMPE.RemoveRange(oldStampe);
         }
 
-        public async Task<IEnumerable<PersonaLightDto>> GetRelatori(Guid attoUId)
+        public async Task<List<PersonaLightDto>> GetRelatori(Guid attoUId)
         {
             var atti_relatori = await PRContext
                 .ATTI_RELATORI
