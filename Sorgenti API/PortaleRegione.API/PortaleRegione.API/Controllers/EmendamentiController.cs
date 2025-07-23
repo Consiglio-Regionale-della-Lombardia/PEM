@@ -734,15 +734,13 @@ namespace PortaleRegione.API.Controllers
         [Route(ApiRoutes.PEM.Emendamenti.Deposita)]
         public async Task<IHttpActionResult> DepositaEmendamento(ComandiAzioneModel depositoModel)
         {
+            var user = CurrentUser;
             try
             {
-                if (ManagerLogic.BloccaDeposito)
-                {
-                    return BadRequest(
-                        "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
-                }
-
-                var user = CurrentUser;
+                // Tentativo di lock
+                var locked = await _emendamentiLogic.TryAcquireDepositoLock(user.UID_persona);
+                if (!locked)
+                    return BadRequest("E' in corso un'altra operazione di deposito. Riprova tra qualche minuto.");
 
                 var depositoUfficio = user.IsSegreteriaAssemblea;
 
@@ -781,7 +779,7 @@ namespace PortaleRegione.API.Controllers
             }
             finally
             {
-                ManagerLogic.BloccaDeposito = false;
+                await _emendamentiLogic.ReleaseDepositoLock(user.UID_persona);
             }
         }
 

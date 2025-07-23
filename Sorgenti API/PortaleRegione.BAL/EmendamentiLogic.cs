@@ -744,7 +744,7 @@ namespace PortaleRegione.BAL
                     var em = await GetEM(idGuid);
                     if (em == null)
                     {
-                        results.Add("", $"ERROR: Id [{idGuid}] NON TROVATO");
+                        results.Add(idGuid.ToString(), $"ERROR: Id [{idGuid}] NON TROVATO");
                         continue;
                     }
 
@@ -753,7 +753,7 @@ namespace PortaleRegione.BAL
 
                     if (em.IDStato > (int)StatiEnum.Depositato)
                     {
-                        results.Add(n_em, "ERROR: Emendamento già votato e non è più sottoscrivibile.");
+                        results.Add(idGuid.ToString(), $"ERROR: Emendamento {n_em} già votato e non è più sottoscrivibile.");
                         continue;
                     }
 
@@ -764,7 +764,7 @@ namespace PortaleRegione.BAL
                         //Controllo se l'utente ha già firmato
                         if (emDto.Firma_da_ufficio)
                         {
-                            results.Add(n_em, $"ERROR: Emendamento già firmato dall'ufficio.");
+                            results.Add(idGuid.ToString(), $"ERROR: Emendamento {n_em} già firmato dall'ufficio.");
                             continue;
                         }
 
@@ -779,7 +779,7 @@ namespace PortaleRegione.BAL
                         //Controllo la firma del proponente
                         if (!emDto.Firmato_Dal_Proponente && em.UIDPersonaProponente != persona.UID_persona)
                         {
-                            results.Add(n_em, "ERROR: Il Proponente non ha ancora firmato l'emendamento.");
+                            results.Add(idGuid.ToString(), $"ERROR: Il Proponente non ha ancora firmato l'emendamento {n_em}.");
                             continue;
                         }
 
@@ -791,8 +791,8 @@ namespace PortaleRegione.BAL
 
                             if (check_notifica == null)
                             {
-                                results.Add(n_em,
-                                    "ERROR: Emendamento non firmabile. Il proponente ha riservato la firma dell’emendamento a un gruppo ristretto.");
+                                results.Add(idGuid.ToString(),
+                                    $"ERROR: Emendamento {n_em} non firmabile. Il proponente ha riservato la firma dell’emendamento a un gruppo ristretto.");
                                 continue;
                             }
                         }
@@ -860,7 +860,7 @@ namespace PortaleRegione.BAL
                         await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(destinatario_notifica,
                             persona.UID_persona);
 
-                    results.Add(n_em, "OK");
+                    results.Add(idGuid.ToString(), $"{n_em} - OK");
                     counterFirme++;
 
                     await PreCompilaAreaPolitica(em);
@@ -1061,7 +1061,6 @@ namespace PortaleRegione.BAL
             {
                 var results = new Dictionary<Guid, string>();
 
-                ManagerLogic.BloccaDeposito = true;
                 var counterDepositi = 1;
                 var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
@@ -1369,6 +1368,12 @@ namespace PortaleRegione.BAL
             var em = await GetEM(emendamentoUId);
             return await GetEM_DTO(em, atto, persona, relatori, presidente_regione, enable_cmd);
         }
+        
+        public async Task<EmendamentiDto> GetEM_DTO_Word(Guid emendamentoUId)
+        {
+            var em = await GetEM(emendamentoUId);
+            return await GetEM_DTO(em);
+        }
 
         public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId)
         {
@@ -1501,7 +1506,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<EmendamentiDto> GetEM_DTO(EM em)
+        private async Task<EmendamentiDto> GetEM_DTO(EM em)
         {
             try
             {
@@ -1512,6 +1517,7 @@ namespace PortaleRegione.BAL
                         ? await GetEM_DTO(em.Rif_UIDEM.Value)
                         : null);
                 emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
+                
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                     emendamentoDto.DataDeposito = BALHelper.Decrypt(emendamentoDto.DataDeposito);
 
@@ -1775,6 +1781,78 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+        
+        public async Task<EmendamentiViewModel> GetEmendamentiWord(BaseRequest<EmendamentiDto> model,
+            PersonaDto persona, int CLIENT_MODE, int VIEW_MODE, PersonaDto presidente_regione, int total_em)
+        {
+            try
+            {
+                var queryFilter = new Filter<EM>();
+                var tags = new List<TagDto>();
+                var firmatari = new List<Guid>();
+                var proponenti = new List<Guid>();
+                var gruppi = new List<int>();
+                var stati = new List<int>();
+
+                queryFilter.ImportStatements(model.filtro);
+
+                var uidem_in_db = await _unitOfWork
+                    .Emendamenti
+                    .GetAll(persona,
+                        model.ordine,
+                        model.page,
+                        model.size,
+                        CLIENT_MODE,
+                        queryFilter,
+                        firmatari,
+                        proponenti,
+                        gruppi,
+                        stati,
+                        tags);
+
+                if (!uidem_in_db.Any())
+                    return new EmendamentiViewModel
+                    {
+                        Data = new BaseResponse<EmendamentiDto>(
+                            model.page,
+                            model.size,
+                            new List<EmendamentiDto>(),
+                            model.filtro,
+                            0),
+                        Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                        ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
+                        Ordinamento = model.ordine,
+                        CurrentUser = persona
+                    };
+
+                var result = new List<EmendamentiDto>();
+                foreach (var uId in uidem_in_db)
+                {
+                    var dto = await GetEM_DTO_Word(uId);
+                    result.Add(dto);
+                }
+
+                return new EmendamentiViewModel
+                {
+                    Data = new BaseResponse<EmendamentiDto>(
+                        model.page,
+                        model.size,
+                        result,
+                        model.filtro,
+                        total_em),
+                    Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                    ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
+                    Ordinamento = model.ordine,
+                    CurrentUser = persona
+                };
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetEmendamenti Word", e);
+                throw e;
+            }
+        }
+        
         public async Task<List<Guid>> GetEmendamentiSoloIds(BaseRequest<EmendamentiDto> model,
             PersonaDto persona, int CLIENT_MODE)
         {
@@ -2377,6 +2455,17 @@ namespace PortaleRegione.BAL
             }
 
             return resFromJson;
+        }
+
+
+        public async Task<bool> TryAcquireDepositoLock(Guid userId)
+        {
+            return await _unitOfWork.Emendamenti.TryAcquireDepositoLock(userId);
+        }
+
+        public async Task ReleaseDepositoLock(Guid userId)
+        {
+            await _unitOfWork.Emendamenti.ReleaseDepositoLock(userId);
         }
     }
 }

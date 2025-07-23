@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using ExpressionBuilder.Generics;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ExpressionBuilder.Generics;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 
 namespace PortaleRegione.Contracts
 {
@@ -40,5 +40,6 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<STAMPE_INFO>> GetInfo(Guid stampaUId);
         Task<IEnumerable<STAMPE_INFO>> GetInfo();
         Task<STAMPE_INFO> GetLastInfo(Guid stampaUId);
+        Task<List<STAMPE>> PickAndLockStampe(int numero, int maxTentativi);
     }
 }

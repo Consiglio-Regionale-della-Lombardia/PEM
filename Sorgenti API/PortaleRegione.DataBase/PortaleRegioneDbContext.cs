@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Threading.Tasks;
 using PortaleRegione.Domain;
@@ -30,7 +31,7 @@ namespace PortaleRegione.DataBase
     {
         /// <summary>
         ///     Inizializza una nuova istanza del contesto del database con la stringa di connessione specificata.
-        ///     Il lazy loading Ë disabilitato per migliorare le performance e prevenire il caricamento involontario di entit‡
+        ///     Il lazy loading √® disabilitato per migliorare le performance e prevenire il caricamento involontario di entit√†
         ///     correlate.
         /// </summary>
         public PortaleRegioneDbContext()
@@ -46,7 +47,7 @@ namespace PortaleRegione.DataBase
         }
         
         // Di seguito, vengono definiti i set di dati per ogni tabella del database.
-        // Ogni DbSet rappresenta una collezione di entit‡ che mappa una specifica tabella nel database.
+        // Ogni DbSet rappresenta una collezione di entit√† che mappa una specifica tabella nel database.
 
         public virtual DbSet<ARTICOLI> ARTICOLI { get; set; }
         public virtual DbSet<ATTI> ATTI { get; set; }
@@ -137,15 +138,22 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<REPORTS> REPORTS { get; set; } // Reports personalizzati
         public virtual DbSet<TEMPLATES> TEMPLATES { get; set; } // Templates
         public virtual DbSet<Sessioni> Sessioni { get; set; } // Sessioni
+        public virtual DbSet<DepositoLock> DepositoLock { get; set; } // Blocco deposito
 
         /// <summary>
-        ///     Override del metodo OnModelCreating per configurare i modelli di entit‡ quando il modello per questo contesto viene
+        ///     Override del metodo OnModelCreating per configurare i modelli di entit√† quando il modello per questo contesto viene
         ///     creato.
         ///     Qui possono essere configurate le mappature delle tabelle, le relazioni e le convenzioni.
         /// </summary>
         /// <param name="modelBuilder">Il costruttore del modello per il contesto di database.</param>
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<DepositoLock>()
+                .HasKey(x => x.Id);
+            modelBuilder.Entity<DepositoLock>()
+                .Property(x => x.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            
             modelBuilder.Entity<ARTICOLI>()
                 .Property(e => e.Articolo)
                 .IsUnicode(false);

@@ -46,7 +46,7 @@ namespace PortaleRegione.Contracts
         Task<bool> CanMoveDown(Guid sedutaUId, int currentPriorita);
 
         Task RimuoviFascicoliObsoleti(Guid attoUId, OrdinamentoEnum ordinamento);
-        Task<IEnumerable<PersonaLightDto>> GetRelatori(Guid attoUId);
+        Task<List<PersonaLightDto>> GetRelatori(Guid attoUId);
         Task<AttiAbbinamentoDto> GetAbbinamento(Guid attoUId);
     }
 }

@@ -450,7 +450,9 @@ namespace PortaleRegione.Client.Controllers
                         var resultFirma = await apiGateway.Emendamento.Firma(id, pin);
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma)
+                        {
                             listaErroriFirma.Add($"{itemFirma.Value}");
+                        }
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
@@ -463,8 +465,10 @@ namespace PortaleRegione.Client.Controllers
                         var resultDeposita = await apiGateway.Emendamento.Deposita(id, pin);
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita)
+                        {
                             listaErroriDeposito.Add(
                                 $"{itemDeposito.Value}");
+                        }
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new
@@ -537,7 +541,9 @@ namespace PortaleRegione.Client.Controllers
                         var resultFirma = await apiGateway.Emendamento.Firma(model);
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma)
+                        {
                             listaErroriFirma.Add($"{itemFirma.Value}");
+                        }
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
@@ -556,8 +562,10 @@ namespace PortaleRegione.Client.Controllers
                         var resultDeposita = await apiGateway.Emendamento.Deposita(model);
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita)
+                        {
                             listaErroriDeposito.Add(
                                 $"{itemDeposito.Value}");
+                        }
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new

@@ -488,7 +488,11 @@ namespace PortaleRegione.Client.Controllers
                 {
                     case ActionEnum.FIRMA:
                         var resultFirma = await apiGateway.DASI.Firma(model);
-                        var listaErroriFirma = resultFirma.Select(itemFirma => $"{itemFirma.Value}").ToList();
+                        var listaErroriFirma = new List<string>();
+                        foreach (var itemFirma in resultFirma)
+                        {
+                            listaErroriFirma.Add($"{itemFirma.Value}");
+                        }
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
@@ -505,8 +509,12 @@ namespace PortaleRegione.Client.Controllers
                             }, JsonRequestBehavior.AllowGet);
                     case ActionEnum.DEPOSITA:
                         var resultDeposita = await apiGateway.DASI.Presenta(model);
-                        var listaErroriDeposito =
-                            resultDeposita.Select(itemDeposito => $"{itemDeposito.Value}").ToList();
+                        var listaErroriDeposito = new List<string>();
+                        foreach (var itemDeposito in resultDeposita)
+                        {
+                            listaErroriDeposito.Add(
+                                $"{itemDeposito.Value}");
+                        }
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new

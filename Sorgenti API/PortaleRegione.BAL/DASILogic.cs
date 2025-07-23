@@ -1289,6 +1289,10 @@ namespace PortaleRegione.API.Controllers
             dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
             dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
             dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
+            if (attoInDb.UID_MOZ_Abbinata.HasValue)
+            {
+                
+            }
             dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
             if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
@@ -1740,8 +1744,8 @@ namespace PortaleRegione.API.Controllers
 
                     if (!firmabile)
                     {
-                        results.Add(nome_atto,
-                            "ERROR: Atto non è più sottoscrivibile");
+                        results.Add(idGuid.ToString(),
+                            $"ERROR: Atto {nome_atto} non è più sottoscrivibile");
                         continue;
                     }
 
@@ -1769,15 +1773,15 @@ namespace PortaleRegione.API.Controllers
                             if (string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
                                 if (atto.UIDPersonaProponente.Value == persona.UID_persona)
                                 {
-                                    results.Add(nome_atto,
-                                        "ERROR: E' necessario richiedere l'iscrizione dell'atto in una seduta prima di poterlo firmare.");
+                                    results.Add(idGuid.ToString(),
+                                        $"ERROR: E' necessario richiedere l'iscrizione dell'atto {nome_atto} in una seduta prima di poterlo firmare.");
                                     continue;
                                 }
 
                         //Controllo la firma del proponente
                         if (!atto.Firmato_Dal_Proponente && atto.UIDPersonaProponente.Value != persona.UID_persona)
                         {
-                            results.Add(nome_atto, "ERROR: Il Proponente non ha ancora firmato l'atto.");
+                            results.Add(idGuid.ToString(), $"ERROR: Il Proponente non ha ancora firmato l'atto {nome_atto}.");
                             continue;
                         }
 
@@ -1909,7 +1913,7 @@ namespace PortaleRegione.API.Controllers
                             Log.Error("Invio Mail - Firma", e);
                         }
 
-                    results.Add(nome_atto, $"{(valida ? "OK" : "?!?")}");
+                    results.Add(idGuid.ToString(), $"{(valida ? $"{nome_atto} - OK" : "?!?")}");
                     counterFirme++;
                 }
 
@@ -2226,7 +2230,6 @@ namespace PortaleRegione.API.Controllers
 
             var id_gruppo = 0;
 
-            ManagerLogic.BloccaPresentazione = true;
 
             var attachList = new List<AllegatoMail>();
             foreach (var idGuid in model.Lista)
@@ -5815,6 +5818,16 @@ namespace PortaleRegione.API.Controllers
                 .GetByQR(id);
 
             return await Get(uidAtto);
+        }
+
+        public async Task<bool> TryAcquireDepositoLock(Guid userId)
+        {
+            return await _unitOfWork.DASI.TryAcquireDepositoLock(userId);
+        }
+
+        public async Task ReleaseDepositoLock(Guid userId)
+        {
+            await _unitOfWork.DASI.ReleaseDepositoLock(userId);
         }
     }
 }

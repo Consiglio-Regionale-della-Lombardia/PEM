@@ -159,5 +159,14 @@ namespace PortaleRegione.Persistance
                 .OrderByDescending(i => i.Date);
             return await query.FirstOrDefaultAsync();
         }
+
+        public async Task<List<STAMPE>> PickAndLockStampe(int numero, int maxTentativi)
+        {
+            var result = await PRContext.Database
+                .SqlQuery<STAMPE>("EXEC PickAndLockStampe @Numero = {0}, @MaxTentativi = {1}", numero, maxTentativi)
+                .ToListAsync();
+
+            return result;
+        }
     }
 }

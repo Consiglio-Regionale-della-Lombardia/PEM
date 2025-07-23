@@ -870,7 +870,7 @@
             }
 
             var iconChipAggiuntiva = "";
-            if (result.Abbinamenti.length > 0 || result.ODG_Atto_PEM) {
+            if (result.Abbinamenti.length > 0 || result.ODG_Atto_PEM || result.MOZ_Abbinata) {
                 iconChipAggiuntiva += `<i class="close material-icons blue-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata" aria-label="Proposta di abbinata">insert_link</i>`;
             }
 
@@ -1109,6 +1109,16 @@
                               <a class="blue-text" style="text-decoration: underline;"
                                  onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">
                                 ${result.ODG_Atto_PEM}
+                              </a>
+                            </p>`;
+                    }
+
+                    if (result.MOZ_Abbinata) {
+                        td.innerHTML += `
+                            <p>
+                              <a class="blue-text" style="text-decoration: underline;"
+                                 onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UID_MOZ_Abbinata}')">
+                                ${result.MOZ_Abbinata}
                               </a>
                             </p>`;
                     }

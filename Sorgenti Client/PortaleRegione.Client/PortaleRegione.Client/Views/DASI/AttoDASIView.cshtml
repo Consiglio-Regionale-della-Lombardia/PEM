@@ -871,14 +871,15 @@
 			.then((value) => {
 				if (value == null || value == "")
 					return;
-
+				waiting(true);
 				$.ajax({
 					url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
 					method: "GET"
 				}).done(function (data) {
+					console.log('qui', data);
 					console.log('esito', data.message)
 					if (data.message) {
-						var typeMessage = "error";
+						var typeMessage = "info";
 						var message = data.message;
 						var str = data.message;
 						var pos = str.indexOf("OK");
@@ -891,6 +892,7 @@
 							message = "Proposta di firma inviata al proponente";
 						}
 
+						waiting(false);
 						swal({
 							title: "Esito " + button,
 							text: message,
@@ -903,7 +905,10 @@
 							}
 						});
 					}
+
+					waiting(false);
 				}).fail(function (err) {
+					waiting(false);
 					console.log("error", err);
 					Error(err);
 				});

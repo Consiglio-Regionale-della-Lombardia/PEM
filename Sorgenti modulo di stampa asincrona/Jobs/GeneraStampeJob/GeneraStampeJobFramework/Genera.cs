@@ -55,7 +55,8 @@ namespace GeneraStampeJobFramework
                 CartellaLavoroTemporanea = CartellaLavoroTemporanea,
                 PDF_LICENSE = PDF_LICENSE,
                 PercorsoCompatibilitaDocumenti = PercorsoCompatibilitaDocumenti,
-                ConnectionString = ConnectionString
+                ConnectionString = ConnectionString,
+                masterKey = masterKey
             });
             await manager.Run();
         }

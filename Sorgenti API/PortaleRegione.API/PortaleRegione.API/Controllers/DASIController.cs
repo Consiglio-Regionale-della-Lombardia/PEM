@@ -917,12 +917,14 @@ namespace PortaleRegione.API.Controllers
         [Route(ApiRoutes.DASI.Presenta)]
         public async Task<IHttpActionResult> Presenta(ComandiAzioneModel presentazioneModel)
         {
+            var currentUser = CurrentUser;
+            
             try
             {
-                var currentUser = CurrentUser;
-                if (ManagerLogic.BloccaPresentazione)
-                    throw new InvalidOperationException(
-                        "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
+                // Tentativo di lock
+                var locked = await _dasiLogic.TryAcquireDepositoLock(currentUser.UID_persona);
+                if (!locked)
+                    return BadRequest("E' in corso un'altra operazione di deposito. Riprova tra qualche minuto.");
 
                 var presentazioneUfficio = currentUser.IsSegreteriaAssemblea;
 
@@ -951,7 +953,7 @@ namespace PortaleRegione.API.Controllers
             }
             finally
             {
-                ManagerLogic.BloccaPresentazione = false;
+                await _dasiLogic.ReleaseDepositoLock(currentUser.UID_persona);
             }
         }
 

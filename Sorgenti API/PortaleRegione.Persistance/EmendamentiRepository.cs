@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
@@ -937,6 +938,63 @@ namespace PortaleRegione.Persistance
         {
             var em = await Get(uidem);
             em.OrdineVotazione = pos;
+        }
+
+        public async Task<bool> TryAcquireDepositoLock(Guid userId)
+        {
+            var timeout = TimeSpan.FromMinutes(10); // durata lock valida
+            var now = DateTime.Now;
+
+            var existingLock = PRContext.DepositoLock.FirstOrDefault(x => x.Id == 1);
+
+            if (existingLock != null)
+            {
+                // Se il lock è scaduto, lo forzo a mano
+                if (existingLock.LockTime < now.Subtract(timeout))
+                {
+                    PRContext.DepositoLock.Remove(existingLock);
+                    await PRContext.SaveChangesAsync(); // elimina il vecchio lock
+
+                    // Ora provo a creare il mio lock
+                    var lockEntity = new DepositoLock
+                    {
+                        Id = 1,
+                        LockedBy = userId,
+                        LockTime = now
+                    };
+                    PRContext.DepositoLock.Add(lockEntity);
+                    await PRContext.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    // C'è già un lock attivo
+                    return false;
+                }
+            }
+            else
+            {
+                // Nessun lock, posso inserirlo
+                var lockEntity = new DepositoLock
+                {
+                    Id = 1,
+                    LockedBy = userId,
+                    LockTime = now
+                };
+                PRContext.DepositoLock.Add(lockEntity);
+                await PRContext.SaveChangesAsync();
+                return true;
+            }
+        }
+        
+        public async Task ReleaseDepositoLock(Guid userId)
+        {
+            var row = await PRContext.DepositoLock.FirstOrDefaultAsync(l => l.LockedBy == userId);
+            if (row != null)
+            {
+                PRContext.DepositoLock.Remove(row);
+                await PRContext.SaveChangesAsync();
+            }
         }
 
         /// <summary>

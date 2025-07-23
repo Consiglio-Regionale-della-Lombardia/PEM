@@ -265,6 +265,7 @@
 <script>
     
     async function CercaDatiGEA(){
+        
         // Recupera il tipo atto selezionato
         var tipoSelect = document.getElementById("listaTipiAttoPerGEA");
         var tipoValue = tipoSelect ? tipoSelect.value : null;
@@ -273,6 +274,7 @@
             return;
         }
 
+        waiting(true);
         // Recupera i valori inseriti per numero atto e oggetto
         var numeroAtto = document.getElementById("txtRicercaGEA_NumeroAtto").value.trim();
         var oggetto = document.getElementById("txtRicercaGEA_Oggetto").value.trim();
@@ -283,6 +285,8 @@
             numeroAtto: numeroAtto,
             oggetto: oggetto
         };
+        
+        console.log(request)
         
         const response = await fetch('@Url.Action("CercaAttiGEA")',
             {
@@ -304,17 +308,15 @@
             return;
         }
         
-        var jsonObject = JSON.parse(responseData);
-        console.log("RES2", jsonObject)
-        
+        var jsonObject = JSON.parse(responseData);        
         var jsonList = JSON.parse(jsonObject);
-        console.log("RES3", jsonList.List)
         
         const resultsContainer = document.getElementById("listaRisultatiRicercaGEA");
         resultsContainer.innerHTML = ""; // Pulisce i risultati precedenti
 
         if (!jsonList || jsonList.List.length === 0) {
             resultsContainer.innerHTML = "<p>Nessun risultato trovato.</p>";
+            waiting(false);
             return;
         }
 
@@ -365,6 +367,7 @@
 
         // Inserisco la collection dentro il div
         resultsContainer.appendChild(ul);
+        waiting(false);
     }
     
 </script>
