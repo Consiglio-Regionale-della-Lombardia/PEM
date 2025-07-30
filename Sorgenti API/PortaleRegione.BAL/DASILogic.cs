@@ -2986,33 +2986,41 @@ namespace PortaleRegione.API.Controllers
                 atto.DataIscrizioneSeduta = DateTime.Now;
                 atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
                 await _unitOfWork.CompleteAsync();
-                var nomeAtto =
-                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
-                if (!listaRichieste.Any(item => (item.Value == nomeAtto
-                                                 && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
-                                                || item.Key == atto.UIDPersonaPresentazione.Value))
-                    listaRichieste.Add(atto.UIDPersonaRichiestaIscrizione ?? atto.UIDPersonaPresentazione.Value,
-                        nomeAtto);
+
+                if (atto.UIDPersonaRichiestaIscrizione.HasValue
+                    && atto.UIDPersonaPresentazione.HasValue)
+                {
+                    var nomeAtto =
+                        $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
+                    if (!listaRichieste.Any(item => (item.Value == nomeAtto
+                                                     && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
+                                                    || item.Key == atto.UIDPersonaPresentazione.Value))
+                        listaRichieste.Add(atto.UIDPersonaRichiestaIscrizione ?? atto.UIDPersonaPresentazione.Value,
+                            nomeAtto);
+                }
             }
 
             try
             {
-                var seduta = await _unitOfWork.Sedute.Get(model.UidSeduta);
-                var gruppiMail = listaRichieste.GroupBy(item => item.Key);
-                foreach (var gruppo in gruppiMail)
+                if (listaRichieste.Any())
                 {
-                    var personaMail = await _unitOfWork.Persone.Get(gruppo.Key);
-                    var mailModel = new MailModel
+                    var seduta = await _unitOfWork.Sedute.Get(model.UidSeduta);
+                    var gruppiMail = listaRichieste.GroupBy(item => item.Key);
+                    foreach (var gruppo in gruppiMail)
                     {
-                        DA =
-                            AppSettingsConfiguration.EmailInvioDASI,
-                        A = personaMail.email,
-                        OGGETTO =
-                            "[ISCRIZIONE ATTI]",
-                        MESSAGGIO =
-                            $"La segreteria ha iscritto i seguenti atti alla seduta del {seduta.Data_seduta:dd/MM/yyyy}: <br> {gruppo.Select(item => item.Value).Aggregate((i, j) => i + "<br>" + j)}. {GetBodyFooterMail()}"
-                    };
-                    await _logicUtil.InvioMail(mailModel);
+                        var personaMail = await _unitOfWork.Persone.Get(gruppo.Key);
+                        var mailModel = new MailModel
+                        {
+                            DA =
+                                AppSettingsConfiguration.EmailInvioDASI,
+                            A = personaMail.email,
+                            OGGETTO =
+                                "[ISCRIZIONE ATTI]",
+                            MESSAGGIO =
+                                $"La segreteria ha iscritto i seguenti atti alla seduta del {seduta.Data_seduta:dd/MM/yyyy}: <br> {gruppo.Select(item => item.Value).Aggregate((i, j) => i + "<br>" + j)}. {GetBodyFooterMail()}"
+                        };
+                        await _logicUtil.InvioMail(mailModel);
+                    }
                 }
             }
             catch (Exception e)
