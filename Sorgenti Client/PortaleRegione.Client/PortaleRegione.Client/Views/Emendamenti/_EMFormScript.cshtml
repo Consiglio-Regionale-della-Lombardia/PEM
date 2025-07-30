@@ -94,12 +94,13 @@
         e.preventDefault();
     }).validate({
         submitHandler: function (form) {
-
+waiting(true);
             var docAllegatoGenerico;
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
             if (inputsAllegatoGenerico.length != 0) {
                 var inputFileAllegatoGenerico = inputsAllegatoGenerico[0];
                 if (!inputFileAllegatoGenerico.files) {
+                    waiting(false);
                     alert("This browser doesn't seem to support the `files` property of file inputs.");
                 }
                 if (inputFileAllegatoGenerico.files.length > 0)
@@ -110,6 +111,7 @@
             if (inputsAllegatoTecnico.length != 0) {
                 var inputFileAllegatoTecnico = inputsAllegatoTecnico[0];
                 if (!inputFileAllegatoTecnico.files) {
+                    waiting(false);
                     alert("This browser doesn't seem to support the `files` property of file inputs.");
                 }
                 if (inputFileAllegatoTecnico.files.length > 0)
@@ -177,6 +179,7 @@
             $.each(effettiFinanziariArr,
                 function(index, item) {
                     if ($(item).is(":checked")) {
+                        waiting(false);
                         form_data.append("EffettiFinanziari", $(item).val());
                         return;
                     }
@@ -204,7 +207,7 @@
                 processData: false,
                 contentType: false
             }).done(function(data) {
-                console.log(data)
+                waiting(false);
                 if (data.message)
                     {
                         swal({
@@ -223,6 +226,7 @@
 						}
                     }
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });
