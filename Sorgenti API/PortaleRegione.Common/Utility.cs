@@ -400,7 +400,7 @@ namespace PortaleRegione.Common
                     case TipoVotazioneIterEnum.APPELLO_NOMINALE:
                         return "Appello nominale";
                     case TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO:
-                        return "Palese alzata di mano";
+                        return "Palese per alzata di mano"; // #1408
                     case TipoVotazioneIterEnum.SCRUTINIO_SEGRETO:
                         return "Scrutinio segreto";
                     default:
