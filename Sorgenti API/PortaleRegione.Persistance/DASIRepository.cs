@@ -1350,8 +1350,9 @@ namespace PortaleRegione.Persistance
                 {
                     var noteQuery = PRContext.ATTI_NOTE
                         .Where(nota => nota.Nota.Contains(f.Value.ToString()))
-                        .Select(nota => nota.UIDAtto);
-
+                        .Select(nota => nota.UIDAtto)
+                        .Distinct(); // #1405
+                    
                     query = query
                         .Join(
                             noteQuery,
