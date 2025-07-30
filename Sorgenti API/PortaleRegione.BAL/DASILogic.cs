@@ -5282,9 +5282,22 @@ namespace PortaleRegione.API.Controllers
             foreach (var column in columns)
             {
                 if (column.Equals(nameof(AttoDASIDto.Emendato)))
+                {
                     if (dto.IsIQT() || dto.IsITL() || dto.IsITR())
+                    {
                         // #1043
                         continue;
+                    }
+                    
+                    //#1410
+                    if (dto.TipoChiusuraIter.HasValue)
+                    {
+                        if (!dto.TipoChiusuraIter.Value.Equals((int)TipoChiusuraIterEnum.APPROVATO))
+                        {
+                            continue;
+                        }
+                    }
+                }
 
                 var value = GetPropertyValueForHtml(dto, column);
                 if (!string.IsNullOrEmpty(value)) sb.AppendLine(value);
