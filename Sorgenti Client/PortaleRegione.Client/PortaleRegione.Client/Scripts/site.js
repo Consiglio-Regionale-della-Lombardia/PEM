@@ -425,6 +425,7 @@ async function AbilitaTrattazione(mode) {
             go("/attitrattazione/archivio");
         }
     } else {
+        localStorage.setItem('filtriDasi', JSON.stringify([]));
         go("/home");
     }
 }
