@@ -4908,8 +4908,15 @@ namespace PortaleRegione.API.Controllers
 
             if (propertyName.Equals(nameof(AttoDASIDto.Abbinamenti)))
             {
+                // #1323
+                if (atto.UID_Atto_ODG.HasValue)
+                {
+                    return $"{atto.ODG_Atto_PEM} concernente \"{atto.ODG_Atto_Oggetto_PEM}\"";
+                }
                 if (!atto.Abbinamenti.Any())
+                {
                     return "";
+                }
                 return atto.Abbinamenti.Select(a => $"{a.TipoAttoAbbinato} {a.NumeroAttoAbbinato}")
                     .Aggregate((i, j) => i + ", " + j);
             }
