@@ -81,6 +81,8 @@
 
 <script>
 	var reportsArray = [];
+	toggleSelectedReport();
+	
 	if (document.getElementById('btnReportConfig')) {
         document.getElementById('btnReportConfig').addEventListener('click', async function () {
             await openModalWithContent_Report("", localStorage.getItem('filtriDasi'));
@@ -473,9 +475,11 @@
 				selectedReportChip.onclick = async function (event) {
 					btnGeneraReport.textContent = "Genera report"
 					selectedReportChip.remove();
+					toggleSelectedReport();
 				};
 				selectedReportChip.appendChild(removeSelectedReportIcon);
 				chipsContainer.appendChild(selectedReportChip);
+				toggleSelectedReport();
 			};
 
 			var deleteIcon = document.createElement('i');
@@ -555,6 +559,17 @@
 				Error(err);
 			});
 		});
+	}
+
+	function toggleSelectedReport() {
+		var container = document.getElementById('chips-container-selected-report');
+		if (!container) return;
+		var row = container.closest('.row');
+		// Conta solo gli elementi effettivi
+		var visibleChips = container.children.length;
+		if (row) {
+			row.style.display = visibleChips === 0 ? 'none' : '';
+		}
 	}
 
 </script>
