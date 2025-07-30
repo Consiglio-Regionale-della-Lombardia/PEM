@@ -7,7 +7,7 @@
 }
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#btnSearch').hide();
     });
 
@@ -16,14 +16,15 @@
         $('#modalDeleteAtto').modal('open');
     }
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#btnCreaAtto').attr('href', '@Url.Action("NuovoAtto", "Atti", new { sedutaUId = Model.Seduta.UIDSeduta })');
     });
 </script>
 
 <div class="row">
     <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
+        <a class="btn-floating waves-effect waves-light grey darken-3 header-back"
+           href="@Url.Action("RiepilogoSedute", "PEM")">
             <i class="material-icons">arrow_back</i>
         </a>
         <div class="row valign-wrapper">
@@ -98,133 +99,177 @@
                 {
                     statoAtto = $"Apertura prevista: {atto.Data_apertura.Value:dd/MM/yyyy HH:mm}";
                 }
+
                 coloreStatoAtto = "pink-text";
             }
+        }
+
+        if (!string.IsNullOrEmpty(statoAtto))
+        {
+            titolo_atto += $" ({statoAtto})";
         }
 
         <div class="col s12">
             <div class="card lighten-4 hoverable">
                 <div class="card-action grey lighten-4">
                     <div class="row" style="margin: 0 !important; padding: 0 !important">
-                        <div class="col s6" style="display: inline-block">
+                        <div class="atti-checkbox-list">
                             @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL)
                             {
-                                <p style="display: inline-block">
+                                <div class="form-check">
                                     <label>
-                                        <input data-val="true" id="chkAbilitaFascicoloPresentazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int)OrdinamentoEnum.Presentazione))"
+                                        <input type="checkbox"
+                                               id="chkAbilitaFascicoloPresentazione_@atto.UIDAtto"
+                                               onchange="PubblicaFascicolo('@atto.UIDAtto', @((int)OrdinamentoEnum.Presentazione))"
                                                @Html.Raw(atto.OrdinePresentazione.Value ? "checked=\"checked\"" : "")>
                                         <span>Abilita fascicolo presentazione</span>
                                     </label>
-                                </p>
-                                <p style="display: inline-block; padding-left: 30px">
+                                </div>
+                                <div class="form-check">
                                     <label>
-                                        <input data-val="true" id="chkAbilitaFascicoloVotazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int)OrdinamentoEnum.Votazione))"
+                                        <input type="checkbox"
+                                               id="chkAbilitaFascicoloVotazione_@atto.UIDAtto"
+                                               onchange="PubblicaFascicolo('@atto.UIDAtto', @((int)OrdinamentoEnum.Votazione))"
                                                @Html.Raw(atto.OrdineVotazione.Value ? "checked=\"checked\"" : "")>
                                         <span>Abilita fascicolo votazione</span>
                                     </label>
-                                </p>
+                                </div>
                             }
-                            <p style="display: inline-block; padding-left: 30px">
+                            <div class="form-check">
                                 <label>
-                                    <input data-val="true" id="chkBloccoODG_@atto.UIDAtto" type="checkbox" onchange="BloccaODG('@atto.UIDAtto', @(Convert.ToInt16(!atto.BloccoODG)))"
+                                    <input type="checkbox"
+                                           id="chkBloccoODG_@atto.UIDAtto"
+                                           onchange="BloccaODG('@atto.UIDAtto', @(Convert.ToInt16(!atto.BloccoODG)))"
                                            @Html.Raw(atto.BloccoODG ? "checked=\"checked\"" : "")>
-                                    <span class="red-text" style="font-weight: bold">Blocco ODG</span>
+                                    <span>Blocco ODG</span>
                                 </label>
-                            </p>
-                            <p style="display: inline-block; padding-left: 30px">
+                            </div>
+                            <div class="form-check">
                                 <label>
-                                    <input data-val="true" id="chkJollyODG_@atto.UIDAtto" type="checkbox" onchange="JollyODG('@atto.UIDAtto', @(Convert.ToInt16(!atto.Jolly)))"
+                                    <input type="checkbox"
+                                           id="chkJollyODG_@atto.UIDAtto"
+                                           onchange="JollyODG('@atto.UIDAtto', @(Convert.ToInt16(!atto.Jolly)))"
                                            @Html.Raw(atto.Jolly ? "checked=\"checked\"" : "")>
-                                    <span class="purple-text" style="font-weight: bold">Jolly</span>
+                                    <span>Jolly</span>
                                 </label>
-                            </p>
+                            </div>
                         </div>
-                        <div class="col s6 right-align">
-                            @if (atto.CanMoveUp)
-                            {
-                                <button type="button" role="button" class="btn-flat orange-text" onclick="go('@Url.Action("MoveUp", "Atti", new { id = atto.UIDAtto })')" title="Sposta su">
-                                    SPOSTA SU
-                                </button>
-                            }
-                            @if (atto.CanMoveDown)
-                            {
-                                <button type="button" role="button" class="btn-flat orange-text" onclick="go('@Url.Action("MoveDown", "Atti", new { id = atto.UIDAtto })')" title="Sposta giù">
-                                    SPOSTA GIU
-                                </button>
-                            }
 
-                            <button type="button" role="button" class="btn-flat blue-text" onclick="go('@Url.Action("ModificaAtto", "Atti", new { id = atto.UIDAtto })')" title="Modifica">
-                                MODIFICA
-                            </button>
-                            <button type="button" role="button" class="btn-flat red-text" onclick="openDeleteModal('@atto.UIDAtto')" title="Elimina">
-                                ELIMINA
-                            </button>
-                        </div>
                     </div>
                 </div>
                 <div class="card-content">
-                    <div class="card-title">
-                        <div class="row valign-wrapper" style="margin: 0 !important;">
-                            <div class="col s8">
-                                <h5>
-                                    <b>@titolo_atto</b>
+                    <div class="row">
+                        <div class="col s8">
+                            <div class="row valign-wrapper" style="margin: 0 !important;">
+                                <div class="col s12">
+                                    <h5>
+                                        <b>@titolo_atto</b>
+                                        @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL)
+                                        {
+                                            if (atto.Fascicoli_Da_Aggiornare)
+                                            {
+                                                <i class="material-icons red-text right tooltipped" data-position="bottom"
+                                                   data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale"
+                                                   style="margin-top: 8px">warning</i>
+                                            }
+                                        }
+                                        @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
+                                        {
+                                            <button type="button" role="button"
+                                                    class="btn-flat pink-text hide-on-large-only"
+                                                    onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')"
+                                                    title="Scarica documento">
+                                                SCARICA TESTO
+                                            </button>
+                                        }
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 0; margin-bottom: 0 !important">
+                                <div class="col s12">
+                                    <h6 class="active">
+                                        <i>@Html.Raw(atto.Oggetto)</i>
+                                    </h6>
+                                </div>
+                            </div>
+                            <div class="row"
+                                 style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
+                                <div class="col s12 left-align">
                                     @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                     {
-                                        <button type="button" role="button" class="btn-flat pink-text hide-on-large-only"
-                                                onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')" title="Scarica documento">
+                                        <button type="button" role="button"
+                                                class="btn-flat pink-text hide-on-med-and-down"
+                                                onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')"
+                                                title="Scarica documento">
                                             SCARICA TESTO
                                         </button>
                                     }
-                                </h5>
-                            </div>
-                            <div class="col s4 right-align">
-                                @if (!string.IsNullOrEmpty(statoAtto))
-                                {
-                                    <h6 class="@coloreStatoAtto"><b>@statoAtto</b></h6>
-                                }
+                                </div>
                             </div>
                         </div>
-                        <div class="row" style="margin: 0; margin-bottom: 0 !important">
-                            <div class="col s12">
-                                <h6 class="active">
-                                    <i>@Html.Raw(atto.Oggetto)</i>
-                                </h6>
-                            </div>
-                        </div>
-                        <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
-                            <div class="col s8 left-align">
-                                @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
+                        <div class="col s4 right-align">
+                            <div class="atti-action-group">
+                                @if (atto.CanMoveUp)
                                 {
-                                    <button type="button" role="button" class="btn-flat pink-text hide-on-med-and-down"
-                                            onclick="goIntoOtherTab('@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })')" title="Scarica documento">
-                                        SCARICA TESTO
+                                    <button type="button" role="button" class="btn-flat orange-text"
+                                            onclick="go('@Url.Action("MoveUp", "Atti", new { id = atto.UIDAtto })')"
+                                            title="Sposta su">
+                                        <i class="material-icons left hide-on-small-only">arrow_upward</i>
+                                        <i class="material-icons hide-on-med-and-up">arrow_upward</i>
+                                        <span class="hide-on-small-only">SPOSTA SU</span>
                                     </button>
                                 }
-                            </div>
-                            <div class="col s2 center-align">
-                                @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL)
+                                @if (atto.CanMoveDown)
                                 {
-                                    if (atto.Fascicoli_Da_Aggiornare)
-                                    {
-                                        <i class="material-icons red-text right tooltipped" data-position="bottom" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale"
-                                            style="margin-top: 4px">report</i>
-                                    }
-                                    <h6 class="black-text">
-                                        @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
-                                    </h6>
+                                    <button type="button" role="button" class="btn-flat orange-text"
+                                            onclick="go('@Url.Action("MoveDown", "Atti", new { id = atto.UIDAtto })')"
+                                            title="Sposta giù">
+                                        <i class="material-icons left hide-on-small-only">arrow_downward</i>
+                                        <i class="material-icons hide-on-med-and-up">arrow_downward</i>
+                                        <span class="hide-on-small-only">SPOSTA GIU</span>
+                                    </button>
                                 }
-                            </div>
-                            <div class="col s2 right-align">
+                                <button type="button" role="button" class="btn-flat blue-text"
+                                        onclick="go('@Url.Action("ModificaAtto", "Atti", new { id = atto.UIDAtto })')"
+                                        title="Modifica">
+                                    <i class="material-icons left hide-on-small-only">edit</i>
+                                    <i class="material-icons hide-on-med-and-up">edit</i>
+                                    <span class="hide-on-small-only">MODIFICA</span>
+                                </button>
+                                <button type="button" role="button" class="btn-flat red-text"
+                                        onclick="openDeleteModal('@atto.UIDAtto')" title="Elimina">
+                                    <i class="material-icons left hide-on-small-only">delete</i>
+                                    <i class="material-icons hide-on-med-and-up">delete</i>
+                                    <span class="hide-on-small-only">ELIMINA</span>
+                                </button>
+                                
                                 @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL && atto.Data_apertura.HasValue)
                                 {
-                                    <button type="button" role="button" class="btn-flat black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')" title="Riepilogo emendamenti/subemendamenti">
-                                        RIEPILOGO EM/SUBEM
+                                    <button type="button" role="button" class="btn-flat black-text"
+                                            onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')"
+                                            title="Riepilogo emendamenti/subemendamenti">
+                                        <i class="material-icons left hide-on-small-only">chevron_right</i>
+                                        <i class="material-icons hide-on-med-and-up">chevron_right</i>
+                                        <span class="hide-on-small-only">RIEPILOGO EM/SUBEM</span>
                                     </button>
                                 }
                             </div>
                         </div>
                     </div>
+                    @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL)
+                    {
+                        <div class="row">
+                            <div class="col s12 right-align">
+                        
+                                <div class="chip deep-purple lighten-4" style=" white-space: nowrap !important;">
+                                    @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
+                                </div>
+                        
+                            </div>
+                        </div>
+                    }
                 </div>
+                
             </div>
         </div>
     }
