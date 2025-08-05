@@ -27,11 +27,9 @@ using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request.Public;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance.Public
 {
@@ -224,7 +222,6 @@ namespace PortaleRegione.Persistance.Public
                 .Where(d => d.UIDAtto == uidAtto)
                 .ToListAsync();
             var res = new List<NoteDto>();
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
 
             foreach (var nota in noteInDB)
             {

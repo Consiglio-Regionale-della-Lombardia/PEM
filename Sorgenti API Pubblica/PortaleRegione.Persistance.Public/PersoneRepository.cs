@@ -26,7 +26,6 @@ using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Model;
-using Z.EntityFramework.Plus;
 using static PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.Persistance.Public
@@ -103,8 +102,6 @@ namespace PortaleRegione.Persistance.Public
 
         public async Task<KeyValueDto> GetGruppo(int idGruppo)
         {
-            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
-
             var gruppo = await PRContext
             .View_gruppi_politici_con_giunta
                 .FirstOrDefaultAsync(g => g.id_gruppo == idGruppo);
@@ -121,9 +118,6 @@ namespace PortaleRegione.Persistance.Public
 
         public async Task<List<PersonaPublicDto>> GetFirmatariByLegislatura(int idLegislatura)
         {
-            PRContext.View_consiglieri.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-
             var consiglieri = await PRContext
                 .View_consiglieri
                 .Where(p => p.id_legislatura == idLegislatura && p.id_persona > 0)
@@ -141,8 +135,6 @@ namespace PortaleRegione.Persistance.Public
 
         public async Task<List<View_UTENTI>> GetAll()
         {
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-
             var query = PRContext
                 .View_UTENTI
                 .Where(u => u.UID_persona != Guid.Empty)
@@ -157,9 +149,6 @@ namespace PortaleRegione.Persistance.Public
 
         public async Task<PersonaPublicDto> GetPersona(Guid uidPersonaProponente)
         {
-            PRContext.View_consiglieri.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-
             var consigliere = await PRContext
                 .View_consiglieri
                 .FirstAsync(p => p.UID_persona == uidPersonaProponente);

@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance.Public
 {
@@ -50,8 +49,6 @@ namespace PortaleRegione.Persistance.Public
 
         public async Task<List<legislature>> GetLegislature()
         {
-            PRContext.legislature.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-
             var query = PRContext
                 .legislature
                 .OrderByDescending(l => l.durata_legislatura_da);
