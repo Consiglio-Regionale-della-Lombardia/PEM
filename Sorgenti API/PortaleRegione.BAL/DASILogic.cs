@@ -1099,7 +1099,7 @@ namespace PortaleRegione.API.Controllers
                     result.Add(new AttoDASIDto
                     {
                         UIDAtto = attoUId,
-                        BodyAtto = await GetBodyDASI(attoUId, null, TemplateTypeEnum.HTML_PDF, false, false, false)
+                        BodyAtto = await GetBodyDASI(attoUId, persona, TemplateTypeEnum.HTML_PDF, false, false, false)
                     });
                     continue;
                 }

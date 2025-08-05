@@ -168,11 +168,9 @@ namespace PortaleRegione.BAL
                 Path.GetFileName(path));
 
             if (!path.Contains("~"))
-            {
                 complete_path = Path.Combine(
                     AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
                     path);
-            }
 
             var result = Utility.ComposeFileResponse(complete_path);
             return result;
@@ -379,13 +377,9 @@ namespace PortaleRegione.BAL
 
                 body = body.Replace("{lblTitoloPDLEMView}", atto.ODG_Atto_PEM);
                 if (!string.IsNullOrEmpty(atto.ODG_Atto_Oggetto_PEM))
-                {
                     body = body.Replace("{lblSubTitoloPDLEMView}", $"\"{atto.ODG_Atto_Oggetto_PEM}\"");
-                }
                 else
-                {
                     body = body.Replace("{lblSubTitoloPDLEMView}", string.Empty);
-                }
             }
             else
             {
@@ -488,16 +482,10 @@ namespace PortaleRegione.BAL
             var allegato_generico = new StringBuilder();
 
             if (atto.Documenti.Any())
-            {
                 if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
-                {
                     foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
-                    {
                         allegato_generico.AppendLine(
                             $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a class='blue-text' href='{doc.Link}' target='_blank'>SCARICA - {doc.Titolo}</a></td></tr>");
-                    }
-                }
-            }
 
             body = body.Replace("{lblAllegati}", allegato_generico.ToString());
         }
@@ -683,16 +671,10 @@ namespace PortaleRegione.BAL
             ref string body)
         {
             var firmeDtos = new List<AttiFirmeDto>();
-            if (atto.FirmeAnte.Any())
-            {
-                firmeDtos.AddRange(atto.FirmeAnte);
-            }
+            if (atto.FirmeAnte.Any()) firmeDtos.AddRange(atto.FirmeAnte);
 
-            if (atto.FirmePost.Any())
-            {
-                firmeDtos.AddRange(atto.FirmePost);
-            }
-            
+            if (atto.FirmePost.Any()) firmeDtos.AddRange(atto.FirmePost);
+
             firmeDtos = firmeDtos.OrderBy(f => f.Timestamp.Year)
                 .ThenBy(f => f.Timestamp.Month)
                 .ThenBy(f => f.Timestamp.Day)
@@ -704,13 +686,9 @@ namespace PortaleRegione.BAL
 
             body = body.Replace("{lblTitoloATTOView}", title);
             if (atto.Tipo == (int)TipoAttoEnum.RIS)
-            {
                 body = body.Replace("{GRUPPO_POLITICO}", $"{atto.GetLegislatura()} LEGISLATURA <br> {atto.Protocollo}");
-            }
             else
-            {
                 body = body.Replace("{GRUPPO_POLITICO}", atto.id_gruppo > 0 ? atto.gruppi_politici.nome_gruppo : "");
-            }
 
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
             if (enableLogo)
@@ -779,9 +757,27 @@ namespace PortaleRegione.BAL
 
             #endregion
 
+            // #1443
+            if (atto.Note.Any())
+            {
+                if (atto.Note.Any(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA))
+                    atto.Note_Pubbliche += string.Join("\n",
+                        atto.Note
+                            .Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA)
+                            .Select(n => n.Nota)
+                    );
+
+                if (atto.Note.Any(n => n.TipoEnum == TipoNotaEnum.GENERALE_PRIVATA))
+                    atto.Note_Private += string.Join("\n",
+                        atto.Note
+                            .Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PRIVATA)
+                            .Select(n => n.Nota)
+                    );
+            }
+
             body = body.Replace("{lblNotePubblicheATTOView}",
                     !string.IsNullOrEmpty(atto.Note_Pubbliche)
-                        ? $"Note: {atto.Note_Pubbliche}"
+                        ? $"{atto.Note_Pubbliche}"
                         : string.Empty)
                 .Replace("{NOTE_PUBBLICHE_COMMENTO_START}",
                     !string.IsNullOrEmpty(atto.Note_Pubbliche) ? string.Empty : "<!--").Replace(
@@ -793,7 +789,7 @@ namespace PortaleRegione.BAL
                 if (currentUser.IsSegreteriaAssemblea &&
                     !string.IsNullOrEmpty(atto.Note_Private))
                     body = body.Replace("{lblNotePrivateATTOView}",
-                            $"Note Riservate: {atto.Note_Private}")
+                            $"{atto.Note_Private}")
                         .Replace("{NOTEPRIV_COMMENTO_START}", string.Empty)
                         .Replace("{NOTEPRIV_COMMENTO_END}", string.Empty);
                 else
@@ -806,6 +802,20 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{lblNotePrivateATTOView}", string.Empty)
                     .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
                     .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
+            }
+
+            // #1443
+            if (body.Contains("STATO_PREVIEW"))
+            {
+                var labelStato = Utility.GetText_StatoDASI(atto.IDStato);
+
+                if (atto.TipoChiusuraIter.HasValue && atto.TipoChiusuraIter > 0)
+                    labelStato += $" {Utility.GetText_ChiusuraIterDASI(atto.TipoChiusuraIter)}";
+
+                body = body.Replace("{lblStatoPreviewATTOView}",
+                        $"<div class=\"chip white\" style=\"min-width: unset;\">{labelStato}</div>")
+                    .Replace("{STATO_PREVIEW_COMMENTO_START}", string.Empty)
+                    .Replace("{STATO_PREVIEW_COMMENTO_END}", string.Empty);
             }
 
             var textQr = string.Empty;
