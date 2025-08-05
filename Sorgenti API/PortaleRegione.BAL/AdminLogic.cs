@@ -153,7 +153,7 @@ namespace PortaleRegione.BAL
 
                 var listaPersone = await _unitOfWork
                         .Persone
-                        .GetAll(model.page,
+                        .GetAll(1,
                             100000,
                             personaDto,
                             queryFilter,
