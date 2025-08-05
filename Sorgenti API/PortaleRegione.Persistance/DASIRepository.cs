@@ -1254,8 +1254,7 @@ namespace PortaleRegione.Persistance
                 .CountAsync(item => !item.Eliminato
                                     && item.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                     && item.UID_Atto_ODG == uidAtto
-                                    && item.DataIscrizioneSeduta.HasValue
-                                    && !item.TipoChiusuraIter.HasValue);
+                                    && item.DataIscrizioneSeduta.HasValue);
         }
 
         public async Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona)
