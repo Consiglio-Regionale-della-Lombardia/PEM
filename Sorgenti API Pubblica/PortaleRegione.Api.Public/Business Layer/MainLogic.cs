@@ -47,7 +47,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
     /// </summary>
     public class MainLogic
     {
+        internal const string USERS_IN_DATABASE = "USERS_IN_DATABASE";
         private readonly IUnitOfWork _unitOfWork;
+
+        private readonly MemoryCache memoryCache = MemoryCache.Default;
 
         /// <summary>
         ///     Inizializza una nuova istanza di MainLogic con le dipendenze necessarie.
@@ -57,6 +60,18 @@ namespace PortaleRegione.Api.Public.Business_Layer
         {
             _unitOfWork = unitOfWork;
             GetUsersInDb();
+        }
+
+        internal List<PersonaLightDto> Users
+        {
+            get
+            {
+                if (memoryCache.Contains(USERS_IN_DATABASE))
+                    return memoryCache.Get(USERS_IN_DATABASE) as List<PersonaLightDto>;
+
+                return new List<PersonaLightDto>();
+            }
+            set => memoryCache.Add(USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(8));
         }
 
         /// <summary>
@@ -69,10 +84,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             var tipi = Enum.GetValues(typeof(TipoAttoEnum));
             foreach (var tipo in tipi)
             {
-                if (Utility.tipiNonVisibili.Contains((TipoAttoEnum)tipo))
-                {
-                    continue;
-                }
+                if (Utility.tipiNonVisibili.Contains((TipoAttoEnum)tipo)) continue;
 
                 result.Add(new KeyValueDto
                 {
@@ -95,7 +107,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
             // #1089
             var result = new List<LegislaturaDto>();
             foreach (var legislatura in legislature)
-            {
                 result.Add(new LegislaturaDto
                 {
                     id_legislatura = legislatura.id_legislatura,
@@ -104,7 +115,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     durata_legislatura_da = legislatura.durata_legislatura_da,
                     durata_legislatura_a = legislatura.durata_legislatura_a
                 });
-            }
 
             return result;
         }
@@ -147,10 +157,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             var stati = Enum.GetValues(typeof(StatiAttoEnum));
             foreach (var stato in stati)
             {
-                if (Utility.statiNonVisibili_Segreteria.Contains((int)stato))
-                {
-                    continue;
-                }
+                if (Utility.statiNonVisibili_Segreteria.Contains((int)stato)) continue;
 
                 result.Add(new KeyValueDto
                 {
@@ -171,13 +178,11 @@ namespace PortaleRegione.Api.Public.Business_Layer
             var result = new List<KeyValueDto>();
             var stati = Enum.GetValues(typeof(TipoChiusuraIterEnum));
             foreach (var stato in stati)
-            {
                 result.Add(new KeyValueDto
                 {
                     id = (int)stato,
                     descr = Utility.GetText_ChiusuraIterDASI((int)stato)
                 });
-            }
 
             return result;
         }
@@ -244,7 +249,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 PersonaPublicDto personaRelatore1 = null;
                 PersonaPublicDto personaRelatore2 = null;
                 PersonaPublicDto personaRelatoreMinoranza = null;
-                List<KeyValueDto> proponenti = new List<KeyValueDto>();
+                var proponenti = new List<KeyValueDto>();
                 if (attoInDb.Tipo != (int)TipoAttoEnum.RIS)
                 {
                     gruppo = await _unitOfWork.Persone.GetGruppo(attoInDb.id_gruppo);
@@ -259,7 +264,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     if (attoInDb.UIDPersonaRelatore2.HasValue)
                         personaRelatore2 = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatore2.Value);
                     if (attoInDb.UIDPersonaRelatoreMinoranza.HasValue)
-                        personaRelatoreMinoranza = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatoreMinoranza.Value);
+                        personaRelatoreMinoranza =
+                            await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatoreMinoranza.Value);
                 }
 
                 if (gruppo != null)
@@ -292,8 +298,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
                 var firme = await GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
 
-                var linkTestoOriginale = $"{AppSettingsConfigurationHelper.urlDASI_Originale.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
-                var linkTestoTrattazione = $"{AppSettingsConfigurationHelper.urlDASI_Trattazione.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+                var linkTestoOriginale =
+                    $"{AppSettingsConfigurationHelper.urlDASI_Originale.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
+                var linkTestoTrattazione =
+                    $"{AppSettingsConfigurationHelper.urlDASI_Trattazione.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
 
                 var attoDto = new AttoDasiPublicDto
                 {
@@ -309,7 +317,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
                         AppSettingsConfigurationHelper.masterKey),
                     tipo_risposta_richiesta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
-                    tipo_risposta_fornita = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta_Effettiva.GetValueOrDefault(0)),
+                    tipo_risposta_fornita =
+                        Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta_Effettiva.GetValueOrDefault(0)),
                     area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
                     data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
                     data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
@@ -328,7 +337,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     dcr = attoInDb.DCR,
                     dcrc = attoInDb.DCCR,
                     firme = firme,
-                    burl = attoInDb.BURL,
+                    burl = string.IsNullOrEmpty(attoInDb.BURL) ? string.Empty : attoInDb.BURL, // #1427
                     note = note,
                     link_testo_originale = linkTestoOriginale,
                     link_testo_trattazione = linkTestoTrattazione
@@ -343,13 +352,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 }
                 else
                 {
-                    if(attoInDb.UIDPersonaProponente.HasValue)
+                    if (attoInDb.UIDPersonaProponente.HasValue)
                         attoDto.uid_proponente = attoInDb.UIDPersonaProponente.Value;
 
-                    if (attoInDb.TipoMOZ > 0)
-                    {
-                        attoDto.tipo_mozione = Utility.GetText_TipoMOZDASI(attoInDb.TipoMOZ);
-                    }
+                    if (attoInDb.TipoMOZ > 0) attoDto.tipo_mozione = Utility.GetText_TipoMOZDASI(attoInDb.TipoMOZ);
                 }
 
                 return attoDto;
@@ -377,7 +383,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 foreach (var firma in firme)
                 {
                     var gruppo = await _unitOfWork.Persone.GetGruppo(firma.id_gruppo);
-                    var dto = new AttiFirmePublicDto()
+                    var dto = new AttiFirmePublicDto
                     {
                         UID_persona = firma.UID_persona,
                         id_persona = Users.First(u => u.UID_persona == firma.UID_persona).id_persona,
@@ -393,9 +399,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     };
 
                     if (firma.id_AreaPolitica.HasValue)
-                    {
                         dto.AreaPolitica = Utility.GetText_AreaPolitica(firma.id_AreaPolitica.Value);
-                    }
 
                     result.Add(dto);
                 }
@@ -431,7 +435,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             return new BaseResponse<AttoLightDto>(
                 request.page,
                 request.size,
-                res.Select(a => new AttoLightDto()
+                res.Select(a => new AttoLightDto
                 {
                     uidAtto = a.UIDAtto,
                     oggetto = a.Oggetto,
@@ -449,7 +453,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
             var res = new List<FilterStatement<AttoLightDto>>();
 
             if (request.id_legislatura.HasValue && request.id_legislatura > 0)
-            {
                 res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Legislatura),
@@ -457,10 +460,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Operation = Operation.EqualTo,
                     Connector = FilterStatementConnector.And
                 });
-            }
 
             if (request.id_gruppo.HasValue && request.id_gruppo > 0)
-            {
                 res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.id_gruppo),
@@ -468,7 +469,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Operation = Operation.EqualTo,
                     Connector = FilterStatementConnector.And
                 });
-            }
 
             if (!string.IsNullOrEmpty(request.n_atto))
             {
@@ -498,7 +498,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
             }
 
             if (request.data_presentazione_da.HasValue)
-            {
                 res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Timestamp),
@@ -506,10 +505,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Operation = Operation.GreaterThanOrEqualTo,
                     Connector = FilterStatementConnector.And
                 });
-            }
 
             if (request.data_presentazione_a.HasValue)
-            {
                 res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Timestamp),
@@ -517,10 +514,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Operation = Operation.LessThanOrEqualTo,
                     Connector = FilterStatementConnector.And
                 });
-            }
 
             if (!string.IsNullOrEmpty(request.oggetto))
-            {
                 res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.Oggetto),
@@ -528,10 +523,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Operation = Operation.Contains,
                     Connector = FilterStatementConnector.And
                 });
-            }
 
             if (!string.IsNullOrEmpty(request.burl))
-            {
                 res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.BURL),
@@ -539,10 +532,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Operation = Operation.Contains,
                     Connector = FilterStatementConnector.And
                 });
-            }
 
             if (request.dcr.HasValue)
-            {
                 res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.DCR),
@@ -550,10 +541,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Operation = Operation.EqualTo,
                     Connector = FilterStatementConnector.And
                 });
-            }
 
             if (request.dccr.HasValue)
-            {
                 res.Add(new FilterStatement<AttoLightDto>
                 {
                     PropertyId = nameof(ATTI_DASI.DCCR),
@@ -561,7 +550,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Operation = Operation.EqualTo,
                     Connector = FilterStatementConnector.And
                 });
-            }
 
             return res;
         }
@@ -570,21 +558,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
         {
             var split = etichetta.Split('_');
             return $"{split[0]} {split[1]}";
-        }
-
-        private readonly MemoryCache memoryCache = MemoryCache.Default;
-        internal const string USERS_IN_DATABASE = "USERS_IN_DATABASE";
-
-        internal List<PersonaLightDto> Users
-        {
-            get
-            {
-                if (memoryCache.Contains(USERS_IN_DATABASE))
-                    return memoryCache.Get(USERS_IN_DATABASE) as List<PersonaLightDto>;
-
-                return new List<PersonaLightDto>();
-            }
-            set => memoryCache.Add(USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(8));
         }
 
         internal void GetUsersInDb()
@@ -612,11 +585,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 Path.GetFileName(path));
 
             if (!path.Contains("~"))
-            {
                 complete_path = Path.Combine(
                     AppSettingsConfigurationHelper.PercorsoCompatibilitaDocumenti,
                     path);
-            }
 
             var result = Utility.ComposeFileResponse(complete_path);
             return result;
