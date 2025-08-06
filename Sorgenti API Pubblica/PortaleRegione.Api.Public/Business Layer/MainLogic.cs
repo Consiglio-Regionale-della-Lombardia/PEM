@@ -288,7 +288,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 {
                     Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
                     Titolo = d.Titolo,
-                    Link = $"{hostUrl}/{ApiRoutes.ScaricaDocumento}?path={d.Path}",
+                    Link = $"{hostUrl}/{ApiRoutes.ScaricaDocumento}?path={d.Path.Replace('\\', '/')}", // #1429
                     TipoEnum = (TipoDocumentoEnum)d.Tipo
                 }).ToList();
 
