@@ -21,23 +21,21 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.SDK.GEA.Contracts;
 
 namespace PortaleRegione.SDK.GEA
 {
     public class GeaHelper
     {
-        public async Task<string> RicercaAtti(CercaAttiGeaRequest request)
+        public async Task<string> RicercaAtti(CercaAttiGeaRequest request, string username, string password)
         {
             try
             {
                 using var httpClient = new HttpClient();
                 httpClient.Timeout = TimeSpan.FromMinutes(10);
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var byteArray = Encoding.ASCII.GetBytes("gedasi-gea_read@consiglio.regione.lombardia.it:Consiglio123!!");
+                var byteArray = Encoding.ASCII.GetBytes($"{username}:{password}");
                 var token = Convert.ToBase64String(byteArray);
 
                 httpClient.DefaultRequestHeaders.Authorization =
