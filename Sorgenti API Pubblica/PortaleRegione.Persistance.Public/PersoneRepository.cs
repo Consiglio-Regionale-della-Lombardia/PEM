@@ -38,12 +38,12 @@ namespace PortaleRegione.Persistance.Public
         /// <summary>
         ///     Contesto del database utilizzato per l'accesso ai dati.
         /// </summary>
-        protected readonly DbContext Context;
+        private readonly DbContext Context;
 
         /// <summary>
         ///     Proprietà di utilità per accedere al contesto del database specifico di PortaleRegione come tipizzato DbContext.
         /// </summary>
-        public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
+        private PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
         public PersoneRepository(DbContext context)
         {

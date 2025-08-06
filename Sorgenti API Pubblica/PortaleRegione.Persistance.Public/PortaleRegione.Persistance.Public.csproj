@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttiRepository.cs" />
     <Compile Include="DASIRepository.cs" />
     <Compile Include="LegislatureRepository.cs" />
     <Compile Include="PersoneRepository.cs" />

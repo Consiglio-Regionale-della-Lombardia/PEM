@@ -17,25 +17,22 @@
  */
 
 using System;
+using System.Threading.Tasks;
+using PortaleRegione.Domain;
 
-namespace PortaleRegione.DTO.Domain;
-
-public class AttiAbbinamentoDto
+namespace PortaleRegione.Contracts.Public
 {
-    public Guid UidAbbinamento { get; set; }
-    public Guid UidAttoAbbinato { get; set; }
-    public DateTime Data { get; set; }
-    public string OggettoAttoAbbinato { get; set; }
-    public string TipoAttoAbbinato { get; set; }
-    public string NumeroAttoAbbinato { get; set; }
-}
-
-public class AttiAbbinamentoPublicDto
-{
-    public Guid UidAbbinamento { get; set; }
-    public Guid UidAttoAbbinato { get; set; }
-    public string Data { get; set; }
-    public string OggettoAttoAbbinato { get; set; }
-    public string TipoAttoAbbinato { get; set; }
-    public string NumeroAttoAbbinato { get; set; }
+    /// <summary>
+    ///     Definisce le operazioni di repository per la gestione degli ATTI,
+    ///     consentendo l'accesso e la manipolazione dei dati degli atti.
+    /// </summary>
+    public interface IAttiRepository
+    {
+        /// <summary>
+        ///     Recupera un singolo atto utilizzando il suo identificativo unico.
+        /// </summary>
+        /// <param name="attoUId">L'identificativo unico dell'atto da recuperare.</param>
+        /// <returns>L'atto corrispondente all'identificativo fornito.</returns>
+        Task<ATTI> Get(Guid attoUId);
+    }
 }

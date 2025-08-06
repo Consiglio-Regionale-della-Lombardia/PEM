@@ -296,6 +296,45 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 note = note.Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA).ToList();
 
                 var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
+
+                // #1428
+                if (attoInDb.UID_Atto_ODG.HasValue)
+                    if (!abbinamenti.Any(a => a.UidAttoAbbinato.Equals(attoInDb.UID_Atto_ODG.Value)))
+                    {
+                        var attoAbbinatoODG = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                        abbinamenti.Add(new AttiAbbinamentoPublicDto
+                        {
+                            UidAbbinamento = Guid.NewGuid(),
+                            Data = attoAbbinatoODG.DataCreazione.HasValue
+                                ? attoAbbinatoODG.DataCreazione.Value.ToString("dd/MM/yyyy")
+                                : "",
+                            UidAttoAbbinato = attoInDb.UID_Atto_ODG.Value,
+                            OggettoAttoAbbinato = attoAbbinatoODG.Oggetto,
+                            TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinatoODG.IDTipoAtto),
+                            NumeroAttoAbbinato = attoAbbinatoODG.IDTipoAtto == (int)TipoAttoEnum.ALTRO
+                                ? "Dibattito"
+                                : $"{Utility.GetText_Tipo(attoAbbinatoODG.IDTipoAtto)} {attoAbbinatoODG.NAtto}"
+                        });
+                    }
+
+                // #1428
+                if (attoInDb.UID_MOZ_Abbinata.HasValue)
+                {
+                    var attoAbbinatoMOZ = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
+                    if (!abbinamenti.Any(a => a.UidAttoAbbinato.Equals(attoInDb.UID_MOZ_Abbinata.Value)))
+                        abbinamenti.Add(new AttiAbbinamentoPublicDto
+                        {
+                            UidAbbinamento = Guid.NewGuid(),
+                            UidAttoAbbinato = attoInDb.UID_MOZ_Abbinata.Value,
+                            Data = attoAbbinatoMOZ.Timestamp.HasValue
+                                ? attoAbbinatoMOZ.Timestamp.Value.ToString("dd/MM/yyyy")
+                                : "",
+                            OggettoAttoAbbinato = attoAbbinatoMOZ.OggettoView(),
+                            TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinatoMOZ.Tipo),
+                            NumeroAttoAbbinato = GetDisplayFromEtichetta(attoAbbinatoMOZ.Etichetta)
+                        });
+                }
+
                 var firme = await GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
 
                 var linkTestoOriginale =
