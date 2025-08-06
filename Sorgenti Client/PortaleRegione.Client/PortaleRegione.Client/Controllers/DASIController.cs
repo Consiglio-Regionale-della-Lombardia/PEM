@@ -717,26 +717,6 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-
-                if (model.Tutti)
-                {
-                    var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
-                    var request = new BaseRequest<AttoDASIDto>
-                    {
-                        page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
-                        filtro = modelInCache.Data.Filters,
-                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
-                    };
-                    var list = await apiGateway.DASI.GetSoloIds(request);
-
-                    if (model.Lista != null)
-                        foreach (var guid in model.Lista)
-                            list.Remove(guid);
-
-                    model.Lista = list;
-                }
-
                 await apiGateway.DASI.IscriviSeduta(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
