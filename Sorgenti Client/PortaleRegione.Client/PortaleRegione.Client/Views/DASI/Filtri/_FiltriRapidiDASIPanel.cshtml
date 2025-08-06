@@ -94,12 +94,20 @@
         async function() {
             document.getElementById('loadingSpinner').style.display = 'none';
             var isTrattazione = @Html.Raw((int)Model.ClientMode);
+            console.log("TRATTAZUOne", isTrattazione);
             if (isTrattazione == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
                 console.log("### TRATTAZIONE ###");
 
                 ripristinaFiltriTrattazione();
                 return;
             }
+            else{
+                console.log("### GRUPPI ###");
+                const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+                const filtriConKeyLabel = filtri.filter(filtro => filtro.keyLabel && filtro.keyLabel.trim() !== '');
+                localStorage.setItem('filtriDasi', JSON.stringify(filtriConKeyLabel));
+            }
+            
             ripristinaFiltri();
             ripristinaOrdinamento();
 
@@ -878,8 +886,6 @@
                 iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Mozione urgente" aria-label="Mozione urgente">priority_high</i>`;
             }
             
-            console.log("atto", result)
-
             const row = document.createElement('tr');
             const tdCheckBoxValue = document.createElement('td');
             tdCheckBoxValue.style.width = '1%';
@@ -3091,6 +3097,7 @@
     function ripristinaFiltri() {
         $('#chips-container').empty();
         const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+        console.log("FILTRI", filtri)
         if (filtri) {
             filtri.forEach(function(filtro) {
                 addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
