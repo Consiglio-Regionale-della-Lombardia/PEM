@@ -228,7 +228,9 @@
 									<div class="collapsible-header valign-wrapper">
 										@if (atto.UIDPersonaProponente != firme.UID_persona)
 										{
-											if (atto.IsMOZ() || atto.IsIQT())
+											if (atto.IsMOZ()
+                                                || atto.IsIQT()
+                                                || atto.IsODG())
 											{
 												<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 														onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
@@ -261,7 +263,9 @@
 									<div class="collapsible-header valign-wrapper">
 										@if (string.IsNullOrEmpty(firme.Data_ritirofirma))
 										{
-											if (atto.IsMOZ() || atto.IsIQT())
+											if (atto.IsMOZ()
+                                                || atto.IsIQT()
+                                                || atto.IsODG())
 											{
 												<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 														onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
