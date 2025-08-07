@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -129,8 +128,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<View_gruppi_politici_con_giunta> Get(int gruppoId)
         {
-            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
-
             return await PRContext
                 .View_gruppi_politici_con_giunta
                 .FirstOrDefaultAsync(g => g.id_gruppo == gruppoId);
@@ -138,8 +135,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<View_gruppi_politici_con_giunta>> GetAllWithGiunta()
         {
-            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
-
             return await PRContext
                 .View_gruppi_politici_con_giunta
                 .ToListAsync();

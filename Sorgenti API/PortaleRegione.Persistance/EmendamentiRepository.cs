@@ -23,7 +23,6 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
-using Newtonsoft.Json;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
@@ -31,7 +30,6 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -694,8 +692,6 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<PARTI_TESTO>> GetPartiEmendabili()
         {
-            PRContext.PARTI_TESTO.FromCache(DateTimeOffset.Now.AddDays(100)).ToList();
-
             return await PRContext.PARTI_TESTO.ToListAsync();
         }
 
@@ -705,8 +701,6 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<TIPI_EM>> GetTipiEmendamento()
         {
-            PRContext.TIPI_EM.FromCache(DateTimeOffset.Now.AddDays(100)).ToList();
-
             return await PRContext.TIPI_EM.ToListAsync();
         }
 
@@ -741,8 +735,6 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<STATI_EM>> GetStatiEmendamento()
         {
-            PRContext.STATI_EM.FromCache(DateTimeOffset.Now.AddDays(100)).ToList();
-
             return await PRContext
                 .STATI_EM
                 .ToListAsync();

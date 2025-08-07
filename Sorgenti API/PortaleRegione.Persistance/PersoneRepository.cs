@@ -26,7 +26,6 @@ using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -43,14 +42,12 @@ namespace PortaleRegione.Persistance
 
         public async Task<View_UTENTI> Get(string login_windows)
         {
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
             var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(a => a.userAD == login_windows);
             return result;
         }
 
         public async Task<View_UTENTI> Get(Guid personaUId)
         {
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
             var result = await PRContext.View_UTENTI.FindAsync(personaUId);
             return result;
         }
@@ -63,7 +60,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<View_UTENTI> Get(int personaId)
         {
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
             var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p => p.id_persona == personaId);
             return result;
         }
@@ -242,8 +238,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<View_UTENTI>> GetAll()
         {
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
-
             var query = PRContext
                 .View_UTENTI
                 .Where(u => u.UID_persona != Guid.Empty)
@@ -257,9 +251,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<View_UTENTI>> GetAssessoriRiferimento(int id_legislatura)
         {
-            PRContext.View_assessori_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-
             var assessori = await PRContext
                 .View_assessori_in_carica
                 .ToListAsync();
@@ -312,9 +303,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<View_UTENTI>> GetConsiglieri(int id_legislatura)
         {
-            PRContext.View_consiglieri_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-
             var consiglieri = await PRContext
                 .View_consiglieri_in_carica
                 .ToListAsync();
