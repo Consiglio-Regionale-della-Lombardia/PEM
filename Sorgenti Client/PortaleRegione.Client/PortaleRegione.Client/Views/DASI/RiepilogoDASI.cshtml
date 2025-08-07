@@ -40,6 +40,26 @@
 
 }
 
+<div id="waiting" class="modal" style="height: 120px">
+	<div class="modal-content center">
+		<div class="preloader-wrapper active">
+			<div class="spinner-layer spinner-blue-only">
+				<div class="circle-clipper left">
+					<div class="circle"></div>
+				</div>
+				<div class="gap-patch">
+					<div class="circle"></div>
+				</div>
+				<div class="circle-clipper right">
+					<div class="circle"></div>
+				</div>
+			</div>
+		</div>
+
+		<div id="waiting_info_message"></div>
+	</div>
+</div>
+
 <div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
         <a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@url">
@@ -144,7 +164,7 @@
 <script>
 	window.addEventListener("message", (event) => {
 		// Controlla l'origine del messaggio per motivi di sicurezza
-		if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") { // sostituisci con il tuo dominio
+		if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") {
 			return;
 		}
 
@@ -178,11 +198,12 @@
 			if (value == null || value == "")
 				return;
 
+			waiting(true);
 			$.ajax({
 				url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
 				method: "GET"
 			}).done(function (data) {
-				console.log('esito', data.message)
+				waiting(false);
 				if (data.message) {
 					var typeMessage = "error";
 					var message = data.message;
@@ -202,13 +223,16 @@
 						text: message,
 						icon: typeMessage,
 						button: "OK"
-					}).then(() => {
+					}).then(() => {						
 						if (data.message.includes("OK") || data.message.includes("?!?")) {
+							waiting(true);
 							location.reload();
+							waiting(false);
 						}
 					});
 				}
 			}).fail(function (err) {
+				waiting(false);
 				console.log("error", err);
 				Error(err);
 			});

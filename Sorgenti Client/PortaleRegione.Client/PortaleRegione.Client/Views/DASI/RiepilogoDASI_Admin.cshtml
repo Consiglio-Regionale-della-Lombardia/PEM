@@ -19,6 +19,26 @@
 	var textTitoloRicerca = filtri_attivi ? " - Ricerca" : string.Empty;
 }
 
+<div id="waiting" class="modal" style="height: 120px">
+    <div class="modal-content center">
+        <div class="preloader-wrapper active">
+            <div class="spinner-layer spinner-blue-only">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="gap-patch">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="waiting_info_message"></div>
+    </div>
+</div>
+
 <div class="row" style="margin-bottom: unset!important">
 	<div class="col s12">
 		<a class="btn-floating waves-effect waves-light grey darken-3 header-back" href="@url">

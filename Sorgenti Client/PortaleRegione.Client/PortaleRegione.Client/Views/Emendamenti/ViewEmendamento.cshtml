@@ -439,10 +439,12 @@
 				if (value == null || value == "")
 					return;
 
+				waiting(true);
 				$.ajax({
 					url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
 					method: "GET"
 				}).done(function (data) {
+					waiting(false);
 					if (data.message) {
 						var typeMessage = "error";
 						var str = data.message;
@@ -456,14 +458,19 @@
 							icon: typeMessage,
 							button: "OK"
 						}).then(() => {
+							waiting(true);
 							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                             location.reload();
+							waiting(false);
 						});
 					} else {
-                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+						waiting(true);
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");						
 						location.reload();
+						waiting(false);
 					}
 				}).fail(function (err) {
+					waiting(false);
 					console.log("error", err);
 					Error(err);
 				});
