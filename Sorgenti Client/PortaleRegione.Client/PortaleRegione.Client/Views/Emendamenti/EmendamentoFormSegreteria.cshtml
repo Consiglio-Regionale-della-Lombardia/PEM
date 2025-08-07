@@ -8,6 +8,7 @@
     Layout = null;
     var displayAtto = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
     var isNew = Model.Emendamento.UIDEM == Guid.Empty;
+    var isSubEM = Model.Emendamento.Rif_UIDEM.HasValue;
     var tipo_descrizione = Model.Emendamento.Rif_UIDEM.HasValue ? "sub-emendamento" : "emendamento";
     ViewBag.Title = isNew ? string.Format("{0} - Nuovo {1}", displayAtto, tipo_descrizione) : string.Format("{0} - Modifica {1}", displayAtto, tipo_descrizione);
 }
@@ -65,7 +66,7 @@
 		</h4>
 	</div>
 </div>
-@if (isNew)
+@if (isNew && !isSubEM)
 {
 	<div class="row">
 		<div class="col l6 right-align">
@@ -86,7 +87,7 @@
 		</div>
 	</div>
 }
-<div id="pnlTestiAtto" class="card" style="display: @Html.Raw(isNew ? "block" : "none")">
+<div id="pnlTestiAtto" class="card" style="display: @Html.Raw(isNew && !isSubEM ? "block" : "none")">
 	<div class="card-content">
 		<table id="tableTesti" class="tableTesti">
 			<tr>
@@ -104,7 +105,7 @@
 	</div>
 </div>
 
-<div id="pnlFormEM" class="card" style="display: @Html.Raw(isNew ? "none" : "block");">
+<div id="pnlFormEM" class="card" style="display: @Html.Raw(isNew && !isSubEM ? "none" : "block");">
 	<div class="card-content">
 		<div class="row">
 			<div class="col s12 center">
