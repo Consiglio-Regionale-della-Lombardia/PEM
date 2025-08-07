@@ -1533,7 +1533,7 @@ namespace PortaleRegione.Client.Controllers
             util.AddFilter_ByDataSeduta(ref model, sedutaUId);
             util.AddFilter_ByDataIscrizioneSeduta(ref model, filtro_data_iscrizione_seduta);
             util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
-            util.AddFilter_ByStato(ref model, filtro_stato, CurrentUser);
+            util.AddFilter_ByStato(ref model, filtro_stato, mode);
             util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
             util.AddFilter_ByTipo(ref model, filtro_tipo_trattazione, mode);
             util.AddFilter_ByMozioneUrgente(ref model, filtro_mozione_urgente);
