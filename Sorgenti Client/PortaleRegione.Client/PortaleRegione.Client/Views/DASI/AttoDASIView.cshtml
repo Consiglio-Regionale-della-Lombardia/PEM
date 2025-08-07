@@ -386,18 +386,21 @@
 	<div class="row" id="pnlStandardFirme">
 		<div class="col s12">
 
-			@if ((firmeGroup.Any()
-				  && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-				|| (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-					&& Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
-				 || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-					 && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
-				 || Model.CurrentUser.IsSegreteriaAssemblea)
+			@if (string.IsNullOrEmpty(Model.Atto.Protocollo))
 			{
-				<button type="button" role="button" class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
-					Gestisci priorità e ordinamento firme @*#987*@
-				</button>
-				<br />
+				if ((firmeGroup.Any()
+				     && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+				    || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+				                                       && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+				    || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+				                                                           && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+				    || Model.CurrentUser.IsSegreteriaAssemblea)
+				{
+					<button type="button" role="button" class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
+						Gestisci priorità e ordinamento firme @*#987*@
+					</button>
+					<br />
+				}
 			}
 
 			<ul class="collection" id="pnlFirme">
