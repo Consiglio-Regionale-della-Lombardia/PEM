@@ -338,7 +338,7 @@ namespace PortaleRegione.BAL
                     var emRiferimento = await _unitOfWork.Emendamenti.Get(emendamentoDto.Rif_UIDEM.Value);
                     if (emRiferimento.UIDPersonaProponente.Equals(emendamentoDto.UIDPersonaProponente))
                     {
-                        throw new Exception("Non è possibile creare un Sub Emendamento con lo stesso proponente dell'emendamento di riferimento.");
+                        throw new Exception("Non è possibile sub-emendare un proprio emendamento.");
                     }
                     emendamentoDto.SubProgressivo = progressivo;
                 }

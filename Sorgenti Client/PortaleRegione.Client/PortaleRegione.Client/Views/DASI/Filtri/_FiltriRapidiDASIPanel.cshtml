@@ -1126,8 +1126,8 @@
                             case "PDL":
                                 td.innerHTML += `<p>
                                       <a class="blue-text" style="text-decoration: underline;"
-                                         onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">
-                                        ${result.ODG_Atto_PEM}
+                                         onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${abb.UidAttoAbbinato}')">
+                                        ${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}
                                       </a>
                                     </p>`;
                                 break;

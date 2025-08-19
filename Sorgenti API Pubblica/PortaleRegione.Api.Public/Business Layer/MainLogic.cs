@@ -313,7 +313,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                             TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinatoODG.IDTipoAtto),
                             NumeroAttoAbbinato = attoAbbinatoODG.IDTipoAtto == (int)TipoAttoEnum.ALTRO
                                 ? "Dibattito"
-                                : $"{Utility.GetText_Tipo(attoAbbinatoODG.IDTipoAtto)} {attoAbbinatoODG.NAtto}"
+                                : attoAbbinatoODG.NAtto
                         });
                     }
 
