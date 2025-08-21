@@ -244,6 +244,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
                 if (attoInDb == null)
                     throw new KeyNotFoundException($"Identificativo {uidAtto} non trovato.");
+
+                var tipo_risposta_fornita =
+                    Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta_Effettiva.GetValueOrDefault(0));
                 KeyValueDto gruppo = null;
                 PersonaPublicDto proponente = null;
                 PersonaPublicDto personaRelatore1 = null;
@@ -280,7 +283,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     data_trattazione = r.DataTrattazione,
                     organo = r.DescrizioneOrgano,
                     id_organo = r.IdOrgano,
-                    tipo_risposta = Utility.GetText_TipoRispostaDASI(r.Tipo),
+                    tipo_risposta = tipo_risposta_fornita,
                     tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
                 }).ToList();
                 var documentiInDb = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
@@ -356,8 +359,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
                         AppSettingsConfigurationHelper.masterKey),
                     tipo_risposta_richiesta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
-                    tipo_risposta_fornita =
-                        Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta_Effettiva.GetValueOrDefault(0)),
+                    tipo_risposta_fornita = tipo_risposta_fornita,
                     area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
                     data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
                     data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
