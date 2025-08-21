@@ -1128,4 +1128,5 @@ select.readonly {
 	justify-content: flex-start; /* Icona e testo ben allineati */
 	display: flex;
 	align-items: center;
+	min-width: 160px;
 }
