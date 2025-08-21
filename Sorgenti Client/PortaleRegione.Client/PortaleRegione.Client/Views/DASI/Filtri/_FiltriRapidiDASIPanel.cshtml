@@ -103,9 +103,14 @@
             }
             else{
                 console.log("### GRUPPI ###");
-                const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
-                const filtriConKeyLabel = filtri.filter(filtro => filtro.keyLabel && filtro.keyLabel.trim() !== '');
-                localStorage.setItem('filtriDasi', JSON.stringify(filtriConKeyLabel));
+                var filtriFromStorage = localStorage.getItem('filtriDasi');
+                if (filtriFromStorage) {
+                    const filtri = JSON.parse(filtriFromStorage);
+                    const filtriConKeyLabel = filtri.filter(filtro => filtro.keyLabel && filtro.keyLabel.trim() !== '');
+                    localStorage.setItem('filtriDasi', JSON.stringify(filtriConKeyLabel));
+                }else{
+                    localStorage.setItem('filtriDasi', JSON.stringify([]));
+                }
             }
             
             ripristinaFiltri();
@@ -1440,7 +1445,19 @@
             M.FormSelect.init(document.querySelectorAll('select'));
             break;
         case '@nameof(AttoDASIDto.IDStato)':
-            var stati = await GetStatiDASI();
+            var stati = [];
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.PRESENTATO),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO))'
+            });
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.IN_TRATTAZIONE),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE))'
+            });
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.COMPLETATO),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO))'
+            });
             selectHTML = '<select id="stati-select" multiple>';
             stati.forEach(function(item) {
                 if (item.IDStato != 0) {
@@ -1453,7 +1470,31 @@
             M.FormSelect.init(document.querySelectorAll('select'));
             break;
         case '@nameof(AttoDASIDto.Tipo)':
-            var tipi = await GetTipiDASI();
+            var tipi = [];
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.ITL),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.ITL))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.ITR),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.ITR))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.IQT),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.IQT))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.MOZ),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.MOZ))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.ODG),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.ODG))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.RIS),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.RIS))'
+            });
             selectHTML = '<select id="tipi-select" multiple>';
             tipi.forEach(function(item) {
                 if (item.IDTipoAtto != 0) {
