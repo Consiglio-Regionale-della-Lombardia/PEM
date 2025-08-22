@@ -14,25 +14,17 @@
 
 	if (HttpContext.Current.User.Identity.IsAuthenticated)
 	{
-		var authCookie1 = Request.Cookies["PRCookies1"];
-		var authCookie2 = Request.Cookies["PRCookies2"];
-		var authCookie3 = Request.Cookies["PRCookies3"];
-		if (authCookie1 != null && authCookie2 != null && authCookie3 != null)
-		{
-			if (!string.IsNullOrEmpty(authCookie1.Value) && !string.IsNullOrEmpty(authCookie2.Value) && !string.IsNullOrEmpty(authCookie3.Value))
-			{
-				var authenticationTicket1 = FormsAuthentication.Decrypt(authCookie1.Value);
-				var authenticationTicket2 = FormsAuthentication.Decrypt(authCookie2.Value);
-				var authenticationTicket3 = FormsAuthentication.Decrypt(authCookie3.Value);
-				var data = JsonConvert.DeserializeObject<PersonaDto>(string.Format("{0}{1}{2}", authenticationTicket1.UserData, authenticationTicket2.UserData, authenticationTicket3.UserData));
+		var data = TryReadChunkedCookies.GetJson<PersonaDto>(Request, "PRCookies");
 
-				persona = data;
-				currentRole = data.CurrentRole;
-				ruoli = data.Ruoli;
-				gruppo = data.Gruppo;
-				carica = data.IsGiunta ? data.Carica : string.Empty;
-			}
+		if (data != null)
+		{
+			persona = data;
+			currentRole = data.CurrentRole;
+			ruoli = data.Ruoli;
+			gruppo = data.Gruppo;
+			carica = data.IsGiunta ? data.Carica : string.Empty;
 		}
+		
 		viewFromCache = Convert.ToInt16(HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{persona.UID_persona.ToString()}"));
 		if (viewFromCache == 0)
 		{

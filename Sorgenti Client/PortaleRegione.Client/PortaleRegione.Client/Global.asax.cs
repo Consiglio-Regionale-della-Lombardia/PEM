@@ -28,6 +28,7 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Security;
+using PortaleRegione.Client.Helpers;
 
 namespace PortaleRegione.Client
 {
@@ -63,31 +64,21 @@ namespace PortaleRegione.Client
         protected void Application_AuthenticateRequest(object sender, EventArgs e)
         {
             var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            
+            if (authCookie == null) return;
+            
+            var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+            if (authTicket == null) return;
+            
+            var persona = TryReadChunkedCookies.GetJson<PersonaDto>(Request, "PRCookies");
+            if (persona == null) return;
+            
+            var formsIdentity = new FormsIdentity(authTicket);
+            var claimsIdentity = new ClaimsIdentity(formsIdentity);
+            
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, ((int)persona.CurrentRole).ToString()));
 
-            if (authCookie != null)
-            {
-                var prCookie1 = Request.Cookies["PRCookies1"];
-                var prCookie2 = Request.Cookies["PRCookies2"];
-                var prCookie3 = Request.Cookies["PRCookies3"];
-                if (prCookie1 != null && prCookie2 != null && prCookie3 != null)
-                {
-                    var prTicket1 = FormsAuthentication.Decrypt(prCookie1.Value);
-                    var prTicket2 = FormsAuthentication.Decrypt(prCookie2.Value);
-                    var prTicket3 = FormsAuthentication.Decrypt(prCookie3.Value);
-                    var data = JsonConvert.DeserializeObject<PersonaDto>(
-                        $"{prTicket1.UserData}{prTicket2.UserData}{prTicket3.UserData}");
-
-                    var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
-                    var formsIdentity = new FormsIdentity(authTicket);
-                    var claimsIdentity = new ClaimsIdentity(formsIdentity);
-                    claimsIdentity.AddClaim(
-                        new Claim(ClaimTypes.Role, Convert.ToString((int)data.CurrentRole)));
-
-                    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-                    HttpContext.Current.User = claimsPrincipal;
-                }
-            }
+            HttpContext.Current.User = new ClaimsPrincipal(claimsIdentity);
         }
 
         /// <summary>

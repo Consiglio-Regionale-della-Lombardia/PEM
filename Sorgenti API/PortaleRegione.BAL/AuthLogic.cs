@@ -278,13 +278,16 @@ namespace PortaleRegione.BAL
                     claims.Add(new Claim("gruppo", personaDto.Gruppo.id_gruppo.ToString()));
                 }
 
+                var dateTimeNowUtc = DateTime.UtcNow;
+                var expirationTime = dateTimeNowUtc.AddHours(AppSettingsConfiguration.JWT_EXPIRATION);
+                
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Audience = AppSettingsConfiguration.URL_API,
                     Issuer = AppSettingsConfiguration.URL_API,
                     Subject = new ClaimsIdentity(claims),
-                    NotBefore = DateTime.UtcNow,
-                    Expires = DateTime.UtcNow.AddHours(AppSettingsConfiguration.JWT_EXPIRATION),
+                    NotBefore = dateTimeNowUtc,
+                    Expires = expirationTime,
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                         SecurityAlgorithms.HmacSha256Signature)
                 };
@@ -321,13 +324,16 @@ namespace PortaleRegione.BAL
                     claims.Add(new Claim("gruppo", personaDto.Gruppo.id_gruppo.ToString()));
                 }
 
+                var dateTimeNowUtc = DateTime.UtcNow;
+                var expirationTime = dateTimeNowUtc.AddHours(AppSettingsConfiguration.JWT_EXPIRATION);
+                
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Audience = AppSettingsConfiguration.URL_API,
                     Issuer = AppSettingsConfiguration.URL_API,
                     Subject = new ClaimsIdentity(claims),
-                    NotBefore = DateTime.UtcNow,
-                    Expires = DateTime.UtcNow.AddHours(AppSettingsConfiguration.JWT_EXPIRATION),
+                    NotBefore = dateTimeNowUtc,
+                    Expires = expirationTime,
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                         SecurityAlgorithms.HmacSha256Signature)
                 };

@@ -211,7 +211,16 @@
                             <div class="atti-action-group">
                                 @if (atto.CanMoveUp)
                                 {
-                                    <button type="button" role="button" class="btn-flat orange-text"
+                                    <button type="button" role="button" class="btn-flat orange-text hide-on-small-only"
+                                            style="min-width: 160px"
+                                            onclick="go('@Url.Action("MoveUp", "Atti", new { id = atto.UIDAtto })')"
+                                            title="Sposta su">
+                                        <i class="material-icons left hide-on-small-only">arrow_upward</i>
+                                        <i class="material-icons hide-on-med-and-up">arrow_upward</i>
+                                        <span class="hide-on-small-only">SPOSTA SU</span>
+                                    </button>
+                                    
+                                    <button type="button" role="button" class="btn-flat orange-text hide-on-med-and-up"
                                             onclick="go('@Url.Action("MoveUp", "Atti", new { id = atto.UIDAtto })')"
                                             title="Sposta su">
                                         <i class="material-icons left hide-on-small-only">arrow_upward</i>
@@ -221,7 +230,16 @@
                                 }
                                 @if (atto.CanMoveDown)
                                 {
-                                    <button type="button" role="button" class="btn-flat orange-text"
+                                    <button type="button" role="button" class="btn-flat orange-text hide-on-small-only"
+                                            style="min-width: 160px"
+                                            onclick="go('@Url.Action("MoveDown", "Atti", new { id = atto.UIDAtto })')"
+                                            title="Sposta giù">
+                                        <i class="material-icons left hide-on-small-only">arrow_downward</i>
+                                        <i class="material-icons hide-on-med-and-up">arrow_downward</i>
+                                        <span class="hide-on-small-only">SPOSTA GIU</span>
+                                    </button>
+                                    
+                                    <button type="button" role="button" class="btn-flat orange-text hide-on-med-and-up"
                                             onclick="go('@Url.Action("MoveDown", "Atti", new { id = atto.UIDAtto })')"
                                             title="Sposta giù">
                                         <i class="material-icons left hide-on-small-only">arrow_downward</i>
@@ -229,14 +247,30 @@
                                         <span class="hide-on-small-only">SPOSTA GIU</span>
                                     </button>
                                 }
-                                <button type="button" role="button" class="btn-flat blue-text"
+                                <button type="button" role="button" class="btn-flat blue-text hide-on-small-only"
+                                        style="min-width: 160px"
                                         onclick="go('@Url.Action("ModificaAtto", "Atti", new { id = atto.UIDAtto })')"
                                         title="Modifica">
                                     <i class="material-icons left hide-on-small-only">edit</i>
                                     <i class="material-icons hide-on-med-and-up">edit</i>
                                     <span class="hide-on-small-only">MODIFICA</span>
                                 </button>
-                                <button type="button" role="button" class="btn-flat red-text"
+                                <button type="button" role="button" class="btn-flat blue-text hide-on-med-and-up"
+                                        onclick="go('@Url.Action("ModificaAtto", "Atti", new { id = atto.UIDAtto })')"
+                                        title="Modifica">
+                                    <i class="material-icons left hide-on-small-only">edit</i>
+                                    <i class="material-icons hide-on-med-and-up">edit</i>
+                                    <span class="hide-on-small-only">MODIFICA</span>
+                                </button>
+                                
+                                <button type="button" role="button" class="btn-flat red-text hide-on-small-only"
+                                        style="min-width: 160px"
+                                        onclick="openDeleteModal('@atto.UIDAtto')" title="Elimina">
+                                    <i class="material-icons left hide-on-small-only">delete</i>
+                                    <i class="material-icons hide-on-med-and-up">delete</i>
+                                    <span class="hide-on-small-only">ELIMINA</span>
+                                </button>
+                                <button type="button" role="button" class="btn-flat red-text hide-on-med-and-up"
                                         onclick="openDeleteModal('@atto.UIDAtto')" title="Elimina">
                                     <i class="material-icons left hide-on-small-only">delete</i>
                                     <i class="material-icons hide-on-med-and-up">delete</i>
@@ -247,8 +281,7 @@
                                 {
                                     <button type="button" role="button" class="btn-flat black-text"
                                             onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')"
-                                            title="Riepilogo emendamenti/subemendamenti"
-                                            style="min-width:unset;">
+                                            title="Riepilogo emendamenti/subemendamenti">
                                         <i class="material-icons left hide-on-small-only">chevron_right</i>
                                         <i class="material-icons hide-on-med-and-up">chevron_right</i>
                                         <span class="hide-on-small-only">RIEPILOGO EM/SUBEM</span>
