@@ -1179,7 +1179,9 @@
                         td.innerHTML += "</ul>";
                     }
                 } else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
-                    td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
+                    if (result.Tipo !== '@Html.Raw((int)TipoAttoEnum.RIS)') {
+                        td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
+                    }
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Oggetto)') {
                     if (result.Oggetto_Approvato != null && result.Oggetto_Approvato != "") {
                         td.innerHTML = `${result.Oggetto_Approvato}`;
