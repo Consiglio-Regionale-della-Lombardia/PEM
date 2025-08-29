@@ -116,20 +116,16 @@
                     <div class="col s12">
                         @if (string.IsNullOrEmpty(atto.Protocollo))
                         {
-                            if (atto.IsIQT()
-                                || atto.IsMOZ())
+                            if ((firmeGroup.Any()
+                                 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+                                || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                                                                                       && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                                || Model.CurrentUser.IsSegreteriaAssemblea)
                             {
-                                if ((firmeGroup.Any()
-                                     && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-                                    || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                                                                                           && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
-                                    || Model.CurrentUser.IsSegreteriaAssemblea)
-                                {
-                                    <button type="button" role="button" class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
-                                        Gestisci priorità e ordinamento firme @*#987*@
-                                    </button>
-                                    <br/>
-                                }
+                                <button type="button" role="button" class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
+                                    Gestisci priorità e ordinamento firme @*#987*@
+                                </button>
+                                <br/>
                             }
                         }
 
@@ -211,10 +207,7 @@
                         </div>
                     </div>
                 </div>
-                @if (atto.IsIQT()
-                     || atto.IsMOZ())
-                {
-                    if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
+                @if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
                         || Model.CurrentUser.IsSegreteriaAssemblea
                         || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
                     {
@@ -235,9 +228,9 @@
 									<div class="collapsible-header valign-wrapper">
 										@if (atto.UIDPersonaProponente != firme.UID_persona)
 										{
-											if (atto.Tipo != (int)TipoAttoEnum.ITL
-												&& atto.Tipo != (int)TipoAttoEnum.ITR
-												&& atto.Tipo != (int)TipoAttoEnum.ODG)
+											if (atto.IsMOZ()
+                                                || atto.IsIQT()
+                                                || atto.IsODG())
 											{
 												<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 														onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
@@ -270,7 +263,9 @@
 									<div class="collapsible-header valign-wrapper">
 										@if (string.IsNullOrEmpty(firme.Data_ritirofirma))
 										{
-											if (atto.Tipo != (int)TipoAttoEnum.ITL && atto.Tipo != (int)TipoAttoEnum.ITR)
+											if (atto.IsMOZ()
+                                                || atto.IsIQT()
+                                                || atto.IsODG())
 											{
 												<button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 														onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
@@ -309,8 +304,6 @@
 				</div>
 			</div>
                     }
-                }
-                 
             </div>
         </div>
     </div>

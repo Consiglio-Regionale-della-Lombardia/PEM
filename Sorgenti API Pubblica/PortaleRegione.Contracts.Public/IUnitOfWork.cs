@@ -41,5 +41,10 @@ namespace PortaleRegione.Contracts.Public
         ///     Ottiene l'accesso alla repository per la gestione degli ATTI_DASI.
         /// </summary>
         IDASIRepository DASI { get; }
+        
+        /// <summary>
+        ///     Ottiene l'accesso alla repository per la gestione degli ATTI.
+        /// </summary>
+        IAttiRepository Atti { get; }
     }
 }

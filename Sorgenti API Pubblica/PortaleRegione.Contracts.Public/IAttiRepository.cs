@@ -16,13 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Threading.Tasks;
+using PortaleRegione.Domain;
 
-namespace PortaleRegione.SDK.GEA.Contracts
+namespace PortaleRegione.Contracts.Public
 {
-    public interface IGeaApiService
+    /// <summary>
+    ///     Definisce le operazioni di repository per la gestione degli ATTI,
+    ///     consentendo l'accesso e la manipolazione dei dati degli atti.
+    /// </summary>
+    public interface IAttiRepository
     {
-        Task<string> LoginAsync(string username, string password);
-        Task<object[]> RicercaAttiAsync(string tipoAtto, string legislatura, string numeroAtto);
+        /// <summary>
+        ///     Recupera un singolo atto utilizzando il suo identificativo unico.
+        /// </summary>
+        /// <param name="attoUId">L'identificativo unico dell'atto da recuperare.</param>
+        /// <returns>L'atto corrispondente all'identificativo fornito.</returns>
+        Task<ATTI> Get(Guid attoUId);
     }
 }

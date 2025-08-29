@@ -134,6 +134,8 @@
 		};
 
 		chipsContainer.appendChild(newChip);
+
+		toggleChipsGroupsRow();
 	}
 
 	function creaPannelloFiltriLaterale() {
@@ -202,6 +204,7 @@
 							    filtriPreferitiArray.splice(indexToRemove, 1);
 						    }
 						    $(`[data-nome-gruppo-filtri="${item.name}"]`).remove();
+						    toggleChipsGroupsRow();
 					    } catch (error) {
 						    console.error('Errore di fetch:', error);
 						    ErrorAlert(error.message);
@@ -240,5 +243,21 @@
 		$.each(filtri, function (index, item) {
 			addChipIfNotExists_Preferiti(item.name, item.filters, item.favourite)
 		});
+		toggleChipsGroupsRow();
+	}
+
+	function toggleChipsGroupsRow() {
+		var chipsContainer = document.getElementById('chips-container-groups');
+		if (!chipsContainer) return;
+		var row = chipsContainer.closest('.row');
+		// Se non trova una .row, prova col parent diretto:
+		if (!row) row = chipsContainer.parentElement;
+		// Conta solo i chip veri (non spazi/testo)
+		var chips = chipsContainer.querySelectorAll('.chip');
+		if (chips.length === 0) {
+			row.style.display = "none";
+		} else {
+			row.style.display = "";
+		}
 	}
 </script>

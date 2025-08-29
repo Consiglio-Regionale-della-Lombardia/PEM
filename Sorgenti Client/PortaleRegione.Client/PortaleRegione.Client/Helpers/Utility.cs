@@ -411,10 +411,15 @@ namespace PortaleRegione.Client.Helpers
             });
         }
 
-        public void AddFilter_ByStato(ref BaseRequest<AttoDASIDto> model, string filtroStato, PersonaDto currentUser)
+        public void AddFilter_ByStato(ref BaseRequest<AttoDASIDto> model, string filtroStato, ClientModeEnum clientMode)
         {
+            if (clientMode.Equals(ClientModeEnum.TRATTAZIONE))
+                return;
+            
             if (string.IsNullOrEmpty(filtroStato))
+            {
                 filtroStato = Convert.ToInt32(StatiAttoEnum.TUTTI).ToString();
+            }
 
             if (filtroStato != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
             {

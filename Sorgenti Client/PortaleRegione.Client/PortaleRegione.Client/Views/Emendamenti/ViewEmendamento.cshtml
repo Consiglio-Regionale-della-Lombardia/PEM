@@ -45,7 +45,27 @@
 		});
 	</script>
 
-	<div class="row">
+<div id="waiting" class="modal" style="height: 120px">
+	<div class="modal-content center">
+		<div class="preloader-wrapper active">
+			<div class="spinner-layer spinner-blue-only">
+				<div class="circle-clipper left">
+					<div class="circle"></div>
+				</div>
+				<div class="gap-patch">
+					<div class="circle"></div>
+				</div>
+				<div class="circle-clipper right">
+					<div class="circle"></div>
+				</div>
+			</div>
+		</div>
+
+		<div id="waiting_info_message"></div>
+	</div>
+</div>
+
+<div class="row">
 		<div class="col s12">
 			<button type="button" role="button" class="btn-floating grey darken-3 header-back" onclick="window.close()">
 				<i class="material-icons">close</i>
@@ -419,10 +439,12 @@
 				if (value == null || value == "")
 					return;
 
+				waiting(true);
 				$.ajax({
 					url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
 					method: "GET"
 				}).done(function (data) {
+					waiting(false);
 					if (data.message) {
 						var typeMessage = "error";
 						var str = data.message;
@@ -436,14 +458,19 @@
 							icon: typeMessage,
 							button: "OK"
 						}).then(() => {
+							waiting(true);
 							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                             location.reload();
+							waiting(false);
 						});
 					} else {
-                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+						waiting(true);
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");						
 						location.reload();
+						waiting(false);
 					}
 				}).fail(function (err) {
+					waiting(false);
 					console.log("error", err);
 					Error(err);
 				});

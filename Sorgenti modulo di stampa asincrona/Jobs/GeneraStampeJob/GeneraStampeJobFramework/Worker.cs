@@ -682,7 +682,7 @@ namespace GeneraStampeJobFramework
                 if (nEM.Contains("Valore Corrotto")) throw new Exception("Errore valore corrotto");
 
                 var nameFilePDF =
-                    $"{nEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                    $"{Utility.CleanFileName(nEM)}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
 
                 var content = await _stamper.CreaPDFInMemory(em.Value, nameFilePDF);
 

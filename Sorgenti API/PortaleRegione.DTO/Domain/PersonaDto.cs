@@ -108,4 +108,83 @@ namespace PortaleRegione.DTO.Domain
 
         public bool IsCapoGruppo { get; set; }
     }
+    
+    public class PersonaCookieDto
+    {
+        public PersonaCookieDto()
+        {
+            Gruppo = new GruppiDto();
+        }
+        
+        public string DisplayName => $"{cognome.Replace("'", "’")} {nome.Replace("'", "’")}";
+
+        public string DisplayName_GruppoCode =>
+            $"{DisplayName} ({(Gruppo != null ? Gruppo.codice_gruppo : "N.D.")})";
+
+        public string DisplayName_GruppoCode_EX =>
+            $"{DisplayName} ({(Gruppo != null ? Gruppo.nome_gruppo : "N.D.")})";
+
+        [Display(Name = "GUID")] public Guid UID_persona { get; set; }
+        public int id_persona { get; set; }
+
+        [Display(Name = "Cognome")] public string cognome { get; set; } = "";
+        [Display(Name = "Nome")] public string nome { get; set; } = "";
+        [Display(Name = "Email")] public string email { get; set; }
+        [Display(Name = "Foto")] public string foto { get; set; }
+
+        public string Carica { get; set; }
+
+        public IEnumerable<RuoliDto> Ruoli { get; set; }
+
+        [Display(Name = "Gruppo di riferimento")]
+
+        public int id_gruppo_politico_rif { get; set; }
+
+        public GruppiDto Gruppo { get; set; }
+
+        public RuoliIntEnum CurrentRole { get; set; }
+        public bool IsSegreteriaAssemblea => IsAmministratorePEM || CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+        public bool IsSegreteriaAssemblea_Read => CurrentRole == RuoliIntEnum.Segreteria_Assemblea_Read;
+        public bool IsSoloSegreteriaAssemblea => CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+        public bool IsConsigliereRegionale => CurrentRole == RuoliIntEnum.Consigliere_Regionale;
+        public bool IsAssessore => CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta;
+        public bool IsPresidente => CurrentRole == RuoliIntEnum.Presidente_Regione;
+        public bool IsSegreteriaPolitica => CurrentRole == RuoliIntEnum.Segreteria_Politica || CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica;
+
+        public bool IsSegreteriaGiunta => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta || CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale;
+        public bool IsResponsabileSegreteriaPolitica => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica;
+        public bool IsResponsabileSegreteriaGiunta => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
+
+        public bool IsGiunta => IsPresidente
+                                || IsAmministratoreGiunta
+                                || CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
+                                || CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale
+                                || IsAssessore;
+
+        public bool IsAmministratoreGiunta => CurrentRole == RuoliIntEnum.Amministratore_Giunta;
+        public bool IsAmministratorePEM => CurrentRole == RuoliIntEnum.Amministratore_PEM;
+
+        public bool IsCapoGruppo { get; set; }
+        
+        public static implicit operator PersonaCookieDto(PersonaDto dto)
+        {
+            if (dto == null) return null;
+
+            return new PersonaCookieDto
+            {
+                UID_persona = dto.UID_persona,
+                id_persona = dto.id_persona,
+                cognome = dto.cognome,
+                nome = dto.nome,
+                email = dto.email,
+                foto = dto.foto,
+                Carica = dto.Carica,
+                Ruoli = dto.Ruoli,
+                id_gruppo_politico_rif = dto.id_gruppo_politico_rif,
+                Gruppo = dto.Gruppo,
+                CurrentRole = dto.CurrentRole,
+                IsCapoGruppo = dto.IsCapoGruppo
+            };
+        }
+    }
 }

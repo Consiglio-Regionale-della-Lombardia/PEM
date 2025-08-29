@@ -130,6 +130,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
     <Compile Include="Controllers\TemplateController.cs" />
+    <Compile Include="Helpers\TryReadChunkedCookies.cs" />
     <Compile Include="Models\StampaModel.cs" />
     <Compile Include="Helpers\AppSettingsConfiguration.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />

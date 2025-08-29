@@ -1116,3 +1116,17 @@ select.readonly {
 	color: black !important;
 	background-color: #fafafa !important;
 }
+
+.atti-action-group {
+	display: flex;
+	flex-direction: column;
+	gap: 12px; /* Spaziatura verticale tra pulsanti */
+	align-items: flex-end; /* Allinea pulsanti a destra */
+}
+
+.atti-action-group .btn-flat {
+	justify-content: flex-start; /* Icona e testo ben allineati */
+	display: flex;
+	align-items: center;
+	min-width: 160px;
+}

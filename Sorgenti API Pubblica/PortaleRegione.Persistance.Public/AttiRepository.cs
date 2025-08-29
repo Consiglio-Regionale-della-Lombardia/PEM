@@ -17,9 +17,7 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
 using System.Threading.Tasks;
 using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
@@ -28,32 +26,31 @@ using PortaleRegione.Domain;
 namespace PortaleRegione.Persistance.Public
 {
     /// <summary>
-    ///     Repository per la gestione delle legislature.
+    ///     Repository per la gestione degli ATTI, fornendo operazioni di lettura sui dati degli atti.
     /// </summary>
-    public class LegislatureRepository : ILegislatureRepository
+    public class AttiRepository : IAttiRepository
     {
         /// <summary>
         ///     Contesto del database utilizzato per l'accesso ai dati.
         /// </summary>
         private readonly DbContext Context;
 
+        public AttiRepository(DbContext context)
+        {
+            Context = context;
+        }
+        
         /// <summary>
         ///     Proprietà di utilità per accedere al contesto del database specifico di PortaleRegione come tipizzato DbContext.
         /// </summary>
         private PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
-
-        public LegislatureRepository(DbContext context)
+        
+        public async Task<ATTI> Get(Guid attoUId)
         {
-            Context = context;
-        }
-
-        public async Task<List<legislature>> GetLegislature()
-        {
-            var query = PRContext
-                .legislature
-                .OrderByDescending(l => l.durata_legislatura_da);
-
-            return await query.ToListAsync();
+            var result = await PRContext
+                .ATTI
+                .SingleOrDefaultAsync(a => a.UIDAtto == attoUId);
+            return result;
         }
     }
 }

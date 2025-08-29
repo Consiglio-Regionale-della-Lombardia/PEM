@@ -79,9 +79,21 @@
 
     function IscriviASedutaMassivoDASI() {
         var text = "";
-        var listaAtti = getListaAtti();
-        var selezionaTutti = getSelezionaTutti_DASI();
-		var text_counter = GetCounterAlert(listaAtti, selezionaTutti);
+        var listaAtti = [];
+        const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_Atto_"]:checked');
+        // Itera sui checkbox selezionati
+        selectedCheckboxes.forEach(checkbox => {
+            // Trova la riga padre del checkbox
+            const row = checkbox.closest('tr');
+            const displayColumn = row.querySelector('td:nth-child(2) .chip');
+
+            if (displayColumn) {
+                const displayId = displayColumn.getAttribute('data-id');
+                listaAtti.push(displayId);
+            }
+        });
+        
+		var text_counter = listaAtti.length;
         text = "Iscrizione di " + text_counter + " atti in una delle seguenti sedute:";
 
         $('#txtIscriviSeduta').html(text);
@@ -102,13 +114,11 @@
                     return;
                 }
 
-                var listaAtti = getListaAtti();
-
                 var obj = {};
                 obj.UidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
                 obj.Lista = listaAtti;
-				obj.Tutti = selezionaTutti;
 
+                waiting(true);
                 $.ajax({
                     url: '@Url.Action("IscriviSeduta")',
                     method: "POST",
@@ -116,6 +126,7 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
                 }).done(function(data) {
+                    waiting(false);
                     $("#modalIscriviSeduta").modal("close");
                     $("#btnIscriviSeduta_Salva").off("click");
                     if (data.message) {
@@ -128,6 +139,7 @@
                         go(data);
                     }
                 }).fail(function(err) {
+                    waiting(false);
                     console.log("error", err);
                     Error(err);
                 });

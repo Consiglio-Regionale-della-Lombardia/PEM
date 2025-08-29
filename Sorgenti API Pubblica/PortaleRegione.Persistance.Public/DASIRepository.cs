@@ -27,11 +27,9 @@ using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request.Public;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance.Public
 {
@@ -43,7 +41,7 @@ namespace PortaleRegione.Persistance.Public
         /// <summary>
         ///     Contesto del database utilizzato per l'accesso ai dati.
         /// </summary>
-        protected readonly DbContext Context;
+        private readonly DbContext Context;
 
         public DASIRepository(DbContext context)
         {
@@ -53,7 +51,7 @@ namespace PortaleRegione.Persistance.Public
         /// <summary>
         ///     Proprietà di utilità per accedere al contesto del database specifico di PortaleRegione come tipizzato DbContext.
         /// </summary>
-        public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
+        private PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
         public async Task<ATTI_DASI> Get(Guid attoUId)
         {
@@ -172,20 +170,20 @@ namespace PortaleRegione.Persistance.Public
             return dataFromDb;
         }
 
-        public async Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto)
+        public async Task<List<AttiAbbinamentoPublicDto>> GetAbbinamenti(Guid uidAtto)
         {
             var abbinamentiInDB = await PRContext
                 .ATTI_ABBINAMENTI
                 .Where(a => a.UIDAtto.Equals(uidAtto))
                 .ToListAsync();
 
-            var res = new List<AttiAbbinamentoDto>();
+            var res = new List<AttiAbbinamentoPublicDto>();
             foreach (var attiAbbinamenti in abbinamentiInDB)
             {
-                var abbinata = new AttiAbbinamentoDto
+                var abbinata = new AttiAbbinamentoPublicDto
                 {
                     UidAbbinamento = attiAbbinamenti.Uid,
-                    Data = attiAbbinamenti.Data
+                    Data = attiAbbinamenti.Data.ToString("dd/MM/yyyy")
                 };
 
                 if (!string.IsNullOrEmpty(attiAbbinamenti.TipoAttoAbbinato)
@@ -224,7 +222,6 @@ namespace PortaleRegione.Persistance.Public
                 .Where(d => d.UIDAtto == uidAtto)
                 .ToListAsync();
             var res = new List<NoteDto>();
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
 
             foreach (var nota in noteInDB)
             {

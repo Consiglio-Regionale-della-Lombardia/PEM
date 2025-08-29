@@ -18,26 +18,16 @@
     ViewBag.Title = title;
 
     PersonaDto currentUser = null;
-
+    var modeFromCache = (int)ClientModeEnum.TRATTAZIONE;
     if (HttpContext.Current.User.Identity.IsAuthenticated)
     {
-        var authCookie1 = Request.Cookies["PRCookies1"];
-        var authCookie2 = Request.Cookies["PRCookies2"];
-        var authCookie3 = Request.Cookies["PRCookies3"];
-        if (authCookie1 != null && authCookie2 != null && authCookie3 != null)
-        {
-            if (!string.IsNullOrEmpty(authCookie1.Value) && !string.IsNullOrEmpty(authCookie2.Value) && !string.IsNullOrEmpty(authCookie3.Value))
-            {
-                var authenticationTicket1 = FormsAuthentication.Decrypt(authCookie1.Value);
-                var authenticationTicket2 = FormsAuthentication.Decrypt(authCookie2.Value);
-                var authenticationTicket3 = FormsAuthentication.Decrypt(authCookie3.Value);
-                var data = JsonConvert.DeserializeObject<PersonaDto>(string.Format("{0}{1}{2}", authenticationTicket1.UserData, authenticationTicket2.UserData, authenticationTicket3.UserData));
-
-                currentUser = data;
-            }
-        }
+	    var data = TryReadChunkedCookies.GetJson<PersonaDto>(Request, "PRCookies");
+	    if (data != null)
+	    {
+		    currentUser = data;
+		    modeFromCache = Convert.ToInt16(HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}"));
+	    }
     }
-    var modeFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}");
 
     var firmeGroup = new List<AttiFirmeDto>();
     firmeGroup.AddRange(atto.FirmeAnte);
@@ -386,18 +376,22 @@
 	<div class="row" id="pnlStandardFirme">
 		<div class="col s12">
 
-			@if ((firmeGroup.Any()
-				  && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-				|| (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-					&& Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
-				 || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-					 && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
-				 || Model.CurrentUser.IsSegreteriaAssemblea)
+			@if (string.IsNullOrEmpty(Model.Atto.Protocollo)
+			&& (Model.Atto.IsIQT() || Model.Atto.IsMOZ() || Model.Atto.IsODG()))
 			{
-				<button type="button" role="button" class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
-					Gestisci priorità e ordinamento firme @*#987*@
-				</button>
-				<br />
+				if ((firmeGroup.Any()
+				     && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+				    || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+				                                       && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+				    || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+				                                                           && Model.Atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+				    || Model.CurrentUser.IsSegreteriaAssemblea)
+				{
+					<button type="button" role="button" class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
+						Gestisci priorità e ordinamento firme @*#987*@
+					</button>
+					<br />
+				}
 			}
 
 			<ul class="collection" id="pnlFirme">
@@ -472,9 +466,9 @@
 								<div class="collapsible-header valign-wrapper">
 									@if (atto.UIDPersonaProponente != firme.UID_persona)
 									{
-										if (atto.Tipo != (int)TipoAttoEnum.ITL
-											&& atto.Tipo != (int)TipoAttoEnum.ITR
-											&& atto.Tipo != (int)TipoAttoEnum.ODG)
+										if (atto.IsMOZ()
+											|| atto.IsIQT()
+											|| atto.IsODG())
 										{
                                             <button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
 											   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
@@ -507,7 +501,9 @@
 								<div class="collapsible-header valign-wrapper">
 									@if (string.IsNullOrEmpty(firme.Data_ritirofirma))
 									{
-										if (atto.Tipo != (int)TipoAttoEnum.ITL && atto.Tipo != (int)TipoAttoEnum.ITR)
+										if (atto.IsMOZ()
+										    || atto.IsIQT()
+										    || atto.IsODG())
 										{
                                             <button type="button" role="button" class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
                                                     onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">

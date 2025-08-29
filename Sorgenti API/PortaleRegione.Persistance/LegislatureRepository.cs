@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -41,7 +40,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<int> Legislatura_Attiva()
         {
-            PRContext.legislature.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             var result = await PRContext.legislature.Where(l => l.attiva).OrderBy(l => l.id_legislatura)
                 .FirstOrDefaultAsync();
             return result?.id_legislatura ?? 0;
@@ -49,8 +47,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<legislature>> GetLegislature()
         {
-            PRContext.legislature.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
-
             var query = PRContext
                 .legislature
                 .Where(l => l.id_legislatura >= 24)
@@ -61,7 +57,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<legislature> Get(int legislaturaId)
         {
-            PRContext.legislature.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             var result = await PRContext.legislature.SingleOrDefaultAsync(a => a.id_legislatura == legislaturaId);
 
             return result;

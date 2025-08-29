@@ -39,11 +39,13 @@ namespace PortaleRegione.Persistance.Public
             Legislature = new LegislatureRepository(_context);
             Persone = new PersoneRepository(_context);
             DASI = new DASIRepository(_context);
+            Atti = new AttiRepository(_context);
         }
 
 
         public ILegislatureRepository Legislature { get; }
         public IPersoneRepository Persone { get; }
         public IDASIRepository DASI { get; }
+        public IAttiRepository Atti { get; }
     }
 }

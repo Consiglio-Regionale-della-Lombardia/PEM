@@ -92,13 +92,15 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                var mode = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
+                
                 var request = new BaseRequest<AttoDASIDto>
                 {
                     page = 1,
                     size = 20,
                     param = new Dictionary<string, object>
                     {
-                        { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI },
+                        { "CLIENT_MODE", mode },
                         { nameof(FilterRequest.viewMode), model.viewMode }
                     }
                 };
@@ -715,26 +717,6 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-
-                if (model.Tutti)
-                {
-                    var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
-                    var request = new BaseRequest<AttoDASIDto>
-                    {
-                        page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
-                        filtro = modelInCache.Data.Filters,
-                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
-                    };
-                    var list = await apiGateway.DASI.GetSoloIds(request);
-
-                    if (model.Lista != null)
-                        foreach (var guid in model.Lista)
-                            list.Remove(guid);
-
-                    model.Lista = list;
-                }
-
                 await apiGateway.DASI.IscriviSeduta(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
@@ -1551,7 +1533,7 @@ namespace PortaleRegione.Client.Controllers
             util.AddFilter_ByDataSeduta(ref model, sedutaUId);
             util.AddFilter_ByDataIscrizioneSeduta(ref model, filtro_data_iscrizione_seduta);
             util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
-            util.AddFilter_ByStato(ref model, filtro_stato, CurrentUser);
+            util.AddFilter_ByStato(ref model, filtro_stato, mode);
             util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
             util.AddFilter_ByTipo(ref model, filtro_tipo_trattazione, mode);
             util.AddFilter_ByMozioneUrgente(ref model, filtro_mozione_urgente);

@@ -807,7 +807,7 @@ namespace PortaleRegione.API.Controllers
                 var legislaturaCorrente = await _legislatureLogic.GetLegislatura(await _legislatureLogic.GetLegislaturaAttuale());
                 request.legislatura = legislaturaCorrente.num_legislatura;
                 
-                var attiGea = await geaHelper.RicercaAtti(request);
+                var attiGea = await geaHelper.RicercaAtti(request, AppSettingsConfiguration.GEA_Username, AppSettingsConfiguration.GEA_Password);
                 
                 return Ok(attiGea);
             }

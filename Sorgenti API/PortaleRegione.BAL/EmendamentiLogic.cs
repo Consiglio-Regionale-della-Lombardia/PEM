@@ -333,7 +333,15 @@ namespace PortaleRegione.BAL
                         persona.Gruppo.id_gruppo,
                         emendamentoDto.Rif_UIDEM.HasValue);
                 if (emendamentoDto.Rif_UIDEM.HasValue)
+                {
+                    // #1459
+                    var emRiferimento = await _unitOfWork.Emendamenti.Get(emendamentoDto.Rif_UIDEM.Value);
+                    if (emRiferimento.UIDPersonaProponente.Equals(emendamentoDto.UIDPersonaProponente))
+                    {
+                        throw new Exception("Non è possibile sub-emendare un proprio emendamento.");
+                    }
                     emendamentoDto.SubProgressivo = progressivo;
+                }
                 else
                     emendamentoDto.Progressivo = progressivo;
 

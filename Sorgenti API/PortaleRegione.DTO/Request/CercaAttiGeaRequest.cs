@@ -21,7 +21,8 @@ namespace PortaleRegione.DTO.Request;
 public class CercaAttiGeaRequest
 {
     public string tipoAtto { get; set; }
-    public string numeroAtto { get; set; }
+    public string numeroAttoDa { get; set; }
+    public string numeroAttoA { get; set; }
     public string oggetto { get; set; }
     public string legislatura { get; set; }
 }

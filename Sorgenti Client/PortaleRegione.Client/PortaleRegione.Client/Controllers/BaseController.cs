@@ -57,46 +57,31 @@ namespace PortaleRegione.Client.Controllers
             return false;
         }
 
-        public PersonaDto CurrentUser
+        protected PersonaDto CurrentUser
         {
             get
             {
                 if (!HttpContext.User.Identity.IsAuthenticated) return null;
-                var authCookie1 = Request.Cookies["PRCookies1"];
-                var authCookie2 = Request.Cookies["PRCookies2"];
-                var authCookie3 = Request.Cookies["PRCookies3"];
-                if (authCookie1 == null && authCookie2 == null && authCookie3 == null) return null;
-                if (string.IsNullOrEmpty(authCookie1.Value) && string.IsNullOrEmpty(authCookie2.Value) &&
-                    string.IsNullOrEmpty(authCookie3.Value)) return null;
-                var authenticationTicket1 = FormsAuthentication.Decrypt(authCookie1.Value);
-                var authenticationTicket2 = FormsAuthentication.Decrypt(authCookie2.Value);
-                var authenticationTicket3 = FormsAuthentication.Decrypt(authCookie3.Value);
-                var data = JsonConvert.DeserializeObject<PersonaDto>(
-                    $"{authenticationTicket1.UserData}{authenticationTicket2.UserData}{authenticationTicket3.UserData}");
-
-                return data;
+                var persona = TryReadChunkedCookies.GetJson<PersonaDto>(Request, "PRCookies");
+                
+                if(persona == null) return null;
+                
+                return persona;
             }
         }
-        
-        public string Token
+
+        protected string Token
         {
             get
             {
                 if (!HttpContext.User.Identity.IsAuthenticated) return default;
                 try
                 {
-                    var jwtCookie1 = Request.Cookies["SCookies1"];
-                    if (jwtCookie1 is null)
-                        throw new Exception("Sessione scaduta");
-
-                    var jwtCookie2 = Request.Cookies["SCookies2"];
-                    var jwtCookie3 = Request.Cookies["SCookies3"];
-                    var jwtTicket1 = FormsAuthentication.Decrypt(jwtCookie1.Value);
-                    var jwtTicket2 = FormsAuthentication.Decrypt(jwtCookie2.Value);
-                    var jwtTicket3 = FormsAuthentication.Decrypt(jwtCookie3.Value);
-                    var current_jwt = string.Join("", jwtTicket1.UserData, jwtTicket2.UserData, jwtTicket3.UserData);
-
-                    return current_jwt;
+                    var jwt = TryReadChunkedCookies.GetString(Request, "SCookies");
+                
+                    if(jwt == null) return null;
+                
+                    return jwt;
                 }
                 catch (Exception e)
                 {

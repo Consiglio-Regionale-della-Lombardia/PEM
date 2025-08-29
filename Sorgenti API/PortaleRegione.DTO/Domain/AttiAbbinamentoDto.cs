@@ -29,3 +29,13 @@ public class AttiAbbinamentoDto
     public string TipoAttoAbbinato { get; set; }
     public string NumeroAttoAbbinato { get; set; }
 }
+
+public class AttiAbbinamentoPublicDto
+{
+    public Guid UidAbbinamento { get; set; }
+    public Guid UidAttoAbbinato { get; set; }
+    public string Data { get; set; }
+    public string OggettoAttoAbbinato { get; set; }
+    public string TipoAttoAbbinato { get; set; }
+    public string NumeroAttoAbbinato { get; set; }
+}

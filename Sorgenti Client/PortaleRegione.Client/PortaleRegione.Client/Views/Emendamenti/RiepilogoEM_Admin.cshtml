@@ -34,6 +34,26 @@
         url = Url.Action("Index", "AttiTrattazione", new { id = Model.Atto.UIDSeduta });
     }
 }
+<div id="waiting" class="modal" style="height: 120px">
+    <div class="modal-content center">
+        <div class="preloader-wrapper active">
+            <div class="spinner-layer spinner-blue-only">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="gap-patch">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="waiting_info_message"></div>
+    </div>
+</div>
+
 <div id="pnlViewStandard">
     <div class="row">
         <div class="col s12">
@@ -629,12 +649,12 @@
 
     window.addEventListener("message", (event) => {
 	    // Controlla l'origine del messaggio per motivi di sicurezza
-	    if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") { // sostituisci con il tuo dominio
+	    if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") {
 		    return;
 	    }
 
 	    if (event.data === "aggiornaPadre") {
-		    location.reload(); // Ricarica la pagina padre
+            location.reload(); // Ricarica la pagina padre
 	    }
     }, false);
 </script>

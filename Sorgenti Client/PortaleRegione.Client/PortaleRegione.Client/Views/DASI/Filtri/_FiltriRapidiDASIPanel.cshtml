@@ -4,7 +4,6 @@
 @using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
-
 <div style="display: @Html.Raw((Model.ClientMode == ClientModeEnum.GRUPPI) ? "block" : "none");">
     <div class="row">
         <div class="input-field col s12">
@@ -13,12 +12,10 @@
             <label for="autocomplete-input">Ricerca filtri disponibili</label>
         </div>
     </div>
-
     <div class="row">
-        <div class="col l7 m12 s12 left-align">
+        <div class="col l7 m12 s12 left-align" style="padding-top: 10px;">
             <div id="chips-container"></div>
             <div id="chips-container-sorting"></div>
-            <div id="chips-container-groups"></div>
         </div>
         <div class="col l5 m12 s12 right-align">
             <button id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</button>
@@ -28,6 +25,11 @@
                     <div id="chips-container-selected-report"></div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div id="chips-container-groups"></div>
         </div>
     </div>
 </div>
@@ -92,12 +94,25 @@
         async function() {
             document.getElementById('loadingSpinner').style.display = 'none';
             var isTrattazione = @Html.Raw((int)Model.ClientMode);
+            console.log("TRATTAZUOne", isTrattazione);
             if (isTrattazione == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
                 console.log("### TRATTAZIONE ###");
 
                 ripristinaFiltriTrattazione();
                 return;
             }
+            else{
+                console.log("### GRUPPI ###");
+                var filtriFromStorage = localStorage.getItem('filtriDasi');
+                if (filtriFromStorage) {
+                    const filtri = JSON.parse(filtriFromStorage);
+                    const filtriConKeyLabel = filtri.filter(filtro => filtro.keyLabel && filtro.keyLabel.trim() !== '');
+                    localStorage.setItem('filtriDasi', JSON.stringify(filtriConKeyLabel));
+                }else{
+                    localStorage.setItem('filtriDasi', JSON.stringify([]));
+                }
+            }
+            
             ripristinaFiltri();
             ripristinaOrdinamento();
 
@@ -759,17 +774,7 @@
 
     var responseData = {};
     var risultatiTabella = [];
-//function createCard(result) {
-//	const rowCard = document.createElement('div');
-//	rowCard.className = "row card";
-
-//	const rowContent = document.createElement('div');
-//	rowContent.className = "col s12 card-content";
-//	rowContent.innerHTML = result.BodyAtto;
-
-//	rowCard.appendChild(rowContent);
-//	return rowCard;
-//}
+    
     function createCard(result) {
         console.log(result)
         const rowCard = document.createElement('div');
@@ -886,8 +891,6 @@
                 iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Mozione urgente" aria-label="Mozione urgente">priority_high</i>`;
             }
             
-            console.log("atto", result)
-
             const row = document.createElement('tr');
             const tdCheckBoxValue = document.createElement('td');
             tdCheckBoxValue.style.width = '1%';
@@ -1128,8 +1131,8 @@
                             case "PDL":
                                 td.innerHTML += `<p>
                                       <a class="blue-text" style="text-decoration: underline;"
-                                         onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${result.UID_Atto_ODG}')">
-                                        ${result.ODG_Atto_PEM}
+                                         onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/emendamenti/${abb.UidAttoAbbinato}')">
+                                        ${abb.TipoAttoAbbinato} ${abb.NumeroAttoAbbinato}
                                       </a>
                                     </p>`;
                                 break;
@@ -1176,7 +1179,9 @@
                         td.innerHTML += "</ul>";
                     }
                 } else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
-                    td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
+                    if (result.Tipo !== '@Html.Raw((int)TipoAttoEnum.RIS)') {
+                        td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
+                    }
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Oggetto)') {
                     if (result.Oggetto_Approvato != null && result.Oggetto_Approvato != "") {
                         td.innerHTML = `${result.Oggetto_Approvato}`;
@@ -1442,7 +1447,19 @@
             M.FormSelect.init(document.querySelectorAll('select'));
             break;
         case '@nameof(AttoDASIDto.IDStato)':
-            var stati = await GetStatiDASI();
+            var stati = [];
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.PRESENTATO),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO))'
+            });
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.IN_TRATTAZIONE),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE))'
+            });
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.COMPLETATO),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO))'
+            });
             selectHTML = '<select id="stati-select" multiple>';
             stati.forEach(function(item) {
                 if (item.IDStato != 0) {
@@ -1455,7 +1472,31 @@
             M.FormSelect.init(document.querySelectorAll('select'));
             break;
         case '@nameof(AttoDASIDto.Tipo)':
-            var tipi = await GetTipiDASI();
+            var tipi = [];
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.ITL),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.ITL))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.ITR),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.ITR))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.IQT),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.IQT))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.MOZ),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.MOZ))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.ODG),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.ODG))'
+            });
+            tipi.push({
+                IDTipoAtto:  @((int)TipoAttoEnum.RIS),
+                Tipo_Atto: '@(Utility.GetText_Tipo((int)TipoAttoEnum.RIS))'
+            });
             selectHTML = '<select id="tipi-select" multiple>';
             tipi.forEach(function(item) {
                 if (item.IDTipoAtto != 0) {
@@ -3099,6 +3140,7 @@
     function ripristinaFiltri() {
         $('#chips-container').empty();
         const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+        console.log("FILTRI", filtri)
         if (filtri) {
             filtri.forEach(function(filtro) {
                 addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
@@ -3117,6 +3159,7 @@
 
         const idSeduta = getUrlParameter('id');
         const tipo = getUrlParameter('tipo');
+        const uidAtto = getUrlParameter('uidAtto');
         
 		var filtri = [];
         filtri.push({
@@ -3130,6 +3173,13 @@
             key: "@Html.Raw(nameof(AttoDASIDto.Tipo))",
             keyLabel: "",
 			val: tipo || "",
+            label: "",
+            chipText: ""
+        });
+        filtri.push({
+            key: "@Html.Raw(nameof(AttoDASIDto.Abbinamenti))",
+            keyLabel: "",
+			val: uidAtto || "",
             label: "",
             chipText: ""
         });

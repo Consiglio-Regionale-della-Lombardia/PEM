@@ -741,7 +741,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _dasiLogic.Get(request, CurrentUser, Request.RequestUri);
+                var user = CurrentUser;
+                var result = await _dasiLogic.Get(request, user, Request.RequestUri);
                 return Ok(result);
             }
             catch (Exception e)

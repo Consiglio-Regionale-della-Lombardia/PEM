@@ -36,7 +36,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Routes;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -950,7 +949,6 @@ namespace PortaleRegione.Persistance
                 .OrderByDescending(d => d.Data)
                 .ToListAsync();
             var res = new List<NoteDto>();
-            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
 
             foreach (var nota in noteInDB)
             {
@@ -1254,8 +1252,7 @@ namespace PortaleRegione.Persistance
                 .CountAsync(item => !item.Eliminato
                                     && item.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                     && item.UID_Atto_ODG == uidAtto
-                                    && item.DataIscrizioneSeduta.HasValue
-                                    && !item.TipoChiusuraIter.HasValue);
+                                    && item.DataIscrizioneSeduta.HasValue);
         }
 
         public async Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona)
@@ -1350,8 +1347,9 @@ namespace PortaleRegione.Persistance
                 {
                     var noteQuery = PRContext.ATTI_NOTE
                         .Where(nota => nota.Nota.Contains(f.Value.ToString()))
-                        .Select(nota => nota.UIDAtto);
-
+                        .Select(nota => nota.UIDAtto)
+                        .Distinct(); // #1405
+                    
                     query = query
                         .Join(
                             noteQuery,
