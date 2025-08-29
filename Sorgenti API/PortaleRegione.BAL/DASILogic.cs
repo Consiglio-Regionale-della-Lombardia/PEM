@@ -3874,9 +3874,23 @@ namespace PortaleRegione.API.Controllers
             }
 
             var body = await GetBodyDASI(atto.UIDAtto, persona, TemplateTypeEnum.PDF, privacy);
-            var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+            /*var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
             return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}",
-                listAttachments);
+                listAttachments);*/
+
+            try
+            {
+                var stamper = new PdfStamper_Playwright();
+                return await stamper.CreaPDFInMemory(
+                    body,
+                    $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}",
+                    listAttachments);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public async Task InviaAlProtocollo(Guid id)
@@ -4369,7 +4383,7 @@ namespace PortaleRegione.API.Controllers
                 case ExportFormatEnum.PDF:
                     filePath += ".pdf";
                     var bodyPDF = await ComposeReportBodyFromTemplate(model, currentUser);
-                    var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+                    var stamper = new PdfStamper_Playwright();
                     await stamper.CreaPDFAsync(filePath, bodyPDF, "Report");
                     break;
                 case ExportFormatEnum.WORD:

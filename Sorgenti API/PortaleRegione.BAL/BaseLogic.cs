@@ -657,7 +657,7 @@ namespace PortaleRegione.BAL
                 }
 
                 textQr =
-                    $"<img src=\"{qr_contentString}\" style=\"height:100px; width:100px; border=0;\" /><br><label>Collegamento alla piattaforma</label>";
+                    $"<img src=\"{qr_contentString}\" style=\"height:80px; width:80px; border=0;\" /><br><label>Collegamento alla piattaforma</label>";
             }
 
             body = body.Replace("{QRCode}", textQr);
@@ -813,7 +813,7 @@ namespace PortaleRegione.BAL
                     labelStato += $" {Utility.GetText_ChiusuraIterDASI(atto.TipoChiusuraIter)}";
 
                 body = body.Replace("{lblStatoPreviewATTOView}",
-                        $"<div class=\"chip white\" style=\"min-width: unset;\">{labelStato}</div>")
+                        $"<h6><b>{labelStato}</b></h6>")
                     .Replace("{STATO_PREVIEW_COMMENTO_START}", string.Empty)
                     .Replace("{STATO_PREVIEW_COMMENTO_END}", string.Empty);
             }
@@ -838,7 +838,7 @@ namespace PortaleRegione.BAL
                 }
 
                 textQr =
-                    $"<img src=\"{qr_contentString}\" style=\"height:100px; width:100px; border=0;\" /><br><label>Collegamento alla piattaforma</label>";
+                    $"<img src=\"{qr_contentString}\" style=\"height:80px; width:80px; border=0;\" /><br><label>Collegamento alla piattaforma</label>";
             }
 
             body = body.Replace("{QRCode}", textQr);

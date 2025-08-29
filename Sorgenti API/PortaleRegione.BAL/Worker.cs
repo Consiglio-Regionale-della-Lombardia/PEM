@@ -42,7 +42,7 @@ namespace PortaleRegione.BAL
         private readonly DASILogic _logicDasi;
         private readonly EmendamentiLogic _logicEm;
         private readonly FirmeLogic _logicFirme;
-        private readonly PdfStamper_IronPDF _stamper;
+        private readonly PdfStamper_Playwright _stamper;
         private readonly IUnitOfWork _unitOfWork;
         private ThreadWorkerModel _model;
         private StampaDto _stampa;
@@ -56,7 +56,7 @@ namespace PortaleRegione.BAL
             _logicAttiFirme = logicAttiFirme;
             _logicFirme = logicFirme;
             _logicAtti = logicAtti;
-            _stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+            _stamper = new PdfStamper_Playwright();
         }
 
         public event EventHandler<bool> OnWorkerFinish;
@@ -125,10 +125,11 @@ namespace PortaleRegione.BAL
                 //Funzione che fascicola i PDF creati prima
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                 var FilePathTarget = Path.Combine(path, nameFileTarget);
-                var merge_pdf = _stamper.MergedPDFInMemory(FilePathTarget, docs);
+                /*var merge_pdf = _stamper.MergedPDFInMemory(FilePathTarget, docs);*/
                 _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
 
-                return merge_pdf;
+                /*return merge_pdf;*/
+                return null;
             }
             catch (Exception e)
             {
@@ -296,7 +297,7 @@ namespace PortaleRegione.BAL
                 //Funzione che fascicola i PDF creati prima
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                 var FilePathTarget = Path.Combine(path, nameFileTarget);
-                var merge_pdf = _stamper.MergedPDFInMemory(FilePathTarget, docs);
+                /*var merge_pdf = _stamper.MergedPDFInMemory(FilePathTarget, docs);*/
                 _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
 
                 var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
@@ -312,7 +313,8 @@ namespace PortaleRegione.BAL
                     await _unitOfWork.CompleteAsync();
                 }
 
-                return merge_pdf;
+                /*return merge_pdf;*/
+                return null;
             }
             catch (Exception e)
             {

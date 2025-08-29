@@ -2434,7 +2434,7 @@ namespace PortaleRegione.BAL
                 Log.Debug($"{currentMethod} - Firme [{firme.Count()}]");
                 var body = await GetBodyEM(em, firme.ToList(), persona, TemplateTypeEnum.PDF);
                 Log.Debug($"{currentMethod} - HaveBody [{!string.IsNullOrEmpty(body)}]");
-                var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+                var stamper = new PdfStamper_Playwright();
                 var result = await stamper.CreaPDFInMemory(body, em.N_EM, listAttachments);
                 Log.Debug($"{currentMethod} - HaveContent [{result != null}]");
                 Log.Debug($"{currentMethod} - ContentLength [{result.Length}]");
