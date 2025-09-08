@@ -2573,10 +2573,10 @@ namespace PortaleRegione.API.Controllers
             TemplateTypeEnum template, bool privacy = false, bool enableQr = true, bool enableLogo = true)
         {
             var dto = await GetAttoDto(uidAtto, persona);
-            return GetBodyDASI(dto, persona, template, privacy, enableQr, enableLogo);
+            return GetBodyDASI(dto, template, privacy, enableQr, enableLogo);
         }
 
-        public string GetBodyDASI(AttoDASIDto dto, PersonaDto persona,
+        public string GetBodyDASI(AttoDASIDto dto, 
             TemplateTypeEnum template, bool privacy = false, bool enableQr = true, bool enableLogo = true)
         {
             try
@@ -2593,7 +2593,7 @@ namespace PortaleRegione.API.Controllers
                                 "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
                                 $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
                                 body;
-                            GetBody(dto, persona, false, privacy, false, ref body);
+                            GetBody(dto, false, privacy, false, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
                             body =
@@ -2601,13 +2601,13 @@ namespace PortaleRegione.API.Controllers
                                 "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
                                 $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
                                 body;
-                            GetBody(dto, persona, enableQr, privacy, enableLogo, ref body);
+                            GetBody(dto, enableQr, privacy, enableLogo, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
-                            GetBody(dto, persona, false, true, false, ref body);
+                            GetBody(dto, false, true, false, ref body);
                             break;
                         case TemplateTypeEnum.HTML_PDF:
-                            GetBody(dto, persona, false, true, false, ref body);
+                            GetBody(dto, false, true, false, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
                             body =

@@ -150,8 +150,7 @@ namespace PortaleRegione.BAL
                         try
                         {
                             var bodyPDF = _logicDasi.GetBodyDASI(item,
-                                null
-                                , TemplateTypeEnum.PDF,
+                                TemplateTypeEnum.PDF,
                                 true);
 
                             var nameFilePDF =
