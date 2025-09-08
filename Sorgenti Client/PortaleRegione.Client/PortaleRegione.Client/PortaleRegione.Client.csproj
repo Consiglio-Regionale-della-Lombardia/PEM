@@ -160,6 +160,7 @@
     <Content Include="apple-touch-icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="App_Err.htm" />
     <Content Include="Content\editor\langs\ar.js" />
     <Content Include="Content\editor\langs\ar.min.js" />
     <Content Include="Content\editor\langs\bg.js" />
