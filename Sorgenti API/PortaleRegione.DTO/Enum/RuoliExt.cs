@@ -85,7 +85,7 @@ namespace PortaleRegione.DTO.Enum
         Presidente_Regione = 9,
         Segreteria_Assemblea = 10,
         Utente = 11,
-        SERVIZIO_JOB = 12,
-        Segreteria_Assemblea_Read = 13 // #1035
+        SERVIZIO_JOB = 99,
+        Segreteria_Assemblea_Read = 12 // #1035
     }
 }
