@@ -991,6 +991,18 @@ namespace PortaleRegione.API.Controllers
                         if (Guid.TryParse(statement.Value.ToString(), out var guid))
                             return;
                 }
+                
+                if (model.filtro.Any(statement => statement.PropertyId == propertyId
+                                                  && propertyId == nameof(AttoDASIDto.TipoVotazioneIter)
+                                                  && statement.Operation == Operation.IsNull))
+                {
+                    query.TipoVotazioneMancante = true;
+                    var statementTipoVotazione = model.filtro
+                        .Where(statement => statement.PropertyId == propertyId && statement.Value == null).ToList();
+                    foreach (var statement in statementTipoVotazione) model.filtro.Remove(statement);
+
+                    return;
+                }
 
                 if (model.filtro.Any(statement => (statement.PropertyId == propertyId
                                                    && statement.Operation == Operation.IsNull) ||
