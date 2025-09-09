@@ -116,9 +116,12 @@
             ripristinaFiltri();
             ripristinaOrdinamento();
 
+            await creaPannelloFiltriLaterale2();
+            
             await ripristinaPreferiti();
             await ripristinaReports();
-            creaPannelloFiltriLaterale();
+            
+            //creaPannelloFiltriLaterale();
             creaPannelloReportLaterale();
 
             document.getElementById('addFiltersButton').addEventListener('click',
