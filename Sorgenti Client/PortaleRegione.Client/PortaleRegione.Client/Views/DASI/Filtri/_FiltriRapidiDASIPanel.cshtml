@@ -676,6 +676,12 @@
             localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
             view = localStorage.getItem('viewModeDasi');
         }
+        
+        var clientMode = localStorage.getItem('clientMode');
+        if (!clientMode) {
+            localStorage.setItem('clientMode', @Html.Raw((int)ClientModeEnum.GRUPPI));
+            clientMode = localStorage.getItem('clientMode');
+        }
 
         var paging = {};
         paging.page = page;
@@ -709,6 +715,7 @@
             request.page = page;
             request.size = size;
             request.viewMode = view;
+            request.clientMode = clientMode;
 
             const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
 

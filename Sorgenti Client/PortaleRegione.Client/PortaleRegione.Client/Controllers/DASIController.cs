@@ -92,15 +92,13 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var mode = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
-                
                 var request = new BaseRequest<AttoDASIDto>
                 {
                     page = 1,
                     size = 20,
                     param = new Dictionary<string, object>
                     {
-                        { "CLIENT_MODE", mode },
+                        { "CLIENT_MODE", model.clientMode },
                         { nameof(FilterRequest.viewMode), model.viewMode }
                     }
                 };
