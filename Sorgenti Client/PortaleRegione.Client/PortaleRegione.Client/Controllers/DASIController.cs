@@ -236,7 +236,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("seduta")]
         public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo = (int)TipoAttoEnum.TUTTI,
             int page = 1, int size = 20, int view = (int)ViewModeEnum.GRID,
-            int stato = (int)StatiAttoEnum.PRESENTATO, string uidAtto = "")
+            int stato = (int)StatiAttoEnum.PRESENTATO, string uidAtto = "", int legislatura = 0)
         {
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, uidAtto, page, size);

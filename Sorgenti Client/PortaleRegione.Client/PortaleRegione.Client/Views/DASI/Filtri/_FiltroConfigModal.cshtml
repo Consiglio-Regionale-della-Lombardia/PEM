@@ -1,4 +1,5 @@
-﻿<div id="modalFiltroConfig" class="modal">
+﻿@using PortaleRegione.DTO.Enum
+<div id="modalFiltroConfig" class="modal">
     <div class="modal-content">
         <h4>Filtro</h4>
         <div id="chips-container-config">
@@ -139,35 +140,55 @@
 	}
 
 	async function creaPannelloFiltriLaterale2() {
+		var clientMode = localStorage.getItem('clientMode');
 		const collection = document.getElementById('data-collection');
 		$('#data-collection').empty();
 
 		// >>> SEZIONE PREFERITI (contenitore dedicato)
 		const preferitiSection = document.createElement('div');
 		preferitiSection.id = 'preferiti-section';
-		collection.appendChild(preferitiSection);
+		
+		if (clientMode == @Html.Raw((int)ClientModeEnum.GRUPPI)) {			
+			collection.appendChild(preferitiSection);
 
-		preferitiSection.appendChild(preferitiHeader());
-		preferitiSection.appendChild(preferitiLoader());
+			preferitiSection.appendChild(preferitiHeader());
+			preferitiSection.appendChild(preferitiLoader());
+		}		
 
 		// >>> SEZIONE STANDARD (resta nella collection principale)
 		collection.appendChild(standardHeader());
-		availableFilterArray.forEach(function (item) {
-			const li = document.createElement('a');
-			li.className = 'collection-item';
-			li.textContent = item.tag;
-			li.onclick = async function (event) {
-				event.stopPropagation();
-				await openModalWithContent(item.id, item.tag, false, 0);
-			};
-			collection.appendChild(li);
-		});
+		if (clientMode == @Html.Raw((int)ClientModeEnum.GRUPPI)) {
+			availableFilterArray.forEach(function (item) {
+				const li = document.createElement('a');
+				li.className = 'collection-item';
+				li.textContent = item.tag;
+				li.onclick = async function (event) {
+					event.stopPropagation();
+					await openModalWithContent(item.id, item.tag, false, 0);
+				};
+				collection.appendChild(li);
+			});
+		}
+		else{
+			availableFilterTrattazioneArray.forEach(function (item) {
+				const li = document.createElement('a');
+				li.className = 'collection-item';
+				li.textContent = item.tag;
+				li.onclick = async function (event) {
+					event.stopPropagation();
+					await openModalWithContent(item.id, item.tag, false, 0);
+				};
+				collection.appendChild(li);
+			});
+		}	
 
 		try {
-			const preferiti = await GetFiltriPreferitiDASI();
-			window.filtriPreferitiArray = Array.isArray(preferiti) ? preferiti : [];
-			// >>> RENDER DENTRO LA SEZIONE PREFERITI
-			renderPreferiti(preferitiSection, window.filtriPreferitiArray);
+			if (clientMode == @Html.Raw((int)ClientModeEnum.GRUPPI)) {
+				const preferiti = await GetFiltriPreferitiDASI();
+				window.filtriPreferitiArray = Array.isArray(preferiti) ? preferiti : [];
+				// >>> RENDER DENTRO LA SEZIONE PREFERITI
+				renderPreferiti(preferitiSection, window.filtriPreferitiArray);
+			}
 		} catch (e) {
 			console.warn('Errore/timeout preferiti:', e);
 			const loader = preferitiSection.querySelector('#preferiti-loader');
@@ -281,100 +302,11 @@
 		]);
 	}
 
-
-
-	function creaPannelloFiltriLaterale() {
-        var collection = document.getElementById('data-collection');
-        $('#data-collection').empty();
-        filtriPreferitiArray.forEach(function (item) {
-	        var li = document.createElement('a');
-		    if (item.favourite){
-			    li.className = 'collection-item badgeStarCollectionFilter';
-		    }else {
-			    li.className = 'collection-item badgeCollectionFilter';
-		    }
-
-	        li.textContent = item.name;
-		    li.onclick = function (event) {
-                event.stopPropagation();
-
-			    if (item.favourite){
-				    $(`[data-nome-gruppo-filtri="${item.name}"]`).click();
-			    }else {
-				    resetSelezionePreferiti();
-				    localStorage.setItem('filtriDasi', item.filters);
-				    chipsKeys = [];
-				    
-				    ripristinaFiltri();
-			    }
-            };
-
-		    var deleteIcon = document.createElement('i');
-		    deleteIcon.className = 'material-icons secondary-content';
-		    deleteIcon.style.marginRight = '10px';
-		    deleteIcon.textContent = 'delete';
-		    deleteIcon.classList.add('red-text');
-		    deleteIcon.onclick = async function (event) {
-			    event.stopPropagation();
-			    swal(`Sei sicuro di voler eliminare il gruppo di filtri "${item.name}"?`, {
-				    buttons: ["No", "Si"],
-			    }).then(async (value) => {
-				    if (value == true){
-					    try {
-						    var deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
-						    deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
-						    let response = await fetch(deleteUrl, {
-                                method: 'GET',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                }
-                            });
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-
-                            let data = await response.json();
-                            if(data.message){
-                                ErrorAlert(data.message);
-                                return;
-                            }
-
-						    M.toast({
-							    html: `<span><b class="yellow-text">${item.name}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
-
-						    li.remove();
-						    var indexToRemove = filtriPreferitiArray.findIndex(el => el.name === item.name);
-
-						    if (indexToRemove !== -1) {
-							    filtriPreferitiArray.splice(indexToRemove, 1);
-						    }
-						    $(`[data-nome-gruppo-filtri="${item.name}"]`).remove();
-						    toggleChipsGroupsRow();
-					    } catch (error) {
-						    console.error('Errore di fetch:', error);
-						    ErrorAlert(error.message);
-					    }
-				    }
-			    });
-		    };
-		    li.appendChild(deleteIcon);
-	        collection.appendChild(li);
-        });
-
-        availableFilterArray.forEach(function (item) {
-	        var li = document.createElement('a');
-	        li.className = 'collection-item';
-	        li.textContent = item.tag;
-
-	        li.onclick = async function (event) {
-		        event.stopPropagation();
-		        await openModalWithContent(item.id, item.tag, false, 0);
-	        };
-	        collection.appendChild(li);
-        });
-    }
-
 	function resetSelezionePreferiti() {
+		var clientMode = localStorage.getItem('clientMode');
+		if (clientMode == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
+			return;
+		}
 		var chipsContainer = document.getElementById('chips-container-groups');
 		var chips = chipsContainer.getElementsByClassName('chip');
 		$.each(chips, function (index, chip) {
