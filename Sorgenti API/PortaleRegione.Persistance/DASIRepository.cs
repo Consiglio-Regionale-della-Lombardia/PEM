@@ -1333,86 +1333,82 @@ namespace PortaleRegione.Persistance
         {
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in statements)
-                if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+            {
+                var rawVal = f.Value?.ToString();
+                var hasText = !string.IsNullOrWhiteSpace(rawVal);
+                if (f.PropertyId == nameof(ATTI_DASI.Oggetto) && hasText)
                 {
-                    query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
-                                                || item.Oggetto_Modificato.Contains(f.Value.ToString())
-                                                || item.Oggetto_Approvato.Contains(f.Value.ToString())
-                                                || item.Richiesta_Modificata.Contains(f.Value.ToString())
-                                                || item.Premesse.Contains(f.Value.ToString())
-                                                || item.Premesse_Modificato.Contains(f.Value.ToString())
-                                                || item.Richiesta.Contains(f.Value.ToString()));
+                    query = query.Where(item => item.Oggetto.Contains(rawVal)
+                                                || item.Oggetto_Modificato.Contains(rawVal)
+                                                || item.Oggetto_Approvato.Contains(rawVal)
+                                                || item.Richiesta_Modificata.Contains(rawVal)
+                                                || item.Premesse.Contains(rawVal)
+                                                || item.Premesse_Modificato.Contains(rawVal)
+                                                || item.Richiesta.Contains(rawVal));
                 }
-                else if (f.PropertyId == nameof(AttoDASIDto.Note))
+                else if (f.PropertyId == nameof(AttoDASIDto.Note) && hasText)
                 {
                     var noteQuery = PRContext.ATTI_NOTE
-                        .Where(nota => nota.Nota.Contains(f.Value.ToString()))
+                        .Where(nota => nota.Nota.Contains(rawVal))
                         .Select(nota => nota.UIDAtto)
                         .Distinct(); // #1405
-                    
-                    query = query
-                        .Join(
-                            noteQuery,
-                            atto => atto.UIDAtto,
-                            doc => doc,
-                            (atto, doc) => atto
-                        );
+
+                    query = query.Where(atto => noteQuery.Contains(atto.UIDAtto));
                 }
-                else if (f.PropertyId == nameof(ATTI_DASI.NAtto))
+                else if (f.PropertyId == nameof(ATTI_DASI.NAtto) && hasText)
                 {
-                    var nAttoFilters = f.Value.ToString().Split(',');
+                    var tokens = rawVal.Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim());
+                    
                     var singleNumbers = new List<int>();
                     userOrder = new List<int>();
                     Expression<Func<ATTI_DASI, bool>> combinedRangePredicate = null;
 
-                    foreach (var nAttoFilter in nAttoFilters)
+                    foreach (var tok in tokens)
                     {
-                        if (string.IsNullOrEmpty(nAttoFilter))
-                            continue;
-
-                        if (nAttoFilter.Contains('-'))
+                        if (tok.Contains("-"))
                         {
-                            var parts = nAttoFilter.Split('-').Select(int.Parse).ToArray();
-                            var start = Math.Min(parts[0], parts[1]);
-                            var end = Math.Max(parts[0], parts[1]);
+                            var bounds = tok.Split(new[]{'-'}, StringSplitOptions.RemoveEmptyEntries)
+                                .Select(s => s.Trim()).ToArray();
+                            if (bounds.Length == 2 && int.TryParse(bounds[0], out var a) && int.TryParse(bounds[1], out var b))
+                            {
+                                var start = Math.Min(a,b);
+                                var end   = Math.Max(a,b);
 
-                            for (var i = start; i <= end; i++) userOrder.Add(i);
+                                for (var i = start; i <= end; i++) userOrder.Add(i);
 
-                            // Crea un'espressione per l'intervallo
-                            Expression<Func<ATTI_DASI, bool>> rangePredicate = item =>
-                                item.NAtto_search >= start && item.NAtto_search <= end;
-
-                            // Combina l'espressione corrente con le espressioni precedenti
-                            if (combinedRangePredicate == null)
-                                combinedRangePredicate = rangePredicate;
-                            else
-                                combinedRangePredicate =
-                                    ExpressionExtensions.CombineExpressions(combinedRangePredicate, rangePredicate);
+                                Expression<Func<ATTI_DASI,bool>> range = it => it.NAtto_search >= start && it.NAtto_search <= end;
+                                combinedRangePredicate = combinedRangePredicate == null
+                                    ? range
+                                    : ExpressionExtensions.CombineExpressions(combinedRangePredicate, range);
+                            }
                         }
-                        else
+                        else if (int.TryParse(tok, out var num))
                         {
-                            userOrder.Add(int.Parse(nAttoFilter));
-                            singleNumbers.Add(int.Parse(nAttoFilter));
+                            userOrder.Add(num);
+                            singleNumbers.Add(num);
                         }
                     }
 
                     if (singleNumbers.Any())
                     {
-                        Expression<Func<ATTI_DASI, bool>> singleNumbersPredicate =
-                            item => singleNumbers.Contains(item.NAtto_search);
+                        Expression<Func<ATTI_DASI,bool>> singles = it => singleNumbers.Contains(it.NAtto_search);
                         combinedRangePredicate = combinedRangePredicate == null
-                            ? singleNumbersPredicate
-                            : ExpressionExtensions.CombineExpressions(combinedRangePredicate, singleNumbersPredicate);
+                            ? singles
+                            : ExpressionExtensions.CombineExpressions(combinedRangePredicate, singles);
                     }
 
                     if (combinedRangePredicate != null)
                         query = query.Where(combinedRangePredicate);
                 }
-                else if (f.PropertyId == nameof(ATTI_DASI.DCR) || f.PropertyId == nameof(ATTI_DASI.DCCR))
+                else if ((f.PropertyId == nameof(ATTI_DASI.DCR) || f.PropertyId == nameof(ATTI_DASI.DCCR)) && hasText)
                 {
-                    var values = f.Value.ToString().Split(';');
-                    var dcrFilters = values.Length > 0 ? values[0].Split(',') : Array.Empty<string>();
-                    var dccrFilters = values.Length > 1 ? values[1].Split(',') : Array.Empty<string>();
+                    var tokens = rawVal.Split(new[]{';'}, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim()).ToList();
+                    var dcrFilters = tokens.Any() ? tokens[0].Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim()).ToArray() : Array.Empty<string>();
+                    var dccrFilters = tokens.Count > 1 ? tokens[1].Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim()).ToArray() : Array.Empty<string>();
 
                     // Creiamo i predicati per DCR
                     Expression<Func<ATTI_DASI, bool>> dcrPredicate = null;
@@ -1420,8 +1416,8 @@ namespace PortaleRegione.Persistance
 
                     foreach (var filter in dcrFilters)
                     {
-                        if (string.IsNullOrEmpty(filter)) continue;
-
+                        if (string.IsNullOrWhiteSpace(filter)) continue;
+                        
                         if (filter.Contains('-'))
                         {
                             var rangeParts = filter.Split('-').Select(int.Parse).ToArray();
@@ -1497,6 +1493,7 @@ namespace PortaleRegione.Persistance
                 {
                     filtro2._statements.Add(f);
                 }
+            }
 
             filtro2.BuildExpression(ref query);
 
@@ -1541,10 +1538,16 @@ namespace PortaleRegione.Persistance
                 query = query.Where(i => queryExtended.TipiRispostaRichiesta.Contains(i.IDTipo_Risposta));
 
             if (queryExtended.TipiChiusura.Any())
-                query = query.Where(i => queryExtended.TipiChiusura.Contains(i.TipoChiusuraIter.Value));
+                query = query.Where(i => i.TipoChiusuraIter.HasValue 
+                                         && queryExtended.TipiChiusura.Contains(i.TipoChiusuraIter.Value));
 
             if (queryExtended.TipiVotazione.Any())
-                query = query.Where(i => queryExtended.TipiVotazione.Contains(i.TipoVotazioneIter.Value));
+                query = query.Where(i => i.TipoVotazioneIter.HasValue
+                                         && queryExtended.TipiVotazione.Contains(i.TipoVotazioneIter.Value));
+            
+            if (queryExtended.TipoVotazioneMancante)
+                query = query
+                    .Where(atto => !atto.TipoVotazioneIter.HasValue);
 
             if (queryExtended.DataChiusuraIterIsNull)
                 query = query
@@ -1594,55 +1597,86 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.RispostaMancante)
             {
-                query = query.Where(atto => PRContext.ATTI_RISPOSTE
+                query = query.Where(atto => !PRContext.ATTI_RISPOSTE
                     .Any(risposta => risposta.UIDAtto == atto.UIDAtto));
             }
             else if (queryExtended.Risposte.Any())
             {
-                query = query.Where(atto => PRContext.ATTI_RISPOSTE
-                    .Any(f => queryExtended.Risposte.Contains(f.Tipo) && f.UIDAtto == atto.UIDAtto) || queryExtended.Risposte.Contains(atto.IDTipo_Risposta_Effettiva.Value));
+                query = query.Where(atto =>
+                    PRContext.ATTI_RISPOSTE.Any(f => queryExtended.Risposte.Contains(f.Tipo) && f.UIDAtto == atto.UIDAtto) ||
+                    (atto.IDTipo_Risposta_Effettiva.HasValue && queryExtended.Risposte.Contains(atto.IDTipo_Risposta_Effettiva.Value))
+                );
             }
 
             if (queryExtended.Proponenti.Any())
             {
-                query = query.Where(atto => PRContext.ATTI_PROPONENTI
-                    .Any(proponente => queryExtended.Proponenti.Contains(proponente.UidPersona.Value) && proponente.UIDAtto == atto.UIDAtto) || queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value));
+                query = query.Where(atto =>
+                    PRContext.ATTI_PROPONENTI.Any(p => p.UidPersona.HasValue &&
+                                                       queryExtended.Proponenti.Contains(p.UidPersona.Value) &&
+                                                       p.UIDAtto == atto.UIDAtto) ||
+                    (atto.UIDPersonaProponente.HasValue && queryExtended.Proponenti.Contains(atto.UIDPersonaProponente.Value))
+                );
             }
 
             if (queryExtended.Provvedimenti.Any())
             {
-                query = query.Where(atto => PRContext.ATTI_ABBINAMENTI
-                    .Any(abb => queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value) && abb.UIDAtto == atto.UIDAtto) || queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value));
+                query = query.Where(atto =>
+                    PRContext.ATTI_ABBINAMENTI.Any(abb => abb.UIDAttoAbbinato.HasValue &&
+                                                          queryExtended.Provvedimenti.Contains(abb.UIDAttoAbbinato.Value) &&
+                                                          abb.UIDAtto == atto.UIDAtto) ||
+                    (atto.UID_Atto_ODG.HasValue && queryExtended.Provvedimenti.Contains(atto.UID_Atto_ODG.Value))
+                );
             }
 
             if (queryExtended.OrganiIsNull)
             {
-                query = query.Where(atto => PRContext.ATTI_COMMISSIONI
-                    .Any(f => f.UIDAtto == atto.UIDAtto));
+                query = query.Where(atto =>
+                    !PRContext.ATTI_COMMISSIONI.Any(f => f.UIDAtto == atto.UIDAtto));
             }
             else if (queryExtended.Organi.Any())
             {
-                query = query.Where(atto => PRContext.ATTI_COMMISSIONI
-                    .Where(organo => queryExtended.Organi.Contains(organo.id_organo) && organo.UIDAtto == atto.UIDAtto)
-                    .Any() || PRContext.ATTI_RISPOSTE
-                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano) && organo.UIDAtto == atto.UIDAtto)
-                    .Any() || PRContext.ATTI_MONITORAGGIO
-                    .Where(organo => queryExtended.Organi.Contains(organo.IdOrgano) && organo.UIDAtto == atto.UIDAtto)
-                    .Any());
+                var organiAttiCommissioniQuery = PRContext.ATTI_COMMISSIONI
+                    .Where(organo => queryExtended.Organi.Contains(organo.id_organo))
+                    .Select(risposta => risposta.UIDAtto);
+
+                var organiRisposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(risposta => queryExtended.Organi.Contains(risposta.IdOrgano))
+                    .Select(risposta => risposta.UIDAtto);
+
+                var organiMonitoraggioQuery = PRContext.ATTI_MONITORAGGIO
+                    .Where(monitoraggio => queryExtended.Organi.Contains(monitoraggio.IdOrgano))
+                    .Select(risposta => risposta.UIDAtto);
+                
+                var organiAny = organiAttiCommissioniQuery
+                    .Union(organiRisposteQuery)
+                    .Union(organiMonitoraggioQuery)
+                    .Distinct();
+
+                query = query.Where(a => organiAny.Contains(a.UIDAtto));
             }
 
             if (queryExtended.Organi_Commissione.Any())
             {
-                query = query.Where(atto => PRContext.ATTI_RISPOSTE
-                    .Any(organo => queryExtended.Organi_Commissione.Contains(organo.IdOrgano)
-                                   && organo.TipoOrgano.Equals((int)TipoOrganoEnum.COMMISSIONE) && organo.UIDAtto == atto.UIDAtto));
+                var organiCommissioneQuery = PRContext.ATTI_RISPOSTE
+                    .Where(risposta => queryExtended.Organi_Commissione.Contains(risposta.IdOrgano)
+                                       && risposta.TipoOrgano.Equals((int)TipoOrganoEnum.COMMISSIONE))
+                    .Select(risposta => risposta.UIDAtto)
+                    .Distinct();
+
+                query = query
+                    .Where(atto => organiCommissioneQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.Organi_Giunta.Any())
             {
-                query = query.Where(atto => PRContext.ATTI_RISPOSTE
-                    .Any(organo => queryExtended.Organi_Giunta.Contains(organo.IdOrgano)
-                                   && organo.TipoOrgano.Equals((int)TipoOrganoEnum.GIUNTA) && organo.UIDAtto == atto.UIDAtto));
+                var organiGiuntaQuery = PRContext.ATTI_RISPOSTE
+                    .Where(risposta => queryExtended.Organi_Giunta.Contains(risposta.IdOrgano)
+                                   && risposta.TipoOrgano.Equals((int)TipoOrganoEnum.GIUNTA))
+                    .Select(risposta => risposta.UIDAtto)
+                    .Distinct();
+
+                query = query
+                    .Where(atto => organiGiuntaQuery.Contains(atto.UIDAtto));
             }
 
             if (queryExtended.DataSeduta.Any())
@@ -1652,38 +1686,33 @@ namespace PortaleRegione.Persistance
                     var startDate = queryExtended.DataSeduta[0];
                     var endDate = queryExtended.DataSeduta[1];
 
-                    var seduteQuery = PRContext
-                        .SEDUTE
-                        .Where(seduta => seduta.Data_seduta >= startDate && seduta.Data_seduta <= endDate)
-                        .Distinct()
-                        .AsQueryable();
-
-                    var identificativiSedute = seduteQuery.Select(seduta => seduta.UIDSeduta).ToList();
+                    var seduteList = PRContext.SEDUTE
+                        .Where(s => s.Data_seduta >= startDate && s.Data_seduta <= endDate)
+                        .ToList();
+                    
+                    var ids = seduteList.Select(s => s.UIDSeduta).ToList();
+                    
                     // #1341
-                    var listaDateSedutaCrypt = new List<string>();
-                    foreach (var seduta in seduteQuery)
-                    {
-                        var dataSedutaCrypt = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"), AppSettingsConfiguration.masterKey);
-                        listaDateSedutaCrypt.Add(dataSedutaCrypt);
-                    }
-
-                    query = query
-                        .Where(atto => identificativiSedute.Contains(atto.UIDSeduta.Value)
-                        || listaDateSedutaCrypt.Contains(atto.DataRichiestaIscrizioneSeduta));
+                    var listaDateSedutaCrypt = seduteList
+                        .Select(s => BALHelper.EncryptString(
+                            s.Data_seduta.ToString("dd/MM/yyyy"),
+                            AppSettingsConfiguration.masterKey))
+                        .ToList();
+                    
+                    query = query.Where(a =>
+                        (a.UIDSeduta.HasValue && ids.Contains(a.UIDSeduta.Value))
+                        || listaDateSedutaCrypt.Contains(a.DataRichiestaIscrizioneSeduta));
                 }
                 else
                 {
                     var singleDate = queryExtended.DataSeduta[0];
 
-                    var seduteQuery = PRContext
-                        .SEDUTE
-                        .Where(seduta => singleDate.Date == seduta.Data_seduta.Date)
-                        .Select(seduta => seduta.UIDSeduta)
-                        .Distinct()
-                        .AsQueryable();
+                    var seduteIds = PRContext.SEDUTE
+                        .Where(s => s.Data_seduta.Date == singleDate.Date)
+                        .Select(s => s.UIDSeduta)
+                        .Distinct();
 
-                    query = query
-                        .Where(atto => seduteQuery.Contains(atto.UIDSeduta.Value));
+                    query = query.Where(a => a.UIDSeduta.HasValue && seduteIds.Contains(a.UIDSeduta.Value));
                 }
             }
 
@@ -1698,8 +1727,7 @@ namespace PortaleRegione.Persistance
                         .Where(risposta => risposta.DataTrasmissione >= startDate
                                            && risposta.DataTrasmissione <= endDate)
                         .Select(risposta => risposta.UIDAtto)
-                        .Distinct()
-                        .AsQueryable();
+                        .Distinct();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1712,8 +1740,7 @@ namespace PortaleRegione.Persistance
                         .Where(risposta =>
                             singleDate.Date == risposta.DataTrasmissione.Value.Date)
                         .Select(risposta => risposta.UIDAtto)
-                        .Distinct()
-                        .AsQueryable();
+                        .Distinct();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1722,14 +1749,10 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.DataTrasmissioneIsNull)
             {
-                var risposteTrasmesseNulleQuery = PRContext.ATTI_RISPOSTE
-                    .Where(risposta => risposta.DataTrasmissione == null)
-                    .Select(risposta => risposta.UIDAtto)
-                    .Distinct()
-                    .AsQueryable();
-
-                query = query
-                    .Where(atto => risposteTrasmesseNulleQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto =>
+                    !PRContext.ATTI_RISPOSTE.Any(r => r.UIDAtto == atto.UIDAtto 
+                                                      && r.DataTrasmissione.HasValue)
+                );
             }
 
             if (queryExtended.DataTrattazione.Any())
@@ -1743,8 +1766,7 @@ namespace PortaleRegione.Persistance
                         .Where(risposta => risposta.DataTrattazione >= startDate
                                            && risposta.DataTrattazione <= endDate)
                         .Select(risposta => risposta.UIDAtto)
-                        .Distinct()
-                        .AsQueryable();
+                        .Distinct();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1757,8 +1779,7 @@ namespace PortaleRegione.Persistance
                         .Where(risposta =>
                             singleDate.Date == risposta.DataTrattazione.Value.Date)
                         .Select(risposta => risposta.UIDAtto)
-                        .Distinct()
-                        .AsQueryable();
+                        .Distinct();
 
                     query = query
                         .Where(atto => risposteTrasmesseQuery.Contains(atto.UIDAtto));
@@ -1767,12 +1788,10 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.DataTrattazioneIsNull)
             {
-                var risposteTrattateNulleQuery = PRContext.ATTI_RISPOSTE
-                    .Where(risposta => !risposta.DataTrattazione.HasValue)
-                    .Select(risposta => risposta.UIDAtto);
-
-                query = query
-                    .Where(atto => risposteTrattateNulleQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto =>
+                    !PRContext.ATTI_RISPOSTE.Any(r => r.UIDAtto == atto.UIDAtto 
+                                                      && r.DataTrattazione.HasValue)
+                );
             }
 
             if (queryExtended.DataChiusuraIter.Any())
@@ -1856,7 +1875,8 @@ namespace PortaleRegione.Persistance
                     var risposteDateQuery = PRContext.ATTI_RISPOSTE
                         .Where(risposta => risposta.Data >= startDate
                                            && risposta.Data <= endDate)
-                        .Select(risposta => risposta.UIDAtto);
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct();
 
                     query = query
                         .Where(atto => risposteDateQuery.Contains(atto.UIDAtto));
@@ -1868,7 +1888,8 @@ namespace PortaleRegione.Persistance
                     var risposteDateQuery = PRContext.ATTI_RISPOSTE
                         .Where(risposta =>
                             singleDate.Date == risposta.Data.Value.Date)
-                        .Select(risposta => risposta.UIDAtto);
+                        .Select(risposta => risposta.UIDAtto)
+                        .Distinct();
 
                     query = query
                         .Where(atto => risposteDateQuery.Contains(atto.UIDAtto));
@@ -1877,21 +1898,17 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.DataRispostaIsNull)
             {
-                var risposteDateNulleQuery = PRContext.ATTI_RISPOSTE
-                    .Where(risposta =>
-                        !risposta.Data.HasValue)
-                    .Select(risposta => risposta.UIDAtto);
-
-                query = query
-                    .Where(atto => risposteDateNulleQuery.Contains(atto.UIDAtto));
+                query = query.Where(atto =>
+                    // nessuna risposta…
+                    !PRContext.ATTI_RISPOSTE.Any(r => r.UIDAtto == atto.UIDAtto)
+                    // …oppure nessuna risposta con Data valorizzata
+                    || !PRContext.ATTI_RISPOSTE.Any(r => r.UIDAtto == atto.UIDAtto && r.Data != null)
+                );
             }
 
             if (queryExtended.Ritardo.HasValue)
             {
-                if (queryExtended.Ritardo.Value)
-                    query = query.Where(atto => atto.Ritardo > 0);
-                else
-                    query = query.Where(atto => atto.Ritardo.Equals(0));
+                query = queryExtended.Ritardo.Value ? query.Where(atto => atto.Ritardo > 0) : query.Where(atto => atto.Ritardo.Equals(0));
             }
 
             #endregion

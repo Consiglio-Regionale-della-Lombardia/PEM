@@ -4,7 +4,8 @@
 @using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
-<div style="display: @Html.Raw((Model.ClientMode == ClientModeEnum.GRUPPI) ? "block" : "none");">
+@if (Model.ClientMode == ClientModeEnum.GRUPPI)
+{
     <div class="row">
         <div class="input-field col s12">
             <i class="material-icons prefix">search</i>
@@ -32,7 +33,23 @@
             <div id="chips-container-groups"></div>
         </div>
     </div>
-</div>
+}
+else
+{
+    <div class="row">
+        <div class="input-field col s12">
+            <i class="material-icons prefix">search</i>
+            <input type="text" id="autocomplete-input" class="autocomplete">
+            <label for="autocomplete-input">Ricerca filtri disponibili</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col l12 m12 s12 left-align" style="padding-top: 10px;">
+            <div id="chips-container"></div>
+            <div id="chips-container-sorting"></div>
+        </div>
+    </div>
+}
 
 <!-- Modal Structure -->
 <script>
@@ -88,18 +105,62 @@
         { tag: "Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)" },
     ];
 
+    var availableFilterTrattazioneArray = [
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.NAtto))", id: "@nameof(AttoDASIDto.NAtto)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDPersonaProponente))", id: "@nameof(AttoDASIDto.UIDPersonaProponente)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.id_gruppo))", id: "@nameof(AttoDASIDto.id_gruppo)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.id_gruppo_firmatari))", id: "@nameof(AttoDASIDto.id_gruppo_firmatari)" },
+        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Firme))", id: "@nameof(AttoDASIDto.Firme)" },
+        { tag: "Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)" },
+    ];
+
     var chipsKeys = {};
 
     document.addEventListener('DOMContentLoaded',
         async function() {
             document.getElementById('loadingSpinner').style.display = 'none';
-            var isTrattazione = @Html.Raw((int)Model.ClientMode);
-            console.log("TRATTAZUOne", isTrattazione);
-            if (isTrattazione == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
+            var clientMode = localStorage.getItem('clientMode');
+            if (clientMode != @Html.Raw((int)Model.ClientMode)){
+                localStorage.setItem('clientMode', @Html.Raw((int)Model.ClientMode));
+            }
+
+            var dataSource = clientMode == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)
+                ? availableFilterTrattazioneArray
+                : availableFilterArray;
+
+            var elems = document.querySelectorAll('#autocomplete-input');
+            var instances = M.Autocomplete.init(elems,
+                {
+                    data: dataSource,
+                    onAutocomplete: async function(txt, key) {
+                        // Mostra i dettagli dell'elemento selezionato nella modal
+                        await openModalWithContent(key, txt, false, 0);
+                    }
+                });
+
+            if (document.getElementById('autocomplete-input')) {
+                document.getElementById('autocomplete-input').addEventListener('keydown',
+                    function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault(); // Previene l'invio del form, se necessario
+
+                            // Ottieni l'elenco dei suggerimenti dell'autocompletamento
+                            var autocompleteList = document.querySelectorAll('.autocomplete-content.dropdown-content li');
+                            if (autocompleteList.length > 0 && !autocompleteList[0].classList.contains('disabled')) {
+                                // Simula un click sul primo suggerimento visibile
+                                autocompleteList[0].click();
+                            }
+                        }
+                    });
+            }
+            
+            if (clientMode == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
                 console.log("### TRATTAZIONE ###");
 
                 ripristinaFiltriTrattazione();
-                return;
+                ripristinaOrdinamento();
+
+                await creaPannelloFiltriLaterale2();
             }
             else{
                 console.log("### GRUPPI ###");
@@ -111,16 +172,18 @@
                 }else{
                     localStorage.setItem('filtriDasi', JSON.stringify([]));
                 }
+
+                ripristinaFiltri();
+                ripristinaOrdinamento();
+
+                await creaPannelloFiltriLaterale2();
+
+                await ripristinaPreferiti();
+                await ripristinaReports();
+
+                creaPannelloReportLaterale();
             }
             
-            ripristinaFiltri();
-            ripristinaOrdinamento();
-
-            await ripristinaPreferiti();
-            await ripristinaReports();
-            creaPannelloFiltriLaterale();
-            creaPannelloReportLaterale();
-
             document.getElementById('addFiltersButton').addEventListener('click',
                 function() {
                     var key = document.getElementById('modal-filter-id-hidden').value;
@@ -629,37 +692,11 @@
                         chipText = keyLabel + ": " + text;
                     }
 
-                    addChipIfNotExists(key, keyLabel, val, text, chipText, true);
+                    addChipIfNotExists(key, keyLabel, val, text, chipText, true, true);
                     resetSelezionePreferiti();
                     // Chiudi la modal
                     $('#infoModal').modal("close");
                 });
-
-            var elems = document.querySelectorAll('#autocomplete-input');
-            var instances = M.Autocomplete.init(elems,
-                {
-                    data: availableFilterArray,
-                    onAutocomplete: async function(txt, key) {
-                        // Mostra i dettagli dell'elemento selezionato nella modal
-                        await openModalWithContent(key, txt, false, 0);
-                    }
-                });
-
-            if (document.getElementById('autocomplete-input')) {
-                document.getElementById('autocomplete-input').addEventListener('keydown',
-                    function(event) {
-                        if (event.key === 'Enter') {
-                            event.preventDefault(); // Previene l'invio del form, se necessario
-
-                            // Ottieni l'elenco dei suggerimenti dell'autocompletamento
-                            var autocompleteList = document.querySelectorAll('.autocomplete-content.dropdown-content li');
-                            if (autocompleteList.length > 0 && !autocompleteList[0].classList.contains('disabled')) {
-                                // Simula un click sul primo suggerimento visibile
-                                autocompleteList[0].click();
-                            }
-                        }
-                    });
-            }
         });
 
     async function inviaDatiChips(page, size) {
@@ -675,6 +712,12 @@
         if (!view) {
             localStorage.setItem('viewModeDasi', @Html.Raw((int)ViewModeEnum.GRID));
             view = localStorage.getItem('viewModeDasi');
+        }
+        
+        var clientMode = localStorage.getItem('clientMode');
+        if (!clientMode) {
+            localStorage.setItem('clientMode', @Html.Raw((int)ClientModeEnum.GRUPPI));
+            clientMode = localStorage.getItem('clientMode');
         }
 
         var paging = {};
@@ -709,6 +752,7 @@
             request.page = page;
             request.size = size;
             request.viewMode = view;
+            request.clientMode = clientMode;
 
             const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
 
@@ -1179,7 +1223,7 @@
                         td.innerHTML += "</ul>";
                     }
                 } else if (col.propertyName === '@nameof(AttoDASIDto.UIDPersonaProponente)') {
-                    if (result.Tipo !== '@Html.Raw((int)TipoAttoEnum.RIS)') {
+                    if (result.Tipo != '@Html.Raw((int)TipoAttoEnum.RIS)') {
                         td.innerHTML = `${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})`;
                     }
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Oggetto)') {
@@ -3041,7 +3085,7 @@
         $('#infoModal').modal("open");
     }
 
-    function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh) {
+    function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh, visible) {
 
         var existingChip = document.querySelector(`.chip[data-filterby="${key}"]`);
 
@@ -3056,6 +3100,10 @@
             newChip.classList.add('chip');
             newChip.classList.add('filter-chip');
             newChip.textContent = chipText;
+            
+            if (visible === false) {
+                newChip.style.display = "none";
+            }
 
             addIconsToChip(newChip, key, keyLabel, val);
             chipsContainer.appendChild(newChip);
@@ -3068,6 +3116,11 @@
             existingChip.setAttribute('data-filterby', key);
             existingChip.setAttribute('data-filterby-label', keyLabel);
             existingChip.textContent = chipText;
+
+            if (visible === false) {
+                existingChip.style.display = "none";
+            }
+            
             addIconsToChip(existingChip, key, keyLabel, val);
         }
 
@@ -3075,16 +3128,11 @@
 
         if (refresh) {
             console.log("refresh")
-            inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+            inviaDatiChips(1, $("#hdPaginazioneCorrente").val());
         }
     }
 
     function addIconsToChip(chip, key, keyLabel, val) {
-
-        var isTrattazione = @Html.Raw((int)Model.ClientMode);
-        if (isTrattazione == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
-            return;
-        }
 
         // Aggiungi un'icona per modificare la chip, se desiderato
         var editIcon = document.createElement('i');
@@ -3109,7 +3157,7 @@
             resetSelezionePreferiti();
             salvaFiltri();
             console.log("rimuovi chip")
-            inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+            inviaDatiChips(1, $("#hdPaginazioneCorrente").val());
         };
         chip.appendChild(closeIcon);
     }
@@ -3143,7 +3191,7 @@
         console.log("FILTRI", filtri)
         if (filtri) {
             filtri.forEach(function(filtro) {
-                addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
+                addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false, true);
             });
             const paging = JSON.parse(localStorage.getItem('pagingDasi'));
             if (paging) {
@@ -3157,34 +3205,66 @@
     function ripristinaFiltriTrattazione() {
         $('#chips-container').empty();
 
+        var filtriDasi = JSON.parse(localStorage.getItem('filtriDasi')) || [];
+
         const idSeduta = getUrlParameter('id');
         const tipo = getUrlParameter('tipo');
         const uidAtto = getUrlParameter('uidAtto');
-        
-		var filtri = [];
-        filtri.push({
-            key: "@Html.Raw(nameof(AttoDASIDto.UIDSeduta))",
-            keyLabel: "",
-			val: idSeduta || "",
-            label: "",
-            chipText: ""
+        const legislatura = getUrlParameter('legislatura');
+
+        var defaultFiltri = [
+            {
+                key: "@Html.Raw(nameof(AttoDASIDto.UIDSeduta))",
+                keyLabel: "",
+                val: idSeduta || "",
+                label: "",
+                chipText: "",
+                visible: false
+            },
+            {
+                key: "@Html.Raw(nameof(AttoDASIDto.Tipo))",
+                keyLabel: "",
+                val: tipo || "",
+                label: "",
+                chipText: "",
+                visible: false
+            },
+            {
+                key: "@Html.Raw(nameof(AttoDASIDto.Abbinamenti))",
+                keyLabel: "",
+                val: uidAtto || "",
+                label: "",
+                chipText: "",
+                visible: false
+            },
+            {
+                key: "@Html.Raw(nameof(AttoDASIDto.Legislatura))",
+                keyLabel: "",
+                val: legislatura || "",
+                label: "",
+                chipText: "",
+                visible: false
+            }
+        ];
+
+        // Prendo le chiavi di default per escluderle dai filtri “utente”
+        const defaultKeys = new Set(defaultFiltri.map(f => f.key));
+
+        // Filtri aggiunti dall’utente = quelli in filtriDasi con key NON di default
+        //    (discriminante = key)
+        const filtriUtente = (filtriDasi || []).filter(f => !defaultKeys.has(f.key));
+
+        // Merge: prima i default, poi i filtri utente (evita eventuali duplicati per key)
+        const visti = new Set();
+        const nuoviFiltri = [...defaultFiltri, ...filtriUtente].filter(f => {
+            if (visti.has(f.key)) return false;
+            visti.add(f.key);
+            return true;
         });
-        filtri.push({
-            key: "@Html.Raw(nameof(AttoDASIDto.Tipo))",
-            keyLabel: "",
-			val: tipo || "",
-            label: "",
-            chipText: ""
-        });
-        filtri.push({
-            key: "@Html.Raw(nameof(AttoDASIDto.Abbinamenti))",
-            keyLabel: "",
-			val: uidAtto || "",
-            label: "",
-            chipText: ""
-        });
-        filtri.forEach(function(filtro) {
-            addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
+
+        nuoviFiltri.forEach(function(filtro) {
+            var visible = filtro.visible ?? true;
+            addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false, visible);
         });
         const paging = JSON.parse(localStorage.getItem('pagingDasi'));
         if (paging) {

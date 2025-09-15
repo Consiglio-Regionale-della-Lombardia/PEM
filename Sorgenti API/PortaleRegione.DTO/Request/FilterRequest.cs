@@ -28,6 +28,8 @@ namespace PortaleRegione.DTO.Request
         public int page { get; set; }
         public int size { get; set; }
         public int viewMode { get; set; } = (int)ViewModeEnum.GRID;
+        
+        public int clientMode { get; set; } = (int)ClientModeEnum.GRUPPI;
         public List<SortingInfo> sort_settings { get; set; } = new List<SortingInfo>();
         public List<string> columns_settings { get; set; } = new List<string>();
     }

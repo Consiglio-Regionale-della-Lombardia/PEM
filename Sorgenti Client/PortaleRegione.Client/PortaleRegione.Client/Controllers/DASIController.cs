@@ -92,15 +92,13 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var mode = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
-                
                 var request = new BaseRequest<AttoDASIDto>
                 {
                     page = 1,
                     size = 20,
                     param = new Dictionary<string, object>
                     {
-                        { "CLIENT_MODE", mode },
+                        { "CLIENT_MODE", model.clientMode },
                         { nameof(FilterRequest.viewMode), model.viewMode }
                     }
                 };
@@ -238,7 +236,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("seduta")]
         public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo = (int)TipoAttoEnum.TUTTI,
             int page = 1, int size = 20, int view = (int)ViewModeEnum.GRID,
-            int stato = (int)StatiAttoEnum.PRESENTATO, string uidAtto = "")
+            int stato = (int)StatiAttoEnum.PRESENTATO, string uidAtto = "", int legislatura = 0)
         {
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, uidAtto, page, size);

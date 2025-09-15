@@ -1,4 +1,5 @@
-﻿<div id="modalFiltroConfig" class="modal">
+﻿@using PortaleRegione.DTO.Enum
+<div id="modalFiltroConfig" class="modal">
     <div class="modal-content">
         <h4>Filtro</h4>
         <div id="chips-container-config">
@@ -62,7 +63,7 @@
 	        return;
         }
 
-        addChipIfNotExists_Preferiti(request.name, request.filters, request.favourite);
+        await addChipIfNotExists_Preferiti(request.name, request.filters, request.favourite);
 	    M.toast({
 		    html: `<span><b class="yellow-text">${request.name}</b> aggiunto con successo</span>`, classes: 'rounded', displayLength: 5000 });
 
@@ -91,7 +92,7 @@
 		chipsContainer.appendChild(newChip);
 	}
 
-	function addChipIfNotExists_Preferiti(name, filters, favourite) {
+	async function addChipIfNotExists_Preferiti(name, filters, favourite) {
 
 		var existingChip = document.querySelector(`.chip[data-nome-gruppo-filtri="${name}"]`);
 
@@ -104,7 +105,7 @@
 		item.filters = filters;
 		filtriPreferitiArray.push(item);
 
-		creaPannelloFiltriLaterale();
+		await creaPannelloFiltriLaterale2();
 
 		if (!favourite) {
 			return;
@@ -138,98 +139,174 @@
 		toggleChipsGroupsRow();
 	}
 
-	function creaPannelloFiltriLaterale() {
-        var collection = document.getElementById('data-collection');
-        $('#data-collection').empty();
-        filtriPreferitiArray.forEach(function (item) {
-	        var li = document.createElement('a');
-		    if (item.favourite){
-			    li.className = 'collection-item badgeStarCollectionFilter';
-		    }else {
-			    li.className = 'collection-item badgeCollectionFilter';
-		    }
+	async function creaPannelloFiltriLaterale2() {
+		var clientMode = localStorage.getItem('clientMode');
+		const collection = document.getElementById('data-collection');
+		$('#data-collection').empty();
 
-	        li.textContent = item.name;
-		    li.onclick = function (event) {
-                event.stopPropagation();
+		// >>> SEZIONE PREFERITI (contenitore dedicato)
+		const preferitiSection = document.createElement('div');
+		preferitiSection.id = 'preferiti-section';
+		
+		if (clientMode == @Html.Raw((int)ClientModeEnum.GRUPPI)) {			
+			collection.appendChild(preferitiSection);
 
-			    if (item.favourite){
-				    $(`[data-nome-gruppo-filtri="${item.name}"]`).click();
-			    }else {
-				    resetSelezionePreferiti();
-				    localStorage.setItem('filtriDasi', item.filters);
-				    chipsKeys = [];
-				    
-				    ripristinaFiltri();
-			    }
-            };
+			preferitiSection.appendChild(preferitiHeader());
+			preferitiSection.appendChild(preferitiLoader());
+		}		
 
-		    var deleteIcon = document.createElement('i');
-		    deleteIcon.className = 'material-icons secondary-content';
-		    deleteIcon.style.marginRight = '10px';
-		    deleteIcon.textContent = 'delete';
-		    deleteIcon.classList.add('red-text');
-		    deleteIcon.onclick = async function (event) {
-			    event.stopPropagation();
-			    swal(`Sei sicuro di voler eliminare il gruppo di filtri "${item.name}"?`, {
-				    buttons: ["No", "Si"],
-			    }).then(async (value) => {
-				    if (value == true){
-					    try {
-						    var deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
-						    deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
-						    let response = await fetch(deleteUrl, {
-                                method: 'GET',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                }
-                            });
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
+		// >>> SEZIONE STANDARD (resta nella collection principale)
+		collection.appendChild(standardHeader());
+		if (clientMode == @Html.Raw((int)ClientModeEnum.GRUPPI)) {
+			availableFilterArray.forEach(function (item) {
+				const li = document.createElement('a');
+				li.className = 'collection-item';
+				li.textContent = item.tag;
+				li.onclick = async function (event) {
+					event.stopPropagation();
+					await openModalWithContent(item.id, item.tag, false, 0);
+				};
+				collection.appendChild(li);
+			});
+		}
+		else{
+			availableFilterTrattazioneArray.forEach(function (item) {
+				const li = document.createElement('a');
+				li.className = 'collection-item';
+				li.textContent = item.tag;
+				li.onclick = async function (event) {
+					event.stopPropagation();
+					await openModalWithContent(item.id, item.tag, false, 0);
+				};
+				collection.appendChild(li);
+			});
+		}	
 
-                            let data = await response.json();
-                            if(data.message){
-                                ErrorAlert(data.message);
-                                return;
-                            }
+		try {
+			if (clientMode == @Html.Raw((int)ClientModeEnum.GRUPPI)) {
+				const preferiti = await GetFiltriPreferitiDASI();
+				window.filtriPreferitiArray = Array.isArray(preferiti) ? preferiti : [];
+				// >>> RENDER DENTRO LA SEZIONE PREFERITI
+				renderPreferiti(preferitiSection, window.filtriPreferitiArray);
+			}
+		} catch (e) {
+			console.warn('Errore/timeout preferiti:', e);
+			const loader = preferitiSection.querySelector('#preferiti-loader');
+			if (loader) loader.remove();
+			const err = document.createElement('div');
+			err.className = 'red-text';
+			err.style.padding = '8px 16px';
+			err.textContent = 'Impossibile caricare i tuoi gruppi adesso.';
+			preferitiSection.appendChild(err);
+		}
+	}
 
-						    M.toast({
-							    html: `<span><b class="yellow-text">${item.name}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
+	function renderPreferiti(preferitiSectionEl, list) {
+		const loader = preferitiSectionEl.querySelector('#preferiti-loader');
+		if (loader) loader.remove();
 
-						    li.remove();
-						    var indexToRemove = filtriPreferitiArray.findIndex(el => el.name === item.name);
+		if (!list || list.length === 0) {
+			const empty = document.createElement('div');
+			empty.className = 'grey-text';
+			empty.style.padding = '8px 16px';
+			empty.textContent = 'Nessun gruppo salvato.';
+			preferitiSectionEl.appendChild(empty);
+			return;
+		}
 
-						    if (indexToRemove !== -1) {
-							    filtriPreferitiArray.splice(indexToRemove, 1);
-						    }
-						    $(`[data-nome-gruppo-filtri="${item.name}"]`).remove();
-						    toggleChipsGroupsRow();
-					    } catch (error) {
-						    console.error('Errore di fetch:', error);
-						    ErrorAlert(error.message);
-					    }
-				    }
-			    });
-		    };
-		    li.appendChild(deleteIcon);
-	        collection.appendChild(li);
-        });
+		list.forEach(function (item) {
+			const li = document.createElement('a');
+			li.className = item.favourite ? 'collection-item badgeStarCollectionFilter' : 'collection-item badgeCollectionFilter';
+			li.textContent = item.name;
 
-        availableFilterArray.forEach(function (item) {
-	        var li = document.createElement('a');
-	        li.className = 'collection-item';
-	        li.textContent = item.tag;
+			li.onclick = function (event) {
+				event.stopPropagation();
+				if (item.favourite) {
+					$(`[data-nome-gruppo-filtri="${item.name}"]`).click();
+				} else {
+					resetSelezionePreferiti();
+					localStorage.setItem('filtriDasi', item.filters);
+					window.chipsKeys = [];
+					ripristinaFiltri();
+				}
+			};
 
-	        li.onclick = async function (event) {
-		        event.stopPropagation();
-		        await openModalWithContent(item.id, item.tag, false, 0);
-	        };
-	        collection.appendChild(li);
-        });
-    }
+			const deleteIcon = document.createElement('i');
+			deleteIcon.className = 'material-icons secondary-content';
+			deleteIcon.style.marginRight = '10px';
+			deleteIcon.textContent = 'delete';
+			deleteIcon.classList.add('red-text');
+			deleteIcon.onclick = async function (event) {
+				event.stopPropagation();
+				swal(`Sei sicuro di voler eliminare il gruppo di filtri "${item.name}"?`, {
+					buttons: ["No", "Si"],
+				}).then(async (value) => {
+					if (value == true) {
+						try {
+							let deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
+							deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
+							const response = await fetch(deleteUrl, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+							if (!response.ok) throw new Error('Network response was not ok');
+
+							const data = await response.json();
+							if (data.message) { ErrorAlert(data.message); return; }
+
+							M.toast({ html: `<span><b class="yellow-text">${item.name}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
+							li.remove();
+							$(`[data-nome-gruppo-filtri="${item.name}"]`).remove();
+							toggleChipsGroupsRow();
+						} catch (error) {
+							console.error('Errore di fetch:', error);
+							ErrorAlert(error.message);
+						}
+					}
+				});
+			};
+
+			li.appendChild(deleteIcon);
+			// <<< appendiamo alla SEZIONE PREFERITI, non alla collection globale
+			preferitiSectionEl.appendChild(li);
+		});
+	}
+
+	// --- headers/loader per la UI preferiti/standard ---
+	function preferitiHeader() {
+		const h = document.createElement('div');
+		h.className = 'collection-header';
+		h.style.padding = '8px 16px';
+		h.innerHTML = '<strong>I miei gruppi</strong>';
+		return h;
+	}
+	function standardHeader() {
+		const h = document.createElement('div');
+		h.className = 'collection-header';
+		h.style.padding = '8px 16px';
+		h.innerHTML = '<strong>Filtri standard</strong>';
+		return h;
+	}
+	function preferitiLoader() {
+		const div = document.createElement('div');
+		div.id = 'preferiti-loader';
+		div.innerHTML = `
+    <div class="progress" style="margin:8px 16px;">
+      <div class="indeterminate"></div>
+    </div>`;
+		return div;
+	}
+
+	// --- piccolo timeout per evitare spinner infiniti ---
+	function withTimeout(promise, ms = 8000) {
+		return Promise.race([
+			promise,
+			new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout caricamento preferiti')), ms))
+		]);
+	}
 
 	function resetSelezionePreferiti() {
+		var clientMode = localStorage.getItem('clientMode');
+		if (clientMode == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
+			return;
+		}
 		var chipsContainer = document.getElementById('chips-container-groups');
 		var chips = chipsContainer.getElementsByClassName('chip');
 		$.each(chips, function (index, chip) {
@@ -238,10 +315,8 @@
 	}
 	
 	async function ripristinaPreferiti() {
-		var filtri = await GetFiltriPreferitiDASI();
-		filtriPreferitiArray = [];
-		$.each(filtri, function (index, item) {
-			addChipIfNotExists_Preferiti(item.name, item.filters, item.favourite)
+		$.each(window.filtriPreferitiArray, async function (index, item) {
+			await addChipIfNotExists_Preferiti(item.name, item.filters, item.favourite)
 		});
 		toggleChipsGroupsRow();
 	}

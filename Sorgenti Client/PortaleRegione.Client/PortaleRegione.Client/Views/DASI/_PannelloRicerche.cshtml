@@ -140,6 +140,13 @@
     }
 
     function openDasiSearch() {
+        var clientMode = localStorage.getItem('clientMode');
+        if (clientMode === "@Html.Raw((int)ClientModeEnum.TRATTAZIONE)") {
+            $(".tabs li a[href='#tabReport']").parent().parent().hide();
+        }else{
+            $(".tabs li a[href='#tabReport']").parent().parent().show();
+        }
+        
         var elems = document.querySelector("#slide-dasi-DX");
         var instances = M.Sidenav.init(elems,
             {
