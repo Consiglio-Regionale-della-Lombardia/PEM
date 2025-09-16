@@ -33,7 +33,6 @@ namespace GeneraStampeJobFramework
         public string CartellaLavoroStampe { get; set; }
         public string EmailFrom { get; set; }
         public string RootRepository { get; set; }
-        public string PDF_LICENSE { get; set; }
         public string PercorsoCompatibilitaDocumenti { get; set; }
         public string masterKey { get; set; }
         
@@ -53,7 +52,6 @@ namespace GeneraStampeJobFramework
                 RootRepository = RootRepository,
                 CartellaLavoroStampe = CartellaLavoroStampe,
                 CartellaLavoroTemporanea = CartellaLavoroTemporanea,
-                PDF_LICENSE = PDF_LICENSE,
                 PercorsoCompatibilitaDocumenti = PercorsoCompatibilitaDocumenti,
                 ConnectionString = ConnectionString,
                 masterKey = masterKey
@@ -89,9 +87,6 @@ namespace GeneraStampeJobFramework
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.RootRepository)))
                 RootRepository = data.Get(nameof(ThreadWorkerModel.RootRepository)).ToString();
-
-            if (data.ContainsKey(nameof(ThreadWorkerModel.PDF_LICENSE)))
-                PDF_LICENSE = data.Get(nameof(ThreadWorkerModel.PDF_LICENSE)).ToString();
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.PercorsoCompatibilitaDocumenti)))
                 PercorsoCompatibilitaDocumenti =

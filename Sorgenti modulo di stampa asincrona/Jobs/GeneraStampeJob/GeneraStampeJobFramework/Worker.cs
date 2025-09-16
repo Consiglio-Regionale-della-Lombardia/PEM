@@ -42,7 +42,7 @@ namespace GeneraStampeJobFramework
         private static readonly ILog log = LogManager.GetLogger(typeof(Worker));
         private readonly LoginResponse _auth;
         private readonly ThreadWorkerModel _model;
-        private readonly PdfStamper_IronPDF _stamper;
+        private readonly PdfStamper_Playwright _stamper;
         private readonly UnitOfWork _unitOfWork;
         private readonly ApiGateway apiGateway;
         private StampaDto _stampa;
@@ -55,7 +55,7 @@ namespace GeneraStampeJobFramework
             _model = model;
             BaseGateway.apiUrl = _model.UrlAPI;
             apiGateway = new ApiGateway(_auth.jwt);
-            _stamper = new PdfStamper_IronPDF(_model.PDF_LICENSE);
+            _stamper = new PdfStamper_Playwright();
         }
 
         public Worker(string jwt, UnitOfWork unitOfWork, ref ThreadWorkerModel model)
@@ -68,7 +68,7 @@ namespace GeneraStampeJobFramework
                 jwt = jwt
             };
             _unitOfWork = unitOfWork;
-            _stamper = new PdfStamper_IronPDF(_model.PDF_LICENSE);
+            _stamper = new PdfStamper_Playwright();
         }
 
         public event EventHandler<bool> OnWorkerFinish;
@@ -478,7 +478,7 @@ namespace GeneraStampeJobFramework
                 var listaPdfEmendamentiGenerati =
                     await GeneraPDFEmendamenti(listaEMendamenti, path);
 
-                _stamper.MergedPDFWithRetry(FilePathTarget,
+                _stamper.MergedPDF(FilePathTarget,
                     listaPdfEmendamentiGenerati.Select(p => p.Value.Path).ToList());
 
                 await LogStampa(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
