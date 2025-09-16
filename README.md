@@ -292,9 +292,9 @@ NOTA: Io modulo DASI è attualmente in fase di test e viene rilasciato in versio
 
 Specifiche tecniche server consigliate:
 
-- Sistema Operativo: Windows Server 2022 + Active Directory
-- Web e Application server: IIS 10 + Entity Framework 6.0
-- Database: Microsoft SQL server 2019
+- Sistema Operativo: Windows Server 2022 + Active Directory (compatibilità con Windows Server 2019 e 2012)
+- Web e Application server: IIS 10 + Entity Framework 6.0 (compatibilità con IIS 7.5)
+- Database: Microsoft SQL server 2022 (compatibilità con versioni 2019 e 2012)
 
 Specifiche tecniche client:
 - Sistema Operativo: Microsoft windows 10 o superiore, Mac OsX
