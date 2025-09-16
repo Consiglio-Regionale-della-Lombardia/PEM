@@ -34,6 +34,8 @@ namespace PortaleRegione.Domain
         public DateTime DataCreazione { get; set; }
         [Required] [StringLength(100)] public string Nome { get; set; }
         public string Filtri { get; set; }
+        public string Colonne { get; set; }
+        public string DettagliOrdinamento { get; set; }
         public bool Preferito { get; set; }
         public Guid UId_persona { get; set; }
     }

@@ -20,6 +20,8 @@ namespace PortaleRegione.DTO.Domain
     public class FiltroPreferitoDto
     {
         public string filters { get; set; }
+        public string columns { get; set; }
+        public string sorting { get; set; }
         public string name { get; set; }
         public bool favourite { get; set; }
     }

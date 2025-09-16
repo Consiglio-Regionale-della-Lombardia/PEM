@@ -4326,6 +4326,8 @@ namespace PortaleRegione.API.Controllers
             {
                 UId_persona = currentUser.UID_persona,
                 Filtri = request.filters,
+                Colonne = request.columns,
+                DettagliOrdinamento = request.sorting,
                 Nome = request.name,
                 Preferito = request.favourite
             };
@@ -4343,7 +4345,9 @@ namespace PortaleRegione.API.Controllers
                 {
                     name = f.Nome,
                     favourite = f.Preferito,
-                    filters = f.Filtri
+                    filters = f.Filtri,
+                    columns = f.Colonne,
+                    sorting = f.DettagliOrdinamento
                 });
 
             return res;
