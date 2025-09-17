@@ -5620,7 +5620,12 @@ namespace PortaleRegione.API.Controllers
                     if (string.IsNullOrEmpty(request.Dati.DataAnnunzio))
                         atto.DataAnnunzio = null;
                     else
+                    {
                         atto.DataAnnunzio = DateTime.Parse(request.Dati.DataAnnunzio);
+                        // #1483
+                        if (atto.IDStato.Equals((int)StatiAttoEnum.PRESENTATO))
+                            atto.IDStato = (int)StatiAttoEnum.IN_TRATTAZIONE;
+                    }
                 }
 
                 if (request.Dati.TipoChiusuraIterCheck)
@@ -5628,7 +5633,12 @@ namespace PortaleRegione.API.Controllers
                     if (string.IsNullOrEmpty(request.Dati.TipoChiusuraIter))
                         atto.TipoChiusuraIter = null;
                     else
+                    {
                         atto.TipoChiusuraIter = int.Parse(request.Dati.TipoChiusuraIter);
+                        // #1483
+                        if (!atto.IsChiuso)
+                            atto.IDStato = (int)StatiAttoEnum.COMPLETATO;
+                    }
                 }
 
                 if (request.Dati.DataChiusuraIterCheck)
