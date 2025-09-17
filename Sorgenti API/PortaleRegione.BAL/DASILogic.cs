@@ -2721,7 +2721,9 @@ namespace PortaleRegione.API.Controllers
             atto.IDStato = (int)StatiAttoEnum.COMPLETATO;
             atto.TipoChiusuraIter = (int)TipoChiusuraIterEnum.RITIRATO;
             atto.UIDPersonaRitiro = persona.UID_persona;
-            atto.DataRitiro = DateTime.Now;
+            var dataRitiro = DateTime.Now; 
+            atto.DataRitiro = dataRitiro;
+            atto.DataChiusuraIter = dataRitiro; // #1501
 
             await _unitOfWork.CompleteAsync();
 
