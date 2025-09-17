@@ -149,6 +149,10 @@
       <Project>{D7079C04-ECC1-402E-B438-B67B79BF04D7}</Project>
       <Name>PortaleRegione.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PortaleRegione.Crypto\PortaleRegione.Crypto.csproj">
+      <Project>{ce1501b2-58d4-47ac-8d15-e2aa307e401b}</Project>
+      <Name>PortaleRegione.Crypto</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PortaleRegione.DataBase\PortaleRegione.DataBase.csproj">
       <Project>{0F0074AB-D94E-49F3-A702-6BA24D51EA97}</Project>
       <Name>PortaleRegione.DataBase</Name>

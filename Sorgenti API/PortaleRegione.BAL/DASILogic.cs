@@ -42,6 +42,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
+using PortaleRegione.Crypto;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
@@ -111,7 +112,7 @@ namespace PortaleRegione.API.Controllers
                     var attoPEM = await _unitOfWork.Atti.Get(result.UID_Atto_ODG.Value);
                     var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
                     result.UIDSeduta = seduta.UIDSeduta;
-                    result.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(
+                    result.DataRichiestaIscrizioneSeduta = CryptoHelper.EncryptString(
                         seduta.Data_seduta.ToString("dd/MM/yyyy"),
                         AppSettingsConfiguration.masterKey);
                     result.UIDPersonaRichiestaIscrizione = currentUser.UID_persona;
@@ -201,7 +202,7 @@ namespace PortaleRegione.API.Controllers
                 var attoPEM = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
                 var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
                 attoInDb.UIDSeduta = seduta.UIDSeduta;
-                attoInDb.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(
+                attoInDb.DataRichiestaIscrizioneSeduta = CryptoHelper.EncryptString(
                     seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
                 attoInDb.UIDPersonaRichiestaIscrizione = currentUser.UID_persona;
@@ -271,7 +272,7 @@ namespace PortaleRegione.API.Controllers
                 //re-crypt del testo certificato
                 var body = await GetBodyDASI(attoInDb.UIDAtto, currentUser,
                     TemplateTypeEnum.FIRMA);
-                var body_encrypt = BALHelper.EncryptString(body, BALHelper.Decrypt(attoInDb.Hash));
+                var body_encrypt = CryptoHelper.EncryptString(body, BALHelper.Decrypt(attoInDb.Hash));
 
                 attoInDb.Atto_Certificato = body_encrypt;
                 await _unitOfWork.CompleteAsync();
@@ -1674,15 +1675,15 @@ namespace PortaleRegione.API.Controllers
                     var primoFirmatario = false;
 
                     var timestampFirma = DateTime.Now;
-                    var dataFirma = BALHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm:ss"),
+                    var dataFirma = CryptoHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
 
                     if (firmaUfficio)
                     {
-                        firmaCert = BALHelper.EncryptString($"{persona.DisplayName_GruppoCode}",
+                        firmaCert = CryptoHelper.EncryptString($"{persona.DisplayName_GruppoCode}",
                             AppSettingsConfiguration.masterKey); // matcat - #615
                         timestampFirma = atto.Timestamp.Value.AddMinutes(-2);
-                        dataFirma = BALHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm"),
+                        dataFirma = CryptoHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
                     }
                     else
@@ -1711,7 +1712,7 @@ namespace PortaleRegione.API.Controllers
 
                         var bodyFirmaCert =
                             $"{persona.DisplayName} ({info_codice_carica_gruppo})";
-                        firmaCert = BALHelper.EncryptString(bodyFirmaCert
+                        firmaCert = CryptoHelper.EncryptString(bodyFirmaCert
                             , AppSettingsConfiguration.masterKey);
                     }
 
@@ -1720,14 +1721,14 @@ namespace PortaleRegione.API.Controllers
                     {
                         //Se è la prima firma dell'atto, questo viene cryptato e così certificato e non modificabile
                         attoInDb.Hash = firmaUfficio
-                            ? BALHelper.EncryptString(AppSettingsConfiguration.MasterPIN,
+                            ? CryptoHelper.EncryptString(AppSettingsConfiguration.MasterPIN,
                                 AppSettingsConfiguration.masterKey)
                             : pin.PIN;
                         attoInDb.UIDPersonaPrimaFirma = persona.UID_persona;
                         attoInDb.DataPrimaFirma = timestampFirma;
                         var body = await GetBodyDASI(attoInDb.UIDAtto, persona,
                             TemplateTypeEnum.FIRMA);
-                        var body_encrypt = BALHelper.EncryptString(body,
+                        var body_encrypt = CryptoHelper.EncryptString(body,
                             firmaUfficio ? AppSettingsConfiguration.MasterPIN : pin.PIN_Decrypt);
 
                         attoInDb.Atto_Certificato = body_encrypt;
@@ -1753,7 +1754,7 @@ namespace PortaleRegione.API.Controllers
                         var iqt_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(sedutaRichiesta.UIDSeduta,
                             TipoAttoEnum.IQT, 0);
                         var iqt_proposte = await _unitOfWork.DASI.GetProposteAtti(
-                            BALHelper.EncryptString(atto.DataRichiestaIscrizioneSeduta,
+                            CryptoHelper.EncryptString(atto.DataRichiestaIscrizioneSeduta,
                                 AppSettingsConfiguration.masterKey),
                             TipoAttoEnum.IQT, 0);
                         var iqt_da_esaminare = new List<ATTI_DASI>();
@@ -2060,7 +2061,7 @@ namespace PortaleRegione.API.Controllers
 
                 firma_utente.Prioritario = false;
                 firma_utente.Data_ritirofirma =
-                    BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                    CryptoHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                         AppSettingsConfiguration.masterKey);
 
                 await _unitOfWork.CompleteAsync();
@@ -2215,7 +2216,7 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    var dataRichiesta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                    var dataRichiesta = CryptoHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                         AppSettingsConfiguration.masterKey);
                     atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
@@ -2331,7 +2332,7 @@ namespace PortaleRegione.API.Controllers
                 var etichetta_progressiva =
                     $"{Utility.GetText_Tipo(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
                 var etichetta_encrypt =
-                    BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
+                    CryptoHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
                 var checkProgressivo_unique =
                     await _unitOfWork.DASI.CheckProgressivo(etichetta_encrypt);
 
@@ -2346,7 +2347,7 @@ namespace PortaleRegione.API.Controllers
                 atto.UIDPersonaPresentazione = persona.UID_persona;
                 atto.OrdineVisualizzazione = contatore_progressivo;
                 atto.Timestamp = DateTime.Now;
-                atto.DataPresentazione = BALHelper.EncryptString(atto.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
+                atto.DataPresentazione = CryptoHelper.EncryptString(atto.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                     AppSettingsConfiguration.masterKey);
                 atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
 
@@ -2484,7 +2485,7 @@ namespace PortaleRegione.API.Controllers
                     var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
                         TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
                     var moz_proposte = await _unitOfWork.DASI.GetProposteAtti(
-                        BALHelper.EncryptString(seduta_attiva.Data_seduta.ToString("dd/MM/yyyy"),
+                        CryptoHelper.EncryptString(seduta_attiva.Data_seduta.ToString("dd/MM/yyyy"),
                             AppSettingsConfiguration.masterKey),
                         TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
                     var moz_da_esaminare = new List<ATTI_DASI>();
@@ -2525,7 +2526,7 @@ namespace PortaleRegione.API.Controllers
                     var iqt_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
                         TipoAttoEnum.IQT, 0);
                     var iqt_proposte = await _unitOfWork.DASI.GetProposteAtti(
-                        BALHelper.EncryptString(atto.DataRichiestaIscrizioneSeduta, AppSettingsConfiguration.masterKey),
+                        CryptoHelper.EncryptString(atto.DataRichiestaIscrizioneSeduta, AppSettingsConfiguration.masterKey),
                         TipoAttoEnum.IQT, 0);
                     var iqt_da_esaminare = new List<ATTI_DASI>();
                     iqt_da_esaminare.AddRange(iqt_in_seduta.Where(a => !a.TipoChiusuraIter.HasValue));
@@ -3040,7 +3041,7 @@ namespace PortaleRegione.API.Controllers
 
         public async Task RichiediIscrizione(RichiestaIscrizioneDASIModel model, PersonaDto persona)
         {
-            var dataRichiesta = BALHelper.EncryptString(model.DataRichiesta.ToString("dd/MM/yyyy"),
+            var dataRichiesta = CryptoHelper.EncryptString(model.DataRichiesta.ToString("dd/MM/yyyy"),
                 AppSettingsConfiguration.masterKey);
 
             foreach (var guid in model.Lista)
@@ -3074,7 +3075,7 @@ namespace PortaleRegione.API.Controllers
 
                 atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ)
-                    atto.DataPresentazione_MOZ = BALHelper.EncryptString(
+                    atto.DataPresentazione_MOZ = CryptoHelper.EncryptString(
                         DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
                 atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
@@ -3225,10 +3226,10 @@ namespace PortaleRegione.API.Controllers
 
                 attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
-                attoInDb.DataPresentazione_MOZ_URGENTE = BALHelper.EncryptString(
+                attoInDb.DataPresentazione_MOZ_URGENTE = CryptoHelper.EncryptString(
                     DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                     AppSettingsConfiguration.masterKey);
-                attoInDb.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(
+                attoInDb.DataRichiestaIscrizioneSeduta = CryptoHelper.EncryptString(
                     seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
                 attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
@@ -3330,14 +3331,14 @@ namespace PortaleRegione.API.Controllers
 
                 atto.TipoMOZ = (int)TipoMOZEnum.ABBINATA;
                 atto.UID_MOZ_Abbinata = model.AttoUId;
-                atto.DataPresentazione_MOZ_ABBINATA = BALHelper.EncryptString(
+                atto.DataPresentazione_MOZ_ABBINATA = CryptoHelper.EncryptString(
                     DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                     AppSettingsConfiguration.masterKey);
 
                 // #842 MOZ Abbinate: iscrizione in seduta
                 var attoAbbinato = await Get(model.AttoUId);
                 var seduta = await _logicSedute.GetSeduta(attoAbbinato.UIDSeduta.Value);
-                var dataRichiesta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                var dataRichiesta = CryptoHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
 
                 atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
@@ -3812,7 +3813,7 @@ namespace PortaleRegione.API.Controllers
                         UIDAtto = Guid.NewGuid(),
                         UID_QRCode = Guid.NewGuid(),
                         Timestamp = data_presentazione,
-                        DataPresentazione = BALHelper.EncryptString(data_presentazione.ToString("dd/MM/yyyy HH:mm:ss"),
+                        DataPresentazione = CryptoHelper.EncryptString(data_presentazione.ToString("dd/MM/yyyy HH:mm:ss"),
                             AppSettingsConfiguration.masterKey),
                         DataCreazione = data_presentazione,
                         UIDPersonaCreazione = currentUser.UID_persona,
@@ -3833,7 +3834,7 @@ namespace PortaleRegione.API.Controllers
                     var etichetta_progressiva =
                         $"{Utility.GetText_Tipo(model.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
                     var etichetta_encrypt =
-                        BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
+                        CryptoHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
 
                     atti_cartacei.Add(new ATTI_DASI
                     {
@@ -3843,7 +3844,7 @@ namespace PortaleRegione.API.Controllers
                         UIDAtto = Guid.NewGuid(),
                         UID_QRCode = Guid.NewGuid(),
                         Timestamp = data_presentazione,
-                        DataPresentazione = BALHelper.EncryptString(data_presentazione.ToString("dd/MM/yyyy HH:mm:ss"),
+                        DataPresentazione = CryptoHelper.EncryptString(data_presentazione.ToString("dd/MM/yyyy HH:mm:ss"),
                             AppSettingsConfiguration.masterKey),
                         NAtto_search = contatore_progressivo,
                         OrdineVisualizzazione = contatore_progressivo,
@@ -4045,7 +4046,7 @@ namespace PortaleRegione.API.Controllers
                 var etichetta_progressiva =
                     $"{Utility.GetText_Tipo(attoDto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
                 var etichetta_encrypt =
-                    BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
+                    CryptoHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
 
                 attoInDb.NAtto_search = contatore_progressivo;
                 attoInDb.OrdineVisualizzazione = contatore_progressivo;
@@ -4067,7 +4068,7 @@ namespace PortaleRegione.API.Controllers
                 var attoPEM = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
                 var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
                 attoInDb.UIDSeduta = seduta.UIDSeduta;
-                attoInDb.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(
+                attoInDb.DataRichiestaIscrizioneSeduta = CryptoHelper.EncryptString(
                     seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
                 attoInDb.UIDPersonaRichiestaIscrizione = currentUser.UID_persona;
@@ -4131,7 +4132,7 @@ namespace PortaleRegione.API.Controllers
                 //Seduta associata all'atto PEM
                 seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
 
-                var dataRichiesta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                var dataRichiesta = CryptoHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
                 atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                 atto.UIDPersonaRichiestaIscrizione = atto.UIDPersonaProponente;

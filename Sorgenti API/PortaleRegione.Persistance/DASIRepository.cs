@@ -28,6 +28,7 @@ using ExpressionBuilder.Interfaces;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
+using PortaleRegione.Crypto;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -1694,7 +1695,7 @@ namespace PortaleRegione.Persistance
                     
                     // #1341
                     var listaDateSedutaCrypt = seduteList
-                        .Select(s => BALHelper.EncryptString(
+                        .Select(s => CryptoHelper.EncryptString(
                             s.Data_seduta.ToString("dd/MM/yyyy"),
                             AppSettingsConfiguration.masterKey))
                         .ToList();

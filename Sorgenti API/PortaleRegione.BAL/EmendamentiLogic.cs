@@ -38,6 +38,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Office.Word;
+using PortaleRegione.Crypto;
 
 namespace PortaleRegione.BAL
 {
@@ -776,7 +777,7 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
-                        firmaCert = BALHelper.EncryptString($"{AppSettingsConfiguration.FirmaUfficio}"
+                        firmaCert = CryptoHelper.EncryptString($"{AppSettingsConfiguration.FirmaUfficio}"
                             , AppSettingsConfiguration.masterKey);
                     }
                     else
@@ -818,11 +819,11 @@ namespace PortaleRegione.BAL
 
                         var bodyFirmaCert =
                             $"{persona.DisplayName} ({info_codice_carica_gruppo}){(isRelatore ? " - RELATORE" : string.Empty)}{(isAssessore ? " - Ass. capofila" : string.Empty)}";
-                        firmaCert = BALHelper.EncryptString(bodyFirmaCert
+                        firmaCert = CryptoHelper.EncryptString(bodyFirmaCert
                             , AppSettingsConfiguration.masterKey);
                     }
 
-                    var dataFirma = BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                    var dataFirma = CryptoHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
 
                     var countFirme = await _unitOfWork.Firme.CountFirme(idGuid);
@@ -830,7 +831,7 @@ namespace PortaleRegione.BAL
                     {
                         //Se è la prima firma dell'emendamento, questo viene cryptato e così certificato e non modificabile
                         em.Hash = firmaUfficio
-                            ? BALHelper.EncryptString(AppSettingsConfiguration.MasterPIN,
+                            ? CryptoHelper.EncryptString(AppSettingsConfiguration.MasterPIN,
                                 AppSettingsConfiguration.masterKey)
                             : pin.PIN;
                         em.UIDPersonaPrimaFirma = persona.UID_persona;
@@ -847,7 +848,7 @@ namespace PortaleRegione.BAL
                                 }
                             }, persona,
                             TemplateTypeEnum.FIRMA);
-                        var body_encrypt = BALHelper.EncryptString(body,
+                        var body_encrypt = CryptoHelper.EncryptString(body,
                             firmaUfficio ? AppSettingsConfiguration.MasterPIN : pin.PIN_Decrypt);
 
                         em.EM_Certificato = body_encrypt;
@@ -989,7 +990,7 @@ namespace PortaleRegione.BAL
                         firma_utente = firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
 
                     firma_utente.Data_ritirofirma =
-                        BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                        CryptoHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
 
                     if (DateTime.Now > seduta.Scadenza_presentazione.Value)
@@ -1097,7 +1098,7 @@ namespace PortaleRegione.BAL
                     var etichetta_progressiva =
                         await _unitOfWork.Emendamenti.GetEtichetta(emDto.UIDAtto, emDto.Rif_UIDEM.HasValue) + 1;
                     var etichetta_encrypt =
-                        BALHelper.EncryptString(etichetta_progressiva.ToString(), AppSettingsConfiguration.masterKey);
+                        CryptoHelper.EncryptString(etichetta_progressiva.ToString(), AppSettingsConfiguration.masterKey);
 
                     var checkProgressivo_unique =
                         await _unitOfWork.Emendamenti.CheckProgressivo(emDto.UIDAtto, etichetta_encrypt,
@@ -1113,7 +1114,7 @@ namespace PortaleRegione.BAL
                     var ordine = await _unitOfWork.Emendamenti.GetOrdinePresentazione(emDto.UIDAtto) + 1;
                     em.OrdinePresentazione = em.OrdineVotazione = ordine;
                     em.Timestamp = DateTime.Now;
-                    em.DataDeposito = BALHelper.EncryptString(em.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
+                    em.DataDeposito = CryptoHelper.EncryptString(em.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
                     em.IDStato = (int)StatiEnum.Depositato;
                     if (em.Rif_UIDEM.HasValue)
@@ -1870,7 +1871,7 @@ namespace PortaleRegione.BAL
                 foreach (var filterStatement in model.filtro.Where(filterStatement =>
                              filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
                     filterStatement.Value =
-                        BALHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
+                        CryptoHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
 
                 var tags = new List<TagDto>();
                 var tags_request = new FilterStatement<EmendamentiDto>();
@@ -1960,7 +1961,7 @@ namespace PortaleRegione.BAL
                 foreach (var filterStatement in model.filtro.Where(filterStatement =>
                              filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
                     filterStatement.Value =
-                        BALHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
+                        CryptoHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
 
                 var tags = new List<TagDto>();
                 var tags_request = new FilterStatement<EmendamentiDto>();

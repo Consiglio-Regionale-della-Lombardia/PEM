@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.Crypto;
 using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.BAL
@@ -57,7 +58,7 @@ namespace PortaleRegione.BAL
         public async Task CambioPin(CambioPinModel model)
         {
             await _unitOfWork.Persone.SavePin(model.PersonaUId,
-                BALHelper.EncryptString(model.nuovo_pin, AppSettingsConfiguration.masterKey),
+                CryptoHelper.EncryptString(model.nuovo_pin, AppSettingsConfiguration.masterKey),
                 false);
             await _unitOfWork.CompleteAsync();
         }
@@ -65,7 +66,7 @@ namespace PortaleRegione.BAL
         public async Task ResetPin(ResetPinModel model)
         {
             await _unitOfWork.Persone.SavePin(model.PersonaUId,
-                BALHelper.EncryptString(model.nuovo_pin, AppSettingsConfiguration.masterKey),
+                CryptoHelper.EncryptString(model.nuovo_pin, AppSettingsConfiguration.masterKey),
                 true);
             await _unitOfWork.CompleteAsync();
         }

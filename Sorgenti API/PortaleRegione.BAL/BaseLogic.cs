@@ -32,6 +32,7 @@ using AutoMapper;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
+using PortaleRegione.Crypto;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
@@ -185,7 +186,7 @@ namespace PortaleRegione.BAL
                 {
                     //EMENDAMENTO
                     if (!string.IsNullOrEmpty(emendamento.N_EM))
-                        result = "EM " + BALHelper.DecryptString(emendamento.N_EM, AppSettingsConfiguration.masterKey);
+                        result = "EM " + CryptoHelper.DecryptString(emendamento.N_EM, AppSettingsConfiguration.masterKey);
                     else
                         result = "TEMP " + emendamento.Progressivo;
                 }
@@ -195,7 +196,7 @@ namespace PortaleRegione.BAL
 
                     if (!string.IsNullOrEmpty(emendamento.N_SUBEM))
                         result = "SUBEM " +
-                                 BALHelper.DecryptString(emendamento.N_SUBEM, AppSettingsConfiguration.masterKey);
+                                 CryptoHelper.DecryptString(emendamento.N_SUBEM, AppSettingsConfiguration.masterKey);
                     else
                         result = "SUBEM TEMP " + emendamento.SubProgressivo;
 
@@ -224,7 +225,7 @@ namespace PortaleRegione.BAL
 
             if (!string.IsNullOrEmpty(nAtto))
             {
-                result = BALHelper.DecryptString(nAtto, AppSettingsConfiguration.masterKey);
+                result = CryptoHelper.DecryptString(nAtto, AppSettingsConfiguration.masterKey);
                 if (result.Contains("_")) result = result.Split('_')[1];
             }
             else

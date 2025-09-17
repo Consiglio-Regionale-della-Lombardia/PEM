@@ -24,6 +24,7 @@ using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.Contracts;
+using PortaleRegione.Crypto;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -627,7 +628,7 @@ namespace PortaleRegione.BAL
             notifica.Chiuso = true;
             var firma = await _unitOfWork.Atti_Firme.FindInCache(notifica.UIDAtto, notifica.Mittente);
             firma.Data_ritirofirma =
-                BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                CryptoHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                     AppSettingsConfiguration.masterKey);
             await _unitOfWork.CompleteAsync();
             var atto = await _logicDasi.GetAttoDto(notifica.UIDAtto);

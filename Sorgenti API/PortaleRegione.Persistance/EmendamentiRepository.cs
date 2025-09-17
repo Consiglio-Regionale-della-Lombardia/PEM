@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
+using PortaleRegione.Crypto;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -89,7 +90,7 @@ namespace PortaleRegione.Persistance
                 if (filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(EM.N_EM)) != null)
                 {
                     var filter_n_em_value = Convert.ToInt32(filtro.Statements.First(item => item.PropertyId == nameof(EM.N_EM)).Value);
-                    var encryt_nem = BALHelper.EncryptString(Convert.ToString(filter_n_em_value),
+                    var encryt_nem = CryptoHelper.EncryptString(Convert.ToString(filter_n_em_value),
                         AppSettingsConfiguration.masterKey);
                     query = query.Where(e => (!e.Timestamp.HasValue && e.Progressivo == filter_n_em_value)
                                              || e.N_EM == encryt_nem);
@@ -360,7 +361,7 @@ namespace PortaleRegione.Persistance
                 if (filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(EM.N_EM)) != null)
                 {
                     var filter_n_em_value = Convert.ToInt32(filtro.Statements.First(item => item.PropertyId == nameof(EM.N_EM)).Value);
-                    var encryt_nem = BALHelper.EncryptString(Convert.ToString(filter_n_em_value),
+                    var encryt_nem = CryptoHelper.EncryptString(Convert.ToString(filter_n_em_value),
                         AppSettingsConfiguration.masterKey);
                     query = query.Where(e => (!e.Timestamp.HasValue && e.Progressivo == filter_n_em_value)
                                              || e.N_EM == encryt_nem);

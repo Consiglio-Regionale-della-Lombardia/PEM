@@ -15,6 +15,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using PortaleRegione.Crypto;
 
 namespace PortaleRegione.BAL
 {
@@ -87,7 +88,7 @@ namespace PortaleRegione.BAL
                             .Persone
                             .Autentica(
                                 loginModel.Username,
-                                BALHelper.EncryptString(loginModel.Password, AppSettingsConfiguration.JWT_MASTER)
+                                CryptoHelper.EncryptString(loginModel.Password, AppSettingsConfiguration.JWT_MASTER)
                             );
                         if (!authResult_NoAD)
                         {

@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using PortaleRegione.Crypto;
 
 namespace PortaleRegione.BAL
 {
@@ -359,7 +360,7 @@ namespace PortaleRegione.BAL
         public async Task ResetPin(ResetRequest request)
         {
             await _unitOfWork.Persone.SavePin(request.persona_UId
-                , BALHelper.EncryptString(request.new_value, AppSettingsConfiguration.masterKey)
+                , CryptoHelper.EncryptString(request.new_value, AppSettingsConfiguration.masterKey)
                 , true);
             await _unitOfWork.CompleteAsync();
         }
