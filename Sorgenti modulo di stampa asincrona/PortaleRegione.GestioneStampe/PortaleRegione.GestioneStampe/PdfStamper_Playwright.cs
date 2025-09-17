@@ -203,7 +203,7 @@ public class PdfStamper_Playwright
 
     // ========== INTERNALS ==================================================
 
-    private static async Task<byte[]> RenderHtmlToPdfAsync(
+    private async Task<byte[]> RenderHtmlToPdfAsync(
         string html,
         string footerRightText = null
     )
@@ -240,7 +240,7 @@ public class PdfStamper_Playwright
         }
     }
 
-    private static string BuildFooter(string nome_documento)
+    private string BuildFooter(string nome_documento)
     {
         // Token Playwright: pageNumber / totalPages
         var label = string.IsNullOrEmpty(nome_documento) ? "" : $"{nome_documento} ";
@@ -249,20 +249,20 @@ public class PdfStamper_Playwright
                       </div>";
     }
 
-    private static void EnsureDirectory(string path)
+    private void EnsureDirectory(string path)
     {
         var dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
             Directory.CreateDirectory(dir);
     }
 
-    private static void AppendAllPages(PdfDocument input, PdfDocument output)
+    private void AppendAllPages(PdfDocument input, PdfDocument output)
     {
         for (var i = 0; i < input.PageCount; i++)
             output.AddPage(input.Pages[i]);
     }
 
-    private static byte[] MergeBytes(IEnumerable<byte[]> pdfs)
+    private byte[] MergeBytes(IEnumerable<byte[]> pdfs)
     {
         using var outDoc = new PdfDocument();
         foreach (var b in pdfs)

@@ -40,13 +40,13 @@ namespace GeneraStampeJobFramework
 
         public async Task Run()
         {
-            log.Info((object) "Manager.Run() - Avvio procedura stampe...");
+            log.Info("Manager.Run() - Avvio procedura stampe...");
             
             try
             {
                 BaseGateway.apiUrl = _model.UrlAPI;
                 var apiGateway = new ApiGateway();
-                log.Info((object) "Richiesta autenticazione tramite ApiGateway...");
+                log.Info("Richiesta autenticazione tramite ApiGateway...");
                 var auth = await apiGateway.Persone.Login(new LoginRequest
                 {
                     Username = _model.Username,

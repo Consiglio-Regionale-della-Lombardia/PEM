@@ -26,6 +26,7 @@ using log4net;
 using Newtonsoft.Json;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
+using PortaleRegione.Crypto;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -522,10 +523,30 @@ namespace GeneraStampeJobFramework
                         {
                             prefissoTesto += ":";
                         }
+                        
+                        // Costruzione header con logo + titolo
+                        var headerCopertina = $@"
+<link href='https://fonts.googleapis.com/icon?family=Material+Icons' rel='stylesheet'>
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css'>
+<link rel='stylesheet' href='https://gedasi.consiglio.regione.lombardia.it/content/site.css'>
+    <div class='row' style='margin-top:20px; margin-bottom:30px;'>
+    <div class='col s12 center-align'>
+        <img src='https://gedasi.consiglio.regione.lombardia.it/images/logo.png'
+             alt='Logo Regione Lombardia'
+             style='max-height:80px; margin-bottom:10px;' />
+    </div>
+    <div class='col s12 center-align'>
+        <h5 class='green-text text-darken-3' style='font-weight:500;'>Regione Lombardia</h5>
+    </div>
+    <div class='col s12 center-align'>
+        <h6 class='grey-text text-darken-2'>{prefissoTesto}</h6>
+    </div>
+</div>
+";
 
                         var counter = 1;
                         var totaleElementi = 0;
-                        var bodyCopertinaFascicolo = "<ul>";
+                        var bodyCopertinaFascicolo = headerCopertina + "<ul class='collection'>";
                         foreach (var fascicolo in stampeFascicolo)
                         {
                             // Deserializza la lista di elementi dal Query
@@ -539,7 +560,7 @@ namespace GeneraStampeJobFramework
 
                             // Aggiungi l'elemento alla lista HTML
                             bodyCopertinaFascicolo +=
-                                $"<li><a href='{URLDownloadFascicolo}' target='_blank'>{prefissoTesto} EM dal {start_fascicolo} a {end_fascicolo}</a></li>";
+                                $"<li class='collection-item'><a href='{URLDownloadFascicolo}' target='_blank'>{prefissoTesto} EM dal {start_fascicolo} a {end_fascicolo}</a></li>";
 
                             // Aggiorna il contatore
                             counter = end_fascicolo + 1;
@@ -858,7 +879,7 @@ namespace GeneraStampeJobFramework
                 if (riferimento != null)
                 {
                     if (!string.IsNullOrEmpty(riferimento.N_EM))
-                        riferimentoText = "EM " + BALHelper.DecryptString(riferimento.N_EM, _model.masterKey);
+                        riferimentoText = "EM " + CryptoHelper.DecryptString(riferimento.N_EM, _model.masterKey);
                     else
                         riferimentoText = "TEMP " + riferimento.Progressivo;
                 }
@@ -869,7 +890,7 @@ namespace GeneraStampeJobFramework
                     var subRes = "";
                     if (!string.IsNullOrEmpty(emendamento.N_SUBEM))
                         subRes = "SUBEM " +
-                                 BALHelper.DecryptString(emendamento.N_SUBEM, _model.masterKey);
+                                 CryptoHelper.DecryptString(emendamento.N_SUBEM, _model.masterKey);
                     else
                         subRes = "SUBEM TEMP " + emendamento.SubProgressivo;
 
@@ -880,7 +901,7 @@ namespace GeneraStampeJobFramework
 
                 if (!string.IsNullOrEmpty(emendamento.N_EM))
                     return "EM " +
-                           BALHelper.DecryptString(emendamento.N_EM, _model.masterKey);
+                           CryptoHelper.DecryptString(emendamento.N_EM, _model.masterKey);
 
                 return "TEMP " + emendamento.Progressivo;
             }
