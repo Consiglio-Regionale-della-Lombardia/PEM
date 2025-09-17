@@ -91,14 +91,23 @@
 <div class="row">
 <div class="col s12">
 <div class="card">
-<div class="card-action grey lighten-4 center">
-    <div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset; position: absolute; right: 10px; top: -18px;border-color:black!important;color:black!important;">@Utility.GetText_StatoDASI(atto.IDStato)</div>
-    <h6>
-        <b>
-            <span>@Html.Raw(atto.gruppi_politici.nome_gruppo)</span>
-        </b>
-    </h6>
-</div>
+	<div class="card-action grey lighten-4 center">
+		@{
+			// #1502
+			var labelStato = PortaleRegione.Common.Utility.GetText_StatoDASI(atto.IDStato);
+
+			if (atto.TipoChiusuraIter.HasValue && atto.TipoChiusuraIter > 0)
+			{
+				labelStato += $" {PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI(atto.TipoChiusuraIter)}";
+			}
+		}
+		<div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset; position: absolute; right: 10px; top: -18px;border-color:black!important;color:black!important;">@labelStato</div>
+		<h6>
+			<b>
+				<span>@Html.Raw(atto.gruppi_politici.nome_gruppo)</span>
+			</b>
+		</h6>
+	</div>
 @if (atto.Firmabile
      || atto.Presentabile
      || atto.Eliminabile
