@@ -62,7 +62,7 @@ public class AttoDASIReportDto
     [DisplayName("Allegati dell’atto")] public string Documenti { get; set; } // #1021
     [DisplayName("Tipo risposta richiesta")] public int IDTipo_Risposta { get; set; }
     [DisplayName("Tipo risposta fornita")] public int? IDTipo_Risposta_Effettiva { get; set; }
-    [DisplayName("Informazioni risposte")] public string Risposte { get; set; }
+    [DisplayName("Informazioni risposte/Iter")] public string Risposte { get; set; } // #1503
     [DisplayName("Sollecito")] public bool Sollecito { get; set; }
     [DisplayName("Iter multiplo")] public bool IterMultiplo { get; set; } = false;
     [DisplayName("Non passaggio in esame")] public bool Non_Passaggio_In_Esame { get; set; } = false;
