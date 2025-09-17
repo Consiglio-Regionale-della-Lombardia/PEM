@@ -28,5 +28,6 @@ public enum TipoDocumentoEnum
     RISPOSTA = 5,
     TESTO_PRIVACY = 6,
     VERBALE_VOTAZIONE = 7,
-    TESTO_RISPOSTA = 8
+    TESTO_RISPOSTA = 8,
+    VERBALE_VOTAZIONE_SEGRETA = 9,
 }

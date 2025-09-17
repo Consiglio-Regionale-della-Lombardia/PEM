@@ -1009,6 +1009,28 @@ namespace PortaleRegione.API.Controllers
                                                    && statement.Operation == Operation.IsNull) ||
                                                   statement.Operation == Operation.IsNullOrWhiteSpace))
                     return;
+                
+                // #1495
+                if (propertyId == nameof(AttoDASIDto.Documenti))
+                {
+                    var filtriDocumenti = model.filtro
+                        .Where(f => f.PropertyId == propertyId)
+                        .ToList();
+
+                    var contieneVerbale = filtriDocumenti
+                        .Any(f => f.Value.ToString().Equals(((int)TipoDocumentoEnum.VERBALE_VOTAZIONE).ToString()));
+
+                    if (contieneVerbale)
+                    {
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            Connector = FilterStatementConnector.Or,
+                            Operation = Operation.EqualTo,
+                            PropertyId = propertyId,
+                            Value = (int)TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA
+                        });
+                    }
+                }
 
                 var statements = model.filtro
                     .Where(statement => statement.PropertyId == propertyId
