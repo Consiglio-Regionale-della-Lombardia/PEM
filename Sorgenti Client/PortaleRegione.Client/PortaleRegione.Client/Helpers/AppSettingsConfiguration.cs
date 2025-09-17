@@ -47,6 +47,7 @@ namespace PortaleRegione.Client.Helpers
 
         public static string MOZ_UIDTemplateReportDCR => ConfigurationManager.AppSettings["MOZ_UIDTemplateReportDCR"];
         public static string ODG_UIDTemplateReportDCR => ConfigurationManager.AppSettings["ODG_UIDTemplateReportDCR"];
+        public static string RIS_UIDTemplateReportDCR => ConfigurationManager.AppSettings["RIS_UIDTemplateReportDCR"];
         
         public static string ITL_SCRITTA_UIDTemplateReportCopertinaPresidente => ConfigurationManager.AppSettings["ITL_SCRITTA_UIDTemplateReportCopertinaPresidente"];
         public static string ITL_SCRITTA_UIDTemplateReportCopertinaUfficio => ConfigurationManager.AppSettings["ITL_SCRITTA_UIDTemplateReportCopertinaUfficio"];

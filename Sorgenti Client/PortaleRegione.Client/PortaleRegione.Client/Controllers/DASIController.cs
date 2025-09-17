@@ -1813,6 +1813,10 @@ namespace PortaleRegione.Client.Controllers
                 {
                     request.dataviewtype_template = AppSettingsConfiguration.ODG_UIDTemplateReportDCR;
                 }
+                else if (tipo.Equals((int)TipoAttoEnum.RIS))
+                {
+                    request.dataviewtype_template = AppSettingsConfiguration.RIS_UIDTemplateReportDCR;
+                }
 
                 var file = await apiGateway.DASI.GeneraReport(request);
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
