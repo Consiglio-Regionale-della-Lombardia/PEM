@@ -118,12 +118,38 @@
                         {
                             if ((firmeGroup.Any()
                                  && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-                                || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                                                                                       && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
-                                || Model.CurrentUser.IsSegreteriaAssemblea)
+                                || (firmeGroup.Any()
+                                    && Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                                    && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                                || (firmeGroup.Any()
+                                    && Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                                    && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                                || (firmeGroup.Any()
+                                && Model.CurrentUser.IsSegreteriaAssemblea))
                             {
-                                <button type="button" role="button" class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
+                                <button type="button" role="button" class="btn-flat pink-text"
+                                        onclick="SwitchVisualizzazionePriorita()">
                                     Gestisci priorità e ordinamento firme @*#987*@
+                                </button>
+                                <br/>
+                            }
+                        }
+                        else
+                        {
+                            // #1496
+                            if ((firmeGroup.Any()
+                                 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona && !Model.Atto.IsChiuso)
+                                || (firmeGroup.Any()
+                                    && Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                                    && !Model.Atto.IsChiuso)
+                                || (firmeGroup.Any() && Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                                    && !Model.Atto.IsChiuso)
+                                || (firmeGroup.Any()
+                                && Model.CurrentUser.IsSegreteriaAssemblea))
+                            {
+                                <button type="button" role="button" class="btn-flat pink-text"
+                                        onclick="SwitchVisualizzazionePriorita()">
+                                    Gestisci priorità e ordinamento firme
                                 </button>
                                 <br/>
                             }
@@ -209,7 +235,8 @@
                 </div>
                 @if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
                         || Model.CurrentUser.IsSegreteriaAssemblea
-                        || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
+                        || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
+                        || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
                     {
                         @* FIRME PRIORITA' *@
 			<div class="row" id="pnlPrioritaFirme" style="display: none;">
@@ -609,7 +636,7 @@
         {
             if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
             {
-                <div style="left: 220px; position: absolute;">
+                <div style="left: 255px; position: absolute;">
                     <i class="material-icons icon right green-text">check_circle</i>
                 </div>
             }
@@ -2445,7 +2472,9 @@
                         classes: 'rounded',
                         displayLength: 5000
                     });
+                    
                     window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                    location.reload();
                 }
             });
         });

@@ -1084,7 +1084,7 @@ else
                     const parts = result.Etichetta.split('_');
                     td.textContent = parts[parts.length - 1];
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Risposte)') {
-                    td.innerHTML += `<ul>`;
+                    let bodyRisposte = `<ul>`;
                     result.Risposte.forEach(abb => {
                         let testo_risposta = ``;
                         let dataRisposta = ``;
@@ -1133,21 +1133,24 @@ else
                         }
 
                         // Aggiungere il testo generato come elemento della lista
-                        td.innerHTML += `<li>${testo_risposta}</li>`;
+                        bodyRisposte += `<li>${testo_risposta}</li>`;
                     });
-                    td.innerHTML += "</ul>";
+                    bodyRisposte += "</ul>";
+                    td.innerHTML += bodyRisposte;
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Monitoraggi)') {
-                    td.innerHTML += "<ul>";
+                    let bodyMonitoraggi = "<ul>";
                     result.Monitoraggi.forEach(monitoraggio => {
-                        td.innerHTML += `<li>${monitoraggio.DescrizioneOrgano}</li>`;
+                        bodyMonitoraggi += `<li>${monitoraggio.DescrizioneOrgano}</li>`;
                     });
-                    td.innerHTML += "</ul>";
+                    bodyMonitoraggi += "</ul>";
+                    td.innerHTML += bodyMonitoraggi;
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Organi)') {
-                    td.innerHTML += "<ul>";
+                    let bodyOrgani = "<ul>";
                     result.Organi.forEach(organo => {
-                        td.innerHTML += `<li>${organo.nome_organo}</li>`;
+                        bodyOrgani += `<li>${organo.nome_organo}</li>`;
                     });
-                    td.innerHTML += "</ul>";
+                    bodyOrgani += "</ul>";
+                    td.innerHTML += bodyOrgani;
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Abbinamenti)') {
 
 					if (result.UID_Atto_ODG) {
