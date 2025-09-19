@@ -568,7 +568,7 @@
             {
                 counterAbbinamenti++;
             }
-            <div class="chip" style="left: 190px; margin-top: -4px; position: absolute;">
+            <div class="chip" style="position: absolute;margin-top:-5px;margin-left:20px;left:200px;">
                 @counterAbbinamenti
             </div>
         }
@@ -636,13 +636,13 @@
         {
             if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
             {
-                <div style="left: 255px; position: absolute;">
+                <div style="position: relative;">
                     <i class="material-icons icon right green-text">check_circle</i>
                 </div>
             }
             else
             {
-                <div style="left: 160px; position: absolute;">
+                <div style="position: relative;">
                     <i class="material-icons icon right green-text">check_circle</i>
                 </div>
             }
@@ -651,13 +651,13 @@
         {
             if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
             {
-                <div class="tooltipped" style="left: 220px; position: absolute;" data-tooltip="Nessuna risposta">
+                <div class="tooltipped" style="position: relative;" data-tooltip="Nessuna risposta">
                     <i class="material-icons icon right red-text">remove_circle</i>
                 </div>
             }
             else
             {
-                <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
+                <div class="tooltipped" style="position: relative;" data-tooltip="Nessuna risposta">
                     <i class="material-icons icon right red-text">remove_circle</i>
                 </div>
             }
@@ -1059,7 +1059,7 @@
         <i class="material-icons">network_check</i>Monitoraggio
         @if (atto.Monitoraggi.Any())
         {
-            <div class="chip" style="left: 195px; margin-top: -4px; position: absolute;">@atto.Monitoraggi.Count</div>
+            <div class="chip" style="position: absolute;margin-top:-5px;margin-left:20px;left:200px;">@atto.Monitoraggi.Count</div>
         }
     </div>
     <div class="collapsible-body">
@@ -1299,13 +1299,13 @@
 
         @if (atto.TipoChiusuraIter > 0)
         {
-            <div style="left: 160px; position: absolute;">
+            <div style="position: relative;">
                 <i class="material-icons icon right green-text">check_circle</i>
             </div>
         }
         else
         {
-            <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Informazioni mancanti">
+            <div class="tooltipped" style="position: relative;" data-tooltip="Informazioni mancanti">
                 <i class="material-icons icon right red-text">remove_circle</i>
             </div>
         }
@@ -1538,7 +1538,7 @@
         <i class="material-icons">comment</i>Note
         @if (atto.Note.Any())
         {
-            <div class="chip" style="left: 130px; margin-top: -4px; position: absolute;">@atto.Note.Count</div>
+            <div class="chip" style="position: absolute;margin-top:-5px;margin-left:20px;left:200px;">@atto.Note.Count</div>
         }
     </div>
     <div class="collapsible-body">
@@ -1597,7 +1597,7 @@
 
         @if (atto.Privacy || atto.Privacy_Divieto_Pubblicazione)
         {
-            <div class="red-text" style="left: 150px; position: absolute;">
+            <div class="red-text" style="position: relative;">
                 <i class="material-icons">lock</i>
             </div>
         }

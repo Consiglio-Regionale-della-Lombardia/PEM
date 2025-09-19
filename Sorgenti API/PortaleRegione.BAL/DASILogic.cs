@@ -536,7 +536,7 @@ namespace PortaleRegione.API.Controllers
             attoInDb.UIDPersonaModifica = currentUser.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
 
-            var monitoraggioInDb = await _unitOfWork.DASI.GetMonitoraggio(request.Uid);
+            var monitoraggioInDb = await _unitOfWork.DASI.GetMonitoraggio(request.UIDAtto, request.IdOrgano);
             _unitOfWork.DASI.RimuoviMonitoraggio(monitoraggioInDb);
             await _unitOfWork.CompleteAsync();
         }
@@ -1800,10 +1800,26 @@ namespace PortaleRegione.API.Controllers
                         // #976
                         prioritario = false;
                     }
+                    
+                    int tipoAreaFirma;
+                    if (!firmaUfficio)
+                        tipoAreaFirma = await _unitOfWork.Gruppi.GetTipoArea(persona.Gruppo.id_gruppo);
+                    else
+                        tipoAreaFirma = await _unitOfWork.Gruppi.GetTipoArea(atto.id_gruppo);
 
-                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
+                    await _unitOfWork.Atti_Firme.Firma(idGuid,
+                        persona.UID_persona, 
+                        id_gruppo,
+                        firmaCert, 
+                        dataFirma,
                         timestampFirma,
-                        firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo, prioritario, countFirme);
+                        firmaUfficio, 
+                        primoFirmatario, 
+                        valida, 
+                        persona.IsCapoGruppo, 
+                        prioritario, 
+                        countFirme, 
+                        tipoAreaFirma);
 
                     if (destinatario_notifica != null)
                     {
@@ -1860,6 +1876,8 @@ namespace PortaleRegione.API.Controllers
 
                     results.Add(idGuid.ToString(), $"{(valida ? $"{nome_atto} - OK" : "?!?")}");
                     counterFirme++;
+                    
+                    await PreCompilaAreaPolitica(attoInDb);
                 }
 
                 return results;
@@ -1868,6 +1886,35 @@ namespace PortaleRegione.API.Controllers
             {
                 Log.Error("Logic - Firma - DASI", e);
                 throw e;
+            }
+        }
+        
+        private async Task PreCompilaAreaPolitica(ATTI_DASI atto)
+        {
+            try
+            {
+                var firme = await _unitOfWork.Atti_Firme.GetFirmatari(atto, FirmeTipoEnum.PRIMA_DEPOSITO);
+                if (!firme.Any())
+                    return;
+
+                var firme_misto = firme.Count(f => f.id_AreaPolitica == (int)AreaPoliticaIntEnum.Misto);
+                var firme_maggioranza = firme.Count(f => f.id_AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza);
+                var firme_minoranza = firme.Count(f => f.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza);
+
+                if (firme_maggioranza > 0 && firme_misto == 0)
+                    atto.AreaPolitica = (int)AreaPoliticaIntEnum.Maggioranza;
+                else if (firme_minoranza > 0 && firme_misto == 0)
+                    atto.AreaPolitica = (int)AreaPoliticaIntEnum.Minoranza;
+                else if (firme_maggioranza > 0 && firme_misto > 0)
+                    atto.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Maggioranza;
+                else if (firme_minoranza > 0 && firme_misto > 0)
+                    atto.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Minoranza;
+
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception)
+            {
+                // ignored
             }
         }
 
@@ -2174,7 +2221,6 @@ namespace PortaleRegione.API.Controllers
             var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
 
             var id_gruppo = 0;
-
 
             var attachList = new List<AllegatoMail>();
             foreach (var idGuid in model.Lista)

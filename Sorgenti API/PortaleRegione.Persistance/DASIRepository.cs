@@ -798,6 +798,11 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.Uid == requestUid);
         }
+        
+        public async Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid UidAtto, int organoId)
+        {
+            return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.UIDAtto == UidAtto && m.IdOrgano == organoId);
+        }
 
         public void AggiungiMonitoraggio(ATTI_MONITORAGGIO monitoraggio)
         {

@@ -33,7 +33,8 @@ namespace PortaleRegione.Contracts
             bool valida = true,
             bool capogruppo = false,
             bool prioritario = true,
-            int ordine = 0);
+            int ordine = 0,
+            int area = (int)AreaPoliticaIntEnum.Nessuno);
         Task<int> CountFirme(Guid attoUId);
         Task<int> CountFirmePrioritarie(Guid attoUId);
         Task<IEnumerable<ATTI_FIRME>> GetFirmatari(ATTI_DASI atto, FirmeTipoEnum tipo);

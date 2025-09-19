@@ -82,10 +82,9 @@
 					// Aggiungi una nuova riga alla tabella
 					var newRow = document.createElement('tr');
 					newRow.innerHTML = `
-						<td>${request.DisplayTipoOrgano}</td>
 						<td>${request.DescrizioneOrgano}</td>
 						<td>
-							<button type="button" role="button" class="btn-flat red-text" onclick="rimuoviMonitoraggio(this, ${key})"><i class="material-icons">close</i></button>
+							<button type="button" role="button" class="btn-flat red-text" onclick="rimuoviMonitoraggio(this, ${key})">RIMUOVI</button>
 						</td>
 					`;
 
@@ -107,6 +106,8 @@
 });
 
 function rimuoviMonitoraggio(ctrl, organoId) {
+	console.log("ORGANO", organoId);
+	console.log("ORGANO", organoId);
 	var row = $(ctrl).closest('tr');
 	var id = organoId;
 
