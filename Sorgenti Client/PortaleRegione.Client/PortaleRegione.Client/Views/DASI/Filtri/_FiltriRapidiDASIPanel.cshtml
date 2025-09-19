@@ -1780,13 +1780,66 @@ else
             var dateValues = handleDateValue(currentValue);
             var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
             var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+            
+            var buttonsHTML_DA = "";
+            var buttonsHTML_A = "";
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                var legislatureArray = JSON.parse(localStorage.getItem('ListaLegislature') || "[]");
+                var legislatura = legislatureArray.find(item => String(item.id_legislatura) === String(idLegislatura));
+                var durata_legislatura_da = formatDateISO(legislatura.durata_legislatura_da);
+                buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_presentazione_da', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                        buttonsHTML_A += `<button class="btn" onclick="SetDate('data_presentazione_a', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                
+                if (legislatura.durata_legislatura_a) {
+                    var durata_legislatura_a = formatDateISO(legislatura.durata_legislatura_a);
+                    buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_presentazione_da', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                    buttonsHTML_A += `<button class="btn" onclick="SetDate('data_presentazione_a', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                }
+            }
 
-            selectHTML = `<div class="input-field col s12">
-      <input id="data_presentazione_da" type="date" ${currentValueFormatted1}/>
+            selectHTML = `<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12" style="margin-top:40px;">
+      <input id="data_presentazione_da" type="date" style="width:150px;" ${currentValueFormatted1}/>
+      <label for="data_presentazione_da">DA</label>
+    </div>
   </div>
-  <div class="input-field col s12">
-      <input id="data_presentazione_a" type="date" ${currentValueFormatted2}/>
-  </div>`;
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_presentazione_da', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_DA}
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12">
+      <input id="data_presentazione_a" type="date" style="width:150px;" ${currentValueFormatted2}/>
+      <label for="data_presentazione_a">A</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_presentazione_a', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_A}
+  </div>
+</div>
+`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         case '@nameof(AttoDASIDto.DataChiusuraIter)':
@@ -1795,12 +1848,65 @@ else
             var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
             var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
 
-            selectHTML = `<div class="input-field col s12">
-      <input id="data_chiusura_iter_da" type="date" ${currentValueFormatted1}/>
+            var buttonsHTML_DA = "";
+            var buttonsHTML_A = "";
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                var legislatureArray = JSON.parse(localStorage.getItem('ListaLegislature') || "[]");
+                var legislatura = legislatureArray.find(item => String(item.id_legislatura) === String(idLegislatura));
+                var durata_legislatura_da = formatDateISO(legislatura.durata_legislatura_da);
+                buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_chiusura_iter_da', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                buttonsHTML_A += `<button class="btn" onclick="SetDate('data_chiusura_iter_a', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+
+                if (legislatura.durata_legislatura_a) {
+                    var durata_legislatura_a = formatDateISO(legislatura.durata_legislatura_a);
+                    buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_chiusura_iter_da', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                    buttonsHTML_A += `<button class="btn" onclick="SetDate('data_chiusura_iter_a', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                }
+            }
+
+            selectHTML = `<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12" style="margin-top:40px;">
+      <input id="data_chiusura_iter_da" type="date" style="width:150px;" ${currentValueFormatted1}/>
+      <label for="data_chiusura_iter_da">DA</label>
+    </div>
   </div>
-  <div class="input-field col s12">
-      <input id="data_chiusura_iter_a" type="date" ${currentValueFormatted2}/>
-  </div>`;
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_chiusura_iter_da', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_DA}
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12">
+      <input id="data_chiusura_iter_a" type="date" style="width:150px;" ${currentValueFormatted2}/>
+      <label for="data_chiusura_iter_a">A</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_chiusura_iter_a', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_A}
+  </div>
+</div>
+`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         case '@nameof(AttoDASIDto.DataTrasmissione)':
@@ -1809,12 +1915,65 @@ else
             var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
             var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
 
-            selectHTML = `<div class="input-field col s12">
-      <input id="data_trasmissione_da" type="date" ${currentValueFormatted1}/>
+            var buttonsHTML_DA = "";
+            var buttonsHTML_A = "";
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                var legislatureArray = JSON.parse(localStorage.getItem('ListaLegislature') || "[]");
+                var legislatura = legislatureArray.find(item => String(item.id_legislatura) === String(idLegislatura));
+                var durata_legislatura_da = formatDateISO(legislatura.durata_legislatura_da);
+                buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_trasmissione_da', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                buttonsHTML_A += `<button class="btn" onclick="SetDate('data_trasmissione_a', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+
+                if (legislatura.durata_legislatura_a) {
+                    var durata_legislatura_a = formatDateISO(legislatura.durata_legislatura_a);
+                    buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_trasmissione_da', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                    buttonsHTML_A += `<button class="btn" onclick="SetDate('data_trasmissione_a', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                }
+            }
+
+            selectHTML = `<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12" style="margin-top:40px;">
+      <input id="data_trasmissione_da" type="date" style="width:150px;" ${currentValueFormatted1}/>
+      <label for="data_trasmissione_da">DA</label>
+    </div>
   </div>
-  <div class="input-field col s12">
-      <input id="data_trasmissione_a" type="date" ${currentValueFormatted2}/>
-  </div>`;
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_trasmissione_da', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_DA}
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12">
+      <input id="data_trasmissione_a" type="date" style="width:150px;" ${currentValueFormatted2}/>
+      <label for="data_trasmissione_a">A</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_trasmissione_a', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_A}
+  </div>
+</div>
+`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         case '@nameof(AttoDASIDto.DataTrattazione)':
@@ -1823,12 +1982,65 @@ else
             var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
             var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
 
-            selectHTML = `<div class="input-field col s12">
-      <input id="data_trattazione_da" type="date" ${currentValueFormatted1}/>
+            var buttonsHTML_DA = "";
+            var buttonsHTML_A = "";
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                var legislatureArray = JSON.parse(localStorage.getItem('ListaLegislature') || "[]");
+                var legislatura = legislatureArray.find(item => String(item.id_legislatura) === String(idLegislatura));
+                var durata_legislatura_da = formatDateISO(legislatura.durata_legislatura_da);
+                buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_trattazione_da', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                buttonsHTML_A += `<button class="btn" onclick="SetDate('data_trattazione_a', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+
+                if (legislatura.durata_legislatura_a) {
+                    var durata_legislatura_a = formatDateISO(legislatura.durata_legislatura_a);
+                    buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_trattazione_da', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                    buttonsHTML_A += `<button class="btn" onclick="SetDate('data_trattazione_a', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                }
+            }
+
+            selectHTML = `<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12" style="margin-top:40px;">
+      <input id="data_trattazione_da" type="date" style="width:150px;" ${currentValueFormatted1}/>
+      <label for="data_trattazione_da">DA</label>
+    </div>
   </div>
-  <div class="input-field col s12">
-      <input id="data_trattazione_a" type="date" ${currentValueFormatted2}/>
-  </div>`;
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_trattazione_da', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_DA}
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12">
+      <input id="data_trattazione_a" type="date" style="width:150px;" ${currentValueFormatted2}/>
+      <label for="data_trattazione_a">A</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_trattazione_a', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_A}
+  </div>
+</div>
+`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         case '@nameof(AttoDASIDto.DataRisposta)':
@@ -1837,12 +2049,65 @@ else
             var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
             var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
 
-            selectHTML = `<div class="input-field col s12">
-      <input id="data_risposta_da" type="date" ${currentValueFormatted1}/>
+            var buttonsHTML_DA = "";
+            var buttonsHTML_A = "";
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                var legislatureArray = JSON.parse(localStorage.getItem('ListaLegislature') || "[]");
+                var legislatura = legislatureArray.find(item => String(item.id_legislatura) === String(idLegislatura));
+                var durata_legislatura_da = formatDateISO(legislatura.durata_legislatura_da);
+                buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_risposta_da', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                buttonsHTML_A += `<button class="btn" onclick="SetDate('data_risposta_a', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+
+                if (legislatura.durata_legislatura_a) {
+                    var durata_legislatura_a = formatDateISO(legislatura.durata_legislatura_a);
+                    buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_risposta_da', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                    buttonsHTML_A += `<button class="btn" onclick="SetDate('data_risposta_a', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                }
+            }
+
+            selectHTML = `<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12" style="margin-top:40px;">
+      <input id="data_risposta_da" type="date" style="width:150px;" ${currentValueFormatted1}/>
+      <label for="data_risposta_da">DA</label>
+    </div>
   </div>
-  <div class="input-field col s12">
-      <input id="data_risposta_a" type="date" ${currentValueFormatted2}/>
-  </div>`;
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_risposta_da', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_DA}
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12">
+      <input id="data_risposta_a" type="date" style="width:150px;" ${currentValueFormatted2}/>
+      <label for="data_risposta_a">A</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_risposta_a', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_A}
+  </div>
+</div>
+`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         case '@nameof(AttoDASIDto.UIDSeduta)':
@@ -1851,12 +2116,65 @@ else
             var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
             var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
 
-            selectHTML = `<div class="input-field col s12">
-    <input id="data_seduta_da" type="date" ${currentValueFormatted1}/>
+            var buttonsHTML_DA = "";
+            var buttonsHTML_A = "";
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                var legislatureArray = JSON.parse(localStorage.getItem('ListaLegislature') || "[]");
+                var legislatura = legislatureArray.find(item => String(item.id_legislatura) === String(idLegislatura));
+                var durata_legislatura_da = formatDateISO(legislatura.durata_legislatura_da);
+                buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_seduta_da', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                buttonsHTML_A += `<button class="btn" onclick="SetDate('data_seduta_a', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+
+                if (legislatura.durata_legislatura_a) {
+                    var durata_legislatura_a = formatDateISO(legislatura.durata_legislatura_a);
+                    buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_seduta_da', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                    buttonsHTML_A += `<button class="btn" onclick="SetDate('data_seduta_a', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                }
+            }
+
+            selectHTML = `<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12" style="margin-top:40px;">
+      <input id="data_seduta_da" type="date" style="width:150px;" ${currentValueFormatted1}/>
+      <label for="data_seduta_da">DA</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_seduta_da', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_DA}
+  </div>
 </div>
-<div class="input-field col s12">
-    <input id="data_seduta_a" type="date" ${currentValueFormatted2}/>
-</div>`;
+<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12">
+      <input id="data_seduta_a" type="date" style="width:150px;" ${currentValueFormatted2}/>
+      <label for="data_seduta_a">A</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_seduta_a', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_A}
+  </div>
+</div>
+`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         case '@nameof(AttoDASIDto.DataComunicazioneAssemblea)':
@@ -1865,12 +2183,65 @@ else
             var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
             var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
 
-            selectHTML = `<div class="input-field col s12">
-    <input id="data_comunicazione_da" type="date" ${currentValueFormatted1}/>
+            var buttonsHTML_DA = "";
+            var buttonsHTML_A = "";
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                var legislatureArray = JSON.parse(localStorage.getItem('ListaLegislature') || "[]");
+                var legislatura = legislatureArray.find(item => String(item.id_legislatura) === String(idLegislatura));
+                var durata_legislatura_da = formatDateISO(legislatura.durata_legislatura_da);
+                buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_comunicazione_da', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                buttonsHTML_A += `<button class="btn" onclick="SetDate('data_comunicazione_a', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+
+                if (legislatura.durata_legislatura_a) {
+                    var durata_legislatura_a = formatDateISO(legislatura.durata_legislatura_a);
+                    buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_comunicazione_da', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                    buttonsHTML_A += `<button class="btn" onclick="SetDate('data_comunicazione_a', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                }
+            }
+
+            selectHTML = `<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12" style="margin-top:40px;">
+      <input id="data_comunicazione_da" type="date" style="width:150px;" ${currentValueFormatted1}/>
+      <label for="data_comunicazione_da">DA</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_comunicazione_da', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_DA}
+  </div>
 </div>
-<div class="input-field col s12">
-    <input id="data_comunicazione_a" type="date" ${currentValueFormatted2}/>
-</div>`;
+<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12">
+      <input id="data_comunicazione_a" type="date" style="width:150px;" ${currentValueFormatted2}/>
+      <label for="data_comunicazione_a">A</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_comunicazione_a', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_A}
+  </div>
+</div>
+`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         case '@nameof(AttoDASIDto.DataAnnunzio)':
@@ -1879,12 +2250,65 @@ else
             var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
             var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
 
-            selectHTML = `<div class="input-field col s12">
-    <input id="data_annunzio_da" type="date" ${currentValueFormatted1}/>
+            var buttonsHTML_DA = "";
+            var buttonsHTML_A = "";
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                var legislatureArray = JSON.parse(localStorage.getItem('ListaLegislature') || "[]");
+                var legislatura = legislatureArray.find(item => String(item.id_legislatura) === String(idLegislatura));
+                var durata_legislatura_da = formatDateISO(legislatura.durata_legislatura_da);
+                buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_annunzio_da', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                buttonsHTML_A += `<button class="btn" onclick="SetDate('data_annunzio_a', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+
+                if (legislatura.durata_legislatura_a) {
+                    var durata_legislatura_a = formatDateISO(legislatura.durata_legislatura_a);
+                    buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_annunzio_da', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                    buttonsHTML_A += `<button class="btn" onclick="SetDate('data_annunzio_a', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                }
+            }
+
+            selectHTML = `<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12" style="margin-top:40px;">
+      <input id="data_annunzio_da" type="date" style="width:150px;" ${currentValueFormatted1}/>
+      <label for="data_annunzio_da">DA</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_annunzio_da', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_DA}
+  </div>
 </div>
-<div class="input-field col s12">
-    <input id="data_annunzio_a" type="date" ${currentValueFormatted2}/>
-</div>`;
+<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12">
+      <input id="data_annunzio_a" type="date" style="width:150px;" ${currentValueFormatted2}/>
+      <label for="data_annunzio_a">A</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_annunzio_a', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_A}
+  </div>
+</div>
+`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         case '@nameof(AttoDASIDto.DataIscrizioneSeduta)':
@@ -1893,12 +2317,65 @@ else
             var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
             var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
 
-            selectHTML = `<div class="input-field col s12">
-    <input id="data_iscrizione_seduta_da" type="date" ${currentValueFormatted1}/>
+            var buttonsHTML_DA = "";
+            var buttonsHTML_A = "";
+            var legislaturaChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Legislatura)"]');
+            if (legislaturaChip) {
+                var idLegislatura = legislaturaChip.getAttribute('data-val');
+                var legislatureArray = JSON.parse(localStorage.getItem('ListaLegislature') || "[]");
+                var legislatura = legislatureArray.find(item => String(item.id_legislatura) === String(idLegislatura));
+                var durata_legislatura_da = formatDateISO(legislatura.durata_legislatura_da);
+                buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_iscrizione_seduta_da', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+                buttonsHTML_A += `<button class="btn" onclick="SetDate('data_iscrizione_seduta_a', '${durata_legislatura_da}');">
+      Inizio legislatura
+    </button>`
+
+                if (legislatura.durata_legislatura_a) {
+                    var durata_legislatura_a = formatDateISO(legislatura.durata_legislatura_a);
+                    buttonsHTML_DA += `<button class="btn" onclick="SetDate('data_iscrizione_seduta_da', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                    buttonsHTML_A += `<button class="btn" onclick="SetDate('data_iscrizione_seduta_a', '${durata_legislatura_a}');">
+      Fine legislatura
+    </button>`
+                }
+            }
+
+            selectHTML = `<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12" style="margin-top:40px;">
+      <input id="data_iscrizione_seduta_da" type="date" style="width:150px;" ${currentValueFormatted1}/>
+      <label for="data_iscrizione_seduta_da">DA</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_iscrizione_seduta_da', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_DA}
+  </div>
 </div>
-<div class="input-field col s12">
-    <input id="data_iscrizione_seduta_a" type="date" ${currentValueFormatted2}/>
-</div>`;
+<div class="row">
+  <div class="col s12">
+    <div class="input-field col s12">
+      <input id="data_iscrizione_seduta_a" type="date" style="width:150px;" ${currentValueFormatted2}/>
+      <label for="data_iscrizione_seduta_a">A</label>
+    </div>
+  </div>
+
+  <div class="col s12 left">
+   
+    <button class="btn" onclick="SetDate('data_iscrizione_seduta_a', new Date().toISOString().split('T')[0]);">
+      Oggi
+    </button>    
+    ${buttonsHTML_A}
+  </div>
+</div>
+`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         case '@nameof(AttoDASIDto.UIDPersonaProponente)':

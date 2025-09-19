@@ -1783,3 +1783,20 @@ const formatDate = (data) => {
 			}
 			return '';
 		};
+
+const formatDateISO = (data) => {
+			const match = data.match(dateRegex);
+			if (match) {
+				const timestamp = parseInt(match[1], 10);
+				const date = new Date(timestamp);
+				const day = String(date.getDate()).padStart(2, '0');
+				const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+				const year = date.getFullYear();
+				return `${year}-${month}-${day}`;
+			}
+			return '';
+		};
+
+function SetDate(controlId, value){
+    document.getElementById(controlId).value = value;
+}
