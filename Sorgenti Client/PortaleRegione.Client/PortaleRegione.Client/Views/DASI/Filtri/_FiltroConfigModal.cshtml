@@ -232,12 +232,13 @@
 
 			li.onclick = function (event) {
 				event.stopPropagation();
-				console.log("item", item)
 				if (item.favourite) {
 					$(`[data-nome-gruppo-filtri="${item.name}"]`).click();
 				} else {
 					resetSelezionePreferiti();
 					localStorage.setItem('filtriDasi', item.filters);
+					localStorage.setItem('selectedColumns', item.columns);
+					localStorage.setItem('selectedSortColumns', item.sorting);
 					window.chipsKeys = [];
 					ripristinaFiltri();
 					ripristinaOrdinamento();
