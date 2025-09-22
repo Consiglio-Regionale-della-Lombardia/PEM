@@ -1074,6 +1074,12 @@ namespace PortaleRegione.BAL
                 var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
 
+                if (atto.BloccoEM)
+                {
+                    results.Add(Guid.NewGuid(), "ERROR: Blocco deposito attivo. Non puoi depositare altri emendamenti e/o subemendamenti.");
+                    return results;
+                }
+
                 foreach (var idGuid in depositoModel.Lista)
                 {
                     if (counterDepositi == Convert.ToInt32(AppSettingsConfiguration.LimiteDepositoMassivo) + 1) break;
