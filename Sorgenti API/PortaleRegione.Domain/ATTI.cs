@@ -113,8 +113,9 @@ namespace PortaleRegione.Domain
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<STAMPE> STAMPE { get; set; }
 
-        public bool BloccoODG { get; set; }
-        public bool Jolly { get; set; }
+        public bool BloccoODG { get; set; } = false;
+        public bool BloccoEM { get; set; } = false;
+        public bool Jolly { get; set; } = false;
         public bool Emendabile { get; set; }
         public bool Fascicoli_Da_Aggiornare { get; set; }
 

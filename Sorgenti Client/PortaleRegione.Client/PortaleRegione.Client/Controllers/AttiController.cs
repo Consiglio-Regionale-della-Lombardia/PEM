@@ -410,12 +410,36 @@ namespace PortaleRegione.Client.Controllers
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("bloccoODG")]
         [HttpPost]
-        public async Task<ActionResult> BloccoODG(BloccoODGModel model)
+        public async Task<ActionResult> BloccoODG(BloccoModel model)
         {
             try
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.Atti.BloccoODG(model);
+
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        ///     Controller per bloccare la presentazione degli emendamenti per un atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("bloccoEM")]
+        [HttpPost]
+        public async Task<ActionResult> BloccoEM(BloccoModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.Atti.BloccoEM(model);
 
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }

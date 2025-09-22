@@ -78,9 +78,16 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task BloccoODG(BloccoODGModel model)
+        public async Task BloccoODG(BloccoModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.BloccoODG}";
+            var body = JsonConvert.SerializeObject(model);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task BloccoEM(BloccoModel model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.BloccoEM}";
             var body = JsonConvert.SerializeObject(model);
             await Post(requestUrl, body, _token);
         }

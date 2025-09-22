@@ -20,7 +20,7 @@ using System;
 
 namespace PortaleRegione.DTO.Model
 {
-    public class BloccoODGModel
+    public class BloccoModel
     {
         public Guid Id { get; set; }
         public int Blocco { get; set; } = 0;

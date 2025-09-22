@@ -98,6 +98,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string AggiornaTesto = Base + "/aggiorna-testo";
                 public const string AbilitaFascicolo = Base + "/abilita-fascicolo";
                 public const string BloccoODG = Base + "/odg/blocca";
+                public const string BloccoEM = Base + "/em/blocca";
                 public const string JollyODG = Base + "/odg/jolly";
                 public const string SpostaUp = Base + "/{id}/sposta/up";
                 public const string SpostaDown = Base + "/{id}/sposta/down";

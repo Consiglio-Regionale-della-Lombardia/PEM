@@ -153,6 +153,15 @@
                                     <span>Jolly</span>
                                 </label>
                             </div>
+                            <div class="form-check">
+                                <label>
+                                    <input type="checkbox"
+                                           id="chkBloccoEM_@atto.UIDAtto"
+                                           onchange="BloccaEM('@atto.UIDAtto', @(Convert.ToInt16(!atto.BloccoEM)))"
+                                           @Html.Raw(atto.BloccoEM ? "checked=\"checked\"" : "")>
+                                    <span>Blocco EM</span>
+                                </label>
+                            </div>
                         </div>
 
                     </div>

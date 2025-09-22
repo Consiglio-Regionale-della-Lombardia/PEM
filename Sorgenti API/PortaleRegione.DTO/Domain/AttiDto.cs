@@ -92,6 +92,7 @@ namespace PortaleRegione.DTO.Domain
         public int Stato { get; set; }
         public PersonaLightDto PersonaAssessore { get; set; }
         public bool BloccoODG { get; set; } = false;
+        public bool BloccoEM { get; set; } = false;
         public bool Jolly { get; set; } = false;
         public bool Emendabile { get; set; } = false;
         public int CounterODG { get; set; } = 0;

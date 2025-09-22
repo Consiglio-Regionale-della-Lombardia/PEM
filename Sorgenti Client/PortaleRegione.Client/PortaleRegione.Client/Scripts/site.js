@@ -1508,6 +1508,36 @@ function BloccaODG(attoUId, blocca) {
     });
 }
 
+function BloccaEM(attoUId, blocca) {
+    var obj = {};
+    obj.Id = attoUId;
+    obj.Blocco = blocca;
+
+    $.ajax({
+        url: baseUrl + "/atti/bloccoEM",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        if (data.message) {
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
+        }
+        if (blocca == true) {
+            SuccessAlert("Presentazione emendamenti/subemendamenti bloccata");
+        } else {
+            SuccessAlert("Presentazione emendamenti/subemendamenti abilitata");
+        }
+    }).fail(function(err) {
+        console.log("error", err);
+        Error(err);
+    });
+}
+
 function JollyODG(attoUId, jolly) {
     var obj = {};
     obj.Id = attoUId;

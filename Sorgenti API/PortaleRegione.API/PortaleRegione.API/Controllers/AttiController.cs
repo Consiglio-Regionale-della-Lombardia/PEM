@@ -705,7 +705,7 @@ namespace PortaleRegione.API.Controllers
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route(ApiRoutes.PEM.Atti.BloccoODG)]
-        public async Task<IHttpActionResult> BloccoODG(BloccoODGModel model)
+        public async Task<IHttpActionResult> BloccoODG(BloccoModel model)
         {
             try
             {
@@ -720,6 +720,33 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("BloccoODG", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Controller per bloccare la presentazione degli emendamenti per l'atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route(ApiRoutes.PEM.Atti.BloccoEM)]
+        public async Task<IHttpActionResult> BloccoEM(BloccoModel model)
+        {
+            try
+            {
+                var attoInDb = await _attiLogic.GetAtto(model.Id);
+
+                if (attoInDb == null) return NotFound();
+                attoInDb.BloccoEM = Convert.ToBoolean(model.Blocco);
+                await _unitOfWork.CompleteAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("BloccoEM", e);
                 return ErrorHandler(e);
             }
         }
