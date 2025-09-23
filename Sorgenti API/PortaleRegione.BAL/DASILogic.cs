@@ -642,6 +642,7 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.DCCR = 0;
             }
 
+            request.DCCR_Speciale ??= "";
             attoInDb.DCCR_Speciale ??= "";
             attoInDb.DCRL ??= dto.GetLegislatura();
 
@@ -5705,18 +5706,22 @@ namespace PortaleRegione.API.Controllers
                     atto.DCCR = 0;
                 }
 
-                if (!string.IsNullOrEmpty(datiInline.DCR)
-                    && !string.IsNullOrEmpty(datiInline.DCCR))
-                    if (!atto.DCR.Equals(int.Parse(datiInline.DCR))
-                        || !atto.DCCR.Equals(int.Parse(datiInline.DCCR)))
-                    {
-                        var res = await _unitOfWork.DASI.CheckDCR(atto.DCRL, datiInline.DCR, datiInline.DCCR);
+                atto.DCCR_Speciale ??= "";
+                datiInline.DCCR_Speciale ??= "";
 
-                        if (res) continue;
+                if (!atto.DCR.Equals(int.Parse(datiInline.DCR))
+                    || !atto.DCCR.Equals(int.Parse(datiInline.DCCR))
+                    || !atto.DCCR_Speciale.Equals(datiInline.DCCR_Speciale))
+                {
+                    var res = await _unitOfWork.DASI.CheckDCR(atto.DCRL, datiInline.DCR, datiInline.DCCR,
+                        datiInline.DCCR_Speciale);
 
-                        atto.DCR = int.Parse(datiInline.DCR);
-                        atto.DCCR = int.Parse(datiInline.DCCR);
-                    }
+                    if (res) continue;
+
+                    atto.DCR = int.Parse(datiInline.DCR);
+                    atto.DCCR = int.Parse(datiInline.DCCR);
+                    atto.DCCR_Speciale = datiInline.DCCR_Speciale;
+                }
 
                 if (!string.IsNullOrEmpty(datiInline.Protocollo))
                     atto.Protocollo = datiInline.Protocollo;

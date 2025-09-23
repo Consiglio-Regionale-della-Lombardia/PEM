@@ -260,15 +260,19 @@
 					listItem.innerHTML = `
 					<span><b>${displayText}</b></span>
 					<div class="row">
-						<div class="input-field col s4">
+						<div class="input-field col s3">
 							<input type="text" id="protocollo_${displayId}" name="Protocollo_${displayId}" placeholder="Protocollo" value="${oggettoTrovato.Protocollo}">
 							<label for="protocollo_${displayId}" class="active">Protocollo</label>
 						</div>
-						<div class="input-field col s4">
+						<div class="input-field col s3">
 							<input type="text" id="dcr_${displayId}" name="DCR_${displayId}" placeholder="DCR" value="${oggettoTrovato.DCR}">
 							<label for="dcr_${displayId}" class="active">DCR</label>
 						</div>
-						<div class="input-field col s4">
+                        <div class="input-field col s3">
+							<input type="text" id="dccr_speciale_${displayId}" name="DCCR_Speciale_${displayId}" placeholder="Comm. Speciale" value="${oggettoTrovato.DCCR_Speciale}" maxlength="2">
+							<label for="dccr_speciale_${displayId}" class="active">Comm. Speciale</label>
+						</div>
+						<div class="input-field col s3">
 							<input type="text" id="dccr_${displayId}" name="DCCR_${displayId}" placeholder="DCCR" value="${oggettoTrovato.DCCR}">
 							<label for="dccr_${displayId}" class="active">DCCR</label>
 						</div>
@@ -315,7 +319,7 @@
                     let dcrInput = document.getElementById(`dcr_${uid}`);
                     let dcrValue = parseInt(dcrInput.value, 10);
 
-                    if (dcrValue === 0) {
+                    if (isNaN(dcrValue) || dcrValue === 0) {
                         // Assegna il valore incrementato
                         dcrInput.value = currentValue;
                         console.log(`Assegnato ${currentValue} all'input dcr_${uid}`);
@@ -356,7 +360,7 @@
                     let dcrInput = document.getElementById(`dccr_${uid}`);
                     let dcrValue = parseInt(dcrInput.value, 10);
 
-                    if (dcrValue === 0) {
+                    if (isNaN(dcrValue) || dcrValue === 0) {
                         // Assegna il valore incrementato
                         dcrInput.value = currentValue;
                         console.log(`Assegnato ${currentValue} all'input dccr_${uid}`);
@@ -387,13 +391,15 @@
 					let protocollo = document.getElementById(`protocollo_${uid}`).value;
 					let dcr = document.getElementById(`dcr_${uid}`).value;
 					let dccr = document.getElementById(`dccr_${uid}`).value;
+					let dccr_speciale = document.getElementById(`dccr_speciale_${uid}`).value;
 
 					// Crea un oggetto per ogni atto
 					let attoData = {
 						uid: uid,
 						protocollo: protocollo,
 						dcr: dcr,
-						dccr: dccr
+						dccr: dccr,
+						dccr_speciale: dccr_speciale,
 					};
 
 					// Aggiungi l'oggetto alla lista di dati da inviare
