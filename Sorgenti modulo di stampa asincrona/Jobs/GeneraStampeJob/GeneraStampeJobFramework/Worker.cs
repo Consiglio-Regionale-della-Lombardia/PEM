@@ -760,34 +760,41 @@ namespace GeneraStampeJobFramework
                 }
 
                 //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Seduta non è ancora iniziata");
-                var email_destinatari = $"{utenteRichiedente.email};pem@consiglio.regione.lombardia.it";
+                var email_destinatari = "pem@consiglio.regione.lombardia.it;";
                 var email_destinatariGruppo = string.Empty;
                 var email_destinatariGiunta = string.Empty;
 
-                if (emInDb.id_gruppo < 10000)
+                if (atto.Invio_Notifiche_Deposito_Solo_UOLA)
                 {
-                    var capoGruppo = await _unitOfWork.Gruppi.GetCapoGruppo(emInDb.id_gruppo);
-                    var segreteriaPolitica =
-                        await _unitOfWork.Gruppi.GetSegreteriaPolitica(emInDb.id_gruppo, false, true);
+                    if (emInDb.id_gruppo < 10000)
+                    {
+                        var capoGruppo = await _unitOfWork.Gruppi.GetCapoGruppo(emInDb.id_gruppo);
+                        var segreteriaPolitica =
+                            await _unitOfWork.Gruppi.GetSegreteriaPolitica(emInDb.id_gruppo, false, true);
 
-                    if (segreteriaPolitica.Any())
-                        email_destinatariGruppo = segreteriaPolitica.Select(u => u.email)
-                            .Aggregate((i, j) => $"{i};{j}");
-                    if (capoGruppo != null)
-                        email_destinatariGruppo += $";{capoGruppo.email}";
+                        if (segreteriaPolitica.Any())
+                            email_destinatariGruppo = segreteriaPolitica.Select(u => u.email)
+                                .Aggregate((i, j) => $"{i};{j}");
+                        if (capoGruppo != null)
+                            email_destinatariGruppo += $";{capoGruppo.email}";
+                    }
+                    else
+                    {
+                        //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Giunta Regionale");
+                        var giuntaRegionale = await _unitOfWork.Persone.GetGiuntaRegionale();
+                        var segreteriaGiuntaRegionale = await _unitOfWork.Persone.GetSegreteriaGiuntaRegionale(false, true);
+
+                        if (segreteriaGiuntaRegionale.Any())
+                            email_destinatariGiunta += segreteriaGiuntaRegionale.Select(u => u.email)
+                                .Aggregate((i, j) => $"{i};{j}");
+                        if (giuntaRegionale.Any())
+                            email_destinatariGiunta +=
+                                giuntaRegionale.Select(u => u.email).Aggregate((i, j) => $"{i};{j}");
+                    }
                 }
                 else
                 {
-                    //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Giunta Regionale");
-                    var giuntaRegionale = await _unitOfWork.Persone.GetGiuntaRegionale();
-                    var segreteriaGiuntaRegionale = await _unitOfWork.Persone.GetSegreteriaGiuntaRegionale(false, true);
-
-                    if (segreteriaGiuntaRegionale.Any())
-                        email_destinatariGiunta += segreteriaGiuntaRegionale.Select(u => u.email)
-                            .Aggregate((i, j) => $"{i};{j}");
-                    if (giuntaRegionale.Any())
-                        email_destinatariGiunta +=
-                            giuntaRegionale.Select(u => u.email).Aggregate((i, j) => $"{i};{j}");
+                    email_destinatari += $"{utenteRichiedente.email}";
                 }
 
                 if (!string.IsNullOrEmpty(email_destinatariGruppo))

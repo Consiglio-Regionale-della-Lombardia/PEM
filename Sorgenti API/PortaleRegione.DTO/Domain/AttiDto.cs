@@ -54,6 +54,8 @@ namespace PortaleRegione.DTO.Domain
 
         public bool Notifica_deposito_differita { get; set; }
 
+        public bool Invio_Notifiche_Deposito_Solo_UOLA { get; set; } = false;
+
         public bool? OrdinePresentazione { get; set; } = false;
 
         public bool? OrdineVotazione { get; set; } = false;

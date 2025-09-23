@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[ATTI]    Script Date: 22/09/2025 11:38:46 ******/
+/****** Object:  Table [dbo].[ATTI]    Script Date: 23/09/2025 10:27:44 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -37,6 +37,7 @@ CREATE TABLE [dbo].[ATTI](
 	[Emendabile] [bit] NOT NULL,
 	[Fascicoli_Da_Aggiornare] [bit] NOT NULL,
 	[Legislatura] [int] NULL,
+	[Invio_Notifiche_Deposito_Solo_UOLA] [bit] NOT NULL,
  CONSTRAINT [PK_ATTI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -69,6 +70,9 @@ ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_Emendabile_1]  DEFAULT ((0)) F
 GO
 
 ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_Fascicoli_Da_Aggiornare_1]  DEFAULT ((0)) FOR [Fascicoli_Da_Aggiornare]
+GO
+
+ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_Invio_Notifiche_Deposito_Solo_UOLA]  DEFAULT ((0)) FOR [Invio_Notifiche_Deposito_Solo_UOLA]
 GO
 
 ALTER TABLE [dbo].[ATTI]  WITH NOCHECK ADD  CONSTRAINT [FK_ATTI_SEDUTE] FOREIGN KEY([UIDSeduta])

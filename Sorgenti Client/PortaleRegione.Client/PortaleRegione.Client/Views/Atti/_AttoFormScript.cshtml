@@ -149,6 +149,7 @@
                 form_data.append("UIDSeduta", $('input[name="Atto.UIDSeduta"]').val());
                 form_data.append("VIS_Mis_Prog", $('input[name="Atto.VIS_Mis_Prog"]').is(":checked"));
                 form_data.append("Emendabile", $('input[name="Atto.Emendabile"]').is(":checked"));
+                form_data.append("Invio_Notifiche_Deposito_Solo_UOLA", $('input[name="Atto.Invio_Notifiche_Deposito_Solo_UOLA"]').is(":checked"));
 
                 //submit via ajax
                 $.ajax({
