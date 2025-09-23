@@ -4463,6 +4463,12 @@ namespace PortaleRegione.API.Controllers
             if (string.IsNullOrEmpty(model.reportname)) model.reportname = "Report";
 
             var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+
+            if (!Directory.Exists(tempFolderPath))
+            {
+                Directory.CreateDirectory(tempFolderPath);
+            }
+            
             var safeReportName = string.Join("_", model.reportname.Split(Path.GetInvalidFileNameChars())); // #1343
             var filePath = Path.Combine(tempFolderPath, $"{safeReportName}_{DateTime.Now.Ticks}");
             switch ((ExportFormatEnum)model.exportformat)
@@ -4645,7 +4651,7 @@ namespace PortaleRegione.API.Controllers
                     for (var colIndex = 0; colIndex < columns.Count; colIndex++)
                     {
                         var column = columns[colIndex];
-                        var cellValue = GetPropertyValue(atto, column, ExportFormatEnum.EXCEL);
+                        var cellValue = await GetPropertyValue(atto, column, ExportFormatEnum.EXCEL);
                         var cell = worksheet.Cells[rowIndex + 2, colIndex + 1];
 
                         // #1019
@@ -4671,7 +4677,7 @@ namespace PortaleRegione.API.Controllers
                         }
                     }
                 }
-
+                
                 await package.SaveAsAsync(new FileInfo(filePath));
             }
         }
@@ -4962,7 +4968,7 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        private object GetPropertyValue(AttoDASIDto atto, string propertyName, ExportFormatEnum exportFormat)
+        private async Task<object> GetPropertyValue(AttoDASIDto atto, string propertyName, ExportFormatEnum exportFormat)
         {
             if (propertyName.Equals(nameof(AttoDASIDto.DCR))
                 || propertyName.Equals(nameof(AttoDASIDto.DCCR))
@@ -5001,6 +5007,33 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 if (firme.Any()) return firme.Aggregate((i, j) => i + "; " + j);
+
+                return "";
+            }
+            
+            // #1493
+            if (propertyName.Equals(nameof(AttoDASIReportDto.Firme_DCR)))
+            {
+                var firme = new List<string>();
+                if (atto.FirmeAnte.Any())
+                {
+                    foreach (var attiFirmeDto in atto.FirmeAnte)
+                    {
+                        var firmatario = await _unitOfWork.Persone.Get(attiFirmeDto.UID_persona);
+                        firme.Add(firmatario.cognome.ToUpper());
+                    }
+
+                    if (atto.FirmePost.Any())
+                    {
+                        foreach (var attiFirmeDto in atto.FirmePost)
+                        {
+                            var firmatario = await _unitOfWork.Persone.Get(attiFirmeDto.UID_persona);
+                            firme.Add(firmatario.cognome.ToUpper());
+                        }
+                    }
+                }
+
+                if (firme.Any()) return firme.Aggregate((i, j) => i + ", " + j);
 
                 return "";
             }
@@ -5279,7 +5312,7 @@ namespace PortaleRegione.API.Controllers
                         body += "<tr>";
                         var atto = await GetAttoDto(guid, currentUser);
 
-                        body += GetBodyItemGrid(atto, model.columns);
+                        body += await GetBodyItemGrid(atto, model.columns);
 
                         body += "</tr>";
                     }
@@ -5292,7 +5325,7 @@ namespace PortaleRegione.API.Controllers
                     foreach (var guid in idsList)
                     {
                         var atto = await GetAttoDto(guid, currentUser);
-                        body += templateItemCard_Standard.Replace("{{ITEM}}", GetBodyItemCard(atto, model.columns));
+                        body += templateItemCard_Standard.Replace("{{ITEM}}", await GetBodyItemCard(atto, model.columns));
                     }
 
                     break;
@@ -5315,7 +5348,7 @@ namespace PortaleRegione.API.Controllers
 
                         if (templateItemCard.Contains("{{ITEM}}"))
                         {
-                            body += templateItemCard.Replace("{{ITEM}}", GetBodyItemCard(atto, model.columns));
+                            body += templateItemCard.Replace("{{ITEM}}", await GetBodyItemCard(atto, model.columns));
                         }
                         else
                         {
@@ -5323,7 +5356,7 @@ namespace PortaleRegione.API.Controllers
                             foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
                                 if (itemAtto.Contains("{{" + prop.Name + "}}"))
                                     itemAtto = itemAtto.Replace("{{" + prop.Name + "}}",
-                                        GetPropertyValue(atto, prop.Name, ExportFormatEnum.PDF).ToString());
+                                        (await GetPropertyValue(atto, prop.Name, ExportFormatEnum.PDF)).ToString());
 
                             body += itemAtto;
                         }
@@ -5375,7 +5408,7 @@ namespace PortaleRegione.API.Controllers
             mainPart.Document.Save();
         }
 
-        private string GetBodyItemCard(AttoDASIDto dto, string modelColumns)
+        private async Task<string> GetBodyItemCard(AttoDASIDto dto, string modelColumns)
         {
             var columns = new List<string>();
             if (!string.IsNullOrEmpty(modelColumns))
@@ -5405,14 +5438,14 @@ namespace PortaleRegione.API.Controllers
                     }
                 }
 
-                var value = GetPropertyValueForHtml(dto, column);
+                var value = await GetPropertyValueForHtml(dto, column);
                 if (!string.IsNullOrEmpty(value)) sb.AppendLine(value);
             }
 
             return sb.ToString();
         }
 
-        private string GetPropertyValueForHtml(AttoDASIDto dto, string propertyName)
+        private async Task<string> GetPropertyValueForHtml(AttoDASIDto dto, string propertyName)
         {
             switch (propertyName)
             {
@@ -5422,7 +5455,7 @@ namespace PortaleRegione.API.Controllers
                     return $"<b>{dto.DisplayExtended}</b><br>";
                 default:
                     var displayName = GetPropertyDisplayName(typeof(AttoDASIReportDto), propertyName);
-                    var value = GetPropertyValue(dto, propertyName, ExportFormatEnum.PDF);
+                    var value = await GetPropertyValue(dto, propertyName, ExportFormatEnum.PDF);
                     if (value == null)
                         return null;
 
@@ -5442,7 +5475,7 @@ namespace PortaleRegione.API.Controllers
             return displayNameAttribute?.DisplayName ?? propertyName;
         }
 
-        private string GetBodyItemGrid(AttoDASIDto dto, string modelColumns)
+        private async Task<string> GetBodyItemGrid(AttoDASIDto dto, string modelColumns)
         {
             var columns = new List<string>();
             if (!string.IsNullOrEmpty(modelColumns))
@@ -5454,16 +5487,16 @@ namespace PortaleRegione.API.Controllers
 
             foreach (var column in columns)
             {
-                var value = GetPropertyValueForHtmlGrid(dto, column);
+                var value = await GetPropertyValueForHtmlGrid(dto, column);
                 if (!string.IsNullOrEmpty(value)) sb.AppendLine(value);
             }
 
             return sb.ToString();
         }
 
-        private string GetPropertyValueForHtmlGrid(AttoDASIDto dto, string propertyName)
+        private async Task<string> GetPropertyValueForHtmlGrid(AttoDASIDto dto, string propertyName)
         {
-            var value = GetPropertyValue(dto, propertyName, ExportFormatEnum.EXCEL);
+            var value = await GetPropertyValue(dto, propertyName, ExportFormatEnum.EXCEL);
             return value != null ? $"<td>{value}</td>" : "<td></td>"; // #1344
         }
 

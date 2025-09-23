@@ -87,7 +87,7 @@ namespace PortaleRegione.BAL
                 OnWorkerFinish?.Invoke(this, true);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 OnWorkerFinish?.Invoke(this, false);
                 return null;
@@ -217,7 +217,7 @@ namespace PortaleRegione.BAL
                 null,
                 count);
             var currentPaging = result.Paging;
-            await Scarica_Log(currentPaging);
+            Scarica_Log(currentPaging);
             var has_next = currentPaging.Has_Next;
             var lista = result.Results.ToList();
             while (has_next)
@@ -231,7 +231,7 @@ namespace PortaleRegione.BAL
                     results,
                     null,
                     count);
-                await Scarica_Log(currentPaging, result.Paging);
+                Scarica_Log(currentPaging, result.Paging);
                 foreach (var item in result.Results)
                 {
                     lista.Add(item);
@@ -346,7 +346,7 @@ namespace PortaleRegione.BAL
                 null,
                 countEM);
             var currentPaging = resultEmendamenti.Paging;
-            await Scarica_Log(currentPaging);
+            Scarica_Log(currentPaging);
             var has_next = currentPaging.Has_Next;
             var listaEMendamenti = resultEmendamenti.Results.ToList();
             while (has_next)
@@ -360,7 +360,7 @@ namespace PortaleRegione.BAL
                     results,
                     null,
                     countEM);
-                await Scarica_Log(currentPaging, resultEmendamenti.Paging);
+                Scarica_Log(currentPaging, resultEmendamenti.Paging);
                 foreach (var item in resultEmendamenti.Results)
                 {
                     listaEMendamenti.Add(item);
@@ -375,14 +375,14 @@ namespace PortaleRegione.BAL
             return listaEMendamenti;
         }
 
-        private async Task Scarica_Log(Paging currentPaging, Paging paging)
+        private void Scarica_Log(Paging currentPaging, Paging paging)
         {
             var partial = paging.Limit * paging.Page - (paging.Limit - paging.Entities);
             _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa,
                 $"Scaricamento Blocco [{paging.Page}/{paging.Last_Page}] - [{partial}/{currentPaging.Total}]");
         }
 
-        private async Task Scarica_Log(Paging paging)
+        private void Scarica_Log(Paging paging)
         {
             var partial = paging.Limit * paging.Page - (paging.Limit - paging.Entities);
             _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa,

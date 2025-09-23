@@ -42,6 +42,7 @@ public class AttoDASIReportDto
     [DisplayName("Proponente")] public Guid? UIDPersonaProponente { get; set; }
     [DisplayName("Firmatari")] public string Firme { get; set; }
     [DisplayName("Di iniziativa")] public string Iniziativa { get; set; } // #1047
+    [DisplayName("Firmatari per DCR")] public string Firme_DCR { get; set; } // #1493
     [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
     [DisplayName("Gruppo politico")] public int id_gruppo { get; set; }  // #1021
     [DisplayName("Area politica")] public int AreaPolitica { get; set; }
