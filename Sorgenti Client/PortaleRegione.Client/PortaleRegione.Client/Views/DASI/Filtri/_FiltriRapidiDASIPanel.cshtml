@@ -959,7 +959,11 @@ else
                     if (result.DCR > 0) {
                         td.textContent = `${result.DCRL}/${result.DCR}`;
                         if (result.DCCR > 0) {
-                            td.textContent += `/${result.DCCR}`;
+                            td.textContent += `/`;
+                            if (result.DCCR_Speciale){
+                                td.textContent += `${result.DCCR_Speciale}`;
+                            }
+                            td.textContent += `${result.DCCR}`;
                         }
                     } else {
                         td.textContent = "";

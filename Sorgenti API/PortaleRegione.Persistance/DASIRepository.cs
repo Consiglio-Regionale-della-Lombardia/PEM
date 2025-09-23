@@ -867,7 +867,7 @@ namespace PortaleRegione.Persistance
             return res.UIDAtto;
         }
 
-        public async Task<bool> CheckDCR(string dcrl, string dcr, string dccr)
+        public async Task<bool> CheckDCR(string dcrl, string dcr, string dccr, string dccr_speciale = "")
         {
             var query = PRContext
                 .DASI
@@ -884,6 +884,15 @@ namespace PortaleRegione.Persistance
             if (intDccr > 0)
             {
                 query = query.Where(a => a.DCCR.Value.Equals(intDccr));
+            }
+
+            if (!string.IsNullOrEmpty(dccr_speciale))
+            {
+                query = query.Where(a => a.DCCR_Speciale.Equals(dccr_speciale));
+            }
+            else
+            {
+                query = query.Where(a => string.IsNullOrEmpty(a.DCCR_Speciale));
             }
 
             var res = await query.AnyAsync();

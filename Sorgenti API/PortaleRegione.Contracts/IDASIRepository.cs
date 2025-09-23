@@ -112,7 +112,7 @@ namespace PortaleRegione.Contracts
         void RimuoviDocumento(ATTI_DOCUMENTI doc);
         Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva);
         Task<Guid> GetByQR(Guid id);
-        Task<bool> CheckDCR(string dcrl, string dcr, string dccr);
+        Task<bool> CheckDCR(string dcrl, string dcr, string dccr, string dccr_speciale = "");
         Task<bool> TryAcquireDepositoLock(Guid userId);
         Task ReleaseDepositoLock(Guid userId);
     }

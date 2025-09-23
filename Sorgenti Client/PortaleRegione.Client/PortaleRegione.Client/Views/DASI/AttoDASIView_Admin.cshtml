@@ -1379,17 +1379,34 @@
                 <div class="row" id="pnlChiusuraIter_DCR">
                     <div class="input-field col s12 m12 l4">
                         <div class="row">
-                            <div class="input-field col s12 m12 l4">
+                            <div class="input-field col s12 m12 l3">
                                 <label id="labelDCR">DCR</label>
                                 @Html.TextBoxFor(model => model.Atto.DCRL, new { @class = "form-control" })
                             </div>
-                            <div class="input-field col s12 m12 l4">
+                            <div class="input-field col s12 m12 l3">
                                 <label> </label>
                                 @Html.TextBoxFor(model => model.Atto.DCR, new { @class = "form-control", id = "txtDCR" })
                             </div>
-                            <div class="input-field col s12 m12 l4">
+                            <div class="input-field col s12 m12 l3">
+                                <label> </label>
+                                @Html.TextBoxFor(model => model.Atto.DCCR_Speciale, new { @class = "form-control", 
+    id = "txtDCCR_Speciale",
+    placeholder = "Comm. speciale",
+    maxlength = "2",
+    style = "text-transform:uppercase;"
+})
+                            </div>
+                            <div class="input-field col s12 m12 l3">
                                 <label> </label>
                                 @Html.TextBoxFor(model => model.Atto.DCCR, new { @class = "form-control", id = "txtDCCR" })
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <label for="lblDisplayDCR" style="font-weight:600; color:#555;">Anteprima DCR</label>
+                                <h6 id="lblDisplayDCR" style="margin-top:5px; font-size:1.2em;">
+                                    <!-- qui verrà aggiornata l'anteprima -->
+                                </h6>
                             </div>
                         </div>
                     </div>
@@ -2437,6 +2454,7 @@
                         DataComunicazioneAssemblea: document.querySelector('input[name="Atto.DataComunicazioneAssemblea"]').value,
                         DCR: document.querySelector('input[name="Atto.DCR"]').value,
                         DCCR: document.querySelector('input[name="Atto.DCCR"]').value,
+                        DCCR_Speciale: document.querySelector('input[name="Atto.DCCR_Speciale"]').value,
                         DCRL: document.querySelector('input[name="Atto.DCRL"]').value,
                         Emendato: document.querySelector('input[name="Atto.Emendato"]').checked
                     };
@@ -2627,6 +2645,39 @@
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Prendo i riferimenti agli input
+        const inpDCRL = document.getElementById('Atto_DCRL') || document.querySelector('input[name="Atto.DCRL"]');
+        const inpDCR  = document.getElementById('txtDCR') || document.querySelector('input[name="Atto.DCR"]');
+        const inpSpe  = document.getElementById('txtDCCR_Speciale') || document.querySelector('input[name="Atto.DCCR_Speciale"]');
+        const inpDCCR = document.getElementById('txtDCCR') || document.querySelector('input[name="Atto.DCCR"]');
+        const lbl     = document.getElementById('lblDisplayDCR');
+
+        const normalize = v => {
+            const s = (v ?? '').toString().trim();
+            return (s === '') ? '' : s;
+        };
+
+        function updateLabel() {
+            const part1 = normalize(inpDCRL?.value);
+            const part2 = normalize(inpDCR?.value);
+            const sp    = normalize(inpSpe?.value.toUpperCase());
+            const num   = normalize(inpDCCR?.value);
+            const part3 = normalize(sp + num); // concat senza separatore
+
+            const parts = [part1, part2, part3].filter(p => p !== '');
+            lbl.textContent = parts.join('/');
+        }
+
+        // Aggiorna al change di qualunque campo
+        [inpDCRL, inpDCR, inpSpe, inpDCCR].forEach(el => {
+            if (el) el.addEventListener('input', updateLabel);
+        });
+
+        // Primo render (se i campi hanno già un valore server-side)
+        updateLabel();
+    });
 
 </script>
 

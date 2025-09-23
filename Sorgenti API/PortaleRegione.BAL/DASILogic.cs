@@ -642,16 +642,18 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.DCCR = 0;
             }
 
-            if (attoInDb.DCRL is null) attoInDb.DCRL = dto.GetLegislatura();
+            attoInDb.DCCR_Speciale ??= "";
+            attoInDb.DCRL ??= dto.GetLegislatura();
 
             if (!attoInDb.DCRL.Equals(request.DCRL)
                 || !attoInDb.DCR.Equals(request.DCR)
-                || !attoInDb.DCCR.Equals(request.DCCR))
+                || !attoInDb.DCCR.Equals(request.DCCR)
+                || !attoInDb.DCCR_Speciale.Equals(request.DCCR_Speciale))
             {
                 if (request.DCR > 0 || request.DCCR > 0)
                 {
                     var res = await _unitOfWork.DASI.CheckDCR(request.DCRL, request.DCR.ToString(),
-                        request.DCCR.ToString());
+                        request.DCCR.ToString(), request.DCCR_Speciale);
 
                     if (res) throw new InvalidOperationException("DCR/DCCR già presente a sistema.");
                 }
@@ -659,6 +661,7 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.DCRL = request.DCRL;
                 attoInDb.DCR = request.DCR;
                 attoInDb.DCCR = request.DCCR;
+                attoInDb.DCCR_Speciale = request.DCCR_Speciale;
             }
 
             attoInDb.TipoChiusuraIter = request.TipoChiusuraIter;
@@ -4979,7 +4982,17 @@ namespace PortaleRegione.API.Controllers
                 if (atto.DCR.HasValue)
                 {
                     if (atto.DCCR > 0)
-                        return $"{atto.DCRL}/{atto.DCR}/{atto.DCCR}";
+                    {
+                        var dccr = $"{atto.DCRL}/{atto.DCR}/";
+                        if (!string.IsNullOrEmpty(atto.DCCR_Speciale))
+                        {
+                            dccr += atto.DCCR_Speciale;
+                        }
+
+                        dccr += atto.DCCR;
+                        
+                        return dccr;
+                    }
 
                     if (atto.DCR == 0)
                         return "";

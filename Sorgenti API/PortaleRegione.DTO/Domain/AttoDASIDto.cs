@@ -312,6 +312,16 @@ public class AttoDASIDto
     public string DisplayTipoVotazioneIter { get; set; }
     [DisplayName("DCR/DCCR")] public int? DCR { get; set; } = 0;
     public int? DCCR { get; set; } = 0;
+    
+    private string _dccrSpeciale;
+    public string DCCR_Speciale
+    {
+        get => _dccrSpeciale;
+        set => _dccrSpeciale = string.IsNullOrWhiteSpace(value) 
+            ? value 
+            : value.ToUpperInvariant();
+    }
+    
     public string DCRL { get; set; }
 
     [DisplayName("Privacy - dati giudiziari")]
