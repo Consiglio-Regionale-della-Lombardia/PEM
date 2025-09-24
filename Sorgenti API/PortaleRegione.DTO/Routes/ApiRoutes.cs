@@ -287,6 +287,7 @@ namespace PortaleRegione.DTO.Routes
 
             public const string GetInviate = Base + "/inviate";
             public const string GetRicevute = Base + "/ricevute";
+            public const string GetCounterRicevute = Base + "/count-ricevute";
             public const string NotificaVista = Base + "/{id}/vista";
             public const string GetDestinatari = Base + "/{id}/destinatari";
             public const string InvitoAFirmare = Base + "/{id}/invito-a-firmare";

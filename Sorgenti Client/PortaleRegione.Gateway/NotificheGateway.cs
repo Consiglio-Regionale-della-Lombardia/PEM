@@ -87,6 +87,14 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task<int> GetCounterNotificheRicevute()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.GetCounterRicevute}";
+            var res = JsonConvert.DeserializeObject<int>(await Get(requestUrl, _token));
+
+            return res;
+        }
+
         public async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(string id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.GetDestinatari.Replace("{id}", id)}";

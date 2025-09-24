@@ -141,6 +141,28 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per avere il conteggio delle notifiche ricevute da un utente
+        /// </summary>
+        /// <param name="model">Modello di richiesta generico con paginazione</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.Notifiche.GetCounterRicevute)]
+        public async Task<IHttpActionResult> GetCounterNotificheRicevute()
+        {
+            try
+            {
+                var result = await _notificheLogic.GetCounterNotificheRicevute(CurrentUser);
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetNotificheRicevute", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per avere tutti i destinatari di una notifica
