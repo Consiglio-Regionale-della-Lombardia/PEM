@@ -2964,7 +2964,7 @@ namespace PortaleRegione.API.Controllers
 
             //Ricavo dalle sedute le mozioni a cui è possibile creare l'abbinamento
             var result = new List<AttoDASIDto>();
-            foreach (var seduta in sedute_attive.Where(i => !sedute_da_escludere.Contains(i.UIDSeduta)))
+            foreach (var seduta in sedute_attive.Where(i => !sedute_da_escludere.Contains(i.UIDSeduta) && i.Blocco_MOZ_Abbinate == false)) // #1488
             {
                 var atti = await _unitOfWork.DASI.GetMOZAbbinabili(seduta.UIDSeduta);
                 foreach (var atto in atti) result.Add(await GetAttoDto(atto.UIDAtto));

@@ -64,6 +64,9 @@ namespace PortaleRegione.Domain
 
         public bool? Eliminato { get; set; }
         public bool Riservato_DASI { get; set; } = false;
+        
+        // #1488
+        public bool Blocco_MOZ_Abbinate { get; set; } = false;
 
         public virtual ICollection<ATTI> ATTI { get; set; }
 

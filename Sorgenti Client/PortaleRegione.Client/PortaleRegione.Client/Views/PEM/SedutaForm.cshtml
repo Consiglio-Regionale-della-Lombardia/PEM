@@ -90,6 +90,17 @@
                         </p>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input id="Blocco_MOZ_Abbinate" name="Blocco_MOZ_Abbinate" type="checkbox" value="true"
+                                       @Html.Raw(Model.Blocco_MOZ_Abbinate ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Blocco_MOZ_Abbinate)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
                 @if (!isNew)
                 {
                     <div class="input-field" style="padding-top: 50px">
