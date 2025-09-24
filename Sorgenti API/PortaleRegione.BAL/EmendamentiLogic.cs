@@ -1149,6 +1149,13 @@ namespace PortaleRegione.BAL
                     });
                     await _unitOfWork.CompleteAsync();
 
+                    // #1499
+                    if (em.Rif_UIDEM.HasValue)
+                    {
+                        var padreEM = await GetEM(em.Rif_UIDEM.Value);
+                        await SPOSTA_EM_TRATTAZIONE(em.UIDEM, padreEM.OrdineVotazione + 1);
+                    }
+
                     counterDepositi++;
 
                     await Task.Delay(1000); // #884. no sleep di 1 secondo può migliorare la gestione delle risorse e prevenire possibili problemi di sovraccarico del database
