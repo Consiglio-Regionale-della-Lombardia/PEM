@@ -220,6 +220,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Remove_Document = Base + "/save/remove-document";
             public const string Public_Document = Base + "/save/public-document";
             public const string Save_MassiveCommand = Base + "/save/massive";
+            public const string Remove_MassiveCommand = Base + "/remove/massive";
 
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";

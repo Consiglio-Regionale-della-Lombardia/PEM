@@ -107,6 +107,7 @@
     <Compile Include="Enum\ActionEnum.cs" />
     <Compile Include="Enum\AreaPoliticaEnum.cs" />
     <Compile Include="Enum\ClientModeEnum.cs" />
+    <Compile Include="Enum\ComandoRimuoviMassivoEnum.cs" />
     <Compile Include="Enum\CounterEmendamentiEnum.cs" />
     <Compile Include="Enum\DataViewTypeEnum.cs" />
     <Compile Include="Enum\ExportFormatEnum.cs" />
@@ -208,6 +209,7 @@
     <Compile Include="Request\Public\GruppiRequest.cs" />
     <Compile Include="Request\QueryExtendedRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />
+    <Compile Include="Request\RimuoviComandoMassivoRequest.cs" />
     <Compile Include="Request\SalvaComandoMassivoRequest.cs" />
     <Compile Include="Request\SalvaDocumentoRequest.cs" />
     <Compile Include="Request\SalvaGruppoRequest.cs" />

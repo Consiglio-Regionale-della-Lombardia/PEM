@@ -1,38 +1,57 @@
 ﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
-    <button type="button" role="button" class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
+    <button type="button" role="button" class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi"
+            data-position="left">
         <i class="large material-icons">playlist_add</i>
     </button>
     <ul>
+
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="IscriviASedutaMassivoDASI()" data-position="left" data-tooltip="Iscrivi alla seduta">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
+                    onclick="RimuoviMassivoDASI()" data-position="left"
+                    data-tooltip="Rimuovi iscrizione alla seduta, urgenza, abbinamento">
+                <i class="material-icons">remove</i> Rimuovi
+            </button>
+        </li>
+
+        <li>
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
+                    onclick="IscriviASedutaMassivoDASI()" data-position="left" data-tooltip="Iscrivi alla seduta">
                 <i class="material-icons">assignment_turned_in</i> Assegna a seduta
             </button>
         </li>
-        
+
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="left" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))')">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
+                    data-position="left" data-tooltip="Depositato"
+                    onclick="CambioStatoMassivoDASI(@((int)StatiAttoEnum.PRESENTATO), '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO))')">
                 <i class="material-icons">lock</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="left" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))')">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
+                    data-position="left" data-tooltip="In Trattazione"
+                    onclick="CambioStatoMassivoDASI(@((int)StatiAttoEnum.IN_TRATTAZIONE), '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE))')">
                 <i class="material-icons">settings_input_antenna</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="left" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.COMPLETATO), '@(Utility.GetText_StatoDASI((int) StatiAttoEnum.COMPLETATO))')">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
+                    data-position="left" data-tooltip="Chiuso"
+                    onclick="CambioStatoMassivoDASI(@((int)StatiAttoEnum.COMPLETATO), '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO))')">
                 <i class="material-icons">storage</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" data-position="left" data-tooltip="Modifica massiva dati" onclick="openModificaMassiva()">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
+                    data-position="left" data-tooltip="Modifica massiva dati" onclick="openModificaMassiva()">
                 <i class="material-icons">content_copy</i>
             </button>
         </li>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+            <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
+                    onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
             </button>
         </li>
@@ -44,18 +63,23 @@
         <h4>Modifica massiva dati</h4>
         <ul class="collapsible">
             <li class="active">
-                <div class="collapsible-header"><i class="material-icons">format_list_bulleted</i>Lista atti selezionati</div>
+                <div class="collapsible-header"><i class="material-icons">format_list_bulleted</i>Lista atti selezionati
+                </div>
                 <div class="collapsible-body">
                     <div class="row">
                         <div class="col s12 l4 hide-on-med-and-down">
                         </div>
                         <div class="col s12 l4 hide-on-med-and-down">
-                            
+
                         </div>
-						<div class="col s12 l4 right-align">
-							<button id="btnAutocompletamentoDCR" class="btn-flat blue-text waves-effect waves-green">Auto DCR</button>
-							<button id="btnAutocompletamentoDCCR" class="btn-flat blue-text waves-effect waves-green">Auto DCCR</button>
-						</div>
+                        <div class="col s12 l4 right-align">
+                            <button id="btnAutocompletamentoDCR" class="btn-flat blue-text waves-effect waves-green">
+                                Auto DCR
+                            </button>
+                            <button id="btnAutocompletamentoDCCR" class="btn-flat blue-text waves-effect waves-green">
+                                Auto DCCR
+                            </button>
+                        </div>
                     </div>
                     <ul class="collection" id="listaMassivaAtti">
                     </ul>
@@ -66,18 +90,21 @@
                 <div class="collapsible-body">
                     <div class="row">
                         <div class="input-field col s8">
-                            <select id='Atto_Stato' name='Atto.Stato'>
+                            <select id="Atto_Stato" name="Atto.Stato">
                                 <option value="" disabled selected>Seleziona stato</option>
-                                <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
-                                <option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
-                                <option value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
+                                <option
+                                    value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO)</option>
+                                <option
+                                    value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE)</option>
+                                <option
+                                    value="@Html.Raw((int)StatiAttoEnum.COMPLETATO)">@Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO)</option>
                             </select>
                             <label for="Atto_Stato">Stato</label>
                         </div>
                         <div class="col s4 center">
                             <p>
                                 <label>
-                                    <input type="checkbox" class="filled-in" name='Atto.Stato.Check' />
+                                    <input type="checkbox" class="filled-in" name="Atto.Stato.Check"/>
                                     <span>Abilitato / Disabilitato</span>
                                 </label>
                             </p>
@@ -91,7 +118,7 @@
                         <div class="col s4 center">
                             <p>
                                 <label>
-                                    <input type="checkbox" class="filled-in" name="Atto.DataAnnunzio.Check" />
+                                    <input type="checkbox" class="filled-in" name="Atto.DataAnnunzio.Check"/>
                                     <span>Abilitato / Disabilitato</span>
                                 </label>
                             </p>
@@ -99,25 +126,35 @@
                     </div>
                     <div class="row">
                         <div class="input-field col s8">
-                            <select id='Atto_TipoChiusuraIter' name='Atto.TipoChiusuraIter'>
+                            <select id="Atto_TipoChiusuraIter" name="Atto.TipoChiusuraIter">
                                 <option value="" disabled selected>Seleziona</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE)</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)</option>
-                                <option value="@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.APPROVATO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.APPROVATO)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.COMUNICAZIONE_ASSEMBLEA)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.TRATTAZIONE_ASSEMBLEA)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.RESPINTO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RESPINTO)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.RITIRATO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.RITIRATO)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.INAMMISSIBILE)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.INAMMISSIBILE)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.DECADUTO)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADUTO)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_LEGISLATURA)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.DECADENZA_PER_FINE_MANDATO_CONSIGLIERE)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)">@Utility.GetText_ChiusuraIterDASI((int)TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI)</option>
                             </select>
                             <label for="Atto_TipoChiusuraIter">Tipo chiusura iter</label>
                         </div>
                         <div class="col s4 center">
                             <p>
                                 <label>
-                                    <input type="checkbox" class="filled-in" name='Atto.TipoChiusuraIter.Check' />
+                                    <input type="checkbox" class="filled-in" name="Atto.TipoChiusuraIter.Check"/>
                                     <span>Abilitato / Disabilitato</span>
                                 </label>
                             </p>
@@ -131,7 +168,7 @@
                         <div class="col s4 center">
                             <p>
                                 <label>
-                                    <input type="checkbox" class="filled-in" name="Atto.DataChiusuraIter.Check" />
+                                    <input type="checkbox" class="filled-in" name="Atto.DataChiusuraIter.Check"/>
                                     <span>Abilitato / Disabilitato</span>
                                 </label>
                             </p>
@@ -139,18 +176,21 @@
                     </div>
                     <div class="row">
                         <div class="input-field col s8">
-                            <select id='Atto_TipoVotazione' name='Atto.TipoVotazione'>
+                            <select id="Atto_TipoVotazione" name="Atto.TipoVotazione">
                                 <option value="" disabled selected>Seleziona</option>
-                                <option value="@Html.Raw((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)</option>
-                                <option value="@Html.Raw((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)</option>
-                                <option value="@Html.Raw((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.APPELLO_NOMINALE)</option>
+                                <option
+                                    value="@Html.Raw((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)">@Utility.GetText_TipoVotazioneDASI((int)TipoVotazioneIterEnum.SCRUTINIO_SEGRETO)</option>
                             </select>
                             <label for="Atto_TipoVotazione">Tipo votazione</label>
                         </div>
                         <div class="col s4 center">
                             <p>
                                 <label>
-                                    <input type="checkbox" class="filled-in" name='Atto.TipoVotazione.Check' />
+                                    <input type="checkbox" class="filled-in" name="Atto.TipoVotazione.Check"/>
                                     <span>Abilitato / Disabilitato</span>
                                 </label>
                             </p>
@@ -164,7 +204,8 @@
                         <div class="col s4 center">
                             <p>
                                 <label>
-                                    <input type="checkbox" class="filled-in" name="Atto.DataComunicazioneAssemblea.Check" />
+                                    <input type="checkbox" class="filled-in"
+                                           name="Atto.DataComunicazioneAssemblea.Check"/>
                                     <span>Abilitato / Disabilitato</span>
                                 </label>
                             </p>
@@ -182,7 +223,7 @@
                         <div class="col s4 center">
                             <p>
                                 <label>
-                                    <input type="checkbox" class="filled-in" name="Atto.Emendato.Check" />
+                                    <input type="checkbox" class="filled-in" name="Atto.Emendato.Check"/>
                                     <span>Abilitato / Disabilitato</span>
                                 </label>
                             </p>
@@ -219,45 +260,45 @@
 </div>
 
 <script>
-	$(document).ready(function () {
-		$('.fixed-action-btn').floatingActionButton({
-			hoverEnabled: true
-		});
+    $(document).ready(function () {
+        $('.fixed-action-btn').floatingActionButton({
+            hoverEnabled: true
+        });
     });
 
     var selectedUid = [];
 
-	function openModificaMassiva() {
-		waiting(true);
+    function openModificaMassiva() {
+        waiting(true);
 
-		// Seleziona tutti i checkbox che hanno un ID che inizia con "chk_Atto_"
-		const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_Atto_"]:checked');
+        // Seleziona tutti i checkbox che hanno un ID che inizia con "chk_Atto_"
+        const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_Atto_"]:checked');
 
-		// Pulisci la lista esistente
-		const listaMassivaAtti = document.getElementById('listaMassivaAtti');
-		listaMassivaAtti.innerHTML = '';
+        // Pulisci la lista esistente
+        const listaMassivaAtti = document.getElementById('listaMassivaAtti');
+        listaMassivaAtti.innerHTML = '';
 
-		// Crea un array per tracciare gli atti già aggiunti
-		const addedItems = new Set();
+        // Crea un array per tracciare gli atti già aggiunti
+        const addedItems = new Set();
 
-		// Itera sui checkbox selezionati
-		selectedCheckboxes.forEach(checkbox => {
-			// Trova la riga padre del checkbox
-			const row = checkbox.closest('tr');
-			const displayColumn = row.querySelector('td:nth-child(2) .chip');
+        // Itera sui checkbox selezionati
+        selectedCheckboxes.forEach(checkbox => {
+            // Trova la riga padre del checkbox
+            const row = checkbox.closest('tr');
+            const displayColumn = row.querySelector('td:nth-child(2) .chip');
 
-			if (displayColumn) {
-				const displayText = displayColumn.getAttribute('data-text');
-				const displayId = displayColumn.getAttribute('data-id');
+            if (displayColumn) {
+                const displayText = displayColumn.getAttribute('data-text');
+                const displayId = displayColumn.getAttribute('data-id');
 
-				const oggettoTrovato = risultatiTabella.find(item => item.UIDAtto === displayId);
-				// Aggiungi l'elemento alla lista solo se non è già stato aggiunto
-				if (!addedItems.has(displayId)) {
-					const listItem = document.createElement('li');
-					listItem.className = 'collection-item';
+                const oggettoTrovato = risultatiTabella.find(item => item.UIDAtto === displayId);
+                // Aggiungi l'elemento alla lista solo se non è già stato aggiunto
+                if (!addedItems.has(displayId)) {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'collection-item';
 
-					// Crea gli input per Protocollo, DCR e DCCR
-					listItem.innerHTML = `
+                    // Crea gli input per Protocollo, DCR e DCCR
+                    listItem.innerHTML = `
 					<span><b>${displayText}</b></span>
 					<div class="row">
 						<div class="input-field col s3">
@@ -279,22 +320,22 @@
 					</div>
 				`;
 
-					// Aggiungi l'elemento alla lista
-					listaMassivaAtti.appendChild(listItem);
-					addedItems.add(displayId);
+                    // Aggiungi l'elemento alla lista
+                    listaMassivaAtti.appendChild(listItem);
+                    addedItems.add(displayId);
 
-					// Aggiungi l'UID alla lista degli elementi selezionati
-					selectedUid.push(displayId);
-				}
-			}
-		});
+                    // Aggiungi l'UID alla lista degli elementi selezionati
+                    selectedUid.push(displayId);
+                }
+            }
+        });
 
-		waiting(false);
-		$("#modalModificaMassiva").modal("open");
-	}
+        waiting(false);
+        $("#modalModificaMassiva").modal("open");
+    }
 
 
-	document.getElementById('btnAutocompletamentoDCR').addEventListener('click', function() {
+    document.getElementById('btnAutocompletamentoDCR').addEventListener('click', function () {
         $("#modalModificaMassiva").modal("close");
 
         swal({
@@ -331,11 +372,11 @@
                 console.log("Operazione annullata");
             }
 
-			$("#modalModificaMassiva").modal("open");
+            $("#modalModificaMassiva").modal("open");
         });
     });
-    
-    document.getElementById('btnAutocompletamentoDCCR').addEventListener('click', function() {
+
+    document.getElementById('btnAutocompletamentoDCCR').addEventListener('click', function () {
         $("#modalModificaMassiva").modal("close");
 
         swal({
@@ -372,107 +413,110 @@
                 console.log("Operazione annullata");
             }
 
-			$("#modalModificaMassiva").modal("open");
+            $("#modalModificaMassiva").modal("open");
         });
     });
 
     document.getElementById('btnSalvaModificaMassiva').addEventListener('click', function () {
-		swal({
-			title: "Salvataggio massivo",
-			text: "Sei sicuro di voler aggiornare massivamente i campi selezionati?",
-			icon: "info",
-			buttons: ["Annulla", "Procedi"]
-		}).then(async (answer) => {
-			if (answer) {
-				waiting(true);
-				var request = {};
-				request.Lista = [];
-				selectedUid.forEach(uid => {
-					let protocollo = document.getElementById(`protocollo_${uid}`).value;
-					let dcr = document.getElementById(`dcr_${uid}`).value;
-					let dccr = document.getElementById(`dccr_${uid}`).value;
-					let dccr_speciale = document.getElementById(`dccr_speciale_${uid}`).value;
+        swal({
+            title: "Salvataggio massivo",
+            text: "Sei sicuro di voler aggiornare massivamente i campi selezionati?",
+            icon: "info",
+            buttons: ["Annulla", "Procedi"]
+        }).then(async (answer) => {
+            if (answer) {
+                waiting(true);
+                var request = {};
+                request.Lista = [];
+                selectedUid.forEach(uid => {
+                    let protocollo = document.getElementById(`protocollo_${uid}`).value;
+                    let dcr = document.getElementById(`dcr_${uid}`).value;
+                    let dccr = document.getElementById(`dccr_${uid}`).value;
+                    let dccr_speciale = document.getElementById(`dccr_speciale_${uid}`).value;
 
-					// Crea un oggetto per ogni atto
-					let attoData = {
-						uid: uid,
-						protocollo: protocollo,
-						dcr: dcr,
-						dccr: dccr,
-						dccr_speciale: dccr_speciale,
-					};
+                    // Crea un oggetto per ogni atto
+                    let attoData = {
+                        uid: uid,
+                        protocollo: protocollo,
+                        dcr: dcr,
+                        dccr: dccr,
+                        dccr_speciale: dccr_speciale,
+                    };
 
-					// Aggiungi l'oggetto alla lista di dati da inviare
-					request.Lista.push(attoData);
-				});
+                    // Aggiungi l'oggetto alla lista di dati da inviare
+                    request.Lista.push(attoData);
+                });
 
-				let datiDaInviare = {};
+                let datiDaInviare = {};
 
-				// Raccogli sia il valore del checkbox che il valore del campo associato
-				datiDaInviare.statoCheck = document.querySelector("input[name='Atto.Stato.Check']").checked;
-				datiDaInviare.stato = document.querySelector("select[name='Atto.Stato']").value;
+                // Raccogli sia il valore del checkbox che il valore del campo associato
+                datiDaInviare.statoCheck = document.querySelector("input[name='Atto.Stato.Check']").checked;
+                datiDaInviare.stato = document.querySelector("select[name='Atto.Stato']").value;
 
-				datiDaInviare.dataAnnunzioCheck = document.querySelector("input[name='Atto.DataAnnunzio.Check']").checked;
-				datiDaInviare.dataAnnunzio = document.querySelector("input[name='Atto.DataAnnunzio']").value;
+                datiDaInviare.dataAnnunzioCheck = document.querySelector("input[name='Atto.DataAnnunzio.Check']").checked;
+                datiDaInviare.dataAnnunzio = document.querySelector("input[name='Atto.DataAnnunzio']").value;
 
-				datiDaInviare.tipoChiusuraIterCheck = document.querySelector("input[name='Atto.TipoChiusuraIter.Check']").checked;
-				datiDaInviare.tipoChiusuraIter = document.querySelector("select[name='Atto.TipoChiusuraIter']").value;
+                datiDaInviare.tipoChiusuraIterCheck = document.querySelector("input[name='Atto.TipoChiusuraIter.Check']").checked;
+                datiDaInviare.tipoChiusuraIter = document.querySelector("select[name='Atto.TipoChiusuraIter']").value;
 
-				datiDaInviare.dataChiusuraIterCheck = document.querySelector("input[name='Atto.DataChiusuraIter.Check']").checked;
-				datiDaInviare.dataChiusuraIter = document.querySelector("input[name='Atto.DataChiusuraIter']").value;
+                datiDaInviare.dataChiusuraIterCheck = document.querySelector("input[name='Atto.DataChiusuraIter.Check']").checked;
+                datiDaInviare.dataChiusuraIter = document.querySelector("input[name='Atto.DataChiusuraIter']").value;
 
-				datiDaInviare.tipoVotazioneCheck = document.querySelector("input[name='Atto.TipoVotazione.Check']").checked;
-				datiDaInviare.tipoVotazione = document.querySelector("select[name='Atto.TipoVotazione']").value;
+                datiDaInviare.tipoVotazioneCheck = document.querySelector("input[name='Atto.TipoVotazione.Check']").checked;
+                datiDaInviare.tipoVotazione = document.querySelector("select[name='Atto.TipoVotazione']").value;
 
-				datiDaInviare.dataComunicazioneAssembleaCheck = document.querySelector("input[name='Atto.DataComunicazioneAssemblea.Check']").checked;
-				datiDaInviare.dataComunicazioneAssemblea = document.querySelector("input[name='Atto.DataComunicazioneAssemblea']").value;
+                datiDaInviare.dataComunicazioneAssembleaCheck = document.querySelector("input[name='Atto.DataComunicazioneAssemblea.Check']").checked;
+                datiDaInviare.dataComunicazioneAssemblea = document.querySelector("input[name='Atto.DataComunicazioneAssemblea']").value;
 
-				datiDaInviare.emendatoCheck = document.querySelector("input[name='Atto.Emendato.Check']").checked;
-				datiDaInviare.emendato = document.querySelector("input[name='Atto.Emendato']").checked;
+                datiDaInviare.emendatoCheck = document.querySelector("input[name='Atto.Emendato.Check']").checked;
+                datiDaInviare.emendato = document.querySelector("input[name='Atto.Emendato']").checked;
 
-				datiDaInviare.pubblicatoCheck = document.querySelector("input[name='Atto.Pubblicato.Check']").checked;
-				datiDaInviare.pubblicato = document.querySelector("input[name='Atto.Pubblicato']").checked;
+                datiDaInviare.pubblicatoCheck = document.querySelector("input[name='Atto.Pubblicato.Check']").checked;
+                datiDaInviare.pubblicato = document.querySelector("input[name='Atto.Pubblicato']").checked;
 
-				request.Dati = datiDaInviare;
+                request.Dati = datiDaInviare;
 
                 var url = '@Url.Action("Salva_ComandoMassivo", "DASI")';
 
-				const response = await fetch(url, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(request)
-				});
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(request)
+                });
 
-				if (!response.ok) {
-					waiting(false);
-					throw new Error('Network response was not ok');
-				}
+                if (!response.ok) {
+                    waiting(false);
+                    throw new Error('Network response was not ok');
+                }
 
-				try {
-					const errorData = await response.json();
-					if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+                try {
+                    const errorData = await response.json();
+                    if (errorData !== "OK") {
+                        waiting(false);
+                        ErrorAlert(errorData.message);
+                        return;
+                    }
 
-				} catch (error) {
-					// ignored
-				}
+                } catch (error) {
+                    // ignored
+                }
 
-				M.toast({
-					html: `<span>Salva dati massivi completato con successo</span>`,
-					classes: 'rounded',
-					displayLength: 5000
-				});
+                M.toast({
+                    html: `<span>Salva dati massivi completato con successo</span>`,
+                    classes: 'rounded',
+                    displayLength: 5000
+                });
 
-				setTimeout(function () {
-					location.reload();
-				}, 5000);
+                setTimeout(function () {
+                    location.reload();
+                }, 5000);
             }
         });
 
-        
 
-	    waiting(false);
+        waiting(false);
     });
 
     function ModificaMetaDASI(tipo) {
@@ -507,7 +551,7 @@
         }
     }
 
-    $("#checkAll").click(function() {
+    $("#checkAll").click(function () {
         setSelezionaTutti_DASI(this.checked);
         setListaAtti([]);
         $('input[id^="chk_Atto_"]').not(this).prop('checked', this.checked);
@@ -520,5 +564,111 @@
         setSelezionaTutti_DASI(false);
         setListaAtti([]);
         AbilitaComandiMassivi_DASI(null);
+    }
+
+    function RimuoviMassivoDASI() {
+        swal({
+            title: "Comando massivo di rimozione",
+            text: "Scegli cosa vuoi rimuovere.",
+            buttons: {
+                cancel: "Annulla",
+                iscrizione_seduta: {
+                    className: "blue black-text",
+                    text: "Iscrizione",
+                    value: "iscrizione in seduta"
+                },
+                urgenza: {
+                    className: "red black-text",
+                    text: "Urgenza",
+                    value: "urgenza"
+                },
+                abbinamento: {
+                    className: "pink black-text",
+                    text: "Abb.",
+                    value: "abbinamento"
+                }
+            },
+            icon: "info"
+        }).then(function (value) {
+            swal({
+                title: "Comando di rimozione",
+                text: "Hai selezionato: Rimuovi " + value,
+                icon: "warning",
+                buttons: ["Annulla", "Rimuovi"],
+                dangerMode: true
+            }).then(async function (confirm_value) {
+                if (confirm_value) {
+                    // Seleziona tutti i checkbox che hanno un ID che inizia con "chk_Atto_"
+                    const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_Atto_"]:checked');
+
+                    // Crea un array per tracciare gli atti già aggiunti
+                    const addedItems = new Set();
+
+                    // Itera sui checkbox selezionati
+                    selectedCheckboxes.forEach(checkbox => {
+                        // Trova la riga padre del checkbox
+                        const row = checkbox.closest('tr');
+                        const displayColumn = row.querySelector('td:nth-child(2) .chip');
+
+                        if (displayColumn) {
+                            const displayId = displayColumn.getAttribute('data-id');
+
+                            if (!addedItems.has(displayId)) {
+                                addedItems.add(displayId);
+                            }
+                        }
+                    });
+                    var comando = @Html.Raw((int)ComandoRimuoviMassivoEnum.Nessuno);
+                    if (value == "iscrizione in seduta") {
+                        comando = @Html.Raw((int)ComandoRimuoviMassivoEnum.Iscrizione);
+                    } else if (value == "urgenza") {
+                        comando = @Html.Raw((int)ComandoRimuoviMassivoEnum.Urgenza);
+                    } else if (value == "abbinamento") {
+                        comando = @Html.Raw((int)ComandoRimuoviMassivoEnum.Abbinamento);
+                    }
+
+                    var request = {
+                        Lista: Array.from(addedItems),
+                        Comando: comando
+                    };
+
+                    var url = '@Url.Action("Rimuovi_ComandoMassivo", "DASI")';
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(request)
+                    });
+
+                    if (!response.ok) {
+                        waiting(false);
+                        throw new Error('Network response was not ok');
+                    }
+
+                    try {
+                        const errorData = await response.json();
+                        if (errorData !== "OK") {
+                            waiting(false);
+                            ErrorAlert(errorData.message);
+                            return;
+                        }
+                    } catch (error) {
+                        // ignored
+                    }
+
+                    M.toast({
+                        html: `<span>Comando rimozione massiva completato con successo</span>`,
+                        classes: 'rounded',
+                        displayLength: 5000
+                    });
+
+                    setTimeout(function () {
+                        location.reload();
+                    }, 5000);
+                }
+            });
+        });
     }
 </script>

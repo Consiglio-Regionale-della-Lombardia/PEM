@@ -2737,5 +2737,26 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere massivamente: iscrizione in seduta, urgenza e abbinamento
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-comando-massivo")]
+        public async Task<ActionResult> Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Rimuovi_ComandoMassivo(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

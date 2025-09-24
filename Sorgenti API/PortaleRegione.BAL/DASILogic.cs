@@ -5798,6 +5798,82 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request)
+        {
+            var messaggiConfig = request.Comando switch
+            {
+                ComandoRimuoviMassivoEnum.Iscrizione => new {
+                    Oggetto = "Rimozione iscrizione in seduta - Comando massivo",
+                    TestoAzione = "È stata rimossa l'iscrizione in seduta"
+                },
+                ComandoRimuoviMassivoEnum.Urgenza => new {
+                    Oggetto = "Rimozione urgenza - Comando massivo", 
+                    TestoAzione = "È stata rimossa l'urgenza"
+                },
+                ComandoRimuoviMassivoEnum.Abbinamento => new {
+                    Oggetto = "Rimozione abbinamento - Comando massivo",
+                    TestoAzione = "È stato rimosso l'abbinamento"
+                },
+                _ => throw new ArgumentException("Comando non supportato")
+            };
+
+            var listaAtti = new List<string>();
+            
+            foreach (var guid in request.Lista)
+            {
+                var attoInDb = await Get(guid);
+                var splitEtichetta = attoInDb.Etichetta.Split('_');
+                listaAtti.Add($"{splitEtichetta[0]} {splitEtichetta[1]}");
+                switch (request.Comando)
+                {
+                    case ComandoRimuoviMassivoEnum.Iscrizione:
+                    {
+                        attoInDb.DataIscrizioneSeduta = null;
+                        attoInDb.DataRichiestaIscrizioneSeduta = string.Empty;
+                        attoInDb.UIDPersonaIscrizioneSeduta = null;
+                        attoInDb.UIDPersonaRichiestaIscrizione = null;
+                        await _unitOfWork.CompleteAsync();
+                        break;
+                    }
+                    case ComandoRimuoviMassivoEnum.Urgenza:
+                    {
+                        attoInDb.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                        attoInDb.DataPresentazione_MOZ_URGENTE = string.Empty;
+                        await _unitOfWork.CompleteAsync();
+                        break;
+                    }
+                    case ComandoRimuoviMassivoEnum.Abbinamento:
+                    {
+                        attoInDb.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                        attoInDb.UID_MOZ_Abbinata = null;
+                        attoInDb.DataPresentazione_MOZ_ABBINATA = string.Empty;
+                        await _unitOfWork.CompleteAsync();
+                        break;
+                    }
+                }
+                
+                var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(attoInDb.id_gruppo);
+                var responsabili = await _logicPersona.GetSegreteriaPolitica(attoInDb.id_gruppo, false, true);
+                var destinatari = AppSettingsConfiguration.EmailInvioDASI;
+                if (responsabili.Any())
+                    destinatari += ";" + responsabili.Select(p => p.email).Aggregate((i, j) => i + ";" + j);
+                if (capogruppo != null)
+                {
+                    destinatari += ";" + capogruppo.email;
+                }
+                
+                var mailModel = new MailModel
+                {
+                    DA = AppSettingsConfiguration.EmailInvioDASI,
+                    A = destinatari,
+                    OGGETTO = messaggiConfig.Oggetto,
+                    MESSAGGIO =
+                        $"{messaggiConfig.TestoAzione} per i seguenti atti: {listaAtti.Aggregate((i, j) => i + ", " + j)}. {GetBodyFooterMail()}"
+                };
+                await _logicUtil.InvioMail(mailModel);
+            }
+        }
+
         private void PulisciChiusuraIter(ATTI_DASI atto)
         {
             atto.TipoChiusuraIter = null;

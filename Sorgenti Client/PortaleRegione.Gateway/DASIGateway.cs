@@ -184,6 +184,13 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
+        public async Task Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Remove_MassiveCommand}";
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
         public async Task<AttoDASIDto> Get(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Get.Replace("{id}", id.ToString())}";

@@ -108,5 +108,6 @@ namespace PortaleRegione.Gateway
         Task Rimuovi_Documento(AttiDocumentiDto request);
         Task Pubblica_Documento(AttiDocumentiDto request);
         Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request);
+        Task Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request);
     }
 }

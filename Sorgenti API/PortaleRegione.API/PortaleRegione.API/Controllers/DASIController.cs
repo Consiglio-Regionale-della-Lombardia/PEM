@@ -608,6 +608,32 @@ namespace PortaleRegione.API.Controllers
         }
         
         /// <summary>
+        ///     Endpoint per rimuovere massivamente: iscrizione in seduta, urgenza e abbinamento
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Remove_MassiveCommand)]
+        public async Task<IHttpActionResult> Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Rimuovi_ComandoMassivo(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Rimuovi massivamente dati DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
         ///     Endpoint per salvare le informazioni riguardanti la privacy
         /// </summary>
         /// <param name="request"></param>
