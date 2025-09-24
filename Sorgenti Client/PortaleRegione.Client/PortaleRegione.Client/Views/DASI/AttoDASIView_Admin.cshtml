@@ -1269,6 +1269,16 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="input-field col s12 m12 l6">
+                            <select id="Atto_TipoIterInCommissione">
+                                <option value="" selected>Seleziona</option>
+                                <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta_Effettiva == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                                <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta_Effettiva == (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
+                            </select>
+                            <label for="Atto_TipoIterInCommissione">Tipo di iter in commissione</label>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col s12 l4 hide-on-med-and-down">
                         </div>
                         <div class="col s12 l4 center">
@@ -2511,7 +2521,8 @@
                     TipoChiusuraIterCommissione: document.getElementById('Atto_TipoChiusuraIterCommissione').value,
                     DataChiusuraIterCommissione: document.querySelector('input[name="Atto.DataChiusuraIterCommissione"]').value,
                     DataTrasmissione: document.querySelector('input[name="Atto.DataTrasmissione"]').value,
-                    RisultatoVotazioneIterCommissione: document.getElementById('Atto_RisultatoVotazioneCommissione').value
+                    RisultatoVotazioneIterCommissione: document.getElementById('Atto_RisultatoVotazioneCommissione').value,
+                    IDTipo_Risposta_Effettiva: document.getElementById('Atto_TipoIterInCommissione').value
                 };
 
                 var url = '@Url.Action("Salva_InformazioniChiusuraIter", "DASI")';

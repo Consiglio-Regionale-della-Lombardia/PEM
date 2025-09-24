@@ -624,6 +624,7 @@ namespace PortaleRegione.API.Controllers
             {
                 attoInDb.DataChiusuraIterCommissione = request.DataChiusuraIterCommissione;
                 attoInDb.DataTrasmissione = request.DataTrasmissione;
+                attoInDb.IDTipo_Risposta_Effettiva = request.IDTipo_Risposta_Effettiva;
 
                 // #1151
                 if (attoInDb.FlussoRespingi)
