@@ -159,6 +159,10 @@ namespace PortaleRegione.Domain
         public int Ritardo { get; set; } = 0;
         public Guid? UIDPersonaFlussoRespingi { get; set; }
         public DateTime? DataFlussoRespingi { get; set; }
+        public int VersioneStampa { get; set; } = 0;
+        public DateTime? DataUltimaStampa { get; set; }
+        public string PathStampa { get; set; }
+        public bool StampaValida { get; set; } = false;
 
         public string GetLegislatura()
         {

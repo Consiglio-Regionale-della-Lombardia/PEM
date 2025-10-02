@@ -400,8 +400,10 @@ namespace PortaleRegione.Gateway
         public async Task<Dictionary<Guid, string>> GetByJson(Guid uidStampa)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetByJson}";
-            var bodyObject = new BaseRequest<StampaDto>();
-            bodyObject.id = uidStampa;
+            var bodyObject = new BaseRequest<StampaDto>
+            {
+                id = uidStampa
+            };
             var body = JsonConvert.SerializeObject(bodyObject);
             var res = await Post(requestUrl, body, _token);
             return JsonConvert.DeserializeObject<Dictionary<Guid, string>>(res);

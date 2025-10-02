@@ -36,8 +36,6 @@ namespace GeneraStampeJobFramework
             _model = model;
         }
 
-        public event EventHandler<bool> OnManagerFinish;
-
         public async Task Run()
         {
             log.Info("Manager.Run() - Avvio procedura stampe...");
@@ -74,12 +72,10 @@ namespace GeneraStampeJobFramework
                 }
 
                 log.Info("Manager.Run() - Tutte le stampe sono state processate.");
-                OnManagerFinish?.Invoke(this, true);
             }
             catch (Exception e)
             {
                 log.Error("Errore in Manager.Run()", e);
-                OnManagerFinish?.Invoke(this, false);
                 Console.WriteLine(e);
                 throw e;
             }

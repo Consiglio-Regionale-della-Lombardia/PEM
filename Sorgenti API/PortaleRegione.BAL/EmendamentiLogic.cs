@@ -882,6 +882,26 @@ namespace PortaleRegione.BAL
                             atto.Fascicoli_Da_Aggiornare = true;
                             await _unitOfWork.CompleteAsync();
                         }
+
+                    if (em.IDStato >= (int)StatiEnum.Depositato)
+                    {
+                        em.StampaValida = false;
+                        _unitOfWork.Stampe.Add(new STAMPE
+                        {
+                            UIDStampa = Guid.NewGuid(),
+                            UIDUtenteRichiesta = persona.UID_persona,
+                            CurrentRole = (int)persona.CurrentRole,
+                            DataRichiesta = DateTime.Now,
+                            UIDAtto = em.UIDAtto,
+                            Da = 1,
+                            A = 1,
+                            Ordine = 1,
+                            Notifica = true,
+                            Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                            UIDEM = em.UIDEM
+                        });
+                        await _unitOfWork.CompleteAsync();
+                    }
                 }
 
                 return results;
@@ -1006,7 +1026,23 @@ namespace PortaleRegione.BAL
                                     $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dall'emendamento in oggetto"
                             });
 
+                    em.StampaValida = false;
+                    _unitOfWork.Stampe.Add(new STAMPE
+                    {
+                        UIDStampa = Guid.NewGuid(),
+                        UIDUtenteRichiesta = persona.UID_persona,
+                        CurrentRole = (int)persona.CurrentRole,
+                        DataRichiesta = DateTime.Now,
+                        UIDAtto = em.UIDAtto,
+                        Da = 1,
+                        A = 1,
+                        Ordine = 1,
+                        Notifica = true,
+                        Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                        UIDEM = idGuid
+                    });
                     await _unitOfWork.CompleteAsync();
+                    
                     results.Add(n_em, "OK");
                     jumpMail = false;
                 }
@@ -1198,7 +1234,22 @@ namespace PortaleRegione.BAL
                     throw new Exception(
                         "Non è possibile ritirare l'emendamento durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
                 }
-
+                
+                em.StampaValida = false;
+                _unitOfWork.Stampe.Add(new STAMPE
+                {
+                    UIDStampa = Guid.NewGuid(),
+                    UIDUtenteRichiesta = persona.UID_persona,
+                    CurrentRole = (int)persona.CurrentRole,
+                    DataRichiesta = DateTime.Now,
+                    UIDAtto = em.UIDAtto,
+                    Da = 1,
+                    A = 1,
+                    Ordine = 1,
+                    Notifica = true,
+                    Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                    UIDEM = em.UIDEM
+                });
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)

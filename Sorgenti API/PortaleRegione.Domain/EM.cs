@@ -185,6 +185,11 @@ namespace PortaleRegione.Domain
         [Column("SubEM", TypeName = "int")]
         public int SubEM { get; set; }
 
+        public int VersioneStampa { get; set; } = 0;
+        public DateTime? DataUltimaStampa { get; set; }
+        public string PathStampa { get; set; }
+        public bool StampaValida { get; set; } = false;
+
         public static implicit operator EM(EmendamentiDto dto)
         {
             return new EM

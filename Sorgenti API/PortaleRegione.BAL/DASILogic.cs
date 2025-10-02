@@ -2137,7 +2137,23 @@ namespace PortaleRegione.API.Controllers
                 firma_utente.Data_ritirofirma =
                     CryptoHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                         AppSettingsConfiguration.masterKey);
-
+                
+                atto.StampaValida = false;
+                _unitOfWork.Stampe.Add(new STAMPE
+                {
+                    UIDStampa = Guid.NewGuid(),
+                    UIDUtenteRichiesta = persona.UID_persona,
+                    CurrentRole = (int)persona.CurrentRole,
+                    DataRichiesta = DateTime.Now,
+                    UIDAtto = atto.UIDAtto,
+                    Da = 1,
+                    A = 1,
+                    Ordine = 1,
+                    Notifica = true,
+                    Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                    DASI = true
+                });
+                
                 await _unitOfWork.CompleteAsync();
                 results.Add(nome_atto, "OK");
 
@@ -2797,7 +2813,22 @@ namespace PortaleRegione.API.Controllers
             var dataRitiro = DateTime.Now; 
             atto.DataRitiro = dataRitiro;
             atto.DataChiusuraIter = dataRitiro; // #1501
-
+            
+            atto.StampaValida = false;
+            _unitOfWork.Stampe.Add(new STAMPE
+            {
+                UIDStampa = Guid.NewGuid(),
+                UIDUtenteRichiesta = persona.UID_persona,
+                CurrentRole = (int)persona.CurrentRole,
+                DataRichiesta = DateTime.Now,
+                UIDAtto = atto.UIDAtto,
+                Da = 1,
+                A = 1,
+                Ordine = 1,
+                Notifica = true,
+                Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                DASI = true
+            });
             await _unitOfWork.CompleteAsync();
 
             var dto = await GetAttoDto(atto.UIDAtto);

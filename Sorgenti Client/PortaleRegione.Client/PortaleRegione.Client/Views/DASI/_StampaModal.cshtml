@@ -23,13 +23,6 @@
         </div>
     </div>
 </div>
-@{
-    var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
-    if (string.IsNullOrEmpty(mode))
-    {
-        mode = "1";
-    }
-}
 
 <script>
     function ConfirmStampa() {

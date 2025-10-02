@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 23/09/2025 11:47:17 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 02/10/2025 10:12:38 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -119,6 +119,10 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[UIDPersonaFlussoRespingi] [uniqueidentifier] NULL,
 	[DataFlussoRespingi] [datetime] NULL,
 	[Ritardo] [int] NOT NULL,
+	[VersioneStampa] [int] NOT NULL,
+	[DataUltimaStampa] [datetime] NULL,
+	[PathStampa] [varchar](max) NULL,
+	[StampaValida] [bit] NOT NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -193,6 +197,12 @@ ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Fluss__0F46ABAE]  
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Ritar__103ACFE7]  DEFAULT ((0)) FOR [Ritardo]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_VersioneStampa]  DEFAULT ((0)) FOR [VersioneStampa]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_StampaValida]  DEFAULT ((0)) FOR [StampaValida]
 GO
 
 
