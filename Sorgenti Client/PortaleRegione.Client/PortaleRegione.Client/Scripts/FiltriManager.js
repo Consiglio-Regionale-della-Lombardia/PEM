@@ -1525,6 +1525,13 @@ function filter_em_n_em_OnChange() {
     set_Filtri_EM(filtri_em);
 }
 
+function filter_subem_OnChange() {
+    var value = $("#filter_subem").is(":checked");
+    var filtri_em = get_Filtri_EM();
+    filtri_em.subem = value;
+    set_Filtri_EM(filtri_em);
+}
+
 function filter_em_stato_OnChange() {
     var value = $("#filter_em_stato").val();
     var filtri_em = get_Filtri_EM();

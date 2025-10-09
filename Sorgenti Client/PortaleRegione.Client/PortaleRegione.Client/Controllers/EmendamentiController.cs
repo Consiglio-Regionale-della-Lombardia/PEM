@@ -1216,6 +1216,7 @@ namespace PortaleRegione.Client.Controllers
             var filtro_proponente = Request.Form["filtro_proponente"];
             var filtro_firmatari = Request.Form["filtro_firmatari"];
             var filtro_tags = Request.Form["tags"];
+            var filtro_subem = Request.Form["filtro_subem"];
 
             mode = mode_result;
             if (ordine == 0)
@@ -1231,7 +1232,7 @@ namespace PortaleRegione.Client.Controllers
 
             Common.Utility.AddFilter_ByAtto(ref model, atto);
             Common.Utility.AddFilter_ByText(ref model, filtro_text1, filtro_text2, filtro_text_connector);
-            Common.Utility.AddFilter_ByNUM(ref model, filtro_n_em);
+            Common.Utility.AddFilter_ByNUM(ref model, filtro_n_em, filtro_subem);
             Common.Utility.AddFilter_ByState(ref model, filtro_stato);
             Common.Utility.AddFilter_ByPart(ref model,
                 filtro_parte, filtro_parte_titolo, filtro_parte_capo,
