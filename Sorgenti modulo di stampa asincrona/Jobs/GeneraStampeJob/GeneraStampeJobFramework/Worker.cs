@@ -372,6 +372,8 @@ namespace GeneraStampeJobFramework
                 var destinazioneDeposito = Path.Combine(pathRepository, nameFilePDF);
                 File.WriteAllBytes(destinazioneDeposito, content);
                 
+                // TODO: cancellare il documento precedente nel filesystem prima di creare la versione nuova
+                
                 _stampa.PathFile = item.PathStampa;
                 _stampa.UIDAtto = item.UIDAtto;
 
@@ -764,6 +766,8 @@ namespace GeneraStampeJobFramework
 
                 var destinazioneDeposito = Path.Combine(pathRepository, nameFilePDF);
                 File.WriteAllBytes(destinazioneDeposito, content);
+                
+                // TODO: cancellare il documento precedente nel filesystem prima di creare la versione nuova
                
                 emInDb.PathStampa = Path.Combine(pathAbsolute, nameFilePDF);
                 emInDb.StampaValida = true;

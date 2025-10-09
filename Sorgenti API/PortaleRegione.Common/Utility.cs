@@ -575,17 +575,35 @@ namespace PortaleRegione.Common
         /// </summary>
         /// <param name="model"></param>
         /// <param name="numero_em"></param>
-        public static void AddFilter_ByNUM(ref BaseRequest<EmendamentiDto> model, string numero_em)
+        public static void AddFilter_ByNUM(ref BaseRequest<EmendamentiDto> model, string numero_em, string subem)
         {
-            if (!string.IsNullOrEmpty(numero_em))
+            if (subem != "on")
             {
-                model.filtro.Add(new FilterStatement<EmendamentiDto>
+                // cerca emendamenti
+                if (!string.IsNullOrEmpty(numero_em))
                 {
-                    PropertyId = nameof(EmendamentiDto.N_EM),
-                    Operation = Operation.EqualTo,
-                    Value = numero_em,
-                    Connector = FilterStatementConnector.And
-                });
+                    model.filtro.Add(new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = nameof(EmendamentiDto.N_EM),
+                        Operation = Operation.EqualTo,
+                        Value = numero_em,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+            }
+            else
+            {
+                // cerca subemendamenti
+                if (!string.IsNullOrEmpty(numero_em))
+                {
+                    model.filtro.Add(new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = nameof(EmendamentiDto.N_SUBEM),
+                        Operation = Operation.EqualTo,
+                        Value = numero_em,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
             }
         }
 
