@@ -636,15 +636,15 @@ namespace PortaleRegione.API.Controllers
                 await _unitOfWork.CompleteAsync();
                 return;
             }
-
-            if (attoInDb.DCR is null && attoInDb.DCCR is null)
-            {
-                attoInDb.DCR = 0;
-                attoInDb.DCCR = 0;
-            }
-
-            request.DCCR_Speciale ??= "";
+            
+            attoInDb.DCR ??= 0;
+            attoInDb.DCCR ??= 0;
             attoInDb.DCCR_Speciale ??= "";
+
+            request.DCR ??= 0;
+            request.DCCR ??= 0;
+            request.DCCR_Speciale ??= "";
+
             attoInDb.DCRL ??= dto.GetLegislatura();
 
             if (!attoInDb.DCRL.Equals(request.DCRL)
@@ -5731,14 +5731,12 @@ namespace PortaleRegione.API.Controllers
                             atto.DCRL = parti[parti.Length - 1];
                     }
 
-                if (atto.DCR is null
-                    && atto.DCCR is null)
-                {
-                    atto.DCR = 0;
-                    atto.DCCR = 0;
-                }
-
+                atto.DCR ??= 0;
+                atto.DCCR ??= 0;
                 atto.DCCR_Speciale ??= "";
+
+                datiInline.DCR ??= "0";
+                datiInline.DCCR ??= "0";
                 datiInline.DCCR_Speciale ??= "";
 
                 if (!atto.DCR.Equals(int.Parse(datiInline.DCR))

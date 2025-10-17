@@ -25,21 +25,21 @@
         <li>
             <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
                     data-position="left" data-tooltip="Depositato"
-                    onclick="CambioStatoMassivoDASI(@((int)StatiAttoEnum.PRESENTATO), '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO))')">
+                    onclick="aprireModalProgressoCambioStatoMassivoDASI(@((int)StatiAttoEnum.PRESENTATO));">
                 <i class="material-icons">lock</i>
             </button>
         </li>
         <li>
             <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
                     data-position="left" data-tooltip="In Trattazione"
-                    onclick="CambioStatoMassivoDASI(@((int)StatiAttoEnum.IN_TRATTAZIONE), '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE))')">
+                    onclick="aprireModalProgressoCambioStatoMassivoDASI(@((int)StatiAttoEnum.IN_TRATTAZIONE));">
                 <i class="material-icons">settings_input_antenna</i>
             </button>
         </li>
         <li>
             <button type="button" role="button" class="btn-floating btn-large black white-text tooltipped"
                     data-position="left" data-tooltip="Chiuso"
-                    onclick="CambioStatoMassivoDASI(@((int)StatiAttoEnum.COMPLETATO), '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO))')">
+                    onclick="aprireModalProgressoCambioStatoMassivoDASI(@((int)StatiAttoEnum.COMPLETATO));">
                 <i class="material-icons">storage</i>
             </button>
         </li>
@@ -259,6 +259,49 @@
     </div>
 </div>
 
+<div id="modalProgressoMassivo" class="modal" style="max-width: 600px;">
+    <div class="modal-content">
+        <h4>Elaborazione in corso...</h4>
+        <p id="progressoDescrizioneOperazione">Cambio stato massivo in corso</p>
+        
+        <!-- Progress bar principale -->
+        <div class="progress-container" style="margin: 20px 0;">
+            <div class="progress">
+                <div id="progressBarPrincipale" class="determinate" style="width: 0"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                <span id="progressoPagineText">Pagina 0 di 0</span>
+                <span id="progressoPercentuale">0%</span>
+            </div>
+        </div>
+
+        <!-- Informazioni dettagliate -->
+        <div class="card-panel blue lighten-5">
+            <p><strong>Totale atti:</strong> <span id="infoTotaleAtti"></span></p>
+            <p><strong>Atti elaborati:</strong> <span id="infoAttiElaborati">0</span></p>
+            <p><strong>Tempo stimato rimasto:</strong> <span id="infoTempoStimato">Calcolando...</span></p>
+        </div>
+
+        <!-- Log operazioni -->
+        <div class="card-panel grey lighten-4" style="max-height: 200px; overflow-y: auto;">
+            <h6>Log operazioni:</h6>
+            <div id="logOperazioni">
+                <p class="grey-text">Inizializzazione...</p>
+            </div>
+        </div>
+
+        <!-- Controlli -->
+        <div class="modal-footer" style="position: unset !important;">
+            <button id="btnInterrompiOperazione" type="button" class="btn red" disabled>
+                <i class="material-icons left">stop</i>Interrompi
+            </button>
+            <button id="btnChiudiProgresso" type="button" class="btn grey modal-close" style="display: none;" onclick="setTimeout(function () {location.reload(); }, 1500);">
+                Chiudi
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function () {
         $('.fixed-action-btn').floatingActionButton({
@@ -333,7 +376,6 @@
         waiting(false);
         $("#modalModificaMassiva").modal("open");
     }
-
 
     document.getElementById('btnAutocompletamentoDCR').addEventListener('click', function () {
         $("#modalModificaMassiva").modal("close");
@@ -670,5 +712,186 @@
                 }
             });
         });
+    }
+
+    async function aprireModalProgressoCambioStatoMassivoDASI(stato){
+        var totaleRisultati = $(".pagination").data("totale-risultati");
+        var numSelezionatiGriglia = $(".pagination").data("risultati-pagina");
+
+        swal({
+            title: "Conferma azione",
+            text: "Sei sicuro di voler eseguire l'azione di cambio massivo stato?",
+            icon: "info",
+            buttons: {
+                cancel: "Annulla",
+                tutti: {
+                    text: `Esegui (${totaleRisultati})`,
+                    value: "tutti",
+                    className: "amber"
+                },
+                griglia: {
+                    text: `Esegui (${numSelezionatiGriglia})`,
+                    value: "griglia",
+                    className: "blue"
+                }
+            }
+        }).then(async (value) => {
+            if (value === "griglia") {
+                // Flusso normale - solo atti selezionati in griglia
+                await CambioStatoMassivoDASI(stato);
+            } else if (value === "tutti") {
+                // Nuovo flusso - tutti gli atti con progress modal
+                var totalePagine = $(".pagination").data("totale-pagine");
+                await aprireModalProgresso(stato, totalePagine, totaleRisultati);
+            }
+        });
+    }
+    
+    async function aprireModalProgresso(stato, totalePagine, totaleRisultati) {
+        // Reset variabili
+        operazioneInterrotta = false;
+        tempoInizioOperazione = new Date();
+        contatorePagineElaborate = 0;
+
+        // Imposta i valori nella modal
+        document.getElementById('infoTotaleAtti').textContent = totaleRisultati;
+        document.getElementById('infoAttiElaborati').textContent = '0';
+        document.getElementById('progressoPagineText').textContent = `Pagina 0 di ${totalePagine}`;
+        document.getElementById('progressoPercentuale').textContent = '0%';
+        document.getElementById('progressBarPrincipale').style.width = '0%';
+
+        // Reset log
+        document.getElementById('logOperazioni').innerHTML = '<p class="grey-text">Inizializzazione...</p>';
+
+        // Configura i bottoni
+        document.getElementById('btnInterrompiOperazione').disabled = false;
+        document.getElementById('btnChiudiProgresso').style.display = 'none';
+
+        // Event listeners
+        document.getElementById('btnInterrompiOperazione').onclick = function() {
+            operazioneInterrotta = true;
+            this.disabled = true;
+            this.innerHTML = '<i class="material-icons left">hourglass_empty</i>Interruzione...';
+            aggiungiLogEntry('Richiesta interruzione operazione...', 'orange-text');
+            document.getElementById('btnChiudiProgresso').style.display = 'inline-block';
+        };
+
+        // Apre la modal
+        $('#modalProgressoMassivo').modal({
+            dismissible: false,
+            onCloseEnd: function() {
+                operazioneInterrotta = true;
+            }
+        });
+        $('#modalProgressoMassivo').modal('open');
+
+        // Inizia l'elaborazione
+        await avviaElaborazioneMassiva(stato, totalePagine);
+    }
+
+    async function avviaElaborazioneMassiva(stato, totalePagine) {
+        aggiungiLogEntry('Inizio elaborazione massiva...', 'blue-text');
+
+        let attiElaboratiTotali = 0;
+        const risultatiPerPagina = $(".pagination").data("risultati-pagina");
+
+        try {
+            for (let paginaCorrente = 1; paginaCorrente <= totalePagine; paginaCorrente++) {
+                if (operazioneInterrotta) {
+                    aggiungiLogEntry('Operazione interrotta dall\'utente', 'red-text');
+                    break;
+                }
+
+                aggiungiLogEntry(`Elaborazione pagina ${paginaCorrente} di ${totalePagine}...`);
+
+                // Aggiorna progress bar
+                const percentualeProgresso = Math.round((contatorePagineElaborate / totalePagine) * 100);
+                aggiornareProgressBar(paginaCorrente, totalePagine, percentualeProgresso, attiElaboratiTotali);
+
+                try {
+                    // Ottiene i GUID per la pagina corrente
+                    const guidsPerPagina = await inviaDatiChipsSoloIds(paginaCorrente, risultatiPerPagina);
+
+                    if (guidsPerPagina && guidsPerPagina.length > 0) {
+                        // Esegue l'operazione di cambio stato per questa pagina
+                        await CambioStatoMassivoDASISoloIds(stato, guidsPerPagina);
+
+                        attiElaboratiTotali += guidsPerPagina.length;
+                        aggiungiLogEntry(`Pagina ${paginaCorrente} completata: ${guidsPerPagina.length} atti elaborati`, 'green-text');
+                    } else {
+                        aggiungiLogEntry(`Pagina ${paginaCorrente}: nessun atto trovato`, 'orange-text');
+                    }
+
+                    contatorePagineElaborate++;
+
+                    // Timeout tra le chiamate per dare respiro all'API
+                    if (paginaCorrente < totalePagine && !operazioneInterrotta) {
+                        await sleep(2000); // 1 secondo di pausa
+                    }
+
+                } catch (error) {
+                    aggiungiLogEntry(`Errore pagina ${paginaCorrente}: ${error.message}`, 'red-text');
+                    // Continua con la pagina successiva invece di fermare tutto
+                }
+            }
+
+            // Operazione completata
+            if (!operazioneInterrotta) {
+                const percentualeFinale = 100;
+                aggiornareProgressBar(totalePagine, totalePagine, percentualeFinale, attiElaboratiTotali);
+                aggiungiLogEntry(`Operazione completata! ${attiElaboratiTotali} atti elaborati`, 'green-text text-darken-2');
+
+                // Configura i bottoni per la chiusura
+                document.getElementById('btnInterrompiOperazione').style.display = 'none';
+                document.getElementById('btnChiudiProgresso').style.display = 'inline-block';
+                document.getElementById('btnChiudiProgresso').onclick = function() {
+                    $('#modalProgressoMassivo').modal('close');
+                    location.reload(); // Ricarica la pagina per aggiornare i dati
+                };
+            }
+
+        } catch (error) {
+            aggiungiLogEntry(`Errore critico: ${error.message}`, 'red-text');
+            document.getElementById('btnInterrompiOperazione').style.display = 'none';
+            document.getElementById('btnChiudiProgresso').style.display = 'inline-block';
+        }
+    }
+
+    function aggiornareProgressBar(paginaCorrente, totalePagine, percentuale, attiElaborati) {
+        document.getElementById('progressBarPrincipale').style.width = percentuale + '%';
+        document.getElementById('progressoPagineText').textContent = `Pagina ${paginaCorrente} di ${totalePagine}`;
+        document.getElementById('progressoPercentuale').textContent = percentuale + '%';
+        document.getElementById('infoAttiElaborati').textContent = attiElaborati;
+
+        // Calcola tempo stimato
+        if (tempoInizioOperazione && contatorePagineElaborate > 0) {
+            const tempoTrascorso = (new Date() - tempoInizioOperazione) / 1000; // in secondi
+            const tempoPerPagina = tempoTrascorso / contatorePagineElaborate;
+            const pagineRimaste = totalePagine - contatorePagineElaborate;
+            const tempoStimato = Math.round(tempoPerPagina * pagineRimaste);
+
+            document.getElementById('infoTempoStimato').textContent =
+                tempoStimato > 60 ? `${Math.round(tempoStimato / 60)} minuti` : `${tempoStimato} secondi`;
+        }
+    }
+
+    function aggiungiLogEntry(messaggio, classe = '') {
+        const logContainer = document.getElementById('logOperazioni');
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement('p');
+        logEntry.className = classe;
+        logEntry.innerHTML = `<small>${timestamp}</small> - ${messaggio}`;
+
+        // Inserisce il nuovo log all'inizio invece che alla fine
+        logContainer.insertBefore(logEntry, logContainer.firstChild);
+
+        // Mantiene solo gli ultimi 50 log per evitare accumulo eccessivo
+        while (logContainer.children.length > 50) {
+            logContainer.removeChild(logContainer.lastChild);
+        }
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 </script>

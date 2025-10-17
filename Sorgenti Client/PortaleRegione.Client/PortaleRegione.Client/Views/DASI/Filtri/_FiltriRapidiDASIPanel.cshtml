@@ -816,6 +816,76 @@ else
         waiting(false);
     }
 
+    async function inviaDatiChipsSoloIds(page, size) {
+        if (!page) {
+            page = 1;
+        }
+        if (!size) {
+            size = 20;
+        }
+
+        var view = localStorage.getItem('viewModeDasi');
+        var clientMode = localStorage.getItem('clientMode');
+        
+        var paging = {};
+        paging.page = page;
+        paging.size = size;
+
+        var request = {};
+        var chipsData = [];
+        document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function(chip) {
+            if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
+                chipsData.push({
+                    property: chip.getAttribute('data-filterby'),
+                    value: '',
+                    not_empty: true
+                });
+            } else {
+                chipsData.push({
+                    property: chip.getAttribute('data-filterby'),
+                    value: chip.getAttribute('data-val')
+                });
+            }
+        });
+
+        try {
+            request.filters = chipsData;
+            request.page = page;
+            request.size = size;
+            request.viewMode = view;
+            request.clientMode = clientMode;
+
+            const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
+
+            // Aggiungi le impostazioni di ordinamento alla richiesta
+            request.sort_settings = savedSortColumns;
+
+            // Invia la richiesta al server
+            const response = await fetch('@Url.Action("RiepilogoSoloIds")',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(request)
+                });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            responseData = await response.json();
+            if (responseData.message) {
+                ErrorAlert(responseData.message);
+                return;
+            }
+            
+            return responseData;
+        } catch (error) {
+            console.error('Errore durante l\'invio dei dati delle chips solo ids:', error);
+        }
+    }
+
     var responseData = {};
     var risultatiTabella = [];
     
@@ -1359,7 +1429,7 @@ else
         var risultatiPerPagina = data.Data.Paging.Limit;
 
         // Elemento HTML per la paginazione
-        var paginationHTML = `<ul class="pagination">`;
+        var paginationHTML = `<ul class="pagination" data-totale-pagine="${totalePagine}" data-totale-risultati="${totaleRisultati}" data-risultati-pagina="${risultatiPerPagina}" data-pagina-corrente="${paginaCorrente}">`;
 
         // Aggiungi controlli di navigazione se necessario
         if (data.Data.Paging.Has_Prev) {

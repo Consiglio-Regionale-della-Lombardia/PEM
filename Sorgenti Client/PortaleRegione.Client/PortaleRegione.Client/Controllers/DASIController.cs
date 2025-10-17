@@ -142,6 +142,59 @@ namespace PortaleRegione.Client.Controllers
         }
 
         [HttpPost]
+        [Route("riepilogoSoloIds")]
+        public async Task<ActionResult> RiepilogoSoloIds(FilterRequest model)
+        {
+            try
+            {
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = 20,
+                    param = new Dictionary<string, object>
+                    {
+                        { "CLIENT_MODE", model.clientMode },
+                        { nameof(FilterRequest.viewMode), model.viewMode }
+                    }
+                };
+
+                if (!model.filters.Any())
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                // #990
+                if (model.sort_settings.Any())
+                {
+                    request.dettagliOrdinamento = model.sort_settings;
+                }
+                
+                // #1191
+                if (model.columns_settings.Any())
+                {
+                    request.columns = model.columns_settings;
+                }
+
+                request.page = model.page;
+                request.size = model.size;
+
+                var apiGateway = new ApiGateway(Token);
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
+
+                var res = await apiGateway.DASI.GetSoloIds(request);
+                return Json(res);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
         [Route("salva-gruppo-filtri")]
         public async Task<ActionResult> SalvaGruppoFiltri(FiltroPreferitoDto model)
         {

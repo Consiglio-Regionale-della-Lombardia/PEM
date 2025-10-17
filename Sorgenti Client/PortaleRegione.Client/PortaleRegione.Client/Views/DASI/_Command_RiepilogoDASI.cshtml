@@ -12,15 +12,15 @@
         <label>
             <input type="checkbox" id="checkAll" onclick="checkAllFunc(this)"/>
             <span for="checkAll">
-                Seleziona tutti
+                Seleziona tutto
             </span>
         </label>
 
         @if (!Model.CurrentUser.IsSegreteriaAssemblea)
         {
-            <br />
+            <br/>
             <label>
-                <input type="checkbox" id="expandAll" />
+                <input type="checkbox" id="expandAll"/>
                 <span for="expandAll">
                     Espandi tutti
                 </span>
@@ -29,9 +29,9 @@
 
         @if (Model.CurrentUser.IsConsigliereRegionale && Model.ClientMode == ClientModeEnum.GRUPPI)
         {
-            <br />
+            <br/>
             <label>
-                <input type="checkbox" id="checkAllMy" onchange="filtraDASI_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "") />
+                <input type="checkbox" id="checkAllMy" onchange="filtraDASI_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>
                 <span for="checkAllMy">Visualizza 20 ATTI in bozza per i quali è richiesta la mia firma</span>
             </label>
         }

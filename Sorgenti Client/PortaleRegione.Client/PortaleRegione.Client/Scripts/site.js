@@ -1000,7 +1000,6 @@ function CambioStatoMassivo(stato, descr) {
         });
 }
 
-
 async function CambioStatoMassivoDASI(stato, descr) {
 	waiting(true);
 	var request = {};
@@ -1071,6 +1070,50 @@ async function CambioStatoMassivoDASI(stato, descr) {
     setTimeout(function () {
 	    location.reload();
     }, 1500);
+}
+
+async function CambioStatoMassivoDASISoloIds(stato, lista) {
+	var request = {};
+	request.Lista = [];
+
+    lista.forEach(uid => {
+	    // Crea un oggetto per ogni atto
+	    let attoData = {
+		    uid: uid
+	    };
+
+	    // Aggiungi l'oggetto alla lista di dati da inviare
+	    request.Lista.push(attoData);
+    });
+
+    let datiDaInviare = {};
+    datiDaInviare.statoCheck = true;
+    datiDaInviare.stato = stato;
+
+    request.Dati = datiDaInviare;
+
+    var url = baseUrl + '/dasi/salva-comando-massivo';
+
+    const response = await fetch(url, {
+	    method: 'POST',
+	    headers: {
+		    'Content-Type': 'application/json'
+	    },
+	    body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+	    waiting(false);
+	    throw new Error('Network response was not ok');
+    }
+
+    try {
+	    const errorData = await response.json();
+	    if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+    } catch (error) {
+	    // ignored
+    }
 }
 
 function GetPersoneFromDB() {
