@@ -369,8 +369,15 @@
 			}
 		</div>
 		<div class="col s6 right-align">
+			@if (atto.UIDPersonaCreazione != atto.UIDPersonaProponente)
+			{
+				<label style="font-size: small !important">Creato da: </label>
+				<br/>
+				<b>@atto.PersonaCreazione.DisplayName</b>
+				<br/>	
+			}
 			<label style="font-size: small !important">Proponente: </label>
-			<br />
+			<br/>
 			<b>@atto.PersonaProponente.DisplayName</b>
 		</div>
 	</div>

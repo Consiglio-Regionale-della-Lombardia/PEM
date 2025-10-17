@@ -163,6 +163,15 @@ else
         <div class="collapsible-body" style="display: block;">
         <div class="row">
             <div class="col s12">
+                @if (item.UIDPersonaCreazione != item.UIDPersonaProponente)
+                {
+                    <label>Creato da:</label>
+                    <span class="black-text tooltipped">
+                        @item.PersonaCreazione.DisplayName
+                    </span>
+                    <br/>
+                }
+                
                 @{
                     var tooltipStato = "Non ancora depositato";
                     var labelStato = Utility.GetText_StatoDASI(item.IDStato);
