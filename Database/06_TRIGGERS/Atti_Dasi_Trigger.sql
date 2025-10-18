@@ -37,7 +37,8 @@ BEGIN
          [CompetenzaMonitoraggio], [MonitoraggioConcluso], [DataTrasmissioneMonitoraggio], [IterMultiplo], [UIDPersonaRelatore1],
          [UIDPersonaRelatore2], [UIDPersonaRelatoreMinoranza], [TipoChiusuraIterCommissione], [DataChiusuraIterCommissione],
          [TipoVotazioneIterCommissione], [RisultatoVotazioneIterCommissione], [DataSedutaRisposta], [DataComunicazioneAssembleaRisposta],
-         [DataProposta], [DataTrasmissione], [FlussoRespingi], [UIDPersonaFlussoRespingi], [DataFlussoRespingi], [Ritardo]
+         [DataProposta], [DataTrasmissione], [FlussoRespingi], [UIDPersonaFlussoRespingi], [DataFlussoRespingi], [Ritardo], [VersioneStampa],
+		 [DataUltimaStampa], [PathStampa], [StampaValida]
     )
     SELECT
          @DatAudit, @UteAudit,
@@ -62,7 +63,8 @@ BEGIN
          d.[CompetenzaMonitoraggio], d.[MonitoraggioConcluso], d.[DataTrasmissioneMonitoraggio], d.[IterMultiplo], d.[UIDPersonaRelatore1],
          d.[UIDPersonaRelatore2], d.[UIDPersonaRelatoreMinoranza], d.[TipoChiusuraIterCommissione], d.[DataChiusuraIterCommissione],
          d.[TipoVotazioneIterCommissione], d.[RisultatoVotazioneIterCommissione], d.[DataSedutaRisposta], d.[DataComunicazioneAssembleaRisposta],
-         d.[DataProposta], d.[DataTrasmissione], d.[FlussoRespingi], d.[UIDPersonaFlussoRespingi], d.[DataFlussoRespingi], d.[Ritardo]
+         d.[DataProposta], d.[DataTrasmissione], d.[FlussoRespingi], d.[UIDPersonaFlussoRespingi], d.[DataFlussoRespingi], d.[Ritardo], d.[VersioneStampa],
+		 d.[DataUltimaStampa], d.[PathStampa], d.[StampaValida]
     FROM deleted d;
 END
 GO
