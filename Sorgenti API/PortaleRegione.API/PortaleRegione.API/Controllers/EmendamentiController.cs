@@ -300,13 +300,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var countFirme = await _firmeLogic.CountFirme(id);
-                if (countFirme > 1)
-                {
-                    return BadRequest(
-                        $"Non è possibile modificare l'emendamento. Ci sono ancora {countFirme} firme attive.");
-                }
-
                 return Ok(await _emendamentiLogic.ModelloModificaEM(await _emendamentiLogic.GetEM(id), CurrentUser));
             }
             catch (Exception e)
@@ -423,16 +416,6 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 var user = CurrentUser;
-                if (!user.IsSegreteriaAssemblea)
-                {
-                    var countFirme = await _firmeLogic.CountFirme(model.UIDEM);
-                    if (countFirme > 1)
-                    {
-                        return BadRequest(
-                            $"Non è possibile modificare l'emendamento. Ci sono ancora {countFirme} attive.");
-                    }
-                }
-
                 await _emendamentiLogic.ModificaEmendamento(model, em, user);
 
                 return Ok();

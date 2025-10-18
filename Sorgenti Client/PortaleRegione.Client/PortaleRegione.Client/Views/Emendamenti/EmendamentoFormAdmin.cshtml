@@ -61,7 +61,7 @@
 		<h4>
 			<b>
 				<span>@ViewBag.Title</span>
-				<input id="hfIsNew" type="hidden" value="@isNew"/>
+				<input id="hfIsNew" type="hidden" value="@(isNew ? 1 : 0)"/>
 			</b>
 		</h4>
 	</div>
@@ -138,6 +138,7 @@
 					@Html.HiddenFor(m => m.Emendamento.DataModifica)
 					@Html.HiddenFor(m => m.Emendamento.UIDPersonaModifica)
 					@Html.HiddenFor(m => m.Emendamento.UID_QRCode)
+					@Html.HiddenFor(m => m.Emendamento.ConteggioFirme)
 
 					<div class="row">
 						<div class="col s12 form-group">

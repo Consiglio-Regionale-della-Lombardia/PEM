@@ -14,6 +14,38 @@
         });
     $("#btnSave").on("click",
         function() {
+            var isNew = $("#hfIsNew").val();
+            if (isNew == 0) {
+                console.log("MODIFICA", isNew)
+
+                var conteggioFirme = $("#Atto_ConteggioFirme").val();
+                
+                console.log("Firme", conteggioFirme)
+                
+                if (conteggioFirme > 1) {
+                    // avviso modifica con più firmatari
+                    swal({
+                        title: "ATTENZIONE",
+                        text: "Stai modificando un atto sottoscritto da più consiglieri. Se continui le firme dei consiglieri, esclusa quella del proponente, verranno eliminate e l’atto dovrà essere sottoscritto nuovamente. Procedere comunque?",
+                        icon: "warning",
+                        buttons: {
+                            cancel: "Annulla",
+                            confirm: {
+                                className: "blue white-text",
+                                title: "Procedi",
+                                value: true
+                            }
+                        }
+                    }).then((value) => {
+                        if (value == true) {
+                            $('#formDASI').submit();
+                            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                        }
+                    });
+                    
+                    return;
+                }
+            }
 
             if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG) && $('#Atto_Non_Passaggio_In_Esame').is(":checked")) {
                 swal({
@@ -268,9 +300,10 @@
                         icon: "error"
                     });
                 } else {
+                    var isNew = $("#hfIsNew").val();
                     swal({
                         title: "Procedura completata",
-                        text: "Atto inserito correttamente a sistema.",
+                        text: isNew == 1 ? "Atto inserito correttamente a sistema." : "Atto modificato correttamente.",
                         icon: "success"
                     }).then((value) => {
 						go(data);

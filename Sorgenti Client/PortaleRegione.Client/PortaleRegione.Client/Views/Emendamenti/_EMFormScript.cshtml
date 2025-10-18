@@ -88,13 +88,46 @@
 
     $("#btnSave").on("click",
         function() {
+            var isNew = $("#hfIsNew").val();
+            if (isNew == 0) {
+                console.log("MODIFICA", isNew)
+
+                var conteggioFirme = $("#Emendamento_ConteggioFirme").val();
+
+                console.log("Firme", conteggioFirme)
+
+                if (conteggioFirme > 1) {
+                    // avviso modifica con più firmatari
+                    swal({
+                        title: "ATTENZIONE",
+                        text: "Stai modificando un atto sottoscritto da più consiglieri. Se continui le firme dei consiglieri, esclusa quella del proponente, verranno eliminate e l’atto dovrà essere sottoscritto nuovamente. Procedere comunque?",
+                        icon: "warning",
+                        buttons: {
+                            cancel: "Annulla",
+                            confirm: {
+                                className: "blue white-text",
+                                title: "Procedi",
+                                value: true
+                            }
+                        }
+                    }).then((value) => {
+                        if (value == true) {
+                            $('#formEmendamento').submit();
+                        }
+                    });
+
+                    return;
+                }
+            }
+            
             $('#formEmendamento').submit();
         });
+    
     $("#formEmendamento").submit(function(e) {
         e.preventDefault();
     }).validate({
         submitHandler: function (form) {
-waiting(true);
+            waiting(true);
             var docAllegatoGenerico;
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
             if (inputsAllegatoGenerico.length != 0) {

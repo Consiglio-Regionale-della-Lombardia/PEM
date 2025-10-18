@@ -1075,8 +1075,7 @@ namespace PortaleRegione.Persistance
                        || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
 
             return (em.UIDPersonaProponente == persona.UID_persona || em.UIDPersonaCreazione == persona.UID_persona)
-                   && (em.IDStato == (int)StatiEnum.Bozza || em.IDStato == (int)StatiEnum.Bozza_Riservata)
-                   && em.ConteggioFirme == 1;
+                   && (em.IDStato == (int)StatiEnum.Bozza || em.IDStato == (int)StatiEnum.Bozza_Riservata);
         }
 
         public async Task<int> GetOrdinePresentazione(Guid uidAtto)

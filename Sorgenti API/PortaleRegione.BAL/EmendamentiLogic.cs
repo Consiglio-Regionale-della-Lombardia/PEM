@@ -419,24 +419,12 @@ namespace PortaleRegione.BAL
 
                 em.Tags = model.Tags;
 
-                var countFirme = await _unitOfWork.Firme.CountFirme(model.UIDEM);
-
-                if (!string.IsNullOrEmpty(em.EM_Certificato) && countFirme == 1)
-                {
-                    //cancelliamo firme - notifiche - stampe
-                    em.UIDPersonaPrimaFirma = Guid.Empty;
-                    em.DataPrimaFirma = null;
-                    em.EM_Certificato = string.Empty;
-                    em.Hash = string.Empty;
-                    await _unitOfWork.Firme.CancellaFirme(model.UIDEM);
-                }
-
                 if (em.IDStato < (int)StatiEnum.Depositato)
                 {
                     em.UIDPersonaModifica = persona.UID_persona;
                     em.DataModifica = DateTime.Now;
                 }
-                
+
                 if (model.DocAllegatoGenerico_Stream != null)
                 {
                     var path = ByteArrayToFile(model.DocAllegatoGenerico_Stream);
@@ -476,6 +464,60 @@ namespace PortaleRegione.BAL
                             await _unitOfWork.CompleteAsync();
                         }
                     }
+                }
+
+                var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.ATTIVI);
+
+                if (!string.IsNullOrEmpty(em.EM_Certificato))
+                {
+                    var firmatari = new List<string>();
+                    foreach (var firma in firme.Where(i => i.UID_persona != em.UIDPersonaProponente))
+                    {
+                        var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
+                        firmatari.Add(firmatario.email);
+                    }
+
+                    if (firmatari.Count > 0)
+                    {
+                        try
+                        {
+                            EM em2 = null;
+                            if (em.Rif_UIDEM.HasValue)
+                            {
+                                em2 = await GetEM(em.Rif_UIDEM.Value);
+                            }
+
+                            var nome_em = GetNomeEM(em, em2);
+                            var mailModel = new MailModel
+                            {
+                                DA = persona.email,
+                                A = firmatari.Aggregate((i, j) => i + ";" + j),
+                                OGGETTO =
+                                    $"{nome_em} modificato dal consigliere proponente",
+                                MESSAGGIO =
+                                    $"{persona.DisplayName} ha modificato {nome_em}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. <br> Contatta il proponente per firmare nuovamente l’atto. {GetBodyFooterMail()}"
+                            };
+                            await _logicUtil.InvioMail(mailModel);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error("Invio mail", e);
+                        }
+
+                        await _logicFirme.RimuoviFirme(em);
+                        await _unitOfWork.CompleteAsync();
+                    }
+                    
+                    //re-crypt del testo certificato
+                    var emDto = await GetEM_DTO(em);
+                    emDto.EM_Certificato = string.Empty;
+                    var body = await GetBodyEM(emDto,
+                        firme.Where(item => item.UID_persona == em.UIDPersonaProponente).ToList(), persona,
+                        TemplateTypeEnum.FIRMA);
+                    var body_encrypt = CryptoHelper.EncryptString(body, BALHelper.Decrypt(em.Hash));
+
+                    em.EM_Certificato = body_encrypt;
+                    await _unitOfWork.CompleteAsync();
                 }
             }
             catch (Exception e)

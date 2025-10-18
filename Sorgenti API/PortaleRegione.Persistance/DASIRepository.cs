@@ -308,7 +308,7 @@ namespace PortaleRegione.Persistance
             return (dto.UIDPersonaProponente == persona.UID_persona ||
                     dto.UIDPersonaCreazione == persona.UID_persona)
                    && (dto.IDStato == (int)StatiAttoEnum.BOZZA ||
-                       dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA) && dto.ConteggioFirme == 1 &&
+                       dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA) &&
                    dto.Firmato_Dal_Proponente;
         }
 

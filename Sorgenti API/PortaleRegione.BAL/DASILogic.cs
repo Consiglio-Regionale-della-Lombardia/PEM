@@ -234,39 +234,37 @@ namespace PortaleRegione.API.Controllers
                 // Quando un atto in bozza è già stato firmato da altri consiglieri e viene modificato dal proponente,
                 // il sistema deve invalidare le firme ed inviare una notifica ad ogni firmatario
                 var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
-                if (firme.Count(i => i.UID_persona != currentUser.UID_persona) > 0)
+
+                var firmatari = new List<string>();
+                foreach (var firma in firme.Where(i => i.UID_persona != currentUser.UID_persona))
                 {
-                    var firmatari = new List<string>();
-                    foreach (var firma in firme.Where(i => i.UID_persona != currentUser.UID_persona))
+                    var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
+                    firmatari.Add(firmatario.email);
+                }
+
+                if (firmatari.Count > 0)
+                {
+                    try
                     {
-                        var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
-                        firmatari.Add(firmatario.email);
+                        var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
+                        var mailModel = new MailModel
+                        {
+                            DA = currentUser.email,
+                            A = firmatari.Aggregate((i, j) => i + ";" + j),
+                            OGGETTO =
+                                $"Atto {nome_atto} modificato dal consigliere proponente",
+                            MESSAGGIO =
+                                $"{currentUser.DisplayName_GruppoCode} ha modificato l'atto {nome_atto} con oggetto {attoInDb.Oggetto}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. <br> Contatta il proponente per firmare nuovamente l’atto. {GetBodyFooterMail()}"
+                        };
+                        await _logicUtil.InvioMail(mailModel);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Invio mail", e);
                     }
 
-                    if (firmatari.Count > 0)
-                    {
-                        try
-                        {
-                            var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
-                            var mailModel = new MailModel
-                            {
-                                DA = currentUser.email,
-                                A = firmatari.Aggregate((i, j) => i + ";" + j),
-                                OGGETTO =
-                                    $"Atto {nome_atto} modificato dal consigliere proponente",
-                                MESSAGGIO =
-                                    $"{currentUser.DisplayName_GruppoCode} ha modificato l'atto {nome_atto} con oggetto {attoInDb.Oggetto}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. <br> Contatta il proponente per firmare nuovamente l’atto. {GetBodyFooterMail()}"
-                            };
-                            await _logicUtil.InvioMail(mailModel);
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error("Invio mail", e);
-                        }
-
-                        await _logicAttiFirme.RimuoviFirme(attoInDb);
-                        await _unitOfWork.CompleteAsync();
-                    }
+                    await _logicAttiFirme.RimuoviFirme(attoInDb);
+                    await _unitOfWork.CompleteAsync();
                 }
 
                 //re-crypt del testo certificato

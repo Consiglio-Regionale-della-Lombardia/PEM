@@ -118,11 +118,6 @@ namespace PortaleRegione.API.Controllers
                 if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea)
                     return NotFound();
 
-                var countFirme = await _attiFirmeLogic.CountFirme(id);
-                if (countFirme > 1 && (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea))
-                    throw new InvalidOperationException(
-                        $"Non è possibile modificare l'atto. Ci sono ancora {countFirme} firme attive.");
-
                 return Ok(await _dasiLogic.ModificaModello(atto, currentUser));
             }
             catch (Exception e)
