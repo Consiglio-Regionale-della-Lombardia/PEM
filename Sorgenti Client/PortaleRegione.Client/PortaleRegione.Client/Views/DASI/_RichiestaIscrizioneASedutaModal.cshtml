@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
 @model bool
 <!-- Modal Structure -->
 <div id="modalIscriviSeduta" class="modal bottom-sheet">
@@ -26,6 +27,14 @@
         var checked = sedute.length == 1;
         $.each(sedute,
             function(i, item) {
+
+                if (tipoAtto == '@((int)TipoAttoEnum.IQT)' && item.Riservato_DASI_IQT != true){
+                    return true;
+                }
+                if (tipoAtto == '@((int)TipoAttoEnum.MOZ)' && item.Riservato_DASI_MOZ != true){
+                    return true;
+                }
+            
                 var resultDate = GetFormattedDate(item.Data_seduta);
                 var addtext = "";
                 if (tipoAtto == @((int)TipoAttoEnum.MOZ)) {

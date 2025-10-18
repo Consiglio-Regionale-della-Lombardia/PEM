@@ -633,8 +633,27 @@
     $(window).on("load",
         async function() {
             if (sedute.length == 0) {
+				console.log("SEDUTE ATTIVE")
                 var data = await GetSeduteAttive();
-                sedute = data.Results;
+				if ('@atto.DisplayTipo' == '@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)'){
+					console.log("Sono una IQT! :)", data.Results);
+					$.each(data.Results, function(index, item){
+						if (item.Riservato_DASI_IQT == true) {
+							sedute.push(item);
+						}
+					});
+					return;
+				}else if ('@atto.DisplayTipo' == '@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)'){
+		            console.log("Sono una MOZ! :)", data.Results);
+		            $.each(data.Results, function(index, item){
+			            if (item.Riservato_DASI_MOZ == true) {
+				            sedute.push(item);
+			            }
+		            });
+		            return;
+	            }else{
+					sedute = data.Results;
+				}                
             }
 			if (seduteMOZU.length == 0) {
 				var data = await GetSeduteAttiveMOZU();

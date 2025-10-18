@@ -88,6 +88,20 @@
                                 <span>@Html.LabelFor(s => s.Riservato_DASI)</span>
                             </label>
                         </p>
+                        <p>
+                            <label>
+                                <input id="Riservato_DASI_MOZ" name="Riservato_DASI_MOZ" type="checkbox" value="true"
+                                       @Html.Raw(Model.Riservato_DASI_MOZ ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Riservato_DASI_MOZ)</span>
+                            </label>
+                        </p>
+                        <p>
+                            <label>
+                                <input id="Riservato_DASI_IQT" name="Riservato_DASI_IQT" type="checkbox" value="true"
+                                       @Html.Raw(Model.Riservato_DASI_IQT ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Riservato_DASI_IQT)</span>
+                            </label>
+                        </p>
                     </div>
                 </div>
                 <div class="row">

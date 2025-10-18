@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[SEDUTE]    Script Date: 24/09/2025 10:36:15 ******/
+/****** Object:  Table [dbo].[SEDUTE]    Script Date: 18/10/2025 16:08:20 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -26,6 +26,8 @@ CREATE TABLE [dbo].[SEDUTE](
 	[DataModifica] [datetime] NULL,
 	[Eliminato] [bit] NULL,
 	[Riservato_DASI] [bit] NOT NULL,
+	[Riservato_DASI_MOZ] [bit] NOT NULL,
+	[Riservato_DASI_IQT] [bit] NOT NULL,
 	[Blocco_MOZ_Abbinate] [bit] NOT NULL,
 	[Note] [varchar](150) NULL,
  CONSTRAINT [PK_SEDUTE] PRIMARY KEY CLUSTERED 
@@ -42,6 +44,12 @@ ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_IDOrgano]  DEFAULT ((1)) F
 GO
 
 ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Riservato_DASI_1]  DEFAULT ((0)) FOR [Riservato_DASI]
+GO
+
+ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Riservato_DASI_MOZ]  DEFAULT ((0)) FOR [Riservato_DASI_MOZ]
+GO
+
+ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Riservato_DASI_IQT]  DEFAULT ((0)) FOR [Riservato_DASI_IQT]
 GO
 
 ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Blocco_MOZ_Abbinate]  DEFAULT ((0)) FOR [Blocco_MOZ_Abbinate]

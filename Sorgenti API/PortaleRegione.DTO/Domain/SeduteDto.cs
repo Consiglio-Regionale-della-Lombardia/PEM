@@ -64,8 +64,11 @@ namespace PortaleRegione.DTO.Domain
         public DateTime? DataModifica { get; set; }
 
         [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
-
         public bool Riservato_DASI { get; set; } = false;
+        [Display(Name = "Dedicata agli atti di indirizzo e sindacato ispettivo (MOZ)")]
+        public bool Riservato_DASI_MOZ { get; set; } = false;
+        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo (IQT)")]
+        public bool Riservato_DASI_IQT { get; set; } = false;
         
         // #1488
         [Display(Name = "Blocco mozioni abbinate")]
@@ -108,6 +111,11 @@ namespace PortaleRegione.DTO.Domain
 
         [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
         public bool Riservato_DASI { get; set; } = false;
+        
+        [Display(Name = "Dedicata agli atti di indirizzo e sindacato ispettivo (MOZ)")]
+        public bool Riservato_DASI_MOZ { get; set; } = false;
+        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo (IQT)")]
+        public bool Riservato_DASI_IQT { get; set; } = false;
         
         // #1488
         [Display(Name = "Blocco mozioni abbinate")]
