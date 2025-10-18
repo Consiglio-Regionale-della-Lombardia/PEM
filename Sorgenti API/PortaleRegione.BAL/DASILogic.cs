@@ -3106,13 +3106,14 @@ namespace PortaleRegione.API.Controllers
                 if (atto.UIDPersonaRichiestaIscrizione.HasValue
                     && atto.UIDPersonaPresentazione.HasValue)
                 {
-                    var nomeAtto =
-                        $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
-                    if (!listaRichieste.Any(item => (item.Value == nomeAtto
-                                                     && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
-                                                    || item.Key == atto.UIDPersonaPresentazione.Value))
-                        listaRichieste.Add(atto.UIDPersonaRichiestaIscrizione ?? atto.UIDPersonaPresentazione.Value,
-                            nomeAtto);
+                    var nomeAtto = $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
+                    var chiaveEffettiva = atto.UIDPersonaRichiestaIscrizione ?? atto.UIDPersonaPresentazione.Value;
+    
+                    // Verifica che non esista già con la stessa chiave
+                    if (listaRichieste.All(item => item.Key != chiaveEffettiva))
+                    {
+                        listaRichieste.Add(chiaveEffettiva, nomeAtto);
+                    }
                 }
             }
 

@@ -956,48 +956,54 @@ function GetCounterAlertStampa(lista, selezionaTutti) {
     return text_counter;
 }
 
-function CambioStatoMassivo(stato, descr) {
-    var text = "";
+function CambioStatoMassivo(stato) {
     var listaEM = getListaEmendamenti();
-    var selezionaTutti = getSelezionaTutti();
-    var text_counter = GetCounterAlert(listaEM, selezionaTutti);
-    text = "Cambia stato di " + text_counter + " emendamenti in " + descr;
 
-    swal(text,
-            {
-                buttons: { cancel: "Annulla", confirm: "Ok" }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
+    var obj = {};
+    obj.Stato = stato;
+    obj.Lista = listaEM;
+    obj.AttoUId = $("#hdUIdAtto").val();
+    waiting(true);
+    $.ajax({
+        url: baseUrl + "/emendamenti/modifica-stato",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        waiting(false);
+        if (data.message) {
+            console.log("error", data.message);
+            ErrorAlert(data.message);
+            return;
+        }
+        DeselectALLEM();
+        location.reload();
+    }).fail(function(err) {
+        waiting(false);
+        console.log("error", err);
+        Error(err);
+    });
+}
 
-            var obj = {};
-            obj.Stato = stato;
-            obj.Lista = listaEM;
-            obj.Tutti = selezionaTutti;
-            obj.AttoUId = $("#hdUIdAtto").val();
-            waiting(true);
-            $.ajax({
-                url: baseUrl + "/emendamenti/modifica-stato",
-                type: "POST",
-                data: JSON.stringify(obj),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
-            }).done(function(data) {
-                waiting(false);
-                if (data.message) {
-                    console.log("error", data.message);
-                    ErrorAlert(data.message);
-                    return;
-                }
-                DeselectALLEM();
-                location.reload();
-            }).fail(function(err) {
-                waiting(false);
-                console.log("error", err);
-                Error(err);
-            });
-        });
+function CambioStatoMassivoSoloIds(stato, lista) {
+    
+    var obj = {};
+    obj.Stato = stato;
+    obj.Lista = lista;
+    obj.AttoUId = $("#hdUIdAtto").val();
+
+    $.ajax({
+        url: baseUrl + "/emendamenti/modifica-stato",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        
+    }).fail(function(err) {
+        console.log("error", err);
+    });
 }
 
 async function CambioStatoMassivoDASI(stato, descr) {
@@ -1113,6 +1119,28 @@ async function CambioStatoMassivoDASISoloIds(stato, lista) {
 
     } catch (error) {
 	    // ignored
+    }
+}
+
+async function IscrizioneASedutaMassivoDASISoloIds(uidSeduta, lista) {
+
+    var request = {};
+    request.UidSeduta = uidSeduta;
+    request.Lista = lista;
+
+    var url = baseUrl + '/dasi/iscrivi-seduta';
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+        waiting(false);
+        throw new Error('Network response was not ok');
     }
 }
 

@@ -1248,5 +1248,30 @@ namespace PortaleRegione.Client.Controllers
 
             return model;
         }
+        
+        /// <summary>
+        /// Endpoint per ottenere solo gli ID degli emendamenti per una specifica pagina
+        /// </summary>
+        /// <returns>Lista di ID degli emendamenti</returns>
+        [HttpPost]
+        [Route("get-ids")]
+        public async Task<ActionResult> GetPageIDs()
+        {
+            try
+            {
+                var mode = 1;
+                var model = ElaboraFiltriEM(ref mode);
+        
+                var apiGateway = new ApiGateway(Token);
+                var result = await apiGateway.Emendamento.GetSoloIds(model);
+        
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

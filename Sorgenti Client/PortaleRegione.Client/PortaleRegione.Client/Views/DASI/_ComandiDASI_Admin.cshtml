@@ -262,7 +262,7 @@
 <div id="modalProgressoMassivo" class="modal" style="max-width: 600px;">
     <div class="modal-content">
         <h4>Elaborazione in corso...</h4>
-        <p id="progressoDescrizioneOperazione">Cambio stato massivo in corso</p>
+        <p id="progressoDescrizioneOperazione">Operazione massiva in corso</p>
         
         <!-- Progress bar principale -->
         <div class="progress-container" style="margin: 20px 0;">
@@ -742,12 +742,12 @@
             } else if (value === "tutti") {
                 // Nuovo flusso - tutti gli atti con progress modal
                 var totalePagine = $(".pagination").data("totale-pagine");
-                await aprireModalProgresso(stato, totalePagine, totaleRisultati);
+                await aprireModalProgresso(1, stato, totalePagine, totaleRisultati);
             }
         });
     }
     
-    async function aprireModalProgresso(stato, totalePagine, totaleRisultati) {
+    async function aprireModalProgresso(operation, single_parameter, totalePagine, totaleRisultati) {
         // Reset variabili
         operazioneInterrotta = false;
         tempoInizioOperazione = new Date();
@@ -786,10 +786,10 @@
         $('#modalProgressoMassivo').modal('open');
 
         // Inizia l'elaborazione
-        await avviaElaborazioneMassiva(stato, totalePagine);
+        await avviaElaborazioneMassiva(operation ,single_parameter, totalePagine);
     }
 
-    async function avviaElaborazioneMassiva(stato, totalePagine) {
+    async function avviaElaborazioneMassiva(operation, single_parameter, totalePagine) {
         aggiungiLogEntry('Inizio elaborazione massiva...', 'blue-text');
 
         let attiElaboratiTotali = 0;
@@ -814,7 +814,12 @@
 
                     if (guidsPerPagina && guidsPerPagina.length > 0) {
                         // Esegue l'operazione di cambio stato per questa pagina
-                        await CambioStatoMassivoDASISoloIds(stato, guidsPerPagina);
+                        if (operation == 1) //Cambio Stato
+                        {
+                            await CambioStatoMassivoDASISoloIds(single_parameter, guidsPerPagina);
+                        }else if (operation == 2){
+                            await IscrizioneASedutaMassivoDASISoloIds(single_parameter, guidsPerPagina);
+                        }
 
                         attiElaboratiTotali += guidsPerPagina.length;
                         aggiungiLogEntry(`Pagina ${paginaCorrente} completata: ${guidsPerPagina.length} atti elaborati`, 'green-text');
