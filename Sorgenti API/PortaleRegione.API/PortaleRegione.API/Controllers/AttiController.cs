@@ -374,7 +374,7 @@ namespace PortaleRegione.API.Controllers
                 await _attiLogic.DeleteArticolo(articolo, currentUser);
 
                 var listCommi = await _attiLogic.GetCommi(id);
-                await _attiLogic.DeleteCommi(listCommi);
+                await _attiLogic.DeleteCommi(listCommi, currentUser);
 
                 foreach (var comma in listCommi)
                 {
@@ -452,7 +452,8 @@ namespace PortaleRegione.API.Controllers
                 var comma = await _attiLogic.GetComma(id);
                 if (comma == null) return NotFound();
 
-                await _attiLogic.DeleteComma(comma);
+                var currentUser = CurrentUser;
+                await _attiLogic.DeleteComma(comma, currentUser);
 
                 var listLettere = await _attiLogic.GetLettere(comma.UIDComma);
                 await _attiLogic.DeleteLettere(listLettere);

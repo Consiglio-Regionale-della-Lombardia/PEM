@@ -311,9 +311,14 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        public async Task DeleteCommi(IEnumerable<COMMI> listCommi)
+        public async Task DeleteCommi(IEnumerable<COMMI> listCommi, PersonaDto currentUser)
         {
-            _unitOfWork.Commi.RemoveRange(listCommi);
+            foreach (var commis in listCommi)
+            {
+                commis.UIDUtenteModifica = currentUser.UID_persona;
+                commis.DataModifica = DateTime.Now;
+                commis.Eliminato = true;
+            }
             await _unitOfWork.CompleteAsync();
         }
 
@@ -391,9 +396,11 @@ namespace PortaleRegione.BAL
             return await _unitOfWork.Commi.GetComma(id);
         }
 
-        public async Task DeleteComma(COMMI comma)
+        public async Task DeleteComma(COMMI comma, PersonaDto currentUser)
         {
-            _unitOfWork.Commi.Remove(comma);
+            comma.UIDUtenteModifica = currentUser.UID_persona;
+            comma.DataModifica = DateTime.Now;
+            comma.Eliminato = true;
             await _unitOfWork.CompleteAsync();
         }
 
