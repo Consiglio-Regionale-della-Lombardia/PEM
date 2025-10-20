@@ -327,15 +327,22 @@ namespace PortaleRegione.BAL
             return await _unitOfWork.Lettere.GetLettere(commaUId);
         }
 
-        public async Task DeleteLettere(IEnumerable<LETTERE> listLettere)
+        public async Task DeleteLettere(IEnumerable<LETTERE> listLettere, PersonaDto currentUser)
         {
-            _unitOfWork.Lettere.RemoveRange(listLettere);
+            foreach (var lettere in listLettere)
+            {
+                lettere.UIDUtenteModifica = currentUser.UID_persona;
+                lettere.DataModifica = DateTime.Now;
+                lettere.Eliminato = true;
+            }
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task DeleteLettere(LETTERE lettera)
+        public async Task DeleteLettere(LETTERE lettera, PersonaDto currentUser)
         {
-            _unitOfWork.Lettere.Remove(lettera);
+            lettera.UIDUtenteModifica = currentUser.UID_persona;
+            lettera.DataModifica = DateTime.Now;
+            lettera.Eliminato = true;
             await _unitOfWork.CompleteAsync();
         }
 

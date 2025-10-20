@@ -379,7 +379,7 @@ namespace PortaleRegione.API.Controllers
                 foreach (var comma in listCommi)
                 {
                     var listLettere = await _attiLogic.GetLettere(comma.UIDComma);
-                    await _attiLogic.DeleteLettere(listLettere);
+                    await _attiLogic.DeleteLettere(listLettere, currentUser);
                 }
 
                 return Ok("OK");
@@ -456,7 +456,7 @@ namespace PortaleRegione.API.Controllers
                 await _attiLogic.DeleteComma(comma, currentUser);
 
                 var listLettere = await _attiLogic.GetLettere(comma.UIDComma);
-                await _attiLogic.DeleteLettere(listLettere);
+                await _attiLogic.DeleteLettere(listLettere, currentUser);
 
                 return Ok("OK");
             }
@@ -529,7 +529,8 @@ namespace PortaleRegione.API.Controllers
                 var lettera = await _attiLogic.GetLettera(id);
                 if (lettera == null) return NotFound();
 
-                await _attiLogic.DeleteLettere(lettera);
+                var currentUser = CurrentUser;
+                await _attiLogic.DeleteLettere(lettera, currentUser);
 
                 return Ok("OK");
             }

@@ -36,6 +36,10 @@ namespace PortaleRegione.Domain
         public string TestoLettera { get; set; }
 
         public int Ordine { get; set; }
+        
+        public Guid? UIDUtenteModifica { get; set; }
+        public DateTime? DataModifica { get; set; }
+        public bool Eliminato { get; set; } = false;
 
         public virtual COMMI COMMI { get; set; }
     }
