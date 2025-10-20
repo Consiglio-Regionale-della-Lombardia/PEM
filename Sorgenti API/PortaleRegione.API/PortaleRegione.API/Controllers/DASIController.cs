@@ -225,7 +225,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
                 }
-                await _dasiLogic.Salva_RimuoviRisposta(request);
+                await _dasiLogic.Salva_RimuoviRisposta(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -540,7 +540,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
                 }
-                await _dasiLogic.Rimuovi_Documento(request);
+                await _dasiLogic.Rimuovi_Documento(request, currentUser);
                 return Ok();
             }
             catch (Exception e)

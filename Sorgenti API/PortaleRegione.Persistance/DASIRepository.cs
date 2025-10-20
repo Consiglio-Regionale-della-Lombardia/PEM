@@ -710,7 +710,7 @@ namespace PortaleRegione.Persistance
         {
             var docInDB = await PRContext
                 .ATTI_DOCUMENTI
-                .Where(d => d.UIDAtto == uidAtto)
+                .Where(d => d.UIDAtto == uidAtto && !d.Eliminato)
                 .OrderBy(d => d.Data)
                 .ToListAsync();
 
@@ -837,20 +837,16 @@ namespace PortaleRegione.Persistance
 
         public async Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid)
         {
-            return await PRContext.ATTI_DOCUMENTI.FirstAsync(d => d.Uid.Equals(requestUid));
+            return await PRContext.ATTI_DOCUMENTI.FirstAsync(d => d.Uid.Equals(requestUid) && !d.Eliminato);
         }
 
         public async Task<List<ATTI_DOCUMENTI>> GetDocumento(Guid UIdAtto, TipoDocumentoEnum tipoDocumento)
         {
             return await PRContext.ATTI_DOCUMENTI
                 .Where(d => d.UIDAtto.Equals(UIdAtto) 
-                            && d.Tipo.Equals((int)tipoDocumento))
+                            && d.Tipo.Equals((int)tipoDocumento)
+                            && !d.Eliminato)
                 .ToListAsync();
-        }
-
-        public void RimuoviDocumento(ATTI_DOCUMENTI doc)
-        {
-            PRContext.ATTI_DOCUMENTI.Remove(doc);
         }
 
         public async Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva)

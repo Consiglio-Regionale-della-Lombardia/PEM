@@ -164,7 +164,7 @@ namespace PortaleRegione.Persistance.Public
         {
             var dataFromDb = await PRContext
                 .ATTI_DOCUMENTI
-                .Where(r => r.UIDAtto == uidAtto && r.Pubblica)
+                .Where(r => r.UIDAtto == uidAtto && r.Pubblica && !r.Eliminato)
                 .ToListAsync();
 
             return dataFromDb;

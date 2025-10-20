@@ -109,7 +109,6 @@ namespace PortaleRegione.Contracts
         void AggiungiDocumento(ATTI_DOCUMENTI doc);
         Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid);
         Task<List<ATTI_DOCUMENTI>> GetDocumento(Guid UIdAtto, TipoDocumentoEnum tipoDocumento);
-        void RimuoviDocumento(ATTI_DOCUMENTI doc);
         Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva);
         Task<Guid> GetByQR(Guid id);
         Task<bool> CheckDCR(string dcrl, string dcr, string dccr, string dccr_speciale = "");

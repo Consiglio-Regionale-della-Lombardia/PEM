@@ -39,5 +39,8 @@ namespace PortaleRegione.Domain
         public string Path { get; set; }
         public string Titolo { get; set; }
         public bool Pubblica { get; set; }
+        public Guid? UIDUtenteModifica { get; set; }
+        public DateTime? DataModifica { get; set; }
+        public bool Eliminato { get; set; } = false;
     }
 }

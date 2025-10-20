@@ -433,7 +433,7 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_RimuoviRisposta(AttiRisposteDto request)
+        public async Task Salva_RimuoviRisposta(AttiRisposteDto request, PersonaDto currentUser)
         {
             var rispostaInDb = await _unitOfWork.DASI.GetRisposta(request.Uid);
             if (rispostaInDb == null) throw new InvalidOperationException("Risposta non trovata");
@@ -443,12 +443,12 @@ namespace PortaleRegione.API.Controllers
             if (rispostaDto != null)
                 if (rispostaDto.RisposteAssociate.Any())
                     foreach (var rispostaAssociata in rispostaDto.RisposteAssociate)
-                        await Salva_RimuoviRisposta(rispostaAssociata);
+                        await Salva_RimuoviRisposta(rispostaAssociata, currentUser);
 
             _unitOfWork.DASI.RimuoviRisposta(rispostaInDb);
 
             if (rispostaInDb.UIDDocumento.HasValue)
-                await Rimuovi_Documento(new AttiDocumentiDto(rispostaInDb.UIDDocumento.Value));
+                await Rimuovi_Documento(new AttiDocumentiDto(rispostaInDb.UIDDocumento.Value), currentUser);
 
             await _unitOfWork.CompleteAsync();
         }
@@ -5580,7 +5580,12 @@ namespace PortaleRegione.API.Controllers
                 // Siamo in bozza, quindi il documento TESTO_ALLEGATO va sostituito
                 var docs_allegati =
                     await _unitOfWork.DASI.GetDocumento(request.UIDAtto, TipoDocumentoEnum.TESTO_ALLEGATO);
-                foreach (var documento in docs_allegati) _unitOfWork.DASI.RimuoviDocumento(documento);
+                foreach (var documento in docs_allegati)
+                {
+                    documento.UIDUtenteModifica = currentUser.UID_persona;
+                    documento.DataModifica = DateTime.Now;
+                    documento.Eliminato = true;
+                }
             }
 
             if (request.Tipo.Equals((int)TipoDocumentoEnum.AGGIUNTIVO))
@@ -5660,10 +5665,12 @@ namespace PortaleRegione.API.Controllers
             };
         }
 
-        public async Task Rimuovi_Documento(AttiDocumentiDto request)
+        public async Task Rimuovi_Documento(AttiDocumentiDto request, PersonaDto currentUser)
         {
             var doc = await _unitOfWork.DASI.GetDocumento(request.Uid);
-            _unitOfWork.DASI.RimuoviDocumento(doc);
+            doc.UIDUtenteModifica = currentUser.UID_persona;
+            doc.DataModifica = DateTime.Now;
+            doc.Eliminato = true;
             switch ((TipoDocumentoEnum)doc.Tipo)
             {
                 case TipoDocumentoEnum.TESTO_ALLEGATO:
@@ -5696,7 +5703,7 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
 
-            var pathFile = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{doc.Path}";
+            /*var pathFile = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{doc.Path}";
 
             if (File.Exists(pathFile))
                 try
@@ -5706,13 +5713,15 @@ namespace PortaleRegione.API.Controllers
                 catch (IOException)
                 {
                     // ignored
-                }
+                }*/
         }
 
         public async Task Pubblica_Documento(AttiDocumentiDto request, PersonaDto currentUser)
         {
             var doc = await _unitOfWork.DASI.GetDocumento(request.Uid);
             doc.Pubblica = !doc.Pubblica;
+            doc.UIDUtenteModifica = currentUser.UID_persona;
+            doc.DataModifica = DateTime.Now;
             await _unitOfWork.CompleteAsync();
         }
 
