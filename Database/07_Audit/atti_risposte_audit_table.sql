@@ -1,0 +1,21 @@
+CREATE TABLE [dbo].[ATTI_RISPOSTE_Audit] (
+    [IdATTI_RISPOSTE_Audit] INT NOT NULL IDENTITY(1,1),
+    [DatAudit] DATETIME NOT NULL,
+    [UteAudit] UNIQUEIDENTIFIER NULL,
+    [Uid] UNIQUEIDENTIFIER NOT NULL,
+    [UIDAtto] UNIQUEIDENTIFIER NOT NULL,
+    [TipoOrgano] INT NOT NULL,
+    [Tipo] INT NOT NULL,
+    [Data] DATETIME NULL,
+    [DescrizioneOrgano] NVARCHAR(255) COLLATE Latin1_General_CI_AI NULL,
+    [DataTrasmissione] DATETIME NULL,
+    [DataTrattazione] DATETIME NULL,
+    [IdOrgano] INT NOT NULL,
+    [UIDDocumento] UNIQUEIDENTIFIER NULL,
+    [UIDRispostaAssociata] UNIQUEIDENTIFIER NULL,
+    [DataRevoca] DATETIME NULL,
+    [UIDUtenteModifica] UNIQUEIDENTIFIER NULL,
+    [DataModifica] DATETIME NULL,
+    [Eliminato] BIT NOT NULL,
+    CONSTRAINT [PK_ATTI_RISPOSTE_Audit] PRIMARY KEY ([IdATTI_RISPOSTE_Audit])
+);

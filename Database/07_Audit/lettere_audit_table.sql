@@ -1,0 +1,14 @@
+CREATE TABLE [dbo].[LETTERE_Audit] (
+    [IdLETTERE_Audit] INT NOT NULL IDENTITY(1,1),
+    [DatAudit] DATETIME NOT NULL,
+    [UteAudit] UNIQUEIDENTIFIER NULL,
+    [UIDLettera] UNIQUEIDENTIFIER NOT NULL,
+    [UIDComma] UNIQUEIDENTIFIER NULL,
+    [Lettera] VARCHAR(5) COLLATE Latin1_General_CI_AI NULL,
+    [TestoLettera] VARCHAR(MAX) COLLATE Latin1_General_CI_AI NULL,
+    [Ordine] INT NULL,
+    [UIDUtenteModifica] UNIQUEIDENTIFIER NULL,
+    [DataModifica] DATETIME NULL,
+    [Eliminato] BIT NOT NULL,
+    CONSTRAINT [PK_LETTERE_Audit] PRIMARY KEY ([IdLETTERE_Audit])
+);
