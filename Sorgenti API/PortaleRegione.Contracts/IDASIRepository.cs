@@ -97,7 +97,6 @@ namespace PortaleRegione.Contracts
         Task<ATTI_ABBINAMENTI> GetAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato);
         void RimuoviAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb);
         void AggiungiRisposta(ATTI_RISPOSTE risposta);
-        void RimuoviRisposta(ATTI_RISPOSTE risposta);
         Task<ATTI_RISPOSTE> GetRisposta(Guid requestUid);
         Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUid);
         Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid UidAtto, int organoId);

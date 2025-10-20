@@ -445,7 +445,9 @@ namespace PortaleRegione.API.Controllers
                     foreach (var rispostaAssociata in rispostaDto.RisposteAssociate)
                         await Salva_RimuoviRisposta(rispostaAssociata, currentUser);
 
-            _unitOfWork.DASI.RimuoviRisposta(rispostaInDb);
+            rispostaInDb.UIDUtenteModifica = currentUser.UID_persona;
+            rispostaInDb.DataModifica = DateTime.Now;
+            rispostaInDb.Eliminato = true;
 
             if (rispostaInDb.UIDDocumento.HasValue)
                 await Rimuovi_Documento(new AttiDocumentiDto(rispostaInDb.UIDDocumento.Value), currentUser);
@@ -495,7 +497,7 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_DettagliRisposta(AttiRisposteDto request)
+        public async Task Salva_DettagliRisposta(AttiRisposteDto request, PersonaDto currentUser)
         {
             var risposteInDb = await _unitOfWork.DASI.GetRisposta(request.Uid);
             if (risposteInDb == null) throw new InvalidOperationException("Risposta non trovata");
@@ -504,6 +506,9 @@ namespace PortaleRegione.API.Controllers
             risposteInDb.DataTrasmissione = request.DataTrasmissione;
             risposteInDb.DataTrattazione = request.DataTrattazione;
             risposteInDb.DataRevoca = request.DataRevoca;
+            
+            risposteInDb.UIDUtenteModifica = currentUser.UID_persona;
+            risposteInDb.DataModifica = DateTime.Now;
             await _unitOfWork.CompleteAsync();
         }
 

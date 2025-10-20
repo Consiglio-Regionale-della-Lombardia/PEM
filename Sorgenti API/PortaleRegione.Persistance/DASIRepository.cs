@@ -637,7 +637,7 @@ namespace PortaleRegione.Persistance
         {
             var dataFromDb = await PRContext
                 .ATTI_RISPOSTE
-                .Where(r => r.UIDAtto == uidAtto)
+                .Where(r => r.UIDAtto == uidAtto && !r.Eliminato)
                 .OrderByDescending(r => r.Data)
                 .ToListAsync();
 
@@ -784,14 +784,9 @@ namespace PortaleRegione.Persistance
             PRContext.ATTI_RISPOSTE.Add(risposta);
         }
 
-        public void RimuoviRisposta(ATTI_RISPOSTE risposta)
-        {
-            PRContext.ATTI_RISPOSTE.Remove(risposta);
-        }
-
         public async Task<ATTI_RISPOSTE> GetRisposta(Guid requestUid)
         {
-            return await PRContext.ATTI_RISPOSTE.FirstOrDefaultAsync(r => r.Uid == requestUid);
+            return await PRContext.ATTI_RISPOSTE.FirstOrDefaultAsync(r => r.Uid == requestUid && !r.Eliminato);
         }
 
         public async Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUid)

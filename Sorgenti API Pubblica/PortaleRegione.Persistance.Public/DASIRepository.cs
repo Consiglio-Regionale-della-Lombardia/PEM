@@ -154,7 +154,7 @@ namespace PortaleRegione.Persistance.Public
         {
             var dataFromDb = await PRContext
                 .ATTI_RISPOSTE
-                .Where(r => r.UIDAtto == uidAtto)
+                .Where(r => r.UIDAtto == uidAtto && !r.Eliminato)
                 .ToListAsync();
 
             return dataFromDb;
