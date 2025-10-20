@@ -1,7 +1,4 @@
-USE [dbEmendamenti]
-GO
-
-/****** Object:  Table [dbo].[UTENTI_NoCons]    Script Date: 22/06/2022 11:21:53 ******/
+/****** Object:  Table [dbo].[UTENTI_NoCons]    Script Date: 20/10/2025 12:19:00 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -24,7 +21,9 @@ CREATE TABLE [dbo].[UTENTI_NoCons](
 	[pass_locale_crypt] [varchar](max) NULL,
 	[gruppi_autorizzazione] [varchar](max) NULL,
 	[attivo] [bit] NOT NULL,
-	[deleted] [bit] NULL,
+	[deleted] [bit] NOT NULL,
+	[UIDUtenteModifica] [uniqueidentifier] NULL,
+	[DataModifica] [datetime] NULL,
  CONSTRAINT [PK_UTENTI_NoCons_1] PRIMARY KEY CLUSTERED 
 (
 	[UID_persona] ASC
@@ -49,4 +48,5 @@ GO
 
 ALTER TABLE [dbo].[UTENTI_NoCons] ADD  CONSTRAINT [DF_UTENTI_NoCons_deleted]  DEFAULT ((0)) FOR [deleted]
 GO
+
 

@@ -621,7 +621,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Guid> SalvaUtente(PersonaUpdateRequest request, RuoliIntEnum ruolo)
+        public async Task<Guid> SalvaUtente(PersonaUpdateRequest request, RuoliIntEnum ruolo, PersonaDto currentUser)
         {
             var intranetAdService = new proxyAD();
 
@@ -713,6 +713,8 @@ namespace PortaleRegione.BAL
                     persona.UserAD = request.userAD;
                     persona.notifica_firma = request.notifica_firma;
                     persona.notifica_deposito = request.notifica_deposito;
+                    persona.UIDUtenteModifica = currentUser.UID_persona;
+                    persona.DataModifica = DateTime.Now;
                     await _unitOfWork.CompleteAsync();
                 }
                 else
@@ -725,13 +727,15 @@ namespace PortaleRegione.BAL
             return request.UID_persona;
         }
 
-        public async Task EliminaUtente(Guid uid_persona)
+        public async Task EliminaUtente(Guid uid_persona, PersonaDto currentUser)
         {
             try
             {
                 var user = await _unitOfWork.Persone.Get_NoCons(uid_persona);
                 user.deleted = true;
                 user.attivo = false;
+                user.UIDUtenteModifica = currentUser.UID_persona;
+                user.DataModifica = DateTime.Now;
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception)

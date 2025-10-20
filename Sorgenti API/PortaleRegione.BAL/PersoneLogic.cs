@@ -305,12 +305,6 @@ namespace PortaleRegione.BAL
             return segreteria_giunta.Select(Mapper.Map<UTENTI_NoCons, PersonaDto>);
         }
 
-        public async Task DeletePersona(int id)
-        {
-            await _unitOfWork.Persone.DeletePersona(id);
-            await _unitOfWork.CompleteAsync();
-        }
-
         public async Task<IEnumerable<GruppiDto>> GetGruppi(BaseRequest<GruppiDto> model)
         {
             var result = new List<GruppiDto>();
