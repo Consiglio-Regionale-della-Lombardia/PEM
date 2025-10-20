@@ -285,9 +285,11 @@ namespace PortaleRegione.BAL
             return await _unitOfWork.Articoli.GetArticolo(id);
         }
 
-        public async Task DeleteArticolo(ARTICOLI articolo)
+        public async Task DeleteArticolo(ARTICOLI articolo, PersonaDto currentUser)
         {
-            _unitOfWork.Articoli.Remove(articolo);
+            articolo.UIDUtenteModifica = currentUser.UID_persona;
+            articolo.DataModifica = DateTime.Now;
+            articolo.Eliminato = true;
             await _unitOfWork.CompleteAsync();
         }
 

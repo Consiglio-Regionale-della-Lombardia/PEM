@@ -370,7 +370,8 @@ namespace PortaleRegione.API.Controllers
                 var articolo = await _attiLogic.GetArticolo(id);
                 if (articolo == null) return NotFound();
 
-                await _attiLogic.DeleteArticolo(articolo);
+                var currentUser = CurrentUser;
+                await _attiLogic.DeleteArticolo(articolo, currentUser);
 
                 var listCommi = await _attiLogic.GetCommi(id);
                 await _attiLogic.DeleteCommi(listCommi);
