@@ -236,7 +236,7 @@ namespace PortaleRegione.API.Controllers
                 var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
 
                 var firmatari = new List<string>();
-                foreach (var firma in firme.Where(i => i.UID_persona != currentUser.UID_persona))
+                foreach (var firma in firme.Where(i => i.UID_persona != attoInDb.UIDPersonaProponente))
                 {
                     var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
                     firmatari.Add(firmatario.email);
@@ -2757,6 +2757,9 @@ namespace PortaleRegione.API.Controllers
             atto.Eliminato = true;
             atto.DataElimina = DateTime.Now;
             atto.UIDPersonaElimina = persona.UID_persona;
+
+            atto.UIDPersonaModifica = persona.UID_persona;
+            atto.DataModifica = atto.DataElimina; 
 
             await _unitOfWork.CompleteAsync();
 

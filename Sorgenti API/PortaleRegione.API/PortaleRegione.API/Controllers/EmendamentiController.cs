@@ -818,14 +818,8 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var firmatari = await _firmeLogic.GetFirme(em, FirmeTipoEnum.ATTIVI);
-                var firmatari_attivi = firmatari.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
-                if (firmatari_attivi.Any())
-                {
-                    throw new InvalidOperationException("L'emendamento ha delle firme attive e non può essere eliminato");
-                }
-
-                await _emendamentiLogic.EliminaEmendamento(em, Session._currentUId);
+                var currentUser = CurrentUser;
+                await _emendamentiLogic.EliminaEmendamento(em, currentUser);
 
                 return Ok();
             }

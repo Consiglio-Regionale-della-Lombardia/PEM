@@ -1426,13 +1426,58 @@ namespace PortaleRegione.BAL
                 .Select(Mapper.Map<ARTICOLI, ArticoliDto>);
         }
 
-        public async Task EliminaEmendamento(EM em, Guid currentUId)
+        public async Task EliminaEmendamento(EM em, PersonaDto currentUser)
         {
             em.Eliminato = true;
             em.DataElimina = DateTime.Now;
-            em.UIDPersonaElimina = currentUId;
+            em.UIDPersonaElimina = currentUser.UID_persona;
+
+            em.UIDPersonaModifica = currentUser.UID_persona;
+            em.DataModifica = em.DataElimina;
 
             await _unitOfWork.CompleteAsync();
+
+            // #1490 Avviso ai firmatari che l'emendamento verrà eliminato
+
+            var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+
+            var firmatari = new List<string>();
+            foreach (var firma in firme.Where(i => i.UID_persona != em.UIDPersonaProponente))
+            {
+                var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
+                firmatari.Add(firmatario.email);
+            }
+
+            if (firmatari.Count > 0)
+            {
+                try
+                {
+                    EM rifEM = null;
+                    if (em.Rif_UIDEM.HasValue)
+                    {
+                        rifEM = await GetEM(em.Rif_UIDEM.Value);
+                    }
+
+                    var nome_em = GetNomeEM(em, rifEM);
+                    var mailModel = new MailModel
+                    {
+                        DA = currentUser.email,
+                        A = firmatari.Aggregate((i, j) => i + ";" + j),
+                        OGGETTO =
+                            $"L’emendamento {nome_em}, che hai sottoscritto è stato definitivamente eliminato.",
+                        MESSAGGIO =
+                            $"{currentUser.DisplayName_GruppoCode} ha eliminato l'emendamento {nome_em}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. {GetBodyFooterMail()}"
+                    };
+                    await _logicUtil.InvioMail(mailModel);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Invio mail", e);
+                }
+
+                await _logicFirme.RimuoviFirme(em);
+                await _unitOfWork.CompleteAsync();
+            }
         }
 
         public async Task AssegnaNuovoProponente(EM em, AssegnaProponenteModel model)
