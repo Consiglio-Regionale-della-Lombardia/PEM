@@ -1746,7 +1746,8 @@ namespace PortaleRegione.API.Controllers
                             , AppSettingsConfiguration.masterKey);
                     }
 
-                    var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
+                    var firmeAttive = await _unitOfWork.Atti_Firme.GetFirmatari(attoInDb, FirmeTipoEnum.ATTIVI);
+                    var countFirme = firmeAttive.Count();
                     if (countFirme == 0)
                     {
                         //Se è la prima firma dell'atto, questo viene cryptato e così certificato e non modificabile
@@ -1799,6 +1800,13 @@ namespace PortaleRegione.API.Controllers
 
                         if (iqt_firmatari.Any(f => f.UID_persona == persona.UID_persona && f.Prioritario))
                             prioritario = false;
+
+                        // #1518
+                        if (prioritario && firmeAttive.Count(f => f.Prioritario) >=
+                            AppSettingsConfiguration.MinimoConsiglieriIQT)
+                        {
+                            prioritario = false;
+                        }
                     }
                     else if (atto.Tipo == (int)TipoAttoEnum.IQT
                              && atto.UIDPersonaProponente.Value != persona.UID_persona
@@ -4088,17 +4096,21 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
             var dto = await GetAttoDto(firma.UIDAtto);
 
-            SEDUTE sedutaRichiesta = null;
-            if (!string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
-                sedutaRichiesta =
-                    await _unitOfWork.Sedute.Get(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
-            var res = await ControlloFirmePresentazione(dto, true, sedutaRichiesta);
-            if (!string.IsNullOrEmpty(res))
+            if (dto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
             {
-                firma_in_db.Prioritario = priorita_originale;
-                await _unitOfWork.CompleteAsync();
+                // Controlla la priorità solo se l'atto è presentato
+                SEDUTE sedutaRichiesta = null;
+                if (!string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
+                    sedutaRichiesta =
+                        await _unitOfWork.Sedute.Get(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
+                var res = await ControlloFirmePresentazione(dto, true, sedutaRichiesta);
+                if (!string.IsNullOrEmpty(res))
+                {
+                    firma_in_db.Prioritario = priorita_originale;
+                    await _unitOfWork.CompleteAsync();
 
-                throw new Exception(res);
+                    throw new Exception(res);
+                }
             }
         }
 
