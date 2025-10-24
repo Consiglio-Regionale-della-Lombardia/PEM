@@ -118,5 +118,6 @@ CREATE TABLE [dbo].[ATTI_DASI_Audit] (
 	[DataUltimaStampa] [datetime] NULL,
 	[PathStampa] [varchar](max) NULL,
 	[StampaValida] [bit] NOT NULL,
+	[NascondiGruppo] [bit] NOT NULL,
     CONSTRAINT [PK_ATTI_DASI_Audit] PRIMARY KEY ([IdATTI_DASI_Audit])
 );

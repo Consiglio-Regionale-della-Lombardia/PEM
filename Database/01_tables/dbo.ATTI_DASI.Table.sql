@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 02/10/2025 10:12:38 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 24/10/2025 10:27:25 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -123,6 +123,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[DataUltimaStampa] [datetime] NULL,
 	[PathStampa] [varchar](max) NULL,
 	[StampaValida] [bit] NOT NULL,
+	[NascondiGruppo] [bit] NOT NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -203,6 +204,9 @@ ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_VersioneStampa]  DEF
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_StampaValida]  DEFAULT ((0)) FOR [StampaValida]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_NascondiGruppo]  DEFAULT ((0)) FOR [NascondiGruppo]
 GO
 
 

@@ -38,7 +38,7 @@ BEGIN
          [UIDPersonaRelatore2], [UIDPersonaRelatoreMinoranza], [TipoChiusuraIterCommissione], [DataChiusuraIterCommissione],
          [TipoVotazioneIterCommissione], [RisultatoVotazioneIterCommissione], [DataSedutaRisposta], [DataComunicazioneAssembleaRisposta],
          [DataProposta], [DataTrasmissione], [FlussoRespingi], [UIDPersonaFlussoRespingi], [DataFlussoRespingi], [Ritardo], [VersioneStampa],
-		 [DataUltimaStampa], [PathStampa], [StampaValida]
+		 [DataUltimaStampa], [PathStampa], [StampaValida], [NascondiGruppo]
     )
     SELECT
          @DatAudit, @UteAudit,
@@ -64,7 +64,7 @@ BEGIN
          d.[UIDPersonaRelatore2], d.[UIDPersonaRelatoreMinoranza], d.[TipoChiusuraIterCommissione], d.[DataChiusuraIterCommissione],
          d.[TipoVotazioneIterCommissione], d.[RisultatoVotazioneIterCommissione], d.[DataSedutaRisposta], d.[DataComunicazioneAssembleaRisposta],
          d.[DataProposta], d.[DataTrasmissione], d.[FlussoRespingi], d.[UIDPersonaFlussoRespingi], d.[DataFlussoRespingi], d.[Ritardo], d.[VersioneStampa],
-		 d.[DataUltimaStampa], d.[PathStampa], d.[StampaValida]
+		 d.[DataUltimaStampa], d.[PathStampa], d.[StampaValida], d.[NascondiGruppo]
     FROM deleted d;
 END
 GO
