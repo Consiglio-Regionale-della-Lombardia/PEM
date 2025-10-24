@@ -404,6 +404,9 @@ public class AttoDASIDto
     [DisplayName("Ritardo")] public int Ritardo { get; set; } = 0;
     public Guid? UIDPersonaFlussoRespingi { get; set; }
     public DateTime? DataFlussoRespingi { get; set; }
+    
+    [DisplayName("Nascondi gruppo")]
+    public bool NascondiGruppo { get; set; } = false;
 
     public string OggettoView()
     {

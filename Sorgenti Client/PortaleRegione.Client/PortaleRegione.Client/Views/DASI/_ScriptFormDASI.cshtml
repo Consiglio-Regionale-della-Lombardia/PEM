@@ -90,32 +90,32 @@
                 }
             }).then((value) => {
                 switch (value) {
-                case "presenta":
-                {
-                    swal({
-                        text: "Sei sicuro di voler presentare l'atto cartaceo?",
-                        icon: "warning",
-                        buttons: {
-                            cancel: "Annulla",
-                            confirm: "Si, sono sicuro"
-                        }
-                    }).then((value) => {
-                        if (value) {
-                            waiting(true);
-							SalvaAttoCartaceo(true);
-                            waiting(false);
-							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
-                        }
-                    });
-                    break;
-                }
-
-                case "salva_bozza_cartacea":
-                {
-							SalvaAttoCartaceo(false);
-							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
-                    break;
-                }
+                    case "presenta":
+                    {
+                        swal({
+                            text: "Sei sicuro di voler presentare l'atto cartaceo?",
+                            icon: "warning",
+                            buttons: {
+                                cancel: "Annulla",
+                                confirm: "Si, sono sicuro"
+                            }
+                        }).then((value) => {
+                            if (value) {
+                                waiting(true);
+                                SalvaAttoCartaceo(true);
+                                waiting(false);
+                                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                            }
+                        });
+                        break;
+                    }
+    
+                    case "salva_bozza_cartacea":
+                    {
+                                SalvaAttoCartaceo(false);
+                                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                        break;
+                    }
                 }
             });
         });
@@ -165,6 +165,8 @@
             if (inputFileAllegatoGenerico.files.length > 0)
                 form_data.append("DocAllegatoGenerico", inputFileAllegatoGenerico.files[0]);
         }
+
+        form_data.append("NascondiGruppo", $('#Atto_NascondiGruppo').is(":checked"));
 
         if (presenta) {
             form_data.append("IDStato", @((int)StatiAttoEnum.PRESENTATO));
@@ -274,6 +276,8 @@
             var commissioni = [];
             commissioni.push($('select[id="Atto_Commissioni"]').children("option:selected").val());
             form_data.append("Commissioni_client", commissioni);
+
+            form_data.append("NascondiGruppo", $('#Atto_NascondiGruppo').is(":checked"));
 
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
             if (inputsAllegatoGenerico.length != 0) {

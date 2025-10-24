@@ -163,6 +163,7 @@ namespace PortaleRegione.Domain
         public DateTime? DataUltimaStampa { get; set; }
         public string PathStampa { get; set; }
         public bool StampaValida { get; set; } = false;
+        public bool NascondiGruppo { get; set; } = false;
 
         public string GetLegislatura()
         {

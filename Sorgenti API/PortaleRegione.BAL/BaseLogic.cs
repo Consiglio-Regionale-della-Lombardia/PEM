@@ -491,7 +491,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{lblAllegati}", allegato_generico.ToString());
         }
 
-        public void GetBody(EmendamentiDto emendamento, AttiDto atto, List<FirmeDto> firme,
+        protected void GetBody(EmendamentiDto emendamento, AttiDto atto, List<FirmeDto> firme,
             PersonaDto currentUser,
             bool enableQrCode,
             ref string body)
@@ -664,7 +664,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{QRCode}", textQr);
         }
 
-        public void GetBody(AttoDASIDto atto,
+        protected void GetBody(AttoDASIDto atto,
             bool enableQrCode,
             bool privacy,
             bool enableLogo,
@@ -685,10 +685,19 @@ namespace PortaleRegione.BAL
             if (atto.Non_Passaggio_In_Esame) title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
 
             body = body.Replace("{lblTitoloATTOView}", title);
-            if (atto.Tipo == (int)TipoAttoEnum.RIS)
-                body = body.Replace("{GRUPPO_POLITICO}", $"{atto.GetLegislatura()} LEGISLATURA <br> {atto.Protocollo}");
+
+            // #1519
+            if (!atto.NascondiGruppo)
+            {
+                if (atto.Tipo == (int)TipoAttoEnum.RIS)
+                    body = body.Replace("{GRUPPO_POLITICO}", $"{atto.GetLegislatura()} LEGISLATURA <br> {atto.Protocollo}");
+                else
+                    body = body.Replace("{GRUPPO_POLITICO}", atto.id_gruppo > 0 ? atto.gruppi_politici.nome_gruppo : "");
+            }
             else
-                body = body.Replace("{GRUPPO_POLITICO}", atto.id_gruppo > 0 ? atto.gruppi_politici.nome_gruppo : "");
+            {
+                body = body.Replace("{GRUPPO_POLITICO}", "");
+            }
 
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
             if (enableLogo)
@@ -837,84 +846,10 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public string GetBodyFooterMail()
+        protected string GetBodyFooterMail()
         {
             return
                 $"<br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.url_CLIENT}\">{AppSettingsConfiguration.NomePiattaforma}</a>";
-        }
-
-        internal void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito,
-            ref string body)
-        {
-            try
-            {
-                var firmeDtos = firme.ToList();
-
-                if (isDeposito)
-                {
-                    body = body.Replace("{MESSAGGIOINIZIALE}",
-                        AppSettingsConfiguration.MessaggioInizialeDeposito.Replace("{br}", "<br/>"));
-                    body = body.Replace("{azione}", "visualizzare");
-                    body = body.Replace("{LINKPEMRIEPILOGO_FIRME}", string.Empty);
-                }
-                else
-                {
-                    body = body.Replace("{MESSAGGIOINIZIALE}",
-                        AppSettingsConfiguration.MessaggioInizialeInvito.Replace("{br}", "<br/>"));
-                    body = body.Replace("{azione}", "firmare");
-                    body = body.Replace("{LINKPEMRIEPILOGO_FIRME}",
-                        "<a href='"
-                        + string.Format(AppSettingsConfiguration.urlPEM_RiepilogoEM, emendamento.UIDAtto) +
-                        "'>Clicca qui</a> per visualizzare gli em in cui sei indicato come firmatario.");
-                }
-
-                body = body.Replace("{lblTitoloEMView}", emendamento.N_EM);
-                body = body.Replace("{ltEMView}", emendamento.EM_Certificato);
-
-                #region Firme
-
-                if (emendamento.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
-                {
-                    //DEPOSITATO
-                    body = body.Replace("{lblDepositoEMView}",
-                        firmeDtos.Any(s => s.ufficio)
-                            ? "Emendamento Depositato d'ufficio"
-                            : $"Emendamento Presentato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
-
-                    var firmeAnte = firmeDtos.Where(f => f.Timestamp < Convert.ToDateTime(emendamento.DataDeposito));
-                    var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito));
-
-                    body = body.Replace("{radGridFirmeView}", GetFirmatariEM(firmeAnte));
-                    var TemplatefirmePOST = @"<div>
-                             <div style='width:100%;'>
-                                      <h5>Firme dopo il deposito</h5>
-                              </div>
-                              <div style='text-align:left'>
-                                {firme}
-                            </div>
-                        </div>";
-                    body = body.Replace("{radGridFirmePostView}",
-                        firmePost.Any()
-                            ? TemplatefirmePOST.Replace("{firme}", GetFirmatariEM(firmePost))
-                            : string.Empty);
-                }
-
-                #endregion
-
-                body = body.Replace("{IMGLOGO}",
-                    "<img src='" + Path.Combine(AppSettingsConfiguration.url_CLIENT, "/images/LogoCRL120px.gif") +
-                    " style='120px;'/>");
-
-                body = body.Replace("{LINKPEM}",
-                    $"{AppSettingsConfiguration.urlPEM_ViewEM}{emendamento.UID_QRCode}");
-
-                body = body.Replace("{LINKPEMRIEPILOGO}", string.Empty);
-            }
-            catch (Exception e)
-            {
-                Log.Error("GetBodyMail", e);
-                throw e;
-            }
         }
     }
 }

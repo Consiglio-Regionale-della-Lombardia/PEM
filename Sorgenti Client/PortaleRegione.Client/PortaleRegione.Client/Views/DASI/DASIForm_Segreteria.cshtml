@@ -275,6 +275,16 @@
 								</p>
 							</div>
 						}
+						
+						<div class="form-group">
+							<p>
+								<label>
+									<input id="Atto_NascondiGruppo" type="checkbox" value="true"
+									       @Html.Raw(Model.Atto.NascondiGruppo ? "checked=\"checked\"" : "")>
+									<span>Nascondi gruppo</span>
+								</label>
+							</p>
+						</div>
 
 						if (Model.CurrentUser.IsSegreteriaAssemblea)
 						{
