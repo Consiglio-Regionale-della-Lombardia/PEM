@@ -462,8 +462,8 @@ namespace PortaleRegione.API.Controllers
                 {
                     throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
                 }
-                await _dasiLogic.Salva_Nota(request, currentUser);
-                return Ok();
+                var nota = await _dasiLogic.Salva_Nota(request, currentUser);
+                return Ok(nota);
             }
             catch (Exception e)
             {

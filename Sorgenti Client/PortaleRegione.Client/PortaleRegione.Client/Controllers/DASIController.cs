@@ -2613,8 +2613,8 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.Salva_Nota(request);
-                return Json("OK", JsonRequestBehavior.AllowGet);
+                var nota = await apiGateway.DASI.Salva_Nota(request);
+                return Json(nota, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

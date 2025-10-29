@@ -471,30 +471,51 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task Salva_Nota(NoteDto request, PersonaDto currentUser)
+        public async Task<NoteDto> Salva_Nota(NoteDto request, PersonaDto currentUser)
         {
-            if (request.TipoEnum == 0)
-                throw new InvalidOperationException("Tipo nota non impostato");
-            if (string.IsNullOrEmpty(request.Nota))
-                throw new InvalidOperationException("Non è possibile inserire una nota vuota");
             var attoInDb = await _unitOfWork.DASI.Get(request.UIDAtto);
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
-
-            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
-            attoInDb.DataModifica = DateTime.Now;
-
-            //Aggiungi nota
-            _unitOfWork.DASI.AggiungiNota(new ATTI_NOTE
+            
+            if (request.Uid != Guid.Empty)
             {
-                Data = DateTime.Now,
-                Nota = request.Nota,
-                Tipo = (int)request.TipoEnum,
-                UIDAtto = request.UIDAtto,
-                UIDPersona = currentUser.UID_persona,
-                Uid = Guid.NewGuid()
-            });
-            await _unitOfWork.CompleteAsync();
+                // EDIT
+                attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+                attoInDb.DataModifica = DateTime.Now;
+                
+                var notaInDb = await _unitOfWork.DASI.GetNota(request.Uid);
+                notaInDb.Nota = request.Nota;
+                notaInDb.UIDPersona = currentUser.UID_persona;
+                notaInDb.Data = DateTime.Now;
+                await _unitOfWork.CompleteAsync();
+                return Mapper.Map<ATTI_NOTE, NoteDto>(notaInDb);
+            }
+            else
+            {
+                // NEW
+                if (request.TipoEnum == 0)
+                    throw new InvalidOperationException("Tipo nota non impostato");
+                if (string.IsNullOrEmpty(request.Nota))
+                    throw new InvalidOperationException("Non è possibile inserire una nota vuota");
+                
+                attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+                attoInDb.DataModifica = DateTime.Now;
+
+                var newNota = new ATTI_NOTE
+                {
+                    Data = DateTime.Now,
+                    Nota = request.Nota,
+                    Tipo = (int)request.TipoEnum,
+                    UIDAtto = request.UIDAtto,
+                    UIDPersona = currentUser.UID_persona,
+                    Uid = Guid.NewGuid()
+                };
+                //Aggiungi nota
+                _unitOfWork.DASI.AggiungiNota(newNota);
+                await _unitOfWork.CompleteAsync();
+            
+                return Mapper.Map<ATTI_NOTE, NoteDto>(newNota);
+            }
         }
 
         public async Task Salva_DettagliRisposta(AttiRisposteDto request, PersonaDto currentUser)

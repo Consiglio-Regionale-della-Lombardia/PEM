@@ -814,6 +814,11 @@ namespace PortaleRegione.Persistance
             return await PRContext.ATTI_NOTE.FirstOrDefaultAsync(n => n.UIDAtto == requestUidAtto
                                                                       && n.Tipo == (int)requestTipoEnum);
         }
+        
+        public async Task<ATTI_NOTE> GetNota(Guid requestUidNota)
+        {
+            return await PRContext.ATTI_NOTE.FirstOrDefaultAsync(n => n.Uid == requestUidNota);
+        }
 
         public void RimuoviNota(ATTI_NOTE notaInDb)
         {

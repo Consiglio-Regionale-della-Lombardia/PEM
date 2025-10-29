@@ -1031,8 +1031,11 @@
                         @if (Model.CurrentUser.IsSegreteriaAssemblea)
                         {
                             <td class="center">
+                                <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
+                                    <i class="material-icons">edit</i>
+                                </button>
                                 <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-									<i class="material-icons">close</i>
+                                    <i class="material-icons">close</i>
                                 </button>
                             </td>
                         }
@@ -1470,8 +1473,11 @@
                                     @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                     {
                                         <td class="center">
+                                            <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
+                                                <i class="material-icons">edit</i>
+                                            </button>
                                             <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-												<i class="material-icons">close</i>
+                                                <i class="material-icons">close</i>
                                             </button>
                                         </td>
                                     }
@@ -1603,6 +1609,9 @@
                             @if (Model.CurrentUser.IsSegreteriaAssemblea)
                             {
                                 <td class="center">
+                                    <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
+                                        <i class="material-icons">edit</i>
+                                    </button>
                                     <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
 										<i class="material-icons">close</i>
                                     </button>
@@ -1711,8 +1720,11 @@
                                     @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                     {
                                         <td class="center">
+                                            <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
+                                                <i class="material-icons">edit</i>
+                                            </button>
                                             <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-												<i class="material-icons">close</i>
+                                                <i class="material-icons">close</i>
                                             </button>
                                         </td>
                                     }

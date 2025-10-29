@@ -135,11 +135,12 @@ namespace PortaleRegione.Gateway
             return risposta;
         }
         
-        public async Task Salva_Nota(NoteDto request)
+        public async Task<NoteDto> Salva_Nota(NoteDto request)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save_Note}";
             var body = JsonConvert.SerializeObject(request);
-            await Post(requestUrl, body, _token);
+            var nota = JsonConvert.DeserializeObject<NoteDto>(await Post(requestUrl, body, _token));
+            return nota;
         }
         
         public async Task Rimuovi_Nota(NoteDto request)
