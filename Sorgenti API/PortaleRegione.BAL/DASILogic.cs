@@ -5286,7 +5286,13 @@ namespace PortaleRegione.API.Controllers
             if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta))) return atto.DisplayTipoRispostaRichiesta;
 
             if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta_Effettiva)))
+            {
+                if (atto.Risposte.All(risp => !risp.Data.HasValue))
+                {
+                    return atto.DisplayTipoRispostaFornita + " - risposta non ancora fornita";    
+                }
                 return atto.DisplayTipoRispostaFornita;
+            }
 
             if (propertyName.Equals(nameof(AttoDASIDto.TipoVotazioneIter))) return atto.DisplayTipoVotazioneIter;
 
