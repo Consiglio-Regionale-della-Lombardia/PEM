@@ -1141,7 +1141,8 @@ else
                 } else if (col.propertyName === '@nameof(AttoDASIDto.IDTipo_Risposta)') {
                     td.textContent = result.DisplayTipoRispostaRichiesta;
                 } else if (col.propertyName === '@nameof(AttoDASIDto.IDTipo_Risposta_Effettiva)') {
-                    td.textContent = result.DisplayTipoRispostaFornita;
+                    var dataRisposta = result.Risposte && result.Risposte.some(abb => abb.Data && abb.Data !== "");  
+                    td.textContent = `${result.DisplayTipoRispostaFornita}${(dataRisposta == false ? " - risposta non ancora fornita" : "")}`;
                 } else if (col.propertyName === '@nameof(AttoDASIDto.TipoChiusuraIter)') {
                     td.textContent = result.DisplayTipoChiusuraIter;
                 } else if (col.propertyName === '@nameof(AttoDASIDto.TipoVotazioneIter)') {
