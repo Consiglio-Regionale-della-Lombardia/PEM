@@ -203,7 +203,7 @@ namespace PortaleRegione.Persistance.Public
 
                     if (attoAbbinato == null)
                         continue;
-
+                    abbinata.UidAttoAbbinato = attoAbbinato.UIDAtto;
                     abbinata.OggettoAttoAbbinato = attoAbbinato.Oggetto;
                     abbinata.TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinato.Tipo);
                     abbinata.NumeroAttoAbbinato = attoAbbinato.NAtto;

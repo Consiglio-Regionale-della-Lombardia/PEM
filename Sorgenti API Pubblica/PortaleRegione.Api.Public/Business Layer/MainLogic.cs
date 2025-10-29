@@ -302,27 +302,34 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
                 // #1428
                 if (attoInDb.UID_Atto_ODG.HasValue)
-                    if (!abbinamenti.Any(a => a.UidAttoAbbinato.Equals(attoInDb.UID_Atto_ODG.Value)))
+                {
+                    var abbinamentoSecondario =
+                        abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_Atto_ODG);
+                    if (abbinamentoSecondario != null) abbinamenti.Remove(abbinamentoSecondario);
+
+                    var attoAbbinatoODG = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                    abbinamenti.Add(new AttiAbbinamentoPublicDto
                     {
-                        var attoAbbinatoODG = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
-                        abbinamenti.Add(new AttiAbbinamentoPublicDto
-                        {
-                            UidAbbinamento = Guid.NewGuid(),
-                            Data = attoAbbinatoODG.DataCreazione.HasValue
-                                ? attoAbbinatoODG.DataCreazione.Value.ToString("dd/MM/yyyy")
-                                : "",
-                            UidAttoAbbinato = attoInDb.UID_Atto_ODG.Value,
-                            OggettoAttoAbbinato = attoAbbinatoODG.Oggetto,
-                            TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinatoODG.IDTipoAtto),
-                            NumeroAttoAbbinato = attoAbbinatoODG.IDTipoAtto == (int)TipoAttoEnum.ALTRO
-                                ? "Dibattito"
-                                : attoAbbinatoODG.NAtto
-                        });
-                    }
+                        UidAbbinamento = Guid.NewGuid(),
+                        Data = attoAbbinatoODG.DataCreazione.HasValue
+                            ? attoAbbinatoODG.DataCreazione.Value.ToString("dd/MM/yyyy")
+                            : "",
+                        UidAttoAbbinato = attoInDb.UID_Atto_ODG.Value,
+                        OggettoAttoAbbinato = attoAbbinatoODG.Oggetto,
+                        TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinatoODG.IDTipoAtto),
+                        NumeroAttoAbbinato = attoAbbinatoODG.IDTipoAtto == (int)TipoAttoEnum.ALTRO
+                            ? ""
+                            : attoAbbinatoODG.NAtto
+                    });
+                }
 
                 // #1428
                 if (attoInDb.UID_MOZ_Abbinata.HasValue)
                 {
+                    var abbinamentoSecondario =
+                        abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_MOZ_Abbinata);
+                    if (abbinamentoSecondario != null) abbinamenti.Remove(abbinamentoSecondario);
+                    
                     var attoAbbinatoMOZ = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
                     if (!abbinamenti.Any(a => a.UidAttoAbbinato.Equals(attoInDb.UID_MOZ_Abbinata.Value)))
                         abbinamenti.Add(new AttiAbbinamentoPublicDto
