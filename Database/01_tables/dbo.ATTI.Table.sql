@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[ATTI]    Script Date: 23/09/2025 10:27:44 ******/
+/****** Object:  Table [dbo].[ATTI]    Script Date: 30/10/2025 10:53:30 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -73,14 +73,6 @@ ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_Fascicoli_Da_Aggiornare_1]  DE
 GO
 
 ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_Invio_Notifiche_Deposito_Solo_UOLA]  DEFAULT ((0)) FOR [Invio_Notifiche_Deposito_Solo_UOLA]
-GO
-
-ALTER TABLE [dbo].[ATTI]  WITH NOCHECK ADD  CONSTRAINT [FK_ATTI_SEDUTE] FOREIGN KEY([UIDSeduta])
-REFERENCES [dbo].[SEDUTE] ([UIDSeduta])
-NOT FOR REPLICATION 
-GO
-
-ALTER TABLE [dbo].[ATTI] CHECK CONSTRAINT [FK_ATTI_SEDUTE]
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ATTI', @level2type=N'COLUMN',@level2name=N'Jolly'

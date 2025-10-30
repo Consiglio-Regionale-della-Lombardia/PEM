@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[SEDUTE]    Script Date: 18/10/2025 16:08:20 ******/
+/****** Object:  Table [dbo].[SEDUTE]    Script Date: 30/10/2025 10:54:40 ******/
 SET ANSI_NULLS ON
 GO
 

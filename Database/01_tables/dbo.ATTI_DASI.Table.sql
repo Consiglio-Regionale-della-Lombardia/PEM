@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 24/10/2025 10:27:25 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 30/10/2025 10:53:49 ******/
 SET ANSI_NULLS ON
 GO
 
