@@ -22,16 +22,6 @@ namespace PortaleRegione.DTO.Domain;
 
 public class AttiMonitoraggioDto
 {
-    public AttiMonitoraggioDto(Guid uid, Guid uidAtto, int tipoOrgano, int idOrgano, string descrizioneOrgano, string displayTipoOrgano)
-    {
-        Uid = uid;
-        UIDAtto = uidAtto;
-        TipoOrgano = tipoOrgano;
-        IdOrgano = idOrgano;
-        DescrizioneOrgano = descrizioneOrgano;
-        DisplayTipoOrgano = displayTipoOrgano;
-    }
-
     public Guid Uid { get; set; }
     public Guid UIDAtto { get; set; }
     public int TipoOrgano { get; set; }

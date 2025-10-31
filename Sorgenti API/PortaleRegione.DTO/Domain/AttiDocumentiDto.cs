@@ -23,19 +23,14 @@ namespace PortaleRegione.DTO.Domain;
 
 public class AttiDocumentiDto
 {
-    public AttiDocumentiDto(string tipo, string titolo, string link)
+    public AttiDocumentiDto()
     {
-        Tipo = tipo;
-        Titolo = titolo;
-        Link = link;
+        
     }
 
-    public AttiDocumentiDto(Guid uid, string tipo, string titolo, string link)
+    public AttiDocumentiDto(Guid uid)
     {
         Uid = uid;
-        Tipo = tipo;
-        Titolo = titolo;
-        Link = link;
     }
 
     public Guid Uid { get; set; }
