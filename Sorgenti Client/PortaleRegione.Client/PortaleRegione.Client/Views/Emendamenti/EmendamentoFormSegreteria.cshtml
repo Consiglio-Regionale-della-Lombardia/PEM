@@ -1,12 +1,10 @@
 ﻿
 @using PortaleRegione.Common
-@using PortaleRegione.DTO.Domain
-@using PortaleRegione.DTO.Enum
 @model  PortaleRegione.DTO.Model.EmendamentiFormModel
 
 @{
     Layout = null;
-    var displayAtto = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
+    var displayAtto = $"{Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
     var isNew = Model.Emendamento.UIDEM == Guid.Empty;
     var isSubEM = Model.Emendamento.Rif_UIDEM.HasValue;
     var tipo_descrizione = Model.Emendamento.Rif_UIDEM.HasValue ? "sub-emendamento" : "emendamento";

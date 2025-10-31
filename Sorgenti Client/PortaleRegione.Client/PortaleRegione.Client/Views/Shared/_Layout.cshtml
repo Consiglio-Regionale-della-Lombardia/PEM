@@ -1,5 +1,4 @@
-﻿@using Newtonsoft.Json
-@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 <!DOCTYPE html>
@@ -57,7 +56,7 @@
                 }
                 else
                 {
-                    @Html.Raw("var modeFromCache = " + clientModeFromCache);
+                    @Html.Raw("var modeFromCache = " + clientModeFromCache)
                 }
             }
         }
@@ -235,8 +234,6 @@
                     @if (AppSettingsConfiguration.IsDebugMode)
                     {
                         @Html.Raw("devPanelCounter = devPanelCounter + 1;")
-                        ;
-                        ;
                     }
                 }
 

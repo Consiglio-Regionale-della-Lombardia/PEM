@@ -97,7 +97,7 @@ namespace ExpressionBuilder.Helpers
             var typeName = type.Name;
             if (type.IsArray)
             {
-                typeName = type.GetElementType().Name;
+                typeName = type.GetElementType()?.Name;
             }
 
             GetCustomSupportedTypes();
@@ -105,7 +105,7 @@ namespace ExpressionBuilder.Helpers
             var fieldInfo = typeGroup.GetType().GetField(typeGroup.ToString());
             var attrs = fieldInfo.GetCustomAttributes(false);
             var attr = attrs.FirstOrDefault(a => a is SupportedOperationsAttribute);
-            return (attr as SupportedOperationsAttribute).SupportedOperations;
+            return (attr as SupportedOperationsAttribute)?.SupportedOperations;
         }
 
         /// <summary>

@@ -136,7 +136,12 @@
 							{
 								<label style="font-size: small !important">Ultima modifica: </label>
 								<br />
-								<b>[@Model.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")] @Model.PersonaModifica.DisplayName</b>
+								<b>[
+									@if (Model.DataModifica != null)
+									{
+										@Model.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")
+									}
+									] @Model.PersonaModifica.DisplayName</b>
 							}
 							@if (!string.IsNullOrEmpty(Model.NOTE_Griglia))
 							{

@@ -24,6 +24,34 @@ namespace PortaleRegione.DTO.Domain.Essentials
 {
     public class EmendamentoLightDto
     {
+        public EmendamentoLightDto(Guid? uidPersonaProponente, DateTime? dataModifica, Guid? uidPersonaModifica, int idTipoEm, Tipi_EmendamentiDto tipiEm, int idStato, int idParte, string nTitolo, string nCapo, Guid? uidArticolo, Guid? uidComma, Guid? uidLettera, string nNumero, int? nMissione, int? nProgramma, int? nTitoloB, string testoEmOriginale, string testoRelOriginale, string pathAllegatoGenerico, string pathAllegatoTecnico, int? effettiFinanziari, string noteEm, string noteGriglia, Guid uidQrCode)
+        {
+            UIDPersonaProponente = uidPersonaProponente;
+            DataModifica = dataModifica;
+            UIDPersonaModifica = uidPersonaModifica;
+            IDTipo_EM = idTipoEm;
+            TIPI_EM = tipiEm;
+            IDStato = idStato;
+            IDParte = idParte;
+            NTitolo = nTitolo;
+            NCapo = nCapo;
+            UIDArticolo = uidArticolo;
+            UIDComma = uidComma;
+            UIDLettera = uidLettera;
+            NNumero = nNumero;
+            NMissione = nMissione;
+            NProgramma = nProgramma;
+            NTitoloB = nTitoloB;
+            TestoEM_originale = testoEmOriginale;
+            TestoREL_originale = testoRelOriginale;
+            PATH_AllegatoGenerico = pathAllegatoGenerico;
+            PATH_AllegatoTecnico = pathAllegatoTecnico;
+            EffettiFinanziari = effettiFinanziari;
+            NOTE_EM = noteEm;
+            NOTE_Griglia = noteGriglia;
+            UID_QRCode = uidQrCode;
+        }
+
         public Guid? UIDPersonaProponente { get; set; }
         public DateTime? DataModifica { get; set; }
 

@@ -22,6 +22,24 @@ namespace PortaleRegione.DTO.Domain;
 
 public class AttoDASI_InformazioniGeneraliDto
 {
+    public AttoDASI_InformazioniGeneraliDto(Guid uidAtto, int stato, DateTime dataAnnunzio, DateTime? timestamp, string oggetto, string protocollo, string codiceMateria, int areaPolitica, int rispostaRichiesta, bool pubblicato, bool sollecito, Guid? uidPersonaRelatore1, Guid? uidPersonaRelatore2, Guid? uidPersonaRelatoreMinoranza)
+    {
+        UIDAtto = uidAtto;
+        Stato = stato;
+        DataAnnunzio = dataAnnunzio;
+        Timestamp = timestamp;
+        Oggetto = oggetto;
+        Protocollo = protocollo;
+        CodiceMateria = codiceMateria;
+        AreaPolitica = areaPolitica;
+        RispostaRichiesta = rispostaRichiesta;
+        Pubblicato = pubblicato;
+        Sollecito = sollecito;
+        UIDPersonaRelatore1 = uidPersonaRelatore1;
+        UIDPersonaRelatore2 = uidPersonaRelatore2;
+        UIDPersonaRelatoreMinoranza = uidPersonaRelatoreMinoranza;
+    }
+
     public Guid UIDAtto { get; set; }
     public int Stato { get; set; }             // ID dello stato dell'atto (Presentato, In Trattazione, Completato)
     public DateTime DataAnnunzio { get; set; } // Data dell'annuncio

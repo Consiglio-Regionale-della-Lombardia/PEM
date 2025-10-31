@@ -162,6 +162,8 @@ namespace PortaleRegione.API.Controllers
                 result.Premesse = attoDto.Premesse;
                 result.Richiesta = attoDto.Richiesta;
                 result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
+                
+                result.NascondiGruppo = attoDto.NascondiGruppo;
 
                 _unitOfWork.DASI.Add(result);
                 await _unitOfWork.CompleteAsync();
@@ -215,6 +217,8 @@ namespace PortaleRegione.API.Controllers
             attoInDb.Premesse = attoDto.Premesse;
             attoInDb.Richiesta = attoDto.Richiesta;
             attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
+            
+            attoInDb.NascondiGruppo = attoDto.NascondiGruppo;
 
             if (attoDto.DocAllegatoGenerico_Stream != null)
                 if (attoDto.DocAllegatoGenerico_Stream.Length > 0)
@@ -5287,11 +5291,16 @@ namespace PortaleRegione.API.Controllers
 
             if (propertyName.Equals(nameof(AttoDASIDto.IDTipo_Risposta_Effettiva)))
             {
-                if (atto.Risposte.All(risp => !risp.Data.HasValue))
+                if (atto.IDTipo_Risposta_Effettiva.HasValue)
                 {
-                    return atto.DisplayTipoRispostaFornita + " - risposta non ancora fornita";    
+                    if (atto.Risposte.All(risp => !risp.Data.HasValue))
+                    {
+                        return string.Empty;    
+                    }
+                    return atto.DisplayTipoRispostaFornita;
                 }
-                return atto.DisplayTipoRispostaFornita;
+
+                return string.Empty;
             }
 
             if (propertyName.Equals(nameof(AttoDASIDto.TipoVotazioneIter))) return atto.DisplayTipoVotazioneIter;

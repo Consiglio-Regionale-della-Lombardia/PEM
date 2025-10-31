@@ -1087,7 +1087,7 @@ namespace PortaleRegione.Common
             }
 
             // 5. Evita nomi riservati come CON, PRN, AUX, NUL, ecc. (Windows)
-            var reservedNames = new string[]
+            var reservedNames = new[]
             {
                 "CON", "PRN", "AUX", "NUL",
                 "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
@@ -1109,10 +1109,15 @@ namespace PortaleRegione.Common
         public static string GetDisplayName(Type objectType, string propertyName)
         {
             var prop = objectType.GetProperty(propertyName);
-            var displayNameAttribute = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
-                .FirstOrDefault() as DisplayNameAttribute;
+            if (prop != null)
+            {
+                var displayNameAttribute = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                    .FirstOrDefault() as DisplayNameAttribute;
 
-            return displayNameAttribute?.DisplayName ?? propertyName;
+                return displayNameAttribute?.DisplayName ?? propertyName;
+            }
+
+            return string.Empty;
         }
 
         public static List<List<T>> Split<T>(IList<T> source, int slice = 100)

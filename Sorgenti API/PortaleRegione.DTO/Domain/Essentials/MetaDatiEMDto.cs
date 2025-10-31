@@ -24,6 +24,26 @@ namespace PortaleRegione.DTO.Domain.Essentials
 {
     public class MetaDatiEMDto
     {
+        public MetaDatiEMDto(DateTime? dataModifica, Guid? uidPersonaModifica, int idTipoEm, int idParte, string nTitolo, string nCapo, Guid? uidArticolo, Guid? uidComma, Guid? uidLettera, string nNumero, int? nMissione, int? nProgramma, int? nTitoloB, string noteEm, string noteGriglia, int? areaPolitica)
+        {
+            DataModifica = dataModifica;
+            UIDPersonaModifica = uidPersonaModifica;
+            IDTipo_EM = idTipoEm;
+            IDParte = idParte;
+            NTitolo = nTitolo;
+            NCapo = nCapo;
+            UIDArticolo = uidArticolo;
+            UIDComma = uidComma;
+            UIDLettera = uidLettera;
+            NNumero = nNumero;
+            NMissione = nMissione;
+            NProgramma = nProgramma;
+            NTitoloB = nTitoloB;
+            NOTE_EM = noteEm;
+            NOTE_Griglia = noteGriglia;
+            AreaPolitica = areaPolitica;
+        }
+
         public DateTime? DataModifica { get; set; }
 
         public Guid? UIDPersonaModifica { get; set; }

@@ -61,23 +61,19 @@
         var titolo_atto = $"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}";
 
         var statoAtto = "";
-        var coloreStatoAtto = "";
         if (atto.Chiuso)
         {
             statoAtto = "Chiuso";
-            coloreStatoAtto = "grey-text";
         }
         else
         {
             if (!atto.Data_apertura.HasValue)
             {
                 statoAtto = "Chiuso";
-                coloreStatoAtto = "grey-text";
             }
             else if (atto.Data_apertura.Value < DateTime.Now)
             {
                 statoAtto = "Aperto";
-                coloreStatoAtto = "green-text";
             }
             else
             {
@@ -99,8 +95,6 @@
                 {
                     statoAtto = $"Apertura prevista: {atto.Data_apertura.Value:dd/MM/yyyy HH:mm}";
                 }
-
-                coloreStatoAtto = "pink-text";
             }
         }
 
@@ -130,7 +124,7 @@
                                         <input type="checkbox"
                                                id="chkAbilitaFascicoloVotazione_@atto.UIDAtto"
                                                onchange="PubblicaFascicolo('@atto.UIDAtto', @((int)OrdinamentoEnum.Votazione))"
-                                               @Html.Raw(atto.OrdineVotazione.Value ? "checked=\"checked\"" : "")>
+                                               @Html.Raw(atto.OrdineVotazione != null && atto.OrdineVotazione.Value ? "checked=\"checked\"" : "")>
                                         <span>Abilita fascicolo votazione</span>
                                     </label>
                                 </div>

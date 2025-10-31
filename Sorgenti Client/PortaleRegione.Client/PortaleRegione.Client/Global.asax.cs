@@ -93,7 +93,7 @@ namespace PortaleRegione.Client
             if (exc.GetType() == typeof(UnauthorizedAccessException))
             {
                 var controller = new AutenticazioneController();
-                controller.Logout();
+                _ = controller.Logout();
                 Response.Redirect($"~/Login?ReturnUrl={Request.Url.LocalPath}");
             }
         }

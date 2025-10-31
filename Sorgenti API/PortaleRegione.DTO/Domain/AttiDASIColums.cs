@@ -19,13 +19,62 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System;
-using Newtonsoft.Json;
 
 namespace PortaleRegione.DTO.Domain;
 
 public class AttiDASIColums
 {
     // L'ordinamento è stato fatto in base al ticket #989
+    public AttiDASIColums(int legislatura, int tipo, int tipoMoz, string etichetta, string oggetto, Guid? uidPersonaProponente, string firme, DateTime timestamp, string firmeDopoDeposito, int idGruppo, string firmeRitirate, int areaPolitica, string protocollo, string codiceMateria, bool nonPassaggioInEsame, string risposte, string monitoraggi, DateTime? dataTrasmissioneMonitoraggio, bool monitoraggioConcluso, List<OrganoDto> commissioniProponenti, string note, DateTime? dataAnnunzio, DateTime? dataComunicazioneAssemblea, int idStato, int? tipoChiusuraIter, DateTime? dataChiusuraIter, string dataRichiestaIscrizioneSeduta, DateTime? dataIscrizioneSeduta, Guid? uidSeduta, int? tipoVotazioneIter, bool emendato, int? dcr, string abbinamenti, string impegniScadenze, int idTipoRisposta, List<OrganoDto> organi, int? idTipoRispostaEffettiva, bool iterMultiplo, bool pubblicato, bool sollecito, int conteggioFirme, bool privacy, bool privacyDivietoPubblicazione, bool presentatoOltreITermini, string documenti, int ritardo)
+    {
+        Legislatura = legislatura;
+        Tipo = tipo;
+        TipoMOZ = tipoMoz;
+        Etichetta = etichetta;
+        Oggetto = oggetto;
+        UIDPersonaProponente = uidPersonaProponente;
+        Firme = firme;
+        Timestamp = timestamp;
+        Firme_dopo_deposito = firmeDopoDeposito;
+        id_gruppo = idGruppo;
+        Firme_ritirate = firmeRitirate;
+        AreaPolitica = areaPolitica;
+        Protocollo = protocollo;
+        CodiceMateria = codiceMateria;
+        Non_Passaggio_In_Esame = nonPassaggioInEsame;
+        Risposte = risposte;
+        Monitoraggi = monitoraggi;
+        DataTrasmissioneMonitoraggio = dataTrasmissioneMonitoraggio;
+        MonitoraggioConcluso = monitoraggioConcluso;
+        CommissioniProponenti = commissioniProponenti;
+        Note = note;
+        DataAnnunzio = dataAnnunzio;
+        DataComunicazioneAssemblea = dataComunicazioneAssemblea;
+        IDStato = idStato;
+        TipoChiusuraIter = tipoChiusuraIter;
+        DataChiusuraIter = dataChiusuraIter;
+        DataRichiestaIscrizioneSeduta = dataRichiestaIscrizioneSeduta;
+        DataIscrizioneSeduta = dataIscrizioneSeduta;
+        UIDSeduta = uidSeduta;
+        TipoVotazioneIter = tipoVotazioneIter;
+        Emendato = emendato;
+        DCR = dcr;
+        Abbinamenti = abbinamenti;
+        ImpegniScadenze = impegniScadenze;
+        IDTipo_Risposta = idTipoRisposta;
+        Organi = organi;
+        IDTipo_Risposta_Effettiva = idTipoRispostaEffettiva;
+        IterMultiplo = iterMultiplo;
+        Pubblicato = pubblicato;
+        Sollecito = sollecito;
+        ConteggioFirme = conteggioFirme;
+        Privacy = privacy;
+        Privacy_Divieto_Pubblicazione = privacyDivietoPubblicazione;
+        PresentatoOltreITermini = presentatoOltreITermini;
+        Documenti = documenti;
+        Ritardo = ritardo;
+    }
+
     [DisplayName("Legislatura")] public int Legislatura { get; set; }
     [DisplayName("Tipo atto")] public int Tipo { get; set; }
     [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;

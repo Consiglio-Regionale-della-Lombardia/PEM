@@ -1,11 +1,10 @@
 ﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Enum
-@using PortaleRegione.DTO.Model
 @using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
 @{
-    ViewBag.Title = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
+    ViewBag.Title = $"{Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
 
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
 

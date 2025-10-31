@@ -65,6 +65,7 @@ namespace PortaleRegione.Client.Helpers
         ///     Ritorna lista destinatari per la visualizzazione client
         /// </summary>
         /// <param name="destinatari"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
         public static async Task<string> GetDestinatariNotifica(IEnumerable<DestinatariNotificaDto> destinatari,
             string token)
@@ -83,8 +84,9 @@ namespace PortaleRegione.Client.Helpers
             {
                 var templateOpzionale = templateAttesa;
                 if (destinatario.Visto)
-                    templateOpzionale =
-                        $"<div title='Visto il {destinatario.DataVisto.Value:dd/MM/yyyy HH:mm}' class='notifica-check blue'></div>";
+                    if (destinatario.DataVisto != null)
+                        templateOpzionale =
+                            $"<div title='Visto il {destinatario.DataVisto.Value:dd/MM/yyyy HH:mm}' class='notifica-check blue'></div>";
                 if (destinatario.Firmato)
                     templateOpzionale = templateFirmato;
 
@@ -194,6 +196,7 @@ namespace PortaleRegione.Client.Helpers
         /// <param name="firme"></param>
         /// <param name="currentUId"></param>
         /// <param name="tipo"></param>
+        /// <param name="token"></param>
         /// <param name="tag"></param>
         /// <returns></returns>
         public static async Task<string> GetFirmatari(IEnumerable<FirmeDto> firme, Guid currentUId,
@@ -283,6 +286,7 @@ namespace PortaleRegione.Client.Helpers
         /// <param name="firme"></param>
         /// <param name="currentUId"></param>
         /// <param name="tipo"></param>
+        /// <param name="token"></param>
         /// <param name="tag"></param>
         /// <returns></returns>
         public static async Task<string> GetFirmatariDASI(IEnumerable<AttiFirmeDto> firme, Guid currentUId,
@@ -935,7 +939,7 @@ namespace PortaleRegione.Client.Helpers
         ///     Aggiunge il filtro alla request di ricerca
         /// </summary>
         /// <param name="model"></param>
-        /// <param name="proponenti"></param>
+        /// <param name="provvedimenti"></param>
         public void AddFilter_Provvedimenti(ref BaseRequest<AttoDASIDto> model, string provvedimenti)
         {
             if (string.IsNullOrEmpty(provvedimenti)) return;

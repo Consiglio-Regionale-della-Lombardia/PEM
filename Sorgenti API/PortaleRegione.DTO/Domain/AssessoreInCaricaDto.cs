@@ -22,6 +22,14 @@ namespace PortaleRegione.DTO.Domain
 {
     public class AssessoreInCaricaDto
     {
+        public AssessoreInCaricaDto(Guid uidPersona, string displayName, int idCarica, string nomeCarica)
+        {
+            UID_persona = uidPersona;
+            DisplayName = displayName;
+            id_carica = idCarica;
+            nome_carica = nomeCarica;
+        }
+
         public Guid UID_persona { get; set; }
 
         public string DisplayName { get; set; }

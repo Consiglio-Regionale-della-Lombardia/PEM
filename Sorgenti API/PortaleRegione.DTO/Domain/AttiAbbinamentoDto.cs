@@ -22,6 +22,16 @@ namespace PortaleRegione.DTO.Domain;
 
 public class AttiAbbinamentoDto
 {
+    public AttiAbbinamentoDto(Guid uidAbbinamento, Guid uidAttoAbbinato, DateTime data, string oggettoAttoAbbinato, string tipoAttoAbbinato, string numeroAttoAbbinato)
+    {
+        UidAbbinamento = uidAbbinamento;
+        UidAttoAbbinato = uidAttoAbbinato;
+        Data = data;
+        OggettoAttoAbbinato = oggettoAttoAbbinato;
+        TipoAttoAbbinato = tipoAttoAbbinato;
+        NumeroAttoAbbinato = numeroAttoAbbinato;
+    }
+
     public Guid UidAbbinamento { get; set; }
     public Guid UidAttoAbbinato { get; set; }
     public DateTime Data { get; set; }

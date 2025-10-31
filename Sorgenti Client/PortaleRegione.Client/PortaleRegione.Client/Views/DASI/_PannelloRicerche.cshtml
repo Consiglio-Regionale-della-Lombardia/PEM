@@ -1,11 +1,5 @@
-﻿@using System.Linq;
-@using PortaleRegione.DTO.Domain
-@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
-
-@{
-    var _disabled = Model.ClientMode == ClientModeEnum.TRATTAZIONE;
-}
 
 <style>
 	#data-collection > .collection-item {

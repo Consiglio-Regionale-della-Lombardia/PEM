@@ -38,7 +38,6 @@
     <ul id="gridView" class="collapsible expandable">
         @foreach (var seduta in Model.Results)
         {
-            var chiusa = false;
             var css_sedutaAttiva = "green lighten-4 black-text";
             if (seduta.Data_effettiva_fine.HasValue)
             {
@@ -54,11 +53,9 @@
                         <span style="padding-right: 50px">Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")</span>
                         @if (!seduta.Data_apertura.HasValue)
                         {
-                            chiusa = true;
                         }
                         else if (seduta.Data_apertura > DateTime.Now)
                         {
-                            chiusa = true;
                         }
                         else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                         {

@@ -246,7 +246,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
         /// </summary>
         /// <returns></returns>
-        public async Task<ActionResult> RiepilogoDASI()
+        public Task<ActionResult> RiepilogoDASI()
         {
             var model = new RiepilogoDASIModel
             {
@@ -257,9 +257,9 @@ namespace PortaleRegione.Client.Controllers
                     { RuoliIntEnum.Amministratore_PEM
                         , RuoliIntEnum.Segreteria_Assemblea
                         , RuoliIntEnum.Segreteria_Assemblea_Read }))
-                return View("RiepilogoDASI_Admin", model);
+                return Task.FromResult<ActionResult>(View("RiepilogoDASI_Admin", model));
 
-            return View("RiepilogoDASI", model);
+            return Task.FromResult<ActionResult>(View("RiepilogoDASI", model));
         }
 
         /// <summary>
@@ -446,6 +446,8 @@ namespace PortaleRegione.Client.Controllers
         ///     Esegui azione su Atti di Sindacato Ispettivo selezionato
         /// </summary>
         /// <param name="id">Guid</param>
+        /// <param name="azione"></param>
+        /// <param name="pin"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("azioni")]
@@ -505,7 +507,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Esegui azione su Atti di Sindacato Ispettivo selezionato
         /// </summary>
-        /// <param name="id">Guid</param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("azioni-massive")]
@@ -1473,7 +1475,7 @@ namespace PortaleRegione.Client.Controllers
                             || filterStatement.PropertyId.Equals(nameof(AttoDASIDto.UIDSeduta))
                             || filterStatement.PropertyId.Equals(nameof(AttoDASIDto.Tipo)))
                         {
-                            continue;
+                            //continue;
                         }
                         else
                         {
@@ -1553,7 +1555,7 @@ namespace PortaleRegione.Client.Controllers
             var view = Request.Form["view"];
             var filtro_oggetto = Request.Form["filtro_oggetto"];
             var filtro_stato = Request.Form["filtro_stato"];
-            var filtro_tipo = Request.Form["filtro_tipo"];
+            //var filtro_tipo = Request.Form["filtro_tipo"];
             var filtro_mozione_urgente = Request.Form["filtro_mozione_urgente"];
             var filtro_tipo_risposta = Request.Form["filtro_tipo_risposta"];
             var filtro_natto = Request.Form["filtro_natto"];
@@ -1885,6 +1887,8 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per generare la copertina per il presidente
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="tipo"></param>
+        /// <param name="tipo_risposta"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("genera-report-copertina-presidente")]
@@ -2073,6 +2077,8 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per generare la copertina per l'ufficio
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="tipo"></param>
+        /// <param name="tipo_risposta"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("genera-report-lettera")]
@@ -2207,7 +2213,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per scaricare il documento pdf dell'atto
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("genera-report")]
@@ -2676,7 +2682,6 @@ namespace PortaleRegione.Client.Controllers
             // Verifica che la richiesta contenga dei file
             if (Request.Files == null || Request.Files.Count == 0)
             {
-                ;
                 return Json(new ErrorResponse("Nessun file caricato."), JsonRequestBehavior.AllowGet);
             }
 

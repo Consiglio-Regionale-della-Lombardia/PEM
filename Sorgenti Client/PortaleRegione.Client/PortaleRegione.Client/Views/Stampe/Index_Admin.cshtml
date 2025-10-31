@@ -1,5 +1,4 @@
-﻿@using PortaleRegione.Common
-@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.StampaDto>
 
 @{
@@ -114,22 +113,25 @@
                         else if (stampa.Da == 0 && stampa.A == 0)
                         {
                             <td>
-                                @switch ((OrdinamentoEnum)stampa.Ordine.Value)
+                                @if (stampa.Ordine != null)
                                 {
-                                    case OrdinamentoEnum.Presentazione:
-                                        <div class="chip center" style="min-width: unset">
-                                            Fascicolo Presentazione
-                                        </div>
-                                        break;
-                                    case OrdinamentoEnum.Votazione:
-                                        <div class="chip center" style="min-width: unset">
-                                            Fascicolo Votazione
-                                        </div>
-                                        break;
-                                    case OrdinamentoEnum.Default:
-                                        break;
-                                    default:
-                                        throw new ArgumentOutOfRangeException();
+                                    switch ((OrdinamentoEnum)stampa.Ordine.Value)
+                                    {
+                                        case OrdinamentoEnum.Presentazione:
+                                            <div class="chip center" style="min-width: unset">
+                                                Fascicolo Presentazione
+                                            </div>
+                                            break;
+                                        case OrdinamentoEnum.Votazione:
+                                            <div class="chip center" style="min-width: unset">
+                                                Fascicolo Votazione
+                                            </div>
+                                            break;
+                                        case OrdinamentoEnum.Default:
+                                            break;
+                                        default:
+                                            throw new ArgumentOutOfRangeException();
+                                    }
                                 }
                             </td>
                         }

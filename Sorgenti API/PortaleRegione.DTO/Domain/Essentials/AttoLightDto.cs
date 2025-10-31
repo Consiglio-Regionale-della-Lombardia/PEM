@@ -25,6 +25,16 @@ namespace PortaleRegione.DTO.Domain.Essentials
 {
     public class AttoLightDto
     {
+        public AttoLightDto(Guid uidAtto, string oggetto, string display, string natto, string tipo, string tipoEsteso)
+        {
+            this.uidAtto = uidAtto;
+            this.oggetto = oggetto;
+            this.display = display;
+            this.natto = natto;
+            this.tipo = tipo;
+            tipo_esteso = tipoEsteso;
+        }
+
         public Guid uidAtto { get; set; }
         public string oggetto { get; set; }
         public string display { get; set; }

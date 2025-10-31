@@ -1533,7 +1533,7 @@
                         </table>
                     </div>
                 </div>
-                @if (atto.IsRIS() && atto.FlussoRespingi == false)
+                @if (atto.IsRIS() && !atto.FlussoRespingi)
                 {
                     <div class="row card-panel blue lighten-4">
                         <div class="col s12 l4 center hide-on-med-and-down">
@@ -1547,7 +1547,7 @@
 
                         </div>
                     </div>
-                }else if (atto.IsRIS() && atto.FlussoRespingi == true)
+                }else if (atto.IsRIS() && atto.FlussoRespingi)
                 {
                     <div class="row card-panel blue lighten-4">
                         <div class="col s12 l4 center hide-on-med-and-down">

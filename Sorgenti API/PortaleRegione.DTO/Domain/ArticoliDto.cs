@@ -23,6 +23,17 @@ namespace PortaleRegione.DTO.Domain
 {
     public class ArticoliDto
     {
+        public ArticoliDto(Guid uidArticolo, Guid uidAtto, string articolo, string rubricaArticolo, string testoArticolo, int ordine, AttiDto atti)
+        {
+            UIDArticolo = uidArticolo;
+            UIDAtto = uidAtto;
+            Articolo = articolo;
+            RubricaArticolo = rubricaArticolo;
+            TestoArticolo = testoArticolo;
+            Ordine = ordine;
+            ATTI = atti;
+        }
+
         [Key]
         public Guid UIDArticolo { get; set; }
 

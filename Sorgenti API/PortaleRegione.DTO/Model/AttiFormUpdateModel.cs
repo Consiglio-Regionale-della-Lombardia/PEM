@@ -65,9 +65,9 @@ namespace PortaleRegione.DTO.Model
 
         public IEnumerable<PersonaLightDto> Relatori { get; set; }
         [Display(Name = "Emendabile")]
-        public bool Emendabile { get; set; } = false;
+        public bool Emendabile { get; set; }
 
         [Display(Name = "Invio notifiche di deposito solo a UOLA")]
-        public bool Invio_Notifiche_Deposito_Solo_UOLA { get; set; } = false;
+        public bool Invio_Notifiche_Deposito_Solo_UOLA { get; set; }
     }
 }

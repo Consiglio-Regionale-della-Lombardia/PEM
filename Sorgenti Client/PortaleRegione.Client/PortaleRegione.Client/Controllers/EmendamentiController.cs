@@ -94,8 +94,6 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per visualizzare i dati degli emendamenti contenuti in un atto
         /// </summary>
         /// <param name="id">Guid atto</param>
-        /// <param name="page">Pagina corrente</param>
-        /// <param name="size">Paginazione</param>
         /// <returns></returns>
         [HttpGet]
         [Route("seduta/{id:guid}")]
@@ -122,7 +120,7 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(Token);
             EmendamentiViewModel model;
-            if (view_require_my_sign == false)
+            if (!view_require_my_sign)
                 model = await apiGateway.Emendamento.Get(id, mode, ordine, page, size);
             else
                 model = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
@@ -718,8 +716,6 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per esportare gli emendamenti di un atto
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="ordine"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("esporta-xls")]

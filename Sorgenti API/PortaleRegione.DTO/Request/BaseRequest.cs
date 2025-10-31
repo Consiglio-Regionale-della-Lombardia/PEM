@@ -20,7 +20,6 @@ using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Enum;
 using System;
 using System.Collections.Generic;
-using PortaleRegione.DTO.Domain;
 
 namespace PortaleRegione.DTO.Request
 {

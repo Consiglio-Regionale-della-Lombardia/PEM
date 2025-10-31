@@ -26,7 +26,7 @@
                 Utente: <b>@sessione.Persona.DisplayName</b>; Ingresso il: 
 						<b>@sessione.DataIngresso.ToString("dd/MM/yyyy HH:mm")</b>; Uscita il: 
 						<b>@((sessione.DataUscita.HasValue) ? sessione.DataUscita.Value.ToString("dd/MM/yyyy HH:mm") : "--")</b>;
-                        Stato: <b>@sessione.Stato</b>; Chiusura corretta: <b>@(sessione.ChiusuraCorretta is true ? "Si": "No")</b>
+                        Stato: <b>@sessione.Stato</b>; Chiusura corretta: <b>@(sessione.ChiusuraCorretta ? "Si": "No")</b>
 			</li>
         }
     </ul>

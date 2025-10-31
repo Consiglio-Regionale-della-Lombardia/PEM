@@ -300,13 +300,13 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string DisplayTipo { get; set; }
 
-    public List<AttiRisposteDto> Risposte { get; set; } = new List<AttiRisposteDto>();
-    public List<AttiMonitoraggioDto> Monitoraggi { get; set; } = new List<AttiMonitoraggioDto>();
-    public List<AttiDocumentiDto> Documenti { get; set; } = new List<AttiDocumentiDto>();
-    public List<NoteDto> Note { get; set; } = new List<NoteDto>();
+    public List<AttiRisposteDto> Risposte { get; set; } = new();
+    public List<AttiMonitoraggioDto> Monitoraggi { get; set; } = new();
+    public List<AttiDocumentiDto> Documenti { get; set; } = new();
+    public List<NoteDto> Note { get; set; } = new();
 
     [DisplayName("Abbinamenti")]
-    public List<AttiAbbinamentoDto> Abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
+    public List<AttiAbbinamentoDto> Abbinamenti { get; set; } = new();
 
     public string DisplayTipoChiusuraIter { get; set; }
     public string DisplayTipoVotazioneIter { get; set; }

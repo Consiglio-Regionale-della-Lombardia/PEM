@@ -41,6 +41,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per visualizzare i dati degli atti contenuti in una seduta
         /// </summary>
         /// <param name="id">Guid seduta</param>
+        /// <param name="mode"></param>
         /// <param name="page">Pagina corrente</param>
         /// <param name="size">Paginazione</param>
         /// <returns></returns>
@@ -64,6 +65,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per eliminare l'atto
         /// </summary>
+        /// <param name="sedutaUId"></param>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
@@ -262,6 +264,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per avere i commi
         /// </summary>
         /// <param name="id">Guid articolo</param>
+        /// <param name="expanded"></param>
         /// <returns></returns>
         [Route("commi")]
         public async Task<ActionResult> GetCommi(Guid id, bool expanded = false)
@@ -327,7 +330,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per salvare o modificare l'atto
         /// </summary>
-        /// <param name="atto">Modello atto</param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("relatori")]
@@ -359,7 +362,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per salvare o modificare l'atto
         /// </summary>
-        /// <param name="atto">Modello atto</param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("abilita-fascicolazione")]

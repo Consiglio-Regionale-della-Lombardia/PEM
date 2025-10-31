@@ -31,14 +31,14 @@ namespace PortaleRegione.DTO.Response
         {
             try
             {
-                message = JsonConvert.DeserializeObject<ErrorResponse>(_message).message;
+                message = JsonConvert.DeserializeObject<ErrorResponse>(_message)?.message;
             }
             catch (Exception)
             {
                 message = _message;
             }
         }
-        public string message { get; set; }
+        public string? message { get; set; }
         public string exceptionMessage { get; set; }
         public string exceptionType { get; set; }
         public string stackTrace { get; set; }

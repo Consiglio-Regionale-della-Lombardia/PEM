@@ -16,8 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Newtonsoft.Json.Linq;
-
 namespace PortaleRegione.DTO.Routes
 {
     public static class ApiRoutes

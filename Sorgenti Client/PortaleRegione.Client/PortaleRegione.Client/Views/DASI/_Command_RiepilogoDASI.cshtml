@@ -63,11 +63,11 @@
             var statoFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.STATO_DASI}_{Model.CurrentUser.UID_persona.ToString()}");
             var tipoFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.TIPO_DASI}_{Model.CurrentUser.UID_persona.ToString()}");
 
-            var url = Url.Action("RiepilogoDASI", "DASI", new { view = new_view, stato = statoFromCache, tipo = tipoFromCache });
+            Url.Action("RiepilogoDASI", "DASI", new { view = new_view, stato = statoFromCache, tipo = tipoFromCache });
             if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
             {
                 var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
-                url = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = uidSeduta, tipo = Model.Tipo, view = new_view });
+                Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = uidSeduta, tipo = Model.Tipo, view = new_view });
             }
 
         }

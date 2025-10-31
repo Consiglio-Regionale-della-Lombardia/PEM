@@ -19,7 +19,6 @@
 using System;
 using System.Collections;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
@@ -33,7 +32,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
-using static PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -294,7 +292,7 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(Token);
             var persona = await apiGateway.Persone.Get(id);
 
-            LogoutFlow();
+            await LogoutFlow();
 
             return RedirectToAction("FormAutenticazioneDEBUG",
                 new { username = $"***{persona.userAD.Replace(@"CONSIGLIO\", "")}", password = "xx" });

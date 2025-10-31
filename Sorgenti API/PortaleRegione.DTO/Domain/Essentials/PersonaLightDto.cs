@@ -37,9 +37,9 @@ namespace PortaleRegione.DTO.Domain.Essentials
 
         public Guid UID_persona { get; set; }
 
-        public string cognome { get; set; }
-        public string nome { get; set; }
-        public string foto { get; set; }
+        public string? cognome { get; set; }
+        public string? nome { get; set; }
+        public string? foto { get; set; }
         public int id_persona { get; set; }
     }
     public class PersonaExtraLightDto

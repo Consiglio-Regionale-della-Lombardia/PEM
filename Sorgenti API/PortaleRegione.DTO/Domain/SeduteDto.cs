@@ -63,7 +63,7 @@ namespace PortaleRegione.DTO.Domain
 
         public DateTime? DataModifica { get; set; }
 
-        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
+        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo (ITL Orali, ODG, RIS)")]
         public bool Riservato_DASI { get; set; } = false;
         [Display(Name = "Dedicata agli atti di indirizzo e sindacato ispettivo (MOZ)")]
         public bool Riservato_DASI_MOZ { get; set; } = false;
@@ -110,16 +110,16 @@ namespace PortaleRegione.DTO.Domain
         public string Intervalli { get; set; }
 
         [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
-        public bool Riservato_DASI { get; set; } = false;
+        public bool Riservato_DASI { get; set; }
         
         [Display(Name = "Dedicata agli atti di indirizzo e sindacato ispettivo (MOZ)")]
-        public bool Riservato_DASI_MOZ { get; set; } = false;
+        public bool Riservato_DASI_MOZ { get; set; }
         [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo (IQT)")]
-        public bool Riservato_DASI_IQT { get; set; } = false;
+        public bool Riservato_DASI_IQT { get; set; }
         
         // #1488
         [Display(Name = "Blocco mozioni abbinate")]
-        public bool Blocco_MOZ_Abbinate { get; set; } = false;
+        public bool Blocco_MOZ_Abbinate { get; set; }
 
         // Matteo Cattapan #529 - Annotazioni sedute
         public string Note { get; set; }

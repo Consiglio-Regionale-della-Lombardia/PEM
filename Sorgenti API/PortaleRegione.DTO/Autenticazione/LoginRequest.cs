@@ -22,14 +22,26 @@ namespace PortaleRegione.DTO.Autenticazione
 {
     public class LoginRequest
     {
-        [Required]
-        [MaxLength(50)]
-        public string Username { get; set; }
+        public LoginRequest()
+        {
+            
+        }
+        
+        public LoginRequest(string username, string password, string messaggioErrore)
+        {
+            Username = username;
+            Password = password;
+            MessaggioErrore = messaggioErrore;
+        }
 
         [Required]
         [MaxLength(50)]
-        public string Password { get; set; }
+        public string? Username { get; set; }
 
-        public string MessaggioErrore { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public string? Password { get; set; }
+
+        public string? MessaggioErrore { get; set; }
     }
 }

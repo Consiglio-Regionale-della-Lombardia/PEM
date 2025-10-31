@@ -125,7 +125,7 @@ namespace ExpressionBuilder.Generics
 
         private void ValidateSupportedOperations(OperationHelper helper)
         {
-            List<Operation> supportedOperations = null;
+            List<Operation> supportedOperations;
             if (typeof(TPropertyType) == typeof(object))
             {
                 //TODO: Issue regarding the TPropertyType that comes from the UI always as 'Object'
@@ -198,8 +198,7 @@ namespace ExpressionBuilder.Generics
         public void WriteXml(XmlWriter writer)
         {
             var type = Value.GetType();
-            var serializer = new XmlSerializer(type);
-            writer.WriteAttributeString("Type", type.AssemblyQualifiedName);
+            if (type.AssemblyQualifiedName != null) writer.WriteAttributeString("Type", type.AssemblyQualifiedName);
             writer.WriteElementString("PropertyId", PropertyId);
             writer.WriteElementString("Operation", Operation.ToString("d"));
             writer.WriteElementString("Value", Value.ToString());

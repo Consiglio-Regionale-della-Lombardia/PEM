@@ -23,44 +23,44 @@ namespace PortaleRegione.DTO.Request;
 
 public class QueryExtendedRequest
 {
-    public List<int> Soggetti { get; set; } = new List<int>();
-    public List<int> Stati { get; set; } = new List<int>();
-    public List<int> Tipi { get; set; } = new List<int>();
-    public List<int> TipiRispostaRichiesta { get; set; } = new List<int>();
-    public List<int> TipiChiusura { get; set; } = new List<int>();
-    public List<int> TipiVotazione { get; set; } = new List<int>();
-    public List<int> TipiDocumento { get; set; } = new List<int>();
-    public bool DocumentiMancanti { get; set; } = false;
-    public List<Guid> Proponenti { get; set; } = new List<Guid>();
-    public List<Guid> Provvedimenti { get; set; } = new List<Guid>();
-    public List<Guid> AttiDaFirmare { get; set; } = new List<Guid>();
-    public List<int> Risposte { get; set; } = new List<int>();
-    public List<int> Organi { get; set; } = new List<int>();
-    public List<int> Organi_Commissione { get; set; } = new List<int>();
-    public List<int> Organi_Giunta { get; set; } = new List<int>();
-    public List<DateTime> DataTrasmissione { get; set; } = new List<DateTime>();
-    public bool DataTrasmissioneIsNull { get; set; } = false;
-    public bool RispostaMancante { get; set; } = false;
-    public bool OrganiIsNull { get; set; } = false;
-    public List<DateTime> DataSeduta { get; set; } = new List<DateTime>();
-    public List<DateTime> DataRisposta { get; set; } = new List<DateTime>();
-    public bool DataRispostaIsNull { get; set; } = false;
-    public bool DataAnnunzioIsNull { get; set; } = false;
-    public bool DataComunicazioneAssembleaIsNull { get; set; } = false;
-    public bool DataChiusuraIterIsNull { get; set; } = false;
-    public List<DateTime> DataComunicazioneAssemblea { get; set; } = new List<DateTime>();
-    public List<DateTime> DataAnnunzio { get; set; } = new List<DateTime>();
-    public List<DateTime> DataChiusuraIter { get; set; } = new List<DateTime>();
-    public List<DateTime> DataTrattazione { get; set; } = new List<DateTime>();
-    public bool DataTrattazioneIsNull { get; set; } = false;
-    public List<DateTime> DataPresentazione { get; set; } = new List<DateTime>();
-    public bool DataPresentazioneIsNull { get; set; } = false;
-    public List<int> GruppiProponenti { get; set; } = new List<int>();
-    public List<Guid> Firmatari { get; set; } = new List<Guid>();
-    public List<int> GruppiFirmatari { get; set; } = new List<int>();
-    public List<int> AreaPolitica { get; set; } = new List<int>();
+    public List<int> Soggetti { get; set; } = new();
+    public List<int> Stati { get; set; } = new();
+    public List<int> Tipi { get; set; } = new();
+    public List<int> TipiRispostaRichiesta { get; set; } = new();
+    public List<int> TipiChiusura { get; set; } = new();
+    public List<int> TipiVotazione { get; set; } = new();
+    public List<int> TipiDocumento { get; set; } = new();
+    public bool DocumentiMancanti { get; set; }
+    public List<Guid> Proponenti { get; set; } = new();
+    public List<Guid> Provvedimenti { get; set; } = new();
+    public List<Guid> AttiDaFirmare { get; set; } = new();
+    public List<int> Risposte { get; set; } = new();
+    public List<int> Organi { get; set; } = new();
+    public List<int> Organi_Commissione { get; set; } = new();
+    public List<int> Organi_Giunta { get; set; } = new();
+    public List<DateTime> DataTrasmissione { get; set; } = new();
+    public bool DataTrasmissioneIsNull { get; set; }
+    public bool RispostaMancante { get; set; }
+    public bool OrganiIsNull { get; set; }
+    public List<DateTime> DataSeduta { get; set; } = new();
+    public List<DateTime> DataRisposta { get; set; } = new();
+    public bool DataRispostaIsNull { get; set; }
+    public bool DataAnnunzioIsNull { get; set; }
+    public bool DataComunicazioneAssembleaIsNull { get; set; }
+    public bool DataChiusuraIterIsNull { get; set; }
+    public List<DateTime> DataComunicazioneAssemblea { get; set; } = new();
+    public List<DateTime> DataAnnunzio { get; set; } = new();
+    public List<DateTime> DataChiusuraIter { get; set; } = new();
+    public List<DateTime> DataTrattazione { get; set; } = new();
+    public bool DataTrattazioneIsNull { get; set; }
+    public List<DateTime> DataPresentazione { get; set; } = new();
+    public bool DataPresentazioneIsNull { get; set; }
+    public List<int> GruppiProponenti { get; set; } = new();
+    public List<Guid> Firmatari { get; set; } = new();
+    public List<int> GruppiFirmatari { get; set; } = new();
+    public List<int> AreaPolitica { get; set; } = new();
     public bool? Ritardo { get; set; }
-    public List<bool> RitardoList { get; set; } = new List<bool>();
+    public List<bool> RitardoList { get; set; } = new();
     public bool TipoVotazioneMancante { get; set; } = false;
 
     public QueryExtendedRequest Clone()

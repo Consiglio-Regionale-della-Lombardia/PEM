@@ -1,8 +1,6 @@
-﻿@using PortaleRegione.DTO.Domain
-@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.DTO.Enum
 @using System.Linq
 @using System.Web.Mvc.Html
-@using Newtonsoft.Json
 @model PortaleRegione.DTO.Model.RiepilogoUtentiModel
 
 @{
@@ -10,12 +8,10 @@
 }
 
 @{
-    var q = "";
     foreach (var key in Context.Request.QueryString.AllKeys)
     {
         if (Equals(key, "q"))
         {
-            q = Context.Request.QueryString.Get("q");
             break;
         }
     }

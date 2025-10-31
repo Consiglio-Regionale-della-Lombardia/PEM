@@ -1141,8 +1141,16 @@ else
                 } else if (col.propertyName === '@nameof(AttoDASIDto.IDTipo_Risposta)') {
                     td.textContent = result.DisplayTipoRispostaRichiesta;
                 } else if (col.propertyName === '@nameof(AttoDASIDto.IDTipo_Risposta_Effettiva)') {
-                    var dataRisposta = result.Risposte && result.Risposte.some(abb => abb.Data && abb.Data !== "");  
-                    td.textContent = `${result.DisplayTipoRispostaFornita}${(dataRisposta == false ? " - risposta non ancora fornita" : "")}`;
+                    if (result.IDTipo_Risposta_Effettiva) {
+                        var dataRisposta = result.Risposte && result.Risposte.some(abb => abb.Data && abb.Data !== "");
+                        if (dataRisposta == true){
+                            td.textContent = result.DisplayTipoRispostaFornita;
+                        }else{
+                            td.textContent = "";    
+                        }                        
+                    } else {
+                        td.textContent = "";
+                    }
                 } else if (col.propertyName === '@nameof(AttoDASIDto.TipoChiusuraIter)') {
                     td.textContent = result.DisplayTipoChiusuraIter;
                 } else if (col.propertyName === '@nameof(AttoDASIDto.TipoVotazioneIter)') {

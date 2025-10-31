@@ -144,10 +144,13 @@ namespace ExpressionBuilder.Generics
                 if (reader.Name.StartsWith("FilterStatementOf"))
                 {
                     var type = reader.GetAttribute("Type");
-                    var filterType = typeof(FilterStatement<>).MakeGenericType(Type.GetType(type));
-                    var serializer = new XmlSerializer(filterType);
-                    var statement = (IFilterStatement) serializer.Deserialize(reader);
-                    _statements.Add(statement);
+                    if (type != null)
+                    {
+                        var filterType = typeof(FilterStatement<>).MakeGenericType(Type.GetType(type));
+                        var serializer = new XmlSerializer(filterType);
+                        var statement = (IFilterStatement) serializer.Deserialize(reader);
+                        _statements.Add(statement);
+                    }
                 }
             }
         }
@@ -158,7 +161,9 @@ namespace ExpressionBuilder.Generics
         /// <param name="writer">The System.Xml.XmlWriter stream to which the object is serialized.</param>
         public void WriteXml(XmlWriter writer)
         {
-            writer.WriteAttributeString("Type", typeof(T).AssemblyQualifiedName);
+            var assemblyQualifiedName = typeof(T).AssemblyQualifiedName;
+            if (assemblyQualifiedName != null)
+                writer.WriteAttributeString("Type", assemblyQualifiedName);
             writer.WriteStartElement("Statements");
             foreach (var statement in _statements)
             {
