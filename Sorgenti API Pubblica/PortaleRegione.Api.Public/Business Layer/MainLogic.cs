@@ -271,7 +271,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                             await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaRelatoreMinoranza.Value);
                 }
 
-                if (gruppo != null)
+                if (gruppo != null && proponente != null)
                     proponente.DisplayName += $" ({gruppo.sigla.Trim()})";
 
                 var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);

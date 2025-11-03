@@ -15,21 +15,28 @@
     {
         titolo = $"Seduta del {notifica.EM.ATTI.SEDUTE.Data_seduta:dd/MM/yyyy}";
         var isSubEM = notifica.EM.Rif_UIDEM.HasValue;
-        var progressivo = notifica.EM.Progressivo.Value;
-        var title = "TEMP";
-        if (isSubEM)
+        if (notifica.EM.Progressivo != null)
         {
-            progressivo = notifica.EM.SubProgressivo.Value;
-            title = "SUBEM";
-        }
+            var progressivo = notifica.EM.Progressivo.Value;
+            var title = "TEMP";
+            if (isSubEM)
+            {
+                if (notifica.EM.SubProgressivo != null)
+                {
+                    progressivo = notifica.EM.SubProgressivo.Value;
+                }
 
-        var displayRiferimentoTemporaneo = string.Empty;
-        if (notifica.EM.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
-        {
-            displayRiferimentoTemporaneo = $"(ex. {title} {progressivo})";
-        }
+                title = "SUBEM";
+            }
 
-        sub_titolo = $" - {Utility.GetText_Tipo(notifica.EM.ATTI.IDTipoAtto)} {notifica.EM.ATTI.NAtto} - <b>{notifica.EM.N_EM} {displayRiferimentoTemporaneo}</b>";
+            var displayRiferimentoTemporaneo = string.Empty;
+            if (notifica.EM.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
+            {
+                displayRiferimentoTemporaneo = $"(ex. {title} {progressivo})";
+            }
+
+            sub_titolo = $" - {Utility.GetText_Tipo(notifica.EM.ATTI.IDTipoAtto)} {notifica.EM.ATTI.NAtto} - <b>{notifica.EM.N_EM} {displayRiferimentoTemporaneo}</b>";
+        }
     }
     else if (notifica.IsDasi)
     {

@@ -664,7 +664,6 @@ namespace PortaleRegione.BAL
         }
 
         public void GetBody(AttoDASIDto atto,
-            PersonaDto currentUser,
             bool enableQrCode,
             bool privacy,
             bool enableLogo,
@@ -756,54 +755,7 @@ namespace PortaleRegione.BAL
             }
 
             #endregion
-
-            // #1443
-            if (atto.Note.Any())
-            {
-                if (atto.Note.Any(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA))
-                    atto.Note_Pubbliche += string.Join("\n",
-                        atto.Note
-                            .Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA)
-                            .Select(n => n.Nota)
-                    );
-
-                if (atto.Note.Any(n => n.TipoEnum == TipoNotaEnum.GENERALE_PRIVATA))
-                    atto.Note_Private += string.Join("\n",
-                        atto.Note
-                            .Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PRIVATA)
-                            .Select(n => n.Nota)
-                    );
-            }
-
-            body = body.Replace("{lblNotePubblicheATTOView}",
-                    !string.IsNullOrEmpty(atto.Note_Pubbliche)
-                        ? $"{atto.Note_Pubbliche}"
-                        : string.Empty)
-                .Replace("{NOTE_PUBBLICHE_COMMENTO_START}",
-                    !string.IsNullOrEmpty(atto.Note_Pubbliche) ? string.Empty : "<!--").Replace(
-                    "{NOTE_PUBBLICHE_COMMENTO_END}",
-                    !string.IsNullOrEmpty(atto.Note_Pubbliche) ? string.Empty : "-->");
-
-            if (currentUser != null)
-            {
-                if (currentUser.IsSegreteriaAssemblea &&
-                    !string.IsNullOrEmpty(atto.Note_Private))
-                    body = body.Replace("{lblNotePrivateATTOView}",
-                            $"{atto.Note_Private}")
-                        .Replace("{NOTEPRIV_COMMENTO_START}", string.Empty)
-                        .Replace("{NOTEPRIV_COMMENTO_END}", string.Empty);
-                else
-                    body = body.Replace("{lblNotePrivateATTOView}", string.Empty)
-                        .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
-                        .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
-            }
-            else
-            {
-                body = body.Replace("{lblNotePrivateATTOView}", string.Empty)
-                    .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
-                    .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
-            }
-
+            
             // #1443
             if (body.Contains("STATO_PREVIEW"))
             {

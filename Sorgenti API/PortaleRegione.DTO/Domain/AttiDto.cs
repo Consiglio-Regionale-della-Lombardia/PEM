@@ -41,6 +41,8 @@ namespace PortaleRegione.DTO.Domain
         public string Path_Testo_Atto { get; set; }
 
         public Guid? UIDSeduta { get; set; }
+        
+        public int? Legislatura { get; set; }
 
         public DateTime? Data_apertura { get; set; }
 

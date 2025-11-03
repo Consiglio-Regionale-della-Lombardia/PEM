@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GEDASI - Ops! Qualcosa è andato storto</title>
+
+    <!-- Brand icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Perf: preconnessione al portale -->
+    <link rel="dns-prefetch" href="//gedasi.consiglio.regione.lombardia.it">
+    <link rel="preconnect" href="https://gedasi.consiglio.regione.lombardia.it" crossorigin>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-1: #0a1210; /* deep green/black */
+            --bg-2: #0b1f18; /* forest */
+            --accent: #16a34a; /* brand green */
+            --text: #eaf7ee;
+            --muted: #b5d4c2;
+            --card: rgba(255,255,255,0.07);
+            --card-stroke: rgba(255,255,255,0.12);
+            --shadow: 0 20px 60px rgba(0,0,0,0.35);
+        }
+
+        /* Page baseline */
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            color: var(--text);
+            background: radial-gradient(1200px 800px at 20% 10%, #222b42 0%, transparent 60%),
+            radial-gradient(900px 700px at 80% 80%, #14304b 0%, transparent 60%),
+            linear-gradient(120deg, var(--bg-1), var(--bg-2));
+            background-attachment: fixed;
+            overflow: hidden;
+        }
+
+        /* Subtle animated aurora */
+        .aurora {
+            position: fixed;
+            inset: -20% -20%;
+            background: conic-gradient(from 180deg at 50% 50%,
+            rgba(79,209,197,.18), rgba(0,0,0,0), rgba(107,94,255,.18), rgba(0,0,0,0), rgba(79,209,197,.18));
+            filter: blur(60px) saturate(120%);
+            animation: spin 30s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes spin { to { transform: rotate(1turn); } }
+        @media (prefers-reduced-motion: reduce) { .aurora { animation: none; } }
+
+        /* Layout */
+        .wrap {
+            position: relative;
+            min-height: 100%;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            isolation: isolate;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 640px;
+            background: var(--card);
+            border: 1px solid var(--card-stroke);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(14px) saturate(120%);
+            -webkit-backdrop-filter: blur(14px) saturate(120%);
+            padding: 32px 28px 28px;
+            text-align: center;
+        }
+
+        /* Icon */
+        .emblem {
+            width: 88px; height: 88px;
+            margin: -24px auto 57px;
+            border-radius: 24px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), transparent 40%),
+            linear-gradient(135deg, rgba(79,209,197,.35), rgba(107,94,255,.35));
+            border: 1px solid var(--card-stroke);
+            display: grid; place-items: center;
+            transform: translateY(36px);
+            box-shadow: 0 14px 30px rgba(0,0,0,.25);
+        }
+        .emblem img { width: 50px; height: auto; }
+
+        h1 {
+            font-size: clamp(26px, 3.1vw, 34px);
+            line-height: 1.1;
+            margin: 18px 0 10px;
+            letter-spacing: -0.02em;
+        }
+        p.lead {
+            margin: 0 auto 22px;
+            max-width: 52ch;
+            color: var(--muted);
+            font-size: clamp(15px, 1.6vw, 16.5px);
+        }
+
+        /* CTA + waiter */
+        .cta {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 999px;
+            border: 1px solid rgba(79,209,197,.35);
+            background: linear-gradient(180deg, rgba(79,209,197,.22), rgba(79,209,197,.18));
+            color: var(--text);
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform .12s ease, filter .2s ease, box-shadow .2s ease, background .2s ease;
+            box-shadow: 0 8px 22px rgba(79,209,197,.22);
+            will-change: transform;
+            overflow: hidden;
+        }
+        .cta svg { width: 18px; height: 18px; }
+        .cta:hover { transform: translateY(-2px); filter: saturate(110%); box-shadow: 0 14px 28px rgba(79,209,197,.28); }
+        .cta:active { transform: translateY(0); }
+
+        /* Animated sheen when loading */
+        .cta::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+            transform: translateX(-120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .cta.loading::after {
+            opacity: .9;
+            animation: sheen 1.3s ease-in-out infinite;
+        }
+        @keyframes sheen {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(120%); }
+        }
+
+        /* Icons swap */
+        .icon { display: inline-flex; align-items: center; justify-content: center; }
+        .icon-spinner { display: none; width: 18px; height: 18px; }
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+            opacity: .95;
+        }
+        .cta.loading .icon-default { display: none; }
+        .cta.loading .icon-spinner { display: inline-flex; }
+
+        .label { transition: opacity .2s ease, transform .2s ease; }
+        .cta.loading .label { opacity: .95; }
+
+        /* Visually hidden for ARIA live updates */
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+        }
+
+        /* Footer note (optional) */
+        .foot { margin-top: 16px; font-size: 12px; color: #87a2c2; opacity: .8; }
+
+        @media (forced-colors: active) {
+            .card, .emblem { border: 1px solid CanvasText; background: Canvas; }
+            .cta { border: 1px solid CanvasText; background: Highlight; color: HighlightText; }
+        }
+    </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+
+<main class="wrap">
+    <section class="card" role="alert" aria-live="polite">
+        <div class="emblem" aria-hidden="true">
+            <img src="https://gedasi.consiglio.regione.lombardia.it/images/logo.png" alt="GEDASI logo"/>
+        </div>
+
+        <h1>Ops, qualcosa è andato storto</h1>
+        <p class="lead">Non è colpa tua. Può capitare. Prova di nuovo ad accedere al portale: spesso il problema si risolve da sé.</p>
+
+        <p>
+            <!-- CTA con waiter -->
+            <a class="cta" id="cta" href="https://gedasi.consiglio.regione.lombardia.it" rel="nofollow" style="color: var(--text)" aria-describedby="ctaStatus">
+                <span class="icon icon-default" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span class="icon icon-spinner" aria-hidden="true"><span class="spinner"></span></span>
+                <span class="label" id="ctaLabel">Prova ad accedere</span>
+            </a>
+        </p>
+
+        <!-- Live region per screen reader -->
+        <p id="ctaStatus" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+    </section>
+</main>
+
+<script>
+    (() => {
+        const cta = document.getElementById('cta');
+        const label = document.getElementById('ctaLabel');
+        const live = document.getElementById('ctaStatus');
+
+        const steps = [
+            'Controllo connessione…',
+            'Ripristino sessione…',
+            'Apro il portale…'
+        ];
+
+        // Prefer reduced motion: salta la coreografia
+        const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        cta.addEventListener('click', (e) => {
+            // se è già in loading, lascia passare
+            if (cta.classList.contains('loading')) return;
+            // coreografia + redirect
+            if (!prefersReduced) e.preventDefault();
+
+            cta.classList.add('loading');
+            cta.setAttribute('aria-busy', 'true');
+
+            if (prefersReduced) {
+                // vai subito
+                window.location.assign(cta.href);
+                return;
+            }
+
+            // micro-copioni dinamici
+            let i = 0;
+            const tick = () => {
+                const text = steps[i] || steps[steps.length - 1];
+                label.textContent = text;
+                live.textContent = text;
+                i++;
+                if (i < steps.length) {
+                    setTimeout(tick, 600);
+                } else {
+                    // piccolo extra delay per il “wow”
+                    setTimeout(() => {
+                        window.location.assign(cta.href);
+                    }, 400);
+                }
+            };
+            tick();
+        }, { passive: false });
+
+        // tastiera: Enter/Space su <a> è già gestito dal browser
+    })();
+</script>
+</body>
+</html>

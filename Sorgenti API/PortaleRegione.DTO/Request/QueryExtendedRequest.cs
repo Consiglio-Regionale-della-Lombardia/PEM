@@ -61,6 +61,7 @@ public class QueryExtendedRequest
     public List<int> AreaPolitica { get; set; } = new List<int>();
     public bool? Ritardo { get; set; }
     public List<bool> RitardoList { get; set; } = new List<bool>();
+    public bool TipoVotazioneMancante { get; set; } = false;
 
     public QueryExtendedRequest Clone()
     {

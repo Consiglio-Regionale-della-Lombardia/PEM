@@ -151,7 +151,11 @@ namespace PortaleRegione.Persistance.Public
         {
             var consigliere = await PRContext
                 .View_consiglieri
-                .FirstAsync(p => p.UID_persona == uidPersonaProponente);
+                .FirstOrDefaultAsync(p => p.UID_persona == uidPersonaProponente);
+            
+            if (consigliere == null)
+                return null;
+            
             return  new PersonaPublicDto
             {
                 id = consigliere.id_persona,

@@ -416,7 +416,8 @@ function go(link, switchMode) {
 }
 
 async function AbilitaTrattazione(mode) {
-    if (mode == 2) {
+    localStorage.setItem('clientMode', mode);
+    if (mode === 2) {
         var data = await GetSeduteAttiveDashboard();
         if (data.Results.length > 0) {
             var seduta = data.Results[0];

@@ -335,6 +335,7 @@
 
 <script>
     $(document).ready(function() {
+        localStorage.setItem('clientMode', @Html.Raw((int)ClientModeEnum.GRUPPI));
         set_Filtri_DASI({});
         set_Filtri_EM({});
         setListaAtti([]);
