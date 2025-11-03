@@ -26,53 +26,6 @@ namespace PortaleRegione.DTO.Domain
 {
     public class AttiDto
     {
-        public AttiDto(Guid uidAtto, string nAtto, int idTipoAtto, string oggetto, string note, string pathTestoAtto, Guid? uidSeduta, int? legislatura, DateTime? dataApertura, DateTime? dataChiusura, bool visMisProg, Guid? uidAssessoreRiferimento, bool notificaDepositoDifferita, bool invioNotificheDepositoSoloUola, bool? ordinePresentazione, bool? ordineVotazione, int? priorita, DateTime? dataCreazione, Guid? uidPersonaCreazione, DateTime? dataModifica, Guid? uidPersonaModifica, bool? eliminato, string linkFascicoloPresentazione, DateTime? dataCreazionePresentazione, string linkFascicoloVotazione, DateTime? dataCreazioneVotazione, DateTime? dataUltimaModificaEm, Tipi_AttoDto tipiAtto, SeduteDto sedute, int conteggioEm, int conteggioSubEm, IEnumerable<PersonaLightDto> relatori, bool informazioniMancanti, bool canMoveDown, bool canMoveUp, int stato, PersonaLightDto personaAssessore, bool bloccoOdg, bool bloccoEm, bool jolly, bool emendabile, int counterOdg, bool fascicoliDaAggiornare)
-        {
-            UIDAtto = uidAtto;
-            NAtto = nAtto;
-            IDTipoAtto = idTipoAtto;
-            Oggetto = oggetto;
-            Note = note;
-            Path_Testo_Atto = pathTestoAtto;
-            UIDSeduta = uidSeduta;
-            Legislatura = legislatura;
-            Data_apertura = dataApertura;
-            Data_chiusura = dataChiusura;
-            VIS_Mis_Prog = visMisProg;
-            UIDAssessoreRiferimento = uidAssessoreRiferimento;
-            Notifica_deposito_differita = notificaDepositoDifferita;
-            Invio_Notifiche_Deposito_Solo_UOLA = invioNotificheDepositoSoloUola;
-            OrdinePresentazione = ordinePresentazione;
-            OrdineVotazione = ordineVotazione;
-            Priorita = priorita;
-            DataCreazione = dataCreazione;
-            UIDPersonaCreazione = uidPersonaCreazione;
-            DataModifica = dataModifica;
-            UIDPersonaModifica = uidPersonaModifica;
-            Eliminato = eliminato;
-            LinkFascicoloPresentazione = linkFascicoloPresentazione;
-            DataCreazionePresentazione = dataCreazionePresentazione;
-            LinkFascicoloVotazione = linkFascicoloVotazione;
-            DataCreazioneVotazione = dataCreazioneVotazione;
-            DataUltimaModificaEM = dataUltimaModificaEm;
-            TIPI_ATTO = tipiAtto;
-            SEDUTE = sedute;
-            Conteggio_EM = conteggioEm;
-            Conteggio_SubEM = conteggioSubEm;
-            Relatori = relatori;
-            Informazioni_Mancanti = informazioniMancanti;
-            CanMoveDown = canMoveDown;
-            CanMoveUp = canMoveUp;
-            Stato = stato;
-            PersonaAssessore = personaAssessore;
-            BloccoODG = bloccoOdg;
-            BloccoEM = bloccoEm;
-            Jolly = jolly;
-            Emendabile = emendabile;
-            CounterODG = counterOdg;
-            Fascicoli_Da_Aggiornare = fascicoliDaAggiornare;
-        }
-
         public bool Chiuso => Data_chiusura.HasValue && Data_chiusura.Value < DateTime.Now;
 
         [Key] public Guid UIDAtto { get; set; }
