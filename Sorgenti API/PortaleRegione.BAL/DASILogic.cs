@@ -83,6 +83,11 @@ namespace PortaleRegione.API.Controllers
                 || attoDto.UIDPersonaProponente == null) // #1401
                 throw new InvalidOperationException("Indicare un proponente");
 
+            if (string.IsNullOrEmpty(attoDto.Oggetto))
+            {
+                throw new InvalidOperationException("Indicare l'oggetto");
+            }
+
             // #1353 Per le ITR e le ITL con risposta in commissione, il consigliere deve obbligatoriamente indicare la commissione
             if (attoDto.IDTipo_Risposta.Equals((int)TipoRispostaEnum.COMMISSIONE))
                 if (string.IsNullOrEmpty(attoDto.Commissioni_client))
