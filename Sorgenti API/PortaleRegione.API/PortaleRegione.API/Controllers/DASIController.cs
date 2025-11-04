@@ -731,6 +731,26 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere le commissioni attive
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetCommissioniAttive)]
+        public async Task<IHttpActionResult> GetCommissioniAttive()
+        {
+            try
+            {
+                var commissioni_attive = await _dasiLogic.GetCommissioniAttive();
+                return Ok(commissioni_attive);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get commissioni attive", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere il riepilogo filtrato di atti
         /// </summary>
         /// <param name="request"></param>

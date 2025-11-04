@@ -757,6 +757,13 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task<List<OrganoDto>> GetCommissioniAttive()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetCommissioniAttive}";
+            var lst = JsonConvert.DeserializeObject<List<OrganoDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
         public async Task<List<GruppiDto>> GetGruppiDisponibili(int legislaturaId, int page, int size)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetGruppiDisponibili}?legislaturaId={legislaturaId}&page={page}&size={size}";

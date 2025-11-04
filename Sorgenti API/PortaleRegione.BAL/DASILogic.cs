@@ -83,6 +83,7 @@ namespace PortaleRegione.API.Controllers
                 || attoDto.UIDPersonaProponente == null) // #1401
                 throw new InvalidOperationException("Indicare un proponente");
 
+            // #1525
             if (string.IsNullOrEmpty(attoDto.Oggetto))
             {
                 throw new InvalidOperationException("Indicare l'oggetto");
@@ -785,7 +786,6 @@ namespace PortaleRegione.API.Controllers
                 Data = new BaseResponse<AttoDASIDto>(model.page, model.size, result, filterModel, totaleAtti, uri),
                 CountBarData = await GetResponseCountBar(persona, GetClientMode(CLIENT_MODE),
                     queryFilter, queryExtended),
-                CommissioniAttive = persona.IsSegreteriaAssemblea ? await GetCommissioniAttive() : null,
                 ViewMode = viewMode,
                 ClientMode = GetClientMode(CLIENT_MODE)
             };
@@ -3077,6 +3077,13 @@ namespace PortaleRegione.API.Controllers
                     throw new Exception(
                         "ERROR: L'atto è già iscritto in seduta. Contatta la segreteria dell'assemblea per cambiare la data di iscrizione.");
 
+                // #1523
+                if (!string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
+                {
+                    throw new Exception(
+                        "ERROR: L'atto ha già una richiesta di iscrizione in seduta. Rimuovi la precedente richiesta ed effettuane una nuova oppure contatta la segreteria dell'assemblea.");
+                }
+                
                 atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ)
                     atto.DataPresentazione_MOZ = BALHelper.EncryptString(
@@ -3701,6 +3708,7 @@ namespace PortaleRegione.API.Controllers
                 atto.Richiesta_Modificata = string.Empty;
 
             await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
+            await _unitOfWork.CompleteAsync();
             if (model.Organi.Any(o => o.tipo_organo == TipoOrganoEnum.COMMISSIONE))
                 foreach (var commissioneDto in model.Organi.Where(o => o.tipo_organo == TipoOrganoEnum.COMMISSIONE))
                     _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
