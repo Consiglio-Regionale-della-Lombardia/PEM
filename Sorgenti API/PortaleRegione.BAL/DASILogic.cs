@@ -1584,8 +1584,7 @@ namespace PortaleRegione.API.Controllers
                         dto.DisplayTipoVotazioneIter =
                             Utility.GetText_TipoVotazioneDASI(attoInDb.TipoVotazioneIter.Value);
 
-                if (columns.Contains(nameof(AttiDASIColums.Risposte)))
-                    dto.Risposte = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+                dto.Risposte = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
 
                 if (columns.Contains(nameof(AttiDASIColums.Monitoraggi)))
                     dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
