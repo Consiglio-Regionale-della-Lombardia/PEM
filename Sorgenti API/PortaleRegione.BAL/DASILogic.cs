@@ -1938,18 +1938,27 @@ namespace PortaleRegione.API.Controllers
                 if (!firme.Any())
                     return;
 
-                var firme_misto = firme.Count(f => f.id_AreaPolitica == (int)AreaPoliticaIntEnum.Misto);
-                var firme_maggioranza = firme.Count(f => f.id_AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza);
-                var firme_minoranza = firme.Count(f => f.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza);
-
-                if (firme_maggioranza > 0 && firme_misto == 0)
+                if (firme.All(item => item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza && item.id_gruppo == atto.id_gruppo))
+                {
                     atto.AreaPolitica = (int)AreaPoliticaIntEnum.Maggioranza;
-                else if (firme_minoranza > 0 && firme_misto == 0)
-                    atto.AreaPolitica = (int)AreaPoliticaIntEnum.Minoranza;
-                else if (firme_maggioranza > 0 && firme_misto > 0)
+                }
+                else if (firme.All(item => item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza && item.id_gruppo != atto.id_gruppo))
+                {
                     atto.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Maggioranza;
-                else if (firme_minoranza > 0 && firme_misto > 0)
+                }
+                else if (firme.All(item => item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza && item.id_gruppo == atto.id_gruppo))
+                {
+                    atto.AreaPolitica = (int)AreaPoliticaIntEnum.Minoranza;
+                }
+                else if (firme.All(item => item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza && item.id_gruppo != atto.id_gruppo))
+                {
                     atto.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Minoranza;
+                }
+                else if (firme.All(item => item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza 
+                                           || item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza))
+                {
+                    atto.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza;
+                }
 
                 await _unitOfWork.CompleteAsync();
             }
