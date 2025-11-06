@@ -5692,16 +5692,6 @@ namespace PortaleRegione.API.Controllers
             if (request.Uid.HasValue)
                 switch ((TipoDocumentoEnum)request.Tipo)
                 {
-                    case TipoDocumentoEnum.TESTO_ALLEGATO:
-                        break;
-                    case TipoDocumentoEnum.AGGIUNTIVO:
-                        break;
-                    case TipoDocumentoEnum.MONITORAGGIO:
-                        break;
-                    case TipoDocumentoEnum.ABBINAMENTO:
-                        break;
-                    case TipoDocumentoEnum.CHIUSURA_ITER:
-                        break;
                     case TipoDocumentoEnum.RISPOSTA:
                     {
                         var risposta = await _unitOfWork.DASI.GetRisposta(request.Uid.Value);
@@ -5709,8 +5699,13 @@ namespace PortaleRegione.API.Controllers
                         break;
                     }
                     case TipoDocumentoEnum.TESTO_PRIVACY:
-                        break;
                     case TipoDocumentoEnum.VERBALE_VOTAZIONE:
+                    case TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA:
+                    case TipoDocumentoEnum.TESTO_ALLEGATO:
+                    case TipoDocumentoEnum.AGGIUNTIVO:
+                    case TipoDocumentoEnum.MONITORAGGIO:
+                    case TipoDocumentoEnum.ABBINAMENTO:
+                    case TipoDocumentoEnum.CHIUSURA_ITER:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -5737,16 +5732,6 @@ namespace PortaleRegione.API.Controllers
             doc.Eliminato = true;
             switch ((TipoDocumentoEnum)doc.Tipo)
             {
-                case TipoDocumentoEnum.TESTO_ALLEGATO:
-                    break;
-                case TipoDocumentoEnum.AGGIUNTIVO:
-                    break;
-                case TipoDocumentoEnum.MONITORAGGIO:
-                    break;
-                case TipoDocumentoEnum.ABBINAMENTO:
-                    break;
-                case TipoDocumentoEnum.CHIUSURA_ITER:
-                    break;
                 case TipoDocumentoEnum.RISPOSTA:
                 {
                     var risposte = await _unitOfWork.DASI.GetRisposte(doc.UIDAtto);
@@ -5760,8 +5745,13 @@ namespace PortaleRegione.API.Controllers
                     break;
                 }
                 case TipoDocumentoEnum.TESTO_PRIVACY:
-                    break;
                 case TipoDocumentoEnum.VERBALE_VOTAZIONE:
+                case TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA:
+                case TipoDocumentoEnum.TESTO_ALLEGATO:
+                case TipoDocumentoEnum.AGGIUNTIVO:
+                case TipoDocumentoEnum.MONITORAGGIO:
+                case TipoDocumentoEnum.ABBINAMENTO:
+                case TipoDocumentoEnum.CHIUSURA_ITER:
                     break;
             }
 

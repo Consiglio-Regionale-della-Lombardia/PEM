@@ -41,6 +41,7 @@
 		$('#tipi-documento-select').empty();
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">DCR</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA)">Verbale votazione segreta</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
 		$('#tipi-documento-select').formSelect();
 		waiting(false);
@@ -59,6 +60,7 @@
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)">Monitoraggio</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">DCR</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA)">Verbale votazione segreta</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
 		$('#tipi-documento-select').formSelect();
 		waiting(false);

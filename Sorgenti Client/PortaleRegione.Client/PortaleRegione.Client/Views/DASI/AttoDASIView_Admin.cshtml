@@ -1510,7 +1510,8 @@
                             </thead>
                             <tbody>
                             @foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER
-                                                                           || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE))
+                                                                           || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE 
+                                                                           || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA))
                             {
                                 <tr>
                                     <td>@doc.Titolo</td>

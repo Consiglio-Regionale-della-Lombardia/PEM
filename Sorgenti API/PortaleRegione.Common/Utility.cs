@@ -550,6 +550,8 @@ namespace PortaleRegione.Common
                     return "Documento privacy";
                 case TipoDocumentoEnum.VERBALE_VOTAZIONE:
                     return "Verbale votazione";
+                case TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA:
+                    return "Verbale votazione segreta";
                 default:
                     throw new ArgumentOutOfRangeException($"Tipo documento non riconosciuto: {tipoDocumento}");
             }

@@ -376,7 +376,8 @@
 			}
 		</div>
 		<div class="col s6 right-align">
-			@if (atto.UIDPersonaCreazione != atto.UIDPersonaProponente)
+			@if (atto.UIDPersonaCreazione != atto.UIDPersonaProponente
+					&& atto.IsBozza)
 			{
 				<label style="font-size: small !important">Creato da: </label>
 				<br/>

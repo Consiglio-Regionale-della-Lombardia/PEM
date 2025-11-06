@@ -114,6 +114,7 @@
                     return;
                 }
 
+                var checkSelezionaTutti = $("#checkAll")[0].checked;
                 var totaleRisultati = $(".pagination").data("totale-risultati");
                 var uidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
                 swal({
@@ -122,11 +123,11 @@
                     icon: "info",
                     buttons: {
                         cancel: "Annulla",
-                        tutti: {
+                        tutti: checkSelezionaTutti ? {
                             text: `Tutti (${totaleRisultati} atti)`,
                             value: "tutti",
                             className: "amber"
-                        },
+                        }: null,
                         griglia: {
                             text: `Griglia (${text_counter} atti)`,
                             value: "griglia",
