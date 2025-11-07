@@ -989,7 +989,11 @@ else
             }
 
             var iconChipAggiuntiva = "";
-            if (result.Abbinamenti.length > 0 || result.ODG_Atto_PEM || result.MOZ_Abbinata) {
+            if (result.Tipo == @Html.Raw((int)TipoAttoEnum.MOZ) && result.TipoMOZ == @Html.Raw((int)TipoMOZEnum.ABBINATA)) {
+                iconChipAggiuntiva += `<i class="close material-icons blue-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata" aria-label="Proposta di abbinata">insert_link</i>`;
+            }
+            
+            if (result.Tipo == @Html.Raw((int)TipoAttoEnum.ODG) && result.ODG_Atto_PEM) {
                 iconChipAggiuntiva += `<i class="close material-icons blue-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata" aria-label="Proposta di abbinata">insert_link</i>`;
             }
 

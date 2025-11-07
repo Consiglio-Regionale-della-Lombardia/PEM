@@ -1579,10 +1579,19 @@ function BloccaODG(attoUId, blocca) {
     });
 }
 
-function BloccaEM(attoUId, blocca) {
+function BloccaEM(attoUId) {
     var obj = {};
     obj.Id = attoUId;
-    obj.Blocco = blocca;
+    
+    var blocco = $("#chkBloccoEM_" + attoUId).data("blocco");
+    var new_blocco;
+    if (blocco == true) {
+        obj.Blocco = false;
+        new_blocco = false;
+    }else{
+        obj.Blocco = true;
+        new_blocco = true;
+    }   
 
     $.ajax({
         url: baseUrl + "/atti/bloccoEM",
@@ -1598,11 +1607,14 @@ function BloccaEM(attoUId, blocca) {
                 icon: "error"
             });
         }
-        if (blocca == true) {
+        
+        if (new_blocco == true) {
             SuccessAlert("Presentazione emendamenti/subemendamenti bloccata");
         } else {
             SuccessAlert("Presentazione emendamenti/subemendamenti abilitata");
         }
+
+        $("#chkBloccoEM_" + attoUId).data("blocco", new_blocco);
     }).fail(function(err) {
         console.log("error", err);
         Error(err);

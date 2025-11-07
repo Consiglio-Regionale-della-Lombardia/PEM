@@ -132,7 +132,8 @@
                                     <label>
                                         <input type="checkbox"
                                                id="chkBloccoEM_@atto.UIDAtto"
-                                               onchange="BloccaEM('@atto.UIDAtto', @(Convert.ToInt16(!atto.BloccoEM)))"
+                                               data-blocco="@(Convert.ToInt16(atto.BloccoEM))"
+                                               onchange="BloccaEM('@atto.UIDAtto')"
                                                @Html.Raw(atto.BloccoEM ? "checked=\"checked\"" : "")>
                                         <span>Blocco EM</span>
                                     </label>

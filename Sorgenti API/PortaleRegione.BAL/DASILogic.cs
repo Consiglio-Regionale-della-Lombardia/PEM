@@ -1933,7 +1933,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var firme = await _unitOfWork.Atti_Firme.GetFirmatari(atto, FirmeTipoEnum.PRIMA_DEPOSITO);
+                var firme = await _unitOfWork.Atti_Firme.GetFirmatari(atto, FirmeTipoEnum.ATTIVI);
                 if (!firme.Any())
                     return;
 
@@ -5920,9 +5920,8 @@ namespace PortaleRegione.API.Controllers
                     case ComandoRimuoviMassivoEnum.Iscrizione:
                     {
                         attoInDb.DataIscrizioneSeduta = null;
-                        attoInDb.DataRichiestaIscrizioneSeduta = string.Empty;
                         attoInDb.UIDPersonaIscrizioneSeduta = null;
-                        attoInDb.UIDPersonaRichiestaIscrizione = null;
+                        attoInDb.UIDSeduta = null;
                         await _unitOfWork.CompleteAsync();
                         break;
                     }
