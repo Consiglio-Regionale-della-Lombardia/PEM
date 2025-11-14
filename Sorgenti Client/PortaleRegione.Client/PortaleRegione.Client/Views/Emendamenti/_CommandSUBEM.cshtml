@@ -1,6 +1,6 @@
 ﻿@model PortaleRegione.DTO.Domain.EmendamentiDto
 
-@if (Model.AbilitaSUBEM)
+@if (Model.AbilitaSUBEM && !Model.ATTI.BloccoEM)
 {
     <div class="row">
         <div class="col s12 right-align">
