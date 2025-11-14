@@ -1231,7 +1231,7 @@ namespace PortaleRegione.BAL
                     if (em.Rif_UIDEM.HasValue)
                     {
                         var padreEM = await GetEM(em.Rif_UIDEM.Value);
-                        await SPOSTA_EM_TRATTAZIONE(em.UIDEM, padreEM.OrdineVotazione - 1);
+                        await SPOSTA_EM_TRATTAZIONE(em.UIDEM, padreEM.OrdineVotazione);
                     }
 
                     counterDepositi++;
