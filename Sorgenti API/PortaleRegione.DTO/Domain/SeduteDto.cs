@@ -63,11 +63,11 @@ namespace PortaleRegione.DTO.Domain
 
         public DateTime? DataModifica { get; set; }
 
-        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo (ITL Orali, ODG, RIS)")]
+        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
         public bool Riservato_DASI { get; set; } = false;
-        [Display(Name = "Dedicata agli atti di indirizzo e sindacato ispettivo (MOZ)")]
+        [Display(Name = "Abilita Mozioni")]
         public bool Riservato_DASI_MOZ { get; set; } = false;
-        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo (IQT)")]
+        [Display(Name = "Abilita IQT")]
         public bool Riservato_DASI_IQT { get; set; } = false;
         
         // #1488
