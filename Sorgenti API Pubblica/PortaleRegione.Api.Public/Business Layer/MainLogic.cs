@@ -296,7 +296,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 }).ToList();
 
                 var note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
-                note = note.Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA).ToList();
+                // #1532
+                note = note.Where(n =>
+                    n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA
+                    && n.TipoEnum == TipoNotaEnum.CHIUSURA_ITER).ToList();
 
                 var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
 
@@ -329,7 +332,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     var abbinamentoSecondario =
                         abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_MOZ_Abbinata);
                     if (abbinamentoSecondario != null) abbinamenti.Remove(abbinamentoSecondario);
-                    
+
                     var attoAbbinatoMOZ = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
                     if (!abbinamenti.Any(a => a.UidAttoAbbinato.Equals(attoInDb.UID_MOZ_Abbinata.Value)))
                         abbinamenti.Add(new AttiAbbinamentoPublicDto
