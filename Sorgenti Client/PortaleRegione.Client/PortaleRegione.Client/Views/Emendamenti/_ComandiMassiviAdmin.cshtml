@@ -102,19 +102,21 @@
 <script>
     async function aprireModalProgressoCambioStatoMassivo(stato){
         var totaleRisultati = $(".pagination").data("totale-risultati");
-        var numSelezionatiGriglia = $(".pagination").data("risultati-pagina");
-
+        var checkSelezionaTutti = $("#checkAll")[0].checked;
+        const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_EM_"]:checked');
+        var numSelezionatiGriglia = (checkSelezionaTutti == true) ? $(".pagination").data("risultati-pagina") : selectedCheckboxes.length;
+        
         swal({
             title: "Conferma azione",
             text: "Sei sicuro di voler eseguire l'azione di cambio massivo stato?",
             icon: "info",
             buttons: {
                 cancel: "Annulla",
-                tutti: {
+                tutti: checkSelezionaTutti ? {
                     text: `Tutti (${totaleRisultati} atti)`,
                     value: "tutti",
                     className: "amber"
-                },
+                } : null,
                 griglia: {
                     text: `Griglia (${numSelezionatiGriglia} atti)`,
                     value: "griglia",

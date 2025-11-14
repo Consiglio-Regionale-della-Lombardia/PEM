@@ -1123,7 +1123,7 @@ async function CambioStatoMassivoDASISoloIds(stato, lista) {
 }
 
 async function IscrizioneASedutaMassivoDASISoloIds(uidSeduta, lista) {
-
+    waiting(true);
     var request = {};
     request.UidSeduta = uidSeduta;
     request.Lista = lista;
@@ -1142,6 +1142,9 @@ async function IscrizioneASedutaMassivoDASISoloIds(uidSeduta, lista) {
         waiting(false);
         throw new Error('Network response was not ok');
     }
+    
+    waiting(false);
+    location.reload();
 }
 
 function GetPersoneFromDB() {
