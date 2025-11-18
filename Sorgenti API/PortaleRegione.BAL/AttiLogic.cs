@@ -136,6 +136,15 @@ namespace PortaleRegione.BAL
                 {
                     atto.NAtto = "$$";
                 }
+                
+                if (!atto.Legislatura.HasValue)
+                {
+                    if (atto.UIDSeduta.HasValue)
+                    {
+                        var seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
+                        atto.Legislatura = seduta.id_legislatura;
+                    }
+                }
 
                 _unitOfWork.Atti.Add(atto);
                 await _unitOfWork.CompleteAsync();

@@ -41,6 +41,7 @@ using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using PortaleRegione.BAL;
+using PortaleRegione.BAL.Helpers;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -163,9 +164,15 @@ namespace PortaleRegione.API.Controllers
                 result.UIDAtto = Guid.NewGuid();
                 attoDto.UIDAtto = result.UIDAtto;
                 result.UID_QRCode = Guid.NewGuid();
-                result.Oggetto = attoDto.Oggetto;
-                result.Premesse = attoDto.Premesse;
-                result.Richiesta = attoDto.Richiesta;
+                
+                InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Oggetto, nameof(AttoDASIDto.Oggetto));
+                InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Premesse, nameof(AttoDASIDto.Premesse));
+                InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Richiesta, nameof(AttoDASIDto.Richiesta));
+                
+                result.Oggetto = InputSanitizer.SanitizeText(attoDto.Oggetto);
+                result.Premesse = InputSanitizer.SanitizeHtml(attoDto.Premesse);
+                result.Richiesta = InputSanitizer.SanitizeHtml(attoDto.Richiesta);
+                
                 result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
 
                 _unitOfWork.DASI.Add(result);
@@ -216,9 +223,15 @@ namespace PortaleRegione.API.Controllers
 
             attoInDb.UIDPersonaModifica = currentUser.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
-            attoInDb.Oggetto = attoDto.Oggetto;
-            attoInDb.Premesse = attoDto.Premesse;
-            attoInDb.Richiesta = attoDto.Richiesta;
+            
+            InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Oggetto, nameof(AttoDASIDto.Oggetto));
+            InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Premesse, nameof(AttoDASIDto.Premesse));
+            InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Richiesta, nameof(AttoDASIDto.Richiesta));
+                
+            attoInDb.Oggetto = InputSanitizer.SanitizeText(attoDto.Oggetto);
+            attoInDb.Premesse = InputSanitizer.SanitizeHtml(attoDto.Premesse);
+            attoInDb.Richiesta = InputSanitizer.SanitizeHtml(attoDto.Richiesta);
+            
             attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
 
             if (attoDto.DocAllegatoGenerico_Stream != null)
@@ -307,8 +320,11 @@ namespace PortaleRegione.API.Controllers
                 PulisciChiusuraIter(attoInDb);
 
             attoInDb.IDStato = request.Stato;
-            attoInDb.CodiceMateria = request.CodiceMateria;
-            attoInDb.Protocollo = request.Protocollo;
+            InputSanitizer.ValidateAndThrowIfDangerous(request.CodiceMateria, "Codice Materia");
+            attoInDb.CodiceMateria = InputSanitizer.SanitizeText(request.CodiceMateria);
+            InputSanitizer.ValidateAndThrowIfDangerous(request.Protocollo, "Protocollo");
+            attoInDb.Protocollo = InputSanitizer.SanitizeText(request.Protocollo);
+            
             if (request.DataAnnunzio > DateTime.MinValue)
             {
                 attoInDb.DataAnnunzio = request.DataAnnunzio;
@@ -486,6 +502,9 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
+            InputSanitizer.ValidateAndThrowIfDangerous(request.Nota, "Nota");
+            request.Nota = InputSanitizer.SanitizeHtml(request.Nota);
+            
             attoInDb.UIDPersonaModifica = currentUser.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
 
@@ -574,11 +593,17 @@ namespace PortaleRegione.API.Controllers
             if (attoInDb == null)
                 throw new InvalidOperationException("Atto non trovato");
 
-            attoInDb.AltriSoggetti = request.AltriSoggetti;
-            attoInDb.AreaTematica = request.AreaTematica;
-            attoInDb.CompetenzaMonitoraggio = request.CompetenzaMonitoraggio;
-            attoInDb.ImpegniScadenze = request.ImpegniScadenze;
-            attoInDb.StatoAttuazione = request.StatoAttuazione;
+            InputSanitizer.ValidateAndThrowIfDangerous(request.AltriSoggetti, "Altri soggetti");
+            attoInDb.AltriSoggetti = InputSanitizer.SanitizeHtml(request.AltriSoggetti);
+            InputSanitizer.ValidateAndThrowIfDangerous(request.AreaTematica, "Area tematica");
+            attoInDb.AreaTematica = InputSanitizer.SanitizeHtml(request.AreaTematica);
+            InputSanitizer.ValidateAndThrowIfDangerous(request.CompetenzaMonitoraggio, "Competenza monitoraggio");
+            attoInDb.CompetenzaMonitoraggio = InputSanitizer.SanitizeHtml(request.CompetenzaMonitoraggio);
+            InputSanitizer.ValidateAndThrowIfDangerous(request.ImpegniScadenze, "Impegni e scadenze");
+            attoInDb.ImpegniScadenze = InputSanitizer.SanitizeHtml(request.ImpegniScadenze);
+            InputSanitizer.ValidateAndThrowIfDangerous(request.StatoAttuazione, "Stato attuazione");
+            attoInDb.StatoAttuazione = InputSanitizer.SanitizeHtml(request.StatoAttuazione);
+            
             attoInDb.DataTrasmissioneMonitoraggio = request.DataTrasmissioneMonitoraggio;
             attoInDb.MonitoraggioConcluso = request.MonitoraggioConcluso;
 
@@ -3680,28 +3705,41 @@ namespace PortaleRegione.API.Controllers
             atto.UIDPersonaModifica = persona.UID_persona;
             atto.DataModifica = DateTime.Now;
             if (!string.IsNullOrEmpty(model.Oggetto_Modificato))
-                atto.Oggetto_Modificato = model.Oggetto_Modificato;
+            {
+                InputSanitizer.ValidateAndThrowIfDangerous(model.Oggetto_Modificato, "Oggetto modificato");
+                atto.Oggetto_Modificato = InputSanitizer.SanitizeText(model.Oggetto_Modificato);
+            }
             else if (string.IsNullOrEmpty(model.Oggetto_Modificato) &&
                      !string.IsNullOrEmpty(atto.Oggetto_Modificato))
                 //caso in cui l'utente voglia tornare allo stato precedente
                 atto.Oggetto_Modificato = string.Empty;
 
             if (!string.IsNullOrEmpty(model.Oggetto_Approvato) && !model.Oggetto_Approvato.Equals(model.Oggetto))
-                atto.Oggetto_Approvato = model.Oggetto_Approvato;
+            {
+                InputSanitizer.ValidateAndThrowIfDangerous(model.Oggetto_Approvato, "Oggetto approvato");
+                atto.Oggetto_Approvato = InputSanitizer.SanitizeText(model.Oggetto_Approvato);
+            }
             else if (string.IsNullOrEmpty(model.Oggetto_Approvato) &&
                      !string.IsNullOrEmpty(atto.Oggetto_Approvato))
                 //caso in cui l'utente voglia tornare allo stato precedente
                 atto.Oggetto_Approvato = string.Empty;
 
             if (!string.IsNullOrEmpty(model.Premesse_Modificato))
-                atto.Premesse_Modificato = model.Premesse_Modificato;
+            {
+                InputSanitizer.ValidateAndThrowIfDangerous(model.Premesse_Modificato, "Premesse modificate");
+                atto.Premesse_Modificato = InputSanitizer.SanitizeText(model.Premesse_Modificato);
+            }
             else if (string.IsNullOrEmpty(model.Premesse_Modificato) &&
                      !string.IsNullOrEmpty(atto.Premesse_Modificato))
                 //caso in cui l'utente voglia tornare allo stato precedente
                 atto.Premesse_Modificato = string.Empty;
 
             if (!string.IsNullOrEmpty(model.Richiesta_Modificata))
+            {
                 atto.Richiesta_Modificata = model.Richiesta_Modificata;
+                InputSanitizer.ValidateAndThrowIfDangerous(model.Richiesta_Modificata, "Richiesta modificata");
+                atto.Richiesta_Modificata = InputSanitizer.SanitizeText(model.Richiesta_Modificata);
+            }
             else if (string.IsNullOrEmpty(model.Richiesta_Modificata) &&
                      !string.IsNullOrEmpty(atto.Richiesta_Modificata))
                 //caso in cui l'utente voglia tornare allo stato precedente

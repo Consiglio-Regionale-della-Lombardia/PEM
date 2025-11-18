@@ -175,7 +175,9 @@
 @RenderSection("scripts", false)
 
 <script>
-    $('.trumbowyg').trumbowyg({
+
+    initSecureTrumbowyg('.trumbowyg');
+    /*$('.trumbowyg').trumbowyg({
 		//semantic: true, // Usa tag semantici validi
 		//tagsToKeep: ['b', 'i', 'u', 'strong', 'em'], // Specifica i tag consentiti
 		//removeformatPasted: true, // Rimuovi formattazioni strane durante il paste
@@ -202,7 +204,7 @@
                 ]
             }
         }
-    });
+    });*/
 
     var devPanelCounter = 0;
     $("body").on("keyup",

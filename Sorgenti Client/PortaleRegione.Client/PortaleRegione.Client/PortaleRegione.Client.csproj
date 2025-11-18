@@ -351,6 +351,7 @@
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\moment.js" />
     <Content Include="Scripts\sweetalert.min.js" />
+    <Content Include="Scripts\trumbowyg-secure-config.js" />
     <Content Include="Web.config.txt" />
     <Content Include="Content\editor\plugins\colors\ui\sass\trumbowyg.colors.scss" />
     <Content Include="Content\editor\plugins\emoji\ui\sass\trumbowyg.emoji.scss" />

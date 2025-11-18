@@ -38,6 +38,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Office.Word;
+using PortaleRegione.BAL.Helpers;
 
 namespace PortaleRegione.BAL
 {
@@ -328,6 +329,11 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                InputSanitizer.ValidateAndThrowIfDangerous(emendamentoDto.TestoEM_originale, "Testo emendamento");
+                emendamentoDto.TestoEM_originale = InputSanitizer.SanitizeHtml(emendamentoDto.TestoEM_originale);
+                InputSanitizer.ValidateAndThrowIfDangerous(emendamentoDto.TestoREL_originale, "Relazione illustrativa");
+                emendamentoDto.TestoREL_originale = InputSanitizer.SanitizeHtml(emendamentoDto.TestoREL_originale);
+                
                 var progressivo =
                     await _unitOfWork.Emendamenti.GetProgressivo(emendamentoDto.UIDAtto,
                         persona.Gruppo.id_gruppo,
@@ -488,9 +494,16 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                InputSanitizer.ValidateAndThrowIfDangerous(model.NOTE_EM, "Note riservate");
+                model.NOTE_EM = InputSanitizer.SanitizeHtml(model.NOTE_EM);
+                InputSanitizer.ValidateAndThrowIfDangerous(model.NOTE_Griglia, "Note pubbliche");
+                model.NOTE_Griglia = InputSanitizer.SanitizeHtml(model.NOTE_Griglia);
+                InputSanitizer.ValidateAndThrowIfDangerous(model.TestoEM_Modificabile, "Testo modificabile");
+                model.TestoEM_Modificabile = InputSanitizer.SanitizeHtml(model.TestoEM_Modificabile);
+                
                 var updateMetaDatiDto = Mapper.Map<EmendamentiDto, MetaDatiEMDto>(model);
                 var emAggiornato = Mapper.Map(updateMetaDatiDto, em);
-
+                
                 emAggiornato.UIDPersonaModifica = persona.UID_persona;
                 emAggiornato.DataModifica = DateTime.Now;
                 if (!string.IsNullOrEmpty(model.TestoEM_Modificabile))
