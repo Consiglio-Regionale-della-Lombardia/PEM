@@ -44,10 +44,10 @@ public class AttiRispostePublicDto
 {
     public string tipo_organo { get; set; }
     public string tipo_risposta { get; set; }
-    public DateTime? data { get; set; }
-    public DateTime? data_trasmissione { get; set; }
-    public DateTime? data_trattazione { get; set; }
-    public DateTime? data_revoca { get; set; }
+    public string data { get; set; }
+    public string data_trasmissione { get; set; }
+    public string data_trattazione { get; set; }
+    public string data_revoca { get; set; }
     public int id_organo { get; set; }
     public string organo { get; set; }
 }
