@@ -116,6 +116,12 @@
             }
 
             if (inputFileAllegatoGenerico.files.length > 0) {
+	            var validation = await validateFileAdvanced(inputFileAllegatoGenerico.files[0]);
+	            if (!validation.valid) {
+		            alert('ERRORE DI VALIDAZIONE:\n\n' + validation.error);
+		            return;
+	            }
+				
                 // Creazione del FormData per inviare il file e altri dati
                 var formData = new FormData();
                 formData.append("UIDAtto", '@Html.Raw(Model.Atto.UIDAtto)');

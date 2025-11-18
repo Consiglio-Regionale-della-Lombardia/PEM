@@ -93,7 +93,7 @@
     $("#formEmendamento").submit(function(e) {
         e.preventDefault();
     }).validate({
-        submitHandler: function (form) {
+        submitHandler: async function (form) {
 waiting(true);
             var docAllegatoGenerico;
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
@@ -103,8 +103,14 @@ waiting(true);
                     waiting(false);
                     alert("This browser doesn't seem to support the `files` property of file inputs.");
                 }
-                if (inputFileAllegatoGenerico.files.length > 0)
-                    docAllegatoGenerico = inputFileAllegatoGenerico.files[0];
+                if (inputFileAllegatoGenerico.files.length > 0) {
+                    var validation = await validateFileAdvanced(inputFileAllegatoGenerico.files[0]);
+                    if (!validation.valid) {
+                        alert('ERRORE DI VALIDAZIONE:\n\n' + validation.error);
+                        return;
+                    }
+                    docAllegatoGenerico = inputFileAllegatoGenerico.files[0];                    
+                }
             }
             var docAllegatoTecnico;
             var inputsAllegatoTecnico = $('input[name=DocEffettiFinanziari]');
@@ -114,8 +120,14 @@ waiting(true);
                     waiting(false);
                     alert("This browser doesn't seem to support the `files` property of file inputs.");
                 }
-                if (inputFileAllegatoTecnico.files.length > 0)
+                if (inputFileAllegatoTecnico.files.length > 0) {
+                    var validation = await validateFileAdvanced(inputFileAllegatoTecnico.files[0]);
+                    if (!validation.valid) {
+                        alert('ERRORE DI VALIDAZIONE:\n\n' + validation.error);
+                        return;
+                    }
                     docAllegatoTecnico = inputFileAllegatoTecnico.files[0];
+                }
             }
 
             var proponente;

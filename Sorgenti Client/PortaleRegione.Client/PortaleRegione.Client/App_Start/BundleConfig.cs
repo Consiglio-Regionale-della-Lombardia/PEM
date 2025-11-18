@@ -19,6 +19,10 @@ namespace PortaleRegione.Client
                     "~/Scripts/SessionManager.js",
                     "~/Scripts/FiltriManager.js"));
             
+            bundles.Add(new ScriptBundle("~/bundles/filevalidation").Include(
+                "~/Scripts/file-upload-validation.js"
+            ));
+            
             bundles.Add(new ScriptBundle("~/bundles/editor").Include(
                 "~/Content/editor/trumbowyg.js",
                 "~/Content/editor/plugins/cleanpaste/trumbowyg.cleanpaste.js",

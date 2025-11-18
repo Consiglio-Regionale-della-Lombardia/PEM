@@ -23,8 +23,10 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
 
@@ -137,8 +139,29 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 if (atto.DocAtto != null)
-                    if (atto.DocAtto.ContentType != "application/pdf")
-                        throw new InvalidOperationException("I file devono essere in formato PDF");
+                {
+                    // Leggi contenuto
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await atto.DocAtto.InputStream.CopyToAsync(memoryStream);
+                        var fileData = memoryStream.ToArray();
+
+                        // Validazione completa
+                        var validation = FileValidator.ValidateFile(
+                            atto.DocAtto.FileName,
+                            atto.DocAtto.ContentType,
+                            fileData
+                        );
+
+                        if (!validation.IsValid)
+                            throw new InvalidOperationException(validation.ErrorMessage);
+
+                        if (FileValidator.IsZipFile(atto.DocAtto.FileName, fileData))
+                            throw new InvalidOperationException(
+                                "File ZIP non consentiti per motivi di sicurezza.");
+                    }
+                }
+                
                 var apiGateway = new ApiGateway(Token);
                 AttiDto attoSalvato = null;
                 if (atto.UIDAtto == Guid.Empty)

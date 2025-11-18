@@ -133,6 +133,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
     <Compile Include="Controllers\TemplateController.cs" />
+    <Compile Include="Helpers\FileValidator.cs" />
     <Compile Include="Helpers\SanitizeHtmlHelper.cs" />
     <Compile Include="Helpers\TryReadChunkedCookies.cs" />
     <Compile Include="Models\StampaModel.cs" />
@@ -342,6 +343,7 @@
     <Content Include="fonts\text-security-disc.ttf" />
     <Content Include="fonts\text-security-disc.woff" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
+    <Content Include="Scripts\file-upload-validation.js" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.js" />
