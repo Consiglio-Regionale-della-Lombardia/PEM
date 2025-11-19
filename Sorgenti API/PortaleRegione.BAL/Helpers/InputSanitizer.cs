@@ -170,7 +170,7 @@ namespace PortaleRegione.BAL.Helpers
             if (ContainsDangerousContent(html))
             {
                 throw new InvalidOperationException(
-                    $"Il {fieldName} contiene contenuto potenzialmente pericoloso che non è permesso.");
+                    $"{fieldName} presenta contenuto potenzialmente pericoloso che non è permesso.");
             }
         }
     }
