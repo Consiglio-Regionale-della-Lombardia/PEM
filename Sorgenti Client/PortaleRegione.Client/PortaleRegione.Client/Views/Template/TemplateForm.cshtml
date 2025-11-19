@@ -214,7 +214,11 @@
              }
          }).fail(function(err) {
              console.log("error", err);
-             Error(err);
+	         if (err.responseJSON.message) {
+		         ErrorAlert(err.responseJSON.message);
+	         }else{
+		         Error(err);
+	         }
          });
      }
  });

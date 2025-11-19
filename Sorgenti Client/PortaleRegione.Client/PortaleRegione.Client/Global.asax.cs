@@ -90,6 +90,20 @@ namespace PortaleRegione.Client
         {
             var exc = Server.GetLastError();
             Response.Clear();
+            
+            // ACT32: Gestione errore ValidateRequest
+            if (exc is HttpRequestValidationException)
+            {
+                Response.StatusCode = 400; // Bad Request invece di 500
+                Response.ContentType = "application/json";
+                Response.Write(JsonConvert.SerializeObject(new 
+                { 
+                    message = "Il contenuto inserito contiene caratteri non consentiti per motivi di sicurezza. Rimuovere tag HTML pericolosi come <script>, <iframe>, ecc."
+                }));
+                Response.End();
+                return;
+            }
+            
             if (exc.GetType() == typeof(UnauthorizedAccessException))
             {
                 var controller = new AutenticazioneController();
