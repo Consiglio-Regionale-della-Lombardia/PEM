@@ -2232,6 +2232,22 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        [HttpGet]
+        [Route("commissioni-attive")]
+        public async Task<ActionResult> GetCommissioniAttive()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetCommissioniAttive();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
 
         [HttpGet]
         [Route("view-gruppi-disponibili")]

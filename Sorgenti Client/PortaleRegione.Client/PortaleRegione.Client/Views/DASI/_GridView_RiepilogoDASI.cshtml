@@ -321,9 +321,15 @@ else
                                      || (item.UIDPersonaProponente.HasValue && item.UIDPersonaProponente.Value == Model.CurrentUser.UID_persona)))
                                 || (item.IsMOZ() && item.IDStato > (int)StatiAttoEnum.BOZZA))
                             {
-                                    <button type="button" role="button" class="btn-flat pink-text" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)', @Html.Raw(item.Tipo), @Html.Raw(item.TipoMOZ))">
-                                        Proponi iscrizione
-                                    </button>
+                                if (!item.DataIscrizioneSeduta.HasValue)
+                                {
+                                    if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta))
+                                    {
+                                        <button type="button" role="button" class="btn-flat pink-text" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)', @Html.Raw(item.Tipo), @Html.Raw(item.TipoMOZ))">
+                                            Proponi iscrizione
+                                        </button>
+                                    }
+                                }
                             }
                         }
                     }

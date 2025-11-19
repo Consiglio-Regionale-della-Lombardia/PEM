@@ -109,7 +109,7 @@
             <div class="card-content">
                 <div class="row">
                     <div class="col s12 center bodyEMClass">
-                        @Html.Raw(atto.BodyAtto)
+                        @Html.Raw(SanitizeHtmlHelper.SanitizeHtml(atto.BodyAtto))
                     </div>
                 </div>
                 <div class="row" id="pnlStandardFirme">
