@@ -18,8 +18,8 @@
 
 using AutoMapper;
 using Newtonsoft.Json;
-using PortaleRegione.Logger;
 using System.Web;
+using System;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -49,6 +49,27 @@ namespace PortaleRegione.API
             {
                 NullValueHandling = NullValueHandling.Ignore
             };
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void Application_BeginRequest(object sender, EventArgs e)
+        {
+            // ACT37: Content Security Policy Header
+            HttpContext.Current.Response.Headers.Add("Content-Security-Policy",
+                "default-src 'self'; " +
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://code.jquery.com https://cdn.jsdelivr.net; " +
+                "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
+                "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
+                "img-src 'self' data: https:; " +
+                "connect-src 'self'; " +
+                "frame-ancestors 'none'; " +
+                "base-uri 'self'; " +
+                "form-action 'self';"
+            );
         }
     }
 }
