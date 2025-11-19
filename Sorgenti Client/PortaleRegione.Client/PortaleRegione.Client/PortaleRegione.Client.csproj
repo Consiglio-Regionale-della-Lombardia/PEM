@@ -135,6 +135,7 @@
     <Compile Include="Controllers\TemplateController.cs" />
     <Compile Include="Helpers\FileValidator.cs" />
     <Compile Include="Helpers\SanitizeHtmlHelper.cs" />
+    <Compile Include="Helpers\SecurityHeadersHandler.cs" />
     <Compile Include="Helpers\TryReadChunkedCookies.cs" />
     <Compile Include="Models\StampaModel.cs" />
     <Compile Include="Helpers\AppSettingsConfiguration.cs" />
