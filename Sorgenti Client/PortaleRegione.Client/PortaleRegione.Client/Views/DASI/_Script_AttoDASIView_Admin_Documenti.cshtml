@@ -146,15 +146,18 @@
                         body: formData // Non impostare il content-type, fetch lo farà automaticamente con FormData
                     });
 
+	                console.log(response)
                     if (!response.ok) {
 						waiting(false);
                         throw new Error('Network response was not ok');
                     }
 
                     const result = await response.json();
+					console.log(result)
                     if (result.message) {
 						waiting(false);
-                        throw new Error(result.message);
+                        ErrorAlert(result.message);
+						return;
                     }
 
 					if (uidRisposta) {

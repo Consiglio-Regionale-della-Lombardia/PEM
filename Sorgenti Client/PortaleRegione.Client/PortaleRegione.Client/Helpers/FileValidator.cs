@@ -37,16 +37,6 @@ namespace PortaleRegione.Client.Helpers
             ".bz2", ".xz", ".iso", ".img", ".dmg", ".pkg", ".deb", ".rpm"
         };
 
-        private static readonly Dictionary<string, List<byte[]>> FileSignatures = new Dictionary<string, List<byte[]>>
-        {
-            {
-                ".pdf", new List<byte[]>
-                {
-                    new byte[] { 0x25, 0x50, 0x44, 0x46 } // %PDF
-                }
-            }
-        };
-
         private static readonly Dictionary<string, string> AllowedMimeTypes = new Dictionary<string, string>
         {
             { ".pdf", "application/pdf" }
@@ -62,13 +52,6 @@ namespace PortaleRegione.Client.Helpers
                 result.ErrorMessage = "Nome file non valido.";
                 return result;
             }
-
-            /*if (fileContent == null || fileContent.Length == 0)
-            {
-                result.IsValid = false;
-                result.ErrorMessage = "Il file è vuoto.";
-                return result;
-            }*/
 
             if (fileContent.Length > MAX_FILE_SIZE)
             {
@@ -104,56 +87,9 @@ namespace PortaleRegione.Client.Helpers
             {
                 result.IsValid = false;
                 result.ErrorMessage = $"Il tipo MIME del file ('{contentType}') non corrisponde al tipo atteso ('{expectedMimeType}').";
-                return result;
             }
-
-            if (!VerifyFileSignature(extension, fileContent))
-            {
-                result.IsValid = false;
-                result.ErrorMessage = "Il contenuto del file non corrisponde all'estensione dichiarata. Possibile tentativo di mascheramento del tipo di file.";
-                return result;
-            }
-
-            if (ContainsMaliciousPatterns(fileContent))
-            {
-                result.IsValid = false;
-                result.ErrorMessage = "Il file contiene pattern sospetti e potenzialmente pericolosi.";
-                return result;
-            }
-
+            
             return result;
-        }
-
-        private static bool VerifyFileSignature(string extension, byte[] fileContent)
-        {
-            if (!FileSignatures.ContainsKey(extension.ToLower()))
-            {
-                return true;
-            }
-
-            var signatures = FileSignatures[extension.ToLower()];
-            return signatures.Any(signature => fileContent.Take(signature.Length).SequenceEqual(signature));
-        }
-
-        private static bool ContainsMaliciousPatterns(byte[] fileContent)
-        {
-            var dangerousPatterns = new List<byte[]>
-            {
-                System.Text.Encoding.ASCII.GetBytes("<script"),
-                System.Text.Encoding.ASCII.GetBytes("javascript:"),
-                System.Text.Encoding.ASCII.GetBytes("/JavaScript"),
-                System.Text.Encoding.ASCII.GetBytes("/JS"),
-                System.Text.Encoding.ASCII.GetBytes("/AA"),
-                System.Text.Encoding.ASCII.GetBytes("/OpenAction"),
-                System.Text.Encoding.ASCII.GetBytes("/Launch")
-            };
-
-            var contentStr = System.Text.Encoding.ASCII.GetString(fileContent);
-            return dangerousPatterns.Any(pattern =>
-            {
-                var patternStr = System.Text.Encoding.ASCII.GetString(pattern);
-                return contentStr.IndexOf(patternStr, StringComparison.OrdinalIgnoreCase) >= 0;
-            });
         }
 
         public static bool IsExtensionBlacklisted(string fileName)

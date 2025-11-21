@@ -159,6 +159,8 @@ namespace PortaleRegione.Client.Controllers
                         if (FileValidator.IsZipFile(atto.DocAtto.FileName, fileData))
                             throw new InvalidOperationException(
                                 "File ZIP non consentiti per motivi di sicurezza.");
+                        
+                        atto.DocAtto_Stream = fileData;
                     }
                 }
                 
