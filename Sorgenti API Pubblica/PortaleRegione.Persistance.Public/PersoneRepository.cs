@@ -106,7 +106,7 @@ namespace PortaleRegione.Persistance.Public
             .View_gruppi_politici_con_giunta
                 .FirstOrDefaultAsync(g => g.id_gruppo == idGruppo);
             if (gruppo == null)
-                throw new KeyNotFoundException("Gruppo non trovato");
+                return null;
 
             return new KeyValueDto
             {
