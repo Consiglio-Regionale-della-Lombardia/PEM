@@ -423,7 +423,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 var result = new List<AttiFirmePublicDto>();
                 foreach (var firma in firme)
                 {
-                    var gruppo = await _unitOfWork.Persone.GetGruppo(firma.id_gruppo);
                     var dto = new AttiFirmePublicDto
                     {
                         UID_persona = firma.UID_persona,
@@ -431,7 +430,6 @@ namespace PortaleRegione.Api.Public.Business_Layer
                         FirmaCert = CryptoHelper.DecryptString(firma.FirmaCert,
                             AppSettingsConfigurationHelper.masterKey),
                         PrimoFirmatario = firma.PrimoFirmatario,
-                        Gruppo = gruppo,
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
                             : CryptoHelper.DecryptString(firma.Data_ritirofirma,
