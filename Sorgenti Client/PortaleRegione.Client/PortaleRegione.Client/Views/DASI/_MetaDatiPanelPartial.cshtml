@@ -109,18 +109,6 @@
                         </div>
                         <div style="padding-top: 10px; display: none" id="pnlCommissioni">
 
-                            @if (Model.CommissioniAttive != null)
-                            {
-                                foreach (var commissione in Model.CommissioniAttive)
-                                {
-                                    <p>
-                                        <label>
-                                            <input type="checkbox" value="@commissione.id_organo" onclick="addCommissione(this)"/>
-                                            <span>@commissione.nome_organo</span>
-                                        </label>
-                                    </p>
-                                }
-                            }
                         </div>
                     </div>
                 </div>
@@ -132,6 +120,36 @@
 
 <script>
 
+    //al caricamento della pagina vorrei chiamare GetCommissioniAttive e riempire pnlCommissioni e rimpiazzare il codice if (Model.CommissioniAttive != null) non piu utilizzato
+
+    $(document).ready(async function() {
+        await LoadCommissioniAttive();
+    });
+
+    async function LoadCommissioniAttive() {
+        try {
+            const commissioni = await GetCommissioniAttive();
+            const pnlCommissioni = $('#pnlCommissioni');
+            pnlCommissioni.empty();
+
+            if (commissioni && commissioni.length > 0) {
+                commissioni.forEach(function(commissione) {
+                    const checkbox = `
+                    <p>
+                        <label>
+                            <input type="checkbox" value="${commissione.id_organo}" onclick="addCommissione(this)"/>
+                            <span>${commissione.nome_organo}</span>
+                        </label>
+                    </p>
+                `;
+                    pnlCommissioni.append(checkbox);
+                });
+            }
+        } catch (err) {
+            console.log("Errore nel caricamento delle commissioni", err);
+        }
+    }
+    
 	async function openMetaDatiDASI(attoUId) {
         waiting(true);
 		var atto = await GetAtto(attoUId);
@@ -139,6 +157,23 @@
 		await LoadMetaDatiAtto(atto);
 		$("#modalMetaDati").modal("open");
 	}
+
+    async function GetCommissioniAttive() {
+        try {
+            const result = await $.ajax({
+                url: '@Url.Action("GetCommissioniAttive")',
+                type: "GET",
+                contentType: "application/json",
+                dataType: "json"
+            });
+            return result;
+        } catch (err) {
+            waiting(false);
+            console.log("error", err);
+            Error(err);
+            throw err;
+        }
+    }
 
     async function LoadMetaDatiAtto(atto) {
         await SetupMetaDati(atto);
@@ -279,14 +314,15 @@
 
             atto.IDTipo_Risposta = $('#Atto_TipoRisposta').val();
             if (lstCommissioni.length > 0) {
-                atto.Commissioni = [];
+                atto.Organi = [];
                 $.each(lstCommissioni, function(i, item) {
                     var id = item;
                     var text = $('input[value="' + item + '"]').parent().find('span').html();
 
-                    atto.Commissioni.push({
+                    atto.Organi.push({
                         id_organo: id,
-                        nome_organo: text
+                        nome_organo: text,
+                        tipo_organo: @Html.Raw((int)TipoOrganoEnum.COMMISSIONE)
                     });
                 });
             }
@@ -335,9 +371,9 @@
             $('a[href="#metaDatiCommissioni"]').parent().show();
             $('#pnlCommissioni').show();
 
-            if (atto.Commissioni != null) {
-                if (atto.Commissioni.length > 0) {
-                    $.each(atto.Commissioni,
+            if (atto.Organi != null) {
+                if (atto.Organi.length > 0) {
+                    $.each(atto.Organi,
                         function(i, item) {
                             $('input[value="' + item.id_organo + '"]').click();
                         });

@@ -86,6 +86,7 @@ namespace PortaleRegione.Gateway
         Task SalvaReport(ReportDto report);
         Task<List<ReportDto>> GetReports();
         Task<List<AttoLightDto>> GetAbbinamentiDisponibili(int legislaturaId, int page, int size);
+        Task<List<OrganoDto>> GetCommissioniAttive();
         Task<List<GruppiDto>> GetGruppiDisponibili(int legislaturaId, int page, int size);
         Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId);
         Task EliminaReport(string nomeReport);

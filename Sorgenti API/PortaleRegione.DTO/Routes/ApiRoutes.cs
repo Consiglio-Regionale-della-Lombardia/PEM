@@ -277,6 +277,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetOrganiDisponibili = Base + "/filters/organi-disponibili";
             public const string GetReportsCovers = Base + "/reports/templates/covers";
             public const string GetReportsCardTemplates = Base + "/reports/templates/cards";
+            public const string GetCommissioniAttive = Base + "/commissioni-attive";
         }
 
         public static class Notifiche

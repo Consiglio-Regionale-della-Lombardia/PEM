@@ -358,6 +358,37 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                if (request.DocAllegatoGenerico != null)
+                {
+                    // Leggi il contenuto
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await request.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
+                        request.DocAllegatoGenerico_Stream = memoryStream.ToArray();
+                    }
+
+                    // AGGIUNGERE VALIDAZIONE:
+                    var validationResult = FileValidator.ValidateFile(
+                        request.DocAllegatoGenerico.FileName,
+                        request.DocAllegatoGenerico.ContentType,
+                        request.DocAllegatoGenerico_Stream
+                    );
+
+                    if (!validationResult.IsValid)
+                    {
+                        return Json(new ErrorResponse(validationResult.ErrorMessage), 
+                            JsonRequestBehavior.AllowGet);
+                    }
+
+                    if (FileValidator.IsZipFile(request.DocAllegatoGenerico.FileName, 
+                            request.DocAllegatoGenerico_Stream))
+                    {
+                        return Json(new ErrorResponse(
+                                "File ZIP non consentiti per motivi di sicurezza."), 
+                            JsonRequestBehavior.AllowGet);
+                    }
+                }
+                
                 var currentUser = CurrentUser;
                 var apiGateway = new ApiGateway(Token);
                 var result = await apiGateway.DASI.Salva(request);
@@ -2295,6 +2326,22 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        [HttpGet]
+        [Route("commissioni-attive")]
+        public async Task<ActionResult> GetCommissioniAttive()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetCommissioniAttive();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
 
         [HttpGet]
         [Route("view-gruppi-disponibili")]
@@ -2694,21 +2741,36 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse("Il file è vuoto."), JsonRequestBehavior.AllowGet);
             }
 
-            if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+            // Leggi il contenuto del file
+            byte[] fileData;
+            using (var binaryReader = new BinaryReader(file.InputStream))
             {
-                return Json(new ErrorResponse("Formato file non valido. Solo PDF accettati."),
+                fileData = binaryReader.ReadBytes(file.ContentLength);
+            }
+
+            // NUOVA VALIDAZIONE COMPLETA
+            var validationResult = FileValidator.ValidateFile(
+                file.FileName, 
+                file.ContentType, 
+                fileData
+            );
+
+            if (!validationResult.IsValid)
+            {
+                return Json(new ErrorResponse(validationResult.ErrorMessage), 
                     JsonRequestBehavior.AllowGet);
             }
 
+            // Verifica aggiuntiva: blocca file ZIP anche se mascherati
+            if (FileValidator.IsZipFile(file.FileName, fileData))
+            {
+                return Json(new ErrorResponse(
+                        "File ZIP e archivi compressi non sono consentiti per motivi di sicurezza."),
+                    JsonRequestBehavior.AllowGet);
+            }
+            
             try
             {
-                // Converte il file in un array di byte
-                byte[] fileData;
-                using (var binaryReader = new BinaryReader(file.InputStream))
-                {
-                    fileData = binaryReader.ReadBytes(file.ContentLength);
-                }
-
                 var request = new SalvaDocumentoRequest
                 {
                     UIDAtto = Guid.Parse(Request.Form["UIDAtto"]),

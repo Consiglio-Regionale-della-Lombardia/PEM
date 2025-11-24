@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+using System.Web.Mvc;
+using PortaleRegione.Client.Helpers;
 
 namespace PortaleRegione.Client
 {
@@ -7,6 +8,9 @@ namespace PortaleRegione.Client
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
+            
+            // ACT44: Security Headers Filter
+            filters.Add(new SecurityHeadersAttribute());
         }
     }
 }

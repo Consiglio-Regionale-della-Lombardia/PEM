@@ -142,7 +142,11 @@ namespace PortaleRegione.BAL
             {
                 FileName = Path.GetFileName(path)
             };
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+            var extension = Path.GetExtension(path).ToLowerInvariant();
+            var contentType = Utility.GetContentTypeFromExtension(extension);
+            
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+            result.Content.Headers.Add("X-Content-Type-Options", "nosniff");
 
             return result;
         }
@@ -157,7 +161,10 @@ namespace PortaleRegione.BAL
             {
                 FileName = filename.Replace(' ', '_').Replace("'", "_")
             };
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+            var extension = Path.GetExtension(filename).ToLowerInvariant();
+            var contentType = Utility.GetContentTypeFromExtension(extension);
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+            result.Content.Headers.Add("X-Content-Type-Options", "nosniff");
 
             return result;
         }
@@ -765,7 +772,7 @@ namespace PortaleRegione.BAL
             }
 
             #endregion
-            
+
             // #1443
             if (body.Contains("STATO_PREVIEW"))
             {

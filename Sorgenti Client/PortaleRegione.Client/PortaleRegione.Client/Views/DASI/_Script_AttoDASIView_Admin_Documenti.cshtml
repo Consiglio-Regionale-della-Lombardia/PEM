@@ -118,6 +118,12 @@
             }
 
             if (inputFileAllegatoGenerico.files.length > 0) {
+	            var validation = await validateFileAdvanced(inputFileAllegatoGenerico.files[0]);
+	            if (!validation.valid) {
+		            alert('ERRORE DI VALIDAZIONE:\n\n' + validation.error);
+		            return;
+	            }
+				
                 // Creazione del FormData per inviare il file e altri dati
                 var formData = new FormData();
                 formData.append("UIDAtto", '@Html.Raw(Model.Atto.UIDAtto)');
@@ -142,15 +148,18 @@
                         body: formData // Non impostare il content-type, fetch lo farà automaticamente con FormData
                     });
 
+	                console.log(response)
                     if (!response.ok) {
 						waiting(false);
                         throw new Error('Network response was not ok');
                     }
 
                     const result = await response.json();
+					console.log(result)
                     if (result.message) {
 						waiting(false);
-                        throw new Error(result.message);
+                        ErrorAlert(result.message);
+						return;
                     }
 
 					if (uidRisposta) {

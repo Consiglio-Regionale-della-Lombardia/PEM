@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
@@ -320,6 +321,67 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                if (model.DocAllegatoGenerico != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await model.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
+                        model.DocAllegatoGenerico_Stream = memoryStream.ToArray();
+                    }
+
+                    // AGGIUNGERE VALIDAZIONE:
+                    var validationAllegato = FileValidator.ValidateFile(
+                        model.DocAllegatoGenerico.FileName,
+                        model.DocAllegatoGenerico.ContentType,
+                        model.DocAllegatoGenerico_Stream
+                    );
+
+                    if (!validationAllegato.IsValid)
+                    {
+                        return Json(new ErrorResponse(validationAllegato.ErrorMessage),
+                            JsonRequestBehavior.AllowGet);
+                    }
+
+                    if (FileValidator.IsZipFile(model.DocAllegatoGenerico.FileName,
+                            model.DocAllegatoGenerico_Stream))
+                    {
+                        return Json(new ErrorResponse(
+                                "File ZIP non consentiti."),
+                            JsonRequestBehavior.AllowGet);
+                    }
+                }
+
+                if (model.DocEffettiFinanziari != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await model.DocEffettiFinanziari.InputStream.CopyToAsync(memoryStream);
+                        model.DocEffettiFinanziari_Stream = memoryStream.ToArray();
+                    }
+
+                    // AGGIUNGERE VALIDAZIONE:
+                    var validationEffetti = FileValidator.ValidateFile(
+                        model.DocEffettiFinanziari.FileName,
+                        model.DocEffettiFinanziari.ContentType,
+                        model.DocEffettiFinanziari_Stream
+                    );
+
+                    if (!validationEffetti.IsValid)
+                    {
+                        return Json(new ErrorResponse(validationEffetti.ErrorMessage),
+                            JsonRequestBehavior.AllowGet);
+                    }
+
+                    if (FileValidator.IsZipFile(model.DocEffettiFinanziari.FileName,
+                            model.DocEffettiFinanziari_Stream))
+                    {
+                        return Json(new ErrorResponse(
+                                "File ZIP non consentiti."),
+                            JsonRequestBehavior.AllowGet);
+                    }
+
+                }
+
                 var apiGateway = new ApiGateway(Token);
                 Session["RiepilogoEmendamenti"] = null;
                 var uidEm = model.UIDEM;

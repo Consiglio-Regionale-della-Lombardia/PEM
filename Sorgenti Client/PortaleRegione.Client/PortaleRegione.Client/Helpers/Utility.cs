@@ -419,7 +419,7 @@ namespace PortaleRegione.Client.Helpers
         {
             if (clientMode.Equals(ClientModeEnum.TRATTAZIONE))
                 return;
-            
+
             if (string.IsNullOrEmpty(filtroStato))
             {
                 filtroStato = Convert.ToInt32(StatiAttoEnum.TUTTI).ToString();

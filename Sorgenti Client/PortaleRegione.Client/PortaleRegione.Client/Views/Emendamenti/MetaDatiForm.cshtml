@@ -138,7 +138,11 @@
                     go(data);
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                if (err.responseJSON.message) {
+                    ErrorAlert(err.responseJSON.message);
+                }else{
+                    Error(err);
+                }
             });
 
             return false; //This doesn't prevent the form from submitting.

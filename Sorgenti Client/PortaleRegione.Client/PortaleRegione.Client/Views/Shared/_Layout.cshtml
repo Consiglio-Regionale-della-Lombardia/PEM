@@ -20,6 +20,8 @@
 
     @Scripts.Render("~/bundles/lib")
     @Scripts.Render("~/bundles/logic")
+    @Scripts.Render("~/bundles/filevalidation")
+    @Scripts.Render("~/bundles/editor")
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="~/Scripts/moment.js"></script>
     
@@ -174,7 +176,9 @@
 @RenderSection("scripts", false)
 
 <script>
-    $('.trumbowyg').trumbowyg({
+
+    initSecureTrumbowyg('.trumbowyg');
+    /*$('.trumbowyg').trumbowyg({
 		//semantic: true, // Usa tag semantici validi
 		//tagsToKeep: ['b', 'i', 'u', 'strong', 'em'], // Specifica i tag consentiti
 		//removeformatPasted: true, // Rimuovi formattazioni strane durante il paste
@@ -201,7 +205,7 @@
                 ]
             }
         }
-    });
+    });*/
 
     var devPanelCounter = 0;
     $("body").on("keyup",

@@ -126,7 +126,7 @@
     $("#formEmendamento").submit(function(e) {
         e.preventDefault();
     }).validate({
-        submitHandler: function (form) {
+        submitHandler: async function (form) {
             waiting(true);
             var docAllegatoGenerico;
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
@@ -136,8 +136,14 @@
                     waiting(false);
                     alert("This browser doesn't seem to support the `files` property of file inputs.");
                 }
-                if (inputFileAllegatoGenerico.files.length > 0)
-                    docAllegatoGenerico = inputFileAllegatoGenerico.files[0];
+                if (inputFileAllegatoGenerico.files.length > 0) {
+                    var validation = await validateFileAdvanced(inputFileAllegatoGenerico.files[0]);
+                    if (!validation.valid) {
+                        alert('ERRORE DI VALIDAZIONE:\n\n' + validation.error);
+                        return;
+                    }
+                    docAllegatoGenerico = inputFileAllegatoGenerico.files[0];                    
+                }
             }
             var docAllegatoTecnico;
             var inputsAllegatoTecnico = $('input[name=DocEffettiFinanziari]');
@@ -147,8 +153,14 @@
                     waiting(false);
                     alert("This browser doesn't seem to support the `files` property of file inputs.");
                 }
-                if (inputFileAllegatoTecnico.files.length > 0)
+                if (inputFileAllegatoTecnico.files.length > 0) {
+                    var validation = await validateFileAdvanced(inputFileAllegatoTecnico.files[0]);
+                    if (!validation.valid) {
+                        alert('ERRORE DI VALIDAZIONE:\n\n' + validation.error);
+                        return;
+                    }
                     docAllegatoTecnico = inputFileAllegatoTecnico.files[0];
+                }
             }
 
             var proponente;
@@ -261,14 +273,19 @@
             }).fail(function(err) {
                 waiting(false);
                 console.log("error", err);
-                Error(err);
+                if (err.responseJSON.message) {
+                    ErrorAlert(err.responseJSON.message);
+                }else{
+                    Error(err);
+                }
             });
 
             return false; //This doesn't prevent the form from submitting.
         }
     });
 
-	$('.trumbowyg').trumbowyg({
+    initSecureTrumbowyg('.trumbowyg');
+	/*$('.trumbowyg').trumbowyg({
 		//semantic: true, // Usa tag semantici validi
 		//tagsToKeep: ['b', 'i', 'u', 'strong', 'em'], // Specifica i tag consentiti
 		//removeformatPasted: true, // Rimuovi formattazioni strane durante il paste
@@ -295,6 +312,6 @@
 				]
 			}
 		}
-	});
+	});*/
 
 </script>

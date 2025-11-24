@@ -1180,9 +1180,72 @@ namespace PortaleRegione.Common
             {
                 FileName = Path.GetFileName(path)
             };
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+            // Determina il Content-Type specifico
+            var extension = Path.GetExtension(path)?.ToLowerInvariant();
+            var contentType = GetContentTypeFromExtension(extension);
+            
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+            result.Content.Headers.Add("X-Content-Type-Options", "nosniff");
 
             return result;
+        }
+        
+        /// <summary>
+        /// Determina il Content-Type specifico basandosi sull'estensione del file
+        /// ACT36: Fornire Content-Type specifico e non generico
+        /// </summary>
+        /// <param name="extension">Estensione file (con o senza punto)</param>
+        /// <returns>Content-Type MIME specifico</returns>
+        public static string GetContentTypeFromExtension(string extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension))
+                return "application/octet-stream"; // Fallback generico
+
+            // Rimuovi il punto se presente
+            extension = extension.TrimStart('.');
+
+            // Mappa delle estensioni comuni con MIME type specifici
+            var contentTypeMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                // PDF
+                { "pdf", "application/pdf" },
+
+                // Documenti Office
+                { "doc", "application/msword" },
+                { "docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+                { "xls", "application/vnd.ms-excel" },
+                { "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+                { "ppt", "application/vnd.ms-powerpoint" },
+                { "pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+
+                // Immagini
+                { "jpg", "image/jpeg" },
+                { "jpeg", "image/jpeg" },
+                { "png", "image/png" },
+                { "gif", "image/gif" },
+                { "bmp", "image/bmp" },
+                { "svg", "image/svg+xml" },
+
+                // Testo
+                { "txt", "text/plain" },
+                { "csv", "text/csv" },
+                { "xml", "application/xml" },
+                { "json", "application/json" },
+
+                // Archivi (per export, non per upload)
+                { "zip", "application/zip" },
+                { "rar", "application/x-rar-compressed" },
+                { "7z", "application/x-7z-compressed" }
+            };
+
+            // Cerca il MIME type corrispondente
+            if (contentTypeMap.TryGetValue(extension, out var contentType))
+            {
+                return contentType;
+            }
+
+            // Fallback: application/octet-stream per estensioni sconosciute
+            return "application/octet-stream";
         }
 
         public static string FormatDateToISO(string dateStr)

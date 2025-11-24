@@ -1296,7 +1296,7 @@ else
                     });
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Note)') {
                     result.Note.forEach(abb => {
-                        td.innerHTML += `<p><b>${abb.Persona.DisplayName}<b><br> ${abb.Tipo}<br> ${abb.Nota}</p>`;
+                        td.innerHTML += `<p>${abb.Tipo}<br> ${abb.Nota}</p>`;
                     });
                 } else if (col.propertyName === '@nameof(AttoDASIDto.Firme)') {
                     td.innerHTML = htmlFirme;

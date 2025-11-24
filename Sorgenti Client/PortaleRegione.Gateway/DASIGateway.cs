@@ -46,12 +46,6 @@ namespace PortaleRegione.Gateway
         public async Task<AttoDASIDto> Salva(AttoDASIDto request)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save}";
-            if (request.DocAllegatoGenerico != null)
-            {
-                using var memoryStream = new MemoryStream();
-                await request.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
-                request.DocAllegatoGenerico_Stream = memoryStream.ToArray();
-            }
             var body = JsonConvert.SerializeObject(request);
             var result = JsonConvert.DeserializeObject<AttoDASIDto>(await Post(requestUrl, body, _token));
             return result;
@@ -762,6 +756,13 @@ namespace PortaleRegione.Gateway
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAbbinamentiDisponibili}?legislaturaId={legislaturaId}&page={page}&size={size}";
             var lst = JsonConvert.DeserializeObject<List<AttoLightDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task<List<OrganoDto>> GetCommissioniAttive()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetCommissioniAttive}";
+            var lst = JsonConvert.DeserializeObject<List<OrganoDto>>(await Get(requestUrl, _token));
             return lst;
         }
 

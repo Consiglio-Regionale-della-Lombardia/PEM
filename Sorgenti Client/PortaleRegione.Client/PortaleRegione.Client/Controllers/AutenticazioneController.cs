@@ -162,15 +162,15 @@ namespace PortaleRegione.Client.Controllers
 
             var enTicket1 = FormsAuthentication.Encrypt(authTicket1);
             var faCookie1 = new HttpCookie("PRCookies1", enTicket1)
-                { Expires = expirationTime };
+                { Expires = expirationTime, HttpOnly = true, Secure = true};
             Response.Cookies.Add(faCookie1);
             var enTicket2 = FormsAuthentication.Encrypt(authTicket2);
             var faCookie2 = new HttpCookie("PRCookies2", enTicket2)
-                { Expires = expirationTime };
+                { Expires = expirationTime, HttpOnly = true, Secure = true };
             Response.Cookies.Add(faCookie2);
             var enTicket3 = FormsAuthentication.Encrypt(authTicket3);
             var faCookie3 = new HttpCookie("PRCookies3", enTicket3)
-                { Expires = expirationTime };
+                { Expires = expirationTime, HttpOnly = true, Secure = true };
             Response.Cookies.Add(faCookie3);
 
             #endregion
@@ -198,15 +198,15 @@ namespace PortaleRegione.Client.Controllers
 
             var sTicket1 = FormsAuthentication.Encrypt(securetyTicket1);
             var sCookie1 = new HttpCookie("SCookies1", sTicket1)
-                { Expires = expirationTime };
+                { Expires = expirationTime, HttpOnly = true, Secure = true };
             Response.Cookies.Add(sCookie1);
             var sTicket2 = FormsAuthentication.Encrypt(securetyTicket2);
             var sCookie2 = new HttpCookie("SCookies2", sTicket2)
-                { Expires = expirationTime };
+                { Expires = expirationTime, HttpOnly = true, Secure = true };
             Response.Cookies.Add(sCookie2);
             var sTicket3 = FormsAuthentication.Encrypt(securetyTicket3);
             var sCookie3 = new HttpCookie("SCookies3", sTicket3)
-                { Expires = expirationTime };
+                { Expires = expirationTime, HttpOnly = true, Secure = true };
             Response.Cookies.Add(sCookie3);
 
             #endregion
