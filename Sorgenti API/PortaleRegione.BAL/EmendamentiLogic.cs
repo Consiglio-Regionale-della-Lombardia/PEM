@@ -38,6 +38,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Office.Word;
+using PortaleRegione.BAL.Helpers;
 using PortaleRegione.Crypto;
 
 namespace PortaleRegione.BAL

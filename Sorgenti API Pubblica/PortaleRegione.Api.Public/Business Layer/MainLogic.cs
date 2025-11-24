@@ -445,14 +445,11 @@ namespace PortaleRegione.Api.Public.Business_Layer
                         PrimoFirmatario = firma.PrimoFirmatario,
                         Gruppo = gruppo,
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
-                            ? null
+                            ? string.Empty
                             : CryptoHelper.DecryptString(firma.Data_ritirofirma,
                                 AppSettingsConfigurationHelper.masterKey),
                         Data_firma = firma.Timestamp.ToString("dd/MM/yyyy")
                     };
-
-                    if (firma.id_AreaPolitica.HasValue)
-                        dto.AreaPolitica = Utility.GetText_AreaPolitica(firma.id_AreaPolitica.Value);
 
                     result.Add(dto);
                 }
