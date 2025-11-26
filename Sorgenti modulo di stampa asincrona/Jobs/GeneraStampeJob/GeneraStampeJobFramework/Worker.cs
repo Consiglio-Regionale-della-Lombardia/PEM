@@ -1009,6 +1009,8 @@ namespace GeneraStampeJobFramework
                             EM = item
                         };
                         
+                        log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, Valido={item.StampaValida}");
+                        
                         if (item.StampaValida)
                         {
                             dettagliCreaPDF.Content = File.ReadAllBytes(Path.Combine(_model.RootRepository, item.PathStampa));
@@ -1025,12 +1027,18 @@ namespace GeneraStampeJobFramework
                             {
                                 nEM = GetNomeEM(item, null);
                             }
+                            
+                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, NEM={nEM}");
 
                             if (nEM.Contains("Valore Corrotto")) throw new Exception("Errore valore corrotto");
                 
+                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, GetBody..");
                             var bodyPDF = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF, true);
+                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, GetBody..OK");
                             var nameFile = $"{Utility.CleanFileName(nEM)}";
 
+                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, Nome={nameFile}");
+                            
                             dettagliCreaPDF.Body = bodyPDF;
 
                             var listAttachments = new List<string>();
@@ -1047,20 +1055,26 @@ namespace GeneraStampeJobFramework
                                 listAttachments.Add(completePath);
                             }
 
+                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, GeneraPDF..");
                             // Genera PDF e salva direttamente su disco
                             dettagliCreaPDF.Content = await _stamper.CreaPDFInMemory(bodyPDF, nameFile,
                                 listAttachments);
+                            
+                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, GeneraPDF.. OK");
                         }
 
                         listaPercorsi[item.UIDEM] = dettagliCreaPDF;
                         counter++;
                         
+                        log.Info($"[GeneraPDFEmendamenti] Progresso {counter}/{totalItems}");
+                        
                         // Update progress every 50 items or at the end
                         if (counter % 50 == 0 || counter == totalItems)
                             await LogStampa(_stampa.UIDStampa, $"Progresso {counter}/{totalItems}");
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        log.Info($"[GeneraPDFEmendamenti] Error {ex.Message}");
                         await LogStampa(_stampa.UIDStampa, $"Errore: {item.UIDEM}");
                         throw;
                     }
