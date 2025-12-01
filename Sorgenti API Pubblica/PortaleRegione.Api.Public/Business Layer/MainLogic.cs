@@ -357,6 +357,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 var linkTestoTrattazione =
                     $"{AppSettingsConfigurationHelper.urlDASI_Trattazione.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
 
+                var data_presentazione = (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+                    ? attoInDb.Timestamp.Value.ToString("dd/MM/yyyy")
+                    : CryptoHelper.DecryptString(attoInDb.DataPresentazione,
+                        AppSettingsConfigurationHelper.masterKey);
                 var attoDto = new AttoDasiPublicDto
                 {
                     uidAtto = attoInDb.UIDAtto,
@@ -368,8 +372,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     tipo = Utility.GetText_Tipo(attoInDb.Tipo),
                     tipo_esteso = Utility.GetText_TipoEstesoDASI(attoInDb.Tipo),
                     n_atto = attoInDb.NAtto_search.ToString(),
-                    data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
-                        AppSettingsConfigurationHelper.masterKey),
+                    data_presentazione = data_presentazione,
                     tipo_risposta_richiesta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
                     tipo_risposta_fornita = tipo_risposta_fornita,
                     area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
@@ -379,7 +382,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     stato_iter =
                         Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue
                             ? attoInDb.TipoChiusuraIter.Value
-                            : 0),
+                            : 0, true),
                     gruppo = gruppo,
                     proponente = proponente,
                     commissioni = commissioni,

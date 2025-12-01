@@ -326,10 +326,15 @@ namespace PortaleRegione.Common
             }
         }
 
-        public static string GetText_ChiusuraIterDASI(int? stato)
+        public static string GetText_ChiusuraIterDASI(int? stato, bool public_api = false)
         {
             if (stato == null)
+            {
+                if (public_api)
+                    return string.Empty;
+                
                 return "--";
+            }
 
             switch ((TipoChiusuraIterEnum)stato)
             {
@@ -354,7 +359,12 @@ namespace PortaleRegione.Common
                 case TipoChiusuraIterEnum.CHIUSURA_PER_MOTIVI_DIVERSI:
                     return "Chiusura per motivi diversi";
                 default:
+                {
+                    if (public_api)
+                        return string.Empty;
+                    
                     return "--";
+                }
             }
         }
 
