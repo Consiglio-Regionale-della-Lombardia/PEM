@@ -42,7 +42,7 @@ namespace GeneraStampeJobFramework
             
             try
             {
-                BaseGateway.apiUrl = _model.UrlAPI;
+                BaseGateway.apiUrl = _model.UrlAPI_Internal;
                 var apiGateway = new ApiGateway();
                 log.Info("Richiesta autenticazione tramite ApiGateway...");
                 var auth = await apiGateway.Persone.Login(new LoginRequest

@@ -17,10 +17,12 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using Newtonsoft.Json;
@@ -54,7 +56,7 @@ namespace GeneraStampeJobFramework
         {
             _auth = auth;
             _model = model;
-            BaseGateway.apiUrl = _model.UrlAPI;
+            BaseGateway.apiUrl = _model.UrlAPI_Internal;
             apiGateway = new ApiGateway(_auth.jwt);
             _stamper = new PdfStamper_Playwright();
         }
@@ -62,7 +64,7 @@ namespace GeneraStampeJobFramework
         public Worker(string jwt, UnitOfWork unitOfWork, ref ThreadWorkerModel model)
         {
             _model = model;
-            BaseGateway.apiUrl = _model.UrlAPI;
+            BaseGateway.apiUrl = _model.UrlAPI_Internal;
             apiGateway = new ApiGateway(jwt);
             _auth = new LoginResponse
             {
@@ -217,8 +219,13 @@ namespace GeneraStampeJobFramework
 
                 var attiGenerati = await GeneraPDFAtti(lista, path);
 
-                docs.AddRange(attiGenerati.Where(item => item.Value.Content != null)
-                    .Select(i => (byte[])i.Value.Content));
+                foreach (var atto in lista)
+                {
+                    if (attiGenerati.TryGetValue(atto.UIDAtto, out var body) && body.Content != null)
+                    {
+                        docs.Add((byte[])body.Content);
+                    }
+                }
 
                 var countNonGenerati = attiGenerati.Count(item => item.Value.Content == null);
                 await LogStampa(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
@@ -271,29 +278,42 @@ namespace GeneraStampeJobFramework
 
         private async Task<Dictionary<Guid, BodyModel>> GeneraPDFAtti(List<ATTI_DASI> lista, string path)
         {
-            var listaPercorsi = new Dictionary<Guid, BodyModel>();
+            var listaPercorsi = new ConcurrentDictionary<Guid, BodyModel>();
             var counter = 0;
             var totalItems = lista.Count;
 
-            try
+            // FASE 1: Pre-carica tutti i body HTML (sequenziale)
+            var bodyHtmlMap = new Dictionary<Guid, string>();
+            foreach (var item in lista)
             {
-                listaPercorsi = lista.ToDictionary(atto => atto.UIDAtto, atto => new BodyModel());
+                if (!item.StampaValida)
+                {
+                    var bodyPDF = await apiGateway.DASI.GetBody(item.UIDAtto, TemplateTypeEnum.PDF, true);
+                    bodyHtmlMap[item.UIDAtto] = HtmlOptimizer.OptimizeForPdf(bodyPDF);
+                }
+            }
 
-                foreach (var item in lista)
+            log.Info($"[GeneraPDFAtti] Pre-caricamento completato, avvio generazione parallela");
+
+            // FASE 2: Genera PDF in parallelo
+            var maxConcurrency = 5;
+            using (var semaphore = new SemaphoreSlim(maxConcurrency, maxConcurrency))
+            {
+                var tasks = lista.Select(async item =>
+                {
+                    await semaphore.WaitAsync();
                     try
                     {
-                        var dettagliCreaPDF = new BodyModel
-                        {
-                            Atto = item
-                        };
+                        var dettagliCreaPDF = new BodyModel { Atto = item };
 
                         if (item.StampaValida)
                         {
-                            dettagliCreaPDF.Content = File.ReadAllBytes(Path.Combine(_model.RootRepository, item.PathStampa));
+                            dettagliCreaPDF.Content = await Task.Run(() =>
+                                File.ReadAllBytes(Path.Combine(_model.RootRepository, item.PathStampa)));
                         }
                         else
                         {
-                            var bodyPDF = await apiGateway.DASI.GetBody(item.UIDAtto, TemplateTypeEnum.PDF, true);
+                            var bodyPDF = bodyHtmlMap[item.UIDAtto];
                             var nameFilePDF = $"{item.Etichetta}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                             var filePathComplete = string.IsNullOrEmpty(path)
                                 ? nameFilePDF
@@ -305,35 +325,37 @@ namespace GeneraStampeJobFramework
                             var listAttachments = new List<string>();
                             if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
                             {
-                                var completePath = Path.Combine(_model.PercorsoCompatibilitaDocumenti,
-                                    Path.GetFileName(item.PATH_AllegatoGenerico));
-                                listAttachments.Add(completePath);
+                                listAttachments.Add(Path.Combine(_model.PercorsoCompatibilitaDocumenti,
+                                    Path.GetFileName(item.PATH_AllegatoGenerico)));
                             }
 
-                            // Genera PDF e salva direttamente su disco
-                            dettagliCreaPDF.Content = await _stamper.CreaPDFInMemory(dettagliCreaPDF.Body, item.Etichetta,
-                                listAttachments);
+                            dettagliCreaPDF.Content =
+                                await _stamper.CreaPDFInMemory(bodyPDF, item.Etichetta, listAttachments);
                         }
 
                         listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
-                        counter++;
 
-                        // Update progress every 50 items or at the end
-                        if (counter % 50 == 0 || counter == totalItems)
-                            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{totalItems}");
+                        var currentCount = Interlocked.Increment(ref counter);
+                        log.Info($"[GeneraPDFAtti] Progresso {currentCount}/{totalItems}");
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Errore: {item.Etichetta}");
-                        // Log error here if necessary
+                        log.Error($"[GeneraPDFAtti] Errore: {item.Etichetta}", ex);
+                        listaPercorsi[item.UIDAtto] = new BodyModel { Atto = item, Content = null };
                     }
-            }
-            catch (Exception ex)
-            {
-                // Log error here if necessary
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+
+                await Task.WhenAll(tasks);
             }
 
-            return listaPercorsi;
+            // FASE 3: Log finale
+            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Generazione completata: {counter}/{totalItems}");
+
+            return new Dictionary<Guid, BodyModel>(listaPercorsi);
         }
 
         private async Task PresentazioneDifferita(List<ATTI_DASI> listaAtti)
@@ -504,8 +526,13 @@ namespace GeneraStampeJobFramework
                 var listaPdfEmendamentiGenerati =
                     await GeneraPDFEmendamenti(listaEMendamenti);
                 
-                docs.AddRange(listaPdfEmendamentiGenerati.Where(item => item.Value.Content != null)
-                    .Select(i => (byte[])i.Value.Content));
+                foreach (var em in listaEMendamenti)
+                {
+                    if (listaPdfEmendamentiGenerati.TryGetValue(em.UIDEM, out var body) && body.Content != null)
+                    {
+                        docs.Add((byte[])body.Content);
+                    }
+                }
 
                 var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => item.Value.Content == null);
                 await LogStampa(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
@@ -993,103 +1020,108 @@ namespace GeneraStampeJobFramework
         private async Task<Dictionary<Guid, BodyModel>> GeneraPDFEmendamenti(List<EM> lista)
         {
             log.Info($"[GeneraPDFEmendamenti] INIZIO UIDStampa={_stampa.UIDStampa}, N.Emendamenti={lista.Count}");
-            try
+
+            var listaPercorsi = new ConcurrentDictionary<Guid, BodyModel>();
+            var counter = 0;
+            var totalItems = lista.Count;
+
+            // FASE 1: Pre-carica tutti i dati necessari dal DB (sequenziale)
+            var riferimentiEM = new Dictionary<Guid, EM>();
+            var nomiEM = new Dictionary<Guid, string>();
+            var bodyHtmlMap = new Dictionary<Guid, string>();
+
+            foreach (var item in lista)
             {
-                var listaPercorsi = new Dictionary<Guid, BodyModel>();
-                var counter = 0;
-                var totalItems = lista.Count;
+                // Carica riferimento se necessario
+                if (item.Rif_UIDEM.HasValue && !riferimentiEM.ContainsKey(item.Rif_UIDEM.Value))
+                {
+                    riferimentiEM[item.Rif_UIDEM.Value] = await _unitOfWork.Emendamenti.Get(item.Rif_UIDEM.Value);
+                }
 
-                listaPercorsi = lista.ToDictionary(em => em.UIDEM, em => new BodyModel());
+                // Pre-calcola il nome
+                var riferimento = item.Rif_UIDEM.HasValue ? riferimentiEM[item.Rif_UIDEM.Value] : null;
+                nomiEM[item.UIDEM] = GetNomeEM(item, riferimento);
 
-                foreach (var item in lista)
+                // Pre-carica il body HTML solo per quelli che richiedono generazione
+                if (!item.StampaValida)
+                {
+                    var bodyPDF = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF, true);
+                    bodyHtmlMap[item.UIDEM] = HtmlOptimizer.OptimizeForPdf(bodyPDF);
+                }
+            }
+
+            log.Info($"[GeneraPDFEmendamenti] Pre-caricamento completato, avvio generazione parallela");
+
+            // FASE 2: Genera PDF in parallelo (nessun accesso DB)
+            var maxConcurrency = 5;
+            using (var semaphore = new SemaphoreSlim(maxConcurrency, maxConcurrency))
+            {
+                var tasks = lista.Select(async item =>
+                {
+                    await semaphore.WaitAsync();
                     try
                     {
-                        var dettagliCreaPDF = new BodyModel
-                        {
-                            EM = item
-                        };
-                        
+                        var dettagliCreaPDF = new BodyModel { EM = item };
+                        var nEM = nomiEM[item.UIDEM];
+
                         log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, Valido={item.StampaValida}");
-                        
+
                         if (item.StampaValida)
                         {
-                            dettagliCreaPDF.Content = File.ReadAllBytes(Path.Combine(_model.RootRepository, item.PathStampa));
+                            // Lettura file - operazione I/O parallelizzabile
+                            dettagliCreaPDF.Content = await Task.Run(() =>
+                                File.ReadAllBytes(Path.Combine(_model.RootRepository, item.PathStampa)));
                         }
                         else
                         {
-                            var nEM = "";
-                            if (item.Rif_UIDEM.HasValue)
-                            {
-                                var emInDbRif = await _unitOfWork.Emendamenti.Get(item.Rif_UIDEM.Value);
-                                nEM = GetNomeEM(item, emInDbRif);
-                            }
-                            else
-                            {
-                                nEM = GetNomeEM(item, null);
-                            }
-                            
-                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, NEM={nEM}");
+                            if (nEM.Contains("Valore Corrotto"))
+                                throw new Exception("Errore valore corrotto");
 
-                            if (nEM.Contains("Valore Corrotto")) throw new Exception("Errore valore corrotto");
-                
-                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, GetBody..");
-                            var bodyPDF = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF, true);
-                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, GetBody..OK");
-                            var nameFile = $"{Utility.CleanFileName(nEM)}";
-
-                            log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, Nome={nameFile}");
-                            
+                            var bodyPDF = bodyHtmlMap[item.UIDEM];
+                            var nameFile = Utility.CleanFileName(nEM);
                             dettagliCreaPDF.Body = bodyPDF;
 
+                            // Prepara attachments
                             var listAttachments = new List<string>();
                             if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
-                            {
-                                var completePath = Path.Combine(_model.PercorsoCompatibilitaDocumenti,
-                                    Path.GetFileName(item.PATH_AllegatoGenerico));
-                                listAttachments.Add(completePath);
-                            }
+                                listAttachments.Add(Path.Combine(_model.PercorsoCompatibilitaDocumenti,
+                                    Path.GetFileName(item.PATH_AllegatoGenerico)));
                             if (!string.IsNullOrEmpty(item.PATH_AllegatoTecnico))
-                            {
-                                var completePath = Path.Combine(_model.PercorsoCompatibilitaDocumenti,
-                                    Path.GetFileName(item.PATH_AllegatoTecnico));
-                                listAttachments.Add(completePath);
-                            }
+                                listAttachments.Add(Path.Combine(_model.PercorsoCompatibilitaDocumenti,
+                                    Path.GetFileName(item.PATH_AllegatoTecnico)));
 
                             log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, GeneraPDF..");
-                            // Genera PDF e salva direttamente su disco
-                            dettagliCreaPDF.Content = await _stamper.CreaPDFInMemory(bodyPDF, nameFile,
-                                listAttachments);
-                            
+                            dettagliCreaPDF.Content =
+                                await _stamper.CreaPDFInMemory(bodyPDF, nameFile, listAttachments);
                             log.Info($"[GeneraPDFEmendamenti] UIDEM={item.UIDEM}, GeneraPDF.. OK");
                         }
 
                         listaPercorsi[item.UIDEM] = dettagliCreaPDF;
-                        counter++;
-                        
-                        log.Info($"[GeneraPDFEmendamenti] Progresso {counter}/{totalItems}");
-                        
-                        // Update progress every 50 items or at the end
-                        if (counter % 50 == 0 || counter == totalItems)
-                            await LogStampa(_stampa.UIDStampa, $"Progresso {counter}/{totalItems}");
+
+                        // Progress reporting thread-safe (solo log, no DB)
+                        var currentCount = Interlocked.Increment(ref counter);
+                        log.Info($"[GeneraPDFEmendamenti] Progresso {currentCount}/{totalItems}");
                     }
                     catch (Exception ex)
                     {
-                        log.Info($"[GeneraPDFEmendamenti] Error {ex.Message}");
-                        await LogStampa(_stampa.UIDStampa, $"Errore: {item.UIDEM}");
-                        throw;
+                        log.Error($"[GeneraPDFEmendamenti] Errore UIDEM={item.UIDEM}", ex);
+                        // Non usare LogStampa qui - accumula errori per dopo
+                        listaPercorsi[item.UIDEM] = new BodyModel { EM = item, Content = null };
                     }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
 
-                return listaPercorsi;
+                await Task.WhenAll(tasks);
             }
-            catch (Exception ex)
-            {
-                log.Error($"[GeneraPDFEmendamenti] ERRORE UIDStampa={_stampa.UIDStampa}", ex);
-                throw;
-            }
-            finally
-            {
-                log.Info($"[GeneraPDFEmendamenti] FINE UIDStampa={_stampa.UIDStampa}");
-            }
+
+            // FASE 3: Log finale del progresso (sequenziale, accesso DB sicuro)
+            await LogStampa(_stampa.UIDStampa, $"Generazione completata: {counter}/{totalItems}");
+
+            log.Info($"[GeneraPDFEmendamenti] FINE UIDStampa={_stampa.UIDStampa}");
+            return new Dictionary<Guid, BodyModel>(listaPercorsi);
         }
 
         private void SpostaFascicolo(string _pathFascicolo, string _pathDestinazione)

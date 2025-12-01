@@ -170,9 +170,9 @@ namespace PortaleRegione.API.Controllers
                 InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Premesse, nameof(AttoDASIDto.Premesse));
                 InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Richiesta, nameof(AttoDASIDto.Richiesta));
                 
-                result.Oggetto = InputSanitizer.SanitizeText(attoDto.Oggetto);
-                result.Premesse = InputSanitizer.SanitizeHtml(attoDto.Premesse);
-                result.Richiesta = InputSanitizer.SanitizeHtml(attoDto.Richiesta);
+                result.Oggetto = attoDto.Oggetto;
+                result.Premesse = attoDto.Premesse;
+                result.Richiesta = attoDto.Richiesta;
                 
                 result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
                 
@@ -231,9 +231,9 @@ namespace PortaleRegione.API.Controllers
             InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Premesse, nameof(AttoDASIDto.Premesse));
             InputSanitizer.ValidateAndThrowIfDangerous(attoDto.Richiesta, nameof(AttoDASIDto.Richiesta));
                 
-            attoInDb.Oggetto = InputSanitizer.SanitizeText(attoDto.Oggetto);
-            attoInDb.Premesse = InputSanitizer.SanitizeHtml(attoDto.Premesse);
-            attoInDb.Richiesta = InputSanitizer.SanitizeHtml(attoDto.Richiesta);
+            attoInDb.Oggetto = attoDto.Oggetto;
+            attoInDb.Premesse = attoDto.Premesse;
+            attoInDb.Richiesta = attoDto.Richiesta;
             
             attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
             
@@ -324,9 +324,9 @@ namespace PortaleRegione.API.Controllers
 
             attoInDb.IDStato = request.Stato;
             InputSanitizer.ValidateAndThrowIfDangerous(request.CodiceMateria, "Codice Materia");
-            attoInDb.CodiceMateria = InputSanitizer.SanitizeText(request.CodiceMateria);
+            attoInDb.CodiceMateria = request.CodiceMateria;
             InputSanitizer.ValidateAndThrowIfDangerous(request.Protocollo, "Protocollo");
-            attoInDb.Protocollo = InputSanitizer.SanitizeText(request.Protocollo);
+            attoInDb.Protocollo = request.Protocollo;
             
             if (request.DataAnnunzio > DateTime.MinValue)
             {
@@ -525,7 +525,7 @@ namespace PortaleRegione.API.Controllers
                     throw new InvalidOperationException("Non è possibile inserire una nota vuota");
                 
             InputSanitizer.ValidateAndThrowIfDangerous(request.Nota, "Nota");
-            request.Nota = InputSanitizer.SanitizeHtml(request.Nota);
+            request.Nota = request.Nota;
             
                 attoInDb.UIDPersonaModifica = currentUser.UID_persona;
                 attoInDb.DataModifica = DateTime.Now;
@@ -623,15 +623,15 @@ namespace PortaleRegione.API.Controllers
                 throw new InvalidOperationException("Atto non trovato");
 
             InputSanitizer.ValidateAndThrowIfDangerous(request.AltriSoggetti, "Altri soggetti");
-            attoInDb.AltriSoggetti = InputSanitizer.SanitizeHtml(request.AltriSoggetti);
+            attoInDb.AltriSoggetti = request.AltriSoggetti;
             InputSanitizer.ValidateAndThrowIfDangerous(request.AreaTematica, "Area tematica");
-            attoInDb.AreaTematica = InputSanitizer.SanitizeHtml(request.AreaTematica);
+            attoInDb.AreaTematica = request.AreaTematica;
             InputSanitizer.ValidateAndThrowIfDangerous(request.CompetenzaMonitoraggio, "Competenza monitoraggio");
-            attoInDb.CompetenzaMonitoraggio = InputSanitizer.SanitizeHtml(request.CompetenzaMonitoraggio);
+            attoInDb.CompetenzaMonitoraggio = request.CompetenzaMonitoraggio;
             InputSanitizer.ValidateAndThrowIfDangerous(request.ImpegniScadenze, "Impegni e scadenze");
-            attoInDb.ImpegniScadenze = InputSanitizer.SanitizeHtml(request.ImpegniScadenze);
+            attoInDb.ImpegniScadenze = request.ImpegniScadenze;
             InputSanitizer.ValidateAndThrowIfDangerous(request.StatoAttuazione, "Stato attuazione");
-            attoInDb.StatoAttuazione = InputSanitizer.SanitizeHtml(request.StatoAttuazione);
+            attoInDb.StatoAttuazione = request.StatoAttuazione;
             
             attoInDb.DataTrasmissioneMonitoraggio = request.DataTrasmissioneMonitoraggio;
             attoInDb.MonitoraggioConcluso = request.MonitoraggioConcluso;
@@ -2760,23 +2760,14 @@ namespace PortaleRegione.API.Controllers
                 try
                 {
                     var body = GetTemplate(template, true);
+                    body = GetCssForTemplate(template) + body;
 
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
-                            body =
-                                "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
-                                "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
-                                $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
-                                body;
                             GetBody(dto, false, privacy, false, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            body =
-                                "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
-                                "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
-                                $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
-                                body;
                             GetBody(dto, enableQr, privacy, enableLogo, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
@@ -2786,11 +2777,6 @@ namespace PortaleRegione.API.Controllers
                             GetBody(dto, false, true, false, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
-                            body =
-                                "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
-                                "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
-                                $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
-                                body;
                             GetBodyTemporaneo(dto, privacy, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:
@@ -2813,6 +2799,27 @@ namespace PortaleRegione.API.Controllers
                 throw e;
             }
         }
+        
+        private string GetCssForTemplate(TemplateTypeEnum template)
+        {
+            switch (template)
+            {
+                case TemplateTypeEnum.PDF:
+                    // CSS inline per PDF - zero richieste HTTP
+                    return PdfCssProvider.GetInlineCss();
+            
+                case TemplateTypeEnum.MAIL:
+                case TemplateTypeEnum.HTML:
+                case TemplateTypeEnum.FIRMA:
+                case TemplateTypeEnum.HTML_MODIFICABILE:
+                default:
+                    // Link esterni per browser
+                    return "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                           "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                           $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">";
+            }
+        }
+
 
         public async Task Elimina(ATTI_DASI atto, PersonaDto persona)
         {
@@ -3862,7 +3869,7 @@ namespace PortaleRegione.API.Controllers
             if (!string.IsNullOrEmpty(model.Oggetto_Modificato))
             {
                 InputSanitizer.ValidateAndThrowIfDangerous(model.Oggetto_Modificato, "Oggetto modificato");
-                atto.Oggetto_Modificato = InputSanitizer.SanitizeText(model.Oggetto_Modificato);
+                atto.Oggetto_Modificato = model.Oggetto_Modificato;
             }
             else if (string.IsNullOrEmpty(model.Oggetto_Modificato) &&
                      !string.IsNullOrEmpty(atto.Oggetto_Modificato))
@@ -3872,7 +3879,7 @@ namespace PortaleRegione.API.Controllers
             if (!string.IsNullOrEmpty(model.Oggetto_Approvato) && !model.Oggetto_Approvato.Equals(model.Oggetto))
             {
                 InputSanitizer.ValidateAndThrowIfDangerous(model.Oggetto_Approvato, "Oggetto approvato");
-                atto.Oggetto_Approvato = InputSanitizer.SanitizeText(model.Oggetto_Approvato);
+                atto.Oggetto_Approvato = model.Oggetto_Approvato;
             }
             else if (string.IsNullOrEmpty(model.Oggetto_Approvato) &&
                      !string.IsNullOrEmpty(atto.Oggetto_Approvato))
@@ -3882,7 +3889,7 @@ namespace PortaleRegione.API.Controllers
             if (!string.IsNullOrEmpty(model.Premesse_Modificato))
             {
                 InputSanitizer.ValidateAndThrowIfDangerous(model.Premesse_Modificato, "Premesse modificate");
-                atto.Premesse_Modificato = InputSanitizer.SanitizeText(model.Premesse_Modificato);
+                atto.Premesse_Modificato = model.Premesse_Modificato;
             }
             else if (string.IsNullOrEmpty(model.Premesse_Modificato) &&
                      !string.IsNullOrEmpty(atto.Premesse_Modificato))
@@ -3893,7 +3900,7 @@ namespace PortaleRegione.API.Controllers
             {
                 atto.Richiesta_Modificata = model.Richiesta_Modificata;
                 InputSanitizer.ValidateAndThrowIfDangerous(model.Richiesta_Modificata, "Richiesta modificata");
-                atto.Richiesta_Modificata = InputSanitizer.SanitizeText(model.Richiesta_Modificata);
+                atto.Richiesta_Modificata = model.Richiesta_Modificata;
             }
             else if (string.IsNullOrEmpty(model.Richiesta_Modificata) &&
                      !string.IsNullOrEmpty(atto.Richiesta_Modificata))

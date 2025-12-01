@@ -21,6 +21,10 @@ public class PdfStamper_Playwright
     // --- Browser condiviso per tutto il processo (thread-safe) ------------
     private static readonly Lazy<Task<(IPlaywright pw, IBrowser browser)>> s_runtime =
         new(() => InitAsync(), LazyThreadSafetyMode.ExecutionAndPublication);
+    
+    // Pool di pagine riutilizzabili
+    private static readonly Lazy<Task<PagePool>> s_pagePool = 
+        new(() => InitPagePoolAsync(), LazyThreadSafetyMode.ExecutionAndPublication);
 
     // ----------------------------------------------------------------------
 
@@ -37,8 +41,17 @@ public class PdfStamper_Playwright
         }
 
         var pw = await Playwright.CreateAsync();
-        var browser = await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+        var browser = await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true,
+        });
         return (pw, browser);
+    }
+    
+    private static async Task<PagePool> InitPagePoolAsync()
+    {
+        var (_, browser) = await s_runtime.Value;
+        return new PagePool(browser, poolSize: 5);
     }
 
     // ========== HTML → PDF =================================================
@@ -208,17 +221,16 @@ public class PdfStamper_Playwright
         string footerRightText = null
     )
     {
-        var (_, browser) = await s_runtime.Value;
-        var page = await browser.NewPageAsync();
+        var pool = await s_pagePool.Value;
+        var page = await pool.AcquirePageAsync();
 
         try
         {
-            // Attendi fine rete; se serve, aspetta un selettore con timeout
-            await page.SetContentAsync(
-                html,
-                new PageSetContentOptions { WaitUntil = WaitUntilState.NetworkIdle }
-            );
-            // facoltativo: await page.WaitForSelectorAsync("main", new PageWaitForSelectorOptions { Timeout = 5000 });
+            await page.SetContentAsync(html, new PageSetContentOptions 
+            { 
+                WaitUntil = WaitUntilState.DOMContentLoaded,
+                Timeout = 60000  // Timeout di sicurezza
+            });
 
             var displayHeaderFooter = !string.IsNullOrEmpty(footerRightText);
 
@@ -229,14 +241,16 @@ public class PdfStamper_Playwright
                 Margin = new Margin { Top = "10mm", Right = "10mm", Bottom = "10mm", Left = "10mm" },
                 DisplayHeaderFooter = displayHeaderFooter,
                 HeaderTemplate = "<div></div>",
-                FooterTemplate = displayHeaderFooter ? footerRightText : "<div></div>"
+                FooterTemplate = displayHeaderFooter ? footerRightText : "<div></div>",
+                PreferCSSPageSize = false,  // Forza A4
+                Scale = 1.0f
             });
 
             return bytes;
         }
         finally
         {
-            await page.CloseAsync();
+            await pool.ReleasePageAsync(page);
         }
     }
 

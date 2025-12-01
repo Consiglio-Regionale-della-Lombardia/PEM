@@ -102,35 +102,6 @@ namespace PortaleRegione.BAL.Helpers
             _sanitizer.AllowDataAttributes = false;
         }
 
-        public static string SanitizeHtml(string html)
-        {
-            if (string.IsNullOrEmpty(html))
-                return html;
-
-            try
-            {
-                return _sanitizer.Sanitize(html);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("Errore durante la sanitizzazione dell'HTML", ex);
-            }
-        }
-
-        public static string SanitizeText(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return text;
-
-            text = text.Replace("<", "&lt;")
-                       .Replace(">", "&gt;")
-                       .Replace("\"", "&quot;")
-                       .Replace("'", "&#x27;")
-                       .Replace("/", "&#x2F;");
-
-            return text;
-        }
-
         public static bool ContainsDangerousContent(string html)
         {
             if (string.IsNullOrEmpty(html))

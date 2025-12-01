@@ -235,6 +235,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
         ///     Recupera i dettagli di un atto specifico utilizzando il suo identificativo unico.
         /// </summary>
         /// <param name="uidAtto">L'identificativo unico dell'atto.</param>
+        /// <param name="hostUrl"></param>
         /// <returns>Una task che, al suo completamento, restituisce un AttoDasiPublicDto con i dettagli dell'atto.</returns>
         public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto, string hostUrl)
         {
@@ -281,6 +282,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     data = r.Data.HasValue ? r.Data.Value.ToString("dd/MM/yyyy") : string.Empty,
                     data_trasmissione = r.DataTrasmissione.HasValue ? r.DataTrasmissione.Value.ToString("dd/MM/yyyy") : string.Empty,
                     data_trattazione = r.DataTrattazione.HasValue ? r.DataTrattazione.Value.ToString("dd/MM/yyyy") : string.Empty,
+                    data_revoca = r.DataRevoca.HasValue ? r.DataRevoca.Value.ToString("dd/MM/yyyy") : string.Empty,
                     organo = r.DescrizioneOrgano ?? string.Empty,
                     id_organo = r.IdOrgano,
                     tipo_risposta = tipo_risposta_fornita ?? string.Empty,
@@ -299,7 +301,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 // #1532
                 note = note.Where(n =>
                     n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA
-                    && n.TipoEnum == TipoNotaEnum.CHIUSURA_ITER).ToList();
+                    || n.TipoEnum == TipoNotaEnum.CHIUSURA_ITER).ToList();
 
                 var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
 
@@ -384,7 +386,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     risposte = risposte,
                     documenti = documenti,
                     abbinamenti = abbinamenti,
-                    dcrl = attoInDb.DCRL,
+                    dcrl = string.IsNullOrEmpty(attoInDb.DCRL) ? string.Empty : attoInDb.DCRL, // #1549
                     dcr = attoInDb.DCR.HasValue ? attoInDb.DCR.ToString() : string.Empty,
                     dcrc = attoInDb.DCCR.HasValue ? attoInDb.DCCR.ToString() : string.Empty,
                     firme = firme,
@@ -628,6 +630,11 @@ namespace PortaleRegione.Api.Public.Business_Layer
             Users = personeInDbLight;
         }
 
+        /// <summary>
+        ///  Scarica documenti
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public HttpResponseMessage ScaricaDocumento(string path)
         {
             var complete_path = Path.Combine(

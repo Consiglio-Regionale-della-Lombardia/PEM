@@ -331,9 +331,9 @@ namespace PortaleRegione.BAL
             try
             {
                 InputSanitizer.ValidateAndThrowIfDangerous(emendamentoDto.TestoEM_originale, "Testo emendamento");
-                emendamentoDto.TestoEM_originale = InputSanitizer.SanitizeHtml(emendamentoDto.TestoEM_originale);
+                emendamentoDto.TestoEM_originale = emendamentoDto.TestoEM_originale;
                 InputSanitizer.ValidateAndThrowIfDangerous(emendamentoDto.TestoREL_originale, "Relazione illustrativa");
-                emendamentoDto.TestoREL_originale = InputSanitizer.SanitizeHtml(emendamentoDto.TestoREL_originale);
+                emendamentoDto.TestoREL_originale = emendamentoDto.TestoREL_originale;
                 
                 var progressivo =
                     await _unitOfWork.Emendamenti.GetProgressivo(emendamentoDto.UIDAtto,
@@ -538,11 +538,11 @@ namespace PortaleRegione.BAL
             try
             {
                 InputSanitizer.ValidateAndThrowIfDangerous(model.NOTE_EM, "Note riservate");
-                model.NOTE_EM = InputSanitizer.SanitizeHtml(model.NOTE_EM);
+                model.NOTE_EM = model.NOTE_EM;
                 InputSanitizer.ValidateAndThrowIfDangerous(model.NOTE_Griglia, "Note pubbliche");
-                model.NOTE_Griglia = InputSanitizer.SanitizeHtml(model.NOTE_Griglia);
+                model.NOTE_Griglia = model.NOTE_Griglia;
                 InputSanitizer.ValidateAndThrowIfDangerous(model.TestoEM_Modificabile, "Testo modificabile");
-                model.TestoEM_Modificabile = InputSanitizer.SanitizeHtml(model.TestoEM_Modificabile);
+                model.TestoEM_Modificabile = model.TestoEM_Modificabile;
                 
                 var updateMetaDatiDto = Mapper.Map<EmendamentiDto, MetaDatiEMDto>(model);
                 var emAggiornato = Mapper.Map(updateMetaDatiDto, em);
@@ -701,6 +701,26 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+        
+        private string GetCssForTemplate(TemplateTypeEnum template)
+        {
+            switch (template)
+            {
+                case TemplateTypeEnum.PDF:
+                    // CSS inline per PDF - zero richieste HTTP
+                    return PdfCssProvider.GetInlineCss();
+            
+                case TemplateTypeEnum.MAIL:
+                case TemplateTypeEnum.HTML:
+                case TemplateTypeEnum.FIRMA:
+                case TemplateTypeEnum.HTML_MODIFICABILE:
+                default:
+                    // Link esterni per browser
+                    return "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                           "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                           $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">";
+            }
+        }
 
         public async Task<string> GetBodyEM(EmendamentiDto em, List<FirmeDto> firme, PersonaDto persona,
             TemplateTypeEnum template)
@@ -713,11 +733,10 @@ namespace PortaleRegione.BAL
                 try
                 {
                     var body = GetTemplate(template);
-                    body =
-                        "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
-                        "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
-                        $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
-                        body;
+                    
+                    // CSS diversi in base al template
+                    body = GetCssForTemplate(template) + body;
+                    
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:

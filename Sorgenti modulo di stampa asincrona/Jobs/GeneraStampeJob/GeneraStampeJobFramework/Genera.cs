@@ -26,6 +26,7 @@ namespace GeneraStampeJobFramework
         public string Username { get; set; }
         public string Password { get; set; }
         public string UrlApi { get; set; }
+        public string UrlApi_Internal { get; set; }
         public string UrlClient { get; set; }
         public string ConnectionString { get; set; }
         public string NumMaxTentativi { get; set; }
@@ -44,6 +45,7 @@ namespace GeneraStampeJobFramework
             var manager = new Manager(new ThreadWorkerModel
             {
                 UrlAPI = UrlApi,
+                UrlAPI_Internal = UrlApi_Internal,
                 UrlCLIENT = UrlClient,
                 Username = Username,
                 Password = Password,
@@ -69,6 +71,9 @@ namespace GeneraStampeJobFramework
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.UrlAPI)))
                 UrlApi = data.Get(nameof(ThreadWorkerModel.UrlAPI)).ToString();
+            
+            if (data.ContainsKey(nameof(ThreadWorkerModel.UrlAPI_Internal)))
+                UrlApi = data.Get(nameof(ThreadWorkerModel.UrlAPI_Internal)).ToString();
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.UrlCLIENT)))
                 UrlClient = data.Get(nameof(ThreadWorkerModel.UrlCLIENT)).ToString();

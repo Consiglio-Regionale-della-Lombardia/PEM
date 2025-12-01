@@ -38,6 +38,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Routes;
+using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
 using QRCoder;
 
@@ -513,7 +514,9 @@ namespace PortaleRegione.BAL
             body = body.Replace("{STATO}", emendamento.STATI_EM.Stato.ToUpper());
             body = body.Replace("{GRUPPO_POLITICO}", emendamento.gruppi_politici.nome_gruppo);
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
-            body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
+            
+            var logoBase64 = PdfCssProvider.GetLogoBase64();
+            body = body.Replace("{urlLogo}", logoBase64);
 
             if (string.IsNullOrEmpty(emendamento.EM_Certificato))
             {
@@ -712,7 +715,8 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{LOGO_COMMENTO_START}", "");
                 body = body.Replace("{LOGO_COMMENTO_END}", "");
 
-                body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
+                var logoBase64 = PdfCssProvider.GetLogoBase64();
+                body = body.Replace("{urlLogo}", logoBase64);
             }
             else
             {

@@ -130,6 +130,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HtmlOptimizer.cs" />
+    <Compile Include="PagePool.cs" />
+    <Compile Include="PdfCssProvider.cs" />
     <Compile Include="PdfStamper_Playwright.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -147,6 +150,13 @@
       <Name>PortaleRegione.DTO</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+	<EmbeddedResource Include="Styles\materialize.css" />
+	<EmbeddedResource Include="Styles\flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2" />
+	<EmbeddedResource Include="Styles\style.css" />
+	<EmbeddedResource Include="Styles\logo.png" />
+  </ItemGroup>
+  
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\..\Sorgenti API\PortaleRegione.API\packages\Microsoft.Playwright.1.55.0\build\Microsoft.Playwright.targets" Condition="Exists('..\..\..\Sorgenti API\PortaleRegione.API\packages\Microsoft.Playwright.1.55.0\build\Microsoft.Playwright.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

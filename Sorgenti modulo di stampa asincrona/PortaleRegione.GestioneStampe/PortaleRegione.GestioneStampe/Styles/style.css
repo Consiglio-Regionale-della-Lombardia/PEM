@@ -1,0 +1,240 @@
+header, main, footer {
+    padding-left: 320px;
+    padding-right: 15px;
+}
+
+main { margin-bottom: 150px; }
+
+@media only screen and (max-width: 992px) {
+    header, main, footer {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+.sidenav li > a { padding: 0 16px !important; }
+
+.patreon-ad {
+    background-color: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.14);
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    width: 299px;
+    z-index: 1000;
+}
+
+.bold-text {
+    font-weight: bold!important;
+}
+
+.btn-floating.btn-large.white.black-text > i,
+.btn-floating.btn-large.white.green-text > i,
+.btn-floating.btn-large.white.purple-text > i,
+.btn-floating.btn-large.white.orange-text > i {
+    margin-left: -4px;
+    margin-top: -4px;
+}
+
+.btn-floating.white.black-text > i,
+.btn-floating.white.green-text > i,
+.btn-floating.white.purple-text > i,
+.btn-floating.white.orange-text > i,
+.btn-floating.white.blue-text-text > i,
+.btn-floating.white.red-text > i {
+    margin-left: -2px !important;
+    margin-top: -1px !important;
+}
+
+.btn-floating > i { color: unset; }
+
+.btn-floating:hover { background-color: #f0f0f0 !important; }
+
+.btn-flat:hover { background-color: #f0f0f0 !important; }
+
+.collapsible-body { padding: 1rem !important; }
+
+.collapsible-body > div.row {
+    margin-bottom: 10px !important;
+    margin-top: 10px !important;
+}
+
+.collapsabile-secondary-header {
+    position: absolute;
+    right: 30px;
+}
+
+.collapsabile-secondary-header > div.chip {
+    height: 24px !important;
+    line-height: 24px !important;
+    margin: unset !important;
+    min-width: unset !important;
+}
+
+.collapsabile-primary-header { width: 20%; }
+
+.secondary-content { color: black; }
+
+.form-group > label { font-weight: bold !important }
+
+.input-field > label { font-weight: bold !important }
+
+.modal.bottom-sheet {
+    height: 60% !important;
+    max-height: unset !important;
+}
+
+.modal { height: 70%; }
+
+.modal-DASI {
+    height: 90vh;
+    max-height: unset !important;
+    width: 90vw;
+}
+
+.modal .modal-footer {
+    bottom: 10px;
+    position: absolute;
+    right: 10px;
+}
+
+a { cursor: pointer }
+
+.bodyEMClass > table > tbody > tr { border-bottom: unset !important; }
+
+.bodyEMClass > table > tbody > tr > td { text-align: center }
+
+.bodyEMClass > div > table > tbody > tr { border-bottom: unset !important; }
+
+.collection-item { cursor: pointer !important; }
+
+.icon_info_grid { margin-left: 15px; }
+
+label {
+    color: #9e9e9e !important;
+    font-size: 0.9rem !important;
+}
+
+.chip .icon {
+    float: right;
+    font-size: 16px;
+    line-height: 32px;
+    padding-left: 8px;
+}
+
+.chip { cursor: pointer; height:unset!important; }
+
+.chip-centered {
+    cursor: pointer;
+    height: unset !important;
+    min-width: 180px;
+    text-align: center !important;
+}
+
+div.chips.chips-autocomplete > .chip {
+    background-color: unset !important;
+    font-weight: bold;
+    min-width: unset !important;
+    text-decoration: underline;
+}
+
+.chips > .chip {
+    min-width: unset !important;
+}
+
+.chip {
+    color: black;
+    background-color: #e0e0e0;
+    border: 1px #9e9e9e solid;
+}
+
+.chip.filter-chip, .chip.order-chip, .chip.deep-purple {
+    border: 2px black solid;
+}
+
+div.form-group > .chip {
+    min-width: unset !important;
+}
+
+div.chip > i.material-icons {
+    margin-left: 5px;
+    position: relative;
+    top: 3px;
+}
+
+td > div.chip > i.material-icons { top: unset !important; }
+
+div.input-field > div.chip > i.material-icons { top: unset !important; }
+
+div.input-field.chips.chips-autocomplete { bottom: -40px; }
+
+div.chip.hoverable > i.material-icons {
+    margin-left: unset !important;
+    top: unset !important;
+}
+
+.chip-in-collection {
+    min-width: unset !important;
+    position: relative;
+    top: 3px;
+}
+
+.chip-value-in-collection {
+    font-size: small;
+    margin-right: -12px;
+    min-width: unset !important;
+}
+
+.icon-in-collection {
+    position: relative;
+    top: 10px;
+}
+
+/* Wrapping element */
+
+/* Set some basic padding to keep content from hitting the edges */
+
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.header-back { top: 10px !important; }
+
+th {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+    position: sticky;
+    top: 60px; /* Don't forget this, required for the stickiness */
+}
+
+td { border: 1px solid #ddd; }
+
+.row {
+    margin-bottom: 20px !important;
+    margin-top: 20px !important;
+}
+
+/* QR code generator */
+
+#qrCode { margin: 15px; }
+
+/* Hide/rearrange for smaller screens */
+
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption { display: none; }
+}
+
+.brand-logo {
+    margin-top: -2px !important;
+    padding-left: 20px !important;
+}
+
+/* width */
+
+::-webkit-scrollbar {
+    height: 10px;
+    width: 5px;
+}
