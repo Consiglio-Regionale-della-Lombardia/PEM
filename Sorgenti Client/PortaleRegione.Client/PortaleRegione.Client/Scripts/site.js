@@ -957,7 +957,8 @@ function GetCounterAlertStampa(lista, selezionaTutti) {
 }
 
 function CambioStatoMassivo(stato) {
-    var listaEM = getListaEmendamenti();
+    const listaEM = [...document.querySelectorAll('input[type="checkbox"][id^="chk_EM_"]:checked')]
+        .map(cb => cb.id.replace('chk_EM_', ''));
 
     var obj = {};
     obj.Stato = stato;

@@ -117,6 +117,11 @@
                 var checkSelezionaTutti = $("#checkAll")[0].checked;
                 var totaleRisultati = $(".pagination").data("totale-risultati");
                 var uidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+
+                if (text_counter < $(".pagination").data("risultati-pagina")){
+                    checkSelezionaTutti = false;
+                }
+                
                 swal({
                     title: "Conferma iscrizione seduta",
                     text: "Scegli l'ambito di applicazione per l'iscrizione:",

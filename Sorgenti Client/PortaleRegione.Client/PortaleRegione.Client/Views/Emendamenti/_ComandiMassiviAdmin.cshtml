@@ -105,6 +105,10 @@
         var checkSelezionaTutti = $("#checkAll")[0].checked;
         const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_EM_"]:checked');
         var numSelezionatiGriglia = (checkSelezionaTutti == true) ? $(".pagination").data("risultati-pagina") : selectedCheckboxes.length;
+        if (selectedCheckboxes.length < numSelezionatiGriglia){
+            numSelezionatiGriglia = selectedCheckboxes.length;
+            checkSelezionaTutti = false;
+        }
         
         swal({
             title: "Conferma azione",
