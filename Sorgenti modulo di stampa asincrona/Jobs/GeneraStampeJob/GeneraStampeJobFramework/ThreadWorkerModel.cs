@@ -26,6 +26,7 @@ namespace GeneraStampeJobFramework
         public string UrlAPI_Internal { get; set; }
         public string UrlCLIENT { get; set; }
         public string ConnectionString { get; set; }
+        public string StoreProcedure { get; set; }
         public string NumMaxTentativi { get; set; }
         public string CartellaLavoroTemporanea { get; set; }
         public string CartellaLavoroStampe { get; set; }

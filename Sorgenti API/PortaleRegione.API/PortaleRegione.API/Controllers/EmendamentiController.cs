@@ -892,7 +892,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _emendamentiLogic.ModificaStatoEmendamento(model));
+                return Ok(await _emendamentiLogic.ModificaStatoEmendamento(model, CurrentUser));
             }
             catch (Exception e)
             {

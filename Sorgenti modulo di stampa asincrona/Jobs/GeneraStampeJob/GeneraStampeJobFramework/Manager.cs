@@ -58,7 +58,7 @@ namespace GeneraStampeJobFramework
                     using (var unitOfWork = new UnitOfWork(context))
                     {
                         log.Info("Recupero e lock delle stampe con PickAndLockStampe...");
-                        var stampeList = await unitOfWork.Stampe.PickAndLockStampe(5, 5);
+                        var stampeList = await unitOfWork.Stampe.PickAndLockStampe(_model.StoreProcedure, 5, 5);
                         log.Info($"Numero stampe trovate e lockate: {stampeList.Count}");
                         
                         var worker = new Worker(auth.jwt, unitOfWork, ref _model);

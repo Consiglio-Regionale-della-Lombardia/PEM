@@ -493,7 +493,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 res.Select(a => new AttoLightDto
                 {
                     uidAtto = a.UIDAtto,
-                    oggetto = a.Oggetto,
+                    oggetto = a.OggettoView(),
                     natto = a.NAtto_search.ToString(),
                     display = GetDisplayFromEtichetta(a.Etichetta),
                     tipo = Utility.GetText_Tipo(a.Tipo),

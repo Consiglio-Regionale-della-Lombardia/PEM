@@ -160,10 +160,10 @@ namespace PortaleRegione.Persistance
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<List<STAMPE>> PickAndLockStampe(int numero, int maxTentativi)
+        public async Task<List<STAMPE>> PickAndLockStampe(string storeProcedure, int numero, int maxTentativi)
         {
             var result = await PRContext.Database
-                .SqlQuery<STAMPE>("EXEC PickAndLockStampe @Numero = {0}, @MaxTentativi = {1}", numero, maxTentativi)
+                .SqlQuery<STAMPE>("EXEC {0} @Numero = {1}, @MaxTentativi = {2}", storeProcedure, numero, maxTentativi)
                 .ToListAsync();
 
             return result;

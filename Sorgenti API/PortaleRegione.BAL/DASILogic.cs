@@ -1928,6 +1928,24 @@ namespace PortaleRegione.API.Controllers
                                    atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
                         try
                         {
+                            attoInDb.StampaValida = false;
+                            _unitOfWork.Stampe.Add(new STAMPE
+                            {
+                                UIDStampa = Guid.NewGuid(),
+                                UIDUtenteRichiesta = persona.UID_persona,
+                                CurrentRole = (int)persona.CurrentRole,
+                                DataRichiesta = DateTime.Now,
+                                UIDAtto = atto.UIDAtto,
+                                Da = 1,
+                                A = 1,
+                                Ordine = 1,
+                                Notifica = true,
+                                Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                                DASI = true
+                            });
+                
+                            await _unitOfWork.CompleteAsync();
+                            
                             var mailModel = new MailModel
                             {
                                 DA = AppSettingsConfiguration.EmailInvioDASI,
@@ -3129,7 +3147,7 @@ namespace PortaleRegione.API.Controllers
                 .ToList();
         }
 
-        public async Task<Dictionary<Guid, string>> ModificaStato(ModificaStatoAttoModel model)
+        public async Task<Dictionary<Guid, string>> ModificaStato(ModificaStatoAttoModel model, PersonaDto persona)
         {
             try
             {
@@ -3154,6 +3172,24 @@ namespace PortaleRegione.API.Controllers
                     atto.IDStato = (int)model.Stato;
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");
+                    
+                    atto.StampaValida = false;
+                    _unitOfWork.Stampe.Add(new STAMPE
+                    {
+                        UIDStampa = Guid.NewGuid(),
+                        UIDUtenteRichiesta = persona.UID_persona,
+                        CurrentRole = (int)persona.CurrentRole,
+                        DataRichiesta = DateTime.Now,
+                        UIDAtto = atto.UIDAtto,
+                        Da = 1,
+                        A = 1,
+                        Ordine = 1,
+                        Notifica = true,
+                        Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                        DASI = true
+                    });
+                
+                    await _unitOfWork.CompleteAsync();
                 }
 
                 return results;
@@ -3913,6 +3949,24 @@ namespace PortaleRegione.API.Controllers
                 foreach (var commissioneDto in model.Organi.Where(o => o.tipo_organo == TipoOrganoEnum.COMMISSIONE))
                     _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
 
+            await _unitOfWork.CompleteAsync();
+            
+            atto.StampaValida = false;
+            _unitOfWork.Stampe.Add(new STAMPE
+            {
+                UIDStampa = Guid.NewGuid(),
+                UIDUtenteRichiesta = persona.UID_persona,
+                CurrentRole = (int)persona.CurrentRole,
+                DataRichiesta = DateTime.Now,
+                UIDAtto = atto.UIDAtto,
+                Da = 1,
+                A = 1,
+                Ordine = 1,
+                Notifica = true,
+                Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                DASI = true
+            });
+                
             await _unitOfWork.CompleteAsync();
         }
 

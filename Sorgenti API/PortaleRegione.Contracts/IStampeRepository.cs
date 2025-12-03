@@ -40,6 +40,6 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<STAMPE_INFO>> GetInfo(Guid stampaUId);
         Task<IEnumerable<STAMPE_INFO>> GetInfo();
         Task<STAMPE_INFO> GetLastInfo(Guid stampaUId);
-        Task<List<STAMPE>> PickAndLockStampe(int numero, int maxTentativi);
+        Task<List<STAMPE>> PickAndLockStampe(string storeProcedure, int numero, int maxTentativi);
     }
 }

@@ -1167,7 +1167,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _dasiLogic.ModificaStato(model));
+                return Ok(await _dasiLogic.ModificaStato(model, CurrentUser));
             }
             catch (Exception e)
             {

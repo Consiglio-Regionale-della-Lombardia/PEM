@@ -29,6 +29,7 @@ namespace GeneraStampeJobFramework
         public string UrlApi_Internal { get; set; }
         public string UrlClient { get; set; }
         public string ConnectionString { get; set; }
+        public string StoreProcedure { get; set; }
         public string NumMaxTentativi { get; set; }
         public string CartellaLavoroTemporanea { get; set; }
         public string CartellaLavoroStampe { get; set; }
@@ -56,6 +57,7 @@ namespace GeneraStampeJobFramework
                 CartellaLavoroTemporanea = CartellaLavoroTemporanea,
                 PercorsoCompatibilitaDocumenti = PercorsoCompatibilitaDocumenti,
                 ConnectionString = ConnectionString,
+                StoreProcedure = StoreProcedure,
                 masterKey = masterKey
             });
             await manager.Run();
@@ -99,6 +101,9 @@ namespace GeneraStampeJobFramework
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.ConnectionString)))
                 ConnectionString = data.Get(nameof(ThreadWorkerModel.ConnectionString)).ToString();
+            
+            if (data.ContainsKey(nameof(ThreadWorkerModel.StoreProcedure)))
+                StoreProcedure = data.Get(nameof(ThreadWorkerModel.StoreProcedure)).ToString();
             
             if (data.ContainsKey(nameof(ThreadWorkerModel.masterKey)))
                 masterKey = data.Get(nameof(ThreadWorkerModel.masterKey)).ToString();
