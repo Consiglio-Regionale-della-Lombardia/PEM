@@ -1328,7 +1328,7 @@ else
 
                     if (result.Tipo == '@Html.Raw((int)TipoAttoEnum.ITR)' || (result.Tipo == '@Html.Raw((int)TipoAttoEnum.ITL)' && (result.IDTipo_Risposta == '@Html.Raw((int)TipoRispostaEnum.SCRITTA)' || result.IDTipo_Risposta == '@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)')) || '@Html.Raw((int)Model.ClientMode)' != '@Html.Raw((int)ClientModeEnum.GRUPPI)') {
                         td.innerHTML = "";
-                    } else if (result.DataIscrizioneSeduta != null) {
+                    } else if (result.DataIscrizioneSeduta != null && result.DataIscrizioneSeduta != '') {
                         const matchDataSeduta = result.Seduta.Data_seduta.match(dateRegex);
                         const timestampDataSeduta = parseInt(matchDataSeduta[1], 10);
                         const dateDataSeduta = new Date(timestampDataSeduta);
@@ -1361,7 +1361,7 @@ else
                         }
                         tdText += `</span>`;
                         td.innerHTML = tdText;
-                    } else if (result.DataRichiestaIscrizioneSeduta != null) {
+                    } else if (result.DataRichiestaIscrizioneSeduta != null && result.DataRichiestaIscrizioneSeduta != '') {
                         var textSeduta = `<i>Seduta del ${result.DataRichiestaIscrizioneSeduta}<i>`;
                         var tooltipSeduta = `Richiesta in attesa di elaborazione`;
                         var tdText = `<span class="tooltipped" data-tooltip="${tooltipSeduta}" aria-label="${tooltipSeduta}"`;
@@ -1376,7 +1376,7 @@ else
 
                         tdText += `</span>`;
                         td.innerHTML = tdText;
-                    } else if (result.DataIscrizioneSeduta == null && (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE))) {
+                    } else if ((result.DataIscrizioneSeduta == null || result.DataIscrizioneSeduta == '') && (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO) || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE))) {
                         td.innerHTML = ` <button type="button" role="button" class="btn-flat yellow-text badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('${result.UIDAtto}', '${result.Display}')">
      Iscrivi
  </button>`;

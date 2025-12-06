@@ -243,22 +243,30 @@ namespace GeneraStampeJobFramework
                 var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
                 _stampa.PathFile = nameFileTarget;
 
-                var bodyMail =
-                    $"Gentile {persona.DisplayName},<br>la stampa richiesta sulla piattaforma è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
-                var resultInvio = await BaseGateway.SendMail(new MailModel
-                    {
-                        DA = _model.EmailFrom,
-                        A = persona.email,
-                        OGGETTO = "Link download fascicolo",
-                        MESSAGGIO = bodyMail
-                    },
-                    _auth.jwt);
-
                 var stampaInDb = await _unitOfWork.Stampe.Get(_stampa.UIDStampa);
-                if (resultInvio)
+                
+                try
                 {
-                    stampaInDb.Invio = true;
-                    stampaInDb.DataInvio = DateTime.Now;
+                    var bodyMail =
+                        $"Gentile {persona.DisplayName},<br>la stampa richiesta sulla piattaforma è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
+                    var resultInvio = await BaseGateway.SendMail(new MailModel
+                        {
+                            DA = _model.EmailFrom,
+                            A = persona.email,
+                            OGGETTO = "Link download fascicolo",
+                            MESSAGGIO = bodyMail
+                        },
+                        _auth.jwt);
+
+                    if (resultInvio)
+                    {
+                        stampaInDb.Invio = true;
+                        stampaInDb.DataInvio = DateTime.Now;
+                    }
+                }
+                catch (Exception e)
+                {
+                    log.Error($"[StampaDASI] ERRORE UIDStampa={_stampa.UIDStampa}", e);
                 }
 
                 stampaInDb.DataFineEsecuzione = DateTime.Now;
