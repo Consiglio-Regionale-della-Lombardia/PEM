@@ -30,7 +30,7 @@ namespace PortaleRegione.Domain
 
         public Guid? UIDComma { get; set; }
 
-        [StringLength(5)]
+        [StringLength(50)]
         public string Lettera { get; set; }
 
         public string TestoLettera { get; set; }
