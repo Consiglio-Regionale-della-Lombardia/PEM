@@ -20,6 +20,7 @@ using PortaleRegione.Logger;
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using PortaleRegione.Crypto;
 
 namespace PortaleRegione.BAL
 {
@@ -30,92 +31,14 @@ namespace PortaleRegione.BAL
             try
             {
                 key = !string.IsNullOrEmpty(key)
-                    ? DecryptString(key, AppSettingsConfiguration.masterKey)
+                    ? CryptoHelper.DecryptString(key, AppSettingsConfiguration.masterKey)
                     : AppSettingsConfiguration.masterKey;
 
-                return DecryptString(strData, key);
+                return CryptoHelper.DecryptString(strData, key);
             }
             catch (Exception e)
             {
                 Log.Error("DecryptString", e);
-                throw e;
-            }
-        }
-
-        public static string DecryptString(string EncryptedString, string Key)
-        {
-            try
-            {
-                byte[] Results;
-                var UTF8 = new UTF8Encoding();
-
-                var HashProvider = new MD5CryptoServiceProvider();
-                var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key));
-
-                var TDESAlgorithm = new TripleDESCryptoServiceProvider
-                {
-                    Key = TDESKey,
-                    Mode = CipherMode.ECB,
-                    Padding = PaddingMode.PKCS7
-                };
-
-                var DataToDecrypt = Convert.FromBase64String(EncryptedString);
-
-                try
-                {
-                    var Decryptor = TDESAlgorithm.CreateDecryptor();
-                    Results = Decryptor.TransformFinalBlock(DataToDecrypt, 0, DataToDecrypt.Length);
-                }
-                finally
-                {
-                    TDESAlgorithm.Clear();
-                    HashProvider.Clear();
-                }
-
-                return UTF8.GetString(Results);
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("EM CORROTTO");
-                return "<font style='color:red'>Valore Corrotto</font>";
-            }
-        }
-
-        public static string EncryptString(string InString, string Key)
-        {
-            try
-            {
-                byte[] Results;
-                var UTF8 = new UTF8Encoding();
-
-                var HashProvider = new MD5CryptoServiceProvider();
-                var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key));
-
-                var TDESAlgorithm = new TripleDESCryptoServiceProvider
-                {
-                    Key = TDESKey,
-                    Mode = CipherMode.ECB,
-                    Padding = PaddingMode.PKCS7
-                };
-
-                var DataToEncrypt = UTF8.GetBytes(InString);
-
-                try
-                {
-                    var Encryptor = TDESAlgorithm.CreateEncryptor();
-                    Results = Encryptor.TransformFinalBlock(DataToEncrypt, 0, DataToEncrypt.Length);
-                }
-                finally
-                {
-                    TDESAlgorithm.Clear();
-                    HashProvider.Clear();
-                }
-
-                return Convert.ToBase64String(Results);
-            }
-            catch (Exception e)
-            {
-                Log.Error("EncryptString", e);
                 throw e;
             }
         }

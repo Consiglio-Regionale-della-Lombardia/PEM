@@ -26,14 +26,15 @@ namespace GeneraStampeJobFramework
         public string Username { get; set; }
         public string Password { get; set; }
         public string UrlApi { get; set; }
+        public string UrlApi_Internal { get; set; }
         public string UrlClient { get; set; }
         public string ConnectionString { get; set; }
+        public string StoreProcedure { get; set; }
         public string NumMaxTentativi { get; set; }
         public string CartellaLavoroTemporanea { get; set; }
         public string CartellaLavoroStampe { get; set; }
         public string EmailFrom { get; set; }
         public string RootRepository { get; set; }
-        public string PDF_LICENSE { get; set; }
         public string PercorsoCompatibilitaDocumenti { get; set; }
         public string masterKey { get; set; }
         
@@ -45,6 +46,7 @@ namespace GeneraStampeJobFramework
             var manager = new Manager(new ThreadWorkerModel
             {
                 UrlAPI = UrlApi,
+                UrlAPI_Internal = UrlApi_Internal,
                 UrlCLIENT = UrlClient,
                 Username = Username,
                 Password = Password,
@@ -53,9 +55,9 @@ namespace GeneraStampeJobFramework
                 RootRepository = RootRepository,
                 CartellaLavoroStampe = CartellaLavoroStampe,
                 CartellaLavoroTemporanea = CartellaLavoroTemporanea,
-                PDF_LICENSE = PDF_LICENSE,
                 PercorsoCompatibilitaDocumenti = PercorsoCompatibilitaDocumenti,
                 ConnectionString = ConnectionString,
+                StoreProcedure = StoreProcedure,
                 masterKey = masterKey
             });
             await manager.Run();
@@ -71,6 +73,9 @@ namespace GeneraStampeJobFramework
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.UrlAPI)))
                 UrlApi = data.Get(nameof(ThreadWorkerModel.UrlAPI)).ToString();
+            
+            if (data.ContainsKey(nameof(ThreadWorkerModel.UrlAPI_Internal)))
+                UrlApi = data.Get(nameof(ThreadWorkerModel.UrlAPI_Internal)).ToString();
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.UrlCLIENT)))
                 UrlClient = data.Get(nameof(ThreadWorkerModel.UrlCLIENT)).ToString();
@@ -90,15 +95,15 @@ namespace GeneraStampeJobFramework
             if (data.ContainsKey(nameof(ThreadWorkerModel.RootRepository)))
                 RootRepository = data.Get(nameof(ThreadWorkerModel.RootRepository)).ToString();
 
-            if (data.ContainsKey(nameof(ThreadWorkerModel.PDF_LICENSE)))
-                PDF_LICENSE = data.Get(nameof(ThreadWorkerModel.PDF_LICENSE)).ToString();
-
             if (data.ContainsKey(nameof(ThreadWorkerModel.PercorsoCompatibilitaDocumenti)))
                 PercorsoCompatibilitaDocumenti =
                     data.Get(nameof(ThreadWorkerModel.PercorsoCompatibilitaDocumenti)).ToString();
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.ConnectionString)))
                 ConnectionString = data.Get(nameof(ThreadWorkerModel.ConnectionString)).ToString();
+            
+            if (data.ContainsKey(nameof(ThreadWorkerModel.StoreProcedure)))
+                StoreProcedure = data.Get(nameof(ThreadWorkerModel.StoreProcedure)).ToString();
             
             if (data.ContainsKey(nameof(ThreadWorkerModel.masterKey)))
                 masterKey = data.Get(nameof(ThreadWorkerModel.masterKey)).ToString();

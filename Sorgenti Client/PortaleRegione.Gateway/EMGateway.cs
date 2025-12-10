@@ -20,7 +20,6 @@ using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -29,7 +28,6 @@ using PortaleRegione.DTO.Routes;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
@@ -255,19 +253,6 @@ namespace PortaleRegione.Gateway
         public async Task<EmendamentiDto> Salva(EmendamentiDto model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Create}";
-            if (model.DocAllegatoGenerico != null)
-            {
-                using var memoryStream = new MemoryStream();
-                await model.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
-                model.DocAllegatoGenerico_Stream = memoryStream.ToArray();
-            }
-
-            if (model.DocEffettiFinanziari != null)
-            {
-                using var memoryStream = new MemoryStream();
-                await model.DocEffettiFinanziari.InputStream.CopyToAsync(memoryStream);
-                model.DocEffettiFinanziari_Stream = memoryStream.ToArray();
-            }
 
             var body = JsonConvert.SerializeObject(model);
             var result = JsonConvert.DeserializeObject<EmendamentiDto>(await Post(requestUrl, body, _token));
@@ -277,20 +262,6 @@ namespace PortaleRegione.Gateway
         public async Task Modifica(EmendamentiDto model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Edit}";
-            if (model.DocAllegatoGenerico != null)
-            {
-                using var memoryStream = new MemoryStream();
-                await model.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
-                model.DocAllegatoGenerico_Stream = memoryStream.ToArray();
-            }
-
-            if (model.DocEffettiFinanziari != null)
-            {
-                using var memoryStream = new MemoryStream();
-                await model.DocEffettiFinanziari.InputStream.CopyToAsync(memoryStream);
-                model.DocEffettiFinanziari_Stream = memoryStream.ToArray();
-            }
-
             var body = JsonConvert.SerializeObject(model);
             await Put(requestUrl, body, _token);
         }
@@ -400,8 +371,10 @@ namespace PortaleRegione.Gateway
         public async Task<Dictionary<Guid, string>> GetByJson(Guid uidStampa)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetByJson}";
-            var bodyObject = new BaseRequest<StampaDto>();
-            bodyObject.id = uidStampa;
+            var bodyObject = new BaseRequest<StampaDto>
+            {
+                id = uidStampa
+            };
             var body = JsonConvert.SerializeObject(bodyObject);
             var res = await Post(requestUrl, body, _token);
             return JsonConvert.DeserializeObject<Dictionary<Guid, string>>(res);

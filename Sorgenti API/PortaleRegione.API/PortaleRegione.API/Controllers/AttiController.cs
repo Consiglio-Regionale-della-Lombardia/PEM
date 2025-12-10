@@ -370,15 +370,16 @@ namespace PortaleRegione.API.Controllers
                 var articolo = await _attiLogic.GetArticolo(id);
                 if (articolo == null) return NotFound();
 
-                await _attiLogic.DeleteArticolo(articolo);
+                var currentUser = CurrentUser;
+                await _attiLogic.DeleteArticolo(articolo, currentUser);
 
                 var listCommi = await _attiLogic.GetCommi(id);
-                await _attiLogic.DeleteCommi(listCommi);
+                await _attiLogic.DeleteCommi(listCommi, currentUser);
 
                 foreach (var comma in listCommi)
                 {
                     var listLettere = await _attiLogic.GetLettere(comma.UIDComma);
-                    await _attiLogic.DeleteLettere(listLettere);
+                    await _attiLogic.DeleteLettere(listLettere, currentUser);
                 }
 
                 return Ok("OK");
@@ -451,10 +452,11 @@ namespace PortaleRegione.API.Controllers
                 var comma = await _attiLogic.GetComma(id);
                 if (comma == null) return NotFound();
 
-                await _attiLogic.DeleteComma(comma);
+                var currentUser = CurrentUser;
+                await _attiLogic.DeleteComma(comma, currentUser);
 
                 var listLettere = await _attiLogic.GetLettere(comma.UIDComma);
-                await _attiLogic.DeleteLettere(listLettere);
+                await _attiLogic.DeleteLettere(listLettere, currentUser);
 
                 return Ok("OK");
             }
@@ -527,7 +529,8 @@ namespace PortaleRegione.API.Controllers
                 var lettera = await _attiLogic.GetLettera(id);
                 if (lettera == null) return NotFound();
 
-                await _attiLogic.DeleteLettere(lettera);
+                var currentUser = CurrentUser;
+                await _attiLogic.DeleteLettere(lettera, currentUser);
 
                 return Ok("OK");
             }
@@ -705,7 +708,7 @@ namespace PortaleRegione.API.Controllers
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route(ApiRoutes.PEM.Atti.BloccoODG)]
-        public async Task<IHttpActionResult> BloccoODG(BloccoODGModel model)
+        public async Task<IHttpActionResult> BloccoODG(BloccoModel model)
         {
             try
             {
@@ -720,6 +723,33 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("BloccoODG", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Controller per bloccare la presentazione degli emendamenti per l'atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route(ApiRoutes.PEM.Atti.BloccoEM)]
+        public async Task<IHttpActionResult> BloccoEM(BloccoModel model)
+        {
+            try
+            {
+                var attoInDb = await _attiLogic.GetAtto(model.Id);
+
+                if (attoInDb == null) return NotFound();
+                attoInDb.BloccoEM = Convert.ToBoolean(model.Blocco);
+                await _unitOfWork.CompleteAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("BloccoEM", e);
                 return ErrorHandler(e);
             }
         }

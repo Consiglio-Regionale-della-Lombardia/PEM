@@ -42,7 +42,7 @@ namespace PortaleRegione.BAL
         private readonly DASILogic _logicDasi;
         private readonly EmendamentiLogic _logicEm;
         private readonly FirmeLogic _logicFirme;
-        private readonly PdfStamper_IronPDF _stamper;
+        private readonly PdfStamper_Playwright _stamper;
         private readonly IUnitOfWork _unitOfWork;
         private ThreadWorkerModel _model;
         private StampaDto _stampa;
@@ -56,7 +56,7 @@ namespace PortaleRegione.BAL
             _logicAttiFirme = logicAttiFirme;
             _logicFirme = logicFirme;
             _logicAtti = logicAtti;
-            _stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+            _stamper = new PdfStamper_Playwright();
         }
 
         public event EventHandler<bool> OnWorkerFinish;
@@ -87,7 +87,7 @@ namespace PortaleRegione.BAL
                 OnWorkerFinish?.Invoke(this, true);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 OnWorkerFinish?.Invoke(this, false);
                 return null;
@@ -125,10 +125,11 @@ namespace PortaleRegione.BAL
                 //Funzione che fascicola i PDF creati prima
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                 var FilePathTarget = Path.Combine(path, nameFileTarget);
-                var merge_pdf = _stamper.MergedPDFInMemory(FilePathTarget, docs);
+                /*var merge_pdf = _stamper.MergedPDFInMemory(FilePathTarget, docs);*/
                 _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
 
-                return merge_pdf;
+                /*return merge_pdf;*/
+                return null;
             }
             catch (Exception e)
             {
@@ -216,7 +217,7 @@ namespace PortaleRegione.BAL
                 null,
                 count);
             var currentPaging = result.Paging;
-            await Scarica_Log(currentPaging);
+            Scarica_Log(currentPaging);
             var has_next = currentPaging.Has_Next;
             var lista = result.Results.ToList();
             while (has_next)
@@ -230,7 +231,7 @@ namespace PortaleRegione.BAL
                     results,
                     null,
                     count);
-                await Scarica_Log(currentPaging, result.Paging);
+                Scarica_Log(currentPaging, result.Paging);
                 foreach (var item in result.Results)
                 {
                     lista.Add(item);
@@ -295,7 +296,7 @@ namespace PortaleRegione.BAL
                 //Funzione che fascicola i PDF creati prima
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                 var FilePathTarget = Path.Combine(path, nameFileTarget);
-                var merge_pdf = _stamper.MergedPDFInMemory(FilePathTarget, docs);
+                /*var merge_pdf = _stamper.MergedPDFInMemory(FilePathTarget, docs);*/
                 _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
 
                 var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
@@ -311,7 +312,8 @@ namespace PortaleRegione.BAL
                     await _unitOfWork.CompleteAsync();
                 }
 
-                return merge_pdf;
+                /*return merge_pdf;*/
+                return null;
             }
             catch (Exception e)
             {
@@ -344,7 +346,7 @@ namespace PortaleRegione.BAL
                 null,
                 countEM);
             var currentPaging = resultEmendamenti.Paging;
-            await Scarica_Log(currentPaging);
+            Scarica_Log(currentPaging);
             var has_next = currentPaging.Has_Next;
             var listaEMendamenti = resultEmendamenti.Results.ToList();
             while (has_next)
@@ -358,7 +360,7 @@ namespace PortaleRegione.BAL
                     results,
                     null,
                     countEM);
-                await Scarica_Log(currentPaging, resultEmendamenti.Paging);
+                Scarica_Log(currentPaging, resultEmendamenti.Paging);
                 foreach (var item in resultEmendamenti.Results)
                 {
                     listaEMendamenti.Add(item);
@@ -373,14 +375,14 @@ namespace PortaleRegione.BAL
             return listaEMendamenti;
         }
 
-        private async Task Scarica_Log(Paging currentPaging, Paging paging)
+        private void Scarica_Log(Paging currentPaging, Paging paging)
         {
             var partial = paging.Limit * paging.Page - (paging.Limit - paging.Entities);
             _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa,
                 $"Scaricamento Blocco [{paging.Page}/{paging.Last_Page}] - [{partial}/{currentPaging.Total}]");
         }
 
-        private async Task Scarica_Log(Paging paging)
+        private void Scarica_Log(Paging paging)
         {
             var partial = paging.Limit * paging.Page - (paging.Limit - paging.Entities);
             _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa,

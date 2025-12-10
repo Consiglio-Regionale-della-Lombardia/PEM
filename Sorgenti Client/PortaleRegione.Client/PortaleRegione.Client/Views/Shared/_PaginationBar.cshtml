@@ -41,7 +41,7 @@
 
     <div class="row valign-wrapper">
         <div class="col l6 m6 s8">
-            <ul class="pagination">
+            <ul class="pagination" data-totale-pagine="@Model.Last_Page" data-totale-risultati="@Model.Total" data-risultati-pagina="@Model.Limit" data-pagina-corrente="@Model.Page">
                 @if (Model.Has_Prev)
                 {
                     //Torna alla prima pagina

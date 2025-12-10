@@ -88,6 +88,31 @@
                                 <span>@Html.LabelFor(s => s.Riservato_DASI)</span>
                             </label>
                         </p>
+                        <p>
+                            <label>
+                                <input id="Riservato_DASI_MOZ" name="Riservato_DASI_MOZ" type="checkbox" value="true"
+                                       @Html.Raw(Model.Riservato_DASI_MOZ ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Riservato_DASI_MOZ)</span>
+                            </label>
+                        </p>
+                        <p>
+                            <label>
+                                <input id="Riservato_DASI_IQT" name="Riservato_DASI_IQT" type="checkbox" value="true"
+                                       @Html.Raw(Model.Riservato_DASI_IQT ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Riservato_DASI_IQT)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input id="Blocco_MOZ_Abbinate" name="Blocco_MOZ_Abbinate" type="checkbox" value="true"
+                                       @Html.Raw(Model.Blocco_MOZ_Abbinate ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Blocco_MOZ_Abbinate)</span>
+                            </label>
+                        </p>
                     </div>
                 </div>
                 @if (!isNew)
@@ -192,7 +217,11 @@
                     go(data);
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                if (err.responseJSON.message) {
+                    ErrorAlert(err.responseJSON.message);
+                }else{
+                    Error(err);
+                }
             });
 
             return false; //This doesn't prevent the form from submitting.

@@ -41,6 +41,8 @@
 
     @Scripts.Render("~/bundles/lib")
     @Scripts.Render("~/bundles/logic")
+    @Scripts.Render("~/bundles/filevalidation")
+    @Scripts.Render("~/bundles/editor")
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="~/Scripts/moment.js"></script>
 </head>
@@ -95,7 +97,7 @@
                 labelStato += $" {PortaleRegione.Common.Utility.GetText_ChiusuraIterDASI(atto.TipoChiusuraIter)}";
             }
         }
-        <div class="chip @Utility.GetCSS_StatoDASI(atto.IDStato) white" style="min-width: unset;">@labelStato</div>
+        <div class="chip @Utility.GetCSS_StatoDASI(atto.IDStato) white" style="min-width: unset;border-color:black!important;color:black!important;">@labelStato</div>
     </div>
 </div>
 
@@ -118,12 +120,38 @@
                         {
                             if ((firmeGroup.Any()
                                  && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-                                || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                                                                                       && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
-                                || Model.CurrentUser.IsSegreteriaAssemblea)
+                                || (firmeGroup.Any()
+                                    && Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                                    && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                                || (firmeGroup.Any()
+                                    && Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                                    && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                                || (firmeGroup.Any()
+                                && Model.CurrentUser.IsSegreteriaAssemblea))
                             {
-                                <button type="button" role="button" class="btn-flat pink-text" onclick="SwitchVisualizzazionePriorita()">
+                                <button type="button" role="button" class="btn-flat pink-text"
+                                        onclick="SwitchVisualizzazionePriorita()">
                                     Gestisci priorità e ordinamento firme @*#987*@
+                                </button>
+                                <br/>
+                            }
+                        }
+                        else
+                        {
+                            // #1496
+                            if ((firmeGroup.Any()
+                                 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona && !Model.Atto.IsChiuso)
+                                || (firmeGroup.Any()
+                                    && Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                                    && !Model.Atto.IsChiuso)
+                                || (firmeGroup.Any() && Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+                                    && !Model.Atto.IsChiuso)
+                                || (firmeGroup.Any()
+                                && Model.CurrentUser.IsSegreteriaAssemblea))
+                            {
+                                <button type="button" role="button" class="btn-flat pink-text"
+                                        onclick="SwitchVisualizzazionePriorita()">
+                                    Gestisci priorità e ordinamento firme
                                 </button>
                                 <br/>
                             }
@@ -209,7 +237,8 @@
                 </div>
                 @if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
                         || Model.CurrentUser.IsSegreteriaAssemblea
-                        || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
+                        || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
+                        || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
                     {
                         @* FIRME PRIORITA' *@
 			<div class="row" id="pnlPrioritaFirme" style="display: none;">
@@ -541,7 +570,7 @@
             {
                 counterAbbinamenti++;
             }
-            <div class="chip" style="left: 190px; margin-top: -4px; position: absolute;">
+            <div class="chip" style="position: absolute;margin-top:-5px;margin-left:20px;left:200px;">
                 @counterAbbinamenti
             </div>
         }
@@ -598,7 +627,7 @@
         @* #1065 *@
         @if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
         {
-            @Html.Raw("Informazioni risposta")
+            @Html.Raw("Informazioni risposta/Iter") // #1503
         }
         else
         {
@@ -609,13 +638,13 @@
         {
             if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
             {
-                <div style="left: 220px; position: absolute;">
+                <div style="position: relative;">
                     <i class="material-icons icon right green-text">check_circle</i>
                 </div>
             }
             else
             {
-                <div style="left: 160px; position: absolute;">
+                <div style="position: relative;">
                     <i class="material-icons icon right green-text">check_circle</i>
                 </div>
             }
@@ -624,13 +653,13 @@
         {
             if (atto.IsITL() || atto.IsITR() || atto.IsIQT())
             {
-                <div class="tooltipped" style="left: 220px; position: absolute;" data-tooltip="Nessuna risposta">
+                <div class="tooltipped" style="position: relative;" data-tooltip="Nessuna risposta">
                     <i class="material-icons icon right red-text">remove_circle</i>
                 </div>
             }
             else
             {
-                <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
+                <div class="tooltipped" style="position: relative;" data-tooltip="Nessuna risposta">
                     <i class="material-icons icon right red-text">remove_circle</i>
                 </div>
             }
@@ -659,7 +688,7 @@
                     <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
                 }
             </select>
-            <label>Tipo risposta</label>
+            <label>Tipo risposta / Iter</label>
         </div>
         @if (atto.IsMOZ())
         {
@@ -1004,8 +1033,11 @@
                         @if (Model.CurrentUser.IsSegreteriaAssemblea)
                         {
                             <td class="center">
+                                <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
+                                    <i class="material-icons">edit</i>
+                                </button>
                                 <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-									<i class="material-icons">close</i>
+                                    <i class="material-icons">close</i>
                                 </button>
                             </td>
                         }
@@ -1032,7 +1064,7 @@
         <i class="material-icons">network_check</i>Monitoraggio
         @if (atto.Monitoraggi.Any())
         {
-            <div class="chip" style="left: 195px; margin-top: -4px; position: absolute;">@atto.Monitoraggi.Count</div>
+            <div class="chip" style="position: absolute;margin-top:-5px;margin-left:20px;left:200px;">@atto.Monitoraggi.Count</div>
         }
     </div>
     <div class="collapsible-body">
@@ -1242,6 +1274,16 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="input-field col s12 m12 l6">
+                            <select id="Atto_TipoIterInCommissione">
+                                <option value="" selected>Seleziona</option>
+                                <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta_Effettiva == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+                                <option value="@Html.Raw((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta_Effettiva == (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE ? "selected=\"selected\"" : "")>@PortaleRegione.Common.Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE)</option>
+                            </select>
+                            <label for="Atto_TipoIterInCommissione">Tipo di iter in commissione</label>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col s12 l4 hide-on-med-and-down">
                         </div>
                         <div class="col s12 l4 center">
@@ -1272,13 +1314,13 @@
 
         @if (atto.TipoChiusuraIter > 0)
         {
-            <div style="left: 160px; position: absolute;">
+            <div style="position: relative;">
                 <i class="material-icons icon right green-text">check_circle</i>
             </div>
         }
         else
         {
-            <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Informazioni mancanti">
+            <div class="tooltipped" style="position: relative;" data-tooltip="Informazioni mancanti">
                 <i class="material-icons icon right red-text">remove_circle</i>
             </div>
         }
@@ -1352,17 +1394,34 @@
                 <div class="row" id="pnlChiusuraIter_DCR">
                     <div class="input-field col s12 m12 l4">
                         <div class="row">
-                            <div class="input-field col s12 m12 l4">
+                            <div class="input-field col s12 m12 l3">
                                 <label id="labelDCR">DCR</label>
                                 @Html.TextBoxFor(model => model.Atto.DCRL, new { @class = "form-control" })
                             </div>
-                            <div class="input-field col s12 m12 l4">
+                            <div class="input-field col s12 m12 l3">
                                 <label> </label>
                                 @Html.TextBoxFor(model => model.Atto.DCR, new { @class = "form-control", id = "txtDCR" })
                             </div>
-                            <div class="input-field col s12 m12 l4">
+                            <div class="input-field col s12 m12 l3">
+                                <label> </label>
+                                @Html.TextBoxFor(model => model.Atto.DCCR_Speciale, new { @class = "form-control", 
+    id = "txtDCCR_Speciale",
+    placeholder = "Comm. speciale",
+    maxlength = "2",
+    style = "text-transform:uppercase;"
+})
+                            </div>
+                            <div class="input-field col s12 m12 l3">
                                 <label> </label>
                                 @Html.TextBoxFor(model => model.Atto.DCCR, new { @class = "form-control", id = "txtDCCR" })
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <label for="lblDisplayDCR" style="font-weight:600; color:#555;">Anteprima DCR</label>
+                                <h6 id="lblDisplayDCR" style="margin-top:5px; font-size:1.2em;">
+                                    <!-- qui verrà aggiornata l'anteprima -->
+                                </h6>
                             </div>
                         </div>
                     </div>
@@ -1416,8 +1475,11 @@
                                     @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                     {
                                         <td class="center">
+                                            <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
+                                                <i class="material-icons">edit</i>
+                                            </button>
                                             <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-												<i class="material-icons">close</i>
+                                                <i class="material-icons">close</i>
                                             </button>
                                         </td>
                                     }
@@ -1450,7 +1512,8 @@
                             </thead>
                             <tbody>
                             @foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER
-                                                                           || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE))
+                                                                           || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE 
+                                                                           || d.TipoEnum == TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA))
                             {
                                 <tr>
                                     <td>@doc.Titolo</td>
@@ -1473,7 +1536,7 @@
                         </table>
                     </div>
                 </div>
-                @if (atto.IsRIS() && atto.FlussoRespingi == false)
+                @if (atto.IsRIS() && !atto.FlussoRespingi)
                 {
                     <div class="row card-panel blue lighten-4">
                         <div class="col s12 l4 center hide-on-med-and-down">
@@ -1487,7 +1550,7 @@
 
                         </div>
                     </div>
-                }else if (atto.IsRIS() && atto.FlussoRespingi == true)
+                }else if (atto.IsRIS() && atto.FlussoRespingi)
                 {
                     <div class="row card-panel blue lighten-4">
                         <div class="col s12 l4 center hide-on-med-and-down">
@@ -1511,7 +1574,7 @@
         <i class="material-icons">comment</i>Note
         @if (atto.Note.Any())
         {
-            <div class="chip" style="left: 130px; margin-top: -4px; position: absolute;">@atto.Note.Count</div>
+            <div class="chip" style="position: absolute;margin-top:-5px;margin-left:20px;left:200px;">@atto.Note.Count</div>
         }
     </div>
     <div class="collapsible-body">
@@ -1549,6 +1612,9 @@
                             @if (Model.CurrentUser.IsSegreteriaAssemblea)
                             {
                                 <td class="center">
+                                    <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
+                                        <i class="material-icons">edit</i>
+                                    </button>
                                     <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
 										<i class="material-icons">close</i>
                                     </button>
@@ -1570,7 +1636,7 @@
 
         @if (atto.Privacy || atto.Privacy_Divieto_Pubblicazione)
         {
-            <div class="red-text" style="left: 150px; position: absolute;">
+            <div class="red-text" style="position: relative;">
                 <i class="material-icons">lock</i>
             </div>
         }
@@ -1657,8 +1723,11 @@
                                     @if (Model.CurrentUser.IsSegreteriaAssemblea)
                                     {
                                         <td class="center">
+                                            <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
+                                                <i class="material-icons">edit</i>
+                                            </button>
                                             <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
-												<i class="material-icons">close</i>
+                                                <i class="material-icons">close</i>
                                             </button>
                                         </td>
                                     }
@@ -1751,7 +1820,8 @@
         <div class="card">
 			<div class="card-content">
 				@if (atto.IsODG()
-					 || atto.IsMOZ())
+					 || atto.IsMOZ()
+                     || atto.IsRIS())
 				{
 					<div class="collection">
 						<h6>
@@ -1856,7 +1926,8 @@
 </div>
 
 <script>
-    $('.trumbowyg').trumbowyg({
+        initSecureTrumbowyg('.trumbowyg');
+    /*$('.trumbowyg').trumbowyg({
         //semantic: true, // Usa tag semantici validi
         //tagsToKeep: ['b', 'i', 'u', 'strong', 'em'], // Specifica i tag consentiti
         //removeformatPasted: true, // Rimuovi formattazioni strane durante il paste
@@ -1883,7 +1954,7 @@
                 ]
             }
         }
-    });
+    });*/
 
     function SwitchVisualizzazionePriorita(){
         // #979, #988
@@ -2409,6 +2480,7 @@
                         DataComunicazioneAssemblea: document.querySelector('input[name="Atto.DataComunicazioneAssemblea"]').value,
                         DCR: document.querySelector('input[name="Atto.DCR"]').value,
                         DCCR: document.querySelector('input[name="Atto.DCCR"]').value,
+                        DCCR_Speciale: document.querySelector('input[name="Atto.DCCR_Speciale"]').value,
                         DCRL: document.querySelector('input[name="Atto.DCRL"]').value,
                         Emendato: document.querySelector('input[name="Atto.Emendato"]').checked
                     };
@@ -2444,7 +2516,9 @@
                         classes: 'rounded',
                         displayLength: 5000
                     });
+                    
                     window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                    location.reload();
                 }
             });
         });
@@ -2463,7 +2537,8 @@
                     TipoChiusuraIterCommissione: document.getElementById('Atto_TipoChiusuraIterCommissione').value,
                     DataChiusuraIterCommissione: document.querySelector('input[name="Atto.DataChiusuraIterCommissione"]').value,
                     DataTrasmissione: document.querySelector('input[name="Atto.DataTrasmissione"]').value,
-                    RisultatoVotazioneIterCommissione: document.getElementById('Atto_RisultatoVotazioneCommissione').value
+                    RisultatoVotazioneIterCommissione: document.getElementById('Atto_RisultatoVotazioneCommissione').value,
+                    IDTipo_Risposta_Effettiva: document.getElementById('Atto_TipoIterInCommissione').value
                 };
 
                 var url = '@Url.Action("Salva_InformazioniChiusuraIter", "DASI")';
@@ -2597,6 +2672,39 @@
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Prendo i riferimenti agli input
+        const inpDCRL = document.getElementById('Atto_DCRL') || document.querySelector('input[name="Atto.DCRL"]');
+        const inpDCR  = document.getElementById('txtDCR') || document.querySelector('input[name="Atto.DCR"]');
+        const inpSpe  = document.getElementById('txtDCCR_Speciale') || document.querySelector('input[name="Atto.DCCR_Speciale"]');
+        const inpDCCR = document.getElementById('txtDCCR') || document.querySelector('input[name="Atto.DCCR"]');
+        const lbl     = document.getElementById('lblDisplayDCR');
+
+        const normalize = v => {
+            const s = (v ?? '').toString().trim();
+            return (s === '') ? '' : s;
+        };
+
+        function updateLabel() {
+            const part1 = normalize(inpDCRL?.value);
+            const part2 = normalize(inpDCR?.value);
+            const sp    = normalize(inpSpe?.value.toUpperCase());
+            const num   = normalize(inpDCCR?.value);
+            const part3 = normalize(sp + num); // concat senza separatore
+
+            const parts = [part1, part2, part3].filter(p => p !== '');
+            lbl.textContent = parts.join('/');
+        }
+
+        // Aggiorna al change di qualunque campo
+        [inpDCRL, inpDCR, inpSpe, inpDCCR].forEach(el => {
+            if (el) el.addEventListener('input', updateLabel);
+        });
+
+        // Primo render (se i campi hanno già un valore server-side)
+        updateLabel();
+    });
 
 </script>
 

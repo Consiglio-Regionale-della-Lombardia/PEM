@@ -1,0 +1,15 @@
+CREATE TABLE [dbo].[COMMI_Audit] (
+    [IdCOMMI_Audit] INT NOT NULL IDENTITY(1,1),
+    [DatAudit] DATETIME NOT NULL,
+    [UteAudit] UNIQUEIDENTIFIER NULL,
+    [UIDComma] UNIQUEIDENTIFIER NOT NULL,
+    [UIDAtto] UNIQUEIDENTIFIER NOT NULL,
+    [UIDArticolo] UNIQUEIDENTIFIER NULL,
+    [Comma] VARCHAR(50) COLLATE Latin1_General_CI_AI NULL,
+    [TestoComma] VARCHAR(MAX) COLLATE Latin1_General_CI_AI NULL,
+    [Ordine] INT NULL,
+    [UIDUtenteModifica] UNIQUEIDENTIFIER NULL,
+    [DataModifica] DATETIME NULL,
+    [Eliminato] BIT NOT NULL,
+    CONSTRAINT [PK_COMMI_Audit] PRIMARY KEY ([IdCOMMI_Audit])
+);

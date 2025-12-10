@@ -42,14 +42,14 @@
       <HintPath>..\PortaleRegione.API\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\PortaleRegione.API\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+      <HintPath>..\..\Sorgenti modulo di stampa asincrona\Jobs\GeneraStampeJob\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\PortaleRegione.API\packages\Microsoft.Extensions.Caching.Abstractions.8.0.0\lib\net462\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.Extensions.Caching.Abstractions.6.0.0\lib\net461\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Primitives, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\PortaleRegione.API\packages\Microsoft.Extensions.Primitives.8.0.0\lib\net462\Microsoft.Extensions.Primitives.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.Extensions.Primitives.6.0.0\lib\net461\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IdentityModel.Abstractions, Version=7.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\PortaleRegione.API\packages\Microsoft.IdentityModel.Abstractions.7.5.0\lib\net472\Microsoft.IdentityModel.Abstractions.dll</HintPath>
@@ -148,6 +148,10 @@
     <ProjectReference Include="..\PortaleRegione.Contracts\PortaleRegione.Contracts.csproj">
       <Project>{D7079C04-ECC1-402E-B438-B67B79BF04D7}</Project>
       <Name>PortaleRegione.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PortaleRegione.Crypto\PortaleRegione.Crypto.csproj">
+      <Project>{ce1501b2-58d4-47ac-8d15-e2aa307e401b}</Project>
+      <Name>PortaleRegione.Crypto</Name>
     </ProjectReference>
     <ProjectReference Include="..\PortaleRegione.DataBase\PortaleRegione.DataBase.csproj">
       <Project>{0F0074AB-D94E-49F3-A702-6BA24D51EA97}</Project>

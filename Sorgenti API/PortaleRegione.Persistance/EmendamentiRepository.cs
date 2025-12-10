@@ -21,10 +21,12 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
+using PortaleRegione.Crypto;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -88,14 +90,135 @@ namespace PortaleRegione.Persistance
             {
                 if (filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(EM.N_EM)) != null)
                 {
-                    var filter_n_em_value = Convert.ToInt32(filtro.Statements.First(item => item.PropertyId == nameof(EM.N_EM)).Value);
-                    var encryt_nem = BALHelper.EncryptString(Convert.ToString(filter_n_em_value),
-                        AppSettingsConfiguration.masterKey);
-                    query = query.Where(e => (!e.Timestamp.HasValue && e.Progressivo == filter_n_em_value)
-                                             || e.N_EM == encryt_nem);
+                    var filter_n_em_value = filtro.Statements.First(item => item.PropertyId == nameof(EM.N_EM))
+                        .Value.ToString();
 
-                    var n_em_request = filtro._statements.First(statement => statement.PropertyId == nameof(EM.N_EM));
+                    var tokens = filter_n_em_value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim());
+
+                    var allNumbers = new List<int>();
+
+                    foreach (var tok in tokens)
+                    {
+                        if (tok.Contains("-"))
+                        {
+                            // Gestione del range (es. "3-5" o "5-2")
+                            var bounds = tok.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Select(s => s.Trim()).ToArray();
+                            if (bounds.Length == 2 && int.TryParse(bounds[0], out var a) &&
+                                int.TryParse(bounds[1], out var b))
+                            {
+                                var start = Math.Min(a, b);
+                                var end = Math.Max(a, b);
+
+                                for (var i = start; i <= end; i++)
+                                {
+                                    allNumbers.Add(i);
+                                }
+                            }
+                        }
+                        else if (int.TryParse(tok, out var num))
+                        {
+                            allNumbers.Add(num);
+                        }
+                    }
+
+                    if (allNumbers.Any())
+                    {
+                        // Rimuoviamo i duplicati
+                        allNumbers = allNumbers.Distinct().ToList();
+
+                        // Costruiamo la condizione OR per tutti i numeri
+                        Expression<Func<EM, bool>> combinedPredicate = null;
+
+                        foreach (var numero in allNumbers)
+                        {
+                            var encryt_nem = CryptoHelper.EncryptString(numero.ToString(),
+                                AppSettingsConfiguration.masterKey);
+
+                            // Condizione per questo numero specifico
+                            Expression<Func<EM, bool>> singleCondition = e =>
+                                (!e.Timestamp.HasValue && e.Progressivo == numero) || e.N_EM == encryt_nem;
+
+                            // Combiniamo con OR
+                            combinedPredicate = combinedPredicate == null
+                                ? singleCondition
+                                : ExpressionExtensions.CombineExpressions(combinedPredicate, singleCondition);
+                        }
+
+                        if (combinedPredicate != null)
+                            query = query.Where(combinedPredicate);
+                    }
+
+                    var n_em_request =
+                        filtro._statements.First(statement => statement.PropertyId == nameof(EM.N_EM));
                     filtro._statements.Remove(n_em_request);
+                }
+                if (filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(EM.N_SUBEM)) != null)
+                {
+                    var filter_n_subem_value = filtro.Statements.First(item => item.PropertyId == nameof(EM.N_SUBEM))
+                        .Value.ToString();
+
+                    var tokens = filter_n_subem_value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim());
+
+                    var allNumbers = new List<int>();
+
+                    foreach (var tok in tokens)
+                    {
+                        if (tok.Contains("-"))
+                        {
+                            // Gestione del range (es. "3-5" o "5-2")
+                            var bounds = tok.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Select(s => s.Trim()).ToArray();
+                            if (bounds.Length == 2 && int.TryParse(bounds[0], out var a) &&
+                                int.TryParse(bounds[1], out var b))
+                            {
+                                var start = Math.Min(a, b);
+                                var end = Math.Max(a, b);
+
+                                for (var i = start; i <= end; i++)
+                                {
+                                    allNumbers.Add(i);
+                                }
+                            }
+                        }
+                        else if (int.TryParse(tok, out var num))
+                        {
+                            allNumbers.Add(num);
+                        }
+                    }
+
+                    if (allNumbers.Any())
+                    {
+                        // Rimuoviamo i duplicati
+                        allNumbers = allNumbers.Distinct().ToList();
+
+                        // Costruiamo la condizione OR per tutti i numeri
+                        Expression<Func<EM, bool>> combinedPredicate = null;
+
+                        foreach (var numero in allNumbers)
+                        {
+                            var encryt_nem = CryptoHelper.EncryptString(numero.ToString(),
+                                AppSettingsConfiguration.masterKey);
+
+                            // Condizione per questo numero specifico
+                            Expression<Func<EM, bool>> singleCondition = e =>
+                                (!e.Timestamp.HasValue && e.SubProgressivo == numero) || e.N_SUBEM == encryt_nem;
+
+                            // Combiniamo con OR
+                            combinedPredicate = combinedPredicate == null
+                                ? singleCondition
+                                : ExpressionExtensions.CombineExpressions(combinedPredicate, singleCondition);
+                        }
+
+                        if (combinedPredicate != null)
+                            query = query.Where(combinedPredicate);
+                    }
+
+                    var n_subem_request =
+                        filtro._statements.First(statement => statement.PropertyId == nameof(EM.N_SUBEM));
+                    filtro._statements.Remove(n_subem_request);
                 }
             }
 
@@ -315,139 +438,262 @@ namespace PortaleRegione.Persistance
             var query = PRContext
                 .EM
                 .Where(em => !em.Eliminato);
+            
+                if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
+                {
+                    var filter_value = filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(AttiDto.UIDAtto))
+                        .Value;
+                    var uidAtto = new Guid(filter_value.ToString());
+                    var atto = await PRContext
+                        .ATTI
+                        .SingleAsync(a => a.UIDAtto == uidAtto);
+                    if (atto.OrdinePresentazione == false && ordine == OrdinamentoEnum.Presentazione)
+                        return new List<Guid>();
 
-            if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
-            {
-                var filter_value = filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(AttiDto.UIDAtto))
-                    .Value;
-                var uidAtto = new Guid(filter_value.ToString());
-                var atto = await PRContext
-                    .ATTI
-                    .SingleAsync(a => a.UIDAtto == uidAtto);
-                if (atto.OrdinePresentazione == false && ordine == OrdinamentoEnum.Presentazione)
-                    return new List<Guid>();
+                    if (atto.OrdineVotazione == false && ordine == OrdinamentoEnum.Votazione) return new List<Guid>();
 
-                if (atto.OrdineVotazione == false && ordine == OrdinamentoEnum.Votazione) return new List<Guid>();
-
-                query = query.Where(em =>
-                    em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
-            }
-            else
-            {
-                query = query.Where(em => em.IDStato != (int)StatiEnum.Bozza_Riservata
-                                          || (em.IDStato == (int)StatiEnum.Bozza_Riservata
-                                              && (em.UIDPersonaCreazione == persona.UID_persona
-                                                  || em.UIDPersonaProponente == persona.UID_persona
-                                                  || (persona.IsCapoGruppo && em.UIDPersonaPrimaFirma.HasValue))));
-
-                if (persona.IsGiunta)
-                    query = query
-                        .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-                else if (!persona.IsSegreteriaAssemblea
-                         && !persona.IsPresidente)
-                    query = query
-                        .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
-
-                if (persona.IsSoloSegreteriaAssemblea)
                     query = query.Where(em =>
-                        !string.IsNullOrEmpty(em.DataDeposito) ||
-                        em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
-            }
-
-            // #956
-            if (filtro != null)
-            {
-                if (filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(EM.N_EM)) != null)
-                {
-                    var filter_n_em_value = Convert.ToInt32(filtro.Statements.First(item => item.PropertyId == nameof(EM.N_EM)).Value);
-                    var encryt_nem = BALHelper.EncryptString(Convert.ToString(filter_n_em_value),
-                        AppSettingsConfiguration.masterKey);
-                    query = query.Where(e => (!e.Timestamp.HasValue && e.Progressivo == filter_n_em_value)
-                                             || e.N_EM == encryt_nem);
-
-                    var n_em_request = filtro._statements.First(statement => statement.PropertyId == nameof(EM.N_EM));
-                    filtro._statements.Remove(n_em_request);
+                        em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
                 }
-            }
-
-            filtro?.BuildExpression(ref query);
-
-            if (firmatari != null)
-                if (firmatari.Count > 0)
+                else
                 {
-                    //Avvio ricerca firmatari
-                    var firme = await PRContext
-                        .FIRME
-                        .Where(f => firmatari.Contains(f.UID_persona))
-                        .Select(f => f.UIDEM)
-                        .ToListAsync();
-                    query = query
-                        .Where(em => firme.Contains(em.UIDEM));
+                    query = query.Where(em => em.IDStato != (int)StatiEnum.Bozza_Riservata
+                                              || (em.IDStato == (int)StatiEnum.Bozza_Riservata
+                                                  && (em.UIDPersonaCreazione == persona.UID_persona
+                                                      || em.UIDPersonaProponente == persona.UID_persona
+                                                      || (persona.IsCapoGruppo && em.UIDPersonaPrimaFirma.HasValue))));
+
+                    if (persona.IsGiunta)
+                        query = query
+                            .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
+                    else if (!persona.IsSegreteriaAssemblea
+                             && !persona.IsPresidente)
+                        query = query
+                            .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
+
+                    if (persona.IsSoloSegreteriaAssemblea)
+                        query = query.Where(em =>
+                            !string.IsNullOrEmpty(em.DataDeposito) ||
+                            em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
                 }
 
-            if (proponenti != null)
-                if (proponenti.Count > 0)
-                    //Avvio ricerca proponenti;
-                    query = query
-                        .Where(em => proponenti.Contains(em.UIDPersonaProponente));
-
-            if (tagDtos != null)
-                if (tagDtos.Count > 0)
+                // #956
+                if (filtro != null)
                 {
-                    //Avvio ricerca tags;
-                    var tag_em = new List<Guid>();
-                    foreach (var t in tagDtos)
+                    if (filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(EM.N_EM)) != null)
                     {
-                        var arr = await PRContext.EM
-                            .Where(em => em.Tags.Contains(t.tag)).Select(em => em.UIDEM)
-                            .ToListAsync();
-                        tag_em.AddRange(arr.Where(item => !tag_em.Contains(item)));
+                        var filter_n_em_value = filtro.Statements.First(item => item.PropertyId == nameof(EM.N_EM))
+                            .Value.ToString();
+
+                        var tokens = filter_n_em_value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(t => t.Trim());
+
+                        var allNumbers = new List<int>();
+
+                        foreach (var tok in tokens)
+                        {
+                            if (tok.Contains("-"))
+                            {
+                                // Gestione del range (es. "3-5" o "5-2")
+                                var bounds = tok.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(s => s.Trim()).ToArray();
+                                if (bounds.Length == 2 && int.TryParse(bounds[0], out var a) &&
+                                    int.TryParse(bounds[1], out var b))
+                                {
+                                    var start = Math.Min(a, b);
+                                    var end = Math.Max(a, b);
+
+                                    for (var i = start; i <= end; i++)
+                                    {
+                                        allNumbers.Add(i);
+                                    }
+                                }
+                            }
+                            else if (int.TryParse(tok, out var num))
+                            {
+                                allNumbers.Add(num);
+                            }
+                        }
+
+                        if (allNumbers.Any())
+                        {
+                            // Rimuoviamo i duplicati
+                            allNumbers = allNumbers.Distinct().ToList();
+
+                            // Costruiamo la condizione OR per tutti i numeri
+                            Expression<Func<EM, bool>> combinedPredicate = null;
+
+                            foreach (var numero in allNumbers)
+                            {
+                                var encryt_nem = CryptoHelper.EncryptString(numero.ToString(),
+                                    AppSettingsConfiguration.masterKey);
+
+                                // Condizione per questo numero specifico
+                                Expression<Func<EM, bool>> singleCondition = e =>
+                                    (!e.Timestamp.HasValue && e.Progressivo == numero) || e.N_EM == encryt_nem;
+
+                                // Combiniamo con OR
+                                combinedPredicate = combinedPredicate == null
+                                    ? singleCondition
+                                    : ExpressionExtensions.CombineExpressions(combinedPredicate, singleCondition);
+                            }
+
+                            if (combinedPredicate != null)
+                                query = query.Where(combinedPredicate);
+                        }
+
+                        var n_em_request =
+                            filtro._statements.First(statement => statement.PropertyId == nameof(EM.N_EM));
+                        filtro._statements.Remove(n_em_request);
                     }
 
-                    query = query.Where(em => tag_em.Contains(em.UIDEM));
+                    if (filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(EM.N_SUBEM)) != null)
+                    {
+                        var filter_n_subem_value = filtro.Statements
+                            .First(item => item.PropertyId == nameof(EM.N_SUBEM))
+                            .Value.ToString();
+
+                        var tokens = filter_n_subem_value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(t => t.Trim());
+
+                        var allNumbers = new List<int>();
+
+                        foreach (var tok in tokens)
+                        {
+                            if (tok.Contains("-"))
+                            {
+                                // Gestione del range (es. "3-5" o "5-2")
+                                var bounds = tok.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(s => s.Trim()).ToArray();
+                                if (bounds.Length == 2 && int.TryParse(bounds[0], out var a) &&
+                                    int.TryParse(bounds[1], out var b))
+                                {
+                                    var start = Math.Min(a, b);
+                                    var end = Math.Max(a, b);
+
+                                    for (var i = start; i <= end; i++)
+                                    {
+                                        allNumbers.Add(i);
+                                    }
+                                }
+                            }
+                            else if (int.TryParse(tok, out var num))
+                            {
+                                allNumbers.Add(num);
+                            }
+                        }
+
+                        if (allNumbers.Any())
+                        {
+                            // Rimuoviamo i duplicati
+                            allNumbers = allNumbers.Distinct().ToList();
+
+                            // Costruiamo la condizione OR per tutti i numeri
+                            Expression<Func<EM, bool>> combinedPredicate = null;
+
+                            foreach (var numero in allNumbers)
+                            {
+                                var encryt_nem = CryptoHelper.EncryptString(numero.ToString(),
+                                    AppSettingsConfiguration.masterKey);
+
+                                // Condizione per questo numero specifico
+                                Expression<Func<EM, bool>> singleCondition = e =>
+                                    (!e.Timestamp.HasValue && e.SubProgressivo == numero) || e.N_SUBEM == encryt_nem;
+
+                                // Combiniamo con OR
+                                combinedPredicate = combinedPredicate == null
+                                    ? singleCondition
+                                    : ExpressionExtensions.CombineExpressions(combinedPredicate, singleCondition);
+                            }
+
+                            if (combinedPredicate != null)
+                                query = query.Where(combinedPredicate);
+                        }
+
+                        var n_subem_request =
+                            filtro._statements.First(statement => statement.PropertyId == nameof(EM.N_SUBEM));
+                        filtro._statements.Remove(n_subem_request);
+                    }
                 }
 
-            if (gruppi != null)
-                if (gruppi.Count > 0)
-                    //Avvio ricerca gruppi;
-                    query = query
-                        .Where(em => gruppi.Contains(em.id_gruppo));
+                filtro?.BuildExpression(ref query);
 
-            if (stati != null)
-                if (stati.Count > 0)
-                    //Avvio ricerca stati;
-                    query = query
-                        .Where(em => stati.Contains(em.IDStato));
+                if (firmatari != null)
+                    if (firmatari.Count > 0)
+                    {
+                        //Avvio ricerca firmatari
+                        var firme = await PRContext
+                            .FIRME
+                            .Where(f => firmatari.Contains(f.UID_persona))
+                            .Select(f => f.UIDEM)
+                            .ToListAsync();
+                        query = query
+                            .Where(em => firme.Contains(em.UIDEM));
+                    }
 
-            if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE ||
-                persona.IsSegreteriaAssemblea
-                || persona.IsPresidente)
-                switch (ordine)
-                {
-                    case OrdinamentoEnum.Presentazione:
-                        query = query.OrderBy(em => em.SubEM).ThenBy(em => em.OrdinePresentazione);
-                        break;
-                    case OrdinamentoEnum.Votazione:
-                        query = query.OrderBy(em => em.OrdineVotazione);
-                        break;
-                    default:
-                        query = query.OrderBy(em => em.IDStato).ThenByDescending(em => em.DataCreazione);
-                        break;
-                }
-            else
-                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp).ThenBy(em => em.Progressivo)
-                    .ThenBy(em => em.SubProgressivo);
+                if (proponenti != null)
+                    if (proponenti.Count > 0)
+                        //Avvio ricerca proponenti;
+                        query = query
+                            .Where(em => proponenti.Contains(em.UIDPersonaProponente));
 
-            if (size == -1)
+                if (tagDtos != null)
+                    if (tagDtos.Count > 0)
+                    {
+                        //Avvio ricerca tags;
+                        var tag_em = new List<Guid>();
+                        foreach (var t in tagDtos)
+                        {
+                            var arr = await PRContext.EM
+                                .Where(em => em.Tags.Contains(t.tag)).Select(em => em.UIDEM)
+                                .ToListAsync();
+                            tag_em.AddRange(arr.Where(item => !tag_em.Contains(item)));
+                        }
+
+                        query = query.Where(em => tag_em.Contains(em.UIDEM));
+                    }
+
+                if (gruppi != null)
+                    if (gruppi.Count > 0)
+                        //Avvio ricerca gruppi;
+                        query = query
+                            .Where(em => gruppi.Contains(em.id_gruppo));
+
+                if (stati != null)
+                    if (stati.Count > 0)
+                        //Avvio ricerca stati;
+                        query = query
+                            .Where(em => stati.Contains(em.IDStato));
+
+                if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE ||
+                    persona.IsSegreteriaAssemblea
+                    || persona.IsPresidente)
+                    switch (ordine)
+                    {
+                        case OrdinamentoEnum.Presentazione:
+                            query = query.OrderBy(em => em.SubEM).ThenBy(em => em.OrdinePresentazione);
+                            break;
+                        case OrdinamentoEnum.Votazione:
+                            query = query.OrderBy(em => em.OrdineVotazione);
+                            break;
+                        default:
+                            query = query.OrderBy(em => em.IDStato).ThenByDescending(em => em.DataCreazione);
+                            break;
+                    }
+                else
+                    query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp).ThenBy(em => em.Progressivo)
+                        .ThenBy(em => em.SubProgressivo);
+
+                if (size == -1)
+                    return await query
+                        .Select(em => em.UIDEM)
+                        .ToListAsync();
+
                 return await query
                     .Select(em => em.UIDEM)
+                    .Skip((page.Value - 1) * size.Value)
+                    .Take(size.Value)
                     .ToListAsync();
-
-            return await query
-                .Select(em => em.UIDEM)
-                .Skip((page.Value - 1) * size.Value)
-                .Take(size.Value)
-                .ToListAsync();
         }
 
         /// <summary>
@@ -829,8 +1075,7 @@ namespace PortaleRegione.Persistance
                        || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
 
             return (em.UIDPersonaProponente == persona.UID_persona || em.UIDPersonaCreazione == persona.UID_persona)
-                   && (em.IDStato == (int)StatiEnum.Bozza || em.IDStato == (int)StatiEnum.Bozza_Riservata)
-                   && em.ConteggioFirme == 1;
+                   && (em.IDStato == (int)StatiEnum.Bozza || em.IDStato == (int)StatiEnum.Bozza_Riservata);
         }
 
         public async Task<int> GetOrdinePresentazione(Guid uidAtto)

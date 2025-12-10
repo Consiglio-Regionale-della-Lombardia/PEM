@@ -52,7 +52,7 @@ namespace ExpressionBuilder.Exceptions
         /// </summary>
         /// <param name="operation">Operation used.</param>
         /// <param name="typeName">Name of the type</param>
-        public UnsupportedOperationException(Operation operation, String typeName) : base()
+        public UnsupportedOperationException(Operation operation, String typeName)
         {
             Operation = operation;
             TypeName = typeName;

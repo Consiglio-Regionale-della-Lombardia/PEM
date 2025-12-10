@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
@@ -55,11 +54,11 @@ namespace PortaleRegione.Client.Controllers
         
         [HttpGet]
         [Route("new")]
-        public async Task<ActionResult> NewTemplate()
+        public Task<ActionResult> NewTemplate()
         {
             var res = new TemplatesItemDto();
 
-            return View("TemplateForm", res);
+            return Task.FromResult<ActionResult>(View("TemplateForm", res));
         }
 
         [HttpPost]

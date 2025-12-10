@@ -33,7 +33,6 @@ namespace PortaleRegione.BAL
         public static string TOKEN_W => ConfigurationManager.AppSettings["TOKEN_W"];
         public static string MasterPIN => ConfigurationManager.AppSettings["MasterPIN"];
         public static string masterKey => ConfigurationManager.AppSettings["masterKey"];
-        public static string PDF_LICENSE => ConfigurationManager.AppSettings["PDF_LICENSE"];
         public static string url_CLIENT => ConfigurationManager.AppSettings["URLPEM"];
         public static string URL_API => ConfigurationManager.AppSettings["URL_API"];
         public static string SMTP => ConfigurationManager.AppSettings["SMTP"];

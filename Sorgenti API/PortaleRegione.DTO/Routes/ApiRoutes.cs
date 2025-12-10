@@ -16,8 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Newtonsoft.Json.Linq;
-
 namespace PortaleRegione.DTO.Routes
 {
     public static class ApiRoutes
@@ -98,6 +96,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string AggiornaTesto = Base + "/aggiorna-testo";
                 public const string AbilitaFascicolo = Base + "/abilita-fascicolo";
                 public const string BloccoODG = Base + "/odg/blocca";
+                public const string BloccoEM = Base + "/em/blocca";
                 public const string JollyODG = Base + "/odg/jolly";
                 public const string SpostaUp = Base + "/{id}/sposta/up";
                 public const string SpostaDown = Base + "/{id}/sposta/down";
@@ -219,6 +218,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Remove_Document = Base + "/save/remove-document";
             public const string Public_Document = Base + "/save/public-document";
             public const string Save_MassiveCommand = Base + "/save/massive";
+            public const string Remove_MassiveCommand = Base + "/remove/massive";
 
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";
@@ -287,6 +287,7 @@ namespace PortaleRegione.DTO.Routes
 
             public const string GetInviate = Base + "/inviate";
             public const string GetRicevute = Base + "/ricevute";
+            public const string GetCounterRicevute = Base + "/count-ricevute";
             public const string NotificaVista = Base + "/{id}/vista";
             public const string GetDestinatari = Base + "/{id}/destinatari";
             public const string InvitoAFirmare = Base + "/{id}/invito-a-firmare";

@@ -102,12 +102,13 @@ namespace PortaleRegione.Gateway
         Task Rimuovi_Monitoraggio(AttiRisposteDto request);
         Task Salva_InfoMonitoraggio(AttoDASIDto request);
         Task Salva_InfoChiusuraIter(AttoDASIDto request);
-        Task Salva_Nota(NoteDto request);
+        Task<NoteDto> Salva_Nota(NoteDto request);
         Task Rimuovi_Nota(NoteDto request);
         Task Salva_PrivacyAtto(AttoDASIDto request);
         Task<AttiDocumentiDto> Salva_DocumentoAtto(SalvaDocumentoRequest request);
         Task Rimuovi_Documento(AttiDocumentiDto request);
         Task Pubblica_Documento(AttiDocumentiDto request);
         Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request);
+        Task Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request);
     }
 }

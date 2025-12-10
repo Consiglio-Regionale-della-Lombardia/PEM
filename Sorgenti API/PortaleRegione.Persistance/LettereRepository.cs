@@ -42,7 +42,7 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext
                 .LETTERE
-                .AnyAsync(a => a.UIDComma == commaUId && a.Lettera.Contains(lettera));
+                .AnyAsync(a => a.UIDComma == commaUId && a.Lettera.Contains(lettera) && !a.Eliminato);
         }
 
         public async Task<LETTERE> GetLettera(Guid lettaraUId)
@@ -54,7 +54,7 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext
                 .LETTERE
-                .Where(l => l.UIDComma == commaUId)
+                .Where(l => l.UIDComma == commaUId && !l.Eliminato)
                 .OrderBy(l => l.Ordine)
                 .ToListAsync();
         }
@@ -63,7 +63,7 @@ namespace PortaleRegione.Persistance
         {
             var list = await PRContext
                 .LETTERE
-                .Where(a => a.UIDComma == commaUId)
+                .Where(a => a.UIDComma == commaUId && !a.Eliminato)
                 .OrderByDescending(a => a.Ordine)
                 .Take(1)
                 .ToListAsync();

@@ -40,7 +40,11 @@
     document.getElementById('btnSalvaConfig').addEventListener('click', async function () {
         var request = {};
         var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+		var columns = JSON.parse(localStorage.getItem('selectedColumns'));
+		var sorting = JSON.parse(localStorage.getItem('selectedSortColumns'));
         request.filters = JSON.stringify(filtri);
+        request.columns = JSON.stringify(columns);
+        request.sorting = JSON.stringify(sorting);
         request.name = document.getElementById('filter_name').value;
         request.favourite = document.getElementById('filter_favourite').checked;
 
@@ -63,7 +67,7 @@
 	        return;
         }
 
-        await addChipIfNotExists_Preferiti(request.name, request.filters, request.favourite);
+        await addChipIfNotExists_Preferiti(request.name, request.filters, request.columns, request.sorting, request.favourite);
 	    M.toast({
 		    html: `<span><b class="yellow-text">${request.name}</b> aggiunto con successo</span>`, classes: 'rounded', displayLength: 5000 });
 
@@ -92,17 +96,21 @@
 		chipsContainer.appendChild(newChip);
 	}
 
-	async function addChipIfNotExists_Preferiti(name, filters, favourite) {
+	async function addChipIfNotExists_Preferiti(name, filters, columns, sorting, favourite) {
 
 		var existingChip = document.querySelector(`.chip[data-nome-gruppo-filtri="${name}"]`);
 
 		if (existingChip) {
 			return;
 		}
+				
 		var item = {};
 		item.name = name;
 		item.favourite = favourite;
 		item.filters = filters;
+		item.columns = columns;
+		item.sorting = sorting;
+		
 		filtriPreferitiArray.push(item);
 
 		await creaPannelloFiltriLaterale2();
@@ -129,9 +137,12 @@
 			resetSelezionePreferiti();
 			newChip.classList.replace("white", "yellow");
 			localStorage.setItem('filtriDasi', filters);
+			localStorage.setItem('selectedColumns', columns);
+			localStorage.setItem('selectedSortColumns', sorting);
 			chipsKeys = [];
 
 			ripristinaFiltri();
+			ripristinaOrdinamento();
 		};
 
 		chipsContainer.appendChild(newChip);
@@ -226,8 +237,11 @@
 				} else {
 					resetSelezionePreferiti();
 					localStorage.setItem('filtriDasi', item.filters);
+					localStorage.setItem('selectedColumns', item.columns);
+					localStorage.setItem('selectedSortColumns', item.sorting);
 					window.chipsKeys = [];
 					ripristinaFiltri();
+					ripristinaOrdinamento();
 				}
 			};
 
@@ -316,7 +330,7 @@
 	
 	async function ripristinaPreferiti() {
 		$.each(window.filtriPreferitiArray, async function (index, item) {
-			await addChipIfNotExists_Preferiti(item.name, item.filters, item.favourite)
+			await addChipIfNotExists_Preferiti(item.name, item.filters, item.columns, item.sorting, item.favourite)
 		});
 		toggleChipsGroupsRow();
 	}

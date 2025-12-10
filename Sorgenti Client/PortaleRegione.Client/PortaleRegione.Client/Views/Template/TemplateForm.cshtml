@@ -121,7 +121,6 @@
 		<div class="card">
 			<div class="card-content black-text">
 				<span class="card-title bold-text">Informazioni</span>
-				<p>
 					Chiavi disponibili per Template CARD:
 					<ul style="padding-left: 40px">
 						@foreach (var prop in typeof(AttoDASIReportDto).GetProperties())
@@ -133,7 +132,6 @@
 							<li style="list-style-type: disc;">@displayName: <a class="blue-text" onclick="addKeyOnEditor(this)">{{@prop.Name}}</a></li>
 						}
 					</ul>
-				</p>
 			</div>
 		</div>
 	</div>
@@ -216,12 +214,17 @@
              }
          }).fail(function(err) {
              console.log("error", err);
-             Error(err);
+	         if (err.responseJSON.message) {
+		         ErrorAlert(err.responseJSON.message);
+	         }else{
+		         Error(err);
+	         }
          });
      }
  });
-
-	$('.trumbowyg').trumbowyg({
+	
+	initSecureTrumbowyg('.trumbowyg');
+	/*$('.trumbowyg').trumbowyg({
 		//semantic: true, // Usa tag semantici validi
 		//tagsToKeep: ['b', 'i', 'u', 'strong', 'em'], // Specifica i tag consentiti
 		//removeformatPasted: true, // Rimuovi formattazioni strane durante il paste
@@ -248,7 +251,7 @@
 				]
 			}
 		}
-	});
+	});*/
 
 </script>
 </body>

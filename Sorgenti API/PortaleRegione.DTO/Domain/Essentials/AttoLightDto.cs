@@ -36,45 +36,45 @@ namespace PortaleRegione.DTO.Domain.Essentials
     public class AttoDasiPublicDto
     {
         public Guid uidAtto { get; set; }
-        public string oggetto { get; set; }
-        public string tipo { get; set; }
-        public string tipo_esteso { get; set; }
-        public string n_atto { get; set; }
-        public string data_presentazione { get; set; }
+        public string oggetto { get; set; } = string.Empty;
+        public string tipo { get; set; } = string.Empty;
+        public string tipo_esteso { get; set; } = string.Empty;
+        public string n_atto { get; set; } = string.Empty;
+        public string data_presentazione { get; set; } = string.Empty;
         public PersonaPublicDto proponente { get; set; } = new PersonaPublicDto();
-        public string tipo_risposta_richiesta { get; set; }
-        public string stato { get; set; }
-        public string area_politica { get; set; }
+        public string tipo_risposta_richiesta { get; set; } = string.Empty;
+        public string stato { get; set; } = string.Empty;
+        public string area_politica { get; set; } = string.Empty;
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string data_ritiro { get; set; }
+        public string data_ritiro { get; set; } = string.Empty;
 
         public List<AttiFirmePublicDto> firme { get; set; } = new List<AttiFirmePublicDto>();
         public KeyValueDto gruppo { get; set; } = new KeyValueDto();
-        public string display { get; set; }
+        public string display { get; set; } = string.Empty;
         public List<AttiDocumentiPublicDto> documenti { get; set; } = new List<AttiDocumentiPublicDto>();
-        public string tipo_mozione { get; set; }
+        public string tipo_mozione { get; set; } = string.Empty;
         public List<KeyValueDto> commissioni { get; set; } = new List<KeyValueDto>();
         public List<AttiRispostePublicDto> risposte { get; set; } = new List<AttiRispostePublicDto>();
         public int id_stato { get; set; }
         public int id_tipo { get; set; }
         public Guid uid_proponente { get; set; }
-        public string data_annunzio { get; set; }
-        public string stato_iter { get; set; }
-        public string dcrl { get; set; }
-        public int? dcr { get; set; }
-        public int? dcrc { get; set; }
+        public string data_annunzio { get; set; } = string.Empty;
+        public string stato_iter { get; set; } = string.Empty;
+        public string dcrl { get; set; } = string.Empty;
+        public string dcr { get; set; } = string.Empty;
+        public string dcrc { get; set; } = string.Empty;
         public List<AttiAbbinamentoPublicDto> abbinamenti { get; set; } = new List<AttiAbbinamentoPublicDto>();
-        public string burl { get; set; }
-        public string data_chiusura_iter { get; set; }
+        public string burl { get; set; } = string.Empty;
+        public string data_chiusura_iter { get; set; } = string.Empty;
         public List<NoteDto> note { get; set; } = new List<NoteDto>();
-        public string data_comunicazione_assemblea { get; set; }
-        public string link_testo_originale { get; set; }
-        public string link_testo_trattazione { get; set; }
+        public string data_comunicazione_assemblea { get; set; } = string.Empty;
+        public string link_testo_originale { get; set; } = string.Empty;
+        public string link_testo_trattazione { get; set; } = string.Empty;
         public List<KeyValueDto> proponenti { get; set; } = new List<KeyValueDto>();
         public PersonaPublicDto relatore1 { get; set; }
         public PersonaPublicDto relatore2 { get; set; }
         public PersonaPublicDto relatore_minoranza { get; set; }
-        public string tipo_risposta_fornita { get; set; }
+        public string tipo_risposta_fornita { get; set; } = string.Empty;
     }
 }

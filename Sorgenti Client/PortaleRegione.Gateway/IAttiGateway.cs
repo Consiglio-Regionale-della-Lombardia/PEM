@@ -48,7 +48,8 @@ namespace PortaleRegione.Gateway
         Task<AttiDto> Modifica(AttiFormUpdateModel atto);
         Task ModificaFiles(AttiDto atto);
         Task PubblicaFascicolo(PubblicaFascicoloModel model);
-        Task BloccoODG(BloccoODGModel model);
+        Task BloccoODG(BloccoModel model);
+        Task BloccoEM(BloccoModel model);
         Task JollyODG(JollyODGModel model);
         Task<AttiDto> Salva(AttiFormUpdateModel atto);
         Task SalvaTesto(TestoAttoModel model);

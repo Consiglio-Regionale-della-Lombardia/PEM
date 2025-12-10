@@ -154,7 +154,7 @@ namespace PortaleRegione.Persistance.Public
         {
             var dataFromDb = await PRContext
                 .ATTI_RISPOSTE
-                .Where(r => r.UIDAtto == uidAtto)
+                .Where(r => r.UIDAtto == uidAtto && !r.Eliminato)
                 .ToListAsync();
 
             return dataFromDb;
@@ -164,7 +164,7 @@ namespace PortaleRegione.Persistance.Public
         {
             var dataFromDb = await PRContext
                 .ATTI_DOCUMENTI
-                .Where(r => r.UIDAtto == uidAtto && r.Pubblica)
+                .Where(r => r.UIDAtto == uidAtto && r.Pubblica && !r.Eliminato)
                 .ToListAsync();
 
             return dataFromDb;
@@ -203,7 +203,7 @@ namespace PortaleRegione.Persistance.Public
 
                     if (attoAbbinato == null)
                         continue;
-
+                    abbinata.UidAttoAbbinato = attoAbbinato.UIDAtto;
                     abbinata.OggettoAttoAbbinato = attoAbbinato.Oggetto;
                     abbinata.TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinato.Tipo);
                     abbinata.NumeroAttoAbbinato = attoAbbinato.NAtto;

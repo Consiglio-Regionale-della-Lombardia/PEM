@@ -235,6 +235,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
         ///     Recupera i dettagli di un atto specifico utilizzando il suo identificativo unico.
         /// </summary>
         /// <param name="uidAtto">L'identificativo unico dell'atto.</param>
+        /// <param name="hostUrl"></param>
         /// <returns>Una task che, al suo completamento, restituisce un AttoDasiPublicDto con i dettagli dell'atto.</returns>
         public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto, string hostUrl)
         {
@@ -278,12 +279,13 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
                 var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
                 {
-                    data = r.Data,
-                    data_trasmissione = r.DataTrasmissione,
-                    data_trattazione = r.DataTrattazione,
-                    organo = r.DescrizioneOrgano,
+                    data = r.Data.HasValue ? r.Data.Value.ToString("dd/MM/yyyy") : string.Empty,
+                    data_trasmissione = r.DataTrasmissione.HasValue ? r.DataTrasmissione.Value.ToString("dd/MM/yyyy") : string.Empty,
+                    data_trattazione = r.DataTrattazione.HasValue ? r.DataTrattazione.Value.ToString("dd/MM/yyyy") : string.Empty,
+                    data_revoca = r.DataRevoca.HasValue ? r.DataRevoca.Value.ToString("dd/MM/yyyy") : string.Empty,
+                    organo = r.DescrizioneOrgano ?? string.Empty,
                     id_organo = r.IdOrgano,
-                    tipo_risposta = tipo_risposta_fornita,
+                    tipo_risposta = tipo_risposta_fornita ?? string.Empty,
                     tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
                 }).ToList();
                 var documentiInDb = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
@@ -296,33 +298,43 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 }).ToList();
 
                 var note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
-                note = note.Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA).ToList();
+                // #1532
+                note = note.Where(n =>
+                    n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA
+                    || n.TipoEnum == TipoNotaEnum.CHIUSURA_ITER).ToList();
 
                 var abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
 
                 // #1428
                 if (attoInDb.UID_Atto_ODG.HasValue)
-                    if (!abbinamenti.Any(a => a.UidAttoAbbinato.Equals(attoInDb.UID_Atto_ODG.Value)))
+                {
+                    var abbinamentoSecondario =
+                        abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_Atto_ODG);
+                    if (abbinamentoSecondario != null) abbinamenti.Remove(abbinamentoSecondario);
+
+                    var attoAbbinatoODG = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                    abbinamenti.Add(new AttiAbbinamentoPublicDto
                     {
-                        var attoAbbinatoODG = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
-                        abbinamenti.Add(new AttiAbbinamentoPublicDto
-                        {
-                            UidAbbinamento = Guid.NewGuid(),
-                            Data = attoAbbinatoODG.DataCreazione.HasValue
-                                ? attoAbbinatoODG.DataCreazione.Value.ToString("dd/MM/yyyy")
-                                : "",
-                            UidAttoAbbinato = attoInDb.UID_Atto_ODG.Value,
-                            OggettoAttoAbbinato = attoAbbinatoODG.Oggetto,
-                            TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinatoODG.IDTipoAtto),
-                            NumeroAttoAbbinato = attoAbbinatoODG.IDTipoAtto == (int)TipoAttoEnum.ALTRO
-                                ? "Dibattito"
-                                : attoAbbinatoODG.NAtto
-                        });
-                    }
+                        UidAbbinamento = Guid.NewGuid(),
+                        Data = attoAbbinatoODG.DataCreazione.HasValue
+                            ? attoAbbinatoODG.DataCreazione.Value.ToString("dd/MM/yyyy")
+                            : "",
+                        UidAttoAbbinato = attoInDb.UID_Atto_ODG.Value,
+                        OggettoAttoAbbinato = attoAbbinatoODG.Oggetto,
+                        TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinatoODG.IDTipoAtto),
+                        NumeroAttoAbbinato = attoAbbinatoODG.IDTipoAtto == (int)TipoAttoEnum.ALTRO
+                            ? ""
+                            : attoAbbinatoODG.NAtto
+                    });
+                }
 
                 // #1428
                 if (attoInDb.UID_MOZ_Abbinata.HasValue)
                 {
+                    var abbinamentoSecondario =
+                        abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_MOZ_Abbinata);
+                    if (abbinamentoSecondario != null) abbinamenti.Remove(abbinamentoSecondario);
+
                     var attoAbbinatoMOZ = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
                     if (!abbinamenti.Any(a => a.UidAttoAbbinato.Equals(attoInDb.UID_MOZ_Abbinata.Value)))
                         abbinamenti.Add(new AttiAbbinamentoPublicDto
@@ -345,6 +357,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 var linkTestoTrattazione =
                     $"{AppSettingsConfigurationHelper.urlDASI_Trattazione.Replace("{{QRCODE}}", attoInDb.UID_QRCode.ToString())}";
 
+                var data_presentazione = (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
+                    ? attoInDb.Timestamp.Value.ToString("dd/MM/yyyy")
+                    : CryptoHelper.DecryptString(attoInDb.DataPresentazione,
+                        AppSettingsConfigurationHelper.masterKey);
                 var attoDto = new AttoDasiPublicDto
                 {
                     uidAtto = attoInDb.UIDAtto,
@@ -356,27 +372,26 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     tipo = Utility.GetText_Tipo(attoInDb.Tipo),
                     tipo_esteso = Utility.GetText_TipoEstesoDASI(attoInDb.Tipo),
                     n_atto = attoInDb.NAtto_search.ToString(),
-                    data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
-                        AppSettingsConfigurationHelper.masterKey),
+                    data_presentazione = data_presentazione,
                     tipo_risposta_richiesta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
                     tipo_risposta_fornita = tipo_risposta_fornita,
                     area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
-                    data_chiusura_iter = attoInDb.DataChiusuraIter?.ToString("dd/MM/yyyy"),
-                    data_annunzio = attoInDb.DataAnnunzio?.ToString("dd/MM/yyyy"),
-                    data_comunicazione_assemblea = attoInDb.DataComunicazioneAssemblea?.ToString("dd/MM/yyyy"), // #1088
+                    data_chiusura_iter = attoInDb.DataChiusuraIter.HasValue ? attoInDb.DataChiusuraIter.Value.ToString("dd/MM/yyyy") : string.Empty,
+                    data_annunzio = attoInDb.DataAnnunzio.HasValue ? attoInDb.DataAnnunzio.Value.ToString("dd/MM/yyyy") : string.Empty,
+                    data_comunicazione_assemblea = attoInDb.DataComunicazioneAssemblea.HasValue ? attoInDb.DataComunicazioneAssemblea.Value.ToString("dd/MM/yyyy"):string.Empty, // #1088
                     stato_iter =
                         Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue
                             ? attoInDb.TipoChiusuraIter.Value
-                            : 0),
+                            : 0, true),
                     gruppo = gruppo,
                     proponente = proponente,
                     commissioni = commissioni,
                     risposte = risposte,
                     documenti = documenti,
                     abbinamenti = abbinamenti,
-                    dcrl = attoInDb.DCRL,
-                    dcr = attoInDb.DCR,
-                    dcrc = attoInDb.DCCR,
+                    dcrl = string.IsNullOrEmpty(attoInDb.DCRL) ? string.Empty : attoInDb.DCRL, // #1549
+                    dcr = attoInDb.DCR.HasValue ? attoInDb.DCR.ToString() : string.Empty,
+                    dcrc = attoInDb.DCCR.HasValue ? attoInDb.DCCR.ToString() : string.Empty,
                     firme = firme,
                     burl = string.IsNullOrEmpty(attoInDb.BURL) ? string.Empty : attoInDb.BURL, // #1427
                     note = note,
@@ -423,24 +438,23 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 var result = new List<AttiFirmePublicDto>();
                 foreach (var firma in firme)
                 {
+                    var personaFirmataria = Users.FirstOrDefault(u => u.UID_persona == firma.UID_persona);
+                    var id_personaFirmataria = personaFirmataria?.id_persona ?? 0;
                     var gruppo = await _unitOfWork.Persone.GetGruppo(firma.id_gruppo);
                     var dto = new AttiFirmePublicDto
                     {
                         UID_persona = firma.UID_persona,
-                        id_persona = Users.First(u => u.UID_persona == firma.UID_persona).id_persona,
+                        id_persona = id_personaFirmataria,
                         FirmaCert = CryptoHelper.DecryptString(firma.FirmaCert,
                             AppSettingsConfigurationHelper.masterKey),
                         PrimoFirmatario = firma.PrimoFirmatario,
                         Gruppo = gruppo,
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
-                            ? null
+                            ? string.Empty
                             : CryptoHelper.DecryptString(firma.Data_ritirofirma,
                                 AppSettingsConfigurationHelper.masterKey),
                         Data_firma = firma.Timestamp.ToString("dd/MM/yyyy")
                     };
-
-                    if (firma.id_AreaPolitica.HasValue)
-                        dto.AreaPolitica = Utility.GetText_AreaPolitica(firma.id_AreaPolitica.Value);
 
                     result.Add(dto);
                 }
@@ -479,7 +493,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 res.Select(a => new AttoLightDto
                 {
                     uidAtto = a.UIDAtto,
-                    oggetto = a.Oggetto,
+                    oggetto = a.OggettoView(),
                     natto = a.NAtto_search.ToString(),
                     display = GetDisplayFromEtichetta(a.Etichetta),
                     tipo = Utility.GetText_Tipo(a.Tipo),
@@ -619,6 +633,11 @@ namespace PortaleRegione.Api.Public.Business_Layer
             Users = personeInDbLight;
         }
 
+        /// <summary>
+        ///  Scarica documenti
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public HttpResponseMessage ScaricaDocumento(string path)
         {
             var complete_path = Path.Combine(

@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("PortaleRegione.SDK.GEA")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Namirial SPA")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PortaleRegione.SDK.GEA")]
-[assembly: AssemblyCopyright("Copyright © Namirial SPA 2025")]
+[assembly: AssemblyCopyright("Copyright © 2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

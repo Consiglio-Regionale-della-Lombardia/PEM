@@ -6,31 +6,31 @@
     </a>
     <ul>
         <li>
-            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" data-tooltip="Depositato" onclick="CambioStatoMassivo(@((int) StatiEnum.Depositato), '@StatiEnum.Depositato')"><i class="material-icons">lock</i>
+            <button type="button" role="button" class="btn-floating btn-large tooltipped white-text" style="background-color: #0d47a1 !important;" data-position="left" data-tooltip="Depositato" onclick="aprireModalProgressoCambioStatoMassivo(@((int) StatiEnum.Depositato))"><i class="material-icons">lock</i>
             </button>                                                                    
         </li>                                                                            
         <li>                                                                             
-            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" data-tooltip="Approva" onclick="CambioStatoMassivo(@((int) StatiEnum.Approvato), '@StatiEnum.Approvato')"><i class="material-icons">check</i>
+            <button type="button" role="button" class="btn-floating btn-large tooltipped white-text" style="background-color: #4caf50 !important;" data-position="left" data-tooltip="Approva" onclick="aprireModalProgressoCambioStatoMassivo(@((int) StatiEnum.Approvato))"><i class="material-icons">check</i>
             </button>                                                                    
         </li>                                                                            
         <li>                                                                             
-            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" data-tooltip="Approva con modifiche" onclick="CambioStatoMassivo(@((int) StatiEnum.Approvato_Con_Modifiche), '@StatiEnum.Approvato_Con_Modifiche')"><i class="material-icons">check</i>
+            <button type="button" role="button" class="btn-floating btn-large tooltipped white-text" style="background-color: #004d40 !important;" data-position="left" data-tooltip="Approva con modifiche" onclick="aprireModalProgressoCambioStatoMassivo(@((int) StatiEnum.Approvato_Con_Modifiche))"><i class="material-icons">check</i>
             </button>                                                                    
         </li>                                                                            
         <li>                                                                             
-            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" data-tooltip="Non approva" onclick="CambioStatoMassivo(@((int) StatiEnum.Non_Approvato), '@StatiEnum.Non_Approvato')"><i class="material-icons">close</i>
+            <button type="button" role="button" class="btn-floating btn-large tooltipped white-text" style="background-color: #b71c1c !important;" data-position="left" data-tooltip="Non approva" onclick="aprireModalProgressoCambioStatoMassivo(@((int) StatiEnum.Non_Approvato))"><i class="material-icons">close</i>
             </button>                                                                    
         </li>                                                                            
         <li>                                                                             
-            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" data-tooltip="Inamissibile" onclick="CambioStatoMassivo(@((int) StatiEnum.Inammissibile), '@StatiEnum.Inammissibile')"><i class="material-icons">not_interested</i>
+            <button type="button" role="button" class="btn-floating btn-large tooltipped white-text" style="background-color: #f57f17 !important;" data-position="left" data-tooltip="Inamissibile" onclick="aprireModalProgressoCambioStatoMassivo(@((int) StatiEnum.Inammissibile))"><i class="material-icons">not_interested</i>
             </button>                                                                    
         </li>                                                                            
         <li>                                                                             
-            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" data-tooltip="Decaduto" onclick="CambioStatoMassivo(@((int) StatiEnum.Decaduto), '@StatiEnum.Decaduto')"><i class="material-icons">report</i>
+            <button type="button" role="button" class="btn-floating btn-large tooltipped white-text" style="background-color: #673ab7 !important;" data-position="left" data-tooltip="Decaduto" onclick="aprireModalProgressoCambioStatoMassivo(@((int) StatiEnum.Decaduto))"><i class="material-icons">report</i>
             </button>                                                                    
         </li>                                                                            
         <li>                                                                             
-            <button type="button" role="button" class="btn-floating btn-large tooltipped black white-text" data-position="left" data-tooltip="Ritira" onclick="CambioStatoMassivo(@((int) StatiEnum.Ritirato), '@StatiEnum.Ritirato')"><i class="material-icons">delete</i>
+            <button type="button" role="button" class="btn-floating btn-large tooltipped white-text" style="background-color: #424242 !important;" data-position="left" data-tooltip="Ritira" onclick="aprireModalProgressoCambioStatoMassivo(@((int) StatiEnum.Ritirato))"><i class="material-icons">delete</i>
             </button>                                                                    
         </li>                                                                            
         <li>                                                                             
@@ -55,3 +55,267 @@
         <i class="large material-icons">add</i>
     </button>
 </div>
+
+<div id="modalProgressoMassivo" class="modal" style="max-width: 600px;">
+    <div class="modal-content">
+        <h4>Elaborazione in corso...</h4>
+        <p id="progressoDescrizioneOperazione">Operazione massiva in corso</p>
+        
+        <!-- Progress bar principale -->
+        <div class="progress-container" style="margin: 20px 0;">
+            <div class="progress">
+                <div id="progressBarPrincipale" class="determinate" style="width: 0"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                <span id="progressoPagineText">Pagina 0 di 0</span>
+                <span id="progressoPercentuale">0%</span>
+            </div>
+        </div>
+
+        <!-- Informazioni dettagliate -->
+        <div class="card-panel blue lighten-5">
+            <p><strong>Totale atti:</strong> <span id="infoTotaleAtti"></span></p>
+            <p><strong>Atti elaborati:</strong> <span id="infoAttiElaborati">0</span></p>
+            <p><strong>Tempo stimato rimasto:</strong> <span id="infoTempoStimato">Calcolando...</span></p>
+        </div>
+
+        <!-- Log operazioni -->
+        <div class="card-panel grey lighten-4" style="max-height: 200px; overflow-y: auto;">
+            <h6>Log operazioni:</h6>
+            <div id="logOperazioni">
+                <p class="grey-text">Inizializzazione...</p>
+            </div>
+        </div>
+
+        <!-- Controlli -->
+        <div class="modal-footer" style="position: unset !important;">
+            <button id="btnInterrompiOperazione" type="button" class="btn red" disabled>
+                <i class="material-icons left">stop</i>Interrompi
+            </button>
+            <button id="btnChiudiProgresso" type="button" class="btn grey modal-close" style="display: none;" onclick="setTimeout(function () {location.reload(); }, 1500);">
+                Chiudi
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function aprireModalProgressoCambioStatoMassivo(stato){
+        var totaleRisultati = $(".pagination").data("totale-risultati");
+        var checkSelezionaTutti = $("#checkAll")[0].checked;
+        const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chk_EM_"]:checked');
+        var numSelezionatiGriglia = (checkSelezionaTutti == true) ? $(".pagination").data("risultati-pagina") : selectedCheckboxes.length;
+        
+        swal({
+            title: "Conferma azione",
+            text: "Sei sicuro di voler eseguire l'azione di cambio massivo stato?",
+            icon: "info",
+            buttons: {
+                cancel: "Annulla",
+                tutti: checkSelezionaTutti ? {
+                    text: `Tutti (${totaleRisultati} atti)`,
+                    value: "tutti",
+                    className: "amber"
+                } : null,
+                griglia: {
+                    text: `Griglia (${numSelezionatiGriglia} atti)`,
+                    value: "griglia",
+                    className: "blue"
+                }
+            }
+        }).then(async (value) => {
+            if (value === "griglia") {
+                // Flusso normale - solo atti selezionati in griglia
+                await CambioStatoMassivo(stato);
+            } else if (value === "tutti") {
+                // Nuovo flusso - tutti gli atti con progress modal
+                var totalePagine = $(".pagination").data("totale-pagine");
+                await aprireModalProgresso(1, stato, totalePagine, totaleRisultati);
+            }
+        });
+    }
+
+    async function aprireModalProgresso(operation, single_parameter, totalePagine, totaleRisultati) {
+        // Reset variabili
+        operazioneInterrotta = false;
+        tempoInizioOperazione = new Date();
+        contatorePagineElaborate = 0;
+
+        // Imposta i valori nella modal
+        document.getElementById('infoTotaleAtti').textContent = totaleRisultati;
+        document.getElementById('infoAttiElaborati').textContent = '0';
+        document.getElementById('progressoPagineText').textContent = `Pagina 0 di ${totalePagine}`;
+        document.getElementById('progressoPercentuale').textContent = '0%';
+        document.getElementById('progressBarPrincipale').style.width = '0%';
+
+        // Reset log
+        document.getElementById('logOperazioni').innerHTML = '<p class="grey-text">Inizializzazione...</p>';
+
+        // Configura i bottoni
+        document.getElementById('btnInterrompiOperazione').disabled = false;
+        document.getElementById('btnChiudiProgresso').style.display = 'none';
+
+        // Event listeners
+        document.getElementById('btnInterrompiOperazione').onclick = function() {
+            operazioneInterrotta = true;
+            this.disabled = true;
+            this.innerHTML = '<i class="material-icons left">hourglass_empty</i>Interruzione...';
+            aggiungiLogEntry('Richiesta interruzione operazione...', 'orange-text');
+            document.getElementById('btnChiudiProgresso').style.display = 'inline-block';
+        };
+
+        // Apre la modal
+        $('#modalProgressoMassivo').modal({
+            dismissible: false,
+            onCloseEnd: function() {
+                operazioneInterrotta = true;
+            }
+        });
+        $('#modalProgressoMassivo').modal('open');
+
+        // Inizia l'elaborazione
+        await avviaElaborazioneMassiva(operation ,single_parameter, totalePagine);
+    }
+
+    async function avviaElaborazioneMassiva(operation, single_parameter, totalePagine) {
+        aggiungiLogEntry('Inizio elaborazione massiva...', 'blue-text');
+
+        let attiElaboratiTotali = 0;
+        const risultatiPerPagina = $(".pagination").data("risultati-pagina");
+
+        try {
+            for (let paginaCorrente = 1; paginaCorrente <= totalePagine; paginaCorrente++) {
+                if (operazioneInterrotta) {
+                    aggiungiLogEntry('Operazione interrotta dall\'utente', 'red-text');
+                    break;
+                }
+
+                aggiungiLogEntry(`Elaborazione pagina ${paginaCorrente} di ${totalePagine}...`);
+
+                // Aggiorna progress bar
+                const percentualeProgresso = Math.round((contatorePagineElaborate / totalePagine) * 100);
+                aggiornareProgressBar(paginaCorrente, totalePagine, percentualeProgresso, attiElaboratiTotali);
+
+                try {
+                    // Ottiene i GUID per la pagina corrente
+                    const guidsPerPagina = await ottieniIDEmendamentiPerPagina(paginaCorrente, risultatiPerPagina);
+
+                    if (guidsPerPagina && guidsPerPagina.length > 0) {
+                        // Esegue l'operazione di cambio stato per questa pagina
+                        if (operation == 1) //Cambio Stato
+                        {
+                            await CambioStatoMassivoSoloIds(single_parameter, guidsPerPagina);
+                        }
+                        
+                        attiElaboratiTotali += guidsPerPagina.length;
+                        aggiungiLogEntry(`Pagina ${paginaCorrente} completata: ${guidsPerPagina.length} atti elaborati`, 'green-text');
+                    } else {
+                        aggiungiLogEntry(`Pagina ${paginaCorrente}: nessun atto trovato`, 'orange-text');
+                    }
+
+                    contatorePagineElaborate++;
+
+                    // Timeout tra le chiamate per dare respiro all'API
+                    if (paginaCorrente < totalePagine && !operazioneInterrotta) {
+                        await sleep(2000); // 1 secondo di pausa
+                    }
+
+                } catch (error) {
+                    aggiungiLogEntry(`Errore pagina ${paginaCorrente}: ${error.message}`, 'red-text');
+                    // Continua con la pagina successiva invece di fermare tutto
+                }
+            }
+
+            // Operazione completata
+            if (!operazioneInterrotta) {
+                const percentualeFinale = 100;
+                aggiornareProgressBar(totalePagine, totalePagine, percentualeFinale, attiElaboratiTotali);
+                aggiungiLogEntry(`Operazione completata! ${attiElaboratiTotali} atti elaborati`, 'green-text text-darken-2');
+
+                // Configura i bottoni per la chiusura
+                document.getElementById('btnInterrompiOperazione').style.display = 'none';
+                document.getElementById('btnChiudiProgresso').style.display = 'inline-block';
+                document.getElementById('btnChiudiProgresso').onclick = function() {
+                    $('#modalProgressoMassivo').modal('close');
+                    location.reload(); // Ricarica la pagina per aggiornare i dati
+                };
+            }
+
+        } catch (error) {
+            aggiungiLogEntry(`Errore critico: ${error.message}`, 'red-text');
+            document.getElementById('btnInterrompiOperazione').style.display = 'none';
+            document.getElementById('btnChiudiProgresso').style.display = 'inline-block';
+        }
+    }
+
+    function aggiornareProgressBar(paginaCorrente, totalePagine, percentuale, attiElaborati) {
+        document.getElementById('progressBarPrincipale').style.width = percentuale + '%';
+        document.getElementById('progressoPagineText').textContent = `Pagina ${paginaCorrente} di ${totalePagine}`;
+        document.getElementById('progressoPercentuale').textContent = percentuale + '%';
+        document.getElementById('infoAttiElaborati').textContent = attiElaborati;
+
+        // Calcola tempo stimato
+        if (tempoInizioOperazione && contatorePagineElaborate > 0) {
+            const tempoTrascorso = (new Date() - tempoInizioOperazione) / 1000; // in secondi
+            const tempoPerPagina = tempoTrascorso / contatorePagineElaborate;
+            const pagineRimaste = totalePagine - contatorePagineElaborate;
+            const tempoStimato = Math.round(tempoPerPagina * pagineRimaste);
+
+            document.getElementById('infoTempoStimato').textContent =
+                tempoStimato > 60 ? `${Math.round(tempoStimato / 60)} minuti` : `${tempoStimato} secondi`;
+        }
+    }
+
+    function aggiungiLogEntry(messaggio, classe = '') {
+        const logContainer = document.getElementById('logOperazioni');
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement('p');
+        logEntry.className = classe;
+        logEntry.innerHTML = `<small>${timestamp}</small> - ${messaggio}`;
+
+        // Inserisce il nuovo log all'inizio invece che alla fine
+        logContainer.insertBefore(logEntry, logContainer.firstChild);
+
+        // Mantiene solo gli ultimi 50 log per evitare accumulo eccessivo
+        while (logContainer.children.length > 50) {
+            logContainer.removeChild(logContainer.lastChild);
+        }
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function ottieniIDEmendamentiPerPagina(pagina, risultatiPerPagina) {
+        try {
+            // Serializza i dati del form per ottenere i filtri correnti
+            const formData = $('#formFiltraEM').serializeArray();
+
+            // Aggiunge/aggiorna i parametri di paginazione
+            const datiRichiesta = {};
+            formData.forEach(item => {
+                datiRichiesta[item.name] = item.value;
+            });
+
+            // Forza i parametri per questa specifica pagina
+            datiRichiesta['page'] = pagina;
+            datiRichiesta['size'] = risultatiPerPagina;
+
+            const response = await fetch(baseUrl + '/emendamenti/get-ids', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: $.param(datiRichiesta)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            return await response.json();
+
+        } catch (error) {
+            console.error('Errore ottenimento ID emendamenti:', error);
+            throw error;
+        }
+    }
+</script>

@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -42,6 +41,7 @@ public class AttoDASIReportDto
     [DisplayName("Proponente")] public Guid? UIDPersonaProponente { get; set; }
     [DisplayName("Firmatari")] public string Firme { get; set; }
     [DisplayName("Di iniziativa")] public string Iniziativa { get; set; } // #1047
+    [DisplayName("Firmatari per DCR")] public string Firme_DCR { get; set; } // #1493
     [DisplayName("Conteggio firme")] public int ConteggioFirme { get; set; }
     [DisplayName("Gruppo politico")] public int id_gruppo { get; set; }  // #1021
     [DisplayName("Area politica")] public int AreaPolitica { get; set; }
@@ -62,7 +62,7 @@ public class AttoDASIReportDto
     [DisplayName("Allegati dell’atto")] public string Documenti { get; set; } // #1021
     [DisplayName("Tipo risposta richiesta")] public int IDTipo_Risposta { get; set; }
     [DisplayName("Tipo risposta fornita")] public int? IDTipo_Risposta_Effettiva { get; set; }
-    [DisplayName("Informazioni risposte")] public string Risposte { get; set; }
+    [DisplayName("Informazioni risposte/Iter")] public string Risposte { get; set; } // #1503
     [DisplayName("Sollecito")] public bool Sollecito { get; set; }
     [DisplayName("Iter multiplo")] public bool IterMultiplo { get; set; } = false;
     [DisplayName("Non passaggio in esame")] public bool Non_Passaggio_In_Esame { get; set; } = false;

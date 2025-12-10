@@ -26,7 +26,7 @@ namespace GeneraStampeJobFramework
     {
         public string Path { get; set; }
         public string Body { get; set; }
-        public EmendamentiDto EM { get; set; }
+        public EM EM { get; set; }
         public ATTI_DASI Atto { get; set; }
         public object Content { get; set; }
         public List<string> Attachments { get; set; }

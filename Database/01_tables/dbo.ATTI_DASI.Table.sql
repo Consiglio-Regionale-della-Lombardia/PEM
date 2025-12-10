@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 03/03/2025 17:10:56 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 30/10/2025 10:53:49 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -86,6 +86,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[AltriSoggetti] [varchar](max) NULL,
 	[DCR] [int] NULL,
 	[DCCR] [int] NULL,
+	[DCCR_Speciale] [varchar](2) NULL,
 	[DCRL] [varchar](50) NULL,
 	[BURL] [varchar](50) NULL,
 	[Privacy_Dati_Personali_Giudiziari] [bit] NOT NULL,
@@ -115,13 +116,18 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[DataProposta] [datetime] NULL,
 	[DataTrasmissione] [datetime] NULL,
 	[FlussoRespingi] [bit] NOT NULL,
-	[Ritardo] [int] NOT NULL,
-	[DataFlussoRespingi] [datetime] NULL,
 	[UIDPersonaFlussoRespingi] [uniqueidentifier] NULL,
+	[DataFlussoRespingi] [datetime] NULL,
+	[Ritardo] [int] NOT NULL,
+	[VersioneStampa] [int] NOT NULL,
+	[DataUltimaStampa] [datetime] NULL,
+	[PathStampa] [varchar](max) NULL,
+	[StampaValida] [bit] NOT NULL,
+	[NascondiGruppo] [bit] NOT NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -149,49 +155,58 @@ GO
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_MOZU_Capigruppo]  DEFAULT ((0)) FOR [MOZU_Capigruppo]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Pubbl__19F6E246]  DEFAULT ((0)) FOR [Pubblicato]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Pubbl__02E0D4C9]  DEFAULT ((0)) FOR [Pubblicato]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Solle__1AEB067F]  DEFAULT ((0)) FOR [Sollecito]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Solle__03D4F902]  DEFAULT ((0)) FOR [Sollecito]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Emend__1BDF2AB8]  DEFAULT ((0)) FOR [Emendato]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Emend__04C91D3B]  DEFAULT ((0)) FOR [Emendato]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__1CD34EF1]  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Giudiziari]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__05BD4174]  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Giudiziari]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__1DC7732A]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Salute]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__06B165AD]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Salute]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__1EBB9763]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Vita_Sessuale]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__07A589E6]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Vita_Sessuale]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__1FAFBB9C]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__0899AE1F]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__20A3DFD5]  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Sensibili]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__098DD258]  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Sensibili]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__2198040E]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Altri]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__0A81F691]  DEFAULT ((0)) FOR [Privacy_Divieto_Pubblicazione_Altri]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__228C2847]  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Semplici]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__0B761ACA]  DEFAULT ((0)) FOR [Privacy_Dati_Personali_Semplici]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__23804C80]  DEFAULT ((0)) FOR [Privacy]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Priva__0C6A3F03]  DEFAULT ((0)) FOR [Privacy]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Monit__247470B9]  DEFAULT ((0)) FOR [MonitoraggioConcluso]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Monit__0D5E633C]  DEFAULT ((0)) FOR [MonitoraggioConcluso]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__IterM__256894F2]  DEFAULT ((0)) FOR [IterMultiplo]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__IterM__0E528775]  DEFAULT ((0)) FOR [IterMultiplo]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Fluss__265CB92B]  DEFAULT ((0)) FOR [FlussoRespingi]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Fluss__0F46ABAE]  DEFAULT ((0)) FOR [FlussoRespingi]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Ritar__2750DD64]  DEFAULT ((0)) FOR [Ritardo]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF__ATTI_DASI__Ritar__103ACFE7]  DEFAULT ((0)) FOR [Ritardo]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_VersioneStampa]  DEFAULT ((0)) FOR [VersioneStampa]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_StampaValida]  DEFAULT ((0)) FOR [StampaValida]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_NascondiGruppo]  DEFAULT ((0)) FOR [NascondiGruppo]
 GO
 
 

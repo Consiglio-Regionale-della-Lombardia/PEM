@@ -17,12 +17,13 @@
  */
 
 using System;
+using System.Collections.Generic;
+using PortaleRegione.DTO.Enum;
 
-namespace PortaleRegione.DTO.Model
+namespace PortaleRegione.DTO.Request;
+
+public class RimuoviComandoMassivoRequest
 {
-    public class BloccoODGModel
-    {
-        public Guid Id { get; set; }
-        public int Blocco { get; set; } = 0;
-    }
+    public List<Guid> Lista { get; set; }
+    public ComandoRimuoviMassivoEnum Comando { get; set; }
 }

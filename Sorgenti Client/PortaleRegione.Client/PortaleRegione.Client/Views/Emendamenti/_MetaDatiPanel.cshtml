@@ -60,20 +60,29 @@
                                 if (Model.Emendamento.UIDLettera.HasValue)
                                 {
                                     <script>
-                                        Articoli_OnChange('@Model.Emendamento.UIDArticolo.Value', '@Model.Emendamento.UIDComma.Value', '@Model.Emendamento.UIDLettera.Value')
+                                        Articoli_OnChange('@if (Model.Emendamento.UIDArticolo != null)
+                                                           {
+                                                               @Model.Emendamento.UIDArticolo.Value
+                                                           }', '@Model.Emendamento.UIDComma.Value', '@Model.Emendamento.UIDLettera.Value')
                                     </script>
                                 }
                                 else
                                 {
                                     <script>
-                                        Articoli_OnChange('@Model.Emendamento.UIDArticolo.Value', '@Model.Emendamento.UIDComma', null)
+                                        Articoli_OnChange('@if (Model.Emendamento.UIDArticolo != null)
+                                                           {
+                                                               @Model.Emendamento.UIDArticolo.Value
+                                                           }', '@Model.Emendamento.UIDComma', null)
                                     </script>
                                 }
                             }
                             else
                             {
                                 <script>
-                                    Articoli_OnChange('@Model.Emendamento.UIDArticolo.Value', null, null)
+                                    Articoli_OnChange('@if (Model.Emendamento.UIDArticolo != null)
+                                                       {
+                                                           @Model.Emendamento.UIDArticolo.Value
+                                                       }', null, null)
                                 </script>
                             }
                         }

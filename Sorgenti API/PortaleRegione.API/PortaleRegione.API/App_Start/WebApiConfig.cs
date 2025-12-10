@@ -22,6 +22,7 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.Persistance;
 using System.Web.Http;
+using PortaleRegione.API.Helpers;
 using Unity;
 using Unity.Lifetime;
 
@@ -66,7 +67,10 @@ namespace PortaleRegione.API
 
             // Middleware JWT
             config.MessageHandlers.Add(new TokenValidationHandler());
-
+            
+            // ACT44: Security Headers Handler
+            config.MessageHandlers.Add(new SecurityHeadersHandler());
+            
             config.Routes.MapHttpRoute(
                 "DefaultApi",
                 "{controller}/{id}",

@@ -26,4 +26,5 @@ public class DatiInlineRequest
     public string Protocollo { get; set; }
     public string DCR { get; set; }
     public string DCCR { get; set; }
+    public string DCCR_Speciale { get; set; }
 }

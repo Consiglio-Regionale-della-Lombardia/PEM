@@ -36,15 +36,25 @@
                 </div>
                 <div class="col s12">
                     <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important;">
-                        <div class="input-field col s2">
+                        <div class="input-field col s6">
                             <input placeholder="..." class="validate" type="text" id="filter_em_n_em" name="filtro_n_em" onchange="filter_em_n_em_OnChange()" />
                             <label for="filter_em_n_em">Numero EM</label>
                         </div>
-                        <div class="input-field col s5">
+                        <div class="input-field col s6">
+                            <label style="margin-top:-20px;">
+                                <input type="checkbox" id="filter_subem" name="filtro_subem" onchange="filter_subem_OnChange()">
+                                <span for="filter_subem">Cerca solo Sub-Emendamenti</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12">
+                    <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important;">
+                        <div class="input-field col s6">
                             <label class="active">Tipo</label>
                             <select id="filter_em_tipo" name="filtro_tipo" onchange="filter_em_tipo_OnChange()"></select>
                         </div>
-                        <div class="input-field col s5">
+                        <div class="input-field col s6">
                             <label class="active">Stato</label>
                             <select id="filter_em_stato" name="filtro_stato" onchange="filter_em_stato_OnChange()"></select>
                         </div>

@@ -94,7 +94,7 @@
         });
         
 		var text_counter = listaAtti.length;
-        text = "Iscrizione di " + text_counter + " atti in una delle seguenti sedute:";
+        text = "Iscrivi in una delle seguenti sedute:";
 
         $('#txtIscriviSeduta').html(text);
         $('#btnNuovaSedutaDASI').show();
@@ -114,34 +114,37 @@
                     return;
                 }
 
-                var obj = {};
-                obj.UidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
-                obj.Lista = listaAtti;
-
-                waiting(true);
-                $.ajax({
-                    url: '@Url.Action("IscriviSeduta")',
-                    method: "POST",
-                    data: JSON.stringify(obj),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json"
-                }).done(function(data) {
-                    waiting(false);
-                    $("#modalIscriviSeduta").modal("close");
-                    $("#btnIscriviSeduta_Salva").off("click");
-                    if (data.message) {
-                        swal({
-                            title: "Errore",
-                            text: data.message,
-                            icon: "error"
-                        });
-                    } else {
-                        go(data);
+                var checkSelezionaTutti = $("#checkAll")[0].checked;
+                var totaleRisultati = $(".pagination").data("totale-risultati");
+                var uidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+                
+                swal({
+                    title: "Conferma iscrizione seduta",
+                    text: "Scegli l'ambito di applicazione per l'iscrizione:",
+                    icon: "info",
+                    buttons: {
+                        cancel: "Annulla",
+                        tutti: checkSelezionaTutti ? {
+                            text: `Tutti (${totaleRisultati} atti)`,
+                            value: "tutti",
+                            className: "amber"
+                        }: null,
+                        griglia: {
+                            text: `Griglia (${text_counter} atti)`,
+                            value: "griglia",
+                            className: "blue"
+                        }
                     }
-                }).fail(function(err) {
-                    waiting(false);
-                    console.log("error", err);
-                    Error(err);
+                }).then(async (value) => {
+                    if (value === "griglia") {
+                        // Flusso normale - solo atti selezionati in griglia
+                        
+                        await IscrizioneASedutaMassivoDASISoloIds(uidSeduta, listaAtti);
+                    } else if (value === "tutti") {
+                        // Nuovo flusso - tutti gli atti con progress modal
+                        var totalePagine = $(".pagination").data("totale-pagine");
+                        await aprireModalProgresso(2, uidSeduta, totalePagine, totaleRisultati);
+                    }
                 });
             });
         $('#modalIscriviSeduta').modal("open");

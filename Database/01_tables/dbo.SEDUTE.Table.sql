@@ -1,7 +1,4 @@
-USE [dbDASI]
-GO
-
-/****** Object:  Table [dbo].[SEDUTE]    Script Date: 11/12/2022 14:24:18 ******/
+/****** Object:  Table [dbo].[SEDUTE]    Script Date: 30/10/2025 10:54:40 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -16,8 +13,8 @@ CREATE TABLE [dbo].[SEDUTE](
 	[Data_effettiva_fine] [datetime] NULL,
 	[IDOrgano] [int] NULL,
 	[Scadenza_presentazione] [datetime] NULL,
-	[DataScadenzaPresentazioneMOZ] [datetime] NULL,
 	[DataScadenzaPresentazioneIQT] [datetime] NULL,
+	[DataScadenzaPresentazioneMOZ] [datetime] NULL,
 	[DataScadenzaPresentazioneMOZA] [datetime] NULL,
 	[DataScadenzaPresentazioneMOZU] [datetime] NULL,
 	[DataScadenzaPresentazioneODG] [datetime] NULL,
@@ -29,11 +26,14 @@ CREATE TABLE [dbo].[SEDUTE](
 	[DataModifica] [datetime] NULL,
 	[Eliminato] [bit] NULL,
 	[Riservato_DASI] [bit] NOT NULL,
-	[Note] [varchar](100) NULL,
+	[Riservato_DASI_MOZ] [bit] NOT NULL,
+	[Riservato_DASI_IQT] [bit] NOT NULL,
+	[Blocco_MOZ_Abbinate] [bit] NOT NULL,
+	[Note] [varchar](150) NULL,
  CONSTRAINT [PK_SEDUTE] PRIMARY KEY CLUSTERED 
 (
 	[UIDSeduta] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -43,6 +43,16 @@ GO
 ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_IDOrgano]  DEFAULT ((1)) FOR [IDOrgano]
 GO
 
-ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Riservato_DASI]  DEFAULT ((0)) FOR [Riservato_DASI]
+ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Riservato_DASI_1]  DEFAULT ((0)) FOR [Riservato_DASI]
 GO
+
+ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Riservato_DASI_MOZ]  DEFAULT ((0)) FOR [Riservato_DASI_MOZ]
+GO
+
+ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Riservato_DASI_IQT]  DEFAULT ((0)) FOR [Riservato_DASI_IQT]
+GO
+
+ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Blocco_MOZ_Abbinate]  DEFAULT ((0)) FOR [Blocco_MOZ_Abbinate]
+GO
+
 

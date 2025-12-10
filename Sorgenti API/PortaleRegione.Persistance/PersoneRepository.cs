@@ -327,17 +327,6 @@ namespace PortaleRegione.Persistance
                 $"INSERT INTO {table} (UID_persona,PIN,RichiediModificaPIN) VALUES ('{personaUId}','{nuovo_pin}',{(reset ? 1 : 0)})");
         }
 
-        public async Task DeletePersona(int id)
-        {
-            var user = await PRContext
-                .UTENTI_NoCons
-                .FirstOrDefaultAsync(u => u.id_persona == id);
-            if (user != null)
-            {
-                user.deleted = true;
-            }
-        }
-
         public async Task<IEnumerable<View_Composizione_GiuntaRegionale>> GetGiuntaRegionale()
         {
             var query = PRContext.View_Composizione_GiuntaRegionale;

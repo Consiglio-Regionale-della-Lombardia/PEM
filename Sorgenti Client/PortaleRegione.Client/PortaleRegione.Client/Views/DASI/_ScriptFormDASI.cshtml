@@ -14,6 +14,38 @@
         });
     $("#btnSave").on("click",
         function() {
+            var isNew = $("#hfIsNew").val();
+            if (isNew == 0) {
+                console.log("MODIFICA", isNew)
+
+                var conteggioFirme = $("#Atto_ConteggioFirme").val();
+                
+                console.log("Firme", conteggioFirme)
+                
+                if (conteggioFirme > 1) {
+                    // avviso modifica con più firmatari
+                    swal({
+                        title: "ATTENZIONE",
+                        text: "Stai modificando un atto sottoscritto da più consiglieri. Se continui le firme dei consiglieri, esclusa quella del proponente, verranno eliminate e l’atto dovrà essere sottoscritto nuovamente. Procedere comunque?",
+                        icon: "warning",
+                        buttons: {
+                            cancel: "Annulla",
+                            confirm: {
+                                className: "blue white-text",
+                                title: "Procedi",
+                                value: true
+                            }
+                        }
+                    }).then((value) => {
+                        if (value == true) {
+                            $('#formDASI').submit();
+                            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                        }
+                    });
+                    
+                    return;
+                }
+            }
 
             if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG) && $('#Atto_Non_Passaggio_In_Esame').is(":checked")) {
                 swal({
@@ -58,32 +90,32 @@
                 }
             }).then((value) => {
                 switch (value) {
-                case "presenta":
-                {
-                    swal({
-                        text: "Sei sicuro di voler presentare l'atto cartaceo?",
-                        icon: "warning",
-                        buttons: {
-                            cancel: "Annulla",
-                            confirm: "Si, sono sicuro"
-                        }
-                    }).then((value) => {
-                        if (value) {
-                            waiting(true);
-							SalvaAttoCartaceo(true);
-                            waiting(false);
-							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
-                        }
-                    });
-                    break;
-                }
-
-                case "salva_bozza_cartacea":
-                {
-							SalvaAttoCartaceo(false);
-							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
-                    break;
-                }
+                    case "presenta":
+                    {
+                        swal({
+                            text: "Sei sicuro di voler presentare l'atto cartaceo?",
+                            icon: "warning",
+                            buttons: {
+                                cancel: "Annulla",
+                                confirm: "Si, sono sicuro"
+                            }
+                        }).then((value) => {
+                            if (value) {
+                                waiting(true);
+                                SalvaAttoCartaceo(true);
+                                waiting(false);
+                                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                            }
+                        });
+                        break;
+                    }
+    
+                    case "salva_bozza_cartacea":
+                    {
+                                SalvaAttoCartaceo(false);
+                                window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                        break;
+                    }
                 }
             });
         });
@@ -133,6 +165,8 @@
             if (inputFileAllegatoGenerico.files.length > 0)
                 form_data.append("DocAllegatoGenerico", inputFileAllegatoGenerico.files[0]);
         }
+
+        form_data.append("NascondiGruppo", $('#Atto_NascondiGruppo').is(":checked"));
 
         if (presenta) {
             form_data.append("IDStato", @((int)StatiAttoEnum.PRESENTATO));
@@ -243,6 +277,8 @@
             commissioni.push($('select[id="Atto_Commissioni"]').children("option:selected").val());
             form_data.append("Commissioni_client", commissioni);
 
+            form_data.append("NascondiGruppo", $('#Atto_NascondiGruppo').is(":checked"));
+
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
             if (inputsAllegatoGenerico.length != 0) {
                 var inputFileAllegatoGenerico = inputsAllegatoGenerico[0];
@@ -268,9 +304,10 @@
                         icon: "error"
                     });
                 } else {
+                    var isNew = $("#hfIsNew").val();
                     swal({
                         title: "Procedura completata",
-                        text: "Atto inserito correttamente a sistema.",
+                        text: isNew == 1 ? "Atto inserito correttamente a sistema." : "Atto modificato correttamente.",
                         icon: "success"
                     }).then((value) => {
 						go(data);
@@ -279,7 +316,12 @@
             }).fail(function(err) {
 				waiting(false)
                 console.log("error", err);
-                Error(err);
+                
+                if (err.responseJSON.message) {
+                    ErrorAlert(err.responseJSON.message);   
+                }else{
+                    Error(err);    
+                }                
             });
         }
     });
@@ -332,8 +374,9 @@
             return prefix + " ODG";
         }
     }
-
-    $('.trumbowyg').trumbowyg({
+    
+    initSecureTrumbowyg('.trumbowyg');
+    /*$('.trumbowyg').trumbowyg({
 		//semantic: true, // Usa tag semantici validi
 		//tagsToKeep: ['b', 'i', 'u', 'strong', 'em'], // Specifica i tag consentiti
 		//removeformatPasted: true, // Rimuovi formattazioni strane durante il paste
@@ -360,5 +403,5 @@
                 ]
             }
         }
-    });
+    });*/
 </script>

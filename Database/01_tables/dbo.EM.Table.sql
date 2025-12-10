@@ -1,7 +1,4 @@
-USE [dbEmendamenti]
-GO
-
-/****** Object:  Table [dbo].[EM]    Script Date: 26/08/2022 10:01:48 ******/
+/****** Object:  Table [dbo].[EM]    Script Date: 30/10/2025 10:54:15 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -71,6 +68,11 @@ CREATE TABLE [dbo].[EM](
 	[Timestamp] [datetime] NULL,
 	[Colore] [varchar](50) NULL,
 	[Tags] [varchar](max) NULL,
+	[SubEM]  AS (case when [N_SUBEM] IS NULL then (0) else (1) end),
+	[VersioneStampa] [int] NOT NULL,
+	[DataUltimaStampa] [datetime] NULL,
+	[PathStampa] [varchar](max) NULL,
+	[StampaValida] [bit] NOT NULL,
  CONSTRAINT [PK_EM] PRIMARY KEY CLUSTERED 
 (
 	[UIDEM] ASC
@@ -98,4 +100,11 @@ GO
 
 ALTER TABLE [dbo].[EM] ADD  CONSTRAINT [DF_EM_Eliminato]  DEFAULT ((0)) FOR [Eliminato]
 GO
+
+ALTER TABLE [dbo].[EM] ADD  CONSTRAINT [DF_EM_VersioneStampa]  DEFAULT ((0)) FOR [VersioneStampa]
+GO
+
+ALTER TABLE [dbo].[EM] ADD  CONSTRAINT [DF_EM_StampaValida]  DEFAULT ((0)) FOR [StampaValida]
+GO
+
 

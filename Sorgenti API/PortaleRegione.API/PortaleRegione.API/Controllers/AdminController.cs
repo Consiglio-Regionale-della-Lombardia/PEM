@@ -228,7 +228,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var uid_persona = await _adminLogic.SalvaUtente(request, Session._currentRole);
+                var uid_persona = await _adminLogic.SalvaUtente(request, Session._currentRole, CurrentUser);
                 return Ok(uid_persona);
             }
             catch (Exception e)
@@ -249,7 +249,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _adminLogic.EliminaUtente(id);
+                await _adminLogic.EliminaUtente(id, CurrentUser);
                 return Ok();
             }
             catch (Exception e)

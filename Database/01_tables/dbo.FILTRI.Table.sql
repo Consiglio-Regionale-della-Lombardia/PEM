@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[FILTRI]    Script Date: 07/05/2024 15:39:51 ******/
+/****** Object:  Table [dbo].[FILTRI]    Script Date: 16/09/2025 17:58:33 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -11,7 +11,10 @@ CREATE TABLE [dbo].[FILTRI](
 	[DataCreazione] [datetime] NOT NULL,
 	[Nome] [varchar](100) NOT NULL,
 	[Filtri] [varchar](max) NULL,
-	[Preferito] [bit] NOT NULL
+	[Preferito] [bit] NOT NULL,
+	[Colonne] [varchar](max) NULL,
+	[DettagliOrdinamento] [varchar](max) NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
+
 

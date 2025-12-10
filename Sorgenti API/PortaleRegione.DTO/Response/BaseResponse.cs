@@ -35,7 +35,7 @@ namespace PortaleRegione.DTO.Response
             IEnumerable<T> results,
             List<FilterStatement<T>> filtri,
             int total_entities,
-            Uri original_path = null)
+            Uri? original_path = null)
         {
             Filters = filtri;
             Results = results;

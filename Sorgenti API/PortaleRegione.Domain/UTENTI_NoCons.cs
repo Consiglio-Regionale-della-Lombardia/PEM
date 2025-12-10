@@ -78,7 +78,10 @@ namespace PortaleRegione.Domain
 
         public bool attivo { get; set; }
 
-        public bool? deleted { get; set; }
+        public bool deleted { get; set; } = false;
+        
+        public Guid? UIDUtenteModifica { get; set; }
+        public DateTime? DataModifica { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<NOTIFICHE> NOTIFICHE { get; set; }

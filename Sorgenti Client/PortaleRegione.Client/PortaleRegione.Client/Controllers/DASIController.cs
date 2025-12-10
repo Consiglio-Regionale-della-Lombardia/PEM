@@ -142,6 +142,59 @@ namespace PortaleRegione.Client.Controllers
         }
 
         [HttpPost]
+        [Route("riepilogoSoloIds")]
+        public async Task<ActionResult> RiepilogoSoloIds(FilterRequest model)
+        {
+            try
+            {
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = 20,
+                    param = new Dictionary<string, object>
+                    {
+                        { "CLIENT_MODE", model.clientMode },
+                        { nameof(FilterRequest.viewMode), model.viewMode }
+                    }
+                };
+
+                if (!model.filters.Any())
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                // #990
+                if (model.sort_settings.Any())
+                {
+                    request.dettagliOrdinamento = model.sort_settings;
+                }
+                
+                // #1191
+                if (model.columns_settings.Any())
+                {
+                    request.columns = model.columns_settings;
+                }
+
+                request.page = model.page;
+                request.size = model.size;
+
+                var apiGateway = new ApiGateway(Token);
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
+
+                var res = await apiGateway.DASI.GetSoloIds(request);
+                return Json(res);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
         [Route("salva-gruppo-filtri")]
         public async Task<ActionResult> SalvaGruppoFiltri(FiltroPreferitoDto model)
         {
@@ -193,7 +246,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
         /// </summary>
         /// <returns></returns>
-        public async Task<ActionResult> RiepilogoDASI()
+        public Task<ActionResult> RiepilogoDASI()
         {
             var model = new RiepilogoDASIModel
             {
@@ -204,9 +257,9 @@ namespace PortaleRegione.Client.Controllers
                     { RuoliIntEnum.Amministratore_PEM
                         , RuoliIntEnum.Segreteria_Assemblea
                         , RuoliIntEnum.Segreteria_Assemblea_Read }))
-                return View("RiepilogoDASI_Admin", model);
+                return Task.FromResult<ActionResult>(View("RiepilogoDASI_Admin", model));
 
-            return View("RiepilogoDASI", model);
+            return Task.FromResult<ActionResult>(View("RiepilogoDASI", model));
         }
 
         /// <summary>
@@ -305,6 +358,37 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                if (request.DocAllegatoGenerico != null)
+                {
+                    // Leggi il contenuto
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await request.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
+                        request.DocAllegatoGenerico_Stream = memoryStream.ToArray();
+                    }
+
+                    // AGGIUNGERE VALIDAZIONE:
+                    var validationResult = FileValidator.ValidateFile(
+                        request.DocAllegatoGenerico.FileName,
+                        request.DocAllegatoGenerico.ContentType,
+                        request.DocAllegatoGenerico_Stream
+                    );
+
+                    if (!validationResult.IsValid)
+                    {
+                        return Json(new ErrorResponse(validationResult.ErrorMessage), 
+                            JsonRequestBehavior.AllowGet);
+                    }
+
+                    if (FileValidator.IsZipFile(request.DocAllegatoGenerico.FileName, 
+                            request.DocAllegatoGenerico_Stream))
+                    {
+                        return Json(new ErrorResponse(
+                                "File ZIP non consentiti per motivi di sicurezza."), 
+                            JsonRequestBehavior.AllowGet);
+                    }
+                }
+                
                 var currentUser = CurrentUser;
                 var apiGateway = new ApiGateway(Token);
                 var result = await apiGateway.DASI.Salva(request);
@@ -393,6 +477,8 @@ namespace PortaleRegione.Client.Controllers
         ///     Esegui azione su Atti di Sindacato Ispettivo selezionato
         /// </summary>
         /// <param name="id">Guid</param>
+        /// <param name="azione"></param>
+        /// <param name="pin"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("azioni")]
@@ -452,7 +538,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Esegui azione su Atti di Sindacato Ispettivo selezionato
         /// </summary>
-        /// <param name="id">Guid</param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("azioni-massive")]
@@ -1420,7 +1506,7 @@ namespace PortaleRegione.Client.Controllers
                             || filterStatement.PropertyId.Equals(nameof(AttoDASIDto.UIDSeduta))
                             || filterStatement.PropertyId.Equals(nameof(AttoDASIDto.Tipo)))
                         {
-                            continue;
+                            //continue;
                         }
                         else
                         {
@@ -1500,7 +1586,7 @@ namespace PortaleRegione.Client.Controllers
             var view = Request.Form["view"];
             var filtro_oggetto = Request.Form["filtro_oggetto"];
             var filtro_stato = Request.Form["filtro_stato"];
-            var filtro_tipo = Request.Form["filtro_tipo"];
+            //var filtro_tipo = Request.Form["filtro_tipo"];
             var filtro_mozione_urgente = Request.Form["filtro_mozione_urgente"];
             var filtro_tipo_risposta = Request.Form["filtro_tipo_risposta"];
             var filtro_natto = Request.Form["filtro_natto"];
@@ -1813,6 +1899,10 @@ namespace PortaleRegione.Client.Controllers
                 {
                     request.dataviewtype_template = AppSettingsConfiguration.ODG_UIDTemplateReportDCR;
                 }
+                else if (tipo.Equals((int)TipoAttoEnum.RIS))
+                {
+                    request.dataviewtype_template = AppSettingsConfiguration.RIS_UIDTemplateReportDCR;
+                }
 
                 var file = await apiGateway.DASI.GeneraReport(request);
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
@@ -1828,6 +1918,8 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per generare la copertina per il presidente
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="tipo"></param>
+        /// <param name="tipo_risposta"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("genera-report-copertina-presidente")]
@@ -2016,6 +2108,8 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per generare la copertina per l'ufficio
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="tipo"></param>
+        /// <param name="tipo_risposta"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("genera-report-lettera")]
@@ -2150,7 +2244,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per scaricare il documento pdf dell'atto
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("genera-report")]
@@ -2572,8 +2666,8 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.Salva_Nota(request);
-                return Json("OK", JsonRequestBehavior.AllowGet);
+                var nota = await apiGateway.DASI.Salva_Nota(request);
+                return Json(nota, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -2635,7 +2729,6 @@ namespace PortaleRegione.Client.Controllers
             // Verifica che la richiesta contenga dei file
             if (Request.Files == null || Request.Files.Count == 0)
             {
-                ;
                 return Json(new ErrorResponse("Nessun file caricato."), JsonRequestBehavior.AllowGet);
             }
 
@@ -2648,21 +2741,36 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse("Il file è vuoto."), JsonRequestBehavior.AllowGet);
             }
 
-            if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+            // Leggi il contenuto del file
+            byte[] fileData;
+            using (var binaryReader = new BinaryReader(file.InputStream))
             {
-                return Json(new ErrorResponse("Formato file non valido. Solo PDF accettati."),
+                fileData = binaryReader.ReadBytes(file.ContentLength);
+            }
+
+            // NUOVA VALIDAZIONE COMPLETA
+            var validationResult = FileValidator.ValidateFile(
+                file.FileName, 
+                file.ContentType, 
+                fileData
+            );
+
+            if (!validationResult.IsValid)
+            {
+                return Json(new ErrorResponse(validationResult.ErrorMessage), 
                     JsonRequestBehavior.AllowGet);
             }
 
+            // Verifica aggiuntiva: blocca file ZIP anche se mascherati
+            if (FileValidator.IsZipFile(file.FileName, fileData))
+            {
+                return Json(new ErrorResponse(
+                        "File ZIP e archivi compressi non sono consentiti per motivi di sicurezza."),
+                    JsonRequestBehavior.AllowGet);
+            }
+            
             try
             {
-                // Converte il file in un array di byte
-                byte[] fileData;
-                using (var binaryReader = new BinaryReader(file.InputStream))
-                {
-                    fileData = binaryReader.ReadBytes(file.ContentLength);
-                }
-
                 var request = new SalvaDocumentoRequest
                 {
                     UIDAtto = Guid.Parse(Request.Form["UIDAtto"]),
@@ -2741,6 +2849,27 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.DASI.Salva_ComandoMassivo(request);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere massivamente: iscrizione in seduta, urgenza e abbinamento
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-comando-massivo")]
+        public async Task<ActionResult> Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.Rimuovi_ComandoMassivo(request);
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

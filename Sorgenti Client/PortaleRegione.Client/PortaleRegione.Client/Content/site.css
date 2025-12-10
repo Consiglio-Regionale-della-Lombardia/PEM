@@ -569,50 +569,50 @@ div.input-field > label { line-height: initial; }
 
 .depositato {
 	background-color: white;
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #0d47a1 !important;
+	color: #0d47a1 !important;
 	font-weight: bold;
 }
 
 .approvato {
 	background-color: white;
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #4caf50 !important;
+	color: #4caf50 !important;
 	font-weight: bold;
 }
 
 .approvatomod {
 	background-color: white;
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #004d40 !important;
+	color: #004d40 !important;
 	font-weight: bold;
 }
 
 .NOapprovato {
 	background-color: white;
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #b71c1c !important;
+	color: #b71c1c !important;
 	font-weight: bold;
 }
 
 .ritirato {
 	background-color: white;
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #424242 !important;
+	color: #424242 !important;
 	font-weight: bold;
 }
 
 .decaduto {
 	background-color: white;
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #673ab7 !important;
+	color: #673ab7 !important;
 	font-weight: bold;
 }
 
 .inammissibile {
 	background-color: white;
-	border: 2px solid black!important;
-	color: black!important;
+	border: 2px solid #f57f17!important;
+	color: #f57f17!important;
 	font-weight: bold;
 }
 
@@ -623,62 +623,62 @@ div.input-field > label { line-height: initial; }
 }
 
 .depositatoT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #0d47a1 !important;
+	color: #0d47a1 !important;
 	font-weight: bold !important;
 }
 
 .approvatoT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #4caf50 !important;
+	color: #4caf50 !important;
 	font-weight: bold !important;
 }
 
 .approvatomodT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #004d40 !important;
+	color: #004d40 !important;
 	font-weight: bold !important;
 }
 
 .NOapprovatoT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #b71c1c !important;
+	color: #b71c1c !important;
 	font-weight: bold !important;
 }
 
 .ritiratoT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #424242 !important;
+	color: #424242 !important;
 	font-weight: bold !important;
 }
 
 .decadutoT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #673ab7 !important;
+	color: #673ab7 !important;
 	font-weight: bold !important;
 }
 
 .inammissibileT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #f57f17 !important;
+	color: #f57f17 !important;
 	font-weight: bold !important;
 }
 
 .trattazioneT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #0097a7 !important;
+	color: #0097a7 !important;
 	font-weight: bold !important;
 }
 
 .comunicazioneAssembleaT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #006064 !important;
+	color: #006064 !important;
 	font-weight: bold !important;
 }
 
 .trattazioneAssembleaT {
-	border: 2px solid black !important;
-	color: black !important;
+	border: 2px solid #00b8d4 !important;
+	color: #00b8d4 !important;
 	font-weight: bold !important;
 }
 

@@ -78,9 +78,16 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task BloccoODG(BloccoODGModel model)
+        public async Task BloccoODG(BloccoModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.BloccoODG}";
+            var body = JsonConvert.SerializeObject(model);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task BloccoEM(BloccoModel model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.BloccoEM}";
             var body = JsonConvert.SerializeObject(model);
             await Post(requestUrl, body, _token);
         }
@@ -117,13 +124,7 @@ namespace PortaleRegione.Gateway
         public async Task<AttiDto> Modifica(AttiFormUpdateModel atto)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.Edit}";
-            if (atto.DocAtto != null)
-            {
-                using var memoryStream = new MemoryStream();
-                await atto.DocAtto.InputStream.CopyToAsync(memoryStream);
-                atto.DocAtto_Stream = memoryStream.ToArray();
-            }
-
+           
             var body = JsonConvert.SerializeObject(atto);
             var result = JsonConvert.DeserializeObject<AttiDto>(await Put(requestUrl, body, _token));
             return result;

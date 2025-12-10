@@ -88,13 +88,46 @@
 
     $("#btnSave").on("click",
         function() {
+            var isNew = $("#hfIsNew").val();
+            if (isNew == 0) {
+                console.log("MODIFICA", isNew)
+
+                var conteggioFirme = $("#Emendamento_ConteggioFirme").val();
+
+                console.log("Firme", conteggioFirme)
+
+                if (conteggioFirme > 1) {
+                    // avviso modifica con più firmatari
+                    swal({
+                        title: "ATTENZIONE",
+                        text: "Stai modificando un atto sottoscritto da più consiglieri. Se continui le firme dei consiglieri, esclusa quella del proponente, verranno eliminate e l’atto dovrà essere sottoscritto nuovamente. Procedere comunque?",
+                        icon: "warning",
+                        buttons: {
+                            cancel: "Annulla",
+                            confirm: {
+                                className: "blue white-text",
+                                title: "Procedi",
+                                value: true
+                            }
+                        }
+                    }).then((value) => {
+                        if (value == true) {
+                            $('#formEmendamento').submit();
+                        }
+                    });
+
+                    return;
+                }
+            }
+            
             $('#formEmendamento').submit();
         });
+    
     $("#formEmendamento").submit(function(e) {
         e.preventDefault();
     }).validate({
-        submitHandler: function (form) {
-waiting(true);
+        submitHandler: async function (form) {
+            waiting(true);
             var docAllegatoGenerico;
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
             if (inputsAllegatoGenerico.length != 0) {
@@ -103,8 +136,14 @@ waiting(true);
                     waiting(false);
                     alert("This browser doesn't seem to support the `files` property of file inputs.");
                 }
-                if (inputFileAllegatoGenerico.files.length > 0)
-                    docAllegatoGenerico = inputFileAllegatoGenerico.files[0];
+                if (inputFileAllegatoGenerico.files.length > 0) {
+                    var validation = await validateFileAdvanced(inputFileAllegatoGenerico.files[0]);
+                    if (!validation.valid) {
+                        alert('ERRORE DI VALIDAZIONE:\n\n' + validation.error);
+                        return;
+                    }
+                    docAllegatoGenerico = inputFileAllegatoGenerico.files[0];                    
+                }
             }
             var docAllegatoTecnico;
             var inputsAllegatoTecnico = $('input[name=DocEffettiFinanziari]');
@@ -114,8 +153,14 @@ waiting(true);
                     waiting(false);
                     alert("This browser doesn't seem to support the `files` property of file inputs.");
                 }
-                if (inputFileAllegatoTecnico.files.length > 0)
+                if (inputFileAllegatoTecnico.files.length > 0) {
+                    var validation = await validateFileAdvanced(inputFileAllegatoTecnico.files[0]);
+                    if (!validation.valid) {
+                        alert('ERRORE DI VALIDAZIONE:\n\n' + validation.error);
+                        return;
+                    }
                     docAllegatoTecnico = inputFileAllegatoTecnico.files[0];
+                }
             }
 
             var proponente;
@@ -228,14 +273,19 @@ waiting(true);
             }).fail(function(err) {
                 waiting(false);
                 console.log("error", err);
-                Error(err);
+                if (err.responseJSON.message) {
+                    ErrorAlert(err.responseJSON.message);
+                }else{
+                    Error(err);
+                }
             });
 
             return false; //This doesn't prevent the form from submitting.
         }
     });
 
-	$('.trumbowyg').trumbowyg({
+    initSecureTrumbowyg('.trumbowyg');
+	/*$('.trumbowyg').trumbowyg({
 		//semantic: true, // Usa tag semantici validi
 		//tagsToKeep: ['b', 'i', 'u', 'strong', 'em'], // Specifica i tag consentiti
 		//removeformatPasted: true, // Rimuovi formattazioni strane durante il paste
@@ -262,6 +312,6 @@ waiting(true);
 				]
 			}
 		}
-	});
+	});*/
 
 </script>

@@ -32,6 +32,7 @@ namespace PortaleRegione.Gateway
         Task<Dictionary<string, string>> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo);
         Task<RiepilogoNotificheModel> GetNotificheInviate(int page, int size, bool Archivio = false);
         Task<RiepilogoNotificheModel> GetNotificheRicevute(int page, int size, bool Archivio, bool Solo_Non_Viste = false);
+        Task<int> GetCounterNotificheRicevute();
         Task<Dictionary<Guid, string>> NotificaEM(ComandiAzioneModel model);
         Task NotificaVista(string notificaId);
         Task<Dictionary<Guid, string>> NotificaDASI(ComandiAzioneModel model);

@@ -1,0 +1,15 @@
+CREATE TABLE [dbo].[ARTICOLI_Audit] (
+    [IdARTICOLI_Audit] INT NOT NULL IDENTITY(1,1),
+    [DatAudit] DATETIME NOT NULL,
+    [UteAudit] UNIQUEIDENTIFIER NULL,
+    [UIDArticolo] UNIQUEIDENTIFIER NOT NULL,
+    [UIDAtto] UNIQUEIDENTIFIER NOT NULL,
+    [Articolo] VARCHAR(50) COLLATE Latin1_General_CI_AI NOT NULL,
+    [RubricaArticolo] NVARCHAR(1000) COLLATE Latin1_General_CI_AI NULL,
+    [TestoArticolo] VARCHAR(MAX) COLLATE Latin1_General_CI_AI NULL,
+    [Ordine] INT NOT NULL,
+    [UIDUtenteModifica] UNIQUEIDENTIFIER NULL,
+    [DataModifica] DATETIME NULL,
+    [Eliminato] BIT NOT NULL,
+    CONSTRAINT [PK_ARTICOLI_Audit] PRIMARY KEY ([IdARTICOLI_Audit])
+);

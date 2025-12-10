@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
@@ -94,8 +95,6 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per visualizzare i dati degli emendamenti contenuti in un atto
         /// </summary>
         /// <param name="id">Guid atto</param>
-        /// <param name="page">Pagina corrente</param>
-        /// <param name="size">Paginazione</param>
         /// <returns></returns>
         [HttpGet]
         [Route("seduta/{id:guid}")]
@@ -122,7 +121,7 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(Token);
             EmendamentiViewModel model;
-            if (view_require_my_sign == false)
+            if (!view_require_my_sign)
                 model = await apiGateway.Emendamento.Get(id, mode, ordine, page, size);
             else
                 model = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
@@ -322,6 +321,67 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                if (model.DocAllegatoGenerico != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await model.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
+                        model.DocAllegatoGenerico_Stream = memoryStream.ToArray();
+                    }
+
+                    // AGGIUNGERE VALIDAZIONE:
+                    var validationAllegato = FileValidator.ValidateFile(
+                        model.DocAllegatoGenerico.FileName,
+                        model.DocAllegatoGenerico.ContentType,
+                        model.DocAllegatoGenerico_Stream
+                    );
+
+                    if (!validationAllegato.IsValid)
+                    {
+                        return Json(new ErrorResponse(validationAllegato.ErrorMessage),
+                            JsonRequestBehavior.AllowGet);
+                    }
+
+                    if (FileValidator.IsZipFile(model.DocAllegatoGenerico.FileName,
+                            model.DocAllegatoGenerico_Stream))
+                    {
+                        return Json(new ErrorResponse(
+                                "File ZIP non consentiti."),
+                            JsonRequestBehavior.AllowGet);
+                    }
+                }
+
+                if (model.DocEffettiFinanziari != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await model.DocEffettiFinanziari.InputStream.CopyToAsync(memoryStream);
+                        model.DocEffettiFinanziari_Stream = memoryStream.ToArray();
+                    }
+
+                    // AGGIUNGERE VALIDAZIONE:
+                    var validationEffetti = FileValidator.ValidateFile(
+                        model.DocEffettiFinanziari.FileName,
+                        model.DocEffettiFinanziari.ContentType,
+                        model.DocEffettiFinanziari_Stream
+                    );
+
+                    if (!validationEffetti.IsValid)
+                    {
+                        return Json(new ErrorResponse(validationEffetti.ErrorMessage),
+                            JsonRequestBehavior.AllowGet);
+                    }
+
+                    if (FileValidator.IsZipFile(model.DocEffettiFinanziari.FileName,
+                            model.DocEffettiFinanziari_Stream))
+                    {
+                        return Json(new ErrorResponse(
+                                "File ZIP non consentiti."),
+                            JsonRequestBehavior.AllowGet);
+                    }
+
+                }
+
                 var apiGateway = new ApiGateway(Token);
                 Session["RiepilogoEmendamenti"] = null;
                 var uidEm = model.UIDEM;
@@ -718,8 +778,6 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per esportare gli emendamenti di un atto
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="ordine"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("esporta-xls")]
@@ -1216,6 +1274,7 @@ namespace PortaleRegione.Client.Controllers
             var filtro_proponente = Request.Form["filtro_proponente"];
             var filtro_firmatari = Request.Form["filtro_firmatari"];
             var filtro_tags = Request.Form["tags"];
+            var filtro_subem = Request.Form["filtro_subem"];
 
             mode = mode_result;
             if (ordine == 0)
@@ -1231,7 +1290,7 @@ namespace PortaleRegione.Client.Controllers
 
             Common.Utility.AddFilter_ByAtto(ref model, atto);
             Common.Utility.AddFilter_ByText(ref model, filtro_text1, filtro_text2, filtro_text_connector);
-            Common.Utility.AddFilter_ByNUM(ref model, filtro_n_em);
+            Common.Utility.AddFilter_ByNUM(ref model, filtro_n_em, filtro_subem);
             Common.Utility.AddFilter_ByState(ref model, filtro_stato);
             Common.Utility.AddFilter_ByPart(ref model,
                 filtro_parte, filtro_parte_titolo, filtro_parte_capo,
@@ -1246,6 +1305,31 @@ namespace PortaleRegione.Client.Controllers
             Common.Utility.AddFilter_Tags(ref model, filtro_tags);
 
             return model;
+        }
+        
+        /// <summary>
+        /// Endpoint per ottenere solo gli ID degli emendamenti per una specifica pagina
+        /// </summary>
+        /// <returns>Lista di ID degli emendamenti</returns>
+        [HttpPost]
+        [Route("get-ids")]
+        public async Task<ActionResult> GetPageIDs()
+        {
+            try
+            {
+                var mode = 1;
+                var model = ElaboraFiltriEM(ref mode);
+        
+                var apiGateway = new ApiGateway(Token);
+                var result = await apiGateway.Emendamento.GetSoloIds(model);
+        
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }

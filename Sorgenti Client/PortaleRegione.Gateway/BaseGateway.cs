@@ -49,28 +49,15 @@ namespace PortaleRegione.Gateway
         /// <returns></returns>
         protected static async Task<string> Post(string requestUrl, string body, string token)
         {
-            try
-            {
-                using var httpClient = new HttpClient();
-                httpClient.Timeout = TimeSpan.FromMinutes(10);
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                if (!string.IsNullOrEmpty(token))
-                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-                var content = new StringContent(body, Encoding.UTF8, "application/json");
+            using var httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromMinutes(10);
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            if (!string.IsNullOrEmpty(token))
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+            var content = new StringContent(body, Encoding.UTF8, "application/json");
 
-                var result = await httpClient.PostAsync(requestUrl, content);
-                return await CheckResponseStatusCode(result);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                //Log.Error($"Post [{requestUrl}][{body}]", e);
-                throw e;
-            }
-            catch (Exception e)
-            {
-                //Log.Error($"Post [{requestUrl}][{body}]", e);
-                throw e;
-            }
+            var result = await httpClient.PostAsync(requestUrl, content);
+            return await CheckResponseStatusCode(result);
         }
 
         /// <summary>
@@ -230,25 +217,12 @@ namespace PortaleRegione.Gateway
         /// <returns></returns>
         protected static async Task Delete(string requestUrl, string token)
         {
-            try
-            {
-                using var httpClient = new HttpClient();
-                if (!string.IsNullOrEmpty(token))
-                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+            using var httpClient = new HttpClient();
+            if (!string.IsNullOrEmpty(token))
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
 
-                var result = await httpClient.DeleteAsync(requestUrl);
-                await CheckResponseStatusCode(result);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                //Log.Error($"Delete [{requestUrl}]", e);
-                throw e;
-            }
-            catch (Exception e)
-            {
-                //Log.Error($"Delete [{requestUrl}]", e);
-                throw e;
-            }
+            var result = await httpClient.DeleteAsync(requestUrl);
+            await CheckResponseStatusCode(result);
         }
 
         /// <summary>

@@ -956,50 +956,56 @@ function GetCounterAlertStampa(lista, selezionaTutti) {
     return text_counter;
 }
 
-function CambioStatoMassivo(stato, descr) {
-    var text = "";
-    var listaEM = getListaEmendamenti();
-    var selezionaTutti = getSelezionaTutti();
-    var text_counter = GetCounterAlert(listaEM, selezionaTutti);
-    text = "Cambia stato di " + text_counter + " emendamenti in " + descr;
+function CambioStatoMassivo(stato) {
+    const listaEM = [...document.querySelectorAll('input[type="checkbox"][id^="chk_EM_"]:checked')]
+        .map(cb => cb.id.replace('chk_EM_', ''));
 
-    swal(text,
-            {
-                buttons: { cancel: "Annulla", confirm: "Ok" }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
-
-            var obj = {};
-            obj.Stato = stato;
-            obj.Lista = listaEM;
-            obj.Tutti = selezionaTutti;
-            obj.AttoUId = $("#hdUIdAtto").val();
-            waiting(true);
-            $.ajax({
-                url: baseUrl + "/emendamenti/modifica-stato",
-                type: "POST",
-                data: JSON.stringify(obj),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
-            }).done(function(data) {
-                waiting(false);
-                if (data.message) {
-                    console.log("error", data.message);
-                    ErrorAlert(data.message);
-                    return;
-                }
-                DeselectALLEM();
-                location.reload();
-            }).fail(function(err) {
-                waiting(false);
-                console.log("error", err);
-                Error(err);
-            });
-        });
+    var obj = {};
+    obj.Stato = stato;
+    obj.Lista = listaEM;
+    obj.AttoUId = $("#hdUIdAtto").val();
+    waiting(true);
+    $.ajax({
+        url: baseUrl + "/emendamenti/modifica-stato",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        waiting(false);
+        if (data.message) {
+            console.log("error", data.message);
+            ErrorAlert(data.message);
+            return;
+        }
+        DeselectALLEM();
+        location.reload();
+    }).fail(function(err) {
+        waiting(false);
+        console.log("error", err);
+        Error(err);
+    });
 }
 
+function CambioStatoMassivoSoloIds(stato, lista) {
+    
+    var obj = {};
+    obj.Stato = stato;
+    obj.Lista = lista;
+    obj.AttoUId = $("#hdUIdAtto").val();
+
+    $.ajax({
+        url: baseUrl + "/emendamenti/modifica-stato",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        
+    }).fail(function(err) {
+        console.log("error", err);
+    });
+}
 
 async function CambioStatoMassivoDASI(stato, descr) {
 	waiting(true);
@@ -1071,6 +1077,75 @@ async function CambioStatoMassivoDASI(stato, descr) {
     setTimeout(function () {
 	    location.reload();
     }, 1500);
+}
+
+async function CambioStatoMassivoDASISoloIds(stato, lista) {
+	var request = {};
+	request.Lista = [];
+
+    lista.forEach(uid => {
+	    // Crea un oggetto per ogni atto
+	    let attoData = {
+		    uid: uid
+	    };
+
+	    // Aggiungi l'oggetto alla lista di dati da inviare
+	    request.Lista.push(attoData);
+    });
+
+    let datiDaInviare = {};
+    datiDaInviare.statoCheck = true;
+    datiDaInviare.stato = stato;
+
+    request.Dati = datiDaInviare;
+
+    var url = baseUrl + '/dasi/salva-comando-massivo';
+
+    const response = await fetch(url, {
+	    method: 'POST',
+	    headers: {
+		    'Content-Type': 'application/json'
+	    },
+	    body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+	    waiting(false);
+	    throw new Error('Network response was not ok');
+    }
+
+    try {
+	    const errorData = await response.json();
+	    if (errorData !== "OK") { waiting(false); ErrorAlert(errorData.message); return; }
+
+    } catch (error) {
+	    // ignored
+    }
+}
+
+async function IscrizioneASedutaMassivoDASISoloIds(uidSeduta, lista) {
+    waiting(true);
+    var request = {};
+    request.UidSeduta = uidSeduta;
+    request.Lista = lista;
+
+    var url = baseUrl + '/dasi/iscrivi-seduta';
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+        waiting(false);
+        throw new Error('Network response was not ok');
+    }
+    
+    waiting(false);
+    location.reload();
 }
 
 function GetPersoneFromDB() {
@@ -1508,6 +1583,48 @@ function BloccaODG(attoUId, blocca) {
     });
 }
 
+function BloccaEM(attoUId) {
+    var obj = {};
+    obj.Id = attoUId;
+    
+    var blocco = $("#chkBloccoEM_" + attoUId).data("blocco");
+    var new_blocco;
+    if (blocco == true) {
+        obj.Blocco = false;
+        new_blocco = false;
+    }else{
+        obj.Blocco = true;
+        new_blocco = true;
+    }   
+
+    $.ajax({
+        url: baseUrl + "/atti/bloccoEM",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        if (data.message) {
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
+        }
+        
+        if (new_blocco == true) {
+            SuccessAlert("Presentazione emendamenti/subemendamenti bloccata");
+        } else {
+            SuccessAlert("Presentazione emendamenti/subemendamenti abilitata");
+        }
+
+        $("#chkBloccoEM_" + attoUId).data("blocco", new_blocco);
+    }).fail(function(err) {
+        console.log("error", err);
+        Error(err);
+    });
+}
+
 function JollyODG(attoUId, jolly) {
     var obj = {};
     obj.Id = attoUId;
@@ -1783,3 +1900,20 @@ const formatDate = (data) => {
 			}
 			return '';
 		};
+
+const formatDateISO = (data) => {
+			const match = data.match(dateRegex);
+			if (match) {
+				const timestamp = parseInt(match[1], 10);
+				const date = new Date(timestamp);
+				const day = String(date.getDate()).padStart(2, '0');
+				const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+				const year = date.getFullYear();
+				return `${year}-${month}-${day}`;
+			}
+			return '';
+		};
+
+function SetDate(controlId, value){
+    document.getElementById(controlId).value = value;
+}

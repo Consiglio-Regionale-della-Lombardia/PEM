@@ -57,7 +57,6 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per ricercare gli utenti
         /// </summary>
-        /// <param name="id">Guid utente</param>
         /// <returns></returns>
         [HttpPost]
         [Route("users/view")]
@@ -280,7 +279,6 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per modificare l' utente
         /// </summary>
-        /// <param name="persona"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpPost]
@@ -320,7 +318,6 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per eliminare l' utente
         /// </summary>
-        /// <param name="persona"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpGet]
@@ -405,8 +402,6 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per visualizzare i dati degli utenti
         /// </summary>
-        /// <param name="page">Pagina corrente</param>
-        /// <param name="size">Paginazione</param>
         /// <returns></returns>
         [HttpGet]
         [Route("groups/view")]

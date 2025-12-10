@@ -98,7 +98,7 @@ namespace ExpressionBuilder.Builders
             {
                 try
                 {
-                    Expression expr = null;
+                    Expression expr;
                     if (IsList(statement))
                     {
                         expr = ProcessListStatement(param, statement);
@@ -113,7 +113,7 @@ namespace ExpressionBuilder.Builders
                 }
                 catch (Exception e)
                 {
-                    continue;
+                    // ignored
                 }
             }
 
@@ -216,14 +216,14 @@ namespace ExpressionBuilder.Builders
                 return expr;
             }
 
-            var parentName = memberName.Substring(0, memberName.IndexOf("."));
+            var parentName = memberName.Substring(0, memberName.IndexOf(".", StringComparison.Ordinal));
             var parentMember = helper.GetMemberExpression(param, parentName);
             return Expression.AndAlso(Expression.NotEqual(parentMember, Expression.Constant(null)), expr);
         }
 
         private Expression CheckIfParentIsNull(Expression param, Expression member, string memberName)
         {
-            var parentName = memberName.Substring(0, memberName.IndexOf("."));
+            var parentName = memberName.Substring(0, memberName.IndexOf(".", StringComparison.Ordinal));
             var parentMember = helper.GetMemberExpression(param, parentName);
             return Expression.Equal(parentMember, Expression.Constant(null));
         }
@@ -257,7 +257,7 @@ namespace ExpressionBuilder.Builders
             {
                 var type = constant.Value.GetType();
                 var containsInfo = type.GetMethod("Contains", new[] {type.GetGenericArguments()[0]});
-                contains = Expression.Call(constant, containsInfo, member);
+                if (containsInfo != null) contains = Expression.Call(constant, containsInfo, member);
             }
 
             return contains ?? Expression.Call(member, stringContainsMethod, expression);

@@ -25,14 +25,14 @@ namespace ExpressionBuilder.Helpers
 {
     internal class BuilderHelper : IBuilderHelper
 	{
-        public readonly MethodInfo trimMethod = typeof(string).GetMethod("Trim", new Type[0]);
-        public readonly MethodInfo toLowerMethod = typeof(string).GetMethod("ToLower", new Type[0]);
+        public readonly MethodInfo trimMethod = typeof(string).GetMethod("Trim", Type.EmptyTypes);
+        public readonly MethodInfo toLowerMethod = typeof(string).GetMethod("ToLower", Type.EmptyTypes);
 
         public Expression GetMemberExpression(Expression param, string propertyName)
         {
         	if (propertyName.Contains("."))
         	{
-        		int index = propertyName.IndexOf(".");
+        		int index = propertyName.IndexOf(".", StringComparison.Ordinal);
         		var subParam = Expression.Property(param, propertyName.Substring(0, index));
         		return GetMemberExpression(subParam, propertyName.Substring(index + 1));
         	}

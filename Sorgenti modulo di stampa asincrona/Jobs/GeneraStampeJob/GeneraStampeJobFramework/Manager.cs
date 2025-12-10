@@ -36,17 +36,15 @@ namespace GeneraStampeJobFramework
             _model = model;
         }
 
-        public event EventHandler<bool> OnManagerFinish;
-
         public async Task Run()
         {
-            log.Info((object) "Manager.Run() - Avvio procedura stampe...");
+            log.Info("Manager.Run() - Avvio procedura stampe...");
             
             try
             {
-                BaseGateway.apiUrl = _model.UrlAPI;
+                BaseGateway.apiUrl = _model.UrlAPI_Internal;
                 var apiGateway = new ApiGateway();
-                log.Info((object) "Richiesta autenticazione tramite ApiGateway...");
+                log.Info("Richiesta autenticazione tramite ApiGateway...");
                 var auth = await apiGateway.Persone.Login(new LoginRequest
                 {
                     Username = _model.Username,
@@ -60,7 +58,7 @@ namespace GeneraStampeJobFramework
                     using (var unitOfWork = new UnitOfWork(context))
                     {
                         log.Info("Recupero e lock delle stampe con PickAndLockStampe...");
-                        var stampeList = await unitOfWork.Stampe.PickAndLockStampe(5, 5);
+                        var stampeList = await unitOfWork.Stampe.PickAndLockStampe(_model.StoreProcedure, 5, 5);
                         log.Info($"Numero stampe trovate e lockate: {stampeList.Count}");
                         
                         var worker = new Worker(auth.jwt, unitOfWork, ref _model);
@@ -74,12 +72,10 @@ namespace GeneraStampeJobFramework
                 }
 
                 log.Info("Manager.Run() - Tutte le stampe sono state processate.");
-                OnManagerFinish?.Invoke(this, true);
             }
             catch (Exception e)
             {
                 log.Error("Errore in Manager.Run()", e);
-                OnManagerFinish?.Invoke(this, false);
                 Console.WriteLine(e);
                 throw e;
             }

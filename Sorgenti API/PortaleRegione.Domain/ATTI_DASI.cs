@@ -121,8 +121,9 @@ namespace PortaleRegione.Domain
 
         public int? DCR { get; set; } = 0;
         public int? DCCR { get; set; } = 0;
-        public string DCRL { get; set; }
-        public string BURL { get; set; }
+        public string DCCR_Speciale { get; set; } = "";
+        public string DCRL { get; set; } = "";
+        public string BURL { get; set; } = "";
 
         public bool Privacy_Dati_Personali_Giudiziari { get; set; }
         public bool Privacy_Divieto_Pubblicazione_Salute { get; set; }
@@ -158,6 +159,11 @@ namespace PortaleRegione.Domain
         public int Ritardo { get; set; } = 0;
         public Guid? UIDPersonaFlussoRespingi { get; set; }
         public DateTime? DataFlussoRespingi { get; set; }
+        public int VersioneStampa { get; set; } = 0;
+        public DateTime? DataUltimaStampa { get; set; }
+        public string PathStampa { get; set; }
+        public bool StampaValida { get; set; } = false;
+        public bool NascondiGruppo { get; set; } = false;
 
         public string GetLegislatura()
         {

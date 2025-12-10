@@ -32,8 +32,8 @@ namespace PortaleRegione.DTO.Request
         public string foto { get; set; }
         public string userAD { get; set; }
         public int no_Cons { get; set; } = 0;
-        public bool notifica_firma { get; set; } = false;
-        public bool notifica_deposito { get; set; } = false;
+        public bool notifica_firma { get; set; }
+        public bool notifica_deposito { get; set; }
         public bool deleted { get; set; } = false;
         public bool attivo { get; set; } = false;
         public int id_gruppo_politico_rif { get; set; }

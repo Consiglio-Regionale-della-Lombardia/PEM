@@ -28,6 +28,7 @@ using ExpressionBuilder.Interfaces;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
+using PortaleRegione.Crypto;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -307,7 +308,7 @@ namespace PortaleRegione.Persistance
             return (dto.UIDPersonaProponente == persona.UID_persona ||
                     dto.UIDPersonaCreazione == persona.UID_persona)
                    && (dto.IDStato == (int)StatiAttoEnum.BOZZA ||
-                       dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA) && dto.ConteggioFirme == 1 &&
+                       dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA) &&
                    dto.Firmato_Dal_Proponente;
         }
 
@@ -636,7 +637,7 @@ namespace PortaleRegione.Persistance
         {
             var dataFromDb = await PRContext
                 .ATTI_RISPOSTE
-                .Where(r => r.UIDAtto == uidAtto)
+                .Where(r => r.UIDAtto == uidAtto && !r.Eliminato)
                 .OrderByDescending(r => r.Data)
                 .ToListAsync();
 
@@ -709,7 +710,7 @@ namespace PortaleRegione.Persistance
         {
             var docInDB = await PRContext
                 .ATTI_DOCUMENTI
-                .Where(d => d.UIDAtto == uidAtto)
+                .Where(d => d.UIDAtto == uidAtto && !d.Eliminato)
                 .OrderBy(d => d.Data)
                 .ToListAsync();
 
@@ -783,19 +784,19 @@ namespace PortaleRegione.Persistance
             PRContext.ATTI_RISPOSTE.Add(risposta);
         }
 
-        public void RimuoviRisposta(ATTI_RISPOSTE risposta)
-        {
-            PRContext.ATTI_RISPOSTE.Remove(risposta);
-        }
-
         public async Task<ATTI_RISPOSTE> GetRisposta(Guid requestUid)
         {
-            return await PRContext.ATTI_RISPOSTE.FirstOrDefaultAsync(r => r.Uid == requestUid);
+            return await PRContext.ATTI_RISPOSTE.FirstOrDefaultAsync(r => r.Uid == requestUid && !r.Eliminato);
         }
 
         public async Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUid)
         {
             return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.Uid == requestUid);
+        }
+        
+        public async Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid UidAtto, int organoId)
+        {
+            return await PRContext.ATTI_MONITORAGGIO.FirstOrDefaultAsync(m => m.UIDAtto == UidAtto && m.IdOrgano == organoId);
         }
 
         public void AggiungiMonitoraggio(ATTI_MONITORAGGIO monitoraggio)
@@ -812,6 +813,11 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext.ATTI_NOTE.FirstOrDefaultAsync(n => n.UIDAtto == requestUidAtto
                                                                       && n.Tipo == (int)requestTipoEnum);
+        }
+        
+        public async Task<ATTI_NOTE> GetNota(Guid requestUidNota)
+        {
+            return await PRContext.ATTI_NOTE.FirstOrDefaultAsync(n => n.Uid == requestUidNota);
         }
 
         public void RimuoviNota(ATTI_NOTE notaInDb)
@@ -831,20 +837,16 @@ namespace PortaleRegione.Persistance
 
         public async Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid)
         {
-            return await PRContext.ATTI_DOCUMENTI.FirstAsync(d => d.Uid.Equals(requestUid));
+            return await PRContext.ATTI_DOCUMENTI.FirstAsync(d => d.Uid.Equals(requestUid) && !d.Eliminato);
         }
 
         public async Task<List<ATTI_DOCUMENTI>> GetDocumento(Guid UIdAtto, TipoDocumentoEnum tipoDocumento)
         {
             return await PRContext.ATTI_DOCUMENTI
                 .Where(d => d.UIDAtto.Equals(UIdAtto) 
-                            && d.Tipo.Equals((int)tipoDocumento))
+                            && d.Tipo.Equals((int)tipoDocumento)
+                            && !d.Eliminato)
                 .ToListAsync();
-        }
-
-        public void RimuoviDocumento(ATTI_DOCUMENTI doc)
-        {
-            PRContext.ATTI_DOCUMENTI.Remove(doc);
         }
 
         public async Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva)
@@ -861,7 +863,7 @@ namespace PortaleRegione.Persistance
             return res.UIDAtto;
         }
 
-        public async Task<bool> CheckDCR(string dcrl, string dcr, string dccr)
+        public async Task<bool> CheckDCR(string dcrl, string dcr, string dccr, string dccr_speciale = "")
         {
             var query = PRContext
                 .DASI
@@ -878,6 +880,15 @@ namespace PortaleRegione.Persistance
             if (intDccr > 0)
             {
                 query = query.Where(a => a.DCCR.Value.Equals(intDccr));
+            }
+
+            if (!string.IsNullOrEmpty(dccr_speciale))
+            {
+                query = query.Where(a => a.DCCR_Speciale.Equals(dccr_speciale));
+            }
+            else
+            {
+                query = query.Where(a => string.IsNullOrEmpty(a.DCCR_Speciale));
             }
 
             var res = await query.AnyAsync();
@@ -1694,7 +1705,7 @@ namespace PortaleRegione.Persistance
                     
                     // #1341
                     var listaDateSedutaCrypt = seduteList
-                        .Select(s => BALHelper.EncryptString(
+                        .Select(s => CryptoHelper.EncryptString(
                             s.Data_seduta.ToString("dd/MM/yyyy"),
                             AppSettingsConfiguration.masterKey))
                         .ToList();

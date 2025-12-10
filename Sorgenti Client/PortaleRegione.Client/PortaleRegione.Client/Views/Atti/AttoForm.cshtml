@@ -209,6 +209,17 @@
                         </p>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input data-val="true" data-val-required="Il campo Invio_Notifiche_Deposito_Solo_UOLA è obbligatorio." id="Invio_Notifiche_Deposito_Solo_UOLA" name="Atto.Invio_Notifiche_Deposito_Solo_UOLA" type="checkbox" value="true"
+                                       @Html.Raw(Model.Atto.Invio_Notifiche_Deposito_Solo_UOLA ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Atto.Invio_Notifiche_Deposito_Solo_UOLA)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <div class="fixed-action-btn">

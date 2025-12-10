@@ -41,6 +41,7 @@
 		$('#tipi-documento-select').empty();
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">DCR</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA)">Verbale votazione segreta</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
 		$('#tipi-documento-select').formSelect();
 		waiting(false);
@@ -59,6 +60,7 @@
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.MONITORAGGIO)">Monitoraggio</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.CHIUSURA_ITER)">DCR</option>');
 		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE)">Verbale votazione</option>');
+		$('#tipi-documento-select').append('<option value="@Html.Raw((int)TipoDocumentoEnum.VERBALE_VOTAZIONE_SEGRETA)">Verbale votazione segreta</option>');
 		$('#tipi-documento-select').val($('#tipi-documento-select option:first').val());
 		$('#tipi-documento-select').formSelect();
 		waiting(false);
@@ -116,6 +118,12 @@
             }
 
             if (inputFileAllegatoGenerico.files.length > 0) {
+	            var validation = await validateFileAdvanced(inputFileAllegatoGenerico.files[0]);
+	            if (!validation.valid) {
+		            alert('ERRORE DI VALIDAZIONE:\n\n' + validation.error);
+		            return;
+	            }
+				
                 // Creazione del FormData per inviare il file e altri dati
                 var formData = new FormData();
                 formData.append("UIDAtto", '@Html.Raw(Model.Atto.UIDAtto)');
@@ -140,15 +148,18 @@
                         body: formData // Non impostare il content-type, fetch lo farà automaticamente con FormData
                     });
 
+	                console.log(response)
                     if (!response.ok) {
 						waiting(false);
                         throw new Error('Network response was not ok');
                     }
 
                     const result = await response.json();
+					console.log(result)
                     if (result.message) {
 						waiting(false);
-                        throw new Error(result.message);
+                        ErrorAlert(result.message);
+						return;
                     }
 
 					if (uidRisposta) {

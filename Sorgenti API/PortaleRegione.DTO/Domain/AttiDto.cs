@@ -54,6 +54,8 @@ namespace PortaleRegione.DTO.Domain
 
         public bool Notifica_deposito_differita { get; set; }
 
+        public bool Invio_Notifiche_Deposito_Solo_UOLA { get; set; } = false;
+
         public bool? OrdinePresentazione { get; set; } = false;
 
         public bool? OrdineVotazione { get; set; } = false;
@@ -92,6 +94,7 @@ namespace PortaleRegione.DTO.Domain
         public int Stato { get; set; }
         public PersonaLightDto PersonaAssessore { get; set; }
         public bool BloccoODG { get; set; } = false;
+        public bool BloccoEM { get; set; } = false;
         public bool Jolly { get; set; } = false;
         public bool Emendabile { get; set; } = false;
         public int CounterODG { get; set; } = 0;

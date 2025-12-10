@@ -47,26 +47,26 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public Guid? UID_Atto_ODG { get; set; }
 
-    public string Etichetta { get; set; }
-    public string Oggetto { get; set; }
+    public string Etichetta { get; set; } = string.Empty;
+    public string Oggetto { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Oggetto_Modificato { get; set; }
+    public string Oggetto_Modificato { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Oggetto_Approvato { get; set; }
+    public string Oggetto_Approvato { get; set; } = string.Empty;
 
-    [AllowHtml] public string Premesse { get; set; }
+    [AllowHtml] public string Premesse { get; set; } = string.Empty;
 
     [AllowHtml]
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Premesse_Modificato { get; set; }
+    public string Premesse_Modificato { get; set; } = string.Empty;
 
-    [AllowHtml] public string Richiesta { get; set; }
+    [AllowHtml] public string Richiesta { get; set; } = string.Empty;
 
     [AllowHtml]
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Richiesta_Modificata { get; set; }
+    public string Richiesta_Modificata { get; set; } = string.Empty;
 
 
     [DisplayName("Tipo atto")] public int Tipo { get; set; }
@@ -74,7 +74,7 @@ public class AttoDASIDto
     [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;
     public string DisplayTipoMozione { get; set; }
 
-    [DisplayName("Numero atto")] public string NAtto { get; set; }
+    [DisplayName("Numero atto")] public string NAtto { get; set; } = string.Empty;
     public DateTime DataCreazione { get; set; }
     public Guid UIDPersonaCreazione { get; set; }
     public int idRuoloCreazione { get; set; }
@@ -85,19 +85,19 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public Guid? UIDPersonaModifica { get; set; }
 
-    [DisplayName("Data presentazione")] public string DataPresentazione { get; set; }
+    [DisplayName("Data presentazione")] public string DataPresentazione { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DataPresentazione_MOZ { get; set; }
+    public string DataPresentazione_MOZ { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DataPresentazione_MOZ_URGENTE { get; set; }
+    public string DataPresentazione_MOZ_URGENTE { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DataPresentazione_MOZ_ABBINATA { get; set; }
+    public string DataPresentazione_MOZ_ABBINATA { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DataRichiestaIscrizioneSeduta { get; set; }
+    public string DataRichiestaIscrizioneSeduta { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public Guid? UIDPersonaRichiestaIscrizione { get; set; }
@@ -126,13 +126,13 @@ public class AttoDASIDto
 
     [DisplayName("Allegato")]
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string PATH_AllegatoGenerico { get; set; }
+    public string PATH_AllegatoGenerico { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Note_Pubbliche { get; set; }
+    public string Note_Pubbliche { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Note_Private { get; set; }
+    public string Note_Private { get; set; } = string.Empty;
 
     [DisplayName("Stato")] public int IDStato { get; set; }
     public bool Firma_su_invito { get; set; } = false;
@@ -152,10 +152,10 @@ public class AttoDASIDto
     public byte[] DocAllegatoGenerico_Stream { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Atto_Certificato { get; set; } = "";
+    public string Atto_Certificato { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string BodyAtto { get; set; }
+    public string BodyAtto { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [DisplayName("Firmatari")]
@@ -165,12 +165,12 @@ public class AttoDASIDto
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [DisplayName("Firme dopo il deposito")]
-    public string Firme_dopo_deposito { get; set; } // #1049
+    public string Firme_dopo_deposito { get; set; }  = string.Empty; // #1049
 
-    [DisplayName("Firme ritirate")] public string Firme_ritirate { get; set; } // #1048
+    [DisplayName("Firme ritirate")] public string Firme_ritirate { get; set; } = string.Empty; // #1048
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Destinatari { get; set; }
+    public string Destinatari { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public PersonaLightDto PersonaModifica { get; set; }
@@ -192,7 +192,7 @@ public class AttoDASIDto
     [DisplayName("Organi Giunta")] public List<OrganoDto> Organi_Giunta { get; set; } = new List<OrganoDto>(); // #1328
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string Commissioni_client { get; set; }
+    public string Commissioni_client { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public SeduteDto? Seduta { get; set; }
@@ -211,13 +211,13 @@ public class AttoDASIDto
     public bool Non_Passaggio_In_Esame { get; set; } = false;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string MOZ_Abbinata { get; set; }
+    public string MOZ_Abbinata { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string ODG_Atto_PEM { get; set; }
+    public string ODG_Atto_PEM { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string ODG_Atto_Oggetto_PEM { get; set; }
+    public string ODG_Atto_Oggetto_PEM { get; set; } = string.Empty;
 
     public bool Inviato_Al_Protocollo { get; set; } = false;
 
@@ -228,17 +228,17 @@ public class AttoDASIDto
     public bool MOZU_Capigruppo { get; set; } = false;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DettaglioMozioniAbbinate { get; set; }
+    public string DettaglioMozioniAbbinate { get; set; } = string.Empty;
 
-    public string Display { get; set; }
-    public string DisplayExtended { get; set; }
+    public string Display { get; set; } = string.Empty;
+    public string DisplayExtended { get; set; } = string.Empty;
 
     // Matteo Cattapan #520
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public List<KeyValueDto> FirmeCartacee { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string FirmeCartacee_string { get; set; }
+    public string FirmeCartacee_string { get; set; } = string.Empty;
 
     public List<AttiFirmeDto> FirmeAnte { get; set; }
     public List<AttiFirmeDto> FirmePost { get; set; }
@@ -249,9 +249,9 @@ public class AttoDASIDto
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [DisplayName("Codice materia")]
-    public string CodiceMateria { get; set; }
+    public string CodiceMateria { get; set; } = string.Empty;
 
-    public string BURL { get; set; }
+    public string BURL { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Protocollo { get; set; } = string.Empty;
@@ -279,40 +279,50 @@ public class AttoDASIDto
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [DisplayName("Area tematica")]
-    public string AreaTematica { get; set; }
+    public string AreaTematica { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [DisplayName("Altri Soggetti")]
-    public string AltriSoggetti { get; set; }
+    public string AltriSoggetti { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DisplayTipoRispostaRichiesta { get; set; }
+    public string DisplayTipoRispostaRichiesta { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DisplayTipoRispostaFornita { get; set; }
+    public string DisplayTipoRispostaFornita { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DisplayStato { get; set; }
+    public string DisplayStato { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DisplayAreaPolitica { get; set; }
+    public string DisplayAreaPolitica { get; set; } = string.Empty;
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string DisplayTipo { get; set; }
+    public string DisplayTipo { get; set; } = string.Empty;
 
-    public List<AttiRisposteDto> Risposte { get; set; } = new List<AttiRisposteDto>();
-    public List<AttiMonitoraggioDto> Monitoraggi { get; set; } = new List<AttiMonitoraggioDto>();
-    public List<AttiDocumentiDto> Documenti { get; set; } = new List<AttiDocumentiDto>();
-    public List<NoteDto> Note { get; set; } = new List<NoteDto>();
+    public List<AttiRisposteDto> Risposte { get; set; } = new();
+    public List<AttiMonitoraggioDto> Monitoraggi { get; set; } = new();
+    public List<AttiDocumentiDto> Documenti { get; set; } = new();
+    public List<NoteDto> Note { get; set; } = new();
 
     [DisplayName("Abbinamenti")]
-    public List<AttiAbbinamentoDto> Abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
+    public List<AttiAbbinamentoDto> Abbinamenti { get; set; } = new();
 
-    public string DisplayTipoChiusuraIter { get; set; }
-    public string DisplayTipoVotazioneIter { get; set; }
+    public string DisplayTipoChiusuraIter { get; set; } = string.Empty;
+    public string DisplayTipoVotazioneIter { get; set; } = string.Empty;
     [DisplayName("DCR/DCCR")] public int? DCR { get; set; } = 0;
     public int? DCCR { get; set; } = 0;
-    public string DCRL { get; set; }
+    
+    private string _dccrSpeciale;
+    public string DCCR_Speciale
+    {
+        get => _dccrSpeciale;
+        set => _dccrSpeciale = string.IsNullOrWhiteSpace(value) 
+            ? value 
+            : value.ToUpperInvariant();
+    }
+
+    public string DCRL { get; set; } = string.Empty;
 
     [DisplayName("Privacy - dati giudiziari")]
     public bool Privacy_Dati_Personali_Giudiziari { get; set; }
@@ -349,22 +359,22 @@ public class AttoDASIDto
 
     [DisplayName("Impegni scadenze")]
     [AllowHtml]
-    public string ImpegniScadenze { get; set; }
+    public string ImpegniScadenze { get; set; } = string.Empty;
 
     [DisplayName("Stato attuazione")]
     [AllowHtml]
-    public string StatoAttuazione { get; set; }
+    public string StatoAttuazione { get; set; } = string.Empty;
 
     [DisplayName("Competenza monitoraggio")]
     [AllowHtml]
-    public string CompetenzaMonitoraggio { get; set; }
+    public string CompetenzaMonitoraggio { get; set; } = string.Empty;
 
     [DisplayName("Monitoraggio concluso")] public bool MonitoraggioConcluso { get; set; }
 
     [DisplayName("Data trasmissione monitoraggio")]
     public DateTime? DataTrasmissioneMonitoraggio { get; set; }
 
-    public string CommissioniProponenti_string { get; set; }
+    public string CommissioniProponenti_string { get; set; } = string.Empty;
     public Guid? UIDPersonaRelatore1 { get; set; }
     public Guid? UIDPersonaRelatore2 { get; set; }
     public Guid? UIDPersonaRelatoreMinoranza { get; set; }
@@ -394,6 +404,9 @@ public class AttoDASIDto
     [DisplayName("Ritardo")] public int Ritardo { get; set; } = 0;
     public Guid? UIDPersonaFlussoRespingi { get; set; }
     public DateTime? DataFlussoRespingi { get; set; }
+    
+    [DisplayName("Nascondi gruppo")]
+    public bool NascondiGruppo { get; set; } = false;
 
     public string OggettoView()
     {

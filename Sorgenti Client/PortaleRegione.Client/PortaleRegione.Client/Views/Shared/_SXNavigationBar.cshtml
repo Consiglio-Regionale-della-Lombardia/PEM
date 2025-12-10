@@ -6,7 +6,6 @@
 @{
 	PersonaDto persona = null;
 	IEnumerable<RuoliDto> ruoli = new List<RuoliDto>();
-	IEnumerable<KeyValueDto> gruppiAdmin = new List<KeyValueDto>();
 	GruppiDto gruppo = null;
 	var currentRole = RuoliIntEnum.Utente;
 	var carica = string.Empty;
@@ -269,7 +268,7 @@
                 if (result == 0) {
                     $('#counterNotifiche').hide();
                 } else if (result > 0) {
-                    $('#counterNotifiche').html(result + " nuove");
+                    $('#counterNotifiche').html("nuove");
                     $('#counterNotifiche').show();
                 }
             }).fail(function(err) {

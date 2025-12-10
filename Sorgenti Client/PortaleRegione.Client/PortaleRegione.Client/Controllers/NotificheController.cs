@@ -64,9 +64,9 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                var model = await apiGateway.Notifiche.GetNotificheRicevute(1, 1, false, true);
+                var res = await apiGateway.Notifiche.GetCounterNotificheRicevute();
 
-                return Json(model.Data.Paging.Total, JsonRequestBehavior.AllowGet);
+                return Json(res, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

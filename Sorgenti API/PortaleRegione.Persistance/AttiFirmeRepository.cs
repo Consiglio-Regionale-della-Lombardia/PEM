@@ -50,11 +50,19 @@ namespace PortaleRegione.Persistance
         /// <param name="valida"></param>
         /// <param name="gruppoIdGruppo"></param>
         /// <param name="em"></param>
-        public async Task Firma(Guid attoUId, Guid personaUId, int id_gruppo, string firmaCert,
-            string dataFirmaCert, DateTime timestamp,
-            bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false,
+        public async Task Firma(Guid attoUId, 
+            Guid personaUId, 
+            int id_gruppo, 
+            string firmaCert,
+            string dataFirmaCert,
+            DateTime timestamp,
+            bool ufficio = false,
+            bool primoFirmatario = false, 
+            bool valida = true, 
+            bool capogruppo = false,
             bool prioritario = true,
-            int ordine = 0)
+            int ordine = 0,
+            int area = (int)AreaPoliticaIntEnum.Nessuno)
         {
             PRContext
                 .ATTI_FIRME
@@ -71,7 +79,8 @@ namespace PortaleRegione.Persistance
                     Valida = valida,
                     Capogruppo = capogruppo,
                     Prioritario = prioritario,
-                    OrdineVisualizzazione = ordine
+                    OrdineVisualizzazione = ordine,
+                    id_AreaPolitica = area
                 });
             await PRContext.SaveChangesAsync();
         }

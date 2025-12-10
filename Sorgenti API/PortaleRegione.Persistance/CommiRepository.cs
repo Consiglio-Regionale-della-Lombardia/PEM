@@ -42,14 +42,14 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext
                 .COMMI
-                .AnyAsync(c => c.UIDArticolo == articoloUId && c.Comma.Contains(comma));
+                .AnyAsync(c => c.UIDArticolo == articoloUId && c.Comma.Contains(comma) && !c.Eliminato);
         }
 
         public async Task<IEnumerable<COMMI>> GetCommi(Guid articoloUId)
         {
             return await PRContext
                 .COMMI
-                .Where(c => c.UIDArticolo == articoloUId)
+                .Where(c => c.UIDArticolo == articoloUId && !c.Eliminato)
                 .OrderBy(c => c.Ordine)
                 .ToListAsync();
         }
@@ -63,7 +63,7 @@ namespace PortaleRegione.Persistance
         {
             var list = await PRContext
                 .COMMI
-                .Where(c => c.UIDArticolo == articoloUId)
+                .Where(c => c.UIDArticolo == articoloUId && !c.Eliminato)
                 .OrderByDescending(c => c.Ordine)
                 .Take(1)
                 .ToListAsync();

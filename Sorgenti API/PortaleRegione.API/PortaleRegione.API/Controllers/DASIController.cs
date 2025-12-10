@@ -118,11 +118,6 @@ namespace PortaleRegione.API.Controllers
                 if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea)
                     return NotFound();
 
-                var countFirme = await _attiFirmeLogic.CountFirme(id);
-                if (countFirme > 1 && (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea))
-                    throw new InvalidOperationException(
-                        $"Non è possibile modificare l'atto. Ci sono ancora {countFirme} firme attive.");
-
                 return Ok(await _dasiLogic.ModificaModello(atto, currentUser));
             }
             catch (Exception e)
@@ -230,7 +225,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
                 }
-                await _dasiLogic.Salva_RimuoviRisposta(request);
+                await _dasiLogic.Salva_RimuoviRisposta(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -309,7 +304,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
                 }
-                await _dasiLogic.Salva_DettagliRisposta(request);
+                await _dasiLogic.Salva_DettagliRisposta(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -467,8 +462,8 @@ namespace PortaleRegione.API.Controllers
                 {
                     throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
                 }
-                await _dasiLogic.Salva_Nota(request, currentUser);
-                return Ok();
+                var nota = await _dasiLogic.Salva_Nota(request, currentUser);
+                return Ok(nota);
             }
             catch (Exception e)
             {
@@ -545,7 +540,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
                 }
-                await _dasiLogic.Rimuovi_Documento(request);
+                await _dasiLogic.Rimuovi_Documento(request, currentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -603,6 +598,32 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Salva massivamente dati DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere massivamente: iscrizione in seduta, urgenza e abbinamento
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Remove_MassiveCommand)]
+        public async Task<IHttpActionResult> Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
+                await _dasiLogic.Rimuovi_ComandoMassivo(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Rimuovi massivamente dati DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -1146,7 +1167,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _dasiLogic.ModificaStato(model));
+                return Ok(await _dasiLogic.ModificaStato(model, CurrentUser));
             }
             catch (Exception e)
             {

@@ -1,5 +1,4 @@
-﻿@using Newtonsoft.Json
-@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using Utility = PortaleRegione.Common.Utility
@@ -91,14 +90,26 @@
 <div class="row">
 <div class="col s12">
 <div class="card">
-<div class="card-action grey lighten-4 center">
-    <div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset; position: absolute; right: 10px; top: -18px;">@Utility.GetText_StatoDASI(atto.IDStato)</div>
-    <h6>
-        <b>
-            <span>@Html.Raw(atto.gruppi_politici.nome_gruppo)</span>
-        </b>
-    </h6>
-</div>
+	<div class="card-action grey lighten-4 center">
+		@{
+			// #1502
+			var labelStato = Utility.GetText_StatoDASI(atto.IDStato);
+
+			if (atto.TipoChiusuraIter.HasValue && atto.TipoChiusuraIter > 0)
+			{
+				labelStato += $" {Utility.GetText_ChiusuraIterDASI(atto.TipoChiusuraIter)}";
+			}
+		}
+		<div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset; position: absolute; right: 10px; top: -18px;border-color:black!important;color:black!important;">@labelStato</div>
+		@if(!atto.NascondiGruppo)
+		{
+			<h6>
+				<b>
+					<span>@Html.Raw(atto.gruppi_politici.nome_gruppo)</span>
+				</b>
+			</h6>
+		}
+	</div>
 @if (atto.Firmabile
      || atto.Presentabile
      || atto.Eliminabile
@@ -347,7 +358,12 @@
 			{
 				<label style="font-size: small !important">Ultima modifica: </label>
 				<br />
-				<b>[@atto.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")] @atto.PersonaModifica.DisplayName</b>
+				<b>[
+					@if (atto.DataModifica != null)
+					{
+						@atto.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")
+					}
+					] @atto.PersonaModifica.DisplayName</b>
 			}
 			@if (!string.IsNullOrEmpty(atto.Note_Pubbliche))
 			{
@@ -360,8 +376,16 @@
 			}
 		</div>
 		<div class="col s6 right-align">
+			@if (atto.UIDPersonaCreazione != atto.UIDPersonaProponente
+					&& atto.IsBozza)
+			{
+				<label style="font-size: small !important">Creato da: </label>
+				<br/>
+				<b>@atto.PersonaCreazione.DisplayName</b>
+				<br/>	
+			}
 			<label style="font-size: small !important">Proponente: </label>
-			<br />
+			<br/>
 			<b>@atto.PersonaProponente.DisplayName</b>
 		</div>
 	</div>
@@ -617,8 +641,27 @@
     $(window).on("load",
         async function() {
             if (sedute.length == 0) {
+				console.log("SEDUTE ATTIVE")
                 var data = await GetSeduteAttive();
-                sedute = data.Results;
+				if ('@atto.DisplayTipo' == '@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)'){
+					console.log("Sono una IQT! :)", data.Results);
+					$.each(data.Results, function(index, item){
+						if (item.Riservato_DASI_IQT == true) {
+							sedute.push(item);
+						}
+					});
+					return;
+				}else if ('@atto.DisplayTipo' == '@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)'){
+		            console.log("Sono una MOZ! :)", data.Results);
+		            $.each(data.Results, function(index, item){
+			            if (item.Riservato_DASI_MOZ == true) {
+				            sedute.push(item);
+			            }
+		            });
+		            return;
+	            }else{
+					sedute = data.Results;
+				}                
             }
 			if (seduteMOZU.length == 0) {
 				var data = await GetSeduteAttiveMOZU();

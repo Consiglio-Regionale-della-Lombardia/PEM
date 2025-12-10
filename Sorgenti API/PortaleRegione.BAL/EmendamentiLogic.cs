@@ -38,6 +38,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Office.Word;
+using PortaleRegione.BAL.Helpers;
+using PortaleRegione.Crypto;
 
 namespace PortaleRegione.BAL
 {
@@ -328,6 +330,11 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                InputSanitizer.ValidateAndThrowIfDangerous(emendamentoDto.TestoEM_originale, "Testo emendamento");
+                emendamentoDto.TestoEM_originale = emendamentoDto.TestoEM_originale;
+                InputSanitizer.ValidateAndThrowIfDangerous(emendamentoDto.TestoREL_originale, "Relazione illustrativa");
+                emendamentoDto.TestoREL_originale = emendamentoDto.TestoREL_originale;
+                
                 var progressivo =
                     await _unitOfWork.Emendamenti.GetProgressivo(emendamentoDto.UIDAtto,
                         persona.Gruppo.id_gruppo,
@@ -418,24 +425,12 @@ namespace PortaleRegione.BAL
 
                 em.Tags = model.Tags;
 
-                var countFirme = await _unitOfWork.Firme.CountFirme(model.UIDEM);
-
-                if (!string.IsNullOrEmpty(em.EM_Certificato) && countFirme == 1)
-                {
-                    //cancelliamo firme - notifiche - stampe
-                    em.UIDPersonaPrimaFirma = Guid.Empty;
-                    em.DataPrimaFirma = null;
-                    em.EM_Certificato = string.Empty;
-                    em.Hash = string.Empty;
-                    await _unitOfWork.Firme.CancellaFirme(model.UIDEM);
-                }
-
                 if (em.IDStato < (int)StatiEnum.Depositato)
                 {
                     em.UIDPersonaModifica = persona.UID_persona;
                     em.DataModifica = DateTime.Now;
                 }
-                
+
                 if (model.DocAllegatoGenerico_Stream != null)
                 {
                     var path = ByteArrayToFile(model.DocAllegatoGenerico_Stream);
@@ -476,6 +471,60 @@ namespace PortaleRegione.BAL
                         }
                     }
                 }
+
+                var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.ATTIVI);
+
+                if (!string.IsNullOrEmpty(em.EM_Certificato))
+                {
+                    var firmatari = new List<string>();
+                    foreach (var firma in firme.Where(i => i.UID_persona != em.UIDPersonaProponente))
+                    {
+                        var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
+                        firmatari.Add(firmatario.email);
+                    }
+
+                    if (firmatari.Count > 0)
+                    {
+                        try
+                        {
+                            EM em2 = null;
+                            if (em.Rif_UIDEM.HasValue)
+                            {
+                                em2 = await GetEM(em.Rif_UIDEM.Value);
+                            }
+
+                            var nome_em = GetNomeEM(em, em2);
+                            var mailModel = new MailModel
+                            {
+                                DA = persona.email,
+                                A = firmatari.Aggregate((i, j) => i + ";" + j),
+                                OGGETTO =
+                                    $"{nome_em} modificato dal consigliere proponente",
+                                MESSAGGIO =
+                                    $"{persona.DisplayName} ha modificato {nome_em}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. <br> Contatta il proponente per firmare nuovamente l’atto. {GetBodyFooterMail()}"
+                            };
+                            await _logicUtil.InvioMail(mailModel);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error("Invio mail", e);
+                        }
+
+                        await _logicFirme.RimuoviFirme(em);
+                        await _unitOfWork.CompleteAsync();
+                    }
+                    
+                    //re-crypt del testo certificato
+                    var emDto = await GetEM_DTO(em);
+                    emDto.EM_Certificato = string.Empty;
+                    var body = await GetBodyEM(emDto,
+                        firme.Where(item => item.UID_persona == em.UIDPersonaProponente).ToList(), persona,
+                        TemplateTypeEnum.FIRMA);
+                    var body_encrypt = CryptoHelper.EncryptString(body, BALHelper.Decrypt(em.Hash));
+
+                    em.EM_Certificato = body_encrypt;
+                    await _unitOfWork.CompleteAsync();
+                }
             }
             catch (Exception e)
             {
@@ -488,9 +537,16 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                InputSanitizer.ValidateAndThrowIfDangerous(model.NOTE_EM, "Note riservate");
+                model.NOTE_EM = model.NOTE_EM;
+                InputSanitizer.ValidateAndThrowIfDangerous(model.NOTE_Griglia, "Note pubbliche");
+                model.NOTE_Griglia = model.NOTE_Griglia;
+                InputSanitizer.ValidateAndThrowIfDangerous(model.TestoEM_Modificabile, "Testo modificabile");
+                model.TestoEM_Modificabile = model.TestoEM_Modificabile;
+                
                 var updateMetaDatiDto = Mapper.Map<EmendamentiDto, MetaDatiEMDto>(model);
                 var emAggiornato = Mapper.Map(updateMetaDatiDto, em);
-
+                
                 emAggiornato.UIDPersonaModifica = persona.UID_persona;
                 emAggiornato.DataModifica = DateTime.Now;
                 if (!string.IsNullOrEmpty(model.TestoEM_Modificabile))
@@ -526,6 +582,23 @@ namespace PortaleRegione.BAL
                         atto.Fascicoli_Da_Aggiornare = true;
                         await _unitOfWork.CompleteAsync();
                     }
+                
+                em.StampaValida = false;
+                _unitOfWork.Stampe.Add(new STAMPE
+                {
+                    UIDStampa = Guid.NewGuid(),
+                    UIDUtenteRichiesta = persona.UID_persona,
+                    CurrentRole = (int)persona.CurrentRole,
+                    DataRichiesta = DateTime.Now,
+                    UIDAtto = em.UIDAtto,
+                    Da = 1,
+                    A = 1,
+                    Ordine = 1,
+                    Notifica = true,
+                    Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                    UIDEM = em.UIDEM
+                });
+                await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
             {
@@ -645,6 +718,26 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+        
+        private string GetCssForTemplate(TemplateTypeEnum template)
+        {
+            switch (template)
+            {
+                case TemplateTypeEnum.PDF:
+                    // CSS inline per PDF - zero richieste HTTP
+                    return PdfCssProvider.GetInlineCss();
+            
+                case TemplateTypeEnum.MAIL:
+                case TemplateTypeEnum.HTML:
+                case TemplateTypeEnum.FIRMA:
+                case TemplateTypeEnum.HTML_MODIFICABILE:
+                default:
+                    // Link esterni per browser
+                    return "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                           "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                           $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">";
+            }
+        }
 
         public async Task<string> GetBodyEM(EmendamentiDto em, List<FirmeDto> firme, PersonaDto persona,
             TemplateTypeEnum template)
@@ -657,11 +750,10 @@ namespace PortaleRegione.BAL
                 try
                 {
                     var body = GetTemplate(template);
-                    body =
-                        "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
-                        "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
-                        $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
-                        body;
+                    
+                    // CSS diversi in base al template
+                    body = GetCssForTemplate(template) + body;
+                    
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
@@ -776,7 +868,7 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
-                        firmaCert = BALHelper.EncryptString($"{AppSettingsConfiguration.FirmaUfficio}"
+                        firmaCert = CryptoHelper.EncryptString($"{AppSettingsConfiguration.FirmaUfficio}"
                             , AppSettingsConfiguration.masterKey);
                     }
                     else
@@ -818,11 +910,11 @@ namespace PortaleRegione.BAL
 
                         var bodyFirmaCert =
                             $"{persona.DisplayName} ({info_codice_carica_gruppo}){(isRelatore ? " - RELATORE" : string.Empty)}{(isAssessore ? " - Ass. capofila" : string.Empty)}";
-                        firmaCert = BALHelper.EncryptString(bodyFirmaCert
+                        firmaCert = CryptoHelper.EncryptString(bodyFirmaCert
                             , AppSettingsConfiguration.masterKey);
                     }
 
-                    var dataFirma = BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                    var dataFirma = CryptoHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
 
                     var countFirme = await _unitOfWork.Firme.CountFirme(idGuid);
@@ -830,7 +922,7 @@ namespace PortaleRegione.BAL
                     {
                         //Se è la prima firma dell'emendamento, questo viene cryptato e così certificato e non modificabile
                         em.Hash = firmaUfficio
-                            ? BALHelper.EncryptString(AppSettingsConfiguration.MasterPIN,
+                            ? CryptoHelper.EncryptString(AppSettingsConfiguration.MasterPIN,
                                 AppSettingsConfiguration.masterKey)
                             : pin.PIN;
                         em.UIDPersonaPrimaFirma = persona.UID_persona;
@@ -847,7 +939,7 @@ namespace PortaleRegione.BAL
                                 }
                             }, persona,
                             TemplateTypeEnum.FIRMA);
-                        var body_encrypt = BALHelper.EncryptString(body,
+                        var body_encrypt = CryptoHelper.EncryptString(body,
                             firmaUfficio ? AppSettingsConfiguration.MasterPIN : pin.PIN_Decrypt);
 
                         em.EM_Certificato = body_encrypt;
@@ -881,6 +973,26 @@ namespace PortaleRegione.BAL
                             atto.Fascicoli_Da_Aggiornare = true;
                             await _unitOfWork.CompleteAsync();
                         }
+
+                    if (em.IDStato >= (int)StatiEnum.Depositato)
+                    {
+                        em.StampaValida = false;
+                        _unitOfWork.Stampe.Add(new STAMPE
+                        {
+                            UIDStampa = Guid.NewGuid(),
+                            UIDUtenteRichiesta = persona.UID_persona,
+                            CurrentRole = (int)persona.CurrentRole,
+                            DataRichiesta = DateTime.Now,
+                            UIDAtto = em.UIDAtto,
+                            Da = 1,
+                            A = 1,
+                            Ordine = 1,
+                            Notifica = true,
+                            Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                            UIDEM = em.UIDEM
+                        });
+                        await _unitOfWork.CompleteAsync();
+                    }
                 }
 
                 return results;
@@ -989,7 +1101,7 @@ namespace PortaleRegione.BAL
                         firma_utente = firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
 
                     firma_utente.Data_ritirofirma =
-                        BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                        CryptoHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
 
                     if (DateTime.Now > seduta.Scadenza_presentazione.Value)
@@ -1005,7 +1117,23 @@ namespace PortaleRegione.BAL
                                     $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dall'emendamento in oggetto"
                             });
 
+                    em.StampaValida = false;
+                    _unitOfWork.Stampe.Add(new STAMPE
+                    {
+                        UIDStampa = Guid.NewGuid(),
+                        UIDUtenteRichiesta = persona.UID_persona,
+                        CurrentRole = (int)persona.CurrentRole,
+                        DataRichiesta = DateTime.Now,
+                        UIDAtto = em.UIDAtto,
+                        Da = 1,
+                        A = 1,
+                        Ordine = 1,
+                        Notifica = true,
+                        Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                        UIDEM = idGuid
+                    });
                     await _unitOfWork.CompleteAsync();
+                    
                     results.Add(n_em, "OK");
                     jumpMail = false;
                 }
@@ -1073,6 +1201,12 @@ namespace PortaleRegione.BAL
                 var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
 
+                if (atto.BloccoEM)
+                {
+                    results.Add(Guid.NewGuid(), "ERROR: Blocco deposito attivo. Non puoi depositare altri emendamenti e/o subemendamenti.");
+                    return results;
+                }
+
                 foreach (var idGuid in depositoModel.Lista)
                 {
                     if (counterDepositi == Convert.ToInt32(AppSettingsConfiguration.LimiteDepositoMassivo) + 1) break;
@@ -1097,7 +1231,7 @@ namespace PortaleRegione.BAL
                     var etichetta_progressiva =
                         await _unitOfWork.Emendamenti.GetEtichetta(emDto.UIDAtto, emDto.Rif_UIDEM.HasValue) + 1;
                     var etichetta_encrypt =
-                        BALHelper.EncryptString(etichetta_progressiva.ToString(), AppSettingsConfiguration.masterKey);
+                        CryptoHelper.EncryptString(etichetta_progressiva.ToString(), AppSettingsConfiguration.masterKey);
 
                     var checkProgressivo_unique =
                         await _unitOfWork.Emendamenti.CheckProgressivo(emDto.UIDAtto, etichetta_encrypt,
@@ -1113,7 +1247,7 @@ namespace PortaleRegione.BAL
                     var ordine = await _unitOfWork.Emendamenti.GetOrdinePresentazione(emDto.UIDAtto) + 1;
                     em.OrdinePresentazione = em.OrdineVotazione = ordine;
                     em.Timestamp = DateTime.Now;
-                    em.DataDeposito = BALHelper.EncryptString(em.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
+                    em.DataDeposito = CryptoHelper.EncryptString(em.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
                     em.IDStato = (int)StatiEnum.Depositato;
                     if (em.Rif_UIDEM.HasValue)
@@ -1141,6 +1275,13 @@ namespace PortaleRegione.BAL
                         UIDEM = idGuid
                     });
                     await _unitOfWork.CompleteAsync();
+
+                    // #1499
+                    if (em.Rif_UIDEM.HasValue)
+                    {
+                        var padreEM = await GetEM(em.Rif_UIDEM.Value);
+                        await SPOSTA_EM_TRATTAZIONE(em.UIDEM, padreEM.OrdineVotazione);
+                    }
 
                     counterDepositi++;
 
@@ -1184,7 +1325,22 @@ namespace PortaleRegione.BAL
                     throw new Exception(
                         "Non è possibile ritirare l'emendamento durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
                 }
-
+                
+                em.StampaValida = false;
+                _unitOfWork.Stampe.Add(new STAMPE
+                {
+                    UIDStampa = Guid.NewGuid(),
+                    UIDUtenteRichiesta = persona.UID_persona,
+                    CurrentRole = (int)persona.CurrentRole,
+                    DataRichiesta = DateTime.Now,
+                    UIDAtto = em.UIDAtto,
+                    Da = 1,
+                    A = 1,
+                    Ordine = 1,
+                    Notifica = true,
+                    Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                    UIDEM = em.UIDEM
+                });
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
@@ -1194,7 +1350,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model)
+        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model, PersonaDto persona)
         {
             var results = new Dictionary<Guid, string>();
 
@@ -1225,6 +1381,23 @@ namespace PortaleRegione.BAL
                         await _unitOfWork.CompleteAsync();
                     }
 
+                em.StampaValida = false;
+                _unitOfWork.Stampe.Add(new STAMPE
+                {
+                    UIDStampa = Guid.NewGuid(),
+                    UIDUtenteRichiesta = persona.UID_persona,
+                    CurrentRole = (int)persona.CurrentRole,
+                    DataRichiesta = DateTime.Now,
+                    UIDAtto = em.UIDAtto,
+                    Da = 1,
+                    A = 1,
+                    Ordine = 1,
+                    Notifica = true,
+                    Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                    UIDEM = em.UIDEM
+                });
+                await _unitOfWork.CompleteAsync();
+                
                 try
                 {
                     //OPENDATA
@@ -1319,13 +1492,58 @@ namespace PortaleRegione.BAL
                 .Select(Mapper.Map<ARTICOLI, ArticoliDto>);
         }
 
-        public async Task EliminaEmendamento(EM em, Guid currentUId)
+        public async Task EliminaEmendamento(EM em, PersonaDto currentUser)
         {
             em.Eliminato = true;
             em.DataElimina = DateTime.Now;
-            em.UIDPersonaElimina = currentUId;
+            em.UIDPersonaElimina = currentUser.UID_persona;
+
+            em.UIDPersonaModifica = currentUser.UID_persona;
+            em.DataModifica = em.DataElimina;
 
             await _unitOfWork.CompleteAsync();
+
+            // #1490 Avviso ai firmatari che l'emendamento verrà eliminato
+
+            var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+
+            var firmatari = new List<string>();
+            foreach (var firma in firme.Where(i => i.UID_persona != em.UIDPersonaProponente))
+            {
+                var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
+                firmatari.Add(firmatario.email);
+            }
+
+            if (firmatari.Count > 0)
+            {
+                try
+                {
+                    EM rifEM = null;
+                    if (em.Rif_UIDEM.HasValue)
+                    {
+                        rifEM = await GetEM(em.Rif_UIDEM.Value);
+                    }
+
+                    var nome_em = GetNomeEM(em, rifEM);
+                    var mailModel = new MailModel
+                    {
+                        DA = currentUser.email,
+                        A = firmatari.Aggregate((i, j) => i + ";" + j),
+                        OGGETTO =
+                            $"L’emendamento {nome_em}, che hai sottoscritto è stato definitivamente eliminato.",
+                        MESSAGGIO =
+                            $"{currentUser.DisplayName_GruppoCode} ha eliminato l'emendamento {nome_em}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. {GetBodyFooterMail()}"
+                    };
+                    await _logicUtil.InvioMail(mailModel);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Invio mail", e);
+                }
+
+                await _logicFirme.RimuoviFirme(em);
+                await _unitOfWork.CompleteAsync();
+            }
         }
 
         public async Task AssegnaNuovoProponente(EM em, AssegnaProponenteModel model)
@@ -1870,7 +2088,7 @@ namespace PortaleRegione.BAL
                 foreach (var filterStatement in model.filtro.Where(filterStatement =>
                              filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
                     filterStatement.Value =
-                        BALHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
+                        CryptoHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
 
                 var tags = new List<TagDto>();
                 var tags_request = new FilterStatement<EmendamentiDto>();
@@ -1960,7 +2178,7 @@ namespace PortaleRegione.BAL
                 foreach (var filterStatement in model.filtro.Where(filterStatement =>
                              filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
                     filterStatement.Value =
-                        BALHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
+                        CryptoHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
 
                 var tags = new List<TagDto>();
                 var tags_request = new FilterStatement<EmendamentiDto>();
@@ -2434,7 +2652,7 @@ namespace PortaleRegione.BAL
                 Log.Debug($"{currentMethod} - Firme [{firme.Count()}]");
                 var body = await GetBodyEM(em, firme.ToList(), persona, TemplateTypeEnum.PDF);
                 Log.Debug($"{currentMethod} - HaveBody [{!string.IsNullOrEmpty(body)}]");
-                var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+                var stamper = new PdfStamper_Playwright();
                 var result = await stamper.CreaPDFInMemory(body, em.N_EM, listAttachments);
                 Log.Debug($"{currentMethod} - HaveContent [{result != null}]");
                 Log.Debug($"{currentMethod} - ContentLength [{result.Length}]");

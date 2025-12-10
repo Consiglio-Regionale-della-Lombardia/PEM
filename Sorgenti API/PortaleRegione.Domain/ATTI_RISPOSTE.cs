@@ -44,5 +44,8 @@ namespace PortaleRegione.Domain
         public Guid? UIDDocumento { get; set; }
         public Guid? UIDRispostaAssociata { get; set; }
         public DateTime? DataRevoca { get; set; }
+        public Guid? UIDUtenteModifica { get; set; }
+        public DateTime? DataModifica { get; set; }
+        public bool Eliminato { get; set; } = false;
     }
 }

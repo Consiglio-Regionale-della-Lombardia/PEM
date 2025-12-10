@@ -66,14 +66,14 @@
                             <p>
                                 <label>
                                     <input type="checkbox" disabled="disabled"
-                                           @Html.Raw(gruppo.abilita_em_privati == false ? "" : "checked=\"checked\"")/>
+                                           @Html.Raw(!gruppo.abilita_em_privati ? "" : "checked=\"checked\"")/>
                                     <span>EM Privati</span>
                                 </label>
                             </p>
                             <p style="padding-left: 20px">
                                 <label>
                                     <input type="checkbox" disabled="disabled"
-                                           @Html.Raw(gruppo.giunta == false ? "" : "checked=\"checked\"")/>
+                                           @Html.Raw(!gruppo.giunta ? "" : "checked=\"checked\"")/>
                                     <span>Giunta</span>
                                 </label>
                             </p>

@@ -90,12 +90,10 @@ namespace PortaleRegione.DTO.Domain
         public string FirmaCert { get; set; }
 
         [StringLength(255)]
-        public string Data_firma { get; set; }
+        public string Data_firma { get; set; } = string.Empty;
 
         [StringLength(255)]
-        public string Data_ritirofirma { get; set; }
-
-        public string AreaPolitica { get; set; }
+        public string Data_ritirofirma { get; set; } = string.Empty;
 
         public bool PrimoFirmatario { get; set; } = false;
         public KeyValueDto Gruppo { get; set; }

@@ -46,6 +46,10 @@ namespace PortaleRegione.Domain
         public string TestoComma { get; set; }
 
         public int? Ordine { get; set; }
+        
+        public Guid? UIDUtenteModifica { get; set; }
+        public DateTime? DataModifica { get; set; }
+        public bool Eliminato { get; set; } = false;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ARTICOLI ARTICOLI { get; set; }

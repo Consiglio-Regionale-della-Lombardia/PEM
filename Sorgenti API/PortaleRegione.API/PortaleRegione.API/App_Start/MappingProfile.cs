@@ -208,6 +208,8 @@ namespace PortaleRegione.API
             Mapper.CreateMap<View_cariche_assessori_in_carica, AssessoreInCaricaDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<View_Commissioni_attive, OrganoDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
 
+            Mapper.CreateMap<ATTI_NOTE, NoteDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<NoteDto, ATTI_NOTE>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             #endregion
 
             Mapper.CreateMap<TAGS, TagDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));

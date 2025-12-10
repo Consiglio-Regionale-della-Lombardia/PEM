@@ -300,13 +300,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var countFirme = await _firmeLogic.CountFirme(id);
-                if (countFirme > 1)
-                {
-                    return BadRequest(
-                        $"Non è possibile modificare l'emendamento. Ci sono ancora {countFirme} firme attive.");
-                }
-
                 return Ok(await _emendamentiLogic.ModelloModificaEM(await _emendamentiLogic.GetEM(id), CurrentUser));
             }
             catch (Exception e)
@@ -423,16 +416,6 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 var user = CurrentUser;
-                if (!user.IsSegreteriaAssemblea)
-                {
-                    var countFirme = await _firmeLogic.CountFirme(model.UIDEM);
-                    if (countFirme > 1)
-                    {
-                        return BadRequest(
-                            $"Non è possibile modificare l'emendamento. Ci sono ancora {countFirme} attive.");
-                    }
-                }
-
                 await _emendamentiLogic.ModificaEmendamento(model, em, user);
 
                 return Ok();
@@ -835,14 +818,8 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var firmatari = await _firmeLogic.GetFirme(em, FirmeTipoEnum.ATTIVI);
-                var firmatari_attivi = firmatari.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
-                if (firmatari_attivi.Any())
-                {
-                    throw new InvalidOperationException("L'emendamento ha delle firme attive e non può essere eliminato");
-                }
-
-                await _emendamentiLogic.EliminaEmendamento(em, Session._currentUId);
+                var currentUser = CurrentUser;
+                await _emendamentiLogic.EliminaEmendamento(em, currentUser);
 
                 return Ok();
             }
@@ -915,7 +892,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _emendamentiLogic.ModificaStatoEmendamento(model));
+                return Ok(await _emendamentiLogic.ModificaStatoEmendamento(model, CurrentUser));
             }
             catch (Exception e)
             {

@@ -52,7 +52,7 @@ namespace ExpressionBuilder.Exceptions
         /// Initializes a new instance of the <see cref="WrongNumberOfValuesException" /> class.
         /// </summary>
         /// <param name="operation">Operation used.</param>
-        public WrongNumberOfValuesException(Operation operation) : base()
+        public WrongNumberOfValuesException(Operation operation)
         {
             Operation = operation;
             NumberOfValuesAcceptable = new OperationHelper().NumberOfValuesAcceptable(operation);

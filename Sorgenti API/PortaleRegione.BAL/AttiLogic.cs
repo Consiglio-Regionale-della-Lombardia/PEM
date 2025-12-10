@@ -136,6 +136,15 @@ namespace PortaleRegione.BAL
                 {
                     atto.NAtto = "$$";
                 }
+                
+                if (!atto.Legislatura.HasValue)
+                {
+                    if (atto.UIDSeduta.HasValue)
+                    {
+                        var seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
+                        atto.Legislatura = seduta.id_legislatura;
+                    }
+                }
 
                 _unitOfWork.Atti.Add(atto);
                 await _unitOfWork.CompleteAsync();
@@ -285,9 +294,11 @@ namespace PortaleRegione.BAL
             return await _unitOfWork.Articoli.GetArticolo(id);
         }
 
-        public async Task DeleteArticolo(ARTICOLI articolo)
+        public async Task DeleteArticolo(ARTICOLI articolo, PersonaDto currentUser)
         {
-            _unitOfWork.Articoli.Remove(articolo);
+            articolo.UIDUtenteModifica = currentUser.UID_persona;
+            articolo.DataModifica = DateTime.Now;
+            articolo.Eliminato = true;
             await _unitOfWork.CompleteAsync();
         }
 
@@ -309,9 +320,14 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        public async Task DeleteCommi(IEnumerable<COMMI> listCommi)
+        public async Task DeleteCommi(IEnumerable<COMMI> listCommi, PersonaDto currentUser)
         {
-            _unitOfWork.Commi.RemoveRange(listCommi);
+            foreach (var commis in listCommi)
+            {
+                commis.UIDUtenteModifica = currentUser.UID_persona;
+                commis.DataModifica = DateTime.Now;
+                commis.Eliminato = true;
+            }
             await _unitOfWork.CompleteAsync();
         }
 
@@ -320,15 +336,22 @@ namespace PortaleRegione.BAL
             return await _unitOfWork.Lettere.GetLettere(commaUId);
         }
 
-        public async Task DeleteLettere(IEnumerable<LETTERE> listLettere)
+        public async Task DeleteLettere(IEnumerable<LETTERE> listLettere, PersonaDto currentUser)
         {
-            _unitOfWork.Lettere.RemoveRange(listLettere);
+            foreach (var lettere in listLettere)
+            {
+                lettere.UIDUtenteModifica = currentUser.UID_persona;
+                lettere.DataModifica = DateTime.Now;
+                lettere.Eliminato = true;
+            }
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task DeleteLettere(LETTERE lettera)
+        public async Task DeleteLettere(LETTERE lettera, PersonaDto currentUser)
         {
-            _unitOfWork.Lettere.Remove(lettera);
+            lettera.UIDUtenteModifica = currentUser.UID_persona;
+            lettera.DataModifica = DateTime.Now;
+            lettera.Eliminato = true;
             await _unitOfWork.CompleteAsync();
         }
 
@@ -389,9 +412,11 @@ namespace PortaleRegione.BAL
             return await _unitOfWork.Commi.GetComma(id);
         }
 
-        public async Task DeleteComma(COMMI comma)
+        public async Task DeleteComma(COMMI comma, PersonaDto currentUser)
         {
-            _unitOfWork.Commi.Remove(comma);
+            comma.UIDUtenteModifica = currentUser.UID_persona;
+            comma.DataModifica = DateTime.Now;
+            comma.Eliminato = true;
             await _unitOfWork.CompleteAsync();
         }
 

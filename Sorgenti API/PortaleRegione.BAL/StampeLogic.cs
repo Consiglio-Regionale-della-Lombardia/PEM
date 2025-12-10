@@ -337,7 +337,6 @@ namespace PortaleRegione.BAL
 
             var thread = new ThreadWorkerModel
             {
-                PDF_LICENSE = AppSettingsConfiguration.PDF_LICENSE,
                 CartellaLavoroStampe = AppSettingsConfiguration.CartellaLavoroStampe,
                 CartellaLavoroTemporanea = AppSettingsConfiguration.CartellaTemp,
                 EmailFrom = AppSettingsConfiguration.EmailFrom,

@@ -103,7 +103,7 @@ namespace PortaleRegione.Client.Controllers
                 // Se il codice di stato non indica successo, gestiamo i casi specifici
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
+                    await response.Content.ReadAsStringAsync();
                     switch (response.StatusCode)
                     {
                         case HttpStatusCode.NotFound:

@@ -46,9 +46,12 @@
         </ul>
     </div>
 
-    <div id="btnNuovoEM" class="fixed-action-btn" style="display: block">
-        <button type="button" role="button" id="btnCreaEM" class="btn-floating btn-large blue darken-3 tooltipped" data-position="left" data-tooltip="Nuovo emendamento">
-            <i class="large material-icons">add</i>
-        </button>
-    </div>
+    if (!Model.Atto.BloccoEM)
+    {
+        <div id="btnNuovoEM" class="fixed-action-btn" style="display: block">
+            <button type="button" role="button" id="btnCreaEM" class="btn-floating btn-large blue darken-3 tooltipped" data-position="left" data-tooltip="Nuovo emendamento">
+                <i class="large material-icons">add</i>
+            </button>
+        </div>
+    }
 }

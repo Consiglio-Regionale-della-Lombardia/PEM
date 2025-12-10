@@ -23,7 +23,7 @@
     <div class="col l6 s6 left">
         <label>
             <input type="checkbox" id="checkAll" onclick="checkAllFunc(this)"/>
-            <span for="checkAll">Seleziona tutti</span>
+            <span for="checkAll">Seleziona tutto</span>
         </label>
         @if ((User.IsInRole(RuoliExt.Consigliere_Regionale) || User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)) && Model.mode == ClientModeEnum.GRUPPI)
         {

@@ -4,7 +4,7 @@
 @{
     Layout = null;
 
-    var displayAtto = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
+    var displayAtto = $"{Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
     var isNew = Model.Emendamento.UIDEM == Guid.Empty;
     var isSubEM = Model.Emendamento.Rif_UIDEM.HasValue;
     var tipo_descrizione = Model.Emendamento.Rif_UIDEM.HasValue ? "sub-emendamento" : "emendamento";
@@ -26,6 +26,8 @@
 
     @Scripts.Render("~/bundles/lib")
     @Scripts.Render("~/bundles/logic")
+    @Scripts.Render("~/bundles/filevalidation")
+    @Scripts.Render("~/bundles/editor")
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="~/Scripts/moment.js"></script>
 </head>
@@ -59,7 +61,7 @@
 		<h4>
 			<b>
 				<span>@ViewBag.Title</span>
-				<input id="hfIsNew" type="hidden" value="@isNew"/>
+				<input id="hfIsNew" type="hidden" value="@(isNew ? 1 : 0)"/>
 			</b>
 		</h4>
 	</div>
@@ -145,6 +147,7 @@
 					@Html.HiddenFor(m => m.Emendamento.DataModifica)
 					@Html.HiddenFor(m => m.Emendamento.UIDPersonaModifica)
 					@Html.HiddenFor(m => m.Emendamento.UID_QRCode)
+					@Html.HiddenFor(m => m.Emendamento.ConteggioFirme)
 
 					@Html.Partial("_MetaDatiPanel", Model)
 					<div class="form-group">

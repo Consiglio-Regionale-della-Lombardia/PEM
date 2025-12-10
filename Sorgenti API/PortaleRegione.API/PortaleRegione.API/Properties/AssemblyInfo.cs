@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PortaleRegione.API")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCopyright("Copyright ©  2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -30,5 +30,5 @@ using System.Runtime.InteropServices;
 //
 // È possibile specificare tutti i valori o lasciare i valori predefiniti per Revisione e Numeri build
 // utilizzando l'asterisco (*) come illustrato di seguito:
-[assembly: AssemblyVersion("2025.6.6.6")]
-[assembly: AssemblyFileVersion("2025.6.6.6")]
+[assembly: AssemblyVersion("2025.11.1")]
+[assembly: AssemblyFileVersion("2025.11.1")]

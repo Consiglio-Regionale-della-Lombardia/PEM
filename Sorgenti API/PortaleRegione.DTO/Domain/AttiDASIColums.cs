@@ -19,13 +19,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System;
-using Newtonsoft.Json;
 
 namespace PortaleRegione.DTO.Domain;
 
 public class AttiDASIColums
 {
-    // L'ordinamento è stato fatto in base al ticket #989
     [DisplayName("Legislatura")] public int Legislatura { get; set; }
     [DisplayName("Tipo atto")] public int Tipo { get; set; }
     [DisplayName("Tipo mozione")] public int TipoMOZ { get; set; } = 0;
@@ -41,7 +39,7 @@ public class AttiDASIColums
     [DisplayName("Protocollo")] public string Protocollo { get; set; }
     [DisplayName("Codice materia")] public string CodiceMateria { get; set; }
     [DisplayName("Non passaggio in esame")] public bool Non_Passaggio_In_Esame { get; set; } = false;
-    [DisplayName("Informazioni risposte")] public string Risposte { get; set; }
+    [DisplayName("Informazioni risposte/Iter")] public string Risposte { get; set; } // #1503
     [DisplayName("Informazioni monitoraggio")] public string Monitoraggi { get; set; }
     [DisplayName("Data trasmissione monitoraggio")] public DateTime? DataTrasmissioneMonitoraggio { get; set; }
     [DisplayName("Monitoraggio concluso")] public bool MonitoraggioConcluso { get; set; }

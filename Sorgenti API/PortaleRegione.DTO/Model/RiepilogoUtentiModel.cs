@@ -23,6 +23,6 @@ namespace PortaleRegione.DTO.Model
     public class RiepilogoUtentiModel
     {
         public PersonaDto Persona { get; set; }
-        public PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.PersonaDto> Data { get; set; }
+        public Response.BaseResponse<PersonaDto> Data { get; set; }
     }
 }

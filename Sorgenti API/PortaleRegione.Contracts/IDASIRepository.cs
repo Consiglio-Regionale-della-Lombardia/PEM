@@ -97,21 +97,21 @@ namespace PortaleRegione.Contracts
         Task<ATTI_ABBINAMENTI> GetAbbinamento(Guid requestUidAbbinamento, Guid requestUidAttoAbbinato);
         void RimuoviAbbinamento(ATTI_ABBINAMENTI abbinamentoInDb);
         void AggiungiRisposta(ATTI_RISPOSTE risposta);
-        void RimuoviRisposta(ATTI_RISPOSTE risposta);
         Task<ATTI_RISPOSTE> GetRisposta(Guid requestUid);
         Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid requestUid);
+        Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid UidAtto, int organoId);
         void AggiungiMonitoraggio(ATTI_MONITORAGGIO monitoraggio);
         void RimuoviMonitoraggio(ATTI_MONITORAGGIO monitoraggioInDb);
         Task<ATTI_NOTE> GetNota(Guid requestUidAtto, TipoNotaEnum requestTipoEnum);
+        Task<ATTI_NOTE> GetNota(Guid requestUidNota);
         void RimuoviNota(ATTI_NOTE notaInDb);
         void AggiungiNota(ATTI_NOTE notaInDb);
         void AggiungiDocumento(ATTI_DOCUMENTI doc);
         Task<ATTI_DOCUMENTI> GetDocumento(Guid requestUid);
         Task<List<ATTI_DOCUMENTI>> GetDocumento(Guid UIdAtto, TipoDocumentoEnum tipoDocumento);
-        void RimuoviDocumento(ATTI_DOCUMENTI doc);
         Task<ATTI_DASI> GetByEtichetta(string etichettaProgressiva);
         Task<Guid> GetByQR(Guid id);
-        Task<bool> CheckDCR(string dcrl, string dcr, string dccr);
+        Task<bool> CheckDCR(string dcrl, string dcr, string dccr, string dccr_speciale = "");
         Task<bool> TryAcquireDepositoLock(Guid userId);
         Task ReleaseDepositoLock(Guid userId);
     }

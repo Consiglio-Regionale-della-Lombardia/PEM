@@ -159,5 +159,29 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
+        public async Task RimuoviFirme(EM em)
+        {
+            try
+            {
+                var firmeInDb = await _unitOfWork
+                    .Firme
+                    .GetFirmatari(em, FirmeTipoEnum.TUTTE);
+
+                var firme = firmeInDb.ToList();
+
+                if (!firme.Any()) return;
+
+                foreach (var firma in firme.Where(firma => firma.UID_persona != em.UIDPersonaProponente))
+                {
+                    _unitOfWork.Firme.Remove(firma);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - RemoveFirme - EM", e);
+                throw e;
+            }
+        }
     }
 }

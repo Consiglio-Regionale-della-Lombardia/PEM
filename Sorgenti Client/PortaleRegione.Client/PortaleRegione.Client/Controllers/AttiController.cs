@@ -23,8 +23,10 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
 
@@ -41,6 +43,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per visualizzare i dati degli atti contenuti in una seduta
         /// </summary>
         /// <param name="id">Guid seduta</param>
+        /// <param name="mode"></param>
         /// <param name="page">Pagina corrente</param>
         /// <param name="size">Paginazione</param>
         /// <returns></returns>
@@ -64,6 +67,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per eliminare l'atto
         /// </summary>
+        /// <param name="sedutaUId"></param>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
@@ -137,8 +141,31 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 if (atto.DocAtto != null)
-                    if (atto.DocAtto.ContentType != "application/pdf")
-                        throw new InvalidOperationException("I file devono essere in formato PDF");
+                {
+                    // Leggi contenuto
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await atto.DocAtto.InputStream.CopyToAsync(memoryStream);
+                        var fileData = memoryStream.ToArray();
+
+                        // Validazione completa
+                        var validation = FileValidator.ValidateFile(
+                            atto.DocAtto.FileName,
+                            atto.DocAtto.ContentType,
+                            fileData
+                        );
+
+                        if (!validation.IsValid)
+                            throw new InvalidOperationException(validation.ErrorMessage);
+
+                        if (FileValidator.IsZipFile(atto.DocAtto.FileName, fileData))
+                            throw new InvalidOperationException(
+                                "File ZIP non consentiti per motivi di sicurezza.");
+                        
+                        atto.DocAtto_Stream = fileData;
+                    }
+                }
+                
                 var apiGateway = new ApiGateway(Token);
                 AttiDto attoSalvato = null;
                 if (atto.UIDAtto == Guid.Empty)
@@ -262,6 +289,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per avere i commi
         /// </summary>
         /// <param name="id">Guid articolo</param>
+        /// <param name="expanded"></param>
         /// <returns></returns>
         [Route("commi")]
         public async Task<ActionResult> GetCommi(Guid id, bool expanded = false)
@@ -327,7 +355,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per salvare o modificare l'atto
         /// </summary>
-        /// <param name="atto">Modello atto</param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("relatori")]
@@ -359,7 +387,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per salvare o modificare l'atto
         /// </summary>
-        /// <param name="atto">Modello atto</param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("abilita-fascicolazione")]
@@ -410,12 +438,36 @@ namespace PortaleRegione.Client.Controllers
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("bloccoODG")]
         [HttpPost]
-        public async Task<ActionResult> BloccoODG(BloccoODGModel model)
+        public async Task<ActionResult> BloccoODG(BloccoModel model)
         {
             try
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.Atti.BloccoODG(model);
+
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        ///     Controller per bloccare la presentazione degli emendamenti per un atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("bloccoEM")]
+        [HttpPost]
+        public async Task<ActionResult> BloccoEM(BloccoModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.Atti.BloccoEM(model);
 
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }

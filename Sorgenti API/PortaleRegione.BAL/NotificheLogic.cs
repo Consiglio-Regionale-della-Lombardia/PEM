@@ -24,6 +24,7 @@ using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.Contracts;
+using PortaleRegione.Crypto;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -166,6 +167,24 @@ namespace PortaleRegione.BAL
                     uri),
                 CurrentUser = currentUser
             };
+        }
+
+        public async Task<int> GetCounterNotificheRicevute(PersonaDto currentUser)
+        {
+            var queryFilter = new Filter<NOTIFICHE>();
+            var idGruppo = 0;
+            if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
+                || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
+                || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                idGruppo = currentUser.Gruppo.id_gruppo;
+
+            var notifiche = (await _unitOfWork.Notifiche
+                    .GetNotificheRicevute(currentUser, idGruppo, false, true, 1, 1,
+                        queryFilter))
+                .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
+                .ToList();
+
+            return notifiche.Count == 0 ? 0 : 1;
         }
 
         public async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(string notificaId)
@@ -627,7 +646,7 @@ namespace PortaleRegione.BAL
             notifica.Chiuso = true;
             var firma = await _unitOfWork.Atti_Firme.FindInCache(notifica.UIDAtto, notifica.Mittente);
             firma.Data_ritirofirma =
-                BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                CryptoHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                     AppSettingsConfiguration.masterKey);
             await _unitOfWork.CompleteAsync();
             var atto = await _logicDasi.GetAttoDto(notifica.UIDAtto);

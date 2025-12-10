@@ -21,9 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Generics;
-using PortaleRegione.Client.Helpers;
 using PortaleRegione.Client.Models;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -178,92 +175,6 @@ namespace PortaleRegione.Client.Controllers
                 return Json(ex.Message, JsonRequestBehavior.AllowGet);
             }
         }
-        
-        private async Task<BaseRequest<AttoDASIDto>> ElaboraFiltri()
-        {
-            var modeCache = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
-            var mode = modeCache != 0 ? (ClientModeEnum)modeCache : ClientModeEnum.GRUPPI;
-            int.TryParse(Request.Form["page"], out var filtro_page);
-            int.TryParse(Request.Form["size"], out var filtro_size);
-            var view = Request.Form["view"];
-            var filtro_oggetto = Request.Form["filtro_oggetto"];
-            var filtro_stato = Request.Form["filtro_stato"];
-            var filtro_tipo = Request.Form["filtro_tipo"];
-            var filtro_mozione_urgente = Request.Form["filtro_mozione_urgente"];
-            var filtro_tipo_risposta = Request.Form["filtro_tipo_risposta"];
-            var filtro_natto = Request.Form["filtro_natto"];
-            var filtro_natto2 = Request.Form["filtro_natto2"];
-            var filtro_da = Request.Form["filtro_da"];
-            var filtro_a = Request.Form["filtro_a"];
-            var filtro_data_seduta = Request.Form["filtro_data_seduta"];
-            var filtro_data_iscrizione_seduta = Request.Form["filtro_data_iscrizione_seduta"];
-            var filtro_tipo_trattazione = Request.Form["Tipo"];
-            var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
-            var filtro_seduta = Request.Form["UIDSeduta"];
-            var filtro_legislatura = Request.Form["filtro_legislatura"];
-            var filtro_proponente = Request.Form["filtro_proponente"];
-            var filtro_provvedimenti = Request.Form["filtro_provvedimenti"];
-
-            var model = new BaseRequest<AttoDASIDto>
-            {
-                page = filtro_page != 0 ? filtro_page : 1,
-                size = filtro_size,
-                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode }, { "VIEW_MODE", view } }
-            };
-
-            var util = new UtilityFilter();
-
-            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
-            util.AddFilter_ByDataPresentazione(ref model, filtro_da, filtro_a);
-            var sedutaUId = await GetSedutaByData(filtro_data_seduta);
-            util.AddFilter_ByDataSeduta(ref model, sedutaUId);
-            util.AddFilter_ByDataIscrizioneSeduta(ref model, filtro_data_iscrizione_seduta);
-            util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
-            util.AddFilter_ByStato(ref model, filtro_stato, mode);
-            util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
-            util.AddFilter_ByTipo(ref model, filtro_tipo_trattazione, mode);
-            util.AddFilter_ByMozioneUrgente(ref model, filtro_mozione_urgente);
-            util.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
-            util.AddFilter_BySeduta(ref model, filtro_seduta);
-            util.AddFilter_ByLegislatura(ref model, filtro_legislatura);
-            util.AddFilter_Proponents(ref model, filtro_proponente);
-            util.AddFilter_Provvedimenti(ref model, filtro_provvedimenti);
-
-            return model;
-        }
-        
-        private async Task<Guid> GetSedutaByData(string filtroDataSeduta)
-        {
-            var result = Guid.Empty;
-            var success = DateTime.TryParse(filtroDataSeduta, out var data);
-
-            if (success)
-            {
-                var modelSedute = new BaseRequest<SeduteDto>
-                {
-                    filtro = new List<FilterStatement<SeduteDto>>
-                    {
-                        new FilterStatement<SeduteDto>
-                        {
-                            PropertyId = nameof(SeduteDto.Data_seduta),
-                            Operation = Operation.GreaterThanOrEqualTo,
-                            Value = data.ToString("yyyy-MM-dd") + " 00:00:01"
-                        },
-                        new FilterStatement<SeduteDto>
-                        {
-                            PropertyId = nameof(SeduteDto.Data_seduta),
-                            Operation = Operation.LessThanOrEqualTo,
-                            Value = data.ToString("yyyy-MM-dd") + " 23:59:59"
-                        }
-                    }
-                };
-                var gate = new ApiGateway(Token);
-                var resultSedute = await gate.Sedute.Get(modelSedute);
-                if (resultSedute.Results.Any()) result = resultSedute.Results.First().UIDSeduta;
-            }
-
-            return result;
-        }
 
         /// <summary>
         ///     Controller per scaricare una stampa
@@ -291,7 +202,6 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per scaricare una stampa
         /// </summary>
-        /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("fascicolo/{nomeFile}")]
