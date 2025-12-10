@@ -854,7 +854,7 @@ namespace GeneraStampeJobFramework
                 var email_destinatariGruppo = string.Empty;
                 var email_destinatariGiunta = string.Empty;
 
-                if (atto.Invio_Notifiche_Deposito_Solo_UOLA)
+                if (!atto.Invio_Notifiche_Deposito_Solo_UOLA)
                 {
                     if (emInDb.id_gruppo < 10000)
                     {
@@ -882,9 +882,7 @@ namespace GeneraStampeJobFramework
                             email_destinatariGiunta +=
                                 giuntaRegionale.Select(u => u.email).Aggregate((i, j) => $"{i};{j}");
                     }
-                }
-                else
-                {
+                    
                     email_destinatari += $"{utenteRichiedente.email}";
                 }
 
