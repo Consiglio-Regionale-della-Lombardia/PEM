@@ -1284,8 +1284,6 @@ namespace PortaleRegione.BAL
                     }
 
                     counterDepositi++;
-
-                    await Task.Delay(1000); // #884. no sleep di 1 secondo può migliorare la gestione delle risorse e prevenire possibili problemi di sovraccarico del database
                 }
 
                 return results;
