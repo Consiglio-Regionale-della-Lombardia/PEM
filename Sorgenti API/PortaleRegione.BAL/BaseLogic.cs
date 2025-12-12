@@ -751,10 +751,7 @@ namespace PortaleRegione.BAL
             {
                 //DEPOSITATO
                 body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
-
-                if (firmeDtos.Any())
-                    body = body.Replace("{radGridFirmeView}",
-                        TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeDtos)));
+                body = body.Replace("{radGridFirmeView}", firmeDtos.Any() ? TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeDtos)) : string.Empty);
                 body = body.Replace("{radGridFirmePostView}", string.Empty);
             }
             else

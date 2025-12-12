@@ -1,27 +1,21 @@
 /*
- * CONFIGURAZIONE SICURA TRUMBOWYG - ACT32
+ * CONFIGURAZIONE SICURA TRUMBOWYG - ACT32 (FIXED)
  * 
- * Questo file contiene la configurazione dell'editor Trumbowyg
- * con whitelist di tag HTML permessi e protezione XSS
- * 
- * DA INCLUDERE IN: 
- * - Views/DASI/_ScriptFormDASI.cshtml
- * - Views/Emendamenti/_EMFormScript.cshtml  
- * - Views/Template/TemplateForm.cshtml
- * - Qualsiasi altra view che utilizza Trumbowyg
+ * Mantiene formattazioni sicure (grassetto, corsivo, tabelle, liste)
+ * Rimuove solo contenuti pericolosi (script, iframe, event handlers)
  */
 
 // Configurazione globale sicura per Trumbowyg
 var trumbowygSecureConfig = {
     lang: 'it',
 
-    // Rimuovi formattazioni pericolose durante il paste
-    removeformatPasted: true,
+    // NON rimuovere tutte le formattazioni - solo quelle pericolose
+    removeformatPasted: false,  // ← CAMBIATO DA true A false
 
     // Usa tag semantici validi
     semantic: true,
 
-    // Plugin cleanpaste per rimuovere formattazioni non sicure
+    // Plugin per gestione paste da Word
     plugins: {
         fontfamily: {
             fontList: [
@@ -31,7 +25,6 @@ var trumbowygSecureConfig = {
         }
     },
 
-    // Pulsanti consentiti nella toolbar
     btns: [
         ['viewHTML'],
         ['formatting'],
@@ -57,15 +50,24 @@ var trumbowygSecureConfig = {
         'div', 'span', 'hr', 'sup', 'sub'
     ],
 
-    // Tag da rimuovere automaticamente
+    // Tag da rimuovere automaticamente (SOLO pericolosi)
     tagsToRemove: ['script', 'style', 'iframe', 'object', 'embed', 'applet', 'form', 'input', 'button'],
 
     // Eventi per validazione aggiuntiva
     events: {
-        // Validazione prima di inserire contenuto
-        tbwpaste: function() {
-            // Il plugin cleanpaste gestirà la pulizia
-            return true;
+        // Pulizia selettiva durante paste
+        tbwpaste: function(e) {
+            var $this = $(this);
+
+            // Ritarda leggermente per permettere il paste
+            setTimeout(function() {
+                var content = $this.trumbowyg('html');
+
+                // Pulisci SOLO contenuti pericolosi, mantieni formattazioni
+                content = cleanWordPasteKeepFormatting(content);
+
+                $this.trumbowyg('html', content);
+            }, 10);
         },
 
         // Validazione dopo il cambio di contenuto
@@ -73,10 +75,9 @@ var trumbowygSecureConfig = {
             var editor = $(this);
             var content = editor.trumbowyg('html');
 
-            // Rimuovi tag pericolosi se presenti
+            // Rimuovi SOLO tag pericolosi
             content = sanitizeEditorContent(content);
 
-            // Aggiorna il contenuto se è stato modificato
             if (content !== editor.trumbowyg('html')) {
                 editor.trumbowyg('html', content);
             }
@@ -84,26 +85,71 @@ var trumbowygSecureConfig = {
     }
 };
 
-// Funzione di sanitizzazione lato client
+// Funzione per pulire paste da Word mantenendo formattazioni utili
+function cleanWordPasteKeepFormatting(html) {
+    if (!html) return html;
+
+    var cleaned = html;
+
+    // Rimuovi commenti condizionali Word (<!--[if ...]>...<![endif]-->)
+    cleaned = cleaned.replace(/<!--\[if[\s\S]*?<!\[endif\]-->/gi, '');
+
+    // Rimuovi tag XML di Word (<w:*, <o:*, <m:*)
+    cleaned = cleaned.replace(/<\/?w:[^>]*>/gi, '');
+    cleaned = cleaned.replace(/<\/?o:[^>]*>/gi, '');
+    cleaned = cleaned.replace(/<\/?m:[^>]*>/gi, '');
+
+    // Rimuovi attributi Word (class="Mso*", style con mso-*)
+    cleaned = cleaned.replace(/\s*class="Mso[^"]*"/gi, '');
+    cleaned = cleaned.replace(/\s*class='Mso[^']*'/gi, '');
+    cleaned = cleaned.replace(/\s*style="[^"]*mso-[^"]*"/gi, '');
+    cleaned = cleaned.replace(/\s*style='[^']*mso-[^']*'/gi, '');
+
+    // Rimuovi <meta>, <link>, <xml> tags
+    cleaned = cleaned.replace(/<meta[^>]*>/gi, '');
+    cleaned = cleaned.replace(/<link[^>]*>/gi, '');
+    cleaned = cleaned.replace(/<xml[^>]*>[\s\S]*?<\/xml>/gi, '');
+
+    // Rimuovi span vuoti o inutili
+    cleaned = cleaned.replace(/<span[^>]*>\s*<\/span>/gi, '');
+
+    // Rimuovi &nbsp; multipli (sostituisci con singolo spazio)
+    cleaned = cleaned.replace(/(&nbsp;\s*){2,}/gi, ' ');
+
+    // MANTIENI: strong, b, em, i, u, del, ul, ol, li, table, tr, td, th
+    // Questi NON vengono toccati dalla pulizia
+
+    // Rimuovi SOLO tag pericolosi
+    cleaned = sanitizeEditorContent(cleaned);
+
+    return cleaned;
+}
+
+// Funzione di sanitizzazione lato client (SOLO pericolosi)
 function sanitizeEditorContent(html) {
     if (!html) return html;
 
-    // Pattern pericolosi da rimuovere
-    var dangerousPatterns = [
-        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-        /javascript:/gi,
-        /on\w+\s*=/gi,
-        /<iframe/gi,
-        /<object/gi,
-        /<embed/gi,
-        /vbscript:/gi,
-        /data:text\/html/gi
-    ];
-
     var cleaned = html;
-    dangerousPatterns.forEach(function(pattern) {
-        cleaned = cleaned.replace(pattern, '');
-    });
+
+    // Rimuovi tag pericolosi
+    cleaned = cleaned.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    cleaned = cleaned.replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '');
+    cleaned = cleaned.replace(/<object[^>]*>[\s\S]*?<\/object>/gi, '');
+    cleaned = cleaned.replace(/<embed[^>]*>/gi, '');
+    cleaned = cleaned.replace(/<applet[^>]*>[\s\S]*?<\/applet>/gi, '');
+    cleaned = cleaned.replace(/<form[^>]*>[\s\S]*?<\/form>/gi, '');
+
+    // Rimuovi event handlers inline
+    cleaned = cleaned.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '');
+    cleaned = cleaned.replace(/\s*on\w+\s*=\s*[^\s>]*/gi, '');
+
+    // Rimuovi javascript: e vbscript: da href/src
+    cleaned = cleaned.replace(/href\s*=\s*["']?\s*javascript:/gi, 'href="#"');
+    cleaned = cleaned.replace(/src\s*=\s*["']?\s*javascript:/gi, 'src="#"');
+    cleaned = cleaned.replace(/href\s*=\s*["']?\s*vbscript:/gi, 'href="#"');
+
+    // Rimuovi data:text/html
+    cleaned = cleaned.replace(/href\s*=\s*["']?\s*data:text\/html/gi, 'href="#"');
 
     return cleaned;
 }
@@ -118,8 +164,6 @@ function validateEditorContent(editorSelector) {
     var editor = $(editorSelector).parent().find('.trumbowyg-editor');
     var content = editor.html();
 
-    // Verifica presenza di contenuto pericoloso
-    var dangerousFound = false;
     var dangerousChecks = [
         { pattern: /<script/i, message: 'Tag script non sono permessi' },
         { pattern: /javascript:/i, message: 'JavaScript inline non è permesso' },
@@ -132,10 +176,9 @@ function validateEditorContent(editorSelector) {
     for (var i = 0; i < dangerousChecks.length; i++) {
         if (dangerousChecks[i].pattern.test(content)) {
             alert('ATTENZIONE: ' + dangerousChecks[i].message);
-            dangerousFound = true;
-            break;
+            return false;
         }
     }
 
-    return !dangerousFound;
+    return true;
 }

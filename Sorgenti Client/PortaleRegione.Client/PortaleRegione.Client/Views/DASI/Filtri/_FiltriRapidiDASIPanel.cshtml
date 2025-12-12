@@ -1009,6 +1009,14 @@ else
                 iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Mozione urgente" aria-label="Mozione urgente">priority_high</i>`;
             }
             
+            if(result.Tipo == @Html.Raw((int)TipoAttoEnum.MOZ) && result.TipoMOZ == @Html.Raw((int)TipoMOZEnum.SFIDUCIA)){
+                iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Mozione sfiducia" aria-label="Mozione sfiducia">thumb_down</i>`;
+            }
+            
+            if(result.Tipo == @Html.Raw((int)TipoAttoEnum.MOZ) && result.TipoMOZ == @Html.Raw((int)TipoMOZEnum.CENSURA)){
+                iconChipAggiuntiva += `<i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Mozione censura" aria-label="Mozione censura">speaker_notes_off</i>`;
+            }
+            
             const row = document.createElement('tr');
             const tdCheckBoxValue = document.createElement('td');
             tdCheckBoxValue.style.width = '1%';

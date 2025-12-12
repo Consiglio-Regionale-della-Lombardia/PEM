@@ -324,24 +324,19 @@ namespace PortaleRegione.Persistance.Public
 
             if (request.organi.Any())
             {
-                var attiCommissioni = await PRContext
-                    .ATTI_COMMISSIONI
-                    .Where(c => request.organi.Contains(c.id_organo))
-                    .Select(c => c.UIDAtto)
-                    .Distinct()
-                    .ToListAsync();
-                if (attiCommissioni.Count > 0)
-                    query = query.Where(u => attiCommissioni.Contains(u.UIDAtto));
+                var organiAttiCommissioniQuery = PRContext.ATTI_COMMISSIONI
+                    .Where(organo => request.organi.Contains(organo.id_organo))
+                    .Select(risposta => risposta.UIDAtto);
 
-                var attiRisposta = await PRContext
-                    .ATTI_RISPOSTE
-                    .Where(c => request.organi.Contains(c.IdOrgano))
-                    .Select(c => c.UIDAtto)
-                    .Distinct()
-                    .ToListAsync();
+                var organiRisposteQuery = PRContext.ATTI_RISPOSTE
+                    .Where(risposta => request.organi.Contains(risposta.IdOrgano))
+                    .Select(risposta => risposta.UIDAtto);
+                
+                var organiAny = organiAttiCommissioniQuery
+                    .Union(organiRisposteQuery)
+                    .Distinct();
 
-                if (attiRisposta.Count > 0)
-                    query = query.Where(u => attiRisposta.Contains(u.UIDAtto));
+                query = query.Where(a => organiAny.Contains(a.UIDAtto));
             }
 
             if (request.id_tipo_risposta.Any())

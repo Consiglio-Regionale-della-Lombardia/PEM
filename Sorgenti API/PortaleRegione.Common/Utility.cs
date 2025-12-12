@@ -290,11 +290,10 @@ namespace PortaleRegione.Common
                     return AreaPoliticaEnum.Misto_Maggioranza;
                 case AreaPoliticaIntEnum.Misto_Minoranza:
                     return AreaPoliticaEnum.Misto_Minoranza;
-                case AreaPoliticaIntEnum.Misto:
-                    return AreaPoliticaEnum.Misto;
                 case AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza:
                     return AreaPoliticaEnum.Misto_Maggioranza_Minoranza;
                 case AreaPoliticaIntEnum.Nessuno: // #1300
+                case AreaPoliticaIntEnum.Misto:
                     return AreaPoliticaEnum.Nessuno;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(area), area, null);

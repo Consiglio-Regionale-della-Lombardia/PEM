@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[LETTERE]    Script Date: 30/10/2025 10:52:53 ******/
+/****** Object:  Table [dbo].[LETTERE]    Script Date: 10/12/2025 11:09:03 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -8,7 +8,7 @@ GO
 CREATE TABLE [dbo].[LETTERE](
 	[UIDLettera] [uniqueidentifier] ROWGUIDCOL  NOT NULL,
 	[UIDComma] [uniqueidentifier] NULL,
-	[Lettera] [varchar](5) NULL,
+	[Lettera] [varchar](50) NULL,
 	[TestoLettera] [varchar](max) NULL,
 	[Ordine] [int] NULL,
 	[UIDUtenteModifica] [uniqueidentifier] NULL,
