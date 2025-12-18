@@ -341,14 +341,7 @@ namespace PortaleRegione.Persistance.Public
 
             if (request.id_tipo_risposta.Any())
             {
-                var attiRisposte = await PRContext
-                    .ATTI_RISPOSTE
-                    .Where(c => request.id_tipo_risposta.Contains(c.Tipo))
-                    .Select(c => c.UIDAtto)
-                    .Distinct()
-                    .ToListAsync();
-
-                query = query.Where(u => attiRisposte.Contains(u.UIDAtto));
+                query = query.Where(u => request.id_tipo_risposta.Contains(u.IDTipo_Risposta_Effettiva.Value)); // #1578
             }
 
             return query;

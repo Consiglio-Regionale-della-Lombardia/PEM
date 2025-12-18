@@ -280,8 +280,12 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
                 {
                     data = r.Data.HasValue ? r.Data.Value.ToString("dd/MM/yyyy") : string.Empty,
-                    data_trasmissione = r.DataTrasmissione.HasValue ? r.DataTrasmissione.Value.ToString("dd/MM/yyyy") : string.Empty,
-                    data_trattazione = r.DataTrattazione.HasValue ? r.DataTrattazione.Value.ToString("dd/MM/yyyy") : string.Empty,
+                    data_trasmissione = r.DataTrasmissione.HasValue
+                        ? r.DataTrasmissione.Value.ToString("dd/MM/yyyy")
+                        : string.Empty,
+                    data_trattazione = r.DataTrattazione.HasValue
+                        ? r.DataTrattazione.Value.ToString("dd/MM/yyyy")
+                        : string.Empty,
                     data_revoca = r.DataRevoca.HasValue ? r.DataRevoca.Value.ToString("dd/MM/yyyy") : string.Empty,
                     organo = r.DescrizioneOrgano ?? string.Empty,
                     id_organo = r.IdOrgano,
@@ -376,9 +380,15 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     tipo_risposta_richiesta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
                     tipo_risposta_fornita = tipo_risposta_fornita,
                     area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
-                    data_chiusura_iter = attoInDb.DataChiusuraIter.HasValue ? attoInDb.DataChiusuraIter.Value.ToString("dd/MM/yyyy") : string.Empty,
-                    data_annunzio = attoInDb.DataAnnunzio.HasValue ? attoInDb.DataAnnunzio.Value.ToString("dd/MM/yyyy") : string.Empty,
-                    data_comunicazione_assemblea = attoInDb.DataComunicazioneAssemblea.HasValue ? attoInDb.DataComunicazioneAssemblea.Value.ToString("dd/MM/yyyy"):string.Empty, // #1088
+                    data_chiusura_iter = attoInDb.DataChiusuraIter.HasValue
+                        ? attoInDb.DataChiusuraIter.Value.ToString("dd/MM/yyyy")
+                        : string.Empty,
+                    data_annunzio = attoInDb.DataAnnunzio.HasValue
+                        ? attoInDb.DataAnnunzio.Value.ToString("dd/MM/yyyy")
+                        : string.Empty,
+                    data_comunicazione_assemblea = attoInDb.DataComunicazioneAssemblea.HasValue
+                        ? attoInDb.DataComunicazioneAssemblea.Value.ToString("dd/MM/yyyy")
+                        : string.Empty, // #1088
                     stato_iter =
                         Utility.GetText_ChiusuraIterDASI(attoInDb.TipoChiusuraIter.HasValue
                             ? attoInDb.TipoChiusuraIter.Value
@@ -605,6 +615,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Operation = Operation.EqualTo,
                     Connector = FilterStatementConnector.And
                 });
+
+            
 
             return res;
         }
