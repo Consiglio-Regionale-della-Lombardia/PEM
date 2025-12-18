@@ -417,7 +417,8 @@ namespace PortaleRegione.BAL
             try
             {
                 // #1577
-                if (model.UIDPersonaProponente == Guid.Empty)
+                if (model.UIDPersonaProponente == Guid.Empty
+                    || model.UIDPersonaProponente == null)
                 {
                     throw new InvalidOperationException("Indicare il proponente");
                 }
@@ -1497,6 +1498,11 @@ namespace PortaleRegione.BAL
 
         public async Task EliminaEmendamento(EM em, PersonaDto currentUser)
         {
+            // #1572
+            if (em.Timestamp.HasValue)
+            {
+                throw new InvalidOperationException("Non è possibile eliminare un emendamento/subemendamento già depositato.");
+            }
             em.Eliminato = true;
             em.DataElimina = DateTime.Now;
             em.UIDPersonaElimina = currentUser.UID_persona;
