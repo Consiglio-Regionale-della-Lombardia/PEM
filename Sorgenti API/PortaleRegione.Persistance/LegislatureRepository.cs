@@ -49,7 +49,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .legislature
-                .Where(l => l.id_legislatura >= 24)
+                .Where(l => l.durata_legislatura_da >= new DateTime(2010,01,01))
                 .OrderByDescending(l => l.durata_legislatura_da);
 
             return await query.ToListAsync();
