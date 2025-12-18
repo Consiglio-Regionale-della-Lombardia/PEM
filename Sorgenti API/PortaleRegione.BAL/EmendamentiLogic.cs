@@ -416,6 +416,11 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                // #1577
+                if (model.UIDPersonaProponente == Guid.Empty)
+                {
+                    throw new InvalidOperationException("Indicare il proponente");
+                }
                 if (model.IDStato != (int)StatiEnum.Bozza
                     && model.IDStato != (int)StatiEnum.Bozza_Riservata)
                     throw new InvalidOperationException($"Stato non valido [{model.IDStato}]");
