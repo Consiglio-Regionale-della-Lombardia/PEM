@@ -544,16 +544,10 @@ namespace PortaleRegione.BAL
 
                     results.Add(persona_in_db);
                 }
-
-                var size = model.size;
-                if (persona != null)
-                {
-                    size = persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica ? counter : model.size;
-                }
-
+                
                 return new BaseResponse<PersonaDto>(
                     model.page,
-                    size,
+                    model.size,
                     results,
                     model.filtro,
                     counter,
