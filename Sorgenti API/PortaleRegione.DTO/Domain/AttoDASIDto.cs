@@ -316,7 +316,7 @@ public class AttoDASIDto
     private string _dccrSpeciale;
     public string DCCR_Speciale
     {
-        get => _dccrSpeciale;
+        get => string.IsNullOrEmpty(_dccrSpeciale) ? string.Empty : _dccrSpeciale;
         set => _dccrSpeciale = string.IsNullOrWhiteSpace(value) 
             ? value 
             : value.ToUpperInvariant();
