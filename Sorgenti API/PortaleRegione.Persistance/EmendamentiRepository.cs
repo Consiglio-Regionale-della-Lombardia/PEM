@@ -330,11 +330,17 @@ namespace PortaleRegione.Persistance
         public async Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona,
             OrdinamentoEnum ordine, int page, int size, int mode)
         {
+            var allowStates = new List<int>
+            {
+                (int)StatiEnum.Bozza,
+                (int)StatiEnum.Bozza_Riservata,
+                (int)StatiEnum.Depositato
+            };
             var emendamenti_da_firmare = new List<Guid>();
 
             var notifiche = await PRContext
                 .NOTIFICHE
-                .Where(n => n.UIDAtto == id && !n.Chiuso && n.EM.IDStato <= (int)StatiEnum.Depositato)
+                .Where(n => n.UIDAtto == id && !n.Chiuso && allowStates.Contains(n.EM.IDStato))
                 .Select(n => n.UIDNotifica)
                 .ToListAsync();
             if (notifiche.Any())
@@ -361,7 +367,7 @@ namespace PortaleRegione.Persistance
                 .Where(em => em.UIDPersonaProponente == persona.UID_persona
                              && !em.UIDPersonaPrimaFirma.HasValue
                              && em.UIDAtto == id
-                             && em.IDStato <= (int)StatiEnum.Bozza
+                             && allowStates.Contains(em.IDStato)
                              && !em.Eliminato)
                 .Select(em => em.UIDEM)
                 .ToListAsync();

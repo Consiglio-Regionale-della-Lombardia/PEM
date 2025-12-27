@@ -1134,13 +1134,18 @@ namespace PortaleRegione.API.Controllers
                 foreach (var notificaDestinatario in notificheDestinatari)
                 {
                     var notifica = await _unitOfWork.Notifiche.Get(notificaDestinatario.UIDNotifica);
-                    if (notifica != null && !notifica.Chiuso && !notifica.UIDEM.HasValue &&
-                        !queryExtended.AttiDaFirmare.Contains(notifica.UIDAtto))
+                    if (notifica != null 
+                        && !notifica.Chiuso 
+                        && !notifica.UIDEM.HasValue
+                        && !queryExtended.AttiDaFirmare.Contains(notifica.UIDAtto))
                         queryExtended.AttiDaFirmare.Add(notifica.UIDAtto);
                 }
 
                 var myAttiProponente = await _unitOfWork.DASI.GetAttiProponente(persona.UID_persona);
-                queryExtended.AttiDaFirmare.AddRange(myAttiProponente);
+                foreach (var guid in myAttiProponente.Where(guid => !queryExtended.AttiDaFirmare.Contains(guid)))
+                {
+                    queryExtended.AttiDaFirmare.Add(guid);
+                }
             }
         }
 

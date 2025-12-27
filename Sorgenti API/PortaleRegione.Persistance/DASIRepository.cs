@@ -623,11 +623,19 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<Guid>> GetAttiProponente(Guid personaUid)
         {
+            var allowStates = new List<int>
+            {
+                (int)StatiAttoEnum.BOZZA,
+                (int)StatiAttoEnum.BOZZA_RISERVATA,
+                (int)StatiAttoEnum.PRESENTATO,
+                (int)StatiAttoEnum.IN_TRATTAZIONE
+            };
             return await PRContext
                 .DASI
                 .Where(dasi => dasi.UIDPersonaProponente == personaUid
                                && !dasi.UIDPersonaPrimaFirma.HasValue
-                               && dasi.IDStato < (int)StatiAttoEnum.PRESENTATO
+                               && allowStates.Contains(dasi.IDStato)
+                               && !dasi.UIDSeduta.HasValue
                                && !dasi.Eliminato)
                 .Select(dasi => dasi.UIDAtto)
                 .ToListAsync();
