@@ -1,4 +1,5 @@
-﻿@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.SeduteDto>
+﻿@using PortaleRegione.Common
+@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.SeduteDto>
 
 @{
     ViewBag.Title = "Riepilogo Sedute";
@@ -131,60 +132,10 @@
                                         <label>Stato:</label><a href="#!" class="secondary-content @colorStato">@testoStato</a>
                                     </div>
                                 </li>
-                                @if (!string.IsNullOrEmpty(seduta.Note))
+                                @foreach (var atto in seduta.AttiList)
                                 {
                                     <li class="collection-item">
-                                        <div>
-                                            <label>Note:</label><a href="#!" class="secondary-content">@seduta.Note</a>
-                                        </div>
-                                    </li>
-                                }
-                                @if (seduta.Scadenza_presentazione.HasValue)
-                                {
-                                    <li class="collection-item">
-                                        <div>
-                                            <label>Scadenza EM:</label><a href="#!" class="secondary-content">@seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                        </div>
-                                    </li>
-                                }
-                                @if (seduta.DataScadenzaPresentazioneIQT.HasValue)
-                                {
-                                    <li class="collection-item">
-                                        <div>
-                                            <label>Scadenza IQT:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneIQT.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                        </div>
-                                    </li>
-                                }
-                                @if (seduta.DataScadenzaPresentazioneMOZ.HasValue)
-                                {
-                                    <li class="collection-item">
-                                        <div>
-                                            <label>Scadenza MOZ:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZ.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                        </div>
-                                    </li>
-                                }
-                                @if (seduta.DataScadenzaPresentazioneMOZU.HasValue)
-                                {
-                                    <li class="collection-item">
-                                        <div>
-                                            <label>Scadenza MOZ Urgenti:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZU.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                        </div>
-                                    </li>
-                                }
-                                @if (seduta.DataScadenzaPresentazioneMOZA.HasValue)
-                                {
-                                    <li class="collection-item">
-                                        <div>
-                                            <label>Scadenza MOZ Abbinate:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZA.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                        </div>
-                                    </li>
-                                }
-                                @if (seduta.DataScadenzaPresentazioneODG.HasValue)
-                                {
-                                    <li class="collection-item">
-                                        <div>
-                                            <label>Scadenza ODG:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneODG.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                        </div>
+                                        <label>@Utility.GetText_Tipo(atto.IDTipoAtto) @atto.NAtto - @atto.Oggetto</label>
                                     </li>
                                 }
                             </ul>

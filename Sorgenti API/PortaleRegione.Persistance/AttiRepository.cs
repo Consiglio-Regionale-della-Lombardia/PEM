@@ -83,6 +83,16 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<ATTI>> GetAllBySeduta(Guid sedutaUId)
+        {
+            var query = PRContext
+                .ATTI
+                .Where(c => c.Eliminato == false && c.UIDSeduta == sedutaUId);
+            return await query
+                .OrderBy(c => c.Priorita)
+                .ToListAsync();
+        }
+
         public async Task SalvaRelatori(Guid attoUId, IEnumerable<Guid> persone)
         {
             var oldRelatori = await PRContext

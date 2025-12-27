@@ -1227,6 +1227,18 @@ namespace PortaleRegione.Persistance
 
             return await query.ToListAsync();
         }
+        
+        public async Task<List<int>> GetAttiBySeduta(Guid uidSeduta)
+        {
+            var query = PRContext.DASI.Where(atto => !atto.Eliminato
+                                                     && atto.UIDSeduta == uidSeduta
+                                                     && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
+                                                     && atto.DataIscrizioneSeduta.HasValue)
+                .Select(atto=>atto.Tipo)
+                .Distinct();
+
+            return await query.ToListAsync();
+        }
 
         public async Task<List<ATTI_DASI>> GetProposteAtti(int gruppoId, TipoAttoEnum tipo, TipoMOZEnum tipoMoz)
         {
