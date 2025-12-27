@@ -2890,15 +2890,19 @@ namespace PortaleRegione.API.Controllers
 
                 try
                 {
+                    // #1568
+                    var mailSender = string.IsNullOrEmpty(persona.email)
+                        ? AppSettingsConfiguration.EmailInvioDASI
+                        : persona.email;
                     var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
                     var mailModel = new MailModel
                     {
-                        DA = AppSettingsConfiguration.EmailInvioDASI,
+                        DA = mailSender,
                         A = firmatari.Aggregate((i, j) => i + ";" + j),
                         OGGETTO =
-                            "Avviso di eliminazione bozza atto",
+                            "Avviso di eliminazione di un atto di indirizzo/sindacato ispettivo in bozza",
                         MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha eliminato la bozza {nome_atto} <br> {atto.Oggetto}. {GetBodyFooterMail()}"
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha eliminato la bozza dell’atto {nome_atto} con oggetto: {atto.Oggetto}. <br> {GetBodyFooterMail()}"
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
