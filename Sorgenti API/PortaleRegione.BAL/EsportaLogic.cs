@@ -623,7 +623,6 @@ namespace PortaleRegione.BAL
                     if (atto.Tipo == (int)TipoAttoEnum.MOZ)
                     {
                         tipoMozione = Utility.GetText_TipoMOZDASI(atto.TipoMOZ);
-
                     }
 
                     sheet.Cells[row, 2].Value = tipoMozione;
@@ -663,7 +662,8 @@ namespace PortaleRegione.BAL
                         sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
                     }
 
-                    sheet.Cells[row, 11].Value = Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta, true); // risposta
+                    sheet.Cells[row, 11].Value =
+                        Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta, true); // risposta
                     row++;
                 }
             }
@@ -1063,17 +1063,85 @@ namespace PortaleRegione.BAL
             return bodyRisposte.TrimEnd(';', ' ');
         }
 
-        public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode,
-            PersonaDto persona)
+        /// <summary>
+        ///     Esporta la griglia emendamenti in formato Word.
+        ///     Se il numero supera il limite configurato, genera uno ZIP con più file Word.
+        /// </summary>
+        /// <param name="model">ViewModel con atto, filtri e ordinamento</param>
+        /// <param name="persona">Utente corrente</param>
+        /// <returns>HttpResponseMessage con URL del file generato</returns>
+        public async Task<HttpResponseMessage> HTMLtoWORD(EmendamentiViewModel model, PersonaDto persona)
         {
             try
             {
-                var atto = await _logicAtti.GetAtto(attoUId);
+                var atto = model.Atto;
                 var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
-                var fileName =
-                    $"Esportazione_{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto.Replace('/', '-')}_{Guid.NewGuid()}.docx"; // Utilizza un nome di file univoco
-                var filePath = Path.Combine(tempFolderPath, fileName);
+                var limite = AppSettingsConfiguration.LimiteEmendamentiFascicoloWord;
 
+                // Recupera tutti gli emendamenti rispettando i filtri impostati
+                var emList = (await _logicEm.ScaricaEmendamenti_Word(model, persona)).ToList();
+                var totalCount = emList.Count;
+
+                // Se il numero di emendamenti non supera il limite, genera un singolo file Word
+                if (totalCount <= limite)
+                {
+                    var fileName =
+                        $"Esportazione_{Utility.GetText_Tipo(atto.IDTipoAtto)}_{atto.NAtto.Replace('/', '-')}_{Guid.NewGuid()}.docx";
+                    var filePath = Path.Combine(tempFolderPath, fileName);
+
+                    var wordBytes = await GenerateSingleWordDocument(emList, model.Ordinamento);
+                    File.WriteAllBytes(filePath, wordBytes);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{fileName}");
+                    response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+                    return response;
+                }
+
+                // Se il numero supera il limite, genera più file Word e li zippa
+                var wordFiles = new List<FileModel>();
+                var totalBlocks = (int)Math.Ceiling((double)totalCount / limite);
+
+                for (var blockIndex = 0; blockIndex < totalBlocks; blockIndex++)
+                {
+                    var startIndex = blockIndex * limite;
+                    var endIndex = Math.Min(startIndex + limite, totalCount);
+                    var blockEmendamenti = emList.Skip(startIndex).Take(limite).ToList();
+
+                    // Nome file con range: Esportazione_PDL_123_1-1000.docx
+                    var rangeStart = startIndex + 1;
+                    var rangeEnd = endIndex;
+                    var blockFileName =
+                        $"Esportazione_{Utility.GetText_Tipo(atto.IDTipoAtto)}_{atto.NAtto.Replace('/', '-')}_{rangeStart}-{rangeEnd}.docx";
+
+                    var wordBytes = await GenerateSingleWordDocument(blockEmendamenti, model.Ordinamento);
+                    wordFiles.Add(new FileModel
+                    {
+                        Name = blockFileName,
+                        Content = wordBytes
+                    });
+                }
+
+                // Genera lo ZIP con tutti i file Word
+                return ResponseZipWord(wordFiles, atto);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - HTMLtoWORD", e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     Genera un singolo documento Word a partire dalla lista di emendamenti
+        /// </summary>
+        /// <param name="emendamenti">Lista emendamenti da includere</param>
+        /// <param name="ordine">Tipo di ordinamento</param>
+        /// <returns>Byte array del documento Word</returns>
+        private async Task<byte[]> GenerateSingleWordDocument(List<EmendamentiDto> emendamenti, OrdinamentoEnum ordine)
+        {
+            try
+            {
                 using var generatedDocument = new MemoryStream();
                 using (var package =
                        WordprocessingDocument.Create(generatedDocument, WordprocessingDocumentType.Document))
@@ -1085,20 +1153,22 @@ namespace PortaleRegione.BAL
                         new Document(new Body()).Save(mainPart);
                     }
 
-                    var converter = new HtmlConverter(mainPart);
-                    converter.ParseHtml(await ComposeWordTable(attoUId, ordine, mode, persona));
+                    try
+                    {
+                        var converter = new HtmlConverter(mainPart);
+                        var resHtml = ComposeWordTableFromList(emendamenti, ordine);
+                        converter.ParseHtml(resHtml);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
 
                     mainPart.Document.Save();
                 }
 
-                File.WriteAllBytes(filePath, generatedDocument.ToArray());
-
-                // Creazione della risposta con il link di download
-                var response = new HttpResponseMessage(HttpStatusCode.OK);
-                response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{fileName}");
-                response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
-
-                return response;
+                return generatedDocument.ToArray();
             }
             catch (Exception e)
             {
@@ -1107,82 +1177,81 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private async Task<string> ComposeWordTable(Guid attoUID, OrdinamentoEnum ordine, ClientModeEnum mode,
-            PersonaDto persona)
+        /// <summary>
+        ///     Compone la tabella HTML per il documento Word a partire dalla lista di emendamenti già recuperati
+        /// </summary>
+        /// <param name="emendamenti">Lista emendamenti</param>
+        /// <param name="ordine">Tipo di ordinamento</param>
+        /// <returns>Stringa HTML della tabella</returns>
+        private string ComposeWordTableFromList(List<EmendamentiDto> emendamenti, OrdinamentoEnum ordine)
         {
-            var request = new BaseRequest<EmendamentiDto>
+            var sb = new StringBuilder();
+            sb.Append("<html><body style='page-orientation: landscape'>");
+            sb.Append("<table style='width:100%;'>");
+            sb.Append("<thead><tr>");
+            sb.Append("<th style='text-align:center; width:2cm;'>EM/SUB</th>");
+            sb.Append("<th style='text-align:center; width:10cm;'>Testo EM</th>");
+            sb.Append("<th style='text-align:center; width:8cm;'>Relazione</th>");
+            sb.Append("<th style='text-align:center; width:3.5cm;'>Proponente</th>");
+            sb.Append("<th style='text-align:center; width:2.5cm;'>Stato</th>");
+            sb.Append("</tr></thead>");
+            sb.Append("<tbody>");
+
+            // Ordina la lista in base al tipo di ordinamento
+            var orderedList = ordine == OrdinamentoEnum.Votazione
+                ? emendamenti.OrderBy(em => em.OrdineVotazione).ToList()
+                : emendamenti.OrderBy(em => em.OrdinePresentazione).ToList();
+
+            foreach (var em in orderedList)
             {
-                filtro = new List<FilterStatement<EmendamentiDto>>
-                {
-                    new FilterStatement<EmendamentiDto>
-                    {
-                        PropertyId = nameof(EmendamentiDto.UIDAtto),
-                        Connector = FilterStatementConnector.And,
-                        Operation = Operation.EqualTo,
-                        Value = attoUID
-                    }
-                },
-                id = attoUID,
-                ordine = ordine,
-                page = 1,
-                size = 1
-            };
-            var countEM = await _logicEm.CountEM(request, persona, (int)mode);
-            
-            int totalToFetch = countEM;
-            const int pageSize = 500;
-            int page = 1;
-            int totalFetched = 0;
-            
-            request.size = pageSize;
-
-            try
-            {
-                var sb = new StringBuilder();
-                sb.Append("<html>");
-                sb.Append("<body style='page-orientation: landscape'>");
-                sb.Append("<table>");
-                sb.Append("<thead>");
-                sb.Append("<tr>");
-                sb.Append(ComposeHeaderColumn("EM/SUB"));
-                sb.Append(ComposeHeaderColumn("Testo"));
-                sb.Append(ComposeHeaderColumn("Relazione"));
-                sb.Append(ComposeHeaderColumn("Proponente"));
-                sb.Append(ComposeHeaderColumn("Stato"));
-                sb.Append("</tr>");
-                sb.Append("</thead>");
-                sb.Append("<tbody>");
-                
-                while (totalFetched < totalToFetch)
-                {
-                    request.page = page;
-                    var emList = await _logicEm.GetEmendamentiWord(
-                        request, persona, (int)mode, (int)ViewModeEnum.GRID, null, totalToFetch
-                    );
-                    if (emList?.Data?.Results == null || !emList.Data.Results.Any())
-                        break;
-
-                    foreach (var em in emList.Data.Results)
-                    {
-                        sb.Append(ComposeBodyRow(em));
-                        totalFetched++;
-                    }
-
-                    page++;
-                }
-                
-                sb.Append("</tbody>");
-                sb.Append("</table>");
-                sb.Append("</body>");
-                sb.Append("</html>");
-
-                return sb.ToString();
+                sb.Append(ComposeBodyRow(em));
             }
-            catch (Exception e)
+
+            sb.Append("</tbody>");
+            sb.Append("</table>");
+            sb.Append("</body></html>");
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        ///     Genera lo ZIP contenente i file Word e restituisce la risposta HTTP
+        /// </summary>
+        /// <param name="wordFiles">Lista dei file Word da includere nello ZIP</param>
+        /// <param name="atto">Atto di riferimento per il nome del file</param>
+        /// <returns>HttpResponseMessage con URL dello ZIP</returns>
+        private HttpResponseMessage ResponseZipWord(List<FileModel> wordFiles, AttiDto atto)
+        {
+            var outputMemoryStream = new MemoryStream();
+            var zipStream = new ZipOutputStream(outputMemoryStream);
+            zipStream.SetLevel(9);
+
+            foreach (var wordFile in wordFiles)
             {
-                Console.WriteLine(e);
-                throw;
+                AddToZip(zipStream, wordFile);
             }
+
+            zipStream.IsStreamOwner = false;
+            zipStream.Close();
+
+            outputMemoryStream.Position = 0;
+            var zipByteArray = outputMemoryStream.ToArray();
+
+            var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+            var filename =
+                $"Esportazione_{Utility.GetText_Tipo(atto.IDTipoAtto)}_{atto.NAtto.Replace('/', '-')}_{DateTime.Now.Ticks}.zip";
+            var pathZip = Path.Combine(tempFolderPath, filename);
+
+            using (var fileStream = new FileStream(pathZip, FileMode.Create))
+            {
+                fileStream.Write(zipByteArray, 0, zipByteArray.Length);
+            }
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{filename}");
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+            return response;
         }
 
         private string ComposeHeaderColumn(string column_title)
@@ -1192,21 +1261,32 @@ namespace PortaleRegione.BAL
 
         private string ComposeBodyRow(EmendamentiDto em)
         {
-            var row = string.Empty;
-            row += "<tr>";
-            row += ComposeBodyColumn(em.N_EM);
-            row += ComposeBodyColumn(em.TestoEM_originale);
-            row += ComposeBodyColumn(em.TestoREL_originale);
-            row += ComposeBodyColumn(em.PersonaProponente.DisplayName);
-            row += ComposeBodyColumn(em.STATI_EM.Stato);
+            try
+            {
+                var row = string.Empty;
+                row += "<tr>";
+                row += ComposeBodyColumn(em.N_EM);
+                row += ComposeBodyColumn(em.TestoEM_originale);
+                row += ComposeBodyColumn(em.TestoREL_originale);
+                row += ComposeBodyColumn(em.PersonaProponente.DisplayName);
+                row += ComposeBodyColumn(em.STATI_EM.Stato);
 
-            row += "</tr>";
-            return row;
+                row += "</tr>";
+                return row;
+            }
+            catch (Exception e)
+            {
+                Log.Error($"ComposeBodyRow - Errore per EM {em?.UIDEM}: {e.Message}");
+                return "<tr><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td></tr>";
+            }
         }
 
         private string ComposeBodyColumn(string column_body)
         {
-            return $"<td>{column_body}</td>";
+            if (string.IsNullOrEmpty(column_body))
+                return "<td>--</td>";
+            var cleanText = Utility.StripWordMarkup(column_body);
+            return $"<td>{cleanText}</td>";
         }
 
         private void SetColumnValue(ref int row, ExcelWorksheet worksheet, string value, ref int columnIndex)

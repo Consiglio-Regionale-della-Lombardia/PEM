@@ -90,12 +90,11 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task<FileResponse> EsportaWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode)
+        public async Task<FileResponse> EsportaWORD(EmendamentiViewModel model)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaWord.Replace("{id}", attoUId.ToString()).Replace("{ordine}", ordine.ToString()).Replace("{mode}", mode.ToString())}";
-
-            var lst = await GetFileWord(requestUrl, _token);
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaWord}";
+            var body = JsonConvert.SerializeObject(model);
+            var lst = await GetFile(requestUrl, body, _token);
             return lst;
         }
     }

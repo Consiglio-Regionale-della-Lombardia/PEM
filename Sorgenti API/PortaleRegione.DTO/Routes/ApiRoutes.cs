@@ -331,7 +331,7 @@ namespace PortaleRegione.DTO.Routes
             public const string EsportaGrigliaExcelConsiglieriDasi = Base + "/dasi/griglia-xlsx-consiglieri";
             public const string EsportaGrigliaExcel = Base + "/pem/griglia-xls";
             public const string EsportaGrigliaExcelUOLA = Base + "/pem/griglia-xls-uola";
-            public const string EsportaGrigliaWord = Base + "/pem/griglia-doc/{id}/{ordine}/{mode}";
+            public const string EsportaGrigliaWord = Base + "/pem/griglia-doc";
         }
 
         public static class Persone

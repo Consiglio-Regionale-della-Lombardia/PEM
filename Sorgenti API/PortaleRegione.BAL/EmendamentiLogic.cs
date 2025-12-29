@@ -2443,6 +2443,29 @@ namespace PortaleRegione.BAL
 
             return result;
         }
+        
+        public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamenti_Word(EmendamentiViewModel model,
+            PersonaDto persona)
+        {
+            var result = new List<EmendamentiDto>();
+            var emList = await GetEmendamenti(new BaseRequest<EmendamentiDto>
+            {
+                id = model.Atto.UIDAtto,
+                ordine = model.Ordinamento,
+                page = 1,
+                size = -1,
+                filtro = model.Data.Filters
+            },
+                persona,
+                (int)model.Mode,
+                (int)model.ViewMode,
+                null,
+                null);
+
+            result.AddRange(emList.Data.Results);
+
+            return result;
+        }
 
         /// <summary>
         ///     Restituisce la stringa da aggiornare/inserire in OpenData
