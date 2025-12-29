@@ -2907,7 +2907,7 @@ namespace PortaleRegione.API.Controllers
                         OGGETTO =
                             "Avviso di eliminazione di un atto di indirizzo/sindacato ispettivo in bozza",
                         MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha eliminato la bozza dell’atto {nome_atto} con oggetto: {atto.Oggetto}. <br> {GetBodyFooterMail()}"
+                            $"{persona.DisplayName} ha eliminato la bozza dell’atto {nome_atto} con oggetto: {atto.Oggetto}. <br> {GetBodyFooterMail()}"
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
