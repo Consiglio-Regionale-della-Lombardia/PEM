@@ -1868,7 +1868,7 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<EmendamentiViewModel> GetEmendamenti(BaseRequest<EmendamentiDto> model,
-            PersonaDto persona, int CLIENT_MODE, int VIEW_MODE, PersonaDto presidente_regione, Uri uri)
+            PersonaDto persona, int CLIENT_MODE, int VIEW_MODE, PersonaDto presidente_regione, Uri uri, bool light_mode = false)
         {
             try
             {
@@ -1965,9 +1965,17 @@ namespace PortaleRegione.BAL
                 var result = new List<EmendamentiDto>();
                 foreach (var em in em_in_db)
                 {
-                    var dto = await GetEM_DTO(em, atto, persona, relatori.ToList(),
-                        presidente_regione);
-                    result.Add(dto);
+                    if (light_mode)
+                    {
+                        var dto_light = await GetEM_DTO_Light(em, atto, persona);
+                        result.Add(dto_light);
+                    }
+                    else
+                    {
+                        var dto = await GetEM_DTO(em, atto, persona, relatori.ToList(),
+                            presidente_regione);
+                        result.Add(dto);    
+                    }
                 }
 
                 var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE,
@@ -2460,7 +2468,8 @@ namespace PortaleRegione.BAL
                 (int)model.Mode,
                 (int)model.ViewMode,
                 null,
-                null);
+                null,
+                true);
 
             result.AddRange(emList.Data.Results);
 

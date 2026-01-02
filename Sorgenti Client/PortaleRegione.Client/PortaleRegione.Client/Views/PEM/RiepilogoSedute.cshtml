@@ -129,8 +129,8 @@
                                         </li>
                                         @foreach (var atto in seduta.AttiList)
                                         {
-                                            <li class="collection-item">
-                                                <label>@Utility.GetText_Tipo(atto.IDTipoAtto) @atto.NAtto - @atto.Oggetto</label>
+                                            <li class="collection-item" style="font-weight: normal!important;">
+                                                <label><b>@Utility.GetText_Tipo(atto.IDTipoAtto) @atto.NAtto </b> - @atto.Oggetto</label>
                                             </li>
                                         }
                                     </ul>
