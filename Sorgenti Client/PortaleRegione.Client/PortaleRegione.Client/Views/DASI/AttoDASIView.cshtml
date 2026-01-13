@@ -649,7 +649,6 @@
 							sedute.push(item);
 						}
 					});
-					return;
 				}else if ('@atto.DisplayTipo' == '@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)'){
 		            console.log("Sono una MOZ! :)", data.Results);
 		            $.each(data.Results, function(index, item){
@@ -657,7 +656,6 @@
 				            sedute.push(item);
 			            }
 		            });
-		            return;
 	            }else{
 					sedute = data.Results;
 				}                

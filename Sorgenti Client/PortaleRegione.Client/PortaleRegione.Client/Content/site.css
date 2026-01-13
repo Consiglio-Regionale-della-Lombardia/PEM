@@ -893,6 +893,33 @@ div.input-field > label { line-height: initial; }
 	font-weight: bold;
 }
 
+.badgeSedutaAperta {
+    background-color: white;
+    border: 1px solid #4caf50;
+    border-left: 1em solid #4caf50;
+    color: black;
+    font-weight: bold;
+    min-width: unset !important;
+}
+
+.badgeSedutaArchiviata {
+    background-color: white;
+    border: 1px solid #2196F3;
+    border-left: 1em solid #2196F3;
+    color: black;
+    font-weight: bold;
+    min-width: unset !important;
+}
+
+.badgeSedutaChiusa {
+    background-color: white;
+    border: 1px solid #9e9e9e;
+    border-left: 1em solid #9e9e9e;
+    color: black;
+    font-weight: bold;
+    min-width: unset !important;
+}
+
 /*----------------------------------------
     ###
 ------------------------------------------*/
