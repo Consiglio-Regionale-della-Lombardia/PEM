@@ -114,6 +114,7 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(Token);
             var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+            var parseClientMode = int.TryParse(model.client_mode, out int CLIENT_MODE);
             
             try
             {
@@ -125,7 +126,7 @@ namespace PortaleRegione.Client.Controllers
                         size = 99999,
                         param = new Dictionary<string, object>
                         {
-                            { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }
+                            { "CLIENT_MODE", (parseClientMode) ? CLIENT_MODE : (int)ClientModeEnum.GRUPPI }
                         }
                     };
 
