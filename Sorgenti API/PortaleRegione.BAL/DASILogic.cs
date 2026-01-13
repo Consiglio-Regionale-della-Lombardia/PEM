@@ -3820,16 +3820,30 @@ namespace PortaleRegione.API.Controllers
             var templateItemIndice = GetTemplate(TemplateTypeEnum.INDICE_DASI);
             var bodyIndice = new StringBuilder();
             foreach (var dasiDto in atti)
+            {
+                // #1588
+                var proponente_firmatari = string.Empty;
+                if (dasiDto.IsRIS())
+                {
+                    proponente_firmatari =
+                        $"{(!string.IsNullOrEmpty(dasiDto.Firme) ? dasiDto.Firme.Replace("<br>", ", ") : "")}";
+                }
+                else
+                {
+                    proponente_firmatari = $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}";    
+                }
+                
                 bodyIndice.Append(templateItemIndice
                     .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
                     .Replace("{NAtto}", dasiDto.NAtto)
                     .Replace("{Oggetto}", dasiDto.OggettoView())
                     .Replace("{Firmatari}",
-                        $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
+                        proponente_firmatari)
                     .Replace("{DataDeposito}",
                         string.IsNullOrEmpty(dasiDto.DataPresentazione)
                             ? ""
                             : "<br>Depositato il " + dasiDto.Timestamp.Value.ToString("dd/MM/yyyy")));
+            }
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -3861,16 +3875,29 @@ namespace PortaleRegione.API.Controllers
             var templateItemIndice = GetTemplate(TemplateTypeEnum.INDICE_DASI);
             var bodyIndice = new StringBuilder();
             foreach (var dasiDto in atti)
+            {
+                // #1588
+                var proponente_firmatari = string.Empty;
+                if (dasiDto.IsRIS())
+                {
+                    proponente_firmatari =
+                        $"{(!string.IsNullOrEmpty(dasiDto.Firme) ? dasiDto.Firme.Replace("<br>", ", ") : "")}";
+                }
+                else
+                {
+                    proponente_firmatari = $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}";    
+                }
                 bodyIndice.Append(templateItemIndice
                     .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
                     .Replace("{NAtto}", dasiDto.NAtto)
                     .Replace("{Oggetto}", dasiDto.OggettoView())
                     .Replace("{Firmatari}",
-                        $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
+                        proponente_firmatari)
                     .Replace("{DataDeposito}",
                         string.IsNullOrEmpty(dasiDto.DataPresentazione)
                             ? ""
                             : "<br>Depositato il " + dasiDto.Timestamp.Value.ToString("dd/MM/yyyy")));
+            }
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
