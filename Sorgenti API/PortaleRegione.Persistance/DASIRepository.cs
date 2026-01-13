@@ -623,11 +623,19 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<Guid>> GetAttiProponente(Guid personaUid)
         {
+            var allowStates = new List<int>
+            {
+                (int)StatiAttoEnum.BOZZA,
+                (int)StatiAttoEnum.BOZZA_RISERVATA,
+                (int)StatiAttoEnum.PRESENTATO,
+                (int)StatiAttoEnum.IN_TRATTAZIONE
+            };
             return await PRContext
                 .DASI
                 .Where(dasi => dasi.UIDPersonaProponente == personaUid
                                && !dasi.UIDPersonaPrimaFirma.HasValue
-                               && dasi.IDStato < (int)StatiAttoEnum.PRESENTATO
+                               && allowStates.Contains(dasi.IDStato)
+                               && !dasi.UIDSeduta.HasValue
                                && !dasi.Eliminato)
                 .Select(dasi => dasi.UIDAtto)
                 .ToListAsync();
@@ -1224,6 +1232,18 @@ namespace PortaleRegione.Persistance
                                                      && atto.Tipo == (int)tipo);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
+
+            return await query.ToListAsync();
+        }
+        
+        public async Task<List<int>> GetAttiBySeduta(Guid uidSeduta)
+        {
+            var query = PRContext.DASI.Where(atto => !atto.Eliminato
+                                                     && atto.UIDSeduta == uidSeduta
+                                                     && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
+                                                     && atto.DataIscrizioneSeduta.HasValue)
+                .Select(atto=>atto.Tipo)
+                .Distinct();
 
             return await query.ToListAsync();
         }

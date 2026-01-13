@@ -416,6 +416,12 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                // #1577
+                if (model.UIDPersonaProponente == Guid.Empty
+                    || model.UIDPersonaProponente == null)
+                {
+                    throw new InvalidOperationException("Indicare il proponente");
+                }
                 if (model.IDStato != (int)StatiEnum.Bozza
                     && model.IDStato != (int)StatiEnum.Bozza_Riservata)
                     throw new InvalidOperationException($"Stato non valido [{model.IDStato}]");
@@ -1492,6 +1498,11 @@ namespace PortaleRegione.BAL
 
         public async Task EliminaEmendamento(EM em, PersonaDto currentUser)
         {
+            // #1572
+            if (em.Timestamp.HasValue)
+            {
+                throw new InvalidOperationException("Non è possibile eliminare un emendamento/subemendamento già depositato.");
+            }
             em.Eliminato = true;
             em.DataElimina = DateTime.Now;
             em.UIDPersonaElimina = currentUser.UID_persona;
@@ -1857,7 +1868,7 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<EmendamentiViewModel> GetEmendamenti(BaseRequest<EmendamentiDto> model,
-            PersonaDto persona, int CLIENT_MODE, int VIEW_MODE, PersonaDto presidente_regione, Uri uri)
+            PersonaDto persona, int CLIENT_MODE, int VIEW_MODE, PersonaDto presidente_regione, Uri uri, bool light_mode = false)
         {
             try
             {
@@ -1954,9 +1965,17 @@ namespace PortaleRegione.BAL
                 var result = new List<EmendamentiDto>();
                 foreach (var em in em_in_db)
                 {
-                    var dto = await GetEM_DTO(em, atto, persona, relatori.ToList(),
-                        presidente_regione);
-                    result.Add(dto);
+                    if (light_mode)
+                    {
+                        var dto_light = await GetEM_DTO_Light(em, atto, persona);
+                        result.Add(dto_light);
+                    }
+                    else
+                    {
+                        var dto = await GetEM_DTO(em, atto, persona, relatori.ToList(),
+                            presidente_regione);
+                        result.Add(dto);    
+                    }
                 }
 
                 var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE,
@@ -2427,6 +2446,30 @@ namespace PortaleRegione.BAL
                 new Uri(AppSettingsConfiguration.url_CLIENT),
                 open_data_enabled,
                 light_version);
+
+            result.AddRange(emList.Data.Results);
+
+            return result;
+        }
+        
+        public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamenti_Word(EmendamentiViewModel model,
+            PersonaDto persona)
+        {
+            var result = new List<EmendamentiDto>();
+            var emList = await GetEmendamenti(new BaseRequest<EmendamentiDto>
+            {
+                id = model.Atto.UIDAtto,
+                ordine = model.Ordinamento,
+                page = 1,
+                size = -1,
+                filtro = model.Data.Filters
+            },
+                persona,
+                (int)model.Mode,
+                (int)model.ViewMode,
+                null,
+                null,
+                true);
 
             result.AddRange(emList.Data.Results);
 

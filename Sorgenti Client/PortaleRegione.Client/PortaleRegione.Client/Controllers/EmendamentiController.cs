@@ -822,20 +822,24 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
-        ///     Controller per esportare gli emendamenti di un atto
+        ///     Controller per esportare gli emendamenti di un atto in formato Word.
+        ///     Utilizza il model dalla sessione per includere i filtri impostati.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="ordine"></param>
-        /// <returns></returns>
+        /// <returns>URL del file Word o ZIP generato</returns>
         [HttpGet]
         [Route("esportaDOC")]
-        public async Task<ActionResult> EsportaDOC(Guid id, OrdinamentoEnum ordine)
+        public async Task<ActionResult> EsportaDOC()
         {
             try
             {
-                var mode = (ClientModeEnum)HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
+                var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
+                if (modelInCache == null)
+                {
+                    return Json(new ErrorResponse("Sessione scaduta. Ricaricare la pagina."), JsonRequestBehavior.AllowGet);
+                }
+
                 var apiGateway = new ApiGateway(Token);
-                var file = await apiGateway.Esporta.EsportaWORD(id, ordine, mode);
+                var file = await apiGateway.Esporta.EsportaWORD(modelInCache);
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

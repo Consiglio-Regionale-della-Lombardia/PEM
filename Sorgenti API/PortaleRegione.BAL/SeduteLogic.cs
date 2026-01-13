@@ -47,11 +47,22 @@ namespace PortaleRegione.BAL
             var listaSedute = await _unitOfWork.Sedute
                 .GetAll(legislatura_attiva, model.page, model.size, queryFilter);
             var countSedute = await _unitOfWork.Sedute.Count(legislatura_attiva, queryFilter);
+            
+            var results = listaSedute.Select(Mapper.Map<SEDUTE, SeduteDto>).ToList();
+
+            foreach (var seduteDto in results)
+            {
+                var attiFromDb = await _unitOfWork.Atti.GetAllBySeduta(seduteDto.UIDSeduta);
+                var resultsAtti = attiFromDb.Select(Mapper.Map<ATTI, AttiDto>).ToList();
+                var dasiFromDb = await _unitOfWork.DASI.GetAttiBySeduta(seduteDto.UIDSeduta);
+               seduteDto.AttiList = resultsAtti;
+               seduteDto.DasiList = dasiFromDb;
+            }
 
             return new BaseResponse<SeduteDto>(
                 model.page,
                 model.size,
-                listaSedute.Select(Mapper.Map<SEDUTE, SeduteDto>),
+                results,
                 model.filtro,
                 countSedute,
                 url);

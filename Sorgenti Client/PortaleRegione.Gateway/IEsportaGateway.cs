@@ -26,7 +26,7 @@ namespace PortaleRegione.Gateway
 {
     public interface IEsportaGateway
     {
-        Task<FileResponse> EsportaWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode);
+        Task<FileResponse> EsportaWORD(EmendamentiViewModel model);
         Task<FileResponse> EsportaXLS(EmendamentiViewModel model);
         Task<FileResponse> EsportaXLS_UOLA(EmendamentiViewModel model);
         Task<FileResponse> EsportaXLSDASI(List<Guid> lista);

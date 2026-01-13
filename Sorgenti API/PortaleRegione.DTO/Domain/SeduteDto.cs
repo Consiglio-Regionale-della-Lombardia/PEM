@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 
@@ -77,6 +78,10 @@ namespace PortaleRegione.DTO.Domain
 
         // Matteo Cattapan #529 - Annotazioni sedute
         public string Note { get; set; }
+        
+        // #1566
+        public List<AttiDto> AttiList { get; set; } = new List<AttiDto>();
+        public List<int> DasiList { get; set; } = new List<int>();
     }
 
     public class SeduteFormUpdateDto

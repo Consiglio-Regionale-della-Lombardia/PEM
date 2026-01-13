@@ -61,6 +61,7 @@ namespace PortaleRegione.Contracts
         List<Guid> GetByQuery(ByQueryModel model);
         Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId);
         Task<List<ATTI_DASI>> GetAttiBySeduta(Guid uidSeduta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
+        Task<List<int>> GetAttiBySeduta(Guid uidSeduta);
         Task<List<ATTI_DASI>> GetProposteAtti(int gruppoId, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
         Task<List<ATTI_DASI>> GetProposteAtti(string dataRichiesta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
         Task<int> CountODGByAttoPEM(Guid appoggioUidAtto);

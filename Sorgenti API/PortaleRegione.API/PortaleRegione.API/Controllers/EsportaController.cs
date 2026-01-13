@@ -174,21 +174,19 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per esportare la griglia emendamenti in formato word
+        ///     Endpoint per esportare la griglia emendamenti in formato word.
+        ///     Se il numero di emendamenti supera il limite configurato (LimiteEmendamentiFascicoloWord),
+        ///     viene generato uno ZIP contenente più file Word suddivisi per range.
         /// </summary>
-        /// <param name="id">Guid atto</param>
-        /// <param name="ordine">ordinamento emendamenti atto</param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
-        [HttpGet]
+        /// <param name="model">ViewModel contenente atto, filtri e ordinamento</param>
+        /// <returns>URL del file Word o ZIP generato</returns>
+        [HttpPost]
         [Route(ApiRoutes.Esporta.EsportaGrigliaWord)]
-        public async Task<IHttpActionResult> EsportaGrigliaWord(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode)
+        public async Task<IHttpActionResult> EsportaGrigliaWord(EmendamentiViewModel model)
         {
             try
             {
-                var response =
-                    ResponseMessage(await _esportaLogic.HTMLtoWORD(id, ordine, mode, CurrentUser));
-
+                var response = ResponseMessage(await _esportaLogic.HTMLtoWORD(model, CurrentUser));
                 return response;
             }
             catch (Exception e)

@@ -14,24 +14,13 @@
             <i class="material-icons">arrow_back</i>
         </a>
     </div>
-    <div class="col s6">
+    <div class="col s12">
         <h4>
             <b>
                 <span>@ViewBag.Title</span>
                 <input id="hfMode" type="hidden" value="edit"/>
             </b>
         </h4>
-    </div>
-    <div class="col s5 right-align">
-        @if (isNew)
-        {
-            <button type="button"
-                    id="btnImportaDatiGEA"
-                    class="btn-flat blue-text waves-effect waves-green"
-                    onclick="$('#modalRicercaGEA').modal('open');">
-                Importa Dati GEA
-            </button>    
-        }
     </div>
 </div>
 @if (!isNew)
@@ -88,6 +77,15 @@
                 </li>
             </ul>
             <div id="generalTab" class="col s12">
+                @if (isNew)
+                {
+                    <button type="button"
+                            id="btnImportaDatiGEA"
+                            class="btn-flat blue-text waves-effect waves-green"
+                            onclick="$('#modalRicercaGEA').modal('open');">
+                        Importa Dati GEA
+                    </button>    
+                }
                 <div class="form-group">
                     <label for="Atto_Tipo">Tipo</label>
                     <select id="Atto_Tipo">
@@ -266,6 +264,11 @@
                         class="btn-flat blue-text waves-effect waves-green"
                         onclick="CercaDatiGEA();">
                     Cerca
+                </button>
+                <button type="button"
+                        class="btn-flat waves-effect waves-green"
+                        onclick="$('#modalRicercaGEA').modal('close');">
+                    Annulla
                 </button>
             </div>
         </div>

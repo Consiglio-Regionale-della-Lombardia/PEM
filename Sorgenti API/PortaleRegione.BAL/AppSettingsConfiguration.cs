@@ -60,6 +60,7 @@ namespace PortaleRegione.BAL
         public static string NomePiattaforma => ConfigurationManager.AppSettings["NomePiattaforma"];
         public static string CartellaLavoroStampe => ConfigurationManager.AppSettings["CartellaLavoroStampe"];
         public static string LimiteGeneraStampaImmediata => ConfigurationManager.AppSettings["LimiteGeneraStampaImmediata"];
+        public static int LimiteEmendamentiFascicoloWord => Convert.ToInt32(ConfigurationManager.AppSettings["LimiteEmendamentiFascicoloWord"] ?? "1000");
         public static string MessaggioInizialeDeposito => ConfigurationManager.AppSettings["MessaggioInizialeDeposito"];
         public static string MessaggioInizialeInvito => ConfigurationManager.AppSettings["MessaggioInizialeInvito"];
         public static string urlPEM_ViewEM => ConfigurationManager.AppSettings["urlPEM_ViewEM"];

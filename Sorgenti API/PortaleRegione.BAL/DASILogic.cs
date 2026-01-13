@@ -1134,13 +1134,18 @@ namespace PortaleRegione.API.Controllers
                 foreach (var notificaDestinatario in notificheDestinatari)
                 {
                     var notifica = await _unitOfWork.Notifiche.Get(notificaDestinatario.UIDNotifica);
-                    if (notifica != null && !notifica.Chiuso && !notifica.UIDEM.HasValue &&
-                        !queryExtended.AttiDaFirmare.Contains(notifica.UIDAtto))
+                    if (notifica != null 
+                        && !notifica.Chiuso 
+                        && !notifica.UIDEM.HasValue
+                        && !queryExtended.AttiDaFirmare.Contains(notifica.UIDAtto))
                         queryExtended.AttiDaFirmare.Add(notifica.UIDAtto);
                 }
 
                 var myAttiProponente = await _unitOfWork.DASI.GetAttiProponente(persona.UID_persona);
-                queryExtended.AttiDaFirmare.AddRange(myAttiProponente);
+                foreach (var guid in myAttiProponente.Where(guid => !queryExtended.AttiDaFirmare.Contains(guid)))
+                {
+                    queryExtended.AttiDaFirmare.Add(guid);
+                }
             }
         }
 
@@ -1986,33 +1991,31 @@ namespace PortaleRegione.API.Controllers
                 if (!firme.Any())
                     return;
 
-                if (firme.All(item =>
-                        item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza &&
-                        item.id_gruppo == atto.id_gruppo))
+                var tuttiMaggioranza = firme.All(item => item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza);
+                var tuttiMinoranza = firme.All(item => item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza);
+                var tuttiStessoGruppo = firme.Select(item => item.id_gruppo).Distinct().Count() == 1;
+
+                if (tuttiMaggioranza && tuttiStessoGruppo)
                 {
                     atto.AreaPolitica = (int)AreaPoliticaIntEnum.Maggioranza;
                 }
-                else if (firme.All(item =>
-                             item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza &&
-                             item.id_gruppo != atto.id_gruppo))
+                else if (tuttiMaggioranza)
                 {
+                    // Tutti di maggioranza ma di gruppi diversi
                     atto.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Maggioranza;
                 }
-                else if (firme.All(item =>
-                             item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza &&
-                             item.id_gruppo == atto.id_gruppo))
+                else if (tuttiMinoranza && tuttiStessoGruppo)
                 {
                     atto.AreaPolitica = (int)AreaPoliticaIntEnum.Minoranza;
                 }
-                else if (firme.All(item =>
-                             item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza &&
-                             item.id_gruppo != atto.id_gruppo))
+                else if (tuttiMinoranza)
                 {
+                    // Tutti di minoranza ma di gruppi diversi
                     atto.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Minoranza;
                 }
-                else if (firme.All(item => item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Maggioranza
-                                           || item.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza))
+                else
                 {
+                    // Mix di maggioranza e minoranza
                     atto.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza;
                 }
 
@@ -2892,15 +2895,19 @@ namespace PortaleRegione.API.Controllers
 
                 try
                 {
+                    // #1568
+                    var mailSender = string.IsNullOrEmpty(persona.email)
+                        ? AppSettingsConfiguration.EmailInvioDASI
+                        : persona.email;
                     var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
                     var mailModel = new MailModel
                     {
-                        DA = AppSettingsConfiguration.EmailInvioDASI,
+                        DA = mailSender,
                         A = firmatari.Aggregate((i, j) => i + ";" + j),
                         OGGETTO =
-                            "Avviso di eliminazione bozza atto",
+                            "Avviso di eliminazione di un atto di indirizzo/sindacato ispettivo in bozza",
                         MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha eliminato la bozza {nome_atto} <br> {atto.Oggetto}. {GetBodyFooterMail()}"
+                            $"{persona.DisplayName} ha eliminato la bozza dell’atto {nome_atto} con oggetto: {atto.Oggetto}. <br> {GetBodyFooterMail()}"
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
