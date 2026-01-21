@@ -182,8 +182,28 @@
 
         let attiElaboratiTotali = 0;
         const risultatiPerPagina = $(".pagination").data("risultati-pagina");
-
+        var guidsList = [];
+        
         try {
+            for (let paginaCorrente = 1; paginaCorrente <= totalePagine; paginaCorrente++) {
+                if (operazioneInterrotta) {
+                    aggiungiLogEntry('Operazione interrotta dall\'utente', 'red-text');
+                    break;
+                }
+
+                aggiungiLogEntry(`Caricamento dati pagina ${paginaCorrente} di ${totalePagine}...`);
+
+                try {
+                    // Ottiene i GUID per la pagina corrente
+                    const guidsPerPagina = await ottieniIDEmendamentiPerPagina(paginaCorrente, risultatiPerPagina);
+                    guidsList.push(guidsPerPagina);
+                    aggiungiLogEntry(`Pagina ${paginaCorrente}: ${guidsPerPagina.length} atti caricati`, 'green-text');
+                } catch (error) {
+                    aggiungiLogEntry(`Errore caricamento dati pagina ${paginaCorrente}: ${error.message}`, 'red-text');
+                    // Continua con la pagina successiva invece di fermare tutto
+                }
+            }
+            
             for (let paginaCorrente = 1; paginaCorrente <= totalePagine; paginaCorrente++) {
                 if (operazioneInterrotta) {
                     aggiungiLogEntry('Operazione interrotta dall\'utente', 'red-text');
@@ -198,7 +218,7 @@
 
                 try {
                     // Ottiene i GUID per la pagina corrente
-                    const guidsPerPagina = await ottieniIDEmendamentiPerPagina(paginaCorrente, risultatiPerPagina);
+                    const guidsPerPagina = guidsList[paginaCorrente - 1];
 
                     if (guidsPerPagina && guidsPerPagina.length > 0) {
                         // Esegue l'operazione di cambio stato per questa pagina

@@ -2522,6 +2522,11 @@ namespace PortaleRegione.API.Controllers
 
                 var contatore = await _unitOfWork.DASI.GetContatore(atto.Tipo, atto.IDTipo_Risposta);
                 var contatore_progressivo = contatore.Inizio + contatore.Contatore;
+                if (contatore_progressivo > contatore.Fine)
+                {
+                    results.Add(idGuid, $"ERROR: Contatore massimo raggiunto. Contattare l'amministratore di sistema.");
+                    continue;
+                }
                 var etichetta_progressiva =
                     $"{Utility.GetText_Tipo(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
                 var etichetta_encrypt =
