@@ -5547,10 +5547,20 @@ namespace PortaleRegione.API.Controllers
             if (propValue == null)
                 return "";
 
-            if (DateTime.TryParse(propValue.ToString(), out var resDate)) return resDate.ToString("dd/MM/yyyy");
-            if (bool.TryParse(propValue.ToString(), out var resBool)) return resBool ? "Si" : "No";
+            // #1590
+            if (propertyInfo.PropertyType == typeof(DateTime) || propertyInfo.PropertyType == typeof(DateTime?))
+            {
+                if (propValue is DateTime date)
+                    return date.ToString("dd/MM/yyyy");
+            }
 
-            return propertyInfo.GetValue(atto);
+            if (propertyInfo.PropertyType == typeof(bool) || propertyInfo.PropertyType == typeof(bool?))
+            {
+                if (propValue is bool boolValue)
+                    return boolValue ? "Si" : "No";
+            }
+
+            return propValue;
         }
 
         private async Task<string> ComposeReportBodyFromTemplate(ReportDto model, PersonaDto currentUser)
