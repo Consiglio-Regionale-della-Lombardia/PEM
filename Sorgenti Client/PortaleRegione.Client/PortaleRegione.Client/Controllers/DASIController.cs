@@ -466,6 +466,10 @@ namespace PortaleRegione.Client.Controllers
 
                 return View("AttoDASIView", result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                throw; // Propaga a Global.asax per redirect al login #1592
+            }
             catch (Exception e)
             {
                 Console.WriteLine(e);
