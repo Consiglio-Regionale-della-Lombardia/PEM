@@ -4914,20 +4914,43 @@ namespace PortaleRegione.API.Controllers
                         {
                             cell.Value = "";
                         }
-                        else if (DateTime.TryParse(cellValue.ToString(), out var resDate))
-                        {
-                            // Prova un formato che Excel riconosce come "Data" standard
-                            cell.Style.Numberformat.Format = "dd/mm/yyyy"; // formato data senza orario
-                            cell.Value = resDate;
-                        }
-                        else if (int.TryParse(cellValue.ToString(), out var resInt))
-                        {
-                            cell.Style.Numberformat.Format = "0";
-                            cell.Value = resInt;
-                        }
                         else
                         {
-                            cell.Value = Utility.StripWordMarkup(cellValue.ToString()); // #1274
+                            // #1590 
+                            // Verifica il tipo della proprietà per determinare il formato corretto
+                            var propertyInfo = typeof(AttoDASIDto).GetProperty(column);
+                            var propertyType = propertyInfo?.PropertyType;
+
+                            if (propertyType == typeof(DateTime) || propertyType == typeof(DateTime?))
+                            {
+                                if (DateTime.TryParse(cellValue.ToString(), out var resDate))
+                                {
+                                    cell.Style.Numberformat.Format = "dd/mm/yyyy";
+                                    cell.Value = resDate;
+                                }
+                                else
+                                {
+                                    cell.Value = cellValue.ToString();
+                                }
+                            }
+                            else if (propertyType == typeof(int) || propertyType == typeof(int?))
+                            {
+                                if (int.TryParse(cellValue.ToString(), out var resInt))
+                                {
+                                    cell.Style.Numberformat.Format = "0";
+                                    cell.Value = resInt;
+                                }
+                                else
+                                {
+                                    cell.Value = cellValue.ToString();
+                                }
+                            }
+                            else
+                            {
+                                // Per stringhe e altri tipi, forza formato testo
+                                cell.Style.Numberformat.Format = "@"; // Formato testo esplicito
+                                cell.Value = Utility.StripWordMarkup(cellValue.ToString());
+                            }
                         }
                     }
                 }
