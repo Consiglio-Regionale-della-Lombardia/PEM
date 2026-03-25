@@ -832,12 +832,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var geaHelper = new GeaHelper();
+                //#1600
+                var geaHelper = new GeaHelper(AppSettingsConfiguration.GEA_Url, AppSettingsConfiguration.GEA_Username, AppSettingsConfiguration.GEA_Password);
                 
                 var legislaturaCorrente = await _legislatureLogic.GetLegislatura(await _legislatureLogic.GetLegislaturaAttuale());
                 request.legislatura = legislaturaCorrente.num_legislatura;
                 
-                var attiGea = await geaHelper.RicercaAtti(request, AppSettingsConfiguration.GEA_Username, AppSettingsConfiguration.GEA_Password);
+                var attiGea = await geaHelper.RicercaAtti(request);
                 
                 return Ok(attiGea);
             }
