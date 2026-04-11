@@ -72,6 +72,10 @@
     <Compile Include="Domain\AttiAbbinamentoDto.cs" />
     <Compile Include="Domain\AttiDASIColums.cs" />
     <Compile Include="Domain\AttiDASISorting.cs" />
+    <Compile Include="Domain\AttiDASIColumnsConsiglieri.cs" />
+    <Compile Include="Domain\AttiDASISortingConsiglieri.cs" />
+    <Compile Include="Domain\EmendamentiColumns.cs" />
+    <Compile Include="Domain\EmendamentiSorting.cs" />
     <Compile Include="Domain\AttiDocumentiDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />

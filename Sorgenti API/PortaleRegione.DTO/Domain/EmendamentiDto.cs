@@ -35,18 +35,23 @@ namespace PortaleRegione.DTO.Domain
 
         public int? Progressivo { get; set; }
 
+        [DisplayName("PDL di riferimento")]
         public Guid UIDAtto { get; set; }
 
+        [DisplayName("Numero emendamento")]
         [StringLength(50)] public string N_EM { get; set; }
 
+        [DisplayName("Gruppi")]
         public int id_gruppo { get; set; }
 
+        [DisplayName("Sub-emendamenti")]
         public Guid? Rif_UIDEM { get; set; }
 
         [StringLength(50)] public string N_SUBEM { get; set; }
 
         public int? SubProgressivo { get; set; }
 
+        [DisplayName("Proponenti")]
         public Guid UIDPersonaProponente { get; set; }
         public PersonaLightDto PersonaProponente { get; set; }
 
@@ -75,50 +80,50 @@ namespace PortaleRegione.DTO.Domain
 
         public Guid? UIDPersonaRitiro { get; set; }
 
-        [Display(Name = "Indica il modo")]
+        [DisplayName("Tipo")]
         [Required(ErrorMessage = "E' obbligatorio indicare il modo")]
         public int IDTipo_EM { get; set; }
 
-        [Display(Name = "Indica l'elemento")]
+        [DisplayName("Parte")]
         [Required(ErrorMessage = "E' obbligatorio indicare l'elemento da emendare")]
         public int IDParte { get; set; }
 
-        [Display(Name = "Titolo")]
+        [DisplayName("Titolo")]
         [StringLength(5)]
         public string NTitolo { get; set; } = string.Empty;
 
-        [Display(Name = "Capo")]
+        [DisplayName("Capo")]
         [StringLength(5)]
         public string NCapo { get; set; } = string.Empty;
 
-        [Display(Name = "Articolo")] public Guid? UIDArticolo { get; set; }
+        [DisplayName("Articolo")] public Guid? UIDArticolo { get; set; }
 
-        [Display(Name = "Comma")] public Guid? UIDComma { get; set; }
+        [DisplayName("Comma")] public Guid? UIDComma { get; set; }
 
-        [Display(Name = "Lettera")] public Guid? UIDLettera { get; set; }
+        [DisplayName("Lettera")] public Guid? UIDLettera { get; set; }
 
-        [Display(Name = "Lettera")]
+        [DisplayName("Lettera")]
         [StringLength(5)]
         public string NLettera { get; set; } =
             string.Empty; //https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/885
 
         [StringLength(5)] public string NNumero { get; set; }
 
-        [Display(Name = "Missione")] public int? NMissione { get; set; }
+        [DisplayName("Missione")] public int? NMissione { get; set; }
 
-        [Display(Name = "Programma")] public int? NProgramma { get; set; }
+        [DisplayName("Programma")] public int? NProgramma { get; set; }
 
-        [Display(Name = "Titolo B")] public int? NTitoloB { get; set; }
+        [DisplayName("Titolo B")] public int? NTitoloB { get; set; }
 
         public int OrdinePresentazione { get; set; }
 
         public int OrdineVotazione { get; set; }
 
-        [Display(Name = "Testo")] [AllowHtml] public string TestoEM_originale { get; set; }
+        [DisplayName("Testo")] [AllowHtml] public string TestoEM_originale { get; set; }
 
         public string EM_Certificato { get; set; }
 
-        [Display(Name = "Relazione illustrativa")]
+        [DisplayName("Relazione illustrativa")]
         [AllowHtml]
         public string TestoREL_originale { get; set; }
 
@@ -126,21 +131,23 @@ namespace PortaleRegione.DTO.Domain
 
         public string PATH_AllegatoTecnico { get; set; }
 
+        [DisplayName("Effetti finanziari")]
         public int EffettiFinanziari { get; set; }
 
         [AllowHtml] public string NOTE_EM { get; set; }
 
         [AllowHtml] public string NOTE_Griglia { get; set; }
 
+        [DisplayName("Stato")]
         public int IDStato { get; set; }
 
         public bool Firma_su_invito { get; set; }
 
-        [Display(Name = "Testo")] [AllowHtml] public string TestoEM_Modificabile { get; set; }
+        [DisplayName("Testo")] [AllowHtml] public string TestoEM_Modificabile { get; set; }
 
         public Guid UID_QRCode { get; set; }
 
-        [Display(Name = "Area politica")] public int? AreaPolitica { get; set; }
+        [DisplayName("Area politica")] public int? AreaPolitica { get; set; }
 
         public DateTime? Timestamp { get; set; }
 
@@ -176,6 +183,7 @@ namespace PortaleRegione.DTO.Domain
 
         public bool Eliminato { get; set; }
 
+        [DisplayName("Tags")]
         public string Tags { get; set; } = "[]";
 
         public EmendamentoExtraLightDto toLight()
@@ -201,6 +209,7 @@ namespace PortaleRegione.DTO.Domain
         public bool AbilitaSUBEM { get; set; } = false;
         public string Destinatari { get; set; }
         public string Firmatari { get; set; }
+        [DisplayName("Firme")]
         public string Firme { get; set; }
         public bool PresentatoOltreITermini { get; set; } = false;
         public bool Proponente_Relatore { get; set; } = false;

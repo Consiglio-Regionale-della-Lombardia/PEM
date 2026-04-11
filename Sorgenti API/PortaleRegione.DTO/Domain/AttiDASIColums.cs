@@ -72,17 +72,4 @@ public class AttiDASIColums
     [DisplayName("Presentato oltre i termini")] public bool PresentatoOltreITermini { get; set; } = false;
     [DisplayName("Allegati dell’atto")] public string Documenti { get; set; } // #1021
     [DisplayName("Ritardo")] public int Ritardo { get; set; } = 0;
-
-
-
-    //[DisplayName("Data ritiro")] public DateTime? DataRitiro { get; set; }
-    //[DisplayName("Premesse")] public string Premesse { get; set; }
-    //[DisplayName("Richiesta")] public string Richiesta { get; set; }
-    //[DisplayName("Stato attuazione")] public string StatoAttuazione { get; set; }
-    //[DisplayName("Competenza monitoraggio")] public string CompetenzaMonitoraggio { get; set; }
-    //[DisplayName("Area tematica")] public string AreaTematica { get; set; }
-    //[DisplayName("Altri soggetti")] public string AltriSoggetti { get; set; }
-    
-    //public string BURL { get; set; }
-    //[DisplayName("UIDAtto")] public Guid UIDAtto { get; set; }
 }

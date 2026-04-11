@@ -267,6 +267,18 @@ function set_Filtri_EM(obj) {
     localStorage.setItem("Filtri_EM", JSON.stringify(obj));
 }
 
+//EM Chips (nuovo sistema filtri DASI-style)
+function get_FiltriChips_EM() {
+    var session_raw = localStorage.getItem("filtriChipsEM");
+    if (session_raw == null)
+        return [];
+    return JSON.parse(session_raw);
+}
+
+function set_FiltriChips_EM(obj) {
+    localStorage.setItem("filtriChipsEM", JSON.stringify(obj));
+}
+
 //DASI
 function get_Filtri_DASI() {
     var session_raw = localStorage.getItem("Filtri_DASI");

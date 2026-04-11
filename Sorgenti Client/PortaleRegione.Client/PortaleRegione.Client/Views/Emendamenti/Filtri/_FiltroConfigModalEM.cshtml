@@ -1,0 +1,268 @@
+<div id="modalFiltroConfig" class="modal">
+    <div class="modal-content">
+        <h4>Filtro</h4>
+        <div id="chips-container-config">
+
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <input placeholder="Placeholder" id="filter_name" type="text" class="validate">
+                <label for="filter_name">Nome filtro</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <p>
+                    <label>
+                        <input id="filter_favourite" type="checkbox"/>
+                        <span>Preferito</span>
+                    </label>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn-flat modal-close">Annulla</button>
+        <button type="button" id="btnSalvaConfig" class="btn-flat blue-text">Salva</button>
+    </div>
+</div>
+
+<script>
+    var filtriPreferitiArrayEM = [];
+    if (document.getElementById('btnFiltroConfig')) {
+        document.getElementById('btnFiltroConfig').addEventListener('click', function () {
+            openModalWithContent_PreferitiEM("", localStorage.getItem('filtriChipsEM'));
+        });
+    }
+    document.getElementById('btnSalvaConfig').addEventListener('click', async function () {
+        var request = {};
+        var filtri = JSON.parse(localStorage.getItem('filtriChipsEM'));
+        var sorting = JSON.parse(localStorage.getItem('selectedSortColumnsEM'));
+        request.filters = JSON.stringify(filtri);
+        request.sorting = JSON.stringify(sorting);
+        request.name = document.getElementById('filter_name').value;
+        request.favourite = document.getElementById('filter_favourite').checked;
+
+        // Per ora salviamo solo in localStorage
+        var savedFilters = JSON.parse(localStorage.getItem('filtriPreferitiEM') || '[]');
+        var existing = savedFilters.findIndex(f => f.name === request.name);
+        if (existing >= 0) {
+            savedFilters[existing] = request;
+        } else {
+            savedFilters.push(request);
+        }
+        localStorage.setItem('filtriPreferitiEM', JSON.stringify(savedFilters));
+
+        await addChipIfNotExists_PreferitiEM(request.name, request.filters, request.sorting, request.favourite);
+        M.toast({
+            html: '<span><b class="yellow-text">' + request.name + '</b> aggiunto con successo</span>', classes: 'rounded', displayLength: 5000 });
+
+        $('#modalFiltroConfig').modal("close");
+    });
+
+    function openModalWithContent_PreferitiEM(name, filters) {
+        $('#filter_favourite').prop("checked", false);
+        $('#filter_name').val(name);
+        $('#chips-container-config').empty();
+        var filtri = [];
+        try { filtri = JSON.parse(filters); } catch(e) {}
+        if (filtri && filtri.length) {
+            filtri.forEach(function (filtro) {
+                addChipConfigEM(filtro.chipText);
+            });
+        }
+        $('#modalFiltroConfig').modal("open");
+    }
+
+    function addChipConfigEM(chipText) {
+        var chipsContainer = document.getElementById('chips-container-config');
+        var newChip = document.createElement('div');
+        newChip.classList.add('chip', 'yellow', 'black-text');
+        newChip.textContent = chipText;
+        chipsContainer.appendChild(newChip);
+    }
+
+    async function addChipIfNotExists_PreferitiEM(name, filters, sorting, favourite) {
+        var existingChip = document.querySelector('.chip[data-nome-gruppo-filtri="' + name + '"]');
+        if (existingChip) {
+            return;
+        }
+
+        var item = {};
+        item.name = name;
+        item.favourite = favourite;
+        item.filters = filters;
+        item.sorting = sorting;
+
+        filtriPreferitiArrayEM.push(item);
+
+        await creaPannelloFiltriLateraleEM();
+
+        if (!favourite) {
+            return;
+        }
+
+        var chipsContainer = document.getElementById('chips-container-groups');
+        var newChip = document.createElement('div');
+        newChip.classList.add('chip', 'white', 'black-text');
+        newChip.setAttribute('data-nome-gruppo-filtri', name);
+        newChip.textContent = name;
+
+        var starIcon = document.createElement('i');
+        starIcon.classList.add('material-icons', 'tiny');
+        starIcon.style.setProperty('margin-left', '10px');
+        starIcon.style.setProperty('top', '2px');
+        starIcon.textContent = 'star';
+        newChip.appendChild(starIcon);
+
+        newChip.onclick = function (event) {
+            event.stopPropagation();
+            resetSelezionePreferitiEM();
+            newChip.classList.replace("white", "yellow");
+            localStorage.setItem('filtriChipsEM', filters);
+            localStorage.setItem('selectedSortColumnsEM', sorting);
+            chipsKeysEM = [];
+
+            ripristinaFiltriEM();
+            ripristinaOrdinamentoEM();
+        };
+
+        chipsContainer.appendChild(newChip);
+        toggleChipsGroupsRowEM();
+    }
+
+    async function creaPannelloFiltriLateraleEM() {
+        var collection = document.getElementById('data-collection-em');
+        if (!collection) return;
+        $(collection).empty();
+
+        // >>> SEZIONE PREFERITI
+        var preferitiSection = document.createElement('div');
+        preferitiSection.id = 'preferiti-section-em';
+
+        collection.appendChild(preferitiSection);
+        preferitiSection.appendChild(preferitiHeaderEM());
+
+        // >>> SEZIONE STANDARD
+        collection.appendChild(standardHeaderEM());
+        availableFilterArrayEM.forEach(function (item) {
+            var li = document.createElement('a');
+            li.className = 'collection-item';
+            li.textContent = item.tag;
+            li.onclick = async function (event) {
+                event.stopPropagation();
+                await openModalWithContentEM(item.id, item.tag, false, 0);
+            };
+            collection.appendChild(li);
+        });
+
+        // Carica preferiti da localStorage
+        var preferiti = JSON.parse(localStorage.getItem('filtriPreferitiEM') || '[]');
+        window.filtriPreferitiArrayEM = Array.isArray(preferiti) ? preferiti : [];
+        renderPreferitiEM(preferitiSection, window.filtriPreferitiArrayEM);
+    }
+
+    function renderPreferitiEM(preferitiSectionEl, list) {
+        if (!list || list.length === 0) {
+            var empty = document.createElement('div');
+            empty.className = 'grey-text';
+            empty.style.padding = '8px 16px';
+            empty.textContent = 'Nessun gruppo salvato.';
+            preferitiSectionEl.appendChild(empty);
+            return;
+        }
+
+        list.forEach(function (item) {
+            var li = document.createElement('a');
+            li.className = item.favourite ? 'collection-item badgeStarCollectionFilter' : 'collection-item badgeCollectionFilter';
+            li.textContent = item.name;
+
+            li.onclick = function (event) {
+                event.stopPropagation();
+                if (item.favourite) {
+                    var chip = document.querySelector('[data-nome-gruppo-filtri="' + item.name + '"]');
+                    if (chip) chip.click();
+                } else {
+                    resetSelezionePreferitiEM();
+                    localStorage.setItem('filtriChipsEM', item.filters);
+                    localStorage.setItem('selectedSortColumnsEM', item.sorting);
+                    window.chipsKeysEM = [];
+                    ripristinaFiltriEM();
+                    ripristinaOrdinamentoEM();
+                }
+            };
+
+            var deleteIcon = document.createElement('i');
+            deleteIcon.className = 'material-icons secondary-content red-text';
+            deleteIcon.style.marginRight = '10px';
+            deleteIcon.textContent = 'delete';
+            deleteIcon.onclick = function (event) {
+                event.stopPropagation();
+                swal('Sei sicuro di voler eliminare il gruppo di filtri "' + item.name + '"?', {
+                    buttons: ["No", "Si"],
+                }).then(function (value) {
+                    if (value == true) {
+                        var savedFilters = JSON.parse(localStorage.getItem('filtriPreferitiEM') || '[]');
+                        savedFilters = savedFilters.filter(function(f) { return f.name !== item.name; });
+                        localStorage.setItem('filtriPreferitiEM', JSON.stringify(savedFilters));
+
+                        M.toast({ html: '<span><b class="yellow-text">' + item.name + '</b> eliminato con successo</span>', classes: 'rounded', displayLength: 5000 });
+                        li.remove();
+                        var chipEl = document.querySelector('[data-nome-gruppo-filtri="' + item.name + '"]');
+                        if (chipEl) chipEl.remove();
+                        toggleChipsGroupsRowEM();
+                    }
+                });
+            };
+
+            li.appendChild(deleteIcon);
+            preferitiSectionEl.appendChild(li);
+        });
+    }
+
+    function preferitiHeaderEM() {
+        var h = document.createElement('div');
+        h.className = 'collection-header';
+        h.style.padding = '8px 16px';
+        h.innerHTML = '<strong>I miei gruppi</strong>';
+        return h;
+    }
+    function standardHeaderEM() {
+        var h = document.createElement('div');
+        h.className = 'collection-header';
+        h.style.padding = '8px 16px';
+        h.innerHTML = '<strong>Filtri standard</strong>';
+        return h;
+    }
+
+    function resetSelezionePreferitiEM() {
+        var chipsContainer = document.getElementById('chips-container-groups');
+        if (!chipsContainer) return;
+        var chips = chipsContainer.getElementsByClassName('chip');
+        $.each(chips, function (index, chip) {
+            chip.className = 'chip white black-text';
+        });
+    }
+
+    async function ripristinaPreferitiEM() {
+        $.each(window.filtriPreferitiArrayEM || [], async function (index, item) {
+            await addChipIfNotExists_PreferitiEM(item.name, item.filters, item.sorting, item.favourite);
+        });
+        toggleChipsGroupsRowEM();
+    }
+
+    function toggleChipsGroupsRowEM() {
+        var chipsContainer = document.getElementById('chips-container-groups');
+        if (!chipsContainer) return;
+        var row = chipsContainer.closest('.row');
+        if (!row) row = chipsContainer.parentElement;
+        var chips = chipsContainer.querySelectorAll('.chip');
+        if (chips.length === 0) {
+            row.style.display = "none";
+        } else {
+            row.style.display = "";
+        }
+    }
+</script>

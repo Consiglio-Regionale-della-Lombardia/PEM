@@ -1,0 +1,247 @@
+@using System.ComponentModel
+@using PortaleRegione.DTO.Domain
+
+@* Modal Ordinamento Risultati *@
+<div id="modalOrdinamentoRisultati" class="modal">
+    <div class="modal-content">
+        <h4>Seleziona le colonne della griglia da ordinare</h4>
+        <div class="row">
+            <div class="input-field col s12">
+                <select name="sort-columns-grid" id="sort-columns-grid-select" onchange="handleSortColumnChangeEM()">
+                    <option value="" disabled selected>Seleziona</option>
+                    @foreach (var prop in typeof(EmendamentiSorting).GetProperties())
+                    {
+                        var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                            .Cast<DisplayNameAttribute>()
+                            .FirstOrDefault()?.DisplayName ?? prop.Name;
+
+                        <option value="@prop.Name">@displayName</option>
+                    }
+                </select>
+            </div>
+            <div class="col s12">
+                <table class="highlight">
+                    <thead>
+                    <tr>
+                        <th>Colonna</th>
+                        <th>Ordinamento</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="sort-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" role="button" class="modal-close btn-flat">Annulla</button>
+        <button type="button" role="button" onclick="btnResetOrdinamentoColonneGrigliaEM()" class="btn-flat red-text">Reset</button>
+        <button type="button" role="button" onclick="btnSalvaOrdinamentoColonneGrigliaEM()" class="btn-flat blue-text">Salva</button>
+    </div>
+</div>
+
+@* Modal Selezione Colonne *@
+<div id="modalColonneGriglia" class="modal">
+    <div class="modal-content">
+        <div class="row">
+            <div class="col s12">
+                <h4>Seleziona le colonne della griglia</h4>
+                <ul id="columns-grid-list" class="collection" style="height: 450px; overflow-y:auto">
+                    @foreach (var prop in typeof(EmendamentiColumns).GetProperties())
+                    {
+                        var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                            .Cast<DisplayNameAttribute>()
+                            .FirstOrDefault()?.DisplayName ?? prop.Name;
+
+                        <li class="collection-item">
+                            <label>
+                                <input type="checkbox" value="@prop.Name"/>
+                                <span>@displayName</span>
+                            </label>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn-flat modal-close">Annulla</button>
+        <button type="button" onclick="btnResetColonneGrigliaEM()" class="btn-flat red-text">Reset</button>
+        <button type="button" onclick="btnSalvaColonneGrigliaEM()" class="btn-flat blue-text">Salva</button>
+    </div>
+</div>
+
+<script>
+    // Usa $(document).on per delegazione eventi (i bottoni sono in _Command_RiepilogoEM che viene renderizzato dopo)
+    $(document).on('click', '#btnSelezionaColonne', function () {
+        waiting(true);
+
+        var savedColumns = JSON.parse(localStorage.getItem('selectedColumnsEM')) || [];
+
+        document.querySelectorAll('#columns-grid-list input[type="checkbox"]').forEach(function(chk) {
+            var isSelected = savedColumns.some(function(col) { return col.propertyName === chk.value; });
+            chk.checked = isSelected;
+        });
+
+        waiting(false);
+        $('#modalColonneGriglia').modal("open");
+    });
+
+    $(document).on('click', '#btnOrdinamentoRisultati', function () {
+        openOrdinamentoModalEM();
+    });
+
+    function openOrdinamentoModalEM() {
+        var savedColumns = JSON.parse(localStorage.getItem('selectedSortColumnsEM')) || [];
+
+        var sortList = document.getElementById('sort-list');
+        sortList.innerHTML = '';
+
+        savedColumns.forEach(function(item) {
+            var row = document.createElement("tr");
+            row.innerHTML =
+                '<td>' + item.displayText + '</td>' +
+                '<td>' +
+                '<select data-column="' + item.propertyName + '" onchange="updateSortDirectionEM(\'' + item.propertyName + '\', this.value)">' +
+                '<option value="1"' + (item.sortDirection === "1" ? ' selected' : '') + '>Crescente</option>' +
+                '<option value="-1"' + (item.sortDirection === "-1" ? ' selected' : '') + '>Decrescente</option>' +
+                '</select>' +
+                '</td>' +
+                '<td>' +
+                '<button type="button" onclick="removeSortColumnEM(\'' + item.propertyName + '\', this)" class="btn-flat red-text">Rimuovi</button>' +
+                '</td>';
+            sortList.appendChild(row);
+        });
+
+        $("select").formSelect();
+        $('#modalOrdinamentoRisultati').modal("open");
+    }
+
+    function handleSortColumnChangeEM() {
+        var select = document.getElementById("sort-columns-grid-select");
+        var selectedColumn = select.options[select.selectedIndex].value;
+        var displayText = select.options[select.selectedIndex].text;
+
+        if (!selectedSortColumnsEM.includes(selectedColumn)) {
+            selectedSortColumnsEM.push(selectedColumn);
+
+            var sortList = document.getElementById("sort-list");
+            var row = document.createElement("tr");
+            row.innerHTML =
+                '<td>' + displayText + '</td>' +
+                '<td>' +
+                '<select data-column="' + selectedColumn + '" onchange="updateSortDirectionEM(\'' + selectedColumn + '\', this.value)">' +
+                '<option value="1">Crescente</option>' +
+                '<option value="-1">Decrescente</option>' +
+                '</select>' +
+                '</td>' +
+                '<td>' +
+                '<button type="button" onclick="removeSortColumnEM(\'' + selectedColumn + '\', this)" class="btn-flat red-text">Rimuovi</button>' +
+                '</td>';
+            sortList.appendChild(row);
+            $("select").formSelect();
+        }
+    }
+
+    function updateSortDirectionEM(column, direction) {
+        selectedSortColumnsEM = selectedSortColumnsEM.map(function(item) {
+            return item === column ? { column: column, direction: parseInt(direction) } : item;
+        });
+    }
+
+    function removeSortColumnEM(column, element) {
+        selectedSortColumnsEM = selectedSortColumnsEM.filter(function(item) { return item.column !== column; });
+        var row = element.closest("tr");
+        row.remove();
+    }
+
+    function btnResetColonneGrigliaEM() {
+        localStorage.setItem('selectedColumnsEM', JSON.stringify([]));
+        document.querySelectorAll('#columns-grid-list input[type="checkbox"]').forEach(function(chk) {
+            chk.checked = false;
+        });
+        inviaDatiChipsEM(1);
+    }
+
+    function btnSalvaColonneGrigliaEM() {
+        var selectedColumns = Array.from(
+            document.querySelectorAll('#columns-grid-list input[type="checkbox"]:checked')
+        ).map(function(chk) {
+            return {
+                propertyName: chk.value,
+                displayText: chk.parentElement.querySelector("span").textContent
+            };
+        });
+
+        localStorage.setItem('selectedColumnsEM', JSON.stringify(selectedColumns));
+        inviaDatiChipsEM(1);
+        $('#modalColonneGriglia').modal('close');
+    }
+
+    function btnSalvaOrdinamentoColonneGrigliaEM() {
+        var selectedColumns = Array.from(document.querySelectorAll('#sort-list tr')).map(function(row) {
+            return {
+                propertyName: row.querySelector('select').getAttribute('data-column'),
+                displayText: row.querySelector('td:first-child').innerText,
+                sortDirection: row.querySelector('select').value
+            };
+        });
+
+        localStorage.setItem('selectedSortColumnsEM', JSON.stringify(selectedColumns));
+        location.reload();
+    }
+
+    function btnResetOrdinamentoColonneGrigliaEM() {
+        localStorage.removeItem('selectedSortColumnsEM');
+        document.getElementById('sort-list').innerHTML = '';
+        selectedSortColumnsEM = [];
+        $('#chips-container-sorting').empty();
+        location.reload();
+    }
+
+    // Chip di ordinamento - identico al pattern DASI addSortChipIfNotExists
+    function addSortChipIfNotExistsEM(key, sortDirection, chipText) {
+
+        var existingChip = document.querySelector('.chip[data-orderby="' + key + '"]');
+
+        if (!existingChip) {
+            var chipsContainer = document.getElementById('chips-container-sorting');
+            var newChip = document.createElement('div');
+            newChip.setAttribute('data-order-direction', sortDirection);
+            newChip.setAttribute('data-orderby', key);
+            newChip.classList.add('chip');
+            newChip.classList.add('order-chip');
+            newChip.classList.add('amber');
+            newChip.classList.add('black-text');
+
+            var directionText = "";
+            if (sortDirection == "-1")
+                directionText = "Decrescente";
+            else
+                directionText = "Crescente";
+
+            newChip.textContent = "Ordinato per " + chipText + " " + directionText;
+
+            var editIcon = document.createElement('i');
+            editIcon.classList.add('material-icons', 'tiny');
+            editIcon.style.setProperty('margin-left', '10px');
+            editIcon.style.setProperty('top', '2px');
+            editIcon.textContent = 'edit';
+
+            newChip.onclick = function(event) {
+                event.stopPropagation();
+                openOrdinamentoModalEM();
+            };
+            newChip.appendChild(editIcon);
+
+            chipsContainer.appendChild(newChip);
+        } else {
+            existingChip.setAttribute('data-order-direction', sortDirection);
+            existingChip.setAttribute('data-orderby', key);
+
+            var directionText = sortDirection == "-1" ? "Decrescente" : "Crescente";
+            existingChip.textContent = "Ordinato per " + chipText + " " + directionText;
+        }
+    }
+</script>

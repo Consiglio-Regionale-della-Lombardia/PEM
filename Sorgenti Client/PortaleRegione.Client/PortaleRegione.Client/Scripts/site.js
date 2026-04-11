@@ -417,6 +417,15 @@ function go(link, switchMode) {
 
 async function AbilitaTrattazione(mode) {
     localStorage.setItem('clientMode', mode);
+    // Reset filtri/ordinamento/colonne PEM su switch modalita'
+    localStorage.removeItem('filtriChipsEM');
+    localStorage.removeItem('selectedSortColumnsEM');
+    localStorage.removeItem('selectedColumnsEM');
+    // Reset filtri/ordinamento/colonne DASI su switch modalita'
+    localStorage.removeItem('filtriDasi');
+    localStorage.removeItem('selectedSortColumns');
+    localStorage.removeItem('selectedColumns');
+    localStorage.removeItem('pagingDasi');
     if (mode === 2) {
         var data = await GetSeduteAttiveDashboard();
         if (data.Results.length > 0) {

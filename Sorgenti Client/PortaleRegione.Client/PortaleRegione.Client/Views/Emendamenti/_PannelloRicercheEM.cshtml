@@ -1,0 +1,120 @@
+@using PortaleRegione.DTO.Enum
+
+<style>
+    #data-collection-em > .collection-item {
+        border-bottom: unset;
+    }
+
+    #data-collection-report-em > .collection-item {
+        border-bottom: unset;
+    }
+
+    .badgeCollectionFilter {
+        background-color: white;
+        border-left: 1em solid #2196f3;
+        color: black;
+        font-weight: bold;
+        min-width: unset !important;
+    }
+
+    .badgeStarCollectionFilter {
+        background-color: black;
+        border-left: 1em solid yellow;
+        color: black;
+        font-weight: bold;
+        min-width: unset !important;
+    }
+</style>
+
+<div id="slide-em-DX" class="sidenav" style="overflow: auto !important; width:unset!important">
+
+    <div class="row">
+        <div class="col s12">
+            <ul class="tabs">
+                <li class="tab col s6"><a class="active" href="#tabFiltriEM">Filtri</a></li>
+                <li class="tab col s6"><a href="#tabReportEM">Report</a></li>
+            </ul>
+        </div>
+        <div id="tabFiltriEM" class="col s12">
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">search</i>
+                    <input id="search-input-em" type="text" placeholder="Cerca...">
+                </div>
+                <div class="col s12">
+                    <div id="data-collection-em" class="collection">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tabReportEM" class="col s12">
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">search</i>
+                    <input id="search-input-report-em" type="text" placeholder="Cerca...">
+                </div>
+                <div class="col s12">
+                    <div id="data-collection-report-em" class="collection">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function updateCollectionEMVisibility() {
+            var searchQuery = document.getElementById('search-input-em').value.toLowerCase();
+            var collectionItems = document.querySelectorAll('#data-collection-em .collection-item');
+
+            collectionItems.forEach(function (item) {
+                var itemText = item.textContent.toLowerCase();
+                if (itemText.indexOf(searchQuery) !== -1) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function updateCollectionReportEMVisibility() {
+            var searchQuery = document.getElementById('search-input-report-em').value.toLowerCase();
+            var collectionItems = document.querySelectorAll('#data-collection-report-em .collection-item');
+
+            collectionItems.forEach(function (item) {
+                var itemText = item.textContent.toLowerCase();
+                if (itemText.indexOf(searchQuery) !== -1) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        document.getElementById('search-input-em').addEventListener('input', updateCollectionEMVisibility);
+        document.getElementById('search-input-report-em').addEventListener('input', updateCollectionReportEMVisibility);
+
+        // Init tabs
+        var tabElems = document.querySelectorAll('#slide-em-DX .tabs');
+        M.Tabs.init(tabElems);
+    });
+
+    function openEMSearch() {
+        var elems = document.querySelector("#slide-em-DX");
+        var instances = M.Sidenav.init(elems,
+            {
+                edge: "right",
+                draggable: true,
+                onOpenStart: function () {
+                    $("#slide-out").css("z-index", 997);
+                },
+                onCloseEnd: function () {
+                    $("#slide-out").css("z-index", 999);
+                }
+            });
+
+        instances.open();
+    }
+</script>

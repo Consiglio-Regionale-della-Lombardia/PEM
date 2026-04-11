@@ -49,14 +49,14 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("riepilogo")]
-        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 20, int view = (int)ViewModeEnum.GRID,
-            int stato = (int)StatiAttoEnum.BOZZA, int tipo = (int)TipoAttoEnum.TUTTI)
+        public async Task<ActionResult> RiepilogoDASI()
         {
             var currentUser = CurrentUser;
             if (CanAccess(new List<RuoliIntEnum>
-                    { RuoliIntEnum.Amministratore_PEM
-                        , RuoliIntEnum.Segreteria_Assemblea
-                        , RuoliIntEnum.Segreteria_Assemblea_Read }))
+                {
+                    RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea,
+                    RuoliIntEnum.Segreteria_Assemblea_Read
+                }))
             {
                 return View("RiepilogoDASI_Admin", new RiepilogoDASIModel
                 {
@@ -64,26 +64,10 @@ namespace PortaleRegione.Client.Controllers
                 });
             }
 
-            CheckCacheClientMode(ClientModeEnum.GRUPPI);
-            await CheckCacheGruppiAdmin(currentUser.CurrentRole);
-            var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
-
-            var apiGateway = new ApiGateway(Token);
-            var currentLegislatura = await apiGateway.Legislature.GetLegislaturaAttuale();
-            var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo,
-                currentUser.CurrentRole, currentLegislatura, view_require_my_sign);
-            model.CurrentUser = currentUser;
-            SetCache(page, size, tipo, stato, view);
-            if (view == (int)ViewModeEnum.PREVIEW)
+            return View("RiepilogoDASI", new RiepilogoDASIModel
             {
-                model.ViewMode = ViewModeEnum.PREVIEW;
-                foreach (var atti in model.Data.Results)
-                    atti.BodyAtto =
-                        await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
-            }
-
-            Session["RiepilogoDASI"] = model;
-            return View("RiepilogoDASI", model);
+                CurrentUser = currentUser
+            });
         }
 
         [HttpPost]
@@ -241,27 +225,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-
-        /// <summary>
-        ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
-        /// </summary>
-        /// <returns></returns>
-        public Task<ActionResult> RiepilogoDASI()
-        {
-            var model = new RiepilogoDASIModel
-            {
-                CurrentUser = CurrentUser
-            };
-
-            if (CanAccess(new List<RuoliIntEnum>
-                    { RuoliIntEnum.Amministratore_PEM
-                        , RuoliIntEnum.Segreteria_Assemblea
-                        , RuoliIntEnum.Segreteria_Assemblea_Read }))
-                return Task.FromResult<ActionResult>(View("RiepilogoDASI_Admin", model));
-
-            return Task.FromResult<ActionResult>(View("RiepilogoDASI", model));
-        }
-
+        
         /// <summary>
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo cartacei
         /// </summary>
@@ -287,25 +251,17 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("seduta")]
-        public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo = (int)TipoAttoEnum.TUTTI,
+        public ActionResult RiepilogoDASI_BySeduta(Guid id, int tipo = (int)TipoAttoEnum.TUTTI,
             int page = 1, int size = 20, int view = (int)ViewModeEnum.GRID,
             int stato = (int)StatiAttoEnum.PRESENTATO, string uidAtto = "", int legislatura = 0)
         {
-            var apiGateway = new ApiGateway(Token);
-            var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, uidAtto, page, size);
             CheckCacheClientMode(ClientModeEnum.TRATTAZIONE);
-            model.ClientMode = ClientModeEnum.TRATTAZIONE;
-            model.CurrentUser = CurrentUser;
-            SetCache(page, size, tipo, stato, view);
-            if (view == (int)ViewModeEnum.PREVIEW)
+            var model = new RiepilogoDASIModel
             {
-                model.ViewMode = ViewModeEnum.PREVIEW;
-                foreach (var atti in model.Data.Results)
-                    atti.BodyAtto =
-                        await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
-            }
-
-            Session["RiepilogoDASI"] = model;
+                ClientMode = ClientModeEnum.TRATTAZIONE,
+                Tipo = (TipoAttoEnum)tipo,
+                CurrentUser = CurrentUser
+            };
 
             if (CanAccess(new List<RuoliIntEnum>
                     { RuoliIntEnum.Amministratore_PEM

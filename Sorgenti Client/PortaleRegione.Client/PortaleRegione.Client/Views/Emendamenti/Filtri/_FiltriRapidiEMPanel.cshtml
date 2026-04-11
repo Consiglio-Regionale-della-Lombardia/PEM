@@ -1,0 +1,906 @@
+@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Common.Utility
+@model PortaleRegione.DTO.Response.EmendamentiViewModel
+
+@{
+    bool load_gruppi = User.IsInRole(RuoliExt.Amministratore_PEM)
+                       || User.IsInRole(RuoliExt.Segreteria_Assemblea);
+}
+
+<div class="row">
+    <div class="input-field col s12">
+        <i class="material-icons prefix">search</i>
+        <input type="text" id="autocomplete-input" class="autocomplete">
+        <label for="autocomplete-input">Ricerca filtri disponibili</label>
+    </div>
+</div>
+<div class="row">
+    <div class="col l7 m12 s12 left-align" style="padding-top: 10px;">
+        <div id="chips-container"></div>
+        <div id="chips-container-sorting"></div>
+    </div>
+    <div class="col l5 m12 s12 right-align">
+        <button id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</button>
+        <button id="btnReportConfig" class="btn-flat pink-text">Genera report</button>
+        <div class="row">
+            <div class="col s12">
+                <div id="chips-container-selected-report"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12">
+        <div id="chips-container-groups"></div>
+    </div>
+</div>
+
+@* Form nascosto per bridge verso il backend esistente *@
+@using (Html.BeginForm("Filtri_RiepilogoEM", "Emendamenti", FormMethod.Post, new { id = "formFiltraEM" }))
+{
+    @Html.AntiForgeryToken()
+
+    <input id="inputFilterReset" type="hidden" name="reset" value="0" />
+    <input id="inputFilterView" type="hidden" name="view" value="@Model.ViewMode" />
+    <input id="inputFilterPage" type="hidden" name="page" value="@Model.Data.Paging.Page" />
+    <input id="inputFilterSize" type="hidden" name="size" value="@Model.Data.Paging.Limit" />
+    <input type="hidden" id="hdMode" name="mode" value="@((int)Model.Mode)" />
+    <input type="hidden" id="inputFilterOrdine" name="ordine" value="@((int)Model.Ordinamento)" />
+    <input type="hidden" id="inputFiltroAtto" name="atto" value="@Model.Atto.UIDAtto" />
+    <input type="hidden" id="inputFiltroTags" name="tags" value="" />
+
+    @* Campi nascosti per bridge filtri chip -> form POST *@
+    <input type="hidden" id="bridge_filtro_text1" name="filtro_text1" value="" />
+    <input type="hidden" id="bridge_filtro_text_connector" name="filtro_text_connector" value="" />
+    <input type="hidden" id="bridge_filtro_text2" name="filtro_text2" value="" />
+    <input type="hidden" id="bridge_filtro_n_em" name="filtro_n_em" value="" />
+    <input type="hidden" id="bridge_filtro_subem" name="filtro_subem" value="" />
+    <input type="hidden" id="bridge_filtro_tipo" name="filtro_tipo" value="" />
+    <input type="hidden" id="bridge_filtro_stato" name="filtro_stato" value="" />
+    <input type="hidden" id="bridge_filtro_parte" name="filtro_parte" value="" />
+    <input type="hidden" id="bridge_filtro_parte_articolo" name="filtro_parte_articolo" value="" />
+    <input type="hidden" id="bridge_filtro_parte_comma" name="filtro_parte_comma" value="" />
+    <input type="hidden" id="bridge_filtro_parte_lettera" name="filtro_parte_lettera" value="" />
+    <input type="hidden" id="bridge_filtro_parte_titolo" name="filtro_parte_titolo" value="" />
+    <input type="hidden" id="bridge_filtro_parte_capo" name="filtro_parte_capo" value="" />
+    <input type="hidden" id="bridge_filtro_parte_missione" name="filtro_parte_missione" value="" />
+    <input type="hidden" id="bridge_filtro_parte_programma" name="filtro_parte_programma" value="" />
+    <input type="hidden" id="bridge_filtro_gruppo" name="filtro_gruppo" value="" />
+    <input type="hidden" id="bridge_filtro_proponente" name="filtro_proponente" value="" />
+    <input type="hidden" id="bridge_filtro_firmatari" name="filtro_firmatari" value="" />
+    <input type="hidden" id="bridge_filtro_my" name="filtro_my" value="" />
+    <input type="hidden" id="bridge_filtro_effetti_finanziari" name="filtro_effetti_finanziari" value="" />
+}
+
+
+<script>
+    var selectedSortColumnsEM = [];
+    var chipsKeysEM = {};
+    var idLegislaturaEM = "@(Model.Atto.Legislatura ?? Model.Atto.SEDUTE?.id_legislatura)";
+
+    // Chiavi dei filtri default/fissi (non eliminabili dall'utente)
+    var defaultKeysEM = new Set(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+        new List<string>(new[] { nameof(EmendamentiDto.UIDAtto) }
+            .Concat(Model.Mode == ClientModeEnum.GRUPPI && !load_gruppi && Model.CurrentUser?.Gruppo != null
+                ? new[] { nameof(EmendamentiDto.id_gruppo) }
+                : new string[0]))
+    )));
+
+    var availableFilterArrayEM = [
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.IDStato))", id: "@nameof(EmendamentiDto.IDStato)" },
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.IDTipo_EM))", id: "@nameof(EmendamentiDto.IDTipo_EM)" },
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.IDParte))", id: "@nameof(EmendamentiDto.IDParte)" },
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.N_EM))", id: "@nameof(EmendamentiDto.N_EM)" },
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.UIDPersonaProponente))", id: "@nameof(EmendamentiDto.UIDPersonaProponente)" },
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.Firme))", id: "@nameof(EmendamentiDto.Firme)" },
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.TestoEM_originale))", id: "@nameof(EmendamentiDto.TestoEM_originale)" },
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.Tags))", id: "@nameof(EmendamentiDto.Tags)" },
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.Rif_UIDEM))", id: "@nameof(EmendamentiDto.Rif_UIDEM)" },
+        { tag: "Miei emendamenti", id: "MyEM" },
+        { tag: "Emendamenti da firmare", id: "EMDaFirmare" },
+        { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.EffettiFinanziari))", id: "@nameof(EmendamentiDto.EffettiFinanziari)" },
+    ];
+
+    document.addEventListener('DOMContentLoaded',
+        async function () {
+            var dataSource = availableFilterArrayEM;
+
+            var elems = document.querySelectorAll('#autocomplete-input');
+            var instances = M.Autocomplete.init(elems,
+                {
+                    data: dataSource,
+                    onAutocomplete: async function (txt, key) {
+                        await openModalWithContentEM(key, txt, false, 0);
+                    }
+                });
+
+            if (document.getElementById('autocomplete-input')) {
+                document.getElementById('autocomplete-input').addEventListener('keydown',
+                    function (event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            var autocompleteList = document.querySelectorAll('.autocomplete-content.dropdown-content li');
+                            if (autocompleteList.length > 0 && !autocompleteList[0].classList.contains('disabled')) {
+                                autocompleteList[0].click();
+                            }
+                        }
+                    });
+            }
+
+            // Init modals
+            var modalElems = document.querySelectorAll('.modal');
+            M.Modal.init(modalElems);
+
+            // Ripristino filtri con merge dei default (pattern identico a DASI TRATTAZIONE)
+            ripristinaFiltriEM();
+            ripristinaOrdinamentoEM();
+
+            await creaPannelloFiltriLateraleEM();
+            await ripristinaPreferitiEM();
+
+            // Report init
+            await ripristinaReportsEM();
+
+            document.getElementById('addFiltersButton').addEventListener('click',
+                function () {
+                    var key = document.getElementById('modal-filter-id-hidden').value;
+                    var keyLabel = document.getElementById('modal-content').textContent;
+                    var val, text, chipText;
+
+                    if (key === "@nameof(EmendamentiDto.TestoEM_originale)") {
+                        var text1 = document.getElementById('em_text1').value;
+                        var connector = document.getElementById('em_text_connector').value;
+                        var text2 = document.getElementById('em_text2').value;
+                        val = text1 + "|" + connector + "|" + text2;
+                        var connectorText = connector === "1" ? "AND" : "OR";
+                        text = text1;
+                        if (text2) {
+                            text += " " + connectorText + " " + text2;
+                        }
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(EmendamentiDto.N_EM)") {
+                        val = document.getElementById('em_n_em').value;
+                        text = val;
+                        chipText = keyLabel + ": " + val;
+                    } else if (key === "@nameof(EmendamentiDto.Rif_UIDEM)") {
+                        val = document.getElementById('em_subem').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(EmendamentiDto.IDTipo_EM)") {
+                        var selectedOptions = document.querySelectorAll('#tipi-em-select option:checked');
+                        var values = Array.from(selectedOptions).map(function(o) { return o.value; });
+                        var texts = Array.from(selectedOptions).map(function(o) { return o.text; });
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(EmendamentiDto.IDStato)") {
+                        var selectedOptions = document.querySelectorAll('#stati-em-select option:checked');
+                        var values = Array.from(selectedOptions).map(function(o) { return o.value; });
+                        var texts = Array.from(selectedOptions).map(function(o) { return o.text; });
+                        val = values.join(',');
+                        text = texts.join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(EmendamentiDto.IDParte)") {
+                        // Parte con cascading: raccoglie parte + sotto-filtri
+                        var parteSelect = document.getElementById('parti-em-select');
+                        var parteVal = parteSelect.value;
+                        var parteText = parteSelect.options[parteSelect.selectedIndex] ? parteSelect.options[parteSelect.selectedIndex].text : '';
+                        val = parteVal;
+                        text = parteText;
+
+                        // Cascading sub-values
+                        var artSelect = document.getElementById('articoli-em-select');
+                        var commaSelect = document.getElementById('commi-em-select');
+                        var letteraSelect = document.getElementById('lettere-em-select');
+                        var missioneSelect = document.getElementById('missioni-em-select');
+                        var programmaInput = document.getElementById('em_programma');
+                        var titoloInput = document.getElementById('em_titolo');
+                        var capoInput = document.getElementById('em_capo');
+
+                        if (artSelect && artSelect.value) {
+                            val += "|art:" + artSelect.value;
+                            text += ", Art. " + (artSelect.options[artSelect.selectedIndex] ? artSelect.options[artSelect.selectedIndex].text : '');
+                        }
+                        if (commaSelect && commaSelect.value) {
+                            val += "|com:" + commaSelect.value;
+                            text += ", C. " + (commaSelect.options[commaSelect.selectedIndex] ? commaSelect.options[commaSelect.selectedIndex].text : '');
+                        }
+                        if (letteraSelect && letteraSelect.value) {
+                            val += "|let:" + letteraSelect.value;
+                            text += ", L. " + (letteraSelect.options[letteraSelect.selectedIndex] ? letteraSelect.options[letteraSelect.selectedIndex].text : '');
+                        }
+                        if (missioneSelect && missioneSelect.value) {
+                            val += "|mis:" + missioneSelect.value;
+                            text += ", Miss. " + (missioneSelect.options[missioneSelect.selectedIndex] ? missioneSelect.options[missioneSelect.selectedIndex].text : '');
+                        }
+                        if (programmaInput && programmaInput.value) {
+                            val += "|prog:" + programmaInput.value;
+                            text += ", Prog. " + programmaInput.value;
+                        }
+                        if (titoloInput && titoloInput.value) {
+                            val += "|tit:" + titoloInput.value;
+                            text += ", Tit. " + titoloInput.value;
+                        }
+                        if (capoInput && capoInput.value) {
+                            val += "|capo:" + capoInput.value;
+                            text += ", Capo " + capoInput.value;
+                        }
+
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(EmendamentiDto.UIDPersonaProponente)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll('.chip[data-proponente-em-uid]');
+                        existingChips.forEach(function (item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(function(node) { return node.nodeType === Node.TEXT_NODE; })
+                                .map(function(node) { return node.textContent.trim(); })
+                                .join('');
+                            if (index > 0) { text += ", "; val += ","; }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-proponente-em-uid');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(EmendamentiDto.Firme)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll('.chip[data-firmatario-em-uid]');
+                        existingChips.forEach(function (item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(function(node) { return node.nodeType === Node.TEXT_NODE; })
+                                .map(function(node) { return node.textContent.trim(); })
+                                .join('');
+                            if (index > 0) { text += ", "; val += ","; }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-firmatario-em-uid');
+                        });
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(EmendamentiDto.Tags)") {
+                        var tagsInstance = M.Chips.getInstance(document.querySelector('#tagsEmModal'));
+                        var tagsData = tagsInstance ? tagsInstance.chipsData : [];
+                        val = JSON.stringify(tagsData);
+                        text = tagsData.map(function(t) { return t.tag; }).join(', ');
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "MyEM") {
+                        val = document.getElementById('em_my').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "EMDaFirmare") {
+                        val = document.getElementById('em_da_firmare').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(EmendamentiDto.EffettiFinanziari)") {
+                        val = document.getElementById('em_effetti_finanziari').checked;
+                        text = val ? 'Si' : 'No';
+                        chipText = keyLabel + ": " + text;
+                    }
+
+                    addChipIfNotExistsEM(key, keyLabel, val, text, chipText, true, true);
+                    resetSelezionePreferitiEM();
+                    $('#infoModal').modal("close");
+                });
+        });
+
+    async function openModalWithContentEM(key, txt, isEditing, currentValue) {
+        waiting(true);
+
+        document.getElementById('autocomplete-input').value = "";
+        document.getElementById('modal-content').textContent = txt;
+        document.getElementById('modal-filter-id-hidden').value = key;
+        var selectHTML = '';
+
+        switch (key) {
+            case '@nameof(EmendamentiDto.TestoEM_originale)':
+                var parts = isEditing && currentValue ? currentValue.toString().split('|') : ['', '1', ''];
+                selectHTML = '<div class="row valign-wrapper">' +
+                    '<div class="input-field col s5">' +
+                    '<input id="em_text1" type="text" value="' + (parts[0] || '') + '" placeholder="Testo da cercare">' +
+                    '<label for="em_text1" class="active">Testo 1</label></div>' +
+                    '<div class="input-field col s2">' +
+                    '<select id="em_text_connector">' +
+                    '<option value="1"' + ((parts[1] || '1') === '1' ? ' selected' : '') + '>AND</option>' +
+                    '<option value="2"' + (parts[1] === '2' ? ' selected' : '') + '>OR</option>' +
+                    '</select></div>' +
+                    '<div class="input-field col s5">' +
+                    '<input id="em_text2" type="text" value="' + (parts[2] || '') + '" placeholder="Testo da cercare">' +
+                    '<label for="em_text2" class="active">Testo 2</label></div></div>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                M.FormSelect.init(document.querySelectorAll('#em_text_connector'));
+                break;
+
+            case '@nameof(EmendamentiDto.N_EM)':
+                var currentVal = isEditing && currentValue ? 'value="' + currentValue + '"' : '';
+                selectHTML = '<div class="input-field col s12">' +
+                    '<input id="em_n_em" type="text" ' + currentVal + ' placeholder="Es. 100, 150-200">' +
+                    '<div class="card blue lighten-5"><div class="card-content black-text">' +
+                    '<span class="card-title">Informazioni</span>' +
+                    '<p>Filtrare per:<ul style="padding-left:40px">' +
+                    '<li style="list-style-type:disc">Singolo numero: 100</li>' +
+                    '<li style="list-style-type:disc">Intervallo: 150-200</li>' +
+                    '</ul></p></div></div></div>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                break;
+
+            case '@nameof(EmendamentiDto.Rif_UIDEM)':
+                var checked = isEditing && currentValue === true ? 'checked' : '';
+                selectHTML = '<p><label><input id="em_subem" type="checkbox" ' + checked + '/>' +
+                    '<span>Cerca solo Sub-Emendamenti</span></label></p>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                break;
+
+            case '@nameof(EmendamentiDto.IDTipo_EM)':
+                var currentTipi = isEditing && currentValue ? currentValue.toString().split(',') : [];
+                selectHTML = '<select id="tipi-em-select" multiple>' +
+                    '<option value="@((int)TipiEMEnum.SOPPRESSIVO)"' + (currentTipi.indexOf('@((int)TipiEMEnum.SOPPRESSIVO)') !== -1 ? ' selected' : '') + '>Soppressivo</option>' +
+                    '<option value="@((int)TipiEMEnum.MODIFICATIVO)"' + (currentTipi.indexOf('@((int)TipiEMEnum.MODIFICATIVO)') !== -1 ? ' selected' : '') + '>Modificativo</option>' +
+                    '<option value="@((int)TipiEMEnum.AGGIUNTIVO)"' + (currentTipi.indexOf('@((int)TipiEMEnum.AGGIUNTIVO)') !== -1 ? ' selected' : '') + '>Aggiuntivo</option>' +
+                    '<option value="@((int)TipiEMEnum.SOSTITUTIVO)"' + (currentTipi.indexOf('@((int)TipiEMEnum.SOSTITUTIVO)') !== -1 ? ' selected' : '') + '>Sostitutivo</option>' +
+                    '</select>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                M.FormSelect.init(document.querySelectorAll('#tipi-em-select'));
+                break;
+
+            case '@nameof(EmendamentiDto.IDStato)':
+                var currentStati = isEditing && currentValue ? currentValue.toString().split(',') : [];
+                selectHTML = '<select id="stati-em-select" multiple>' +
+                    '<option value="@((int)StatiEnum.Bozza_Riservata)"' + (currentStati.indexOf('@((int)StatiEnum.Bozza_Riservata)') !== -1 ? ' selected' : '') + '>Bozza Riservata</option>' +
+                    '<option value="@((int)StatiEnum.Bozza)"' + (currentStati.indexOf('@((int)StatiEnum.Bozza)') !== -1 ? ' selected' : '') + '>Bozza</option>' +
+                    '<option value="@((int)StatiEnum.Depositato)"' + (currentStati.indexOf('@((int)StatiEnum.Depositato)') !== -1 ? ' selected' : '') + '>Depositato</option>' +
+                    '<option value="@((int)StatiEnum.Approvato)"' + (currentStati.indexOf('@((int)StatiEnum.Approvato)') !== -1 ? ' selected' : '') + '>Approvato</option>' +
+                    '<option value="@((int)StatiEnum.Non_Approvato)"' + (currentStati.indexOf('@((int)StatiEnum.Non_Approvato)') !== -1 ? ' selected' : '') + '>Non Approvato</option>' +
+                    '<option value="@((int)StatiEnum.Ritirato)"' + (currentStati.indexOf('@((int)StatiEnum.Ritirato)') !== -1 ? ' selected' : '') + '>Ritirato</option>' +
+                    '<option value="@((int)StatiEnum.Decaduto)"' + (currentStati.indexOf('@((int)StatiEnum.Decaduto)') !== -1 ? ' selected' : '') + '>Decaduto</option>' +
+                    '<option value="@((int)StatiEnum.Inammissibile)"' + (currentStati.indexOf('@((int)StatiEnum.Inammissibile)') !== -1 ? ' selected' : '') + '>Inammissibile</option>' +
+                    '<option value="@((int)StatiEnum.Approvato_Con_Modifiche)"' + (currentStati.indexOf('@((int)StatiEnum.Approvato_Con_Modifiche)') !== -1 ? ' selected' : '') + '>Approvato con modifiche</option>' +
+                    '</select>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                M.FormSelect.init(document.querySelectorAll('#stati-em-select'));
+                break;
+
+            case '@nameof(EmendamentiDto.IDParte)':
+                // Parte con cascading interno - parse currentValue composto (es. "4|art:guid|com:guid")
+                var parteparts = isEditing && currentValue ? currentValue.toString().split('|') : [];
+                var parteCurrentVal = parteparts.length > 0 ? parteparts[0] : '';
+
+                selectHTML = '<div id="parte-cascading-container">' +
+                    '<div class="input-field col s12"><label class="active">Parte</label>' +
+                    '<select id="parti-em-select" onchange="onParteChangeEM(this.value)">' +
+                    '<option value="" disabled' + (parteCurrentVal === '' ? ' selected' : '') + '>Seleziona</option>' +
+                    '<option value="@((int)PartiEMEnum.Titolo_PDL)"' + (parteCurrentVal === '@((int)PartiEMEnum.Titolo_PDL)' ? ' selected' : '') + '>Titolo PDL</option>' +
+                    '<option value="@((int)PartiEMEnum.Titolo)"' + (parteCurrentVal === '@((int)PartiEMEnum.Titolo)' ? ' selected' : '') + '>Titolo</option>' +
+                    '<option value="@((int)PartiEMEnum.Capo)"' + (parteCurrentVal === '@((int)PartiEMEnum.Capo)' ? ' selected' : '') + '>Capo</option>' +
+                    '<option value="@((int)PartiEMEnum.Articolo)"' + (parteCurrentVal === '@((int)PartiEMEnum.Articolo)' ? ' selected' : '') + '>Articolo</option>' +
+                    '<option value="@((int)PartiEMEnum.Missione)"' + (parteCurrentVal === '@((int)PartiEMEnum.Missione)' ? ' selected' : '') + '>Missione</option>' +
+                    '<option value="@((int)PartiEMEnum.Allegato_Tabella)"' + (parteCurrentVal === '@((int)PartiEMEnum.Allegato_Tabella)' ? ' selected' : '') + '>Allegato/Tabella</option>' +
+                    '</select></div>' +
+                    '<div id="parte-sub-filters"></div></div>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                M.FormSelect.init(document.querySelectorAll('#parti-em-select'));
+
+                // Se in modifica, triggera il cascading con i sotto-valori
+                if (isEditing && parteCurrentVal !== '') {
+                    // Carica sotto-filtri della parte
+                    await onParteChangeEM(parteCurrentVal);
+
+                    // Estrai sotto-valori dal composto
+                    var subVals = {};
+                    parteparts.forEach(function(p) {
+                        var idx = p.indexOf(':');
+                        if (idx > 0) subVals[p.substring(0, idx)] = p.substring(idx + 1);
+                    });
+
+                    // Cascading sequenziale: articolo -> commi -> lettere
+                    if (subVals['art']) {
+                        var artSelect = document.getElementById('articoli-em-select');
+                        if (artSelect) {
+                            artSelect.value = subVals['art'];
+                            M.FormSelect.init(document.querySelectorAll('#articoli-em-select'));
+                            // Carica commi per l'articolo selezionato
+                            await onArticoloChangeEM(subVals['art']);
+                            if (subVals['com']) {
+                                var comSelect = document.getElementById('commi-em-select');
+                                if (comSelect) {
+                                    comSelect.value = subVals['com'];
+                                    M.FormSelect.init(document.querySelectorAll('#commi-em-select'));
+                                    // Carica lettere per il comma selezionato
+                                    await onCommaChangeEM(subVals['com']);
+                                    if (subVals['let']) {
+                                        var letSelect = document.getElementById('lettere-em-select');
+                                        if (letSelect) {
+                                            letSelect.value = subVals['let'];
+                                            M.FormSelect.init(document.querySelectorAll('#lettere-em-select'));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (subVals['mis']) {
+                        var misSelect = document.getElementById('missioni-em-select');
+                        if (misSelect) { misSelect.value = subVals['mis']; M.FormSelect.init(document.querySelectorAll('#missioni-em-select')); }
+                    }
+                    if (subVals['prog']) {
+                        var progInput = document.getElementById('em_programma');
+                        if (progInput) progInput.value = subVals['prog'];
+                    }
+                    if (subVals['tit']) {
+                        var titInput = document.getElementById('em_titolo');
+                        if (titInput) titInput.value = subVals['tit'];
+                    }
+                    if (subVals['capo']) {
+                        var capoInput = document.getElementById('em_capo');
+                        if (capoInput) capoInput.value = subVals['capo'];
+                    }
+                }
+                break;
+
+            case '@nameof(EmendamentiDto.UIDPersonaProponente)':
+                var persone = await GetProponenti(idLegislaturaEM);
+                selectHTML = '<div id="modal-proponenti-container">' +
+                    '<div class="input-field col s12"><input id="proponenti-em-search" type="text" placeholder="Cerca persona..."><label for="proponenti-em-search" class="active">Cerca</label></div>' +
+                    '<div id="proponenti-em-chips"></div>' +
+                    '<div id="proponenti-em-list" class="collection" style="max-height:300px;overflow-y:auto">';
+                if (persone && persone.length) {
+                    persone.forEach(function (item) {
+                        selectHTML += '<a class="collection-item proponente-em-item" data-uid="' + item.UID_persona + '" href="#">' + item.DisplayName + '</a>';
+                    });
+                }
+                selectHTML += '</div></div>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                setupMultiPickerEM('proponente-em', 'proponenti-em', 'data-proponente-em-uid');
+                break;
+
+            case '@nameof(EmendamentiDto.Firme)':
+                var persone = await GetProponenti(idLegislaturaEM);
+                selectHTML = '<div id="modal-firmatari-container">' +
+                    '<div class="input-field col s12"><input id="firmatari-em-search" type="text" placeholder="Cerca persona..."><label for="firmatari-em-search" class="active">Cerca</label></div>' +
+                    '<div id="firmatari-em-chips"></div>' +
+                    '<div id="firmatari-em-list" class="collection" style="max-height:300px;overflow-y:auto">';
+                if (persone && persone.length) {
+                    persone.forEach(function (item) {
+                        selectHTML += '<a class="collection-item firmatario-em-item" data-uid="' + item.UID_persona + '" href="#">' + item.DisplayName + '</a>';
+                    });
+                }
+                selectHTML += '</div></div>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                setupMultiPickerEM('firmatario-em', 'firmatari-em', 'data-firmatario-em-uid');
+                break;
+
+            case '@nameof(EmendamentiDto.Tags)':
+                var tagsInDb = await GetTags();
+                selectHTML = '<div class="chips" id="tagsEmModal"></div>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                var currentTags = [];
+                if (isEditing && currentValue) {
+                    try { currentTags = JSON.parse(currentValue); } catch (e) { }
+                }
+                M.Chips.init(document.querySelectorAll('#tagsEmModal'), {
+                    data: currentTags,
+                    placeholder: 'Aggiungi un tag',
+                    secondaryPlaceholder: '+ Tag',
+                    autocompleteOptions: { data: tagsInDb, limit: Infinity, minLength: 1 }
+                });
+                break;
+
+            case 'MyEM':
+                var checked = isEditing && currentValue === true ? 'checked' : '';
+                selectHTML = '<p><label><input id="em_my" type="checkbox" ' + checked + '/>' +
+                    '<span>Visualizza i miei EM</span></label></p>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                break;
+
+            case 'EMDaFirmare':
+                var checked = isEditing && currentValue === true ? 'checked' : '';
+                selectHTML = '<p><label><input id="em_da_firmare" type="checkbox" ' + checked + '/>' +
+                    '<span>Mostra solo emendamenti per cui \u00E8 richiesta la mia firma</span></label></p>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                break;
+
+            case '@nameof(EmendamentiDto.EffettiFinanziari)':
+                var checked = isEditing && currentValue === true ? 'checked' : '';
+                selectHTML = '<p><label><input id="em_effetti_finanziari" type="checkbox" ' + checked + '/>' +
+                    '<span>Visualizza solo EM con effetti finanziari</span></label></p>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                break;
+        }
+
+        waiting(false);
+        $('#infoModal').modal("open");
+    }
+
+    // =============================================
+    // Cascading Parte
+    // =============================================
+    async function onParteChangeEM(parteValue) {
+        var subContainer = document.getElementById('parte-sub-filters');
+        subContainer.innerHTML = '';
+
+        if (parteValue === '@((int)PartiEMEnum.Articolo)') {
+            var articoli = await GetArticoli($('#inputFiltroAtto').val());
+            var html = '<div class="input-field col s4"><label class="active">Articolo</label>' +
+                '<select id="articoli-em-select" onchange="onArticoloChangeEM(this.value)"><option value="" disabled selected>Seleziona</option>';
+            if (articoli) articoli.forEach(function(a) { html += '<option value="' + a.UIDArticolo + '">' + a.Articolo + '</option>'; });
+            html += '</select></div><div id="comma-container"></div><div id="lettera-container"></div>';
+            subContainer.innerHTML = html;
+            M.FormSelect.init(document.querySelectorAll('#articoli-em-select'));
+        } else if (parteValue === '@((int)PartiEMEnum.Missione)') {
+            var missioni = []; // TODO: endpoint missioni da implementare
+            var html = '<div class="input-field col s8"><label class="active">Missione</label>' +
+                '<select id="missioni-em-select"><option value="" disabled selected>Seleziona</option>';
+            if (missioni) missioni.forEach(function(m) { html += '<option value="' + m.NMissione + '">' + m.Display + '</option>'; });
+            html += '</select></div>' +
+                '<div class="input-field col s4"><input id="em_programma" type="text" placeholder="Programma"><label for="em_programma" class="active">Programma</label></div>';
+            subContainer.innerHTML = html;
+            M.FormSelect.init(document.querySelectorAll('#missioni-em-select'));
+        } else if (parteValue === '@((int)PartiEMEnum.Titolo)') {
+            subContainer.innerHTML = '<div class="input-field col s12"><input id="em_titolo" type="text" placeholder="Immetti il titolo"><label for="em_titolo" class="active">Titolo</label></div>';
+        } else if (parteValue === '@((int)PartiEMEnum.Capo)') {
+            subContainer.innerHTML = '<div class="input-field col s12"><input id="em_capo" type="text" placeholder="Immetti il capo"><label for="em_capo" class="active">Capo</label></div>';
+        }
+    }
+
+    async function onArticoloChangeEM(artValue) {
+        var commaContainer = document.getElementById('comma-container');
+        if (!commaContainer) return;
+        commaContainer.innerHTML = '';
+        var commi = await GetCommi(artValue, false);
+        var html = '<div class="input-field col s4"><label class="active">Comma</label>' +
+            '<select id="commi-em-select" onchange="onCommaChangeEM(this.value)"><option value="" disabled selected>Seleziona</option>';
+        if (commi) commi.forEach(function(c) { html += '<option value="' + c.UIDComma + '">' + c.Comma + '</option>'; });
+        html += '</select></div>';
+        commaContainer.innerHTML = html;
+        M.FormSelect.init(document.querySelectorAll('#commi-em-select'));
+    }
+
+    async function onCommaChangeEM(commaValue) {
+        var letteraContainer = document.getElementById('lettera-container');
+        if (!letteraContainer) return;
+        letteraContainer.innerHTML = '';
+        var lettere = await GetLettere(commaValue);
+        var html = '<div class="input-field col s4"><label class="active">Lettera</label>' +
+            '<select id="lettere-em-select"><option value="" disabled selected>Seleziona</option>';
+        if (lettere) lettere.forEach(function(l) { html += '<option value="' + l.UIDLettera + '">' + l.Lettera + '</option>'; });
+        html += '</select></div>';
+        letteraContainer.innerHTML = html;
+        M.FormSelect.init(document.querySelectorAll('#lettere-em-select'));
+    }
+
+    // =============================================
+    // Multi-picker helper
+    // =============================================
+    function setupMultiPickerEM(itemPrefix, containerPrefix, dataAttr) {
+        var searchInput = document.getElementById(containerPrefix + '-search');
+        var listItems = document.querySelectorAll('.' + itemPrefix + '-item');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                var query = this.value.toLowerCase();
+                listItems.forEach(function (item) {
+                    item.style.display = item.textContent.toLowerCase().indexOf(query) !== -1 ? '' : 'none';
+                });
+            });
+        }
+
+        listItems.forEach(function (item) {
+            item.addEventListener('click', function (e) {
+                e.preventDefault();
+                var uid = item.getAttribute('data-uid') || item.getAttribute('data-id');
+                var name = item.textContent.trim();
+                var chipsContainer = document.getElementById(containerPrefix + '-chips');
+                if (chipsContainer.querySelector('[' + dataAttr + '="' + uid + '"]')) return;
+
+                var chip = document.createElement('div');
+                chip.classList.add('chip');
+                chip.setAttribute(dataAttr, uid);
+                chip.textContent = name;
+
+                var closeIcon = document.createElement('i');
+                closeIcon.classList.add('close', 'material-icons');
+                closeIcon.textContent = 'close';
+                closeIcon.onclick = function () { chip.remove(); };
+                chip.appendChild(closeIcon);
+                chipsContainer.appendChild(chip);
+            });
+        });
+    }
+
+    // =============================================
+    // Chip management
+    // =============================================
+    // Identico al pattern DASI: addChipIfNotExists
+    function addChipIfNotExistsEM(key, keyLabel, val, label, chipText, refresh, visible) {
+
+        var existingChip = document.querySelector('.chip[data-filterby="' + key + '"]');
+
+        if (!existingChip) {
+            var chipsContainer = document.getElementById('chips-container');
+            var newChip = document.createElement('div');
+            newChip.setAttribute('data-val', val);
+            newChip.setAttribute('data-label', label);
+            newChip.setAttribute('data-filterby', key);
+            newChip.setAttribute('data-filterby-label', keyLabel);
+            newChip.classList.add('chip');
+            newChip.classList.add('filter-chip');
+            newChip.textContent = chipText;
+
+            if (visible === false) {
+                newChip.style.display = "none";
+            }
+
+            // Chip fisse: no icone edit/close
+            if (!defaultKeysEM.has(key)) {
+                addIconsToChipEM(newChip, key, keyLabel, val);
+            }
+            chipsContainer.appendChild(newChip);
+
+            chipsKeysEM[key] = true;
+        } else {
+            existingChip.setAttribute('data-val', val);
+            existingChip.setAttribute('data-label', label);
+            existingChip.setAttribute('data-filterby', key);
+            existingChip.setAttribute('data-filterby-label', keyLabel);
+            existingChip.textContent = chipText;
+
+            if (visible === false) {
+                existingChip.style.display = "none";
+            }
+
+            // Chip fisse: no icone edit/close
+            if (!defaultKeysEM.has(key)) {
+                addIconsToChipEM(existingChip, key, keyLabel, val);
+            }
+        }
+
+        salvaFiltriEM();
+
+        if (refresh) {
+            inviaDatiChipsEM(1);
+        }
+    }
+
+    // Identico al pattern DASI: addIconsToChip
+    function addIconsToChipEM(chip, key, keyLabel, val) {
+
+        var editIcon = document.createElement('i');
+        editIcon.classList.add('material-icons', 'tiny');
+        editIcon.style.setProperty('margin-left', '10px');
+        editIcon.style.setProperty('top', '2px');
+        editIcon.textContent = 'edit';
+        editIcon.onclick = async function (event) {
+            event.stopPropagation();
+            await openModalWithContentEM(key, keyLabel, true, val);
+        };
+        chip.appendChild(editIcon);
+
+        var closeIcon = document.createElement('i');
+        closeIcon.classList.add('close', 'material-icons');
+        closeIcon.style.setProperty('top', 'unset', 'important');
+        closeIcon.textContent = 'close';
+        closeIcon.onclick = function () {
+            delete chipsKeysEM[key];
+            chip.remove();
+            resetSelezionePreferitiEM();
+            salvaFiltriEM();
+            inviaDatiChipsEM(1);
+        };
+        chip.appendChild(closeIcon);
+    }
+
+    // Identico al pattern DASI: salvaFiltri (salva TUTTO, inclusi filtri default)
+    function salvaFiltriEM() {
+        var filtri = [];
+        document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function (chip) {
+            var key = chip.getAttribute('data-filterby');
+            var keyLabel = chip.getAttribute('data-filterby-label');
+            var val = chip.getAttribute('data-val');
+            var label = chip.getAttribute('data-label');
+            var chipTextContent = chip.cloneNode(true);
+            chipTextContent.querySelectorAll('.material-icons').forEach(function(icon) { icon.remove(); });
+            var chipText = chipTextContent.textContent.trim();
+
+            filtri.push({ key: key, keyLabel: keyLabel, val: val, label: label, chipText: chipText });
+        });
+        localStorage.setItem('filtriChipsEM', JSON.stringify(filtri));
+    }
+
+    // Identico al pattern DASI ripristinaFiltriTrattazione: merge default + utente
+    function ripristinaFiltriEM() {
+        $('#chips-container').empty();
+
+        var filtriEM = JSON.parse(localStorage.getItem('filtriChipsEM')) || [];
+
+        // Filtri default (fissi, non eliminabili dall'utente)
+        @{
+            var pdlLabel = Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.UIDAtto));
+            var pdlAttoText = Utility.GetText_Tipo(Model.Atto.IDTipoAtto) + " " + Model.Atto.NAtto;
+            var gruppiLabel = Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.id_gruppo));
+            var gruppoVal = Model.CurrentUser?.Gruppo != null ? Model.CurrentUser.Gruppo.id_gruppo.ToString() : "";
+            var addGruppoFisso = Model.Mode == ClientModeEnum.GRUPPI && !load_gruppi && Model.CurrentUser?.Gruppo != null;
+        }
+        var defaultFiltri = [
+            { key: "@nameof(EmendamentiDto.UIDAtto)", keyLabel: "@pdlLabel", val: "@Model.Atto.UIDAtto", label: "@pdlAttoText", chipText: "@pdlLabel: @pdlAttoText", visible: true }
+            @if (addGruppoFisso)
+            {
+                <text>,{ key: "@nameof(EmendamentiDto.id_gruppo)", keyLabel: "@gruppiLabel", val: "@gruppoVal", label: "", chipText: "", visible: false }</text>
+            }
+        ];
+
+        // Chiavi default per escluderle dai filtri utente
+        var defaultKeys = new Set(defaultFiltri.map(function(f) { return f.key; }));
+
+        // Filtri utente = quelli in filtriEM con key NON di default
+        var filtriUtente = (filtriEM || []).filter(function(f) { return !defaultKeys.has(f.key); });
+
+        // Merge: prima i default, poi i filtri utente (evita duplicati per key)
+        var visti = new Set();
+        var nuoviFiltri = defaultFiltri.concat(filtriUtente).filter(function(f) {
+            if (visti.has(f.key)) return false;
+            visti.add(f.key);
+            return true;
+        });
+
+        nuoviFiltri.forEach(function(filtro) {
+            var visible = filtro.visible !== undefined ? filtro.visible : true;
+            addChipIfNotExistsEM(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false, visible);
+        });
+    }
+
+    function ripristinaOrdinamentoEM() {
+        $('#chips-container-sorting').empty();
+
+        var ordinamenti = JSON.parse(localStorage.getItem('selectedSortColumnsEM'));
+
+        // Se non c'e' ordinamento salvato, imposta il default da Model.Ordinamento
+        if (!ordinamenti || ordinamenti.length === 0) {
+            @{
+                var ordinamentoDefaultKey = Model.Ordinamento == OrdinamentoEnum.Votazione
+                    ? nameof(EmendamentiDto.OrdineVotazione)
+                    : nameof(EmendamentiDto.OrdinePresentazione);
+                var ordinamentoDefaultLabel = Model.Ordinamento == OrdinamentoEnum.Votazione
+                    ? "Ordine Votazione"
+                    : "Ordine Presentazione";
+            }
+            ordinamenti = [{ propertyName: "@ordinamentoDefaultKey", sortDirection: "1", displayText: "@ordinamentoDefaultLabel" }];
+            localStorage.setItem('selectedSortColumnsEM', JSON.stringify(ordinamenti));
+        }
+
+        // Presentazione e Votazione sono mutuamente esclusivi: tieni solo l'ultimo
+        var hasPresentazione = ordinamenti.some(function(o) { return o.propertyName === "@nameof(EmendamentiDto.OrdinePresentazione)"; });
+        var hasVotazione = ordinamenti.some(function(o) { return o.propertyName === "@nameof(EmendamentiDto.OrdineVotazione)"; });
+        if (hasPresentazione && hasVotazione) {
+            // Rimuovi Presentazione, tieni Votazione (l'ultimo aggiunto vince)
+            ordinamenti = ordinamenti.filter(function(o) { return o.propertyName !== "@nameof(EmendamentiDto.OrdinePresentazione)"; });
+            localStorage.setItem('selectedSortColumnsEM', JSON.stringify(ordinamenti));
+        }
+
+        ordinamenti.forEach(function (ordinamento) {
+            addSortChipIfNotExistsEM(ordinamento.propertyName, ordinamento.sortDirection, ordinamento.displayText);
+        });
+    }
+
+    // =============================================
+    // Bridge: chips -> form POST esistente
+    // =============================================
+    function inviaDatiChipsEM(page) {
+        // Reset campi bridge
+        document.querySelectorAll('[id^="bridge_"]').forEach(function(el) { el.value = ''; });
+
+        var chips = document.querySelectorAll('#chips-container .chip.filter-chip');
+        chips.forEach(function (chip) {
+            var key = chip.getAttribute('data-filterby');
+            var val = chip.getAttribute('data-val');
+
+            switch (key) {
+                case '@nameof(EmendamentiDto.TestoEM_originale)':
+                    var parts = val.split('|');
+                    document.getElementById('bridge_filtro_text1').value = parts[0] || '';
+                    document.getElementById('bridge_filtro_text_connector').value = parts[1] || '1';
+                    document.getElementById('bridge_filtro_text2').value = parts[2] || '';
+                    break;
+                case '@nameof(EmendamentiDto.N_EM)':
+                    document.getElementById('bridge_filtro_n_em').value = val;
+                    break;
+                case '@nameof(EmendamentiDto.Rif_UIDEM)':
+                    document.getElementById('bridge_filtro_subem').value = val === 'true' ? 'on' : '';
+                    break;
+                case '@nameof(EmendamentiDto.IDTipo_EM)':
+                    document.getElementById('bridge_filtro_tipo').value = val;
+                    break;
+                case '@nameof(EmendamentiDto.IDStato)':
+                    document.getElementById('bridge_filtro_stato').value = val;
+                    break;
+                case '@nameof(EmendamentiDto.IDParte)':
+                    // Scomponi parte composta
+                    var parteParts = val.split('|');
+                    document.getElementById('bridge_filtro_parte').value = parteParts[0] || '';
+                    parteParts.forEach(function(p) {
+                        if (p.indexOf('art:') === 0) document.getElementById('bridge_filtro_parte_articolo').value = p.substring(4);
+                        if (p.indexOf('com:') === 0) document.getElementById('bridge_filtro_parte_comma').value = p.substring(4);
+                        if (p.indexOf('let:') === 0) document.getElementById('bridge_filtro_parte_lettera').value = p.substring(4);
+                        if (p.indexOf('tit:') === 0) document.getElementById('bridge_filtro_parte_titolo').value = p.substring(4);
+                        if (p.indexOf('capo:') === 0) document.getElementById('bridge_filtro_parte_capo').value = p.substring(5);
+                        if (p.indexOf('mis:') === 0) document.getElementById('bridge_filtro_parte_missione').value = p.substring(4);
+                        if (p.indexOf('prog:') === 0) document.getElementById('bridge_filtro_parte_programma').value = p.substring(5);
+                    });
+                    break;
+                case '@nameof(EmendamentiDto.id_gruppo)':
+                    document.getElementById('bridge_filtro_gruppo').value = val;
+                    break;
+                case '@nameof(EmendamentiDto.UIDPersonaProponente)':
+                    document.getElementById('bridge_filtro_proponente').value = val;
+                    break;
+                case '@nameof(EmendamentiDto.Firme)':
+                    document.getElementById('bridge_filtro_firmatari').value = val;
+                    break;
+                case '@nameof(EmendamentiDto.Tags)':
+                    document.getElementById('inputFiltroTags').value = val;
+                    break;
+                case 'MyEM':
+                    document.getElementById('bridge_filtro_my').value = val === 'true' ? 'on' : '';
+                    break;
+                case '@nameof(EmendamentiDto.EffettiFinanziari)':
+                    document.getElementById('bridge_filtro_effetti_finanziari').value = val === 'true' ? 'on' : '';
+                    break;
+            }
+        });
+
+        if (page) {
+            document.getElementById('inputFilterPage').value = page;
+        }
+
+        setTimeout(function () { $('body').removeClass('loaded'); }, 200);
+        document.getElementById('formFiltraEM').submit();
+    }
+
+    // API helpers: riuso funzioni esistenti da FiltriManager.js
+    // GetArticoli(attoUId), GetCommi(articoloUId, expanded), GetLettere(commaUId), GetProponenti(idLegislatura)
+
+    // Funzioni filtra/reset per compatibilita'
+    function filtra(page) {
+        if (page) { $('#inputFilterPage').val(page); }
+        inviaDatiChipsEM(page);
+    }
+
+    function filtra_Paginazione(size) {
+        $('#inputFilterPage').val(1);
+        $('#inputFilterSize').val(size);
+        inviaDatiChipsEM(1);
+    }
+
+    function filtra_View(view) {
+        $('#inputFilterView').val(view);
+        inviaDatiChipsEM();
+    }
+
+    function filtra_Ordinamento(ordine) {
+        $('#inputFilterPage').val(1);
+        $('#inputFilterOrdine').val(ordine);
+        inviaDatiChipsEM(1);
+    }
+
+    async function reset() {
+        localStorage.removeItem('filtriChipsEM');
+        chipsKeysEM = {};
+        ripristinaFiltriEM(); // Ripristina solo i default
+        inviaDatiChipsEM(1);
+    }
+
+    function ShowHideTableColumn(ctrl, enable) {
+        if (enable) {
+            $('#th' + ctrl).show();
+            $('td[id^="td' + ctrl + '"]').show();
+        } else {
+            $('#th' + ctrl).hide();
+            $('td[id^="td' + ctrl + '"]').hide();
+        }
+    }
+</script>
+
+@{
+    Html.RenderPartial("Filtri/_DettaglioFiltroModalEM");
+    Html.RenderPartial("Filtri/_FiltroConfigModalEM");
+    Html.RenderPartial("Filtri/_ReportConfigModalEM");
+    Html.RenderPartial("Filtri/_OrdinamentoColonneEM");
+}

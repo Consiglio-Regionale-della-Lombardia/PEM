@@ -375,6 +375,17 @@
     }
 
     function logout() {
+        // Clear filtri/ordinamento/colonne PEM
+        localStorage.removeItem('filtriChipsEM');
+        localStorage.removeItem('selectedSortColumnsEM');
+        localStorage.removeItem('selectedColumnsEM');
+        // Clear filtri/ordinamento/colonne DASI
+        localStorage.removeItem('filtriDasi');
+        localStorage.removeItem('selectedSortColumns');
+        localStorage.removeItem('selectedColumns');
+        localStorage.removeItem('pagingDasi');
+        localStorage.removeItem('filtriPreferitiEM');
+        localStorage.removeItem('reportsEM');
         $('#formLogout').submit();
     }
 

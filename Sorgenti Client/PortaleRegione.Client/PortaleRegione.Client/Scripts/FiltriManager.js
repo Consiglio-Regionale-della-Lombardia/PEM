@@ -518,6 +518,14 @@ function GetStatiDASI() {
     });
 }
 
+// Stub per filtri preferiti EM (per ora legge da localStorage)
+function GetFiltriPreferitiEM() {
+    return new Promise(function(resolve) {
+        var saved = localStorage.getItem('filtriPreferitiEM');
+        resolve(saved ? JSON.parse(saved) : []);
+    });
+}
+
 function GetFiltriPreferitiDASI() {
     return new Promise(async function(resolve, reject) {
         $.ajax({
