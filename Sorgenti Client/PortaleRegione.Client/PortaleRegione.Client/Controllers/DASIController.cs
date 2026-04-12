@@ -2838,5 +2838,26 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint di integrazione per inviare un atto DASI al protocollo EDMA
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("invia-atto-edma/{id:guid}")]
+        [HttpGet]
+        public async Task<ActionResult> InviaAttoEdma(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                return Json(await apiGateway.DASI.InviaAttoEdma(id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

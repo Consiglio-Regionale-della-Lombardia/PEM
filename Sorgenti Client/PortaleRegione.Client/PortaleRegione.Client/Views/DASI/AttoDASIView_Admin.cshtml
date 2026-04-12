@@ -2722,10 +2722,11 @@
 
     function InviaAttoEdma(id) {
         if (!confirm('Confermi l\'invio dell\'atto al protocollo EDMA?')) return;
-
+        var url = '@Url.Action("InviaAttoEdma", "DASI")';
+        console.log(url);
         waiting(true, 'Invio al protocollo EDMA in corso...');
         $.ajax({
-            url: '@Url.Action("InviaAttoEdma", "Atti")/' + id,
+            url: url,
             type: 'GET',
             contentType: 'application/json',
             success: function (data) {

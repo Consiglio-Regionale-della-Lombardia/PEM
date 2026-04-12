@@ -858,7 +858,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
-        [Route(ApiRoutes.PEM.Atti.InviaAttoEdma + "/{id:guid}")]
+        [Route(ApiRoutes.DASI.InviaAttoEdma + "/{id:guid}")]
         public async Task<IHttpActionResult> InviaAttoEdma(Guid id)
         {
             try

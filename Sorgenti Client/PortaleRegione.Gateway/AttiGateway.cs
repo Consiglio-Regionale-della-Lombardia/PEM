@@ -211,13 +211,6 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task<string> InviaAttoEdma(Guid id)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.InviaAttoEdma}/{id}";
-            var lst = await Get(requestUrl, _token);
-            return lst;
-        }
-
         public async Task<IEnumerable<ArticoliDto>> GetArticoli(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.Articoli.GetAll.Replace("{id}", id.ToString())}";

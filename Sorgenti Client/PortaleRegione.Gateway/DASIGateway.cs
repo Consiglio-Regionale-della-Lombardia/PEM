@@ -807,5 +807,12 @@ namespace PortaleRegione.Gateway
             var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
             return result;
         }
+        
+        public async Task<string> InviaAttoEdma(Guid id)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.InviaAttoEdma}/{id}";
+            var lst = await Get(requestUrl, _token);
+            return lst;
+        }
     }
 }

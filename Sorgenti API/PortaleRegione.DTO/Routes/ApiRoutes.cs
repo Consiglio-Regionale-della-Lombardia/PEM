@@ -103,7 +103,6 @@ namespace PortaleRegione.DTO.Routes
                 public const string GetTipi = Base + "/tipi/{dasi}";
                 public const string SpostaInAltraSeduta = Base + "/{uidAtto}/sposta-in-altra-seduta/{uidSeduta}";
                 public const string CercaAttiGea = Base + "/cerca-atti-gea";
-                public const string InviaAttoEdma = Base + "/invia-atto-edma";
 
                 public static class Articoli
                 {
@@ -279,6 +278,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetReportsCovers = Base + "/reports/templates/covers";
             public const string GetReportsCardTemplates = Base + "/reports/templates/cards";
             public const string GetCommissioniAttive = Base + "/commissioni-attive";
+            public const string InviaAttoEdma = Base + "/invia-atto-edma";
         }
 
         public static class Notifiche
