@@ -103,6 +103,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string GetTipi = Base + "/tipi/{dasi}";
                 public const string SpostaInAltraSeduta = Base + "/{uidAtto}/sposta-in-altra-seduta/{uidSeduta}";
                 public const string CercaAttiGea = Base + "/cerca-atti-gea";
+                public const string InviaAttoEdma = Base + "/invia-atto-edma";
 
                 public static class Articoli
                 {

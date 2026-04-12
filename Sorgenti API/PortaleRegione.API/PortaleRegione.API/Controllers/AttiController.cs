@@ -35,6 +35,8 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Routes;
 using PortaleRegione.Logger;
+using PortaleRegione.SDK.EDMA.Models;
+using PortaleRegione.SDK.EDMA.Persistance;
 using PortaleRegione.SDK.GEA;
 
 namespace PortaleRegione.API.Controllers
@@ -845,6 +847,45 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("RicercaAttiGea", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint di integrazione per inviare un atto DASI al protocollo EDMA
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.InviaAttoEdma + "/{id:guid}")]
+        public async Task<IHttpActionResult> InviaAttoEdma(Guid id)
+        {
+            try
+            {
+                var edmaService = new EdmaApiService(
+                    AppSettingsConfiguration.EDMA_Url,
+                    AppSettingsConfiguration.EDMA_Username,
+                    AppSettingsConfiguration.EDMA_Password);
+
+                // TODO: Completare con i dati dell'atto e le specifiche mancanti
+                var documento = new SDK.EDMA.Models.DocumentoBase
+                {
+                    Oggetto = $"Atto DASI {id}",
+                    CodAutore = "SYSTEM_",
+                    MetaDocumento = new MetaDocumento
+                    {
+                        
+                    }
+                };
+
+                var result = await edmaService.CreaDocumentoAsync(documento, null, null);
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("InviaAttoEdma", e);
                 return ErrorHandler(e);
             }
         }

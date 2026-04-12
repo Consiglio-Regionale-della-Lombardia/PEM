@@ -87,5 +87,10 @@ namespace PortaleRegione.BAL
         public static string GEA_Url => ConfigurationManager.AppSettings["GEA_Url"];
         public static string GEA_Username => ConfigurationManager.AppSettings["GEA_Username"];
         public static string GEA_Password => ConfigurationManager.AppSettings["GEA_Password"];
+
+        /*INTEGRAZIONE EDMA*/
+        public static string EDMA_Url => ConfigurationManager.AppSettings["EDMA_Url"];
+        public static string EDMA_Username => ConfigurationManager.AppSettings["EDMA_Username"];
+        public static string EDMA_Password => ConfigurationManager.AppSettings["EDMA_Password"];
     }
 }

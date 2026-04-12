@@ -133,3 +133,5 @@ Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/TestProject/testsetting
 Sorgenti Scheduler Quartz/Scheduler Quartz/.idea
 Sorgenti Scheduler Quartz/Scheduler Service/.idea
 .claude
+Sorgenti API/PortaleRegione.SDK.EDMA/obj
+Sorgenti API/PortaleRegione.SDK.EDMA/bin

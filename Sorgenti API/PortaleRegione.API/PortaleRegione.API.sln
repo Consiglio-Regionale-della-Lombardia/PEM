@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.SDK.GEA", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Crypto", "..\PortaleRegione.Crypto\PortaleRegione.Crypto.csproj", "{CE1501B2-58D4-47AC-8D15-E2AA307E401B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.SDK.EDMA", "..\PortaleRegione.SDK.EDMA\PortaleRegione.SDK.EDMA.csproj", "{B2F3A1D4-5E6C-4F7A-8B9D-0C1E2F3A4B5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{CE1501B2-58D4-47AC-8D15-E2AA307E401B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE1501B2-58D4-47AC-8D15-E2AA307E401B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE1501B2-58D4-47AC-8D15-E2AA307E401B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2F3A1D4-5E6C-4F7A-8B9D-0C1E2F3A4B5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2F3A1D4-5E6C-4F7A-8B9D-0C1E2F3A4B5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2F3A1D4-5E6C-4F7A-8B9D-0C1E2F3A4B5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2F3A1D4-5E6C-4F7A-8B9D-0C1E2F3A4B5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
