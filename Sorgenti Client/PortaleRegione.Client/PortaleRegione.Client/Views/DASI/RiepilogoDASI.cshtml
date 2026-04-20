@@ -64,68 +64,56 @@
 
 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
 {
-    <ul class="collapsible">
-        <li>
-            <div class="collapsible-header"><i class="material-icons">flash_on</i>Filtri rapidi</div>
-            <div class="collapsible-body" style="padding: 10px;">
-                <div class="row center">
-                    <div class="col s12">
-                        <div class="col s12 l2">
-                            <button type="button" class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="filtraByTipo(@((int)TipoAttoEnum.TUTTI))" style="width: 100%">Tutti</button>
-                        </div>
-                        <div class="col s12 l2">
-                            <button type="button" class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.ITL)" onclick="filtraByTipo(@((int)TipoAttoEnum.ITL))" style="width: 100%">ITL</button>
-                        </div>
-                        <div class="col s12 l2">
-                            <button type="button" class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.ITR)" onclick="filtraByTipo(@((int)TipoAttoEnum.ITR))" style="width: 100%">ITR</button>
-                        </div>
-                        <div class="col s12 l2">
-                            <button type="button" class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.IQT)" onclick="filtraByTipo(@((int)TipoAttoEnum.IQT))" style="width: 100%">IQT</button>
-                        </div>
-                        <div class="col s12 l2">
-                            <button type="button" class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="filtraByTipo(@((int)TipoAttoEnum.MOZ))" style="width: 100%">MOZ</button>
-                        </div>
-                        <div class="col s12 l2">
-                            <button type="button" class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.ODG)" onclick="filtraByTipo(@((int)TipoAttoEnum.ODG))" style="width: 100%">ODG</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    @{
-                        var statoLabel = Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato));
-                        var bozzaText = Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA);
-                        var presentatoText = Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO);
-                        var trattazioneText = Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE);
-                        var completatoText = Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO);
-                    }
-                    <div class="col s12">
-                        <ul class="tabs">
-                            <li class="tab col l3 s12">
-                                <a onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.BOZZA)', '@bozzaText', '@statoLabel: @bozzaText', true, true);">
-                                    @bozzaText
-                                </a>
-                            </li>
-                            <li class="tab col l3 s12">
-                                <a onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.PRESENTATO)', '@presentatoText', '@statoLabel: @presentatoText', true, true);">
-                                    @presentatoText
-                                </a>
-                            </li>
-                            <li class="tab col l3 s12">
-                                <a onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.IN_TRATTAZIONE)', '@trattazioneText', '@statoLabel: @trattazioneText', true, true);">
-                                    @trattazioneText
-                                </a>
-                            </li>
-                            <li class="tab col l3 s12">
-                                <a onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.COMPLETATO)', '@completatoText', '@statoLabel: @completatoText', true, true);">
-                                    @completatoText
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+    var statoLabel = Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato));
+    var bozzaText = Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA);
+    var presentatoText = Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO);
+    var trattazioneText = Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE);
+    var completatoText = Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO);
+    <div class="card-panel filtri-rapidi-panel" style="padding: 12px 16px;">
+        <div class="row" style="margin-bottom: 4px;">
+            <div class="col s12">
+                <span class="grey-text text-darken-2">
+                    <i class="material-icons tiny" style="vertical-align: middle;">flash_on</i>
+                    <b>Scorciatoie di filtro</b>
+                </span>
+                <span class="grey-text text-lighten-1" style="margin-left: 8px; font-size: 0.85rem;">
+                    clicca una voce per aggiungerla ai filtri attivi
+                </span>
             </div>
-        </li>
-    </ul>
+        </div>
+
+        <div class="row valign-wrapper" style="margin-bottom: 0;">
+            <div class="col s12 l2">
+                <span class="grey-text text-darken-1" style="font-size: 0.8rem;">Tipo atto</span>
+            </div>
+            <div class="col s12 l10">
+                <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="filtraByTipo(@((int)TipoAttoEnum.TUTTI))">Tutti</button>
+                <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.ITL)" onclick="filtraByTipo(@((int)TipoAttoEnum.ITL))">ITL</button>
+                <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.ITR)" onclick="filtraByTipo(@((int)TipoAttoEnum.ITR))">ITR</button>
+                <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.IQT)" onclick="filtraByTipo(@((int)TipoAttoEnum.IQT))">IQT</button>
+                <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="filtraByTipo(@((int)TipoAttoEnum.MOZ))">MOZ</button>
+                <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.ODG)" onclick="filtraByTipo(@((int)TipoAttoEnum.ODG))">ODG</button>
+            </div>
+        </div>
+
+        <div class="divider" style="margin: 10px 0;"></div>
+
+        <div class="row valign-wrapper" style="margin-bottom: 0;">
+            <div class="col s12 l2">
+                <span class="grey-text text-darken-1" style="font-size: 0.8rem;">Stato</span>
+            </div>
+            <div class="col s12 l10">
+                <button type="button" class="chip chip-centered hoverable waves-effect"
+                        onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.BOZZA)', '@bozzaText', '@statoLabel: @bozzaText', true, true);">@bozzaText</button>
+                <button type="button" class="chip chip-centered hoverable waves-effect"
+                        onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.PRESENTATO)', '@presentatoText', '@statoLabel: @presentatoText', true, true);">@presentatoText</button>
+                <button type="button" class="chip chip-centered hoverable waves-effect"
+                        onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.IN_TRATTAZIONE)', '@trattazioneText', '@statoLabel: @trattazioneText', true, true);">@trattazioneText</button>
+                <button type="button" class="chip chip-centered hoverable waves-effect"
+                        onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.COMPLETATO)', '@completatoText', '@statoLabel: @completatoText', true, true);">@completatoText</button>
+            </div>
+        </div>
+    </div>
 }
 
 @{
