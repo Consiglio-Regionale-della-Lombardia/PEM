@@ -109,6 +109,74 @@ else
         });
     });
 
+    // Picker multi-selezione persone (pattern PEM: lista visibile + search real-time + chips).
+    // config = { prefix, dataAttr, persone, isEditing, currentValue }
+    //   prefix    -> usato per id container ("${prefix}-search", "${prefix}-chips", "${prefix}-list") e classe item ("${prefix}-item")
+    //   dataAttr  -> nome attributo dati sulle chip generate (es. "proponente-uid" -> data-proponente-uid)
+    //   persone   -> array [{ uid, DisplayName }]
+    //   currentValue stringa GUID separati da virgola (solo se isEditing)
+    function setupPersonePickerDASI(config) {
+        var prefix = config.prefix;
+        var dataAttr = config.dataAttr;
+        var persone = config.persone || [];
+        var itemClass = prefix + '-item';
+
+        var html = '<div id="modal-' + prefix + '-container">' +
+            '<div class="input-field col s12">' +
+                '<input id="' + prefix + '-search" type="text" placeholder="Cerca persona...">' +
+                '<label for="' + prefix + '-search" class="active">Cerca</label>' +
+            '</div>' +
+            '<div id="' + prefix + '-chips"></div>' +
+            '<div id="' + prefix + '-list" class="collection" style="max-height:300px;overflow-y:auto">';
+        persone.forEach(function(p) {
+            html += '<a class="collection-item ' + itemClass + '" data-uid="' + p.uid + '" href="#">' + p.DisplayName + '</a>';
+        });
+        html += '</div></div>';
+        document.getElementById('dynamic-select-container').innerHTML = html;
+
+        var searchInput = document.getElementById(prefix + '-search');
+        var chipsContainer = document.getElementById(prefix + '-chips');
+        var listItems = document.querySelectorAll('.' + itemClass);
+
+        function addChip(uid, name) {
+            if (chipsContainer.querySelector('[data-' + dataAttr + '="' + uid + '"]')) return;
+            var chip = document.createElement('div');
+            chip.classList.add('chip');
+            chip.setAttribute('data-' + dataAttr, uid);
+            chip.textContent = name;
+            var closeIcon = document.createElement('i');
+            closeIcon.classList.add('close', 'material-icons');
+            closeIcon.style.setProperty('top', 'unset', 'important');
+            closeIcon.textContent = 'close';
+            closeIcon.onclick = function() { chip.remove(); };
+            chip.appendChild(closeIcon);
+            chipsContainer.appendChild(chip);
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                var query = this.value.toLowerCase();
+                listItems.forEach(function(item) {
+                    item.style.display = item.textContent.toLowerCase().indexOf(query) !== -1 ? '' : 'none';
+                });
+            });
+        }
+
+        listItems.forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                addChip(item.getAttribute('data-uid'), item.textContent.trim());
+            });
+        });
+
+        if (config.isEditing && config.currentValue) {
+            config.currentValue.split(',').forEach(function(guid) {
+                var p = persone.find(function(x) { return x.uid === guid; });
+                if (p) addChip(p.uid, p.DisplayName);
+            });
+        }
+    }
+
     @{
         var defaultKeysConsiglieriList = new List<string>
         {
@@ -1198,74 +1266,13 @@ else
                     break;
                 }
                 var persone = await GetProponenti(idLegislatura);
-                selectHTML = `<div class="input-field col s12">
-                <i class="material-icons prefix">search</i>
-                <input type="text" id="proponenti-autocomplete" class="autocomplete">
-                <div id="proponenti-selected"></div>
-             </div>`;
-
-                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
-                var data = [];
-                persone.forEach(function(item) {
-                    data.push({
-                        tag: `${item.DisplayName}`,
-                        id: `${item.uid}`
-                    });
+                setupPersonePickerDASI({
+                    prefix: 'proponenti',
+                    dataAttr: 'proponente-uid',
+                    persone: persone,
+                    isEditing: isEditing,
+                    currentValue: currentValue
                 });
-                var elems = document.querySelectorAll('#proponenti-autocomplete');
-                var instances = M.Autocomplete.init(elems,
-                    {
-                        data: data,
-                        limit: 20,
-                        minLength: 2,
-                        onAutocomplete: function(txt, key) {
-                            var existingChip = document.querySelector(`.chip[data-proponente-uid="${key}"]`);
-                            if (!existingChip) {
-                                var chipsContainerProponenti = document.getElementById('proponenti-selected');
-                                var newChip = document.createElement('div');
-                                newChip.setAttribute('data-proponente-uid', key);
-                                newChip.classList.add('chip');
-                                newChip.textContent = txt;
-
-                                var closeIcon = document.createElement('i');
-                                closeIcon.classList.add('close', 'material-icons');
-                                closeIcon.style.setProperty('top', 'unset', 'important');
-                                closeIcon.textContent = 'close';
-                                closeIcon.onclick = function() {
-                                    newChip.remove();
-                                };
-                                newChip.appendChild(closeIcon);
-
-                                chipsContainerProponenti.appendChild(newChip);
-                            }
-                            document.getElementById('proponenti-autocomplete').value = "";
-                        }
-                    });
-
-                if (isEditing) {
-                    var currentValueArray = currentValue.split(',');
-                    var chipsContainerProponenti = document.getElementById('proponenti-selected');
-                    currentValueArray.forEach(function(guid) {
-                        var item = data.find(item => item.id === guid);
-                        if (item) {
-                            var newChip = document.createElement('div');
-                            newChip.setAttribute('data-proponente-uid', item.id);
-                            newChip.classList.add('chip');
-                            newChip.textContent = item.tag;
-
-                            var closeIcon = document.createElement('i');
-                            closeIcon.classList.add('close', 'material-icons');
-                            closeIcon.style.setProperty('top', 'unset', 'important');
-                            closeIcon.textContent = 'close';
-                            closeIcon.onclick = function() {
-                                newChip.remove();
-                            };
-                            newChip.appendChild(closeIcon);
-
-                            chipsContainerProponenti.appendChild(newChip);
-                        }
-                    });
-                }
             } else {
                 swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
                     .then(() => {
@@ -1285,74 +1292,13 @@ else
                     break;
                 }
                 var persone = await GetProponenti(idLegislatura);
-                selectHTML = `<div class="input-field col s12">
-                <i class="material-icons prefix">search</i>
-                <input type="text" id="firme-autocomplete" class="autocomplete">
-                <div id="firme-selected"></div>
-             </div>`;
-
-                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
-                var data = [];
-                persone.forEach(function(item) {
-                    data.push({
-                        tag: `${item.DisplayName}`,
-                        id: `${item.uid}`
-                    });
+                setupPersonePickerDASI({
+                    prefix: 'firme',
+                    dataAttr: 'firme-uid',
+                    persone: persone,
+                    isEditing: isEditing,
+                    currentValue: currentValue
                 });
-                var elems = document.querySelectorAll('#firme-autocomplete');
-                var instances = M.Autocomplete.init(elems,
-                    {
-                        data: data,
-                        limit: 20,
-                        minLength: 2,
-                        onAutocomplete: function(txt, key) {
-                            var existingChip = document.querySelector(`.chip[data-firme-uid="${key}"]`);
-                            if (!existingChip) {
-                                var chipsContainerProponenti = document.getElementById('firme-selected');
-                                var newChip = document.createElement('div');
-                                newChip.setAttribute('data-firme-uid', key);
-                                newChip.classList.add('chip');
-                                newChip.textContent = txt;
-
-                                var closeIcon = document.createElement('i');
-                                closeIcon.classList.add('close', 'material-icons');
-                                closeIcon.style.setProperty('top', 'unset', 'important');
-                                closeIcon.textContent = 'close';
-                                closeIcon.onclick = function() {
-                                    newChip.remove();
-                                };
-                                newChip.appendChild(closeIcon);
-
-                                chipsContainerProponenti.appendChild(newChip);
-                            }
-                            document.getElementById('firme-autocomplete').value = "";
-                        }
-                    });
-
-                if (isEditing) {
-                    var currentValueArray = currentValue.split(',');
-                    var chipsContainerProponenti = document.getElementById('firme-selected');
-                    currentValueArray.forEach(function(guid) {
-                        var item = data.find(item => item.id === guid);
-                        if (item) {
-                            var newChip = document.createElement('div');
-                            newChip.setAttribute('data-firme-uid', item.id);
-                            newChip.classList.add('chip');
-                            newChip.textContent = item.tag;
-
-                            var closeIcon = document.createElement('i');
-                            closeIcon.classList.add('close', 'material-icons');
-                            closeIcon.style.setProperty('top', 'unset', 'important');
-                            closeIcon.textContent = 'close';
-                            closeIcon.onclick = function() {
-                                newChip.remove();
-                            };
-                            newChip.appendChild(closeIcon);
-
-                            chipsContainerProponenti.appendChild(newChip);
-                        }
-                    });
-                }
             } else {
                 swal("Attenzione!", "Per favore, imposta prima il filtro per la legislatura.", "warning")
                     .then(() => {
@@ -1624,9 +1570,9 @@ else
             addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false, visible);
         });
 
-        // Lancia ricerca solo se c'e' la Legislatura tra i filtri
-        var hasLegislatura = filtriUtente.some(function(f) { return f.key === "@Html.Raw(nameof(AttoDASIDto.Legislatura))"; });
-        if (hasLegislatura) {
+        // Lancia ricerca se c'e' almeno una chip-utente ripristinata dalla cache.
+        // Il guard dentro inviaDatiChips protegge comunque il caso "solo id_gruppo invisibile".
+        if (filtriUtente.length > 0) {
             var paging = JSON.parse(localStorage.getItem('pagingDasi'));
             if (paging) {
                 inviaDatiChips(paging.page, paging.size);
@@ -1634,7 +1580,7 @@ else
                 inviaDatiChips(1, 20);
             }
         }
-        // Senza Legislatura: pannello cortesia resta visibile
+        // Senza chip-utente: pannello cortesia resta visibile
     }
 
     function ripristinaFiltriTrattazione() {
