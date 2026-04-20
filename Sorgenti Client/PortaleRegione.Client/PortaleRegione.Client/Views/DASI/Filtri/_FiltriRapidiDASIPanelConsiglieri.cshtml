@@ -900,6 +900,10 @@ else
         case '@nameof(AttoDASIDto.IDStato)':
             var stati = [];
             stati.push({
+                IDStato: @((int)StatiAttoEnum.BOZZA),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA))'
+            });
+            stati.push({
                 IDStato: @((int)StatiAttoEnum.PRESENTATO),
                 Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO))'
             });
