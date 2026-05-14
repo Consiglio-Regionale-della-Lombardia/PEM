@@ -1872,75 +1872,25 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                // Salva il filtro completo per la response;
+                // CreateQueryExtendedRequestEM rimuovera' dal model.filtro gli statement promossi.
+                var filterModel = model.filtro.ToList();
+
+                var queryExtended = CreateQueryExtendedRequestEM(model, persona);
+
                 var queryFilter = new Filter<EM>();
-                var tags = new List<TagDto>();
-                var tags_request = new FilterStatement<EmendamentiDto>();
-                if (model.filtro.Any(statement => statement.PropertyId == "Tags"))
-                {
-                    tags_request = model.filtro.First(statement => statement.PropertyId == "Tags");
-                    tags = JsonConvert.DeserializeObject<List<TagDto>>(tags_request.Value.ToString());
-                    model.filtro.Remove(tags_request);
-                }
-
-                var firmatari = new List<Guid>();
-                var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
-                {
-                    firmatari_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == "Firmatario"));
-                    firmatari.AddRange(firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
-                    foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
-                }
-
-                var proponenti = new List<Guid>();
-                var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
-                {
-                    proponenti_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
-                    proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
-                    foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
-                }
-
-                var gruppi = new List<int>();
-                var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
-                {
-                    gruppi_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
-                    gruppi.AddRange(gruppi_request.Select(proponente => Convert.ToInt32(proponente.Value.ToString())));
-                    foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
-                }
-
-                var stati = new List<int>();
-                var stati_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
-                {
-                    stati_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.IDStato)));
-                    stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
-                    foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
-                }
-
                 queryFilter.ImportStatements(model.filtro);
 
                 var em_in_db = await _unitOfWork
                     .Emendamenti
                     .GetAll(persona,
-                        model.ordine,
                         model.page,
                         model.size,
                         CLIENT_MODE,
+                        model.ordine,
                         queryFilter,
-                        firmatari,
-                        proponenti,
-                        gruppi,
-                        stati,
-                        tags);
+                        queryExtended,
+                        model.dettagliOrdinamento);
 
                 if (!em_in_db.Any())
                     return new EmendamentiViewModel
@@ -1949,7 +1899,7 @@ namespace PortaleRegione.BAL
                             model.page,
                             model.size,
                             new List<EmendamentiDto>(),
-                            model.filtro,
+                            filterModel,
                             0,
                             uri),
                         Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
@@ -1958,36 +1908,82 @@ namespace PortaleRegione.BAL
                         CurrentUser = persona
                     };
 
-                var atto_uid = model.filtro.First(f => f.PropertyId == nameof(EmendamentiDto.UIDAtto)).Value;
-                var atto = await _unitOfWork.Atti.Get(new Guid(atto_uid.ToString()));
-                var relatori = await _unitOfWork.Atti.GetRelatori(new Guid(atto_uid.ToString()));
-
-                var result = new List<EmendamentiDto>();
-                foreach (var em in em_in_db)
+                var attoUid = queryExtended.UIDAtto ?? Guid.Empty;
+                if (attoUid == Guid.Empty)
                 {
-                    if (light_mode)
-                    {
-                        var dto_light = await GetEM_DTO_Light(em, atto, persona);
-                        result.Add(dto_light);
-                    }
-                    else
-                    {
-                        var dto = await GetEM_DTO(em, atto, persona, relatori.ToList(),
-                            presidente_regione);
-                        result.Add(dto);    
-                    }
+                    var attoStmt = filterModel.FirstOrDefault(f =>
+                        f.PropertyId == nameof(EmendamentiDto.UIDAtto));
+                    if (attoStmt?.Value != null)
+                        attoUid = new Guid(attoStmt.Value.ToString());
                 }
 
-                var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE,
-                    firmatari, proponenti, gruppi, stati, tags);
-                if (firmatari_request.Any())
-                    model.filtro.AddRange(firmatari_request);
-                if (proponenti_request.Any())
-                    model.filtro.AddRange(proponenti_request);
-                if (gruppi.Any())
-                    model.filtro.AddRange(gruppi_request);
-                if (stati.Any())
-                    model.filtro.AddRange(stati_request);
+                var atto = await _unitOfWork.Atti.Get(attoUid);
+                var relatori = await _unitOfWork.Atti.GetRelatori(attoUid);
+
+                var result = new List<EmendamentiDto>();
+                // Se GetEM_DTO ritorna null (dati EF incongruenti, es. STATI_EM non risolto),
+                // l'EM viene segnalato in EmendamentiSaltati con un'etichetta leggibile.
+                var emendamentiSaltati = new List<string>();
+                foreach (var em in em_in_db)
+                {
+                    EmendamentiDto dto;
+                    if (light_mode)
+                        dto = await GetEM_DTO_Light(em, atto, persona);
+                    else
+                        dto = await GetEM_DTO(em, atto, persona, relatori.ToList(), presidente_regione);
+
+                    if (dto != null)
+                    {
+                        result.Add(dto);
+                        continue;
+                    }
+
+                    // Etichetta dell'EM saltato: decifriamo N_EM/N_SUBEM per il numero "ufficiale"
+                    // mostrato in griglia (Progressivo e' un contatore interno e non coincide).
+                    // Include sulle navigazioni disattivato: serve a non far fallire la Get quando
+                    // STATI_EM/TIPI_EM e' inconsistente (il caso che ha portato qui).
+                    EM emEntity = null;
+                    try { emEntity = await _unitOfWork.Emendamenti.Get(em, includes: false); }
+                    catch { /* la entita' non e' recuperabile: fallback su UIDEM */ }
+
+                    var etichetta = $"EM (uid {em})";
+                    if (emEntity != null)
+                    {
+                        try
+                        {
+                            if (emEntity.Rif_UIDEM.HasValue)
+                            {
+                                if (!string.IsNullOrEmpty(emEntity.N_SUBEM))
+                                    etichetta = "SUBEM " + CryptoHelper.DecryptString(
+                                        emEntity.N_SUBEM, AppSettingsConfiguration.masterKey);
+                                else if (emEntity.SubProgressivo.HasValue)
+                                    etichetta = $"SUBEM TEMP {emEntity.SubProgressivo}";
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(emEntity.N_EM))
+                                    etichetta = "EM " + CryptoHelper.DecryptString(
+                                        emEntity.N_EM, AppSettingsConfiguration.masterKey);
+                                else if (emEntity.Progressivo.HasValue)
+                                    etichetta = $"EM TEMP {emEntity.Progressivo}";
+                            }
+                        }
+                        catch
+                        {
+                            // Se la decifratura fallisce, ripieghiamo sul progressivo (sempre in chiaro).
+                            if (emEntity.Rif_UIDEM.HasValue && emEntity.SubProgressivo.HasValue)
+                                etichetta = $"SUBEM TEMP {emEntity.SubProgressivo}";
+                            else if (emEntity.Progressivo.HasValue)
+                                etichetta = $"EM TEMP {emEntity.Progressivo}";
+                        }
+                    }
+                    emendamentiSaltati.Add(etichetta);
+                }
+
+                // Il count riusa queryExtended e queryFilter gia' preparati: gli statement promossi
+                // sono stati rimossi da CreateQueryExtendedRequestEM.
+                var total_em = await _unitOfWork.Emendamenti.Count(model.id, persona,
+                    CounterEmendamentiEnum.NONE, CLIENT_MODE, queryFilter, queryExtended);
 
                 var conteggiGruppi = new List<View_Conteggi_EM_Gruppi_Politici>();
                 var conteggiAreePolitiche = new List<View_Conteggi_EM_Area_Politica>();
@@ -2004,9 +2000,12 @@ namespace PortaleRegione.BAL
                         model.page,
                         model.size,
                         result,
-                        model.filtro,
+                        filterModel,
                         total_em,
                         uri),
+                    // Atto popolato anche nel ramo nuovo: i flussi di export/stampa lo richiedono
+                    // per ricavare intestazione documento, fascicolo presentazione/votazione, ecc.
+                    Atto = Mapper.Map<ATTI, AttiDto>(atto),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
                     Ordinamento = model.ordine,
@@ -2015,6 +2014,7 @@ namespace PortaleRegione.BAL
                         .ToList(),
                     ConteggiAreePolitiche = conteggiAreePolitiche
                         .Select(Mapper.Map<View_Conteggi_EM_Area_Politica, View_Conteggi_EM_Area_PoliticaDto>).ToList(),
+                    EmendamentiSaltati = emendamentiSaltati,
                     CurrentUser = persona
                 };
             }
@@ -2101,86 +2101,33 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var queryFilter = new Filter<EM>();
+                // N_EM viaggia in chiaro dal client e va cifrato prima della comparazione su EM.N_EM
                 foreach (var filterStatement in model.filtro.Where(filterStatement =>
                              filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
                     filterStatement.Value =
                         CryptoHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
 
-                var tags = new List<TagDto>();
-                var tags_request = new FilterStatement<EmendamentiDto>();
-                if (model.filtro.Any(statement => statement.PropertyId == "Tags"))
-                {
-                    tags_request = model.filtro.First(statement => statement.PropertyId == "Tags");
-                    tags = JsonConvert.DeserializeObject<List<TagDto>>(tags_request.Value.ToString());
-                    model.filtro.Remove(tags_request);
-                }
+                var queryExtended = CreateQueryExtendedRequestEM(model, persona);
 
-                var firmatari = new List<Guid>();
-                var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
-                {
-                    firmatari_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == "Firmatario"));
-                    firmatari.AddRange(firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
-                    foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
-                }
-
-                var proponenti = new List<Guid>();
-                var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
-                {
-                    proponenti_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
-                    proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
-                    foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
-                }
-
-                var gruppi = new List<int>();
-                var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
-                {
-                    gruppi_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
-                    gruppi.AddRange(gruppi_request.Select(proponente => Convert.ToInt32(proponente.Value.ToString())));
-                    foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
-                }
-
-                var stati = new List<int>();
-                var stati_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
-                {
-                    stati_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.IDStato)));
-                    stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
-                    foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
-                }
-
+                var queryFilter = new Filter<EM>();
                 queryFilter.ImportStatements(model.filtro);
 
                 var em_in_db = await _unitOfWork
                     .Emendamenti
                     .GetAll(persona,
-                        model.ordine,
                         model.page,
                         model.size,
                         CLIENT_MODE,
+                        model.ordine,
                         queryFilter,
-                        firmatari,
-                        proponenti,
-                        gruppi,
-                        stati,
-                        tags);
+                        queryExtended,
+                        model.dettagliOrdinamento);
 
                 return em_in_db.ToList();
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetEmendamenti", e);
+                Log.Error("Logic - GetEmendamentiSoloIds", e);
                 throw e;
             }
         }
@@ -2191,80 +2138,28 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var queryFilter = new Filter<EM>();
+                var filterModel = model.filtro.ToList();
+
                 foreach (var filterStatement in model.filtro.Where(filterStatement =>
                              filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
                     filterStatement.Value =
                         CryptoHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
 
-                var tags = new List<TagDto>();
-                var tags_request = new FilterStatement<EmendamentiDto>();
-                if (model.filtro.Any(statement => statement.PropertyId == "Tags"))
-                {
-                    tags_request = model.filtro.First(statement => statement.PropertyId == "Tags");
-                    tags = JsonConvert.DeserializeObject<List<TagDto>>(tags_request.Value.ToString());
-                    model.filtro.Remove(tags_request);
-                }
+                var queryExtended = CreateQueryExtendedRequestEM(model, persona);
 
-                var firmatari = new List<Guid>();
-                var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
-                {
-                    firmatari_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == "Firmatario"));
-                    firmatari.AddRange(firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
-                    foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
-                }
-
-                var proponenti = new List<Guid>();
-                var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
-                {
-                    proponenti_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
-                    proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
-                    foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
-                }
-
-                var gruppi = new List<int>();
-                var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
-                {
-                    gruppi_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
-                    gruppi.AddRange(gruppi_request.Select(proponente => Convert.ToInt32(proponente.Value.ToString())));
-                    foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
-                }
-
-                var stati = new List<int>();
-                var stati_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
-                {
-                    stati_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.IDStato)));
-                    stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
-                    foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
-                }
-
+                var queryFilter = new Filter<EM>();
                 queryFilter.ImportStatements(model.filtro);
 
                 var em_in_db = await _unitOfWork
                     .Emendamenti
                     .GetAll(persona,
-                        model.ordine,
                         model.page,
                         -1,
                         CLIENT_MODE,
+                        model.ordine,
                         queryFilter,
-                        firmatari,
-                        proponenti,
-                        gruppi,
-                        stati,
-                        tags);
+                        queryExtended,
+                        model.dettagliOrdinamento);
 
                 var result = new List<EmendamentiDto>();
 
@@ -2294,7 +2189,7 @@ namespace PortaleRegione.BAL
                         model.page,
                         model.size,
                         result,
-                        model.filtro,
+                        filterModel,
                         em_in_db.Count(),
                         uri),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
@@ -2368,16 +2263,16 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<int> CountEM(BaseRequest<EmendamentiDto> model, PersonaDto persona, int CLIENT_MODE,
-            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE, List<Guid> firmatari = null,
-            List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null)
+            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE)
         {
             try
             {
+                var queryExtended = CreateQueryExtendedRequestEM(model, persona);
                 var queryFilter = new Filter<EM>();
                 queryFilter.ImportStatements(model.filtro);
 
                 return await _unitOfWork.Emendamenti.Count(model.id,
-                    persona, type, CLIENT_MODE, queryFilter, firmatari, proponenti, gruppi, stati, tagDtos);
+                    persona, type, CLIENT_MODE, queryFilter, queryExtended);
             }
             catch (Exception e)
             {
@@ -2734,5 +2629,142 @@ namespace PortaleRegione.BAL
         {
             await _unitOfWork.Emendamenti.ReleaseDepositoLock(userId);
         }
+
+        #region Estrazione filtri specializzati per il riepilogo Emendamenti
+
+        /// <summary>
+        ///     Estrae dal filtro gli statement promossi a dati strutturati nel <see cref="QueryExtendedRequestEM" />.
+        ///     Quel che resta nel filtro viene applicato come espressione da Filter&lt;EM&gt;.BuildExpression.
+        /// </summary>
+        private QueryExtendedRequestEM CreateQueryExtendedRequestEM(BaseRequest<EmendamentiDto> model,
+            PersonaDto persona)
+        {
+            var qx = new QueryExtendedRequestEM
+            {
+                UIDPersonaCorrente = persona?.UID_persona
+            };
+
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.IDStato), qx.Stati, int.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.IDTipo_EM), qx.Tipi, int.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.IDParte), qx.Parti, int.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.id_gruppo), qx.GruppiProponenti, int.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.UIDPersonaProponente), qx.Proponenti, Guid.Parse);
+            ExtractAndAddFiltersEM(model, "Firmatario", qx.Firmatari, Guid.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.UIDArticolo), qx.Articoli, Guid.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.UIDComma), qx.Commi, Guid.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.UIDLettera), qx.Lettere, Guid.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NLettera), qx.LettereLegacy, s => s);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NTitolo), qx.NTitoli, s => s);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NCapo), qx.NCapi, s => s);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NMissione), qx.NMissioni, int.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NProgramma), qx.NProgrammi, int.Parse);
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.Rif_UIDEM), qx.RiferimentiEM, Guid.Parse);
+
+            // EffettiFinanziari: chip booleana, accetta "1" / "true"
+            var efStmt = model.filtro.FirstOrDefault(f =>
+                f.PropertyId == nameof(EmendamentiDto.EffettiFinanziari));
+            if (efStmt != null)
+            {
+                var v = efStmt.Value?.ToString();
+                qx.EffettiFinanziari = v == "1" || string.Equals(v, "true", StringComparison.OrdinalIgnoreCase);
+                model.filtro.Remove(efStmt);
+            }
+
+            // Tags: payload JSON serializzato (array di TagDto)
+            var tagsStmt = model.filtro.FirstOrDefault(f => f.PropertyId == "Tags");
+            if (tagsStmt != null)
+            {
+                if (tagsStmt.Value != null)
+                {
+                    qx.Tags = JsonConvert.DeserializeObject<List<TagDto>>(tagsStmt.Value.ToString())
+                              ?? new List<TagDto>();
+                }
+                model.filtro.Remove(tagsStmt);
+            }
+
+            // Flag personali: MyEM, EMDaFirmare
+            var myEm = model.filtro.Where(f => f.PropertyId == "MyEM").ToList();
+            if (myEm.Count > 0)
+            {
+                qx.MyEM = true;
+                foreach (var s in myEm) model.filtro.Remove(s);
+            }
+
+            var daFirmare = model.filtro.Where(f => f.PropertyId == "EMDaFirmare").ToList();
+            if (daFirmare.Count > 0)
+            {
+                qx.EMDaFirmare = true;
+                foreach (var s in daFirmare) model.filtro.Remove(s);
+            }
+
+            // Testo libero (uno o due statement con eventuale connettore AND/OR)
+            var testi = model.filtro
+                .Where(f => f.PropertyId == nameof(EmendamentiDto.TestoEM_originale))
+                .ToList();
+            if (testi.Count > 0)
+            {
+                qx.TestoLibero1 = testi[0].Value?.ToString();
+                if (testi.Count > 1)
+                {
+                    qx.TestoLibero2 = testi[1].Value?.ToString();
+                    qx.TestoLiberoConnettore = (int)testi[1].Connector;
+                }
+                foreach (var s in testi) model.filtro.Remove(s);
+            }
+
+            // UIDAtto: non viene rimosso dal filtro perche' serve anche al repository
+            // come PropertyId esplicito per il calcolo del flusso TRATTAZIONE.
+            var attoStmt = model.filtro.FirstOrDefault(f => f.PropertyId == nameof(EmendamentiDto.UIDAtto));
+            if (attoStmt?.Value != null && Guid.TryParse(attoStmt.Value.ToString(), out var attoUid))
+                qx.UIDAtto = attoUid;
+
+            return qx;
+        }
+
+        /// <summary>
+        ///     Estrae dal filtro gli statement con il <paramref name="propertyId" /> indicato, converte i valori
+        ///     tramite <paramref name="convertFunc" /> e li accoda alla lista destinazione; gli statement estratti
+        ///     vengono rimossi.
+        /// </summary>
+        private void ExtractAndAddFiltersEM<T>(BaseRequest<EmendamentiDto> model, string propertyId,
+            List<T> targetList, Func<string, T> convertFunc)
+        {
+            try
+            {
+                var matching = model.filtro
+                    .Where(s => s.PropertyId == propertyId)
+                    .ToList();
+                if (matching.Count == 0) return;
+
+                foreach (var s in matching)
+                {
+                    if (s.Value == null) continue;
+                    var raw = s.Value.ToString();
+                    if (string.IsNullOrEmpty(raw)) continue;
+
+                    foreach (var token in raw.Split(','))
+                    {
+                        var trimmed = token.Trim();
+                        if (string.IsNullOrEmpty(trimmed)) continue;
+                        try
+                        {
+                            targetList.Add(convertFunc(trimmed));
+                        }
+                        catch
+                        {
+                            // valore non parsabile: ignoro senza interrompere l'estrazione
+                        }
+                    }
+                }
+
+                foreach (var s in matching) model.filtro.Remove(s);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Logic - ExtractAndAddFiltersEM ({propertyId})", e);
+            }
+        }
+
+        #endregion
     }
 }

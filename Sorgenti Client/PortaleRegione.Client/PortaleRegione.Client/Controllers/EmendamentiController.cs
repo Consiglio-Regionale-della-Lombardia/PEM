@@ -61,29 +61,12 @@ namespace PortaleRegione.Client.Controllers
 
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
-            if (Session["RicaricaFiltri"] is bool)
-                if (Convert.ToBoolean(Session["RicaricaFiltri"]))
-                {
-                    Session["RicaricaFiltri"] = false; //reset sessione
-                    if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
-                        try
-                        {
-                            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
-                                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                                return View("RiepilogoEM_Admin", old_model);
-
-                            return View("RiepilogoEM", old_model);
-                        }
-                        catch (Exception)
-                        {
-                            Session["RiepilogoEmendamenti"] = null;
-                        }
-                }
-
             SetCache(page, size, ordine, view);
 
+            // Il punto di ingresso restituisce l'involucro della pagina con i dati di intestazione
+            // (atto, conteggi base). Il pannello filtri lato browser popola la griglia chiamando
+            // l'endpoint POST asincrono "riepilogoEM".
             var composeModel = await ComposeModel(id, mode, ordine, view, page, size, view_require_my_sign);
-            Session["RiepilogoEmendamenti"] = composeModel;
 
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
@@ -383,7 +366,6 @@ namespace PortaleRegione.Client.Controllers
                 }
 
                 var apiGateway = new ApiGateway(Token);
-                Session["RiepilogoEmendamenti"] = null;
                 var uidEm = model.UIDEM;
                 if (model.UIDEM == Guid.Empty)
                 {
@@ -440,7 +422,6 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.Emendamento.ModificaMetaDati(model.Emendamento);
-                Session["RiepilogoEmendamenti"] = null;
                 return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
                 {
                     id = model.Emendamento.UIDAtto
@@ -466,7 +447,6 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.Emendamento.ModificaMetaDati(model);
-                Session["RiepilogoEmendamenti"] = null;
                 return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
                 {
                     id = model.UIDAtto
@@ -492,7 +472,6 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                Session["RiepilogoEmendamenti"] = null;
                 var apiGateway = new ApiGateway(Token);
                 switch ((ActionEnum)azione)
                 {
@@ -564,23 +543,21 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
-                    var request = new BaseRequest<EmendamentiDto>
-                    {
-                        id = modelInCache.Atto.UIDAtto,
-                        page = 1,
-                        size = modelInCache.Data.Paging.Limit,
-                        filtro = modelInCache.Data.Filters,
-                        ordine = modelInCache.Ordinamento,
-                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
-                    };
+                    if (model.Filter == null)
+                        return Json(new ErrorResponse(
+                            "Filtri correnti non disponibili. Aggiornare la pagina e riprovare."),
+                            JsonRequestBehavior.AllowGet);
+
+                    var request = BuildBaseRequestEM(model.Filter);
+                    request.size = -1;
+                    var clientMode = (ClientModeEnum)model.Filter.clientMode;
 
                     var list = new List<Guid>();
-                    if (model.Richiesta_Firma) // #879 (fix) Azione massiva: Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma + Seleziona tutti + Firma massiva
+                    if (model.Richiesta_Firma) // #879 Azione massiva: Visualizza solo gli EM per i quali e' richiesta la mia firma + Seleziona tutti + Firma massiva
                     {
                         var lista_propria_firma = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(request.id,
-                            modelInCache.Mode, modelInCache.Ordinamento, 1,
-                            modelInCache.Data.Paging.Limit);
+                            clientMode, request.ordine, 1,
+                            int.MaxValue);
                         list = lista_propria_firma.Data.Results.Select(i => i.UIDEM).ToList();
                     }
                     else
@@ -776,80 +753,6 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
-        ///     Controller per esportare gli emendamenti di un atto
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("esporta-xls")]
-        public async Task<ActionResult> EsportaXLS()
-        {
-            try
-            {
-                var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
-
-                var apiGateway = new ApiGateway(Token);
-                var file = await apiGateway.Esporta.EsportaXLS(modelInCache);
-                return Json(file.Url, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        /// <summary>
-        ///     Controller per esportare gli emendamenti di un atto
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="ordine"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("esporta-xls-segreteria")]
-        public async Task<ActionResult> EsportaXLS_UOLA()
-        {
-            try
-            {
-                var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
-
-                var apiGateway = new ApiGateway(Token);
-                var file = await apiGateway.Esporta.EsportaXLS_UOLA(modelInCache);
-                return Json(file.Url, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        /// <summary>
-        ///     Controller per esportare gli emendamenti di un atto in formato Word.
-        ///     Utilizza il model dalla sessione per includere i filtri impostati.
-        /// </summary>
-        /// <returns>URL del file Word o ZIP generato</returns>
-        [HttpGet]
-        [Route("esportaDOC")]
-        public async Task<ActionResult> EsportaDOC()
-        {
-            try
-            {
-                var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
-                if (modelInCache == null)
-                {
-                    return Json(new ErrorResponse("Sessione scaduta. Ricaricare la pagina."), JsonRequestBehavior.AllowGet);
-                }
-
-                var apiGateway = new ApiGateway(Token);
-                var file = await apiGateway.Esporta.EsportaWORD(modelInCache);
-                return Json(file.Url, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        /// <summary>
         ///     Controller per modificare lo stato di una lista di emendamenti
         /// </summary>
         /// <param name="model"></param>
@@ -863,16 +766,13 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
-                    var request = new BaseRequest<EmendamentiDto>
-                    {
-                        id = modelInCache.Atto.UIDAtto,
-                        page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
-                        filtro = modelInCache.Data.Filters,
-                        ordine = modelInCache.Ordinamento,
-                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
-                    };
+                    if (model.Filter == null)
+                        return Json(new ErrorResponse(
+                            "Filtri correnti non disponibili. Aggiornare la pagina e riprovare."),
+                            JsonRequestBehavior.AllowGet);
+
+                    var request = BuildBaseRequestEM(model.Filter);
+                    request.size = -1;
                     var list = await apiGateway.Emendamento.GetSoloIds(request);
 
                     if (model.Lista != null)
@@ -883,7 +783,6 @@ namespace PortaleRegione.Client.Controllers
                 }
 
                 await apiGateway.Emendamento.CambioStato(model);
-                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -906,16 +805,13 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
-                    var request = new BaseRequest<EmendamentiDto>
-                    {
-                        id = modelInCache.Atto.UIDAtto,
-                        page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
-                        filtro = modelInCache.Data.Filters,
-                        ordine = modelInCache.Ordinamento,
-                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
-                    };
+                    if (model.Filter == null)
+                        return Json(new ErrorResponse(
+                            "Filtri correnti non disponibili. Aggiornare la pagina e riprovare."),
+                            JsonRequestBehavior.AllowGet);
+
+                    var request = BuildBaseRequestEM(model.Filter);
+                    request.size = -1;
                     var list = await apiGateway.Emendamento.GetSoloIds(request);
 
                     if (model.Lista != null)
@@ -967,16 +863,13 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
-                    var request = new BaseRequest<EmendamentiDto>
-                    {
-                        id = modelInCache.Atto.UIDAtto,
-                        page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
-                        filtro = modelInCache.Data.Filters,
-                        ordine = modelInCache.Ordinamento,
-                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } },
-                    };
+                    if (model.Filter == null)
+                        return Json(new ErrorResponse(
+                            "Filtri correnti non disponibili. Aggiornare la pagina e riprovare."),
+                            JsonRequestBehavior.AllowGet);
+
+                    var request = BuildBaseRequestEM(model.Filter);
+                    request.size = -1;
                     var list = await apiGateway.Emendamento.GetSoloIds(request);
 
                     if (model.Lista != null)
@@ -1018,7 +911,6 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
 
                 await apiGateway.Emendamento.ORDINA_EM_TRATTAZIONE(id);
-                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1042,7 +934,6 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.Emendamento.OrdinamentoConcluso(model);
-                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1065,7 +956,6 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.Emendamento.UP_EM_TRATTAZIONE(id);
-                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1088,7 +978,6 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.Emendamento.DOWN_EM_TRATTAZIONE(id);
-                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1195,145 +1084,166 @@ namespace PortaleRegione.Client.Controllers
             return Json(await apiGateway.Emendamento.GetTitoliMissioni(), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        [Route("filtra")]
-        public async Task<ActionResult> Filtri_RiepilogoEM()
-        {
-            Session["RiepilogoEmendamenti"] = null;
-            var mode = 1;
-            var model = ElaboraFiltriEM(ref mode);
-
-            int.TryParse(Request.Form["reset"], out var reset_enabled);
-            if (reset_enabled == 1)
-                return RedirectToAction("RiepilogoEmendamenti", "Emendamenti", new
-                {
-                    model.id,
-                    mode,
-                    ordine = (int)model.ordine
-                });
-
-            var apiGateway = new ApiGateway(Token);
-            var modelResult = await apiGateway.Emendamento.Get(model);
-
-            if (modelResult.ViewMode == ViewModeEnum.PREVIEW)
-                foreach (var emendamentiDto in modelResult.Data.Results)
-                    emendamentiDto.BodyEM =
-                        await apiGateway.Emendamento.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
-
-            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-            {
-                Session["RiepilogoEmendamenti"] = modelResult;
-                return View("RiepilogoEM_Admin", modelResult);
-            }
-
-            if (Convert.ToInt16(mode) == (int)ClientModeEnum.GRUPPI)
-                foreach (var emendamentiDto in modelResult.Data.Results)
-                    if (emendamentiDto.STATI_EM.IDStato <= (int)StatiEnum.Depositato)
-                    {
-                        if (emendamentiDto.ConteggioFirme > 0)
-                            emendamentiDto.Firmatari = await Utility.GetFirmatari(
-                                await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM, FirmeTipoEnum.TUTTE),
-                                CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, Token, true);
-
-                        emendamentiDto.Destinatari =
-                            await Utility.GetDestinatariNotifica(
-                                await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), Token);
-                    }
-
-            Session["RiepilogoEmendamenti"] = modelResult;
-            return View("RiepilogoEM", modelResult);
-        }
-
-        private BaseRequest<EmendamentiDto> ElaboraFiltriEM(ref int mode)
-        {
-            int.TryParse(Request.Form["page"], out var filtro_page);
-            int.TryParse(Request.Form["size"], out var filtro_size);
-            int.TryParse(Request.Form["mode"], out var mode_result);
-            if (mode_result == 0)
-                mode_result = 1;
-            int.TryParse(Request.Form["ordine"], out var ordine);
-            if (ordine == 0)
-                ordine = 1;
-            var view = Request.Form["view"];
-            var atto = Request.Form["atto"];
-            var filtro_text1 = Request.Form["filtro_text1"];
-            var filtro_text2 = Request.Form["filtro_text2"];
-            int.TryParse(Request.Form["filtro_text_connector"], out var filtro_text_connector);
-            var filtro_n_em = Request.Form["filtro_n_em"];
-            var filtro_stato = Request.Form["filtro_stato"];
-            var filtro_tipo = Request.Form["filtro_tipo"];
-            var filtro_parte = Request.Form["filtro_parte"];
-            var filtro_parte_articolo = Request.Form["filtro_parte_articolo"];
-            var filtro_parte_comma = Request.Form["filtro_parte_comma"];
-            var filtro_parte_lettera = Request.Form["filtro_parte_lettera"];
-            var filtro_parte_letteraOLD = Request.Form["filtro_parte_letteraOLD"];
-            var filtro_parte_titolo = Request.Form["filtro_parte_titolo"];
-            var filtro_parte_capo = Request.Form["filtro_parte_capo"];
-            var filtro_parte_missione = Request.Form["filtro_parte_missione"];
-            var filtro_parte_programma = Request.Form["filtro_parte_programma"];
-            var filtro_my = Request.Form["filtro_my"];
-            var filtro_effetti_finanziari = Request.Form["filtro_effetti_finanziari"];
-            var filtro_gruppo = Request.Form["filtro_gruppo"];
-            var filtro_proponente = Request.Form["filtro_proponente"];
-            var filtro_firmatari = Request.Form["filtro_firmatari"];
-            var filtro_tags = Request.Form["tags"];
-            var filtro_subem = Request.Form["filtro_subem"];
-
-            mode = mode_result;
-            if (ordine == 0)
-                ordine = 1;
-            var model = new BaseRequest<EmendamentiDto>
-            {
-                page = filtro_page,
-                size = filtro_size,
-                param = new Dictionary<string, object> { { "CLIENT_MODE", mode_result }, { "VIEW_MODE", view } },
-                ordine = (OrdinamentoEnum)ordine,
-                id = new Guid(atto)
-            };
-
-            Common.Utility.AddFilter_ByAtto(ref model, atto);
-            Common.Utility.AddFilter_ByText(ref model, filtro_text1, filtro_text2, filtro_text_connector);
-            Common.Utility.AddFilter_ByNUM(ref model, filtro_n_em, filtro_subem);
-            Common.Utility.AddFilter_ByState(ref model, filtro_stato);
-            Common.Utility.AddFilter_ByPart(ref model,
-                filtro_parte, filtro_parte_titolo, filtro_parte_capo,
-                filtro_parte_articolo, filtro_parte_comma, filtro_parte_lettera, filtro_parte_letteraOLD,
-                filtro_parte_missione, filtro_parte_programma);
-            Common.Utility.AddFilter_ByType(ref model, filtro_tipo);
-            Common.Utility.AddFilter_My(ref model, CurrentUser.UID_persona, filtro_my);
-            Common.Utility.AddFilter_Financials(ref model, filtro_effetti_finanziari);
-            Common.Utility.AddFilter_Groups(ref model, filtro_gruppo);
-            Common.Utility.AddFilter_Proponents(ref model, filtro_proponente);
-            Common.Utility.AddFilter_Signers(ref model, filtro_firmatari);
-            Common.Utility.AddFilter_Tags(ref model, filtro_tags);
-
-            return model;
-        }
-        
         /// <summary>
-        /// Endpoint per ottenere solo gli ID degli emendamenti per una specifica pagina
+        ///     Endpoint asincrono del riepilogo Emendamenti: riceve la FilterRequestEM dal pannello
+        ///     filtri JS, costruisce il BaseRequest e restituisce l'EmendamentiViewModel in JSON.
         /// </summary>
-        /// <returns>Lista di ID degli emendamenti</returns>
         [HttpPost]
-        [Route("get-ids")]
-        public async Task<ActionResult> GetPageIDs()
+        [Route("riepilogoEM")]
+        public async Task<ActionResult> Riepilogo(FilterRequestEM model)
         {
             try
             {
-                var mode = 1;
-                var model = ElaboraFiltriEM(ref mode);
-        
+                if (model == null || model.filters == null || !model.filters.Any())
+                    return Json(new EmendamentiViewModel { CurrentUser = CurrentUser });
+
+                var request = BuildBaseRequestEM(model);
                 var apiGateway = new ApiGateway(Token);
-                var result = await apiGateway.Emendamento.GetSoloIds(model);
-        
-                return Json(result, JsonRequestBehavior.AllowGet);
+                var res = await apiGateway.Emendamento.Get(request);
+
+                // In modalita' PREVIEW il backend non popola BodyEM (campo pesante calcolato
+                // dal template del singolo emendamento). Lo riempiamo qui chiamando GetBody per
+                // ciascun risultato, come faceva il flusso legacy RiepilogoEmendamenti GET.
+                if (res?.Data?.Results != null
+                    && res.ViewMode == ViewModeEnum.PREVIEW)
+                {
+                    foreach (var dto in res.Data.Results)
+                    {
+                        if (dto == null) continue;
+                        dto.BodyEM = await apiGateway.Emendamento.GetBody(dto.UIDEM, TemplateTypeEnum.HTML);
+                    }
+                }
+
+                res.CurrentUser = CurrentUser;
+                return Json(res);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
+        }
+
+        /// <summary>
+        ///     Riepilogo "solo identificatori", usato dai comandi massivi quando il client
+        ///     deve risolvere l'intero insieme che supera i filtri correnti.
+        /// </summary>
+        [HttpPost]
+        [Route("riepilogoEMSoloIds")]
+        public async Task<ActionResult> RiepilogoSoloIds(FilterRequestEM model)
+        {
+            try
+            {
+                if (model == null || model.filters == null || !model.filters.Any())
+                    return Json(new List<Guid>());
+
+                var request = BuildBaseRequestEM(model);
+                var apiGateway = new ApiGateway(Token);
+                var ids = await apiGateway.Emendamento.GetSoloIds(request);
+                return Json(ids);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint del modale "Genera report": recupera l'insieme filtrato e lo passa
+        ///     al gateway di esportazione nel formato richiesto (XLS/PDF/Word).
+        /// </summary>
+        [HttpPost]
+        [Route("genera-report")]
+        public async Task<ActionResult> GeneraReport(GeneraReportRequestEM model)
+        {
+            try
+            {
+                if (model?.Filter == null || model.Filter.filters == null || !model.Filter.filters.Any())
+                    return Json(new ErrorResponse("Nessun filtro impostato"), JsonRequestBehavior.AllowGet);
+
+                var request = BuildBaseRequestEM(model.Filter);
+                request.size = -1;
+                if (model.Columns != null && model.Columns.Count > 0)
+                    request.columns = model.Columns;
+
+                var apiGateway = new ApiGateway(Token);
+                var viewModel = await apiGateway.Emendamento.Get(request);
+
+                // Il select del modale espone ExportFormatEnum come stringa numerica
+                // (1 = WORD, 2 = PDF, 3 = EXCEL); accettiamo anche le forme testuali per robustezza
+                // verso eventuali integrazioni esterne.
+                var formatRaw = (model.ExportFormat ?? string.Empty).Trim();
+                ExportFormatEnum format;
+                if (int.TryParse(formatRaw, out var formatInt)
+                    && System.Enum.IsDefined(typeof(ExportFormatEnum), formatInt))
+                {
+                    format = (ExportFormatEnum)formatInt;
+                }
+                else if (!System.Enum.TryParse(formatRaw, true, out format))
+                {
+                    return Json(new ErrorResponse("Formato di esportazione non supportato"),
+                        JsonRequestBehavior.AllowGet);
+                }
+
+                FileResponse file;
+                switch (format)
+                {
+                    case ExportFormatEnum.EXCEL:
+                        file = await apiGateway.Esporta.EsportaXLS(viewModel);
+                        break;
+                    case ExportFormatEnum.WORD:
+                        file = await apiGateway.Esporta.EsportaWORD(viewModel);
+                        break;
+                    case ExportFormatEnum.PDF:
+                        // La pipeline di esportazione PDF non e' ancora coperta dal gateway:
+                        // andra' integrata quando la stampa asincrona PDF entrera' in GeneraReport.
+                        return Json(new ErrorResponse("Esportazione PDF non ancora disponibile"),
+                            JsonRequestBehavior.AllowGet);
+                    default:
+                        return Json(new ErrorResponse("Formato di esportazione non supportato"),
+                            JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(file?.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Costruisce il <see cref="BaseRequest{EmendamentiDto}" /> a partire dalla
+        ///     <see cref="FilterRequestEM" /> inviata dal client.
+        /// </summary>
+        private BaseRequest<EmendamentiDto> BuildBaseRequestEM(FilterRequestEM model)
+        {
+            var request = new BaseRequest<EmendamentiDto>
+            {
+                page = model.page > 0 ? model.page : 1,
+                size = model.size != 0 ? model.size : 20,
+                ordine = (OrdinamentoEnum)(model.ordine > 0 ? model.ordine : (int)OrdinamentoEnum.Presentazione),
+                param = new Dictionary<string, object>
+                {
+                    { "CLIENT_MODE", model.clientMode },
+                    { "VIEW_MODE", model.viewMode }
+                }
+            };
+
+            if (model.sort_settings != null && model.sort_settings.Any())
+                request.dettagliOrdinamento = model.sort_settings;
+
+            if (model.columns_settings != null && model.columns_settings.Any())
+                request.columns = model.columns_settings;
+
+            request.filtro.AddRange(Common.Utility.ParseFilterEM(model.filters));
+
+            var attoChip = model.filters
+                .FirstOrDefault(f => f.property == nameof(EmendamentiDto.UIDAtto));
+            if (attoChip != null && !string.IsNullOrEmpty(attoChip.value)
+                && Guid.TryParse(attoChip.value, out var attoUid))
+                request.id = attoUid;
+
+            return request;
         }
     }
 }

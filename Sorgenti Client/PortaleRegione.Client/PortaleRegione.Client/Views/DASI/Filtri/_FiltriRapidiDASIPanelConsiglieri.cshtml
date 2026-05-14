@@ -1561,8 +1561,12 @@ else
             );
         }
 
-        // Filtri utente dal localStorage (escludi il gruppo che e' gia' stato aggiunto)
-        var filtriUtente = filtriDasi.filter(function(f) { return f.key !== "@Html.Raw(nameof(AttoDASIDto.id_gruppo))"; });
+        // Filtri utente dal localStorage (escludi il gruppo che e' gia' stato aggiunto come chip
+        // invisibile fissa e ignora eventuali chip salvate senza valore per evitare residui vuoti).
+        var filtriUtente = filtriDasi.filter(function (f) {
+            if (!f || f.key === "@Html.Raw(nameof(AttoDASIDto.id_gruppo))") return false;
+            return f.val !== null && f.val !== undefined && String(f.val).trim() !== '';
+        });
 
         // Ripristina le chip utente
         filtriUtente.forEach(function(filtro) {

@@ -1526,5 +1526,156 @@ namespace PortaleRegione.Common
                 throw new Exception($"Data in errore: {dateTime}", e);
             }
         }
+
+        /// <summary>
+        ///     Traduce le chip del pannello filtri Emendamenti in <see cref="FilterStatement{EmendamentiDto}" />.
+        ///     Per il testo libero la chip serializza fino a due frammenti separati da '|' col connettore
+        ///     intermedio (es. "ciao|And|mondo"); la chip Parte e' composta, vedi <c>AggiungiStatementParteComposta</c>.
+        /// </summary>
+        public static List<FilterStatement<EmendamentiDto>> ParseFilterEM(List<FilterItem> clientFilters)
+        {
+            var result = new List<FilterStatement<EmendamentiDto>>();
+            if (clientFilters == null) return result;
+
+            foreach (var filterItem in clientFilters)
+            {
+                if (string.IsNullOrEmpty(filterItem.property)) continue;
+
+                if (filterItem.property == nameof(EmendamentiDto.TestoEM_originale))
+                {
+                    AggiungiStatementTestoLibero(result, filterItem.value);
+                    continue;
+                }
+
+                if (filterItem.property == nameof(EmendamentiDto.IDParte))
+                {
+                    // La chip Parte viene serializzata dal pannello filtri come valore composto
+                    // "<idParte>|art:<uid>|com:<uid>|let:<uid>|tit:<n>|capo:<n>|mis:<n>|prog:<n>".
+                    // Lo spacchettiamo in piu' FilterStatement separati (uno per IDParte e uno
+                    // per ciascun campo di cascata) cosi' il backend puo' applicarli singolarmente.
+                    AggiungiStatementParteComposta(result, filterItem.value);
+                    continue;
+                }
+
+                if (filterItem.not_empty)
+                {
+                    result.Add(new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = filterItem.property,
+                        Operation = Operation.IsNotNullNorWhiteSpace,
+                        Connector = FilterStatementConnector.And
+                    });
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(filterItem.value))
+                {
+                    result.Add(new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = filterItem.property,
+                        Operation = Operation.IsNullOrWhiteSpace,
+                        Connector = FilterStatementConnector.And
+                    });
+                    continue;
+                }
+
+                result.Add(new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = filterItem.property,
+                    Operation = Operation.EqualTo,
+                    Value = filterItem.value,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            return result;
+        }
+
+        private static void AggiungiStatementParteComposta(List<FilterStatement<EmendamentiDto>> result, string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return;
+
+            var segmenti = raw.Split('|');
+            // Il primo segmento e' l'IDParte (intero), gli altri sono "<prefisso>:<valore>".
+            var parteValue = segmenti[0]?.Trim();
+            if (!string.IsNullOrEmpty(parteValue))
+            {
+                result.Add(new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = nameof(EmendamentiDto.IDParte),
+                    Operation = Operation.EqualTo,
+                    Value = parteValue,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            for (var i = 1; i < segmenti.Length; i++)
+            {
+                var seg = segmenti[i];
+                if (string.IsNullOrEmpty(seg)) continue;
+                var sep = seg.IndexOf(':');
+                if (sep <= 0) continue;
+                var prefisso = seg.Substring(0, sep).Trim().ToLowerInvariant();
+                var valore = seg.Substring(sep + 1).Trim();
+                if (string.IsNullOrEmpty(valore)) continue;
+
+                string propertyId;
+                switch (prefisso)
+                {
+                    case "art": propertyId = nameof(EmendamentiDto.UIDArticolo); break;
+                    case "com": propertyId = nameof(EmendamentiDto.UIDComma); break;
+                    case "let": propertyId = nameof(EmendamentiDto.UIDLettera); break;
+                    case "tit": propertyId = nameof(EmendamentiDto.NTitolo); break;
+                    case "capo": propertyId = nameof(EmendamentiDto.NCapo); break;
+                    case "mis": propertyId = nameof(EmendamentiDto.NMissione); break;
+                    case "prog": propertyId = nameof(EmendamentiDto.NProgramma); break;
+                    default: continue;
+                }
+
+                result.Add(new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = propertyId,
+                    Operation = Operation.EqualTo,
+                    Value = valore,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+        }
+
+        private static void AggiungiStatementTestoLibero(List<FilterStatement<EmendamentiDto>> result, string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return;
+
+            var parts = raw.Split('|');
+            var primo = parts[0]?.Trim();
+            if (!string.IsNullOrEmpty(primo))
+            {
+                result.Add(new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = nameof(EmendamentiDto.TestoEM_originale),
+                    Operation = Operation.Contains,
+                    Value = primo,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (parts.Length < 3) return;
+            var secondo = parts[2]?.Trim();
+            if (string.IsNullOrEmpty(secondo)) return;
+
+            var connettoreRaw = parts[1]?.Trim();
+            var connettore = FilterStatementConnector.And;
+            if (string.Equals(connettoreRaw, "Or", StringComparison.OrdinalIgnoreCase)
+                || connettoreRaw == ((int)FilterStatementConnector.Or).ToString())
+                connettore = FilterStatementConnector.Or;
+
+            result.Add(new FilterStatement<EmendamentiDto>
+            {
+                PropertyId = nameof(EmendamentiDto.TestoEM_originale),
+                Operation = Operation.Contains,
+                Value = secondo,
+                Connector = connettore
+            });
+        }
     }
 }

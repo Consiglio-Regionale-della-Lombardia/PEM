@@ -1,4 +1,4 @@
-@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using Utility = PortaleRegione.Common.Utility
@@ -37,42 +37,14 @@
     </div>
 </div>
 
-@* Form nascosto per bridge verso il backend esistente *@
-@using (Html.BeginForm("Filtri_RiepilogoEM", "Emendamenti", FormMethod.Post, new { id = "formFiltraEM" }))
-{
-    @Html.AntiForgeryToken()
-
-    <input id="inputFilterReset" type="hidden" name="reset" value="0" />
-    <input id="inputFilterView" type="hidden" name="view" value="@Model.ViewMode" />
-    <input id="inputFilterPage" type="hidden" name="page" value="@Model.Data.Paging.Page" />
-    <input id="inputFilterSize" type="hidden" name="size" value="@Model.Data.Paging.Limit" />
-    <input type="hidden" id="hdMode" name="mode" value="@((int)Model.Mode)" />
-    <input type="hidden" id="inputFilterOrdine" name="ordine" value="@((int)Model.Ordinamento)" />
-    <input type="hidden" id="inputFiltroAtto" name="atto" value="@Model.Atto.UIDAtto" />
-    <input type="hidden" id="inputFiltroTags" name="tags" value="" />
-
-    @* Campi nascosti per bridge filtri chip -> form POST *@
-    <input type="hidden" id="bridge_filtro_text1" name="filtro_text1" value="" />
-    <input type="hidden" id="bridge_filtro_text_connector" name="filtro_text_connector" value="" />
-    <input type="hidden" id="bridge_filtro_text2" name="filtro_text2" value="" />
-    <input type="hidden" id="bridge_filtro_n_em" name="filtro_n_em" value="" />
-    <input type="hidden" id="bridge_filtro_subem" name="filtro_subem" value="" />
-    <input type="hidden" id="bridge_filtro_tipo" name="filtro_tipo" value="" />
-    <input type="hidden" id="bridge_filtro_stato" name="filtro_stato" value="" />
-    <input type="hidden" id="bridge_filtro_parte" name="filtro_parte" value="" />
-    <input type="hidden" id="bridge_filtro_parte_articolo" name="filtro_parte_articolo" value="" />
-    <input type="hidden" id="bridge_filtro_parte_comma" name="filtro_parte_comma" value="" />
-    <input type="hidden" id="bridge_filtro_parte_lettera" name="filtro_parte_lettera" value="" />
-    <input type="hidden" id="bridge_filtro_parte_titolo" name="filtro_parte_titolo" value="" />
-    <input type="hidden" id="bridge_filtro_parte_capo" name="filtro_parte_capo" value="" />
-    <input type="hidden" id="bridge_filtro_parte_missione" name="filtro_parte_missione" value="" />
-    <input type="hidden" id="bridge_filtro_parte_programma" name="filtro_parte_programma" value="" />
-    <input type="hidden" id="bridge_filtro_gruppo" name="filtro_gruppo" value="" />
-    <input type="hidden" id="bridge_filtro_proponente" name="filtro_proponente" value="" />
-    <input type="hidden" id="bridge_filtro_firmatari" name="filtro_firmatari" value="" />
-    <input type="hidden" id="bridge_filtro_my" name="filtro_my" value="" />
-    <input type="hidden" id="bridge_filtro_effetti_finanziari" name="filtro_effetti_finanziari" value="" />
-}
+@* Stato condiviso lato browser: viewMode/clientMode/UIDAtto sono usati come parametri non-filtro
+   dalle funzioni di costruzione FilterRequestEM. *@
+<input type="hidden" id="inputFilterView" value="@((int)Model.ViewMode)" />
+<input type="hidden" id="hdMode" value="@((int)Model.Mode)" />
+<input type="hidden" id="inputFilterOrdine" value="@((int)Model.Ordinamento)" />
+<input type="hidden" id="inputFiltroAtto" value="@Model.Atto.UIDAtto" />
+<input type="hidden" id="inputFilterPage" value="1" />
+<input type="hidden" id="inputFilterSize" value="@Model.Data.Paging.Limit" />
 
 
 <script>
@@ -94,12 +66,23 @@
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.IDParte))", id: "@nameof(EmendamentiDto.IDParte)" },
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.N_EM))", id: "@nameof(EmendamentiDto.N_EM)" },
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.UIDPersonaProponente))", id: "@nameof(EmendamentiDto.UIDPersonaProponente)" },
+        @if (load_gruppi)
+        {
+            // Solo per Amministratore_PEM e Segreteria_Assemblea: la chip "Gruppi" e' selezionabile
+            // come filtro. Per il consigliere il gruppo e' sempre il proprio (chip invisibile fissa).
+            <text>{ tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.id_gruppo))", id: "@nameof(EmendamentiDto.id_gruppo)" },</text>
+        }
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.Firme))", id: "@nameof(EmendamentiDto.Firme)" },
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.TestoEM_originale))", id: "@nameof(EmendamentiDto.TestoEM_originale)" },
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.Tags))", id: "@nameof(EmendamentiDto.Tags)" },
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.Rif_UIDEM))", id: "@nameof(EmendamentiDto.Rif_UIDEM)" },
         { tag: "Miei emendamenti", id: "MyEM" },
-        { tag: "Emendamenti da firmare", id: "EMDaFirmare" },
+        @if (!load_gruppi)
+        {
+            // "Emendamenti da firmare" e' un filtro personale del consigliere/assessore (richieste
+            // firma a lui destinate). Per admin/segreteria non ha significato e viene nascosto.
+            <text>{ tag: "Emendamenti da firmare", id: "EMDaFirmare" },</text>
+        }
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.EffettiFinanziari))", id: "@nameof(EmendamentiDto.EffettiFinanziari)" },
     ];
 
@@ -140,8 +123,8 @@
             await creaPannelloFiltriLateraleEM();
             await ripristinaPreferitiEM();
 
-            // Report init
-            await ripristinaReportsEM();
+            // Il salvataggio dei report come preferito e' stato rimosso: il modale "Genera report"
+            // produce direttamente il file Excel/Word senza persistere selezioni utente.
 
             document.getElementById('addFiltersButton').addEventListener('click',
                 function () {
@@ -750,28 +733,22 @@
     function ripristinaOrdinamentoEM() {
         $('#chips-container-sorting').empty();
 
-        var ordinamenti = JSON.parse(localStorage.getItem('selectedSortColumnsEM'));
+        var ordinamenti = JSON.parse(localStorage.getItem('selectedSortColumnsEM')) || [];
 
-        // Se non c'e' ordinamento salvato, imposta il default da Model.Ordinamento
-        if (!ordinamenti || ordinamenti.length === 0) {
-            @{
-                var ordinamentoDefaultKey = Model.Ordinamento == OrdinamentoEnum.Votazione
-                    ? nameof(EmendamentiDto.OrdineVotazione)
-                    : nameof(EmendamentiDto.OrdinePresentazione);
-                var ordinamentoDefaultLabel = Model.Ordinamento == OrdinamentoEnum.Votazione
-                    ? "Ordine Votazione"
-                    : "Ordine Presentazione";
-            }
-            ordinamenti = [{ propertyName: "@ordinamentoDefaultKey", sortDirection: "1", displayText: "@ordinamentoDefaultLabel" }];
-            localStorage.setItem('selectedSortColumnsEM', JSON.stringify(ordinamenti));
-        }
-
-        // Presentazione e Votazione sono mutuamente esclusivi: tieni solo l'ultimo
-        var hasPresentazione = ordinamenti.some(function(o) { return o.propertyName === "@nameof(EmendamentiDto.OrdinePresentazione)"; });
-        var hasVotazione = ordinamenti.some(function(o) { return o.propertyName === "@nameof(EmendamentiDto.OrdineVotazione)"; });
-        if (hasPresentazione && hasVotazione) {
-            // Rimuovi Presentazione, tieni Votazione (l'ultimo aggiunto vince)
-            ordinamenti = ordinamenti.filter(function(o) { return o.propertyName !== "@nameof(EmendamentiDto.OrdinePresentazione)"; });
+        // L'ordinamento principale Presentazione/Votazione e' gestito dalle tab sopra la griglia,
+        // quindi qui non si reinietta piu' un ordinamento predefinito: la chip "Ordinato per ..." resta
+        // visibile solo se l'utente ha effettivamente impostato un ordinamento secondario dal modale.
+        // Per sicurezza, se in localStorage sono rimasti residui di Presentazione/Votazione salvati
+        // da versioni precedenti, li ripuliamo affinche' il ripristino funzioni come atteso.
+        var residui = ordinamenti.filter(function (o) {
+            return o && (o.propertyName === '@nameof(EmendamentiDto.OrdinePresentazione)'
+                || o.propertyName === '@nameof(EmendamentiDto.OrdineVotazione)');
+        });
+        if (residui.length > 0) {
+            ordinamenti = ordinamenti.filter(function (o) {
+                return o && o.propertyName !== '@nameof(EmendamentiDto.OrdinePresentazione)'
+                    && o.propertyName !== '@nameof(EmendamentiDto.OrdineVotazione)';
+            });
             localStorage.setItem('selectedSortColumnsEM', JSON.stringify(ordinamenti));
         }
 
@@ -781,78 +758,941 @@
     }
 
     // =============================================
-    // Bridge: chips -> form POST esistente
+    // Costruzione FilterRequestEM a partire dalle chip correnti.
+    // Esposta globalmente (window.buildFilterRequestEM) per i flussi azioni massive/Genera Report.
     // =============================================
-    function inviaDatiChipsEM(page) {
-        // Reset campi bridge
-        document.querySelectorAll('[id^="bridge_"]').forEach(function(el) { el.value = ''; });
+    window.buildFilterRequestEM = function () {
+        var page = parseInt(document.getElementById('inputFilterPage').value || '1', 10);
+        var size = parseInt(document.getElementById('inputFilterSize').value || '20', 10);
+        var view = parseInt(document.getElementById('inputFilterView').value || '0', 10);
+        var clientMode = parseInt(document.getElementById('hdMode').value || '1', 10);
+        var ordine = parseInt(document.getElementById('inputFilterOrdine').value || '1', 10);
 
-        var chips = document.querySelectorAll('#chips-container .chip.filter-chip');
-        chips.forEach(function (chip) {
-            var key = chip.getAttribute('data-filterby');
-            var val = chip.getAttribute('data-val');
-
-            switch (key) {
-                case '@nameof(EmendamentiDto.TestoEM_originale)':
-                    var parts = val.split('|');
-                    document.getElementById('bridge_filtro_text1').value = parts[0] || '';
-                    document.getElementById('bridge_filtro_text_connector').value = parts[1] || '1';
-                    document.getElementById('bridge_filtro_text2').value = parts[2] || '';
-                    break;
-                case '@nameof(EmendamentiDto.N_EM)':
-                    document.getElementById('bridge_filtro_n_em').value = val;
-                    break;
-                case '@nameof(EmendamentiDto.Rif_UIDEM)':
-                    document.getElementById('bridge_filtro_subem').value = val === 'true' ? 'on' : '';
-                    break;
-                case '@nameof(EmendamentiDto.IDTipo_EM)':
-                    document.getElementById('bridge_filtro_tipo').value = val;
-                    break;
-                case '@nameof(EmendamentiDto.IDStato)':
-                    document.getElementById('bridge_filtro_stato').value = val;
-                    break;
-                case '@nameof(EmendamentiDto.IDParte)':
-                    // Scomponi parte composta
-                    var parteParts = val.split('|');
-                    document.getElementById('bridge_filtro_parte').value = parteParts[0] || '';
-                    parteParts.forEach(function(p) {
-                        if (p.indexOf('art:') === 0) document.getElementById('bridge_filtro_parte_articolo').value = p.substring(4);
-                        if (p.indexOf('com:') === 0) document.getElementById('bridge_filtro_parte_comma').value = p.substring(4);
-                        if (p.indexOf('let:') === 0) document.getElementById('bridge_filtro_parte_lettera').value = p.substring(4);
-                        if (p.indexOf('tit:') === 0) document.getElementById('bridge_filtro_parte_titolo').value = p.substring(4);
-                        if (p.indexOf('capo:') === 0) document.getElementById('bridge_filtro_parte_capo').value = p.substring(5);
-                        if (p.indexOf('mis:') === 0) document.getElementById('bridge_filtro_parte_missione').value = p.substring(4);
-                        if (p.indexOf('prog:') === 0) document.getElementById('bridge_filtro_parte_programma').value = p.substring(5);
-                    });
-                    break;
-                case '@nameof(EmendamentiDto.id_gruppo)':
-                    document.getElementById('bridge_filtro_gruppo').value = val;
-                    break;
-                case '@nameof(EmendamentiDto.UIDPersonaProponente)':
-                    document.getElementById('bridge_filtro_proponente').value = val;
-                    break;
-                case '@nameof(EmendamentiDto.Firme)':
-                    document.getElementById('bridge_filtro_firmatari').value = val;
-                    break;
-                case '@nameof(EmendamentiDto.Tags)':
-                    document.getElementById('inputFiltroTags').value = val;
-                    break;
-                case 'MyEM':
-                    document.getElementById('bridge_filtro_my').value = val === 'true' ? 'on' : '';
-                    break;
-                case '@nameof(EmendamentiDto.EffettiFinanziari)':
-                    document.getElementById('bridge_filtro_effetti_finanziari').value = val === 'true' ? 'on' : '';
-                    break;
-            }
+        var filters = [];
+        document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function (chip) {
+            filters.push({
+                property: chip.getAttribute('data-filterby'),
+                value: chip.getAttribute('data-val')
+            });
         });
 
-        if (page) {
-            document.getElementById('inputFilterPage').value = page;
+        // UIDAtto e' sempre presente come filtro fisso anche quando la chip non e' visibile.
+        if (!filters.some(function (f) { return f.property === 'UIDAtto'; })) {
+            var attoUid = document.getElementById('inputFiltroAtto').value;
+            if (attoUid) filters.push({ property: 'UIDAtto', value: attoUid });
         }
 
-        setTimeout(function () { $('body').removeClass('loaded'); }, 200);
-        document.getElementById('formFiltraEM').submit();
+        return {
+            filters: filters,
+            page: page,
+            size: size,
+            viewMode: view,
+            clientMode: clientMode,
+            ordine: ordine,
+            sort_settings: selectedSortColumnsEM || [],
+            columns_settings: []
+        };
+    };
+
+    // =============================================
+    // Riepilogo asincrono: POST FilterRequestEM -> EmendamentiViewModel -> render JS della griglia.
+    // =============================================
+    window.inviaDatiChipsEM = async function (page) {
+        if (page) document.getElementById('inputFilterPage').value = page;
+
+        var request = window.buildFilterRequestEM();
+        if (!request.filters || request.filters.length === 0) {
+            document.getElementById('tableResults').innerHTML =
+                '<div class="card-panel blue lighten-5 center">Aggiungi almeno un filtro per avviare la ricerca.</div>';
+            return;
+        }
+
+        var spinner = document.getElementById('loadingSpinner');
+        if (spinner) spinner.style.display = 'block';
+        document.getElementById('tableResults').innerHTML = '';
+        document.getElementById('paginazione-container-top').innerHTML = '';
+        document.getElementById('paginazione-container-bottom').innerHTML = '';
+
+        try {
+            var response = await fetch(baseUrl + '/emendamenti/riepilogoEM', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=utf-8' },
+                body: JSON.stringify(request)
+            });
+            if (!response.ok) throw new Error('Errore di rete (' + response.status + ')');
+            var data = await response.json();
+            if (data && data.message) {
+                if (typeof Error === 'function') Error(data);
+                return;
+            }
+            window.responseData = data;
+            CreaTabellaEM(data);
+            if (typeof creaPaginazioneEM === 'function') creaPaginazioneEM(data);
+        } catch (err) {
+            console.error('inviaDatiChipsEM:', err);
+            document.getElementById('tableResults').innerHTML =
+                '<div class="card-panel red lighten-4 center">Errore durante il caricamento del riepilogo.</div>';
+        } finally {
+            if (spinner) spinner.style.display = 'none';
+        }
+    };
+
+    // Rendering della griglia di riepilogo emendamenti. Replica le colonne del rendering Razor
+    // originale (_GridView_Admin_RiepilogoEM.cshtml): note, ordine, EM, data deposito, stato,
+    // tipo, parte, articolo/comma/lettera, titolo/capo, missione/programma/titoloM, area politica,
+    // firme (proponente + chip conteggio), comandi (stampa/edit/view).
+    function CreaTabellaEM(data) {
+        var container = document.getElementById('tableResults');
+        if (!data || !data.Data || !data.Data.Results) {
+            container.innerHTML = '<div class="card-panel grey lighten-4 center">Nessun emendamento trovato.</div>';
+            return;
+        }
+
+        var results = data.Data.Results;
+        // Il backend espone esplicitamente in EmendamentiSaltati gli identificatori degli
+        // emendamenti che non e' riuscito a mappare (es. IDStato corrotto). Manteniamo anche
+        // il conteggio dei null in Data.Results come ripiego per i flussi non aggiornati.
+        var saltatiList = (data.EmendamentiSaltati && data.EmendamentiSaltati.length)
+            ? data.EmendamentiSaltati
+            : results.filter(function (em) { return em == null; }).map(function () { return '(non identificato)'; });
+        var emSaltati = saltatiList.length;
+        if (results.length === 0) {
+            container.innerHTML = '<div class="card-panel panel-warning center">Non ci sono emendamenti al momento</div>';
+            try { aggiornaComandiGrigliaEM(data); } catch (e) { /* ignored */ }
+            return;
+        }
+
+        var ordinamento = data.Ordinamento != null ? data.Ordinamento : 1; // 1=Presentazione, 2=Votazione, 3=Default
+        var attoVisMisProg = data.Atto && data.Atto.VIS_Mis_Prog === true;
+
+        aggiornaComandiGrigliaEM(data);
+
+        // ViewMode (cfr. ViewModeEnum): GRID = 0, PREVIEW = 1. In preview rendiamo card con il
+        // corpo HTML dell'emendamento (BodyEM popolato dal backend quando ViewMode == PREVIEW).
+        var viewMode = data.ViewMode != null ? data.ViewMode : @((int)ViewModeEnum.GRID);
+        if (viewMode === @((int)ViewModeEnum.PREVIEW)) {
+            container.innerHTML = renderPreviewListaEM(results, emSaltati, saltatiList);
+            return;
+        }
+
+        // GRID: per Amministratore_PEM e Segreteria_Assemblea uso la tabella full con tutte le
+        // colonne metadati; per consiglieri/assessori uso la vista a card originale (replica
+        // fedele di _GridView_RiepilogoEM.cshtml).
+        if (!@(load_gruppi ? "true" : "false")) {
+            container.innerHTML = renderCardConsigliereListaEM(results, data.Mode, emSaltati, saltatiList);
+            return;
+        }
+
+        var html = '<table class="highlight">';
+        html += '<thead><tr>'
+            + '<th></th>'
+            + '<th></th>'
+            + '<th></th>'
+            + '<th><i class="icon material-icons">low_priority</i></th>'
+            + '<th id="thNumeroEM">EM</th>'
+            + '<th id="thDataDeposito">Data Deposito</th>'
+            + '<th id="thStato">Stato</th>'
+            + '<th id="thTipo">Tipo</th>'
+            + '<th id="thParte">Parte</th>'
+            + '<th id="thArticolo">Articolo</th>'
+            + '<th id="thComma">Comma</th>'
+            + '<th id="thLettera">Lettera</th>'
+            + '<th id="thTitolo">Titolo</th>'
+            + '<th id="thCapo">Capo</th>'
+            + '<th id="thMissione"' + (attoVisMisProg ? '' : ' style="display:none;"') + '>Miss.</th>'
+            + '<th id="thProgramma"' + (attoVisMisProg ? '' : ' style="display:none;"') + '>Prog.</th>'
+            + '<th id="thTitoloM"' + (attoVisMisProg ? '' : ' style="display:none;"') + '>TitoloM</th>'
+            + '<th id="thAreaPolitica">Area</th>'
+            + '<th id="thFirmatari">Firme</th>'
+            + '<th></th>'
+            + '</tr></thead><tbody>';
+
+        results.filter(function (em) { return em != null; }).forEach(function (em) {
+            html += renderRigaEM(em, ordinamento, attoVisMisProg);
+        });
+
+        html += '</tbody></table>';
+        if (emSaltati > 0) {
+            var elenco = saltatiList.map(function (e) { return escapeText(e); }).join(', ');
+            html = '<div class="card-panel red lighten-4 red-text text-darken-4" style="margin: 0 0 8px 0;">'
+                + '<i class="material-icons left">warning</i>'
+                + '<strong>Attenzione:</strong> ' + emSaltati + ' emendament'
+                + (emSaltati === 1 ? 'o non viene visualizzato' : 'i non vengono visualizzati')
+                + ' a causa di dati incongruenti (probabile stato non valido a database). '
+                + 'Identificativi: <strong>' + elenco + '</strong>. '
+                + 'Verifica con la segreteria assemblea.'
+                + '</div>' + html;
+        }
+        container.innerHTML = html;
+
+        // Riattiva i tooltip / dropdown Materialize sugli elementi appena renderizzati.
+        if (window.M) {
+            M.AutoInit(container);
+            $('.dropdown-trigger', container).dropdown({ hover: true });
+        }
     }
+
+    function aggiornaComandiGrigliaEM(data) {
+        renderTabsOrdinamentoEM(data);
+        renderComandiBarraEM(data);
+        renderConteggiEM(data);
+    }
+
+    // Tab "ORDINE PRESENTAZIONE / ORDINE VOTAZIONE": disposizione orizzontale a tutta larghezza 50/50.
+    // Colore in funzione della modalita' client: GRUPPI -> verde, TRATTAZIONE -> blu.
+    function renderTabsOrdinamentoEM(data) {
+        var container = document.getElementById('tabsOrdinamento');
+        if (!container) return;
+        var ordinamento = data && data.Ordinamento != null ? data.Ordinamento : 1;
+        var presAttiva = ordinamento === 1;
+        var votAttiva = ordinamento === 2;
+
+        var clientMode = data && data.Mode != null
+            ? data.Mode
+            : parseInt(document.getElementById('hdMode').value || '1', 10);
+        var coloreAttivo = clientMode === 2 ? '#1565c0' : '#2e7d32';
+
+        var styleTabBase =
+            'box-sizing:border-box;float:left;width:50%;text-align:center;padding:12px 0;'
+            + 'cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;'
+            + 'border-bottom:3px solid ' + coloreAttivo + ';';
+        var styleTabAttiva = 'background:' + coloreAttivo + ';color:#fff;font-weight:600;';
+        var styleTabInattiva = 'background:#fff;color:#424242;font-weight:500;';
+
+        container.innerHTML =
+            '<div class="row" style="margin: 0 0 8px 0;">'
+            + '  <div class="col s12" style="padding:0;">'
+            + '    <div style="overflow:hidden;">'
+            + '      <a onclick="cambiaOrdinamentoEM(1)" '
+            + '         style="' + styleTabBase + (presAttiva ? styleTabAttiva : styleTabInattiva) + '">Ordine presentazione</a>'
+            + '      <a onclick="cambiaOrdinamentoEM(2)" '
+            + '         style="' + styleTabBase + (votAttiva ? styleTabAttiva : styleTabInattiva) + '">Ordine votazione</a>'
+            + '    </div>'
+            + '  </div>'
+            + '</div>';
+    }
+
+    // Riga sopra la griglia con: a sinistra "Seleziona tutto" + eventuale filtro firma personale,
+    // a destra i pulsanti floating (ordinamento secondario, colonne, stampa, cambio GRID/PREVIEW,
+    // testo atto con emendamenti approvati).
+    function renderComandiBarraEM(data) {
+        var comandi = document.getElementById('comandiGriglia');
+        if (!comandi) return;
+
+        var requireMySign = '@(Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign")) ? "checked" : "")';
+        var isConsigliereGruppi = '@((User.IsInRole(RuoliExt.Consigliere_Regionale) || User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)) && Model.Mode == ClientModeEnum.GRUPPI ? "true" : "false")' === 'true';
+
+        // Icona del bottone di cambio: in GRID si mostra "desktop_windows" (passa a preview),
+        // in PREVIEW si mostra "developer_board" (torna alla griglia).
+        var viewModeCorrente = data && data.ViewMode != null
+            ? data.ViewMode
+            : parseInt(document.getElementById('inputFilterView').value || '0', 10);
+        var isPreview = viewModeCorrente === @((int)ViewModeEnum.PREVIEW);
+        var switchIcon = isPreview ? 'developer_board' : 'desktop_windows';
+        var switchTooltip = isPreview ? 'Visualizza in griglia' : 'Visualizza in preview';
+
+        var html = '<div class="row valign-wrapper" style="margin-bottom: 4px;">'
+            + '  <div class="col l6 s6 left">'
+            + '    <label>'
+            + '      <input type="checkbox" id="checkAll" onclick="toggleSelezionaTuttiEM(this);" class="filled-in" />'
+            + '      <span>Seleziona tutto</span>'
+            + '    </label>';
+
+        if (isConsigliereGruppi) {
+            // Stato corrente: la chip invisibile "EMDaFirmare" e' presente fra le chip del pannello
+            // quando l'interruttore e' attivo (sincronizzata da filtraEM_RichiestaFirma senza ricaricare).
+            var emDaFirmareAttivo = !!document.querySelector(
+                '#chips-container .chip.filter-chip[data-filterby="EMDaFirmare"]');
+            html += '    <br />'
+                + '    <label>'
+                + '      <input type="checkbox" id="checkAllMy" onchange="filtraEM_RichiestaFirma(this.checked)"'
+                + (emDaFirmareAttivo ? ' checked="checked"' : '') + ' />'
+                + '      <span>Visualizza solo gli EM/SUBEM per i quali &#232; richiesta la mia firma</span>'
+                + '    </label>';
+        }
+
+        html += '  </div>'
+            + '  <div class="col l6 s6 right-align">'
+            + '    <button type="button" id="btnOrdinamentoRisultati" class="btn-floating white black-text tooltipped" '
+            + '            data-tooltip="Ordinamento secondario" data-position="bottom">'
+            + '      <i class="material-icons">sort_by_alpha</i>'
+            + '    </button>'
+            + '    <button type="button" class="btn-floating white black-text tooltipped" '
+            + '            onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="bottom">'
+            + '      <i class="material-icons">print</i>'
+            + '    </button>'
+            + '    <button type="button" class="btn-floating white black-text tooltipped" '
+            + '            onclick="cambiaViewModeEM()" data-tooltip="' + switchTooltip + '" data-position="bottom">'
+            + '      <i class="material-icons">' + switchIcon + '</i>'
+            + '    </button>'
+            + '    <button type="button" class="btn-floating white black-text tooltipped" '
+            + '            onclick="viewTestoAtto()" data-tooltip="Testo atto con emendamenti approvati" data-position="bottom">'
+            + '      <i class="material-icons">format_align_left</i>'
+            + '    </button>'
+            + '  </div>'
+            + '</div>';
+
+        comandi.innerHTML = html;
+
+        if (window.M) {
+            M.AutoInit(comandi);
+        }
+    }
+
+    // Interruttore "Visualizza solo gli EM/SUBEM per i quali e' richiesta la mia firma":
+    // aggiunge/rimuove una chip invisibile EMDaFirmare ai filtri correnti e ricarica la griglia
+    // senza ricaricare l'intera pagina. La chip e' invisibile (visible=false) e marcata come
+    // fissa lato salva-filtro per non finire nei preferiti utente.
+    window.filtraEM_RichiestaFirma = function (enable) {
+        var chipsContainer = document.getElementById('chips-container');
+        if (!chipsContainer) return;
+
+        if (enable) {
+            // Aggiunge la chip EMDaFirmare se non esiste
+            var giaPresente = chipsContainer.querySelector('.chip.filter-chip[data-filterby="EMDaFirmare"]');
+            if (!giaPresente && typeof addChipIfNotExistsEM === 'function') {
+                addChipIfNotExistsEM('EMDaFirmare', 'EM da firmare', 'true', '', '', false, false);
+            }
+        } else {
+            // Rimuove la chip EMDaFirmare se esiste
+            var existing = chipsContainer.querySelector('.chip.filter-chip[data-filterby="EMDaFirmare"]');
+            if (existing) {
+                existing.remove();
+                if (typeof salvaFiltriEM === 'function') salvaFiltriEM();
+            }
+        }
+
+        if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(1);
+    };
+
+    // Cambio della modalita' di visualizzazione (GRID <-> PREVIEW) con nuovo caricamento della griglia.
+    window.cambiaViewModeEM = function () {
+        var hidden = document.getElementById('inputFilterView');
+        if (!hidden) return;
+        var current = parseInt(hidden.value || '0', 10);
+        var nuovo = current === @((int)ViewModeEnum.GRID) ? @((int)ViewModeEnum.PREVIEW) : @((int)ViewModeEnum.GRID);
+        hidden.value = nuovo;
+        try { localStorage.setItem('viewModeEm', nuovo); } catch (e) { /* ignore */ }
+        if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(1);
+    };
+
+    // Footer della griglia con riepilogo conteggi per gruppo politico e per area politica,
+    // popolato dal backend nei campi ConteggiGruppi / ConteggiAreePolitiche.
+    // Layout allineato a quello del riepilogo Razor di produzione: due tabelle compatte
+    // con riga totale evidenziata; le righe a zero restano visibili (informazione attesa).
+    function renderConteggiEM(data) {
+        var container = document.getElementById('conteggiContainer');
+        if (!container) return;
+
+        var gruppi = data && Array.isArray(data.ConteggiGruppi) ? data.ConteggiGruppi : [];
+        var aree = data && Array.isArray(data.ConteggiAreePolitiche) ? data.ConteggiAreePolitiche : [];
+        if (gruppi.length === 0 && aree.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        // Le view SQL di backend espongono il conteggio sul campo num_em (View_Conteggi_EM_Gruppi_Politici
+        // e View_Conteggi_EM_Area_Politica). Le forme alternative Totale/totale coprono eventuali nomi futuri.
+        function valoreTotale(item) {
+            if (!item) return 0;
+            var v = item.num_em != null ? item.num_em
+                : (item.Totale != null ? item.Totale
+                    : (item.totale != null ? item.totale : 0));
+            return parseInt(v, 10) || 0;
+        }
+
+        function buildTabella(righe, rigaTotale) {
+            var html = '<table class="striped" style="margin:0;">';
+            righe.forEach(function (r) {
+                html += '<tr>'
+                    + '  <td style="padding:10px 16px;">' + escapeText(r.label) + '</td>'
+                    + '  <td class="right-align" style="padding:10px 16px;width:80px;">' + r.valore + '</td>'
+                    + '</tr>';
+            });
+            if (rigaTotale) {
+                html += '<tr style="font-weight:600;">'
+                    + '  <td style="padding:10px 16px;">' + escapeText(rigaTotale.label) + '</td>'
+                    + '  <td class="right-align" style="padding:10px 16px;width:80px;">' + rigaTotale.valore + '</td>'
+                    + '</tr>';
+            }
+            html += '</table>';
+            return html;
+        }
+
+        var html = '';
+        if (gruppi.length > 0) {
+            var righeGruppi = [];
+            var totale = 0;
+            gruppi.forEach(function (g) {
+                var label = g.nome_gruppo || g.codice_gruppo || '';
+                var n = valoreTotale(g);
+                totale += n;
+                righeGruppi.push({ label: label, valore: n });
+            });
+            html += '<div class="card-panel" style="padding:0;margin:16px 0 8px 0;">'
+                + buildTabella(righeGruppi, { label: 'Totale', valore: totale })
+                + '</div>';
+        }
+        if (aree.length > 0) {
+            // La view backend espone "AreaPolitica" come stringa (Maggioranza/Minoranza/...);
+            // come ripiego accettiamo un'eventuale corrispondenza numerica passata dal repository.
+            var righeAree = aree.map(function (a) {
+                var label = a.AreaPolitica;
+                if (typeof label === 'number') {
+                    label = label === 1 ? 'Maggioranza' : label === 2 ? 'Minoranza' : ('Area ' + label);
+                } else if (!label && a.area_politica) {
+                    label = a.area_politica;
+                }
+                return { label: label || '', valore: valoreTotale(a) };
+            });
+            html += '<div class="card-panel" style="padding:0;margin:8px 0 16px 0;">'
+                + buildTabella(righeAree, null)
+                + '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    // Cambia l'ordinamento principale (Presentazione/Votazione) e ricarica i risultati.
+    window.cambiaOrdinamentoEM = function (nuovoOrdinamento) {
+        var hidden = document.getElementById('inputFilterOrdine');
+        if (hidden) hidden.value = nuovoOrdinamento;
+        if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(1);
+    };
+
+    // Paginazione orizzontale: a sinistra navigazione pagine + chip "N risultati", a destra
+    // chip "Paginazione" con dropdown taglio (20/50/100). Replicata nei container top/bottom.
+    window.creaPaginazioneEM = function (data) {
+        var top = document.getElementById('paginazione-container-top');
+        var bottom = document.getElementById('paginazione-container-bottom');
+        if (!data || !data.Data || !data.Data.Results || data.Data.Results.length === 0) {
+            if (top) top.innerHTML = '';
+            if (bottom) bottom.innerHTML = '';
+            return;
+        }
+
+        var paging = data.Data.Paging;
+        var totalePagine = paging.Last_Page || 1;
+        var paginaCorrente = paging.Page;
+        var totaleRisultati = paging.Total;
+        var risultatiPerPagina = paging.Limit;
+
+        function buildNavigazione() {
+            var html = '<ul class="pagination" style="margin:0;display:inline-flex;align-items:center;line-height:1;"'
+                + ' data-totale-pagine="' + totalePagine
+                + '" data-totale-risultati="' + totaleRisultati
+                + '" data-risultati-pagina="' + risultatiPerPagina
+                + '" data-pagina-corrente="' + paginaCorrente + '">';
+
+            if (paging.Has_Prev) {
+                html += '<li class="waves-effect"><a onclick="paginazioneEM(1)" style="padding:0 8px;">'
+                    + '<i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina">first_page</i></a></li>'
+                    + '<li class="waves-effect"><a onclick="paginazioneEM(' + (paginaCorrente - 1) + ')" style="padding:0 8px;">'
+                    + '<i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">chevron_left</i></a></li>';
+            }
+            html += '<li style="padding:0 12px;line-height:36px;">'
+                + 'Pagina <input type="number" min="1" max="' + totalePagine
+                + '" value="' + paginaCorrente
+                + '" style="width:55px;text-align:center;height:28px;margin:0 4px;" '
+                + 'onchange="vaiPaginaEM(this.value, ' + totalePagine + ')">'
+                + ' di ' + totalePagine + '</li>';
+            if (paging.Has_Next) {
+                html += '<li class="waves-effect"><a onclick="paginazioneEM(' + (paginaCorrente + 1) + ')" style="padding:0 8px;">'
+                    + '<i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">chevron_right</i></a></li>'
+                    + '<li class="waves-effect"><a onclick="paginazioneEM(' + totalePagine + ')" style="padding:0 8px;">'
+                    + '<i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">last_page</i></a></li>';
+            }
+            html += '<li style="margin-left:8px;line-height:36px;">'
+                + '<span class="chip deep-purple lighten-4" style="margin:0;line-height:32px;height:32px;">'
+                + totaleRisultati + ' risultati</span></li>';
+            html += '</ul>';
+            return html;
+        }
+
+        var tagli = [20, 50, 100];
+        function buildDropdown(suffix) {
+            var dd = '<span class="chip deep-purple lighten-4 center" '
+                + 'style="display:inline-flex;align-items:center;height:32px;line-height:32px;margin:0;padding:0 8px;min-width:unset;">'
+                + '<span style="margin-right:4px;">Paginazione</span>'
+                + '<a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-em-' + suffix
+                + '" style="font-size:small;margin:0;height:24px;line-height:24px;padding:0 8px;min-width:unset;">'
+                + risultatiPerPagina + '</a>'
+                + '<ul id="ddlPaginazione-em-' + suffix + '" class="dropdown-content">';
+            tagli.forEach(function (limite) {
+                var sel = risultatiPerPagina == limite ? ' class="selected"' : '';
+                dd += '<li' + sel + '><a onclick="paginazioneSizeEM(' + limite + ')">' + limite + '</a></li>';
+            });
+            dd += '</ul></span>';
+            return dd;
+        }
+
+        function buildRiga(suffix) {
+            return '<div class="row valign-wrapper" style="margin: 6px 0;">'
+                + '  <div class="col s8 left-align">' + buildNavigazione() + '</div>'
+                + '  <div class="col s4 right-align">' + buildDropdown(suffix) + '</div>'
+                + '</div>';
+        }
+
+        if (top) top.innerHTML = buildRiga('top');
+        if (bottom) bottom.innerHTML = buildRiga('bottom');
+
+        if (window.M) {
+            if (top) M.AutoInit(top);
+            if (bottom) M.AutoInit(bottom);
+            $('.dropdown-trigger.trigger-paginazione').dropdown();
+        }
+    };
+
+    window.paginazioneEM = function (page) {
+        if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(page);
+    };
+
+    window.vaiPaginaEM = function (page, totalePagine) {
+        var p = parseInt(page, 10);
+        if (isNaN(p) || p < 1) p = 1;
+        if (p > totalePagine) p = totalePagine;
+        if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(p);
+    };
+
+    window.paginazioneSizeEM = function (size) {
+        var hidden = document.getElementById('inputFilterSize');
+        if (hidden) hidden.value = size;
+        try { localStorage.setItem('pagingEm.size', size); } catch (e) { /* ignore */ }
+        if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(1);
+    };
+
+    // Vista a card per consigliere/assessore in modalita' GRID.
+    // Replica fedele di _GridView_RiepilogoEM.cshtml (versione Razor originale): per ogni EM una
+    // card con titolo "stato", numero EM in grande, metadati parte, info creatore/depositante,
+    // chip proponente + chip "+N firme", e barra azioni in basso con tags/stampa/visualizza.
+    function renderCardConsigliereListaEM(results, modeCorrente, emSaltati, saltatiList) {
+        var html = '';
+        if (emSaltati > 0) {
+            var elenco = saltatiList.map(function (e) { return escapeText(e); }).join(', ');
+            html += '<div class="card-panel red lighten-4 red-text text-darken-4" style="margin: 0 0 8px 0;">'
+                + '<i class="material-icons left">warning</i>'
+                + '<strong>Attenzione:</strong> ' + emSaltati + ' emendament'
+                + (emSaltati === 1 ? 'o non viene visualizzato' : 'i non vengono visualizzati')
+                + ' (dati incongruenti). Identificativi: <strong>' + elenco + '</strong>.'
+                + '</div>';
+        }
+        results.filter(function (em) { return em != null; }).forEach(function (em) {
+            html += renderCardConsigliereEM(em, modeCorrente);
+        });
+        if (html === '') {
+            html = '<div class="card-panel panel-warning center">Non ci sono emendamenti al momento</div>';
+        }
+        return html;
+    }
+
+    function renderCardConsigliereEM(em, modeCorrente) {
+        var statoCss = em.STATI_EM && em.STATI_EM.CssClass ? em.STATI_EM.CssClass : '';
+        var statoLabel = em.STATI_EM && em.STATI_EM.Stato ? escapeText(em.STATI_EM.Stato) : '';
+        var metaDati = metaDatiLabelHtmlEM(em);
+        var proponenteName = em.PersonaProponente && em.PersonaProponente.DisplayName
+            ? em.PersonaProponente.DisplayName : '';
+        var codiceGruppo = em.gruppi_politici && em.gruppi_politici.codice_gruppo
+            ? em.gruppi_politici.codice_gruppo : '';
+        var isTrattazione = modeCorrente === @((int)ClientModeEnum.TRATTAZIONE);
+        var proponenteFooter = proponenteName + (isTrattazione && codiceGruppo ? ' (' + codiceGruppo + ')' : '');
+
+        // Chip principale stato (header card)
+        var chipStato = '<div id="iconEMDepositabile_' + em.UIDEM + '" class="chip ' + statoCss
+            + '" style="width: 100%">';
+        if (em.Depositabile) {
+            chipStato += '<i class="icon material-icons left tooltipped" data-tooltip="Depositabile" style="margin-top: -2px">gavel</i>';
+        }
+        chipStato += statoLabel;
+        if (em.PresentatoOltreITermini) {
+            chipStato += '<i class="icon material-icons red-text right tooltipped" data-position="bottom" '
+                + 'data-tooltip="Presentato oltre i termini" style="margin-top: -3px">warning</i>';
+        }
+        if (em.NOTE_Griglia) {
+            chipStato += '<i class="icon material-icons right tooltipped" data-tooltip="'
+                + escapeAttr(em.NOTE_Griglia) + '" style="margin-top: -2px">chat</i>';
+        }
+        chipStato += '</div>';
+
+        // Sezione creatore/depositante in funzione dello stato
+        var infoCreazioneDeposito = '';
+        var IDStato = em.IDStato != null ? em.IDStato : 0;
+        if (IDStato <= 0) {
+            var creatore = em.PersonaCreazione && em.PersonaCreazione.DisplayName
+                ? em.PersonaCreazione.DisplayName : '';
+            infoCreazioneDeposito = '<h6 style="font-size: small; font-weight: bold; padding-top: 10px">'
+                + 'Bozza predisposta da: <span id="lblCreatore_' + em.UIDEM + '">'
+                + escapeText(creatore) + '</span></h6>';
+        } else if (em.DataDeposito) {
+            var depositante = em.PersonaDeposito && em.PersonaDeposito.DisplayName
+                ? em.PersonaDeposito.DisplayName : '';
+            infoCreazioneDeposito = '<h6 style="font-size: small; font-weight: bold; padding-top: 10px">'
+                + 'Depositato da <span id="lblPersonaDeposito_' + em.UIDEM + '">'
+                + escapeText(depositante) + '</span> il '
+                + escapeText(em.DataDeposito) + '</h6>';
+        }
+
+        // Chip proponente (solo per EM depositati)
+        var chipProponente = '';
+        if (IDStato >= 1 /* Depositato */) {
+            chipProponente = '<div class="chip deep-purple lighten-4 center activator" '
+                + 'onclick="RevealFirmatari(\'' + em.UIDEM + '\')" '
+                + 'style="margin-bottom: 0; margin-top: 10px; min-width: unset;">';
+            if (em.Firma_da_ufficio && em.Firma_ufficio) {
+                chipProponente += '<b>' + escapeText(em.Firma_ufficio.FirmaCert || '') + '</b>';
+            } else {
+                chipProponente += '<span class="hide-on-med-and-down">Firmato dal proponente:</span>'
+                    + '<span class="hide-on-large-only">Proponente:</span> ';
+                if (em.Firmato_Dal_Proponente) {
+                    chipProponente += escapeText(proponenteName);
+                } else {
+                    chipProponente += '<span style="color: grey; text-decoration: line-through;">'
+                        + escapeText(proponenteName) + '</span>';
+                }
+                if (em.Proponente_Relatore) chipProponente += ' <b>(RELATORE)</b>';
+            }
+            if (em.ConteggioFirme > 1) {
+                chipProponente += ' <span class="chip hoverable grey darken-1 white-text activator" '
+                    + 'style="font-size: small; margin-right: -12px; min-width: unset; margin-bottom: unset !important;">'
+                    + '+ ' + (em.ConteggioFirme - 1) + '</span>';
+            }
+            chipProponente += '</div>';
+        }
+
+        // Sezione firmatari/destinatari (solo bozza/non depositato)
+        var firmatariBlock = '';
+        if (IDStato < 1 && em.Firmatari) {
+            firmatariBlock += '<div class="row"><div class="col l12 s12">'
+                + '<div id="pnlAzioniEM_' + em.UIDEM + '">'
+                + '<h6><b>Firmatari</b></h6><hr/>'
+                + em.Firmatari
+                + '</div></div></div>';
+        }
+        if (IDStato < 1 && em.Destinatari) {
+            firmatariBlock += '<div class="row"><div class="col l12 s12">'
+                + '<h6><b>Invitati</b></h6><hr/>'
+                + em.Destinatari
+                + '</div></div>';
+        }
+
+        return '<div class="col l12 m12 s12">'
+            + '<div class="card sticky-action hoverable" style="min-height: 300px">'
+            + '  <div class="card-content">'
+            + '    <div class="card-title">'
+            + '      <div class="row" style="margin: unset !important;">'
+            + '        <div class="col l1 s12" style="margin-top: 10px">'
+            + '          <label><input type="checkbox" id="chk_EM_' + em.UIDEM
+            + '" onclick="AbilitaComandiMassivi(\'' + em.UIDEM + '\');"/><span></span></label>'
+            + '        </div>'
+            + '        <div class="col l11 s12 center">' + chipStato + '</div>'
+            + '      </div>'
+            + '      <div class="row"><div class="col l12 s12 center">'
+            + '        <h4 style="margin-top: 7px"><b>'
+            + (em.EffettiFinanziari === 1 ? '&euro; ' : '')
+            + escapeText(em.N_EM || '') + '</b></h4>'
+            + '        <h6>' + metaDati + '</h6>'
+            + infoCreazioneDeposito
+            + chipProponente
+            + '      </div></div>'
+            + firmatariBlock
+            + '    </div>'
+            + '  </div>'
+            + '  <div class="card-action grey lighten-4">'
+            + '    <div class="row" style="margin: 0 !important">'
+            + '      <div class="col s6 left">'
+            + '        <label class="hide-on-med-and-down" style="font-size: small !important">Proponente: </label>'
+            + '        <h6 id="lblProponente_' + em.UIDEM + '"><b>' + escapeText(proponenteFooter) + '</b></h6>'
+            + '      </div>'
+            + '      <div class="col s6 right-align">'
+            + '        <button type="button" class="btn-floating white black-text tooltipped activator" '
+            + '                data-tooltip="Visualizza tags" onclick="RevealTags(\'' + em.UIDEM + '\')">'
+            + '          <i class="material-icons">filter_frames</i>'
+            + '        </button>'
+            + '        <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" '
+            + '           target="_blank" href="' + baseUrl + '/emendamenti/file?id=' + em.UIDEM + '">'
+            + '          <i class="material-icons">print</i>'
+            + '        </a>'
+            + '        <button type="button" class="btn-floating white black-text tooltipped" '
+            + '                data-tooltip="Visualizza EM" '
+            + '                onclick="goIntoOtherTab(\'' + baseUrl + '/emendamenti/view/' + em.UIDEM + '\')">'
+            + '          <i class="material-icons">chevron_right</i>'
+            + '        </button>'
+            + '      </div>'
+            + '    </div>'
+            + '  </div>'
+            + '</div>'
+            + '</div>';
+    }
+
+    // Replica lato browser di Common.Utility.MetaDatiEM_LabelHtml: produce "Emendamento <tipo><br><parte>".
+    // Le proprieta' lette dal DTO (TIPI_EM, PARTI_TESTO, ARTICOLI, COMMI, LETTERE, NTitolo/NCapo,
+    // NMissione/NProgramma/NTitoloB, NLettera) sono popolate dal backend nel GetEM_DTO.
+    function metaDatiLabelHtmlEM(em) {
+        var tipo = em.TIPI_EM && em.TIPI_EM.Tipo_EM ? em.TIPI_EM.Tipo_EM : '';
+        var parte = '';
+        var idParte = em.PARTI_TESTO ? em.PARTI_TESTO.IDParte : null;
+        switch (idParte) {
+            case 1: // Titolo_PDL
+                parte = em.PARTI_TESTO ? (em.PARTI_TESTO.Parte || '') : '';
+                break;
+            case 2: // Titolo
+                parte = 'Titolo: ' + (em.NTitolo || '');
+                break;
+            case 3: // Capo
+                parte = 'Capo: ' + (em.NCapo || '');
+                break;
+            case 4: { // Articolo
+                var art = em.ARTICOLI && em.ARTICOLI.Articolo ? 'Articolo: ' + em.ARTICOLI.Articolo : '';
+                var com = em.COMMI && em.COMMI.Comma ? ', Comma: ' + em.COMMI.Comma : '';
+                var let = em.NLettera
+                    ? ', Lettera: ' + em.NLettera
+                    : (em.LETTERE && em.LETTERE.Lettera ? ', Lettera: ' + em.LETTERE.Lettera : '');
+                parte = art + com + let;
+                break;
+            }
+            case 5: // Missione
+                parte = 'Missione: ' + (em.NMissione || '')
+                    + ' Programma: ' + (em.NProgramma || '')
+                    + ' titolo: ' + (em.NTitoloB || '');
+                break;
+            case 6: // Allegato/Tabella
+                parte = 'Allegato/Tabella';
+                break;
+            default:
+                parte = '';
+        }
+        return 'Emendamento ' + escapeText(tipo) + '<br>' + escapeText(parte);
+    }
+
+    // Rendering "preview" (lista card) attivato quando ViewMode == PREVIEW.
+    // Pattern allineato al riepilogo DASI (_FiltriRapidiDASIPanel.cshtml > createCard):
+    // una card per emendamento con i pulsanti in alto a destra e, sotto, il BodyEM
+    // formattato in HTML che il backend popola nello stesso ramo del flusso EmendamentiLogic.
+    function renderPreviewListaEM(results, emSaltati, saltatiList) {
+        var html = '';
+        if (emSaltati > 0) {
+            var elenco = saltatiList.map(function (e) { return escapeText(e); }).join(', ');
+            html += '<div class="card-panel red lighten-4 red-text text-darken-4" style="margin: 0 0 8px 0;">'
+                + '<i class="material-icons left">warning</i>'
+                + '<strong>Attenzione:</strong> ' + emSaltati + ' emendament'
+                + (emSaltati === 1 ? 'o non viene visualizzato' : 'i non vengono visualizzati')
+                + ' (dati incongruenti). Identificativi: <strong>' + elenco + '</strong>.'
+                + '</div>';
+        }
+        results.filter(function (em) { return em != null; }).forEach(function (em) {
+            var bodyEm = em.BodyEM || '<em class="grey-text">Anteprima non disponibile</em>';
+
+            html += '<div class="row card" style="margin-bottom: 12px;">'
+                + '  <div class="col s12 right-align" style="position:absolute;margin-top:10px;z-index:1;">'
+                + '    <label style="margin-right:12px;">'
+                + '      <input type="checkbox" id="chk_EM_' + em.UIDEM
+                + '" onclick="AbilitaComandiMassivi(\'' + em.UIDEM + '\');"/><span></span>'
+                + '    </label>'
+                + '    <a class="btn-flat black-text tooltipped" style="margin:2px" '
+                + '       data-position="bottom" data-tooltip="Stampa" '
+                + '       href="' + baseUrl + '/emendamenti/file?id=' + em.UIDEM + '" target="_blank">'
+                + '      <i class="material-icons">print</i>'
+                + '    </a>'
+                + '    <button type="button" class="btn-flat blue-text tooltipped" '
+                + '            onclick="openMetaDati(\'' + em.UIDEM + '\')" style="margin:2px" '
+                + '            data-position="bottom" data-tooltip="Modifica meta-dati">'
+                + '      <i class="material-icons">edit</i>'
+                + '    </button>'
+                + '    <button type="button" class="btn-flat green-text tooltipped" '
+                + '            onclick="goIntoOtherTab(\'' + baseUrl + '/emendamenti/view/' + em.UIDEM + '\')" '
+                + '            style="margin:2px" data-position="bottom" data-tooltip="Visualizza emendamento">'
+                + '      <i class="material-icons">chevron_right</i>'
+                + '    </button>'
+                + '  </div>'
+                + '  <div class="col s12 card-content">'
+                + bodyEm
+                + '  </div>'
+                + '</div>';
+        });
+        if (html === '') {
+            html = '<div class="card-panel panel-warning center">Nessun emendamento da visualizzare</div>';
+        }
+        return html;
+    }
+
+    function renderRigaEM(em, ordinamento, attoVisMisProg) {
+        if (!em) return '';
+        var bg = em.Colore ? ('background-color: ' + em.Colore) : '';
+
+        var noteHtml = '';
+        if (em.NOTE_Griglia) {
+            noteHtml += '<i class="icon material-icons tooltipped" data-tooltip="'
+                + escapeAttr(em.NOTE_Griglia) + '">chat</i>';
+        }
+        if (em.NOTE_EM) {
+            if (noteHtml) noteHtml += '<br />';
+            noteHtml += '<i class="icon material-icons tooltipped red-text" data-tooltip="'
+                + escapeAttr(em.NOTE_EM) + '">comment</i>';
+        }
+
+        var ordineNum;
+        if (ordinamento === 2) ordineNum = em.OrdineVotazione;
+        else if (ordinamento === 3) ordineNum = em.OrdinePresentazione;
+        else ordineNum = em.OrdinePresentazione;
+        if (ordineNum == null) ordineNum = '';
+
+        var emText = (em.EffettiFinanziari ? '<i class="material-icons" style="font-size: medium;">euro_symbol</i> ' : '')
+            + '<span class="black-text">' + escapeText(em.N_EM || '') + '</span>';
+
+        var dataDeposito = em.DataDeposito || '';
+        if (dataDeposito && em.PresentatoOltreITermini) {
+            dataDeposito += ' <i class="material-icons red-text tooltipped" data-position="bottom" '
+                + 'data-tooltip="Presentato oltre i termini">warning</i>';
+        }
+
+        var statoCss = em.STATI_EM && em.STATI_EM.CssClass ? em.STATI_EM.CssClass : '';
+        var statoLabel = em.STATI_EM && em.STATI_EM.Stato ? escapeText(em.STATI_EM.Stato) : '';
+        // Codici StatiEnum: Depositato=1, Approvato=2, Non_Approvato=3, Ritirato=4,
+        // Decaduto=5, Inammissibile=6, Approvato_Con_Modifiche=7.
+        var statoHtml = '<label class="' + statoCss + 'T" style="border:none!important">'
+            + statoLabel + '</label>'
+            + ' <a class="dropdown-trigger blue-text" href="#" data-target="dropdown_' + em.UIDEM + '">'
+            + '<i class="icon material-icons">refresh</i></a>'
+            + '<ul id="dropdown_' + em.UIDEM + '" class="dropdown-content" style="max-width: 300px">'
+            + '  <li><a class="depositatoT" onclick="CambioStato(\'' + em.UIDEM + '\', 1)"><i class="material-icons">lock</i> Depositato</a></li>'
+            + '  <li><a class="approvatoT" onclick="CambioStato(\'' + em.UIDEM + '\', 2)"><i class="material-icons">check</i> Approva</a></li>'
+            + '  <li><a class="approvatomodT" onclick="CambioStato(\'' + em.UIDEM + '\', 7)"><i class="material-icons">check</i> Approva con modifiche</a></li>'
+            + '  <li><a class="NOapprovatoT" onclick="CambioStato(\'' + em.UIDEM + '\', 3)"><i class="material-icons">close</i> Non approva</a></li>'
+            + '  <li><a class="inammissibileT" onclick="CambioStato(\'' + em.UIDEM + '\', 6)"><i class="material-icons">not_interested</i> Inammissibile</a></li>'
+            + '  <li><a class="decadutoT" onclick="CambioStato(\'' + em.UIDEM + '\', 5)"><i class="material-icons">report</i> Decaduto</a></li>'
+            + '  <li><a class="ritiratoT" onclick="CambioStato(\'' + em.UIDEM + '\', 4)"><i class="material-icons">delete</i> Ritira</a></li>'
+            + '</ul>';
+
+        var tipo = em.TIPI_EM ? (em.TIPI_EM.Tipo_EM || '') : '';
+        var parte = em.PARTI_TESTO ? (em.PARTI_TESTO.Parte || '') : '';
+        var articolo = em.ARTICOLI ? (em.ARTICOLI.Articolo || '') : '';
+        var comma = em.COMMI ? (em.COMMI.Comma || '') : '';
+        var lettera = (em.UIDLettera && em.LETTERE) ? em.LETTERE.Lettera : (em.NLettera || '');
+        var area = '';
+        if (em.AreaPolitica != null) {
+            // Enum AreaPoliticaIntEnum sul backend: 1 = Maggioranza, 2 = Minoranza (riferimento DASI).
+            area = em.AreaPolitica === 1 ? 'Maggioranza'
+                : em.AreaPolitica === 2 ? 'Minoranza'
+                : String(em.AreaPolitica);
+        }
+
+        var firmeHtml = renderFirmatariEM(em);
+
+        var hideMP = attoVisMisProg ? '' : ' style="display:none;"';
+
+        var checkboxCell = '<td style="padding-left: 15px">'
+            + '<label>'
+            + '<input type="checkbox" id="chk_EM_' + em.UIDEM
+            + '" onclick="AbilitaComandiMassivi(\'' + em.UIDEM + '\');" class="filled-in" />'
+            + '<span></span>'
+            + '</label></td>';
+
+        var comandiCell = '<td class="center" style="width: 5%">'
+            + '  <a class="btn-floating white black-text tooltipped" style="margin: 2px" data-position="bottom" data-tooltip="Stampa" '
+            + '     href="' + baseUrl + '/emendamenti/file?id=' + em.UIDEM + '" target="_blank">'
+            + '    <i class="material-icons">print</i>'
+            + '  </a>'
+            + '  <button type="button" class="btn-floating white black-text tooltipped" '
+            + '     onclick="openMetaDati(\'' + em.UIDEM + '\')" style="margin: 2px" data-position="bottom" data-tooltip="Modifica meta-dati">'
+            + '    <i class="material-icons">edit</i>'
+            + '  </button>'
+            + '  <button type="button" class="btn-floating white black-text tooltipped" '
+            + '     onclick="goIntoOtherTab(\'' + baseUrl + '/emendamenti/view/' + em.UIDEM + '\')" '
+            + '     style="margin: 2px" data-position="bottom" data-tooltip="Visualizza emendamento">'
+            + '    <i class="material-icons">chevron_right</i>'
+            + '  </button>'
+            + '</td>';
+
+        return '<tr>'
+            + '<td style="' + bg + '" width="10"></td>'
+            + checkboxCell
+            + '<td>' + noteHtml + '</td>'
+            + '<td>' + ordineNum + '</td>'
+            + '<td id="tdNumeroEM_' + em.UIDEM + '">' + emText + '</td>'
+            + '<td class="center" id="tdDataDeposito_' + em.UIDEM + '">' + dataDeposito + '</td>'
+            + '<td id="tdStato_' + em.UIDEM + '">' + statoHtml + '</td>'
+            + '<td id="tdTipo_' + em.UIDEM + '">' + escapeText(tipo) + '</td>'
+            + '<td id="tdParte_' + em.UIDEM + '">' + escapeText(parte) + '</td>'
+            + '<td id="tdArticolo_' + em.UIDEM + '">' + escapeText(articolo) + '</td>'
+            + '<td id="tdComma_' + em.UIDEM + '">' + escapeText(comma) + '</td>'
+            + '<td id="tdLettera_' + em.UIDEM + '">' + escapeText(lettera) + '</td>'
+            + '<td id="tdTitolo_' + em.UIDEM + '">' + escapeText(em.NTitolo || '') + '</td>'
+            + '<td id="tdCapo_' + em.UIDEM + '">' + escapeText(em.NCapo || '') + '</td>'
+            + '<td id="tdMissione_' + em.UIDEM + '"' + hideMP + '>' + (em.NMissione != null ? em.NMissione : '') + '</td>'
+            + '<td id="tdProgramma_' + em.UIDEM + '"' + hideMP + '>' + (em.NProgramma != null ? em.NProgramma : '') + '</td>'
+            + '<td id="tdTitoloM_' + em.UIDEM + '"' + hideMP + '>' + (em.NTitoloB != null ? em.NTitoloB : '') + '</td>'
+            + '<td id="tdAreaPolitica_' + em.UIDEM + '">' + area + '</td>'
+            + '<td id="tdFirmatari_' + em.UIDEM + '">' + firmeHtml + '</td>'
+            + comandiCell
+            + '</tr>';
+    }
+
+    function renderFirmatariEM(em) {
+        if (em.Firma_da_ufficio) {
+            var certText = em.Firma_ufficio ? (em.Firma_ufficio.FirmaCert || '') : '';
+            return '<b class="tooltipped" data-tooltip="' + escapeAttr(certText) + '">Firmato d\'ufficio</b>';
+        }
+
+        var codiceGruppo = '';
+        if (em.id_gruppo > 10000) codiceGruppo = 'GIUNTA';
+        else if (em.gruppi_politici && em.gruppi_politici.codice_gruppo) codiceGruppo = em.gruppi_politici.codice_gruppo;
+
+        var nomeProponente = (em.PersonaProponente && em.PersonaProponente.DisplayName) || '';
+        var proponente = nomeProponente + (codiceGruppo ? ' (' + codiceGruppo + ')' : '');
+
+        var html = '';
+        if (!em.Firmato_Dal_Proponente) {
+            html = '<span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">'
+                + escapeText(proponente) + '</span>';
+        } else {
+            if (em.Proponente_Relatore) {
+                html = '<b>RELATORE</b><br />';
+            }
+            html += escapeText(proponente);
+        }
+
+        if (em.ConteggioFirme > 1) {
+            html += '<br /><a class="chip tooltipped blue darken-3 white-text" data-position="left" data-tooltip="'
+                + escapeAttr(em.Firme || '') + '" style="min-width: unset">+ '
+                + (em.ConteggioFirme - 1) + ' <i class="icon material-icons right" style="margin-left: unset">group</i></a>';
+        }
+        return html;
+    }
+
+    function escapeText(s) {
+        if (s == null) return '';
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    function escapeAttr(s) {
+        return escapeText(s).replace(/"/g, '&quot;');
+    }
+
+    // Gestione del "Seleziona tutto" della griglia: aggiorna lo stato globale e i singoli checkbox
+    // di riga, poi lascia che il site.js riconcili lo stato dei comandi massivi.
+    window.toggleSelezionaTuttiEM = function (ctrl) {
+        var checked = !!(ctrl && ctrl.checked);
+        if (typeof setSelezionaTutti === 'function') setSelezionaTutti(checked);
+        if (typeof setListaEmendamenti === 'function') setListaEmendamenti([]);
+        document.querySelectorAll('input[id^="chk_EM_"]').forEach(function (el) {
+            el.checked = checked;
+        });
+        if (typeof AbilitaComandiMassivi === 'function') AbilitaComandiMassivi(null);
+    };
+
+    // Variante "solo identificatori" usata dai comandi massivi quando l'utente vuole agire sull'intero
+    // risultato corrente (Tutti=true). Restituisce una Promise<List<Guid>>.
+    window.inviaDatiChipsEMSoloIds = async function () {
+        var request = window.buildFilterRequestEM();
+        var response = await fetch(baseUrl + '/emendamenti/riepilogoEMSoloIds', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify(request)
+        });
+        if (!response.ok) throw new Error('Errore di rete (' + response.status + ')');
+        return await response.json();
+    };
 
     // API helpers: riuso funzioni esistenti da FiltriManager.js
     // GetArticoli(attoUId), GetCommi(articoloUId, expanded), GetLettere(commaUId), GetProponenti(idLegislatura)

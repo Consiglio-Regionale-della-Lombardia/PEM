@@ -23,22 +23,19 @@
     }
 }
 
+@* Modale "waiting" mantenuto come dipendenza tecnica di site.js > waiting(true|false),
+   usato dai flussi non legati al caricamento iniziale della griglia (azioni massive, stampe,
+   cambio stato singolo). Il caricamento della griglia usa invece la progress bar lineare
+   #loadingSpinner sopra la tabella. *@
 <div id="waiting" class="modal" style="height: 120px">
     <div class="modal-content center">
         <div class="preloader-wrapper active">
             <div class="spinner-layer spinner-blue-only">
-                <div class="circle-clipper left">
-                    <div class="circle"></div>
-                </div>
-                <div class="gap-patch">
-                    <div class="circle"></div>
-                </div>
-                <div class="circle-clipper right">
-                    <div class="circle"></div>
-                </div>
+                <div class="circle-clipper left"><div class="circle"></div></div>
+                <div class="gap-patch"><div class="circle"></div></div>
+                <div class="circle-clipper right"><div class="circle"></div></div>
             </div>
         </div>
-
         <div id="waiting_info_message"></div>
     </div>
 </div>
@@ -72,9 +69,15 @@
     }
 
     <div id="contentTable" class="row">
-        @{
-            Html.RenderPartial("_DataRiepilogoEMPartial", Model);
-        }
+        <div id="tabsOrdinamento"></div>
+        <div id="paginazione-container-top"></div>
+        <div id="comandiGriglia"></div>
+        <div id="loadingSpinner" class="progress" style="display: none;">
+            <div class="indeterminate"></div>
+        </div>
+        <div id="tableResults"></div>
+        <div id="paginazione-container-bottom"></div>
+        <div id="conteggiContainer"></div>
     </div>
 </div>
 <div id="pnlViewTestoAtto" class="card" style="display: none;">
@@ -124,7 +127,16 @@
             async function() {
                 $('#btnSearch').on("click", function() { openEMSearch(); });
                 $("#hdOrdine").val(@((int)Model.Ordinamento));
-                checkSelectedEM();
+                // Niente waiting(true) qui: il caricamento iniziale e' segnalato dalla progress bar
+                // sopra la griglia (#loadingSpinner) gestita da inviaDatiChipsEM.
+                try {
+                    if (typeof inviaDatiChipsEM === 'function') {
+                        await inviaDatiChipsEM(1);
+                    }
+                    if (typeof checkSelectedEM === 'function') checkSelectedEM();
+                } catch (err) {
+                    console.error('Inizializzazione riepilogo EM:', err);
+                }
             });
 
         function viewStandard() {
@@ -188,6 +200,7 @@
                     obj.AttoUId = '@Model.Atto.UIDAtto';
                     obj.Mode = @((int)Model.Mode);
                     obj.Richiesta_Firma = @Convert.ToInt16(Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign")));
+                    obj.Filter = (typeof buildFilterRequestEM === 'function') ? buildFilterRequestEM() : null;
 
                     $.ajax({
                         url: baseUrl + "/emendamenti/azioni-massive",

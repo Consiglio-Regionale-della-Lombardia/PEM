@@ -21,6 +21,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -32,14 +33,23 @@ namespace PortaleRegione.Contracts
     /// </summary>
     public interface IEmendamentiRepository : IRepository<EM>
     {
+        [Obsolete("Usa l'overload basato su QueryExtendedRequestEM.")]
         Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter_emendamenti, int CLIENT_MODE,
             Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null);
 
+        Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter, int CLIENT_MODE,
+            Filter<EM> filtro, QueryExtendedRequestEM queryExtended);
+
         Task<int> Count(string query);
 
+        [Obsolete("Usa l'overload basato su QueryExtendedRequestEM.")]
         Task<IEnumerable<Guid>> GetAll(PersonaDto persona, OrdinamentoEnum ordine, int? page, int? size,
             int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null,
             List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null);
+
+        Task<IEnumerable<Guid>> GetAll(PersonaDto persona, int? page, int? size, int CLIENT_MODE,
+            OrdinamentoEnum ordine, Filter<EM> filtro, QueryExtendedRequestEM queryExtended,
+            List<SortingInfo> dettagliOrdinamento);
 
         IEnumerable<EM> GetAll(ByQueryModel model);
 

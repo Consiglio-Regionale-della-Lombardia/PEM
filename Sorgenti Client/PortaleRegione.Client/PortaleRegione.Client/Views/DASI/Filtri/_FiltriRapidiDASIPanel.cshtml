@@ -3763,16 +3763,23 @@ else
     function ripristinaFiltri() {
         $('#chips-container').empty();
         const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
-        console.log("FILTRI", filtri)
         if (filtri) {
-            filtri.forEach(function(filtro) {
+            // Le chip senza valore (es. id_gruppo non impostato per admin/UOLA) non vengono
+            // ripristinate: per l'amministratore devono comparire solo se valorizzate, per il
+            // consigliere la chip "Gruppo" e' gestita come fissa invisibile nel pannello dedicato.
+            const filtriValorizzati = filtri.filter(function (f) {
+                return f && f.val !== null && f.val !== undefined && String(f.val).trim() !== '';
+            });
+            filtriValorizzati.forEach(function (filtro) {
                 addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false, true);
             });
-            const paging = JSON.parse(localStorage.getItem('pagingDasi'));
-            if (paging) {
-                inviaDatiChips(paging.page, paging.size);
-            } else {
-                inviaDatiChips(1, 20);
+            if (filtriValorizzati.length > 0) {
+                const paging = JSON.parse(localStorage.getItem('pagingDasi'));
+                if (paging) {
+                    inviaDatiChips(paging.page, paging.size);
+                } else {
+                    inviaDatiChips(1, 20);
+                }
             }
         }
     }

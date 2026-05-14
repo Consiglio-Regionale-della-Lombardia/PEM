@@ -258,6 +258,45 @@
                     });
             }
         });
+
+    // Stile uniforme dei checkbox su tutta la piattaforma: applica automaticamente la classe
+    // Materialize "filled-in" (quadrato pieno + bordo blu) a tutti i checkbox visibili nella
+    // pagina, sia quelli renderizzati lato server sia quelli inseriti dinamicamente via JS.
+    // I checkbox usati come switch (data-toggle="switch", role="switch") sono esclusi.
+    (function () {
+        function applyFilledInCheckbox(root) {
+            if (!root) return;
+            var checkboxes = (root === document
+                ? document.querySelectorAll('input[type="checkbox"]')
+                : (root.querySelectorAll ? root.querySelectorAll('input[type="checkbox"]') : []));
+            checkboxes.forEach(function (chk) {
+                if (chk.classList.contains('filled-in')) return;
+                if (chk.dataset && chk.dataset.toggle === 'switch') return;
+                if (chk.getAttribute('role') === 'switch') return;
+                chk.classList.add('filled-in');
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            applyFilledInCheckbox(document);
+        });
+        // Osserva il DOM per applicare lo stile anche ai checkbox aggiunti dopo (es. rendering
+        // JS della griglia PEM/DASI, modali generati a tempo di esecuzione).
+        if (window.MutationObserver) {
+            var observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (m) {
+                    m.addedNodes && m.addedNodes.forEach(function (n) {
+                        if (n.nodeType !== 1) return;
+                        if (n.matches && n.matches('input[type="checkbox"]')) {
+                            applyFilledInCheckbox({ querySelectorAll: function () { return [n]; } });
+                        } else {
+                            applyFilledInCheckbox(n);
+                        }
+                    });
+                });
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+    })();
 </script>
 </body>
 </html>

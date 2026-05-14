@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2019 Consiglio Regionale della Lombardia
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,25 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Web.Mvc;
-using System.Web.Routing;
+using PortaleRegione.DTO.Model;
 
-namespace PortaleRegione.Client
+namespace PortaleRegione.DTO.Request;
+
+/// <summary>
+///     Wrapper inviato dal client al controller MVC per le azioni massive del modulo Emendamenti.
+///     Contiene la richiesta filtro corrente (per risolvere gli identificatori quando Comando.Tutti
+///     vale true) e il comando di azione vera e propria.
+/// </summary>
+public class AzioneMassivaRequestEM
 {
-    public class RouteConfig
-    {
-        public static void RegisterRoutes(RouteCollection routes)
-        {
-            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            routes.LowercaseUrls = true;
-            
-            routes.MapMvcAttributeRoutes();
-
-            routes.MapRoute(
-                "Default",
-                "{controller}/{action}/{id}",
-                new {controller = "Home", action = "Index", id = UrlParameter.Optional}
-            );
-        }
-    }
+    public FilterRequestEM Filter { get; set; } = new();
+    public ComandiAzioneModel Comando { get; set; } = new();
 }

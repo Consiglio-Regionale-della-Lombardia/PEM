@@ -74,6 +74,7 @@
     <Compile Include="Domain\AttiDASISorting.cs" />
     <Compile Include="Domain\AttiDASIColumnsConsiglieri.cs" />
     <Compile Include="Domain\AttiDASISortingConsiglieri.cs" />
+    <Compile Include="Domain\AttiEMSorting.cs" />
     <Compile Include="Domain\EmendamentiColumns.cs" />
     <Compile Include="Domain\EmendamentiSorting.cs" />
     <Compile Include="Domain\AttiDocumentiDto.cs" />
@@ -197,12 +198,15 @@
     <Compile Include="Model\SessionManager.cs" />
     <Compile Include="Domain\TagDto.cs" />
     <Compile Include="Model\TestoAttoModel.cs" />
+    <Compile Include="Request\AzioneMassivaRequestEM.cs" />
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\CercaAttiGeaRequest.cs" />
     <Compile Include="Request\DatiInlineRequest.cs" />
     <Compile Include="Request\DatiMassiviRequest.cs" />
     <Compile Include="Request\NuovaStampaRequest.cs" />
     <Compile Include="Request\FilterRequest.cs" />
+    <Compile Include="Request\FilterRequestEM.cs" />
+    <Compile Include="Request\GeneraReportRequestEM.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
     <Compile Include="Request\Public\AttoRequest.cs" />
@@ -212,6 +216,7 @@
     <Compile Include="Request\Public\FirmatariRequest.cs" />
     <Compile Include="Request\Public\GruppiRequest.cs" />
     <Compile Include="Request\QueryExtendedRequest.cs" />
+    <Compile Include="Request\QueryExtendedRequestEM.cs" />
     <Compile Include="Request\ResetRequest.cs" />
     <Compile Include="Request\RimuoviComandoMassivoRequest.cs" />
     <Compile Include="Request\SalvaComandoMassivoRequest.cs" />

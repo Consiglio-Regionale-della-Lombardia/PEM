@@ -23,7 +23,9 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using ExpressionBuilder.Interfaces;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.Crypto;
@@ -32,6 +34,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
 
 namespace PortaleRegione.Persistance
 {
@@ -47,11 +50,10 @@ namespace PortaleRegione.Persistance
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
         /// <summary>
-        ///     Conteggio emendamenti nell'atto
+        ///     Conteggio emendamenti, firma legacy con liste tipizzate. Mantenuta per i flussi
+        ///     non migrati; i nuovi chiamanti devono usare l'overload basato su <see cref="QueryExtendedRequestEM" />.
         /// </summary>
-        /// <param name="attoUId"></param>
-        /// <param name="persona"></param>
-        /// <returns></returns>
+        [Obsolete("Usa l'overload basato su QueryExtendedRequestEM.")]
         public async Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter_emendamenti,
             int CLIENT_MODE,
             Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null,
@@ -423,20 +425,11 @@ namespace PortaleRegione.Persistance
         }
 
         /// <summary>
-        ///     Riepilogo emendamenti
+        ///     Riepilogo emendamenti, firma legacy con liste tipizzate. Mantenuta per export Word,
+        ///     stampe e richiesta firma; i nuovi chiamanti devono usare l'overload basato su
+        ///     <see cref="QueryExtendedRequestEM" />.
         /// </summary>
-        /// <param name="persona"></param>
-        /// <param name="ordine"></param>
-        /// <param name="page"></param>
-        /// <param name="size"></param>
-        /// <param name="CLIENT_MODE"></param>
-        /// <param name="filtro"></param>
-        /// <param name="firmatari"></param>
-        /// <param name="proponenti"></param>
-        /// <param name="gruppi"></param>
-        /// <param name="stati"></param>
-        /// <param name="tagDtos"></param>
-        /// <returns></returns>
+        [Obsolete("Usa l'overload basato su QueryExtendedRequestEM.")]
         public async Task<IEnumerable<Guid>> GetAll(PersonaDto persona, OrdinamentoEnum ordine, int? page,
             int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null,
             List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null)
@@ -1314,5 +1307,309 @@ namespace PortaleRegione.Persistance
                 .Where(em => listaEmendamenti.Contains(em.UIDEM))
                 .ToListAsync();
         }
+
+        #region Riepilogo basato su QueryExtendedRequestEM
+
+        /// <summary>
+        ///     Riepilogo emendamenti, pattern unificato: filtri specializzati in <see cref="QueryExtendedRequestEM" />,
+        ///     statement residui nel <paramref name="filtro" />, ordinamento di colonna in
+        ///     <paramref name="dettagliOrdinamento" /> (elenco ammesso <see cref="AttiEMSorting" />).
+        ///     Delega alla firma legacy e applica in coda MyEM/EMDaFirmare e il ThenBy preso dall'elenco.
+        /// </summary>
+#pragma warning disable CS0618
+        public async Task<IEnumerable<Guid>> GetAll(PersonaDto persona, int? page, int? size, int CLIENT_MODE,
+            OrdinamentoEnum ordine, Filter<EM> filtro, QueryExtendedRequestEM queryExtended,
+            List<SortingInfo> dettagliOrdinamento)
+        {
+            if (queryExtended == null) queryExtended = new QueryExtendedRequestEM();
+            if (dettagliOrdinamento == null) dettagliOrdinamento = new List<SortingInfo>();
+
+            var filtroPromosso = PromuoviFiltriEM(filtro, queryExtended);
+            var firmatari = queryExtended.Firmatari != null && queryExtended.Firmatari.Count > 0
+                ? queryExtended.Firmatari : null;
+            var proponenti = queryExtended.Proponenti != null && queryExtended.Proponenti.Count > 0
+                ? queryExtended.Proponenti : null;
+            var gruppi = queryExtended.GruppiProponenti != null && queryExtended.GruppiProponenti.Count > 0
+                ? queryExtended.GruppiProponenti : null;
+            var stati = PromuoviStatiEM(queryExtended.Stati);
+            var tags = queryExtended.Tags != null && queryExtended.Tags.Count > 0
+                ? queryExtended.Tags : null;
+
+            var hasFiltriPersonali = queryExtended.MyEM || queryExtended.EMDaFirmare;
+            var hasSortCustom = dettagliOrdinamento.Count > 0;
+
+            if (!hasFiltriPersonali && !hasSortCustom)
+                return await GetAll(persona, ordine, page, size, CLIENT_MODE, filtroPromosso,
+                    firmatari, proponenti, gruppi, stati, tags);
+
+            // Recupera tutti gli identificatori che superano i filtri "standard"
+            var uidCandidati = (await GetAll(persona, ordine, null, -1, CLIENT_MODE, filtroPromosso,
+                firmatari, proponenti, gruppi, stati, tags)).ToList();
+
+            if (queryExtended.MyEM)
+                uidCandidati = await ApplicaFiltroMyEM(uidCandidati, persona);
+            if (queryExtended.EMDaFirmare)
+                uidCandidati = await ApplicaFiltroEMDaFirmare(uidCandidati, persona);
+
+            if (uidCandidati.Count == 0)
+                return new List<Guid>();
+
+            // Ordinamento secondario sull'elenco ammesso + paginazione finale
+            var ordinati = await OrdinaConSortCustom(uidCandidati, ordine, dettagliOrdinamento,
+                persona, CLIENT_MODE);
+
+            if (!size.HasValue || size.Value == -1)
+                return ordinati;
+
+            return ordinati
+                .Skip(((page ?? 1) - 1) * size.Value)
+                .Take(size.Value)
+                .ToList();
+        }
+
+        /// <summary>
+        ///     Conteggio emendamenti, pattern unificato. Riusa la firma legacy e applica i filtri
+        ///     personali (MyEM, EMDaFirmare) come passo aggiuntivo.
+        /// </summary>
+        public async Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter,
+            int CLIENT_MODE, Filter<EM> filtro, QueryExtendedRequestEM queryExtended)
+        {
+            if (queryExtended == null) queryExtended = new QueryExtendedRequestEM();
+            var filtroPromosso = PromuoviFiltriEM(filtro, queryExtended);
+            var firmatari = queryExtended.Firmatari != null && queryExtended.Firmatari.Count > 0
+                ? queryExtended.Firmatari : null;
+            var proponenti = queryExtended.Proponenti != null && queryExtended.Proponenti.Count > 0
+                ? queryExtended.Proponenti : null;
+            var gruppi = queryExtended.GruppiProponenti != null && queryExtended.GruppiProponenti.Count > 0
+                ? queryExtended.GruppiProponenti : null;
+            var stati = PromuoviStatiEM(queryExtended.Stati);
+            var tags = queryExtended.Tags != null && queryExtended.Tags.Count > 0
+                ? queryExtended.Tags : null;
+
+            if (!queryExtended.MyEM && !queryExtended.EMDaFirmare)
+                return await Count(attoUId, persona, counter, CLIENT_MODE, filtroPromosso,
+                    firmatari, proponenti, gruppi, stati, tags);
+
+            // Recupero gli identificatori che superano i filtri standard, applico le restrizioni
+            // personali e poi conto rispettando il tipo richiesto (EM, SUB_EM, NONE).
+            var uids = (await GetAll(persona, OrdinamentoEnum.Default, null, -1, CLIENT_MODE,
+                filtroPromosso, firmatari, proponenti, gruppi, stati, tags)).ToList();
+
+            if (queryExtended.MyEM)
+                uids = await ApplicaFiltroMyEM(uids, persona);
+            if (queryExtended.EMDaFirmare)
+                uids = await ApplicaFiltroEMDaFirmare(uids, persona);
+
+            if (uids.Count == 0) return 0;
+
+            var queryFinale = PRContext.EM.Where(em => uids.Contains(em.UIDEM));
+            switch (counter)
+            {
+                case CounterEmendamentiEnum.NONE:
+                    return await queryFinale.CountAsync();
+                case CounterEmendamentiEnum.EM:
+                    return persona.IsSegreteriaAssemblea
+                        ? await queryFinale.CountAsync(e =>
+                            !string.IsNullOrEmpty(e.N_EM) && string.IsNullOrEmpty(e.N_SUBEM))
+                        : await queryFinale.CountAsync(e => string.IsNullOrEmpty(e.N_SUBEM));
+                case CounterEmendamentiEnum.SUB_EM:
+                    return persona.IsSegreteriaAssemblea
+                        ? await queryFinale.CountAsync(e =>
+                            string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM))
+                        : await queryFinale.CountAsync(e => !string.IsNullOrEmpty(e.N_SUBEM));
+                default:
+                    return 0;
+            }
+        }
+#pragma warning restore CS0618
+
+        /// <summary>
+        ///     Promuove le liste specializzate del <see cref="QueryExtendedRequestEM" /> a statement
+        ///     del <see cref="Filter{T}" />, cosi' la firma legacy applica tutto in una passata di
+        ///     <c>BuildExpression</c>. Gli statement gia' presenti nel filtro vengono preservati.
+        /// </summary>
+        private Filter<EM> PromuoviFiltriEM(Filter<EM> filtroBase, QueryExtendedRequestEM qx)
+        {
+            var filtro = new Filter<EM>();
+            if (filtroBase?._statements != null)
+                foreach (var s in filtroBase._statements)
+                    filtro._statements.Add(s);
+
+            AggiungiStatementOr(filtro, nameof(EM.IDTipo_EM), qx.Tipi);
+            AggiungiStatementOr(filtro, nameof(EM.IDParte), qx.Parti);
+            AggiungiStatementOr(filtro, nameof(EM.UIDArticolo), qx.Articoli);
+            AggiungiStatementOr(filtro, nameof(EM.UIDComma), qx.Commi);
+            AggiungiStatementOr(filtro, nameof(EM.UIDLettera), qx.Lettere);
+            AggiungiStatementOr(filtro, nameof(EM.NLettera), qx.LettereLegacy);
+            AggiungiStatementOr(filtro, nameof(EM.NTitolo), qx.NTitoli);
+            AggiungiStatementOr(filtro, nameof(EM.NCapo), qx.NCapi);
+            AggiungiStatementOr(filtro, nameof(EM.NMissione), qx.NMissioni);
+            AggiungiStatementOr(filtro, nameof(EM.NProgramma), qx.NProgrammi);
+            AggiungiStatementOr(filtro, nameof(EM.Rif_UIDEM), qx.RiferimentiEM);
+
+            if (qx.EffettiFinanziari)
+                filtro._statements.Add(new FilterStatement<int>(
+                    nameof(EM.EffettiFinanziari), Operation.EqualTo, 1));
+
+            if (!string.IsNullOrEmpty(qx.TestoLibero1))
+            {
+                filtro._statements.Add(new FilterStatement<string>(
+                    nameof(EM.TestoEM_originale), Operation.Contains, qx.TestoLibero1));
+                if (!string.IsNullOrEmpty(qx.TestoLibero2))
+                {
+                    var connettore = qx.TestoLiberoConnettore == (int)FilterStatementConnector.Or
+                        ? FilterStatementConnector.Or
+                        : FilterStatementConnector.And;
+                    filtro._statements.Add(new FilterStatement<string>(
+                        nameof(EM.TestoEM_originale), Operation.Contains, qx.TestoLibero2,
+                        default, connettore));
+                }
+            }
+
+            if (qx.UIDAtto.HasValue
+                && filtro._statements.All(s => s.PropertyId != nameof(EM.UIDAtto)))
+                filtro._statements.Add(new FilterStatement<Guid>(
+                    nameof(EM.UIDAtto), Operation.EqualTo, qx.UIDAtto.Value));
+
+            return filtro;
+        }
+
+        private void AggiungiStatementOr<T>(Filter<EM> filtro, string propertyId, ICollection<T> valori)
+        {
+            if (valori == null || valori.Count == 0) return;
+            var lista = valori.ToList();
+            for (var i = 0; i < lista.Count; i++)
+            {
+                var connettore = i < lista.Count - 1
+                    ? FilterStatementConnector.Or
+                    : FilterStatementConnector.And;
+                filtro._statements.Add(new FilterStatement<T>(
+                    propertyId, Operation.EqualTo, lista[i], default, connettore));
+            }
+        }
+
+        /// <summary>
+        ///     Se l'utente filtra per stato "Approvato", include anche "Approvato con modifiche"
+        ///     (a meno che non sia gia' selezionato esplicitamente).
+        /// </summary>
+        private List<int> PromuoviStatiEM(List<int> stati)
+        {
+            if (stati == null || stati.Count == 0) return null;
+            var lista = stati.ToList();
+            if (lista.Contains((int)StatiEnum.Approvato)
+                && !lista.Contains((int)StatiEnum.Approvato_Con_Modifiche))
+                lista.Add((int)StatiEnum.Approvato_Con_Modifiche);
+            return lista;
+        }
+
+        private async Task<List<Guid>> ApplicaFiltroMyEM(List<Guid> uids, PersonaDto persona)
+        {
+            if (uids == null || uids.Count == 0) return uids ?? new List<Guid>();
+            var personaUid = persona.UID_persona;
+            return await PRContext.EM
+                .Where(em => uids.Contains(em.UIDEM)
+                             && (em.UIDPersonaProponente == personaUid
+                                 || em.UIDPersonaCreazione == personaUid))
+                .Select(em => em.UIDEM)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        ///     Restringe gli identificatori agli emendamenti in attesa di firma per l'utente
+        ///     corrente: destinatario di una richiesta aperta (o proponente senza prima firma)
+        ///     e non ancora firmati da lui.
+        /// </summary>
+        private async Task<List<Guid>> ApplicaFiltroEMDaFirmare(List<Guid> uids, PersonaDto persona)
+        {
+            if (uids == null || uids.Count == 0) return uids ?? new List<Guid>();
+            var personaUid = persona.UID_persona;
+
+            var daRichiesta = await PRContext.NOTIFICHE_DESTINATARI
+                .Where(nd => nd.UIDPersona == personaUid && !nd.Chiuso)
+                .Select(nd => nd.NOTIFICHE.UIDEM)
+                .Where(emUid => emUid.HasValue)
+                .Select(emUid => emUid.Value)
+                .ToListAsync();
+
+            var daProponente = await PRContext.EM
+                .Where(em => em.UIDPersonaProponente == personaUid && !em.UIDPersonaPrimaFirma.HasValue)
+                .Select(em => em.UIDEM)
+                .ToListAsync();
+
+            var giaFirmati = await PRContext.FIRME
+                .Where(f => f.UID_persona == personaUid && string.IsNullOrEmpty(f.Data_ritirofirma))
+                .Select(f => f.UIDEM)
+                .ToListAsync();
+
+            var daFirmare = daRichiesta
+                .Concat(daProponente)
+                .Distinct()
+                .Except(giaFirmati)
+                .ToHashSet();
+
+            return uids.Where(uid => daFirmare.Contains(uid)).ToList();
+        }
+
+        /// <summary>
+        ///     Applica l'ordinamento principale (<paramref name="ordine" />) come la firma legacy,
+        ///     poi gli eventuali ThenBy presi da <paramref name="dettagliOrdinamento" />
+        ///     (elenco ammesso <see cref="AttiEMSorting" />).
+        /// </summary>
+        private async Task<List<Guid>> OrdinaConSortCustom(List<Guid> uids, OrdinamentoEnum ordine,
+            List<SortingInfo> dettagliOrdinamento, PersonaDto persona, int CLIENT_MODE)
+        {
+            var query = PRContext.EM.Where(em => uids.Contains(em.UIDEM));
+
+            IOrderedQueryable<EM> ordered;
+            if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE
+                || persona.IsSegreteriaAssemblea
+                || persona.IsPresidente)
+            {
+                switch (ordine)
+                {
+                    case OrdinamentoEnum.Presentazione:
+                        ordered = query.OrderBy(em => em.SubEM).ThenBy(em => em.OrdinePresentazione);
+                        break;
+                    case OrdinamentoEnum.Votazione:
+                        ordered = query.OrderBy(em => em.OrdineVotazione);
+                        break;
+                    default:
+                        ordered = query.OrderBy(em => em.IDStato).ThenByDescending(em => em.DataCreazione);
+                        break;
+                }
+            }
+            else
+            {
+                ordered = query.OrderBy(em => em.IDStato)
+                    .ThenBy(em => em.Timestamp)
+                    .ThenBy(em => em.Progressivo)
+                    .ThenBy(em => em.SubProgressivo);
+            }
+
+            foreach (var sort in dettagliOrdinamento)
+            {
+                if (string.IsNullOrEmpty(sort.propertyName)) continue;
+                var propInfo = typeof(AttiEMSorting).GetProperty(sort.propertyName);
+                if (propInfo == null) continue;
+                var entityProp = typeof(EM).GetProperty(sort.propertyName);
+                if (entityProp == null) continue;
+
+                var param = Expression.Parameter(typeof(EM), "em");
+                var body = Expression.Property(param, sort.propertyName);
+                var lambda = Expression.Lambda(body, param);
+                var methodName = sort.sortDirection == 1 ? nameof(Queryable.ThenBy)
+                    : nameof(Queryable.ThenByDescending);
+
+                var thenByMethod = typeof(Queryable).GetMethods()
+                    .First(m => m.Name == methodName && m.GetParameters().Length == 2)
+                    .MakeGenericMethod(typeof(EM), entityProp.PropertyType);
+
+                ordered = (IOrderedQueryable<EM>)thenByMethod.Invoke(null, new object[] { ordered, lambda });
+            }
+
+            return await ordered.Select(em => em.UIDEM).ToListAsync();
+        }
+
+        #endregion
     }
 }

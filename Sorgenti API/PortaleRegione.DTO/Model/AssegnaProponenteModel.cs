@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.DTO.Request;
 using System;
 using System.Collections.Generic;
 
@@ -27,5 +28,7 @@ namespace PortaleRegione.DTO.Model
         public Guid NuovoProponente { get; set; }
         public bool IsAssessore { get; set; }
         public bool Tutti { get; set; }
+
+        public FilterRequestEM Filter { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2019 Consiglio Regionale della Lombardia
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,25 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Web.Mvc;
-using System.Web.Routing;
+using PortaleRegione.DTO.Enum;
 
-namespace PortaleRegione.Client
+namespace PortaleRegione.DTO.Request
 {
-    public class RouteConfig
+    /// <summary>
+    ///     Variante di <see cref="FilterRequest" /> dedicata al modulo Emendamenti.
+    ///     Aggiunge la nozione di ordinamento principale (Presentazione / Votazione / Default)
+    ///     che non ha equivalente nel flusso DASI.
+    /// </summary>
+    public class FilterRequestEM : FilterRequest
     {
-        public static void RegisterRoutes(RouteCollection routes)
-        {
-            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            routes.LowercaseUrls = true;
-            
-            routes.MapMvcAttributeRoutes();
-
-            routes.MapRoute(
-                "Default",
-                "{controller}/{action}/{id}",
-                new {controller = "Home", action = "Index", id = UrlParameter.Optional}
-            );
-        }
+        public int ordine { get; set; } = (int)OrdinamentoEnum.Presentazione;
     }
 }

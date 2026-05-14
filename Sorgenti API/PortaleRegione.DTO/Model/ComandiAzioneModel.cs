@@ -17,6 +17,7 @@
  */
 
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Request;
 using System;
 using System.Collections.Generic;
 
@@ -32,5 +33,11 @@ namespace PortaleRegione.DTO.Model
         public bool Richiesta_Firma { get; set; }
         public bool Tutti { get; set; }
         public bool IsDASI { get; set; }
+
+        /// <summary>
+        ///     Filtro corrente del riepilogo, valorizzato quando Tutti=true: permette al controller
+        ///     MVC di risolvere gli identificatori senza dipendere dalla sessione.
+        /// </summary>
+        public FilterRequestEM Filter { get; set; }
     }
 }

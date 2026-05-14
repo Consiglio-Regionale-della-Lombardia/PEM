@@ -38,9 +38,18 @@
     }
     document.getElementById('btnSalvaConfig').addEventListener('click', async function () {
         var request = {};
-        var filtri = JSON.parse(localStorage.getItem('filtriChipsEM'));
+        var filtri = JSON.parse(localStorage.getItem('filtriChipsEM')) || [];
         var sorting = JSON.parse(localStorage.getItem('selectedSortColumnsEM'));
-        request.filters = JSON.stringify(filtri);
+
+        // Le chip "fisse" (atto di riferimento, gruppo per il consigliere) non vanno persistite:
+        // sono filtri immodificabili dipendenti dal contesto della pagina e renderebbero il
+        // gruppo di filtri non riutilizzabile su un altro riepilogo.
+        var fixedKeys = (typeof defaultKeysEM !== 'undefined' && defaultKeysEM)
+            ? Array.from(defaultKeysEM)
+            : ["UIDAtto"];
+        var filtriUtente = filtri.filter(function (f) { return fixedKeys.indexOf(f.key) === -1; });
+
+        request.filters = JSON.stringify(filtriUtente);
         request.sorting = JSON.stringify(sorting);
         request.name = document.getElementById('filter_name').value;
         request.favourite = document.getElementById('filter_favourite').checked;
@@ -68,10 +77,15 @@
         $('#chips-container-config').empty();
         var filtri = [];
         try { filtri = JSON.parse(filters); } catch(e) {}
+        var fixedKeys = (typeof defaultKeysEM !== 'undefined' && defaultKeysEM)
+            ? Array.from(defaultKeysEM)
+            : ["UIDAtto"];
         if (filtri && filtri.length) {
-            filtri.forEach(function (filtro) {
-                addChipConfigEM(filtro.chipText);
-            });
+            filtri
+                .filter(function (filtro) { return fixedKeys.indexOf(filtro.key) === -1; })
+                .forEach(function (filtro) {
+                    if (filtro.chipText) addChipConfigEM(filtro.chipText);
+                });
         }
         $('#modalFiltroConfig').modal("open");
     }
