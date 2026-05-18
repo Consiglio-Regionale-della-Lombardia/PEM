@@ -8,7 +8,13 @@
 /Sorgenti API/ExpressionBuilder/bin/Release
 /Sorgenti API/ExpressionBuilder/obj
 *.nupkg
-*.config
+
+# File di configurazione con credenziali: tenuti fuori dal repository.
+# I Web.config / App.config strutturali sono invece versionati e leggono i
+# secrets da Secrets.config tramite l'attributo file= di <appSettings>.
+Secrets.config
+*.Secrets.config
+*.local.config
 /Sorgenti API/PortaleRegione.API/.vs/PortaleRegione.API/v16/TestStore/0
 /Sorgenti API/PortaleRegione.API/packages
 /Sorgenti API/PortaleRegione.API/PortaleRegione.API/esportazioni
@@ -74,6 +80,7 @@
 Sorgenti Scheduler Quartz/Scheduler Quartz/obj/
 
 .vs/
+.idea/
 
 Sorgenti Scheduler Quartz/Scheduler Service/obj/
 
