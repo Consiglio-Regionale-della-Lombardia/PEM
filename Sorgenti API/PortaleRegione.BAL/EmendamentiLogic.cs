@@ -1498,11 +1498,15 @@ namespace PortaleRegione.BAL
 
         public async Task EliminaEmendamento(EM em, PersonaDto currentUser)
         {
-            // #1572
-            if (em.Timestamp.HasValue)
+            // #1572 / #1607 — il check va fatto sullo stato (BOZZA / BOZZA_RISERVATA),
+            // non su Timestamp: per i cartacei Timestamp può risultare valorizzato
+            // anche con l'EM ancora in bozza.
+            if (em.IDStato != (int)StatiEnum.Bozza
+                && em.IDStato != (int)StatiEnum.Bozza_Riservata)
             {
                 throw new InvalidOperationException("Non è possibile eliminare un emendamento/subemendamento già depositato.");
             }
+            
             em.Eliminato = true;
             em.DataElimina = DateTime.Now;
             em.UIDPersonaElimina = currentUser.UID_persona;
