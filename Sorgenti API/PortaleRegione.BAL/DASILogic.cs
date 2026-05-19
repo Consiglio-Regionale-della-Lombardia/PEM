@@ -5841,8 +5841,11 @@ namespace PortaleRegione.API.Controllers
             var res = await _unitOfWork.DASI.GetAbbinamentiDisponibili(legislaturaId, page, size);
             foreach (var item in res)
             {
+                if (item.natto == "$$") item.natto = "";
                 item.tipo_esteso = Utility.GetText_Tipo(int.Parse(item.tipo));
-                item.display = $"{item.tipo_esteso} {item.natto}";
+                item.display = string.IsNullOrEmpty(item.natto)
+                    ? item.tipo_esteso
+                    : $"{item.tipo_esteso} {item.natto}";
             }
 
             return res;
