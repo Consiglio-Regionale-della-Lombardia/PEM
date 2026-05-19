@@ -914,6 +914,9 @@ namespace PortaleRegione.API.Controllers
 
             ExtractAndAddFilters(model, nameof(AttoDASIDto.Ritardo), queryExtended.RitardoList, bool.Parse,
                 queryExtended);
+            
+            // #1608
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.Legislatura), queryExtended.Legislature, int.Parse, queryExtended);
 
             return queryExtended;
         }
@@ -1180,6 +1183,11 @@ namespace PortaleRegione.API.Controllers
             if (queryExtended.Risposte.Any())
                 model.filtro.AddRange(
                     CreateFilterStatements(nameof(AttoDASIDto.Risposte), queryExtended.Risposte));
+            
+            // #1608
+            if (queryExtended.Legislature.Any())
+                model.filtro.AddRange(
+                    CreateFilterStatements(nameof(AttoDASIDto.Legislatura), queryExtended.Legislature));
         }
 
         private List<FilterStatement<AttoDASIDto>> CreateFilterStatements<T>(string propertyId, List<T> values)

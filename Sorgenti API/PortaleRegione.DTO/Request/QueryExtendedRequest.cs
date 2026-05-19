@@ -59,6 +59,9 @@ public class QueryExtendedRequest
     public List<Guid> Firmatari { get; set; } = new();
     public List<int> GruppiFirmatari { get; set; } = new();
     public List<int> AreaPolitica { get; set; } = new();
+    
+    // #1608
+    public List<int> Legislature { get; set; } = new();
     public bool? Ritardo { get; set; }
     public List<bool> RitardoList { get; set; } = new();
     public bool TipoVotazioneMancante { get; set; } = false;
@@ -100,7 +103,8 @@ public class QueryExtendedRequest
             GruppiProponenti = new List<int>(GruppiProponenti),
             Firmatari = new List<Guid>(Firmatari),
             GruppiFirmatari = new List<int>(GruppiFirmatari),
-            AreaPolitica = new List<int>(AreaPolitica)
+            AreaPolitica = new List<int>(AreaPolitica),
+            Legislature = new List<int>(Legislature) // #1608
         };
     }
 }

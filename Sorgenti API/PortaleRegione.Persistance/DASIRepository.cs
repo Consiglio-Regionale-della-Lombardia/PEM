@@ -1598,6 +1598,10 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.AttiDaFirmare.Any())
                 query = query.Where(i => queryExtended.AttiDaFirmare.Contains(i.UIDAtto));
+            
+            // #1608
+            if (queryExtended.Legislature.Any())
+                query = query.Where(i => queryExtended.Legislature.Contains(i.Legislatura));
 
             #endregion
 
