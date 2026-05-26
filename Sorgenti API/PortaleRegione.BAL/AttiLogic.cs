@@ -697,6 +697,7 @@ namespace PortaleRegione.BAL
             var atto_clone = attoInDb.Clona();
             _unitOfWork.Atti.Add(atto_clone);
             attoInDb.UIDSeduta = uidSeduta;
+            attoInDb.Priorita = await _unitOfWork.Atti.PrioritaAtto(uidSeduta);
             await _unitOfWork.CompleteAsync();
         }
     }
