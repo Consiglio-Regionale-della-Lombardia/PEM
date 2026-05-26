@@ -482,24 +482,29 @@ namespace PortaleRegione.BAL
 
                 if (!string.IsNullOrEmpty(em.EM_Certificato))
                 {
+                    //re-crypt del testo certificato
+                    var emDto = await GetEM_DTO(em);
+                    emDto.EM_Certificato = string.Empty;
+                    var body = await GetBodyEM(emDto,
+                        firme.Where(item => item.UID_persona == em.UIDPersonaProponente).ToList(), persona,
+                        TemplateTypeEnum.FIRMA);
+                    var body_encrypt = CryptoHelper.EncryptString(body, BALHelper.Decrypt(em.Hash));
+
+                    em.EM_Certificato = body_encrypt;
+                    await _unitOfWork.CompleteAsync();
+                    
                     var firmatari = new List<string>();
                     foreach (var firma in firme.Where(i => i.UID_persona != em.UIDPersonaProponente))
                     {
                         var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
                         firmatari.Add(firmatario.email);
                     }
-
+                    
                     if (firmatari.Count > 0)
                     {
                         try
                         {
-                            EM em2 = null;
-                            if (em.Rif_UIDEM.HasValue)
-                            {
-                                em2 = await GetEM(em.Rif_UIDEM.Value);
-                            }
-
-                            var nome_em = GetNomeEM(em, em2);
+                            var nome_em = emDto.N_EM;
                             var mailModel = new MailModel
                             {
                                 DA = persona.email,
@@ -515,21 +520,10 @@ namespace PortaleRegione.BAL
                         {
                             Log.Error("Invio mail", e);
                         }
-
+                        
                         await _logicFirme.RimuoviFirme(em);
                         await _unitOfWork.CompleteAsync();
                     }
-                    
-                    //re-crypt del testo certificato
-                    var emDto = await GetEM_DTO(em);
-                    emDto.EM_Certificato = string.Empty;
-                    var body = await GetBodyEM(emDto,
-                        firme.Where(item => item.UID_persona == em.UIDPersonaProponente).ToList(), persona,
-                        TemplateTypeEnum.FIRMA);
-                    var body_encrypt = CryptoHelper.EncryptString(body, BALHelper.Decrypt(em.Hash));
-
-                    em.EM_Certificato = body_encrypt;
-                    await _unitOfWork.CompleteAsync();
                 }
             }
             catch (Exception e)
@@ -933,6 +927,7 @@ namespace PortaleRegione.BAL
                             : pin.PIN;
                         em.UIDPersonaPrimaFirma = persona.UID_persona;
                         em.DataPrimaFirma = DateTime.Now;
+                        emDto.EM_Certificato = string.Empty;
                         var body = await GetBodyEM(emDto, new List<FirmeDto>
                             {
                                 new FirmeDto
@@ -1498,11 +1493,15 @@ namespace PortaleRegione.BAL
 
         public async Task EliminaEmendamento(EM em, PersonaDto currentUser)
         {
-            // #1572
-            if (em.Timestamp.HasValue)
+            // #1572 / #1607 — il check va fatto sullo stato (BOZZA / BOZZA_RISERVATA),
+            // non su Timestamp: per i cartacei Timestamp può risultare valorizzato
+            // anche con l'EM ancora in bozza.
+            if (em.IDStato != (int)StatiEnum.Bozza
+                && em.IDStato != (int)StatiEnum.Bozza_Riservata)
             {
                 throw new InvalidOperationException("Non è possibile eliminare un emendamento/subemendamento già depositato.");
             }
+            
             em.Eliminato = true;
             em.DataElimina = DateTime.Now;
             em.UIDPersonaElimina = currentUser.UID_persona;

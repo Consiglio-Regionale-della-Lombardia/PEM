@@ -774,6 +774,23 @@ namespace PortaleRegione.BAL
 
             #endregion
 
+            // #1603
+            if (atto.Note != null && atto.Note.Any(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA))
+                atto.Note_Pubbliche += string.Join("\n",
+                    atto.Note
+                        .Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA)
+                        .Select(n => n.Nota)
+                );
+
+            body = body.Replace("{lblNotePubblicheATTOView}",
+                    !string.IsNullOrEmpty(atto.Note_Pubbliche)
+                        ? $"{atto.Note_Pubbliche}"
+                        : string.Empty)
+                .Replace("{NOTE_PUBBLICHE_COMMENTO_START}",
+                    !string.IsNullOrEmpty(atto.Note_Pubbliche) ? string.Empty : "<!--")
+                .Replace("{NOTE_PUBBLICHE_COMMENTO_END}",
+                    !string.IsNullOrEmpty(atto.Note_Pubbliche) ? string.Empty : "-->");
+
             // #1443
             if (body.Contains("STATO_PREVIEW"))
             {

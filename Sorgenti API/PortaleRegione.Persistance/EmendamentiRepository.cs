@@ -993,7 +993,17 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public bool CheckIfEliminabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (persona.Gruppo == null) return false;
+            // #1607
+            if (persona.Gruppo == null)
+            {
+                if (persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea 
+                    && persona.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+                {
+                    return false;
+                }
+
+                return string.IsNullOrEmpty(em.DataDeposito);
+            }
 
             if (em.id_gruppo != persona.Gruppo.id_gruppo) return false;
 

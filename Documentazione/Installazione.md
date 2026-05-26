@@ -53,12 +53,41 @@ Spostarsi poi sulla scheda **Features** e anche qui verificare che siano present
 
 
 ## Compilazione Soluzione
-Dopo aver scaricato sorgenti della soluzione client e API, è necessario aprire la soluzione Client e la soluzione Api ed effettuare la compilazione delle due soluzioni. Se la compilazione non restituisce errori è possibile copiare le due soluzioni compilate nelle rispettive cartelle predisposte sul server IIS (tipicamente c:\inetpub\wwwroot\PEM\client e c:\inetpub\wwwroot\PEM\API) e i file di configurazione:
+Dopo aver scaricato i sorgenti, aprire la soluzione Client e la soluzione API e compilarle. Se la compilazione non restituisce errori, copiare i compilati nelle rispettive cartelle sul server IIS (tipicamente `c:\inetpub\wwwroot\PEM\client` e `c:\inetpub\wwwroot\PEM\API`).
 
-- c:\inetpub\wwwroot\PEM\client\web.config (https://github.com/Consiglio-Regionale-della-Lombardia/PEM/blob/master/Sorgenti%20Client/PortaleRegione.Client/PortaleRegione.Client/Web.config.txt)
-- c:\inetpub\wwwroot\PEM\API\web.config (https://github.com/Consiglio-Regionale-della-Lombardia/PEM/blob/v2.2/Sorgenti%20API/PortaleRegione.API/PortaleRegione.API/Web.config.txt)
+### Configurazione dei file Web.config / App.config
 
-I due file di configurazione devono essere aggiornati inserendo correttamente i parametri di configurazione con valori relativi al proprio ambiente (connessione al database server, attivazione funzionalità, ecc). Nella versione pubblicata su questo repository i due web.config sono in versione testuale (.txt) e quindi vanno rinominati togliendo l'estensione .txt affinchè possano essere correttamente interpretati dal framework.net. Nelle versioni testuali dei due file di configurazione è stata inserita una breve descrizione esplicativa su ogni parametro per facilitare le impostazioni.
+I `Web.config` di API, API Pubblica, Client e gli `App.config` dello Scheduler sono **versionati** e contengono solo i parametri non riservati: strutture XML, URL pubblici, percorsi di log, flag funzionalità. I parametri sensibili (chiavi JWT, master key, licenze, credenziali servizi) sono caricati a runtime da un file `Secrets.config` non versionato e ignorato dal `.gitignore`, mentre la connessione al database è caricata da `ConnectionStrings.config`.
+
+Procedura al primo clone:
+
+1. Attivare il pre-commit hook locale che impedisce dimenticanze sui template:
+
+    ```
+    git config core.hooksPath .githooks
+    ```
+
+2. In ognuno dei progetti che hanno un `Secrets.config.example`, duplicare il file rimuovendo il suffisso `.example` e compilare i valori reali del proprio ambiente. I progetti interessati sono:
+
+    - `Sorgenti API\PortaleRegione.API\PortaleRegione.API\Secrets.config`
+    - `Sorgenti API Pubblica\PortaleRegione.Api.Public\Secrets.config`
+    - `Sorgenti Scheduler Quartz\Scheduler Quartz\Secrets.config`
+
+3. Modificare i file `ConnectionStrings.config` di:
+
+    - `Sorgenti API\PortaleRegione.API\PortaleRegione.API\ConnectionStrings.config`
+    - `Sorgenti API Pubblica\PortaleRegione.Api.Public\ConnectionStrings.config`
+
+   sostituendo la stringa di connessione di default (LocalDB) con quella del proprio SQL Server. Per evitare che le modifiche locali compaiano in `git status` o vengano committate per errore, marcare il file come skip-worktree:
+
+    ```
+    git update-index --skip-worktree "Sorgenti API/PortaleRegione.API/PortaleRegione.API/ConnectionStrings.config"
+    git update-index --skip-worktree "Sorgenti API Pubblica/PortaleRegione.Api.Public/ConnectionStrings.config"
+    ```
+
+4. Aprire le soluzioni in Visual Studio e compilare. A questo punto F5 avvia le applicazioni in IIS Express con i parametri del proprio ambiente.
+
+Se durante lo sviluppo si aggiunge una nuova chiave riservata nel `Secrets.config`, il pre-commit hook ne segnala l'assenza nel `Secrets.config.example` e blocca il commit finché il template non viene aggiornato (placeholder vuoto). Questo evita che chi forka si trovi un nome di chiave non documentato.
 
 ## Creazione Application su IIS
 

@@ -365,7 +365,6 @@
     <Content Include="Views\Emendamenti\Filtri\_OrdinamentoColonneEM.cshtml" />
     <Content Include="Views\Emendamenti\Filtri\_ReportConfigModalEM.cshtml" />
     <Content Include="Views\Emendamenti\_PannelloRicercheEM.cshtml" />
-    <Content Include="Web.config.txt" />
     <Content Include="Content\editor\plugins\colors\ui\sass\trumbowyg.colors.scss" />
     <Content Include="Content\editor\plugins\emoji\ui\sass\trumbowyg.emoji.scss" />
     <Content Include="Content\editor\plugins\giphy\ui\sass\trumbowyg.giphy.scss" />

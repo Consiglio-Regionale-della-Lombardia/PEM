@@ -914,6 +914,9 @@ namespace PortaleRegione.API.Controllers
 
             ExtractAndAddFilters(model, nameof(AttoDASIDto.Ritardo), queryExtended.RitardoList, bool.Parse,
                 queryExtended);
+            
+            // #1608
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.Legislatura), queryExtended.Legislature, int.Parse, queryExtended);
 
             return queryExtended;
         }
@@ -1180,6 +1183,11 @@ namespace PortaleRegione.API.Controllers
             if (queryExtended.Risposte.Any())
                 model.filtro.AddRange(
                     CreateFilterStatements(nameof(AttoDASIDto.Risposte), queryExtended.Risposte));
+            
+            // #1608
+            if (queryExtended.Legislature.Any())
+                model.filtro.AddRange(
+                    CreateFilterStatements(nameof(AttoDASIDto.Legislatura), queryExtended.Legislature));
         }
 
         private List<FilterStatement<AttoDASIDto>> CreateFilterStatements<T>(string propertyId, List<T> values)
@@ -1335,6 +1343,8 @@ namespace PortaleRegione.API.Controllers
             dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
             dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
             dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
+
+            await PopolaInfoODGAbbinato(dto, attoInDb);
 
             dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
             if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
@@ -1583,30 +1593,7 @@ namespace PortaleRegione.API.Controllers
 
                 dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
 
-                if (dto.IsODG() && attoInDb.UID_Atto_ODG.HasValue)
-                {
-                    var abbinamentoSecondario =
-                        dto.Abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_Atto_ODG);
-                    if (abbinamentoSecondario != null) dto.Abbinamenti.Remove(abbinamentoSecondario);
-
-                    var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
-                    dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO
-                        ? "Dibattito"
-                        : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
-
-                    dto.ODG_Atto_Oggetto_PEM = attoPem.Oggetto;
-                }
-                else if (dto.IsODG() && dto.Abbinamenti.Any())
-                {
-                    var primoAbbinamentoUid = dto.Abbinamenti.First().UidAttoAbbinato;
-                    var primoAbbinamento = await _unitOfWork.Atti.GetAbbinamento(primoAbbinamentoUid);
-                    if (primoAbbinamento.TipoAttoAbbinato.Equals(Utility.GetText_Tipo((int)TipoAttoEnum.ALTRO)))
-                        dto.ODG_Atto_PEM = $"{primoAbbinamento.NumeroAttoAbbinato}";
-                    else
-                        dto.ODG_Atto_PEM = $"{primoAbbinamento.TipoAttoAbbinato} {primoAbbinamento.NumeroAttoAbbinato}";
-
-                    dto.ODG_Atto_Oggetto_PEM = primoAbbinamento.OggettoAttoAbbinato;
-                }
+                await PopolaInfoODGAbbinato(dto, attoInDb);
 
                 dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
 
@@ -1662,6 +1649,39 @@ namespace PortaleRegione.API.Controllers
             }
 
             return sb.Aggregate((i, j) => i + "<br>" + j);
+        }
+
+        private async Task PopolaInfoODGAbbinato(AttoDASIDto dto, ATTI_DASI attoInDb)
+        {
+            if (!dto.IsODG()) return;
+
+            if (attoInDb.UID_Atto_ODG.HasValue)
+            {
+                var abbinamentoSecondario =
+                    dto.Abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_Atto_ODG);
+                if (abbinamentoSecondario != null) dto.Abbinamenti.Remove(abbinamentoSecondario);
+
+                var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                if (attoPem == null) return;
+
+                dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO
+                    ? "Dibattito"
+                    : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+
+                dto.ODG_Atto_Oggetto_PEM = attoPem.Oggetto;
+                return;
+            }
+
+            if (!dto.Abbinamenti.Any()) return;
+
+            var primoAbbinamentoUid = dto.Abbinamenti.First().UidAttoAbbinato;
+            var primoAbbinamento = await _unitOfWork.Atti.GetAbbinamento(primoAbbinamentoUid);
+            if (primoAbbinamento.TipoAttoAbbinato.Equals(Utility.GetText_Tipo((int)TipoAttoEnum.ALTRO)))
+                dto.ODG_Atto_PEM = $"{primoAbbinamento.NumeroAttoAbbinato}";
+            else
+                dto.ODG_Atto_PEM = $"{primoAbbinamento.TipoAttoAbbinato} {primoAbbinamento.NumeroAttoAbbinato}";
+
+            dto.ODG_Atto_Oggetto_PEM = primoAbbinamento.OggettoAttoAbbinato;
         }
 
         private Filter<ATTI_DASI> PulisciFiltroTipo(Filter<ATTI_DASI> filtro)
@@ -5821,8 +5841,11 @@ namespace PortaleRegione.API.Controllers
             var res = await _unitOfWork.DASI.GetAbbinamentiDisponibili(legislaturaId, page, size);
             foreach (var item in res)
             {
+                if (item.natto == "$$") item.natto = "";
                 item.tipo_esteso = Utility.GetText_Tipo(int.Parse(item.tipo));
-                item.display = $"{item.tipo_esteso} {item.natto}";
+                item.display = string.IsNullOrEmpty(item.natto)
+                    ? item.tipo_esteso
+                    : $"{item.tipo_esteso} {item.natto}";
             }
 
             return res;
