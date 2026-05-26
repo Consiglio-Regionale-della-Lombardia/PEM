@@ -1169,7 +1169,7 @@ namespace PortaleRegione.Client.Controllers
                 var viewModel = await apiGateway.Emendamento.Get(request);
 
                 // Il select del modale espone ExportFormatEnum come stringa numerica
-                // (1 = WORD, 2 = PDF, 3 = EXCEL); accettiamo anche le forme testuali per robustezza
+                // (1 = WORD, 2 = EXCEL); accettiamo anche le forme testuali per robustezza
                 // verso eventuali integrazioni esterne.
                 var formatRaw = (model.ExportFormat ?? string.Empty).Trim();
                 ExportFormatEnum format;
@@ -1193,11 +1193,6 @@ namespace PortaleRegione.Client.Controllers
                     case ExportFormatEnum.WORD:
                         file = await apiGateway.Esporta.EsportaWORD(viewModel);
                         break;
-                    case ExportFormatEnum.PDF:
-                        // La pipeline di esportazione PDF non e' ancora coperta dal gateway:
-                        // andra' integrata quando la stampa asincrona PDF entrera' in GeneraReport.
-                        return Json(new ErrorResponse("Esportazione PDF non ancora disponibile"),
-                            JsonRequestBehavior.AllowGet);
                     default:
                         return Json(new ErrorResponse("Formato di esportazione non supportato"),
                             JsonRequestBehavior.AllowGet);
