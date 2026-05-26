@@ -127,6 +127,7 @@ Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/JobTest/bin
 Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/JobTest/obj
 Sorgenti modulo retention/Jobs/CleanLogRetention/obj
 Sorgenti modulo calcolo ritardo/Jobs/TestJob/obj
+Sorgenti modulo calcolo ritardo/Jobs/CalcoloRitardoAttoJob/packages
 Sorgenti API/PortaleRegione.API/.idea
 Sorgenti API/PortaleRegione.API/PortaleRegione.SDK.GEA/obj
 Sorgenti API/PortaleRegione.SDK.GEA/obj
@@ -140,3 +141,6 @@ Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/TestProject/testsetting
 Sorgenti Scheduler Quartz/Scheduler Quartz/.idea
 Sorgenti Scheduler Quartz/Scheduler Service/.idea
 .claude
+Sorgenti modulo calcolo ritardo/Jobs/CalcoloRitardoAttoJob/bin
+Sorgenti modulo calcolo ritardo/Jobs/CalcoloRitardoAttoJob/obj
+Sorgenti modulo calcolo ritardo/Jobs/TestJob/bin
