@@ -2741,8 +2741,8 @@
         if (!id) return;
         if (!confirm('Confermi la protocollazione dell\'atto su EDMA?\nVerranno create la pratica e il protocollo in un\'unica operazione.'))
             return;
-
-        var url = '@Url.Action("Protocolla", "DASI")/' + id;
+        
+        var url = '@Url.Content("~/DASI/protocolla/")' + id;
         waiting(true, 'Protocollazione EDMA in corso...');
         btn.prop('disabled', true);
 
