@@ -229,6 +229,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\SeduteDto.cs" />
     <Compile Include="Response\EmendamentiViewModel.cs" />
+    <Compile Include="Response\EdmaProtocollazioneEsitoDto.cs" />
     <Compile Include="Response\ErrorResponse.cs" />
     <Compile Include="Response\FileResponse.cs" />
     <Compile Include="Response\LoginResponse.cs" />

@@ -60,6 +60,7 @@ namespace PortaleRegione.API
             container.RegisterType<EsportaLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<UtilsLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<NotificheLogic>(new HierarchicalLifetimeManager());
+            container.RegisterType<DASIProtocollazioneService>(new HierarchicalLifetimeManager());
             config.DependencyResolver = new UnityResolver(container);
 
             // Route dell'API Web
