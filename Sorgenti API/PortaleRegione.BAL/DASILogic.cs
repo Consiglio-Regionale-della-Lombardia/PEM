@@ -325,8 +325,11 @@ namespace PortaleRegione.API.Controllers
             attoInDb.IDStato = request.Stato;
             InputSanitizer.ValidateAndThrowIfDangerous(request.CodiceMateria, "Codice Materia");
             attoInDb.CodiceMateria = request.CodiceMateria;
-            InputSanitizer.ValidateAndThrowIfDangerous(request.Protocollo, "Protocollo");
-            attoInDb.Protocollo = request.Protocollo;
+            // Il campo Protocollo NON viene piu' scritto dal "Salva informazioni":
+            // la segnatura arriva esclusivamente dal flusso "Protocolla" verso
+            // EDMA (DASIProtocollazioneService). L'edit manuale per la sola
+            // segreteria su atti pre-EDMA, se abilitato dal feature flag in
+            // configurazione, e' gestito dalla UI con un endpoint dedicato.
 
             if (request.DataAnnunzio > DateTime.MinValue)
             {

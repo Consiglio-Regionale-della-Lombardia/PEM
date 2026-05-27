@@ -59,16 +59,52 @@ namespace PortaleRegione.API.Controllers
         /// <param name="stampeLogic"></param>
         /// <param name="utilsLogic"></param>
         /// <param name="adminLogic"></param>
+        private readonly DASIProtocollazioneService _protocollazioneService;
+
         public DASIController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic,
             StampeLogic stampeLogic,
-            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic,
+            DASIProtocollazioneService protocollazioneService) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic,
             notificheLogic,
             esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
+            _protocollazioneService = protocollazioneService;
+        }
+
+        /// <summary>
+        ///     Avvia la protocollazione su EDMA dell'atto indicato. E' l'endpoint
+        ///     che la segreteria UOLA invoca dal click "Protocolla" sul dettaglio
+        ///     dell'atto. Internamente esegue l'intero flusso a cinque step e
+        ///     restituisce un esito sintetico con segnatura, numero pratica ed
+        ///     eventuali messaggi di errore.
+        /// </summary>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Protocolla)]
+        public async Task<IHttpActionResult> Protocolla(Guid id)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                    throw new UnauthorizedAccessException(
+                        $"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+
+                var esito = await _protocollazioneService.ProtocollaAttoAsync(id, currentUser);
+                if (!esito.Success)
+                    return Content(System.Net.HttpStatusCode.BadGateway, esito);
+
+                return Ok(esito);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Protocolla DASI", e);
+                return ErrorHandler(e);
+            }
         }
 
         /// <summary>

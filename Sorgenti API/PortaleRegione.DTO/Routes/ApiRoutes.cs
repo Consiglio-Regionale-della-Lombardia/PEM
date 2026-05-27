@@ -279,6 +279,10 @@ namespace PortaleRegione.DTO.Routes
             public const string GetReportsCardTemplates = Base + "/reports/templates/cards";
             public const string GetCommissioniAttive = Base + "/commissioni-attive";
             public const string InviaAttoEdma = Base + "/invia-atto-edma";
+            // Click "Protocolla" della segreteria UOLA: orchestra l'intero
+            // flusso a 5 step verso EDMA (creazione pratica, creazione
+            // documento, fascicolazione, protocollazione applicativa).
+            public const string Protocolla = Base + "/{id:guid}/protocolla";
         }
 
         public static class Notifiche
