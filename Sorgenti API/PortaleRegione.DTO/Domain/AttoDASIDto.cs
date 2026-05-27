@@ -224,6 +224,45 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public DateTime? DataInvioAlProtocollo { get; set; }
 
+    // Integrazione EDMA: gli id e la segnatura vengono valorizzati man mano che
+    // il flusso a 5 step (creaPratica, creaDocumento, allegati,
+    // associaDocumenti, protocollazioneApplicativa) procede. Sono qui per
+    // mostrarli alla segreteria nel dettaglio dell'atto e per consentire
+    // riprese idempotenti in caso di errore.
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Id pratica EDMA")]
+    public string EDMA_IdPratica { get; set; } = string.Empty;
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Numero pratica EDMA")]
+    public string EDMA_NumeroPratica { get; set; } = string.Empty;
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Id documento EDMA")]
+    public string EDMA_IdDocumento { get; set; } = string.Empty;
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Id allegato EDMA")]
+    public string EDMA_IdAllegatoGenerico { get; set; } = string.Empty;
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Id protocollo EDMA")]
+    public string EDMA_IdProtocollo { get; set; } = string.Empty;
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Segnatura EDMA")]
+    public string EDMA_Segnatura { get; set; } = string.Empty;
+
+    public int EDMA_TentativiInvio { get; set; } = 0;
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Ultimo errore EDMA")]
+    public string EDMA_UltimoErrore { get; set; } = string.Empty;
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [DisplayName("Data ultimo tentativo EDMA")]
+    public DateTime? EDMA_DataUltimoTentativo { get; set; }
+
     public bool CapogruppoNeiTermini { get; set; } = false;
     public bool MOZU_Capigruppo { get; set; } = false;
 

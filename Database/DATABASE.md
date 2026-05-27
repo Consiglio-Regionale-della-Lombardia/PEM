@@ -217,6 +217,24 @@ Non_Passaggio_In_Esame: bit //se true indica che l'atto (ODG) è di non passaggi
 Inviato_Al_Protocollo: bit //indica se è già stata inoltrata la richiesta di protocollazione dell'atto
  
 DataInvioAlProtocollo: datetime //data della richiesta di protocollazione
+
+EDMA_IdPratica: varchar(50) //id EDMA del FascicoloPratica creato per l'atto (integrazione EDMA)
+
+EDMA_NumeroPratica: varchar(100) //numero pratica restituito da EDMA dopo la creazione, mostrato nel dettaglio atto
+
+EDMA_IdDocumento: varchar(50) //id EDMA del DocumentoFile che contiene il pdf principale dell'atto
+
+EDMA_IdAllegatoGenerico: varchar(50) //id EDMA del DocumentoFile figlio creato per l'eventuale allegato dell'atto
+
+EDMA_IdProtocollo: varchar(50) //id della scheda di protocollo (modulo 9000 di EDMA), utile in caso di annullo
+
+EDMA_Segnatura: varchar(100) //segnatura di protocollo nel formato AOO.AAAA.0000000 restituita da EDMA
+
+EDMA_TentativiInvio: int //numero di tentativi del job di retry verso EDMA (default 0)
+
+EDMA_UltimoErrore: nvarchar(max) //testo dell'ultimo errore EDMA, mostrato come tooltip in segreteria
+
+EDMA_DataUltimoTentativo: datetime //timestamp dell'ultimo tentativo verso EDMA (riuscito o fallito)
  
 #### ATTI_DASI_CONTATORI
 Tabella che mappa la codifica da dare a ogni tipologia di atto quando viene depositato (i contatori andranno ripristinati all'avvio di legislatura)

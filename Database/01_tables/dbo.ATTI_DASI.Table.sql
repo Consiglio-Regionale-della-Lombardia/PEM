@@ -124,7 +124,16 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[PathStampa] [varchar](max) NULL,
 	[StampaValida] [bit] NOT NULL,
 	[NascondiGruppo] [bit] NOT NULL,
- CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
+	[EDMA_IdPratica] [varchar](50) NULL,
+	[EDMA_NumeroPratica] [varchar](100) NULL,
+	[EDMA_IdDocumento] [varchar](50) NULL,
+	[EDMA_IdAllegatoGenerico] [varchar](50) NULL,
+	[EDMA_IdProtocollo] [varchar](50) NULL,
+	[EDMA_Segnatura] [varchar](100) NULL,
+	[EDMA_TentativiInvio] [int] NOT NULL,
+	[EDMA_UltimoErrore] [nvarchar](max) NULL,
+	[EDMA_DataUltimoTentativo] [datetime] NULL,
+ CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED
 (
 	[UIDAtto] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
@@ -207,6 +216,9 @@ ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_StampaValida]  DEFAU
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_NascondiGruppo]  DEFAULT ((0)) FOR [NascondiGruppo]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_EDMA_TentativiInvio]  DEFAULT ((0)) FOR [EDMA_TentativiInvio]
 GO
 
 
