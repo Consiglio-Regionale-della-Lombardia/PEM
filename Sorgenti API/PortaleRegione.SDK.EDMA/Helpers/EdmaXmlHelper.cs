@@ -18,22 +18,32 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Globalization;
+using System.Linq;
 using System.Xml.Linq;
 using PortaleRegione.SDK.EDMA.Models;
 
 namespace PortaleRegione.SDK.EDMA.Helpers
 {
+    /// <summary>
+    ///     Generatori dei body XML per le chiamate ai servizi EDMA. Tutti i
+    ///     payload seguono lo schema XStream-style usato dal framework RSI3 di
+    ///     EDMA: tag con i nomi delle classi Java (it.lispa.edma...) e
+    ///     attributi <c>id</c> progressivi sui sotto-oggetti.
+    /// </summary>
     public static class EdmaXmlHelper
     {
+        private static readonly CultureInfo Italian = new CultureInfo("it-IT");
+
         /// <summary>
-        ///     Converte un file in blocchi base64 da 1024 bytes come richiesto da EDMA
+        ///     Costruisce l'elemento &lt;file&gt; con il payload spezzato in
+        ///     blocchi base64 da 1024 byte come richiesto dalla specifica.
         /// </summary>
         public static XElement CreaFileXml(byte[] fileBytes, string estensione)
         {
-            var fileElement = new XElement("file", new XAttribute("suffix", estensione));
+            var fileElement = new XElement("file", new XAttribute("suffix", estensione ?? string.Empty));
 
-            var blockSize = 1024;
+            const int blockSize = 1024;
             for (var i = 0; i < fileBytes.Length; i += blockSize)
             {
                 var length = Math.Min(blockSize, fileBytes.Length - i);
@@ -46,134 +56,318 @@ namespace PortaleRegione.SDK.EDMA.Helpers
         }
 
         /// <summary>
-        ///     Genera l'XML per la creazione di un documento EDMA
+        ///     Genera il body per <c>DocumentoFile/creaDocumento</c>: crea un
+        ///     documento principale (non figlio di altro) con il pdf dell'atto.
+        ///     Il tag &lt;fileCM&gt; include &lt;nome&gt; come da specifica
+        ///     SIS.EDMA - DocumentoFile v1.
         /// </summary>
-        public static string GeneraCreaDocumentoXml(DocumentoBase documento, byte[] fileBytes, string estensioneFile)
+        public static string GeneraCreaDocumentoXml(DocumentoBase documento, string nomeFile, byte[] fileBytes,
+            string estensioneFile)
         {
+            var fileCm = new XElement("fileCM", new XAttribute("id", "25"));
+            if (!string.IsNullOrEmpty(nomeFile))
+                fileCm.Add(new XElement("nome", nomeFile));
+            if (fileBytes != null && fileBytes.Length > 0)
+                fileCm.Add(CreaFileXml(fileBytes, estensioneFile));
+
             var doc = new XElement("it.lispa.edma.documenti.po.DocumentoFile",
                 new XAttribute("id", "1"),
                 new XElement("documentoBase",
                     new XAttribute("id", "7"),
                     new XElement("oggetto", documento.Oggetto ?? string.Empty),
                     new XElement("codAutore", documento.CodAutore ?? "SYSTEM_"),
-                    new XElement("perfetto", documento.Perfetto.ToString().ToLower()),
-                    new XElement("protocollato", documento.Protocollato.ToString().ToLower()),
-                    new XElement("riservato", documento.Riservato.ToString().ToLower()),
-                    new XElement("fascicolo", documento.Fascicolo.ToString().ToLower()),
-                    new XElement("classificatore", documento.Classificatore.ToString().ToLower()),
-                    new XElement("cartaceo", documento.Cartaceo.ToString().ToLower()),
-                    new XElement("firmato", documento.Firmato.ToString().ToLower()),
+                    new XElement("perfetto", ToXmlBool(documento.Perfetto)),
+                    new XElement("protocollato", ToXmlBool(documento.Protocollato)),
+                    new XElement("riservato", ToXmlBool(documento.Riservato)),
+                    new XElement("fascicolo", ToXmlBool(documento.Fascicolo)),
+                    new XElement("classificatore", ToXmlBool(documento.Classificatore)),
+                    new XElement("cartaceo", ToXmlBool(documento.Cartaceo)),
+                    new XElement("firmato", ToXmlBool(documento.Firmato)),
                     new XElement("metamodulo", documento.Metamodulo),
                     new XElement("metadocumento",
                         new XAttribute("id", "15"),
-                        new XElement("id", documento.MetaDocumento?.Id ?? 0),
                         new XElement("codice", documento.MetaDocumento?.Codice ?? string.Empty)
                     ),
                     new XElement("figli", new XAttribute("id", "23")),
                     new XElement("padri", new XAttribute("id", "24")),
-                    new XElement("filesCM",
-                        new XAttribute("id", "25"),
-                        fileBytes != null ? CreaFileXml(fileBytes, estensioneFile) : null
-                    ),
+                    fileCm,
                     new XElement("attributi", new XAttribute("id", "26")),
-                    new XElement("vaFirmato", documento.VaFirmato.ToString().ToLower()),
+                    new XElement("vaFirmato", ToXmlBool(documento.VaFirmato)),
                     new XElement("classificazioni", new XAttribute("id", "29")),
                     new XElement("statoMetaclassificazione", new XAttribute("id", "30")),
                     new XElement("segnature", new XAttribute("id", "31")),
                     new XElement("voceInMetaclassificazioni", new XAttribute("id", "32")),
                     new XElement("codiciEcDestinatarie", new XAttribute("id", "33")),
-                    new XElement("scansito", documento.Scansito.ToString().ToLower()),
-                    new XElement("privato", documento.Privato.ToString().ToLower())
+                    new XElement("scansito", ToXmlBool(documento.Scansito)),
+                    new XElement("privato", ToXmlBool(documento.Privato))
                 )
             );
 
-            return doc.ToString();
+            return WithXmlDeclaration(doc);
         }
 
         /// <summary>
-        ///     Genera l'XML per l'invio al protocollo
+        ///     Genera il body per <c>DocumentoFile/creaInserisciDocumento</c>:
+        ///     crea un DocumentoFile (l'allegato) gia' collegato come figlio
+        ///     del DocumentoFile padre (il pdf principale dell'atto).
         /// </summary>
-        public static string GeneraProtocollaXml(SchedaProtocollo scheda)
+        public static string GeneraCreaInserisciDocumentoFiglioXml(string idDocumentoPadre, string codiceMetadocPadre,
+            DocumentoBase figlio, string nomeFile, byte[] fileBytes, string estensioneFile)
         {
-            var mittenteXml = new XElement("it.lispa.edma.telemaco.po.MittenteInterno",
-                new XAttribute("id", "4"),
-                new XElement("confermaRicezione", scheda.Mittente?.ConfermaRicezione ?? "no"),
-                new XElement("registrazioneProtocollo", new XAttribute("reference", "2")),
-                new XElement("emailPec", (scheda.Mittente?.EmailPec ?? false).ToString().ToLower()),
-                new XElement("codiceEnteComp", scheda.Mittente?.CodiceEnteComp ?? string.Empty)
+            var padre = new XElement("padre",
+                new XAttribute("class", "it.lispa.edma.erato.po.DocumentoBase"),
+                new XElement("id", idDocumentoPadre),
+                new XElement("metaDocumento",
+                    new XElement("codice", codiceMetadocPadre ?? string.Empty)
+                ),
+                new XElement("metamodulo", figlio.Metamodulo)
             );
 
-            var destinatariElements = new List<XElement>();
-            if (scheda.Destinatari != null)
+            var fileCm = new XElement("fileCM", new XAttribute("id", "25"));
+            if (!string.IsNullOrEmpty(nomeFile))
+                fileCm.Add(new XElement("nome", nomeFile));
+            if (fileBytes != null && fileBytes.Length > 0)
+                fileCm.Add(CreaFileXml(fileBytes, estensioneFile));
+
+            var documento = new XElement("documento",
+                new XAttribute("class", "it.lispa.edma.documenti.po.DocumentoFile"),
+                new XElement("documentoBase",
+                    new XElement("oggetto", figlio.Oggetto ?? string.Empty),
+                    new XElement("codAutore", figlio.CodAutore ?? "SYSTEM_"),
+                    new XElement("metamodulo", figlio.Metamodulo),
+                    new XElement("metadocumento",
+                        new XElement("codice", figlio.MetaDocumento?.Codice ?? string.Empty)
+                    ),
+                    fileCm
+                )
+            );
+
+            var doc = new XElement("it.lispa.edma.documenti.dto.CreaInserisci", padre, documento);
+            return WithXmlDeclaration(doc);
+        }
+
+        /// <summary>
+        ///     Genera il body per <c>FascicoloPratica/creaInserisciDocumento</c>:
+        ///     crea una Pratica EDMA sotto un sotto-fascicolo titolario gia'
+        ///     esistente. Il tag &lt;padre&gt; punta al sotto-fascicolo, il tag
+        ///     &lt;documento&gt; descrive la pratica da creare.
+        /// </summary>
+        public static string GeneraCreaInserisciPraticaXml(string idSottoFascicoloPadre,
+            string codiceMetadocPadre, int metamoduloPadre, FascicoloPratica pratica)
+        {
+            var padre = new XElement("padre",
+                new XAttribute("class", "it.lispa.edma.erato.po.DocumentoBase"),
+                new XElement("metamodulo", metamoduloPadre),
+                new XElement("metadocumento",
+                    new XAttribute("class", "it.lispa.edma.erato.po.Metadocumento"),
+                    new XElement("codice", codiceMetadocPadre ?? string.Empty)
+                ),
+                new XElement("id", idSottoFascicoloPadre)
+            );
+
+            var documento = new XElement("documento",
+                new XAttribute("class", "it.lispa.edma.documenti.po.FascicoloPratica"),
+                new XElement("titolo", pratica.Titolo ?? string.Empty),
+                new XElement("codProcedimento", pratica.CodProcedimento ?? string.Empty),
+                new XElement("dataApertura",
+                    new XAttribute("class", "sql-date"),
+                    pratica.DataApertura.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                new XElement("anniConservazione", pratica.AnniConservazione),
+                new XElement("dataChiusura",
+                    new XAttribute("class", "sql-date"),
+                    pratica.DataChiusura.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))
+            );
+
+            if (!string.IsNullOrEmpty(pratica.ReferenteCodPersona))
+                documento.Add(new XElement("referente",
+                    new XElement("codice", pratica.ReferenteCodPersona)));
+
+            if (!string.IsNullOrEmpty(pratica.ResponsabileCodPersona))
+                documento.Add(new XElement("responsabile",
+                    new XElement("codice", pratica.ResponsabileCodPersona)));
+
+            if (pratica.SedeSoggetto != null)
+                documento.Add(BuildSedeSoggetto(pratica.SedeSoggetto));
+
+            if (!string.IsNullOrEmpty(pratica.LivelloAppartenenzaId))
+                documento.Add(new XElement("livelloAppartenenza",
+                    new XAttribute("class", "it.lispa.edma.documenti.po.FascicoloLivello"),
+                    new XElement("id", pratica.LivelloAppartenenzaId)));
+
+            if (!string.IsNullOrEmpty(pratica.ProcedimentoIdEdma))
+                documento.Add(new XElement("procedimento",
+                    new XAttribute("class", "it.lispa.edma.documenti.po.FascicoloProcedimento"),
+                    new XElement("id", pratica.ProcedimentoIdEdma),
+                    string.IsNullOrEmpty(pratica.ProcedimentoCodice)
+                        ? null
+                        : new XElement("codProcedimento", pratica.ProcedimentoCodice)));
+
+            var documentoBase = new XElement("documentoBase",
+                new XAttribute("class", "it.lispa.edma.erato.po.DocumentoBase"),
+                new XElement("metamodulo", pratica.Metamodulo),
+                new XElement("metadocumento",
+                    new XAttribute("class", "it.lispa.edma.erato.po.Metadocumento"),
+                    new XElement("codice", pratica.MetadocumentoCodice ?? string.Empty)));
+            documento.Add(documentoBase);
+
+            if (pratica.Attributi != null && pratica.Attributi.Count > 0)
             {
-                for (var i = 0; i < scheda.Destinatari.Length; i++)
-                {
-                    var dest = scheda.Destinatari[i];
-                    var destXml = new XElement("it.lispa.edma.telemaco.po.DestinatarioEsterno",
-                        new XAttribute("id", (16 + i).ToString()),
-                        new XElement("manuale", dest.Manuale.ToString().ToLower()),
-                        new XElement("registrazioneProtocollo", new XAttribute("reference", "2")),
-                        new XElement("tuttiDestinatario", dest.TuttiDestinatario.ToString().ToLower()),
-                        new XElement("emailPec", dest.EmailPec.ToString().ToLower()),
-                        new XElement("descrizione", dest.Descrizione ?? string.Empty),
-                        new XElement("ordineInserimento", dest.OrdineInserimento),
-                        new XElement("tuttiDestinatario",
-                            new XAttribute("defined-in", "it.lispa.edma.telemaco.po.Destinatario"),
-                            dest.TuttiDestinatario.ToString().ToLower()),
-                        new XElement("codiceEc", dest.CodiceEc ?? string.Empty),
-                        new XElement("principale", dest.Principale.ToString().ToLower()),
-                        new XElement("tipologia", dest.Tipologia)
-                    );
-                    destinatariElements.Add(destXml);
-                }
+                var attributi = new XElement("attributi");
+                foreach (var kv in pratica.Attributi)
+                    attributi.Add(new XElement("entry",
+                        new XElement("string", kv.Key ?? string.Empty),
+                        new XElement("string", kv.Value ?? string.Empty)));
+                documento.Add(attributi);
             }
 
-            var documentoBaseXml = new XElement("documentoBase",
-                new XAttribute("id", "25"),
-                new XElement("oggetto", scheda.DocumentoBase?.Oggetto ?? string.Empty),
-                new XElement("perfetto", "false"),
-                new XElement("protocollato", "false"),
-                new XElement("riservato", (scheda.DocumentoBase?.Riservato ?? false).ToString().ToLower()),
-                new XElement("fascicolo", "false"),
-                new XElement("classificatore", "false"),
-                new XElement("cartaceo", (scheda.DocumentoBase?.Cartaceo ?? false).ToString().ToLower()),
-                new XElement("firmato", "false"),
-                new XElement("figli", new XAttribute("id", "26")),
-                new XElement("padri", new XAttribute("id", "27")),
-                new XElement("filesCM", new XAttribute("id", "28")),
-                new XElement("attributi", new XAttribute("id", "29")),
-                new XElement("vaFirmato", "false"),
-                new XElement("classificazioni", new XAttribute("id", "31")),
-                new XElement("statoMetaclassificazione", new XAttribute("id", "32")),
-                new XElement("segnature", new XAttribute("id", "33")),
-                new XElement("voceInMetaclassificazioni", new XAttribute("id", "34")),
-                new XElement("codiciEcDestinatarie", new XAttribute("id", "35")),
-                new XElement("scansito", "false"),
-                new XElement("privato", (scheda.DocumentoBase?.Privato ?? false).ToString().ToLower())
-            );
+            if (!string.IsNullOrEmpty(pratica.Note))
+                documento.Add(new XElement("note", pratica.Note));
 
-            var schedaXml = new XElement("schedaProtocollo",
-                new XAttribute("id", "2"),
-                new XElement("mittente", new XAttribute("id", "3"), mittenteXml),
-                new XElement("destinatari", new XAttribute("id", "15"), destinatariElements.ToArray()),
-                new XElement("numeroAllegati", scheda.NumeroAllegati),
-                new XElement("tipoAllegati", scheda.TipoAllegati ?? string.Empty),
-                new XElement("allegati", new XAttribute("id", "22")),
-                new XElement("mezzoSpedizione", scheda.MezzoSpedizione ?? string.Empty),
-                new XElement("tipoDocumento", scheda.TipoDocumento ?? string.Empty),
-                new XElement("flagRiscontro", scheda.FlagRiscontro),
-                new XElement("listaAssegnatariAccesso", new XAttribute("id", "23")),
-                new XElement("assegnatari", new XAttribute("id", "24")),
-                documentoBaseXml
-            );
+            var doc = new XElement("it.lispa.edma.documenti.dto.CreaInserisci", padre, documento);
+            return WithXmlDeclaration(doc);
+        }
 
-            var root = new XElement("it.lispa.edma.mercurioNew.dto.ParametriAccessoProtocollo",
-                new XAttribute("id", "1"),
-                schedaXml,
-                new XElement("protocollazioneAutomatica", scheda.ProtocollazioneAutomatica.ToString().ToLower())
-            );
+        /// <summary>
+        ///     Genera il body per <c>FascicoloPratica/{id}/associaDocumenti</c>:
+        ///     fascicola uno o piu' documenti gia' esistenti in una pratica
+        ///     gia' creata. Per il flusso DASI ci si limita al pdf principale.
+        /// </summary>
+        public static string GeneraAssociaDocumentiXml(string idPratica,
+            IEnumerable<(string IdDocumento, int Metamodulo)> documentiDaFascicolare)
+        {
+            var fascicolatore = new XElement("fascicolatore",
+                new XAttribute("class", "it.lispa.edma.documenti.po.FascicoloPratica"),
+                new XElement("id", idPratica));
 
-            return root.ToString();
+            var docs = new XElement("docsDaFascicolare");
+            foreach (var d in documentiDaFascicolare)
+            {
+                docs.Add(new XElement("it.lispa.edma.documenti.po.DocumentoFile",
+                    new XElement("documentoBase",
+                        new XElement("metamodulo", d.Metamodulo)),
+                    new XElement("id", d.IdDocumento)));
+            }
+
+            var doc = new XElement("it.lispa.edma.documenti.dto.AssociaDocumentiProcedimentoDTO",
+                fascicolatore,
+                docs);
+            return WithXmlDeclaration(doc);
+        }
+
+        /// <summary>
+        ///     Genera il body per <c>DocumentoFile/{id}/protocollazioneApplicativa</c>:
+        ///     a differenza del servizio "protocolla" semplice, qui si specifica
+        ///     esplicitamente la struttura protocollante (AOO) e si compone uno
+        ///     scenario Mittente esterno + Destinatari interni (per DASI).
+        /// </summary>
+        public static string GeneraProtocollazioneApplicativaXml(ParametriProtocollazioneApplicativa parametri)
+        {
+            var scheda = new XElement("schedaProtocollo",
+                new XElement("flagRiscontro", parametri.FlagRiscontro),
+                new XElement("strutturaProtocollante",
+                    new XAttribute("class", "it.lispa.edma.penelope.po.Aoo"),
+                    new XElement("codice", parametri.CodiceStrutturaProtocollante ?? string.Empty)));
+
+            if (parametri.Mittente != null)
+                scheda.Add(new XElement("mittente", BuildMittenteEsterno(parametri.Mittente)));
+
+            var destinatari = new XElement("destinatari");
+            if (parametri.DestinatariCompetenza != null)
+                foreach (var d in parametri.DestinatariCompetenza)
+                    destinatari.Add(BuildDestinatarioInterno(d, tipologia: 2));
+            if (parametri.DestinatariConoscenza != null)
+                foreach (var d in parametri.DestinatariConoscenza)
+                    destinatari.Add(BuildDestinatarioInterno(d, tipologia: 1));
+            scheda.Add(destinatari);
+
+            if (parametri.NumeroAllegati > 0)
+                scheda.Add(new XElement("numeroAllegati", parametri.NumeroAllegati));
+            if (!string.IsNullOrEmpty(parametri.TipoAllegati))
+                scheda.Add(new XElement("tipoAllegati", parametri.TipoAllegati));
+            if (!string.IsNullOrEmpty(parametri.MezzoSpedizione))
+                scheda.Add(new XElement("mezzoSpedizione", parametri.MezzoSpedizione));
+            if (!string.IsNullOrEmpty(parametri.TipoDocumento))
+                scheda.Add(new XElement("tipoDocumento", parametri.TipoDocumento));
+
+            var documentoBase = new XElement("documentoBase",
+                new XElement("oggetto", parametri.Oggetto ?? string.Empty),
+                new XElement("riservato", ToXmlBool(parametri.Riservato)));
+            if (parametri.Riservato && !string.IsNullOrEmpty(parametri.MotivazioneRiservatezzaCodice))
+                documentoBase.Add(new XElement("motivazioneRiservatezza",
+                    new XAttribute("class", "it.lispa.edma.documenti.po.MotivazioneRiservatezza"),
+                    new XElement("codice", parametri.MotivazioneRiservatezzaCodice)));
+            scheda.Add(documentoBase);
+
+            var root = new XElement("it.lispa.edma.mercurioNew.dto.ParametriAccessoProtocollo", scheda);
+            return WithXmlDeclaration(root);
+        }
+
+        /// <summary>
+        ///     Body per <c>Metadocumento/caricaMetadocumento</c>: input e' una
+        ///     stringa contenente il codice del metadocumento. Restituisce poi
+        ///     un oggetto Metadocumento da cui leggere l'id.
+        /// </summary>
+        public static string GeneraCaricaMetadocumentoXml(string codiceMetadocumento)
+        {
+            var doc = new XElement("string", codiceMetadocumento ?? string.Empty);
+            return WithXmlDeclaration(doc);
+        }
+
+        private static XElement BuildSedeSoggetto(SedeSoggetto s)
+        {
+            var sede = new XElement("sedeSoggetto");
+            if (!string.IsNullOrEmpty(s.Via)) sede.Add(new XElement("via", s.Via));
+            if (!string.IsNullOrEmpty(s.Citta)) sede.Add(new XElement("citta", s.Citta));
+            if (!string.IsNullOrEmpty(s.Provincia)) sede.Add(new XElement("provincia", s.Provincia));
+            if (!string.IsNullOrEmpty(s.Cap)) sede.Add(new XElement("cap", s.Cap));
+            if (!string.IsNullOrEmpty(s.Regione)) sede.Add(new XElement("regione", s.Regione));
+            if (!string.IsNullOrEmpty(s.Stato)) sede.Add(new XElement("stato", s.Stato));
+            if (!string.IsNullOrEmpty(s.Email)) sede.Add(new XElement("email", s.Email));
+            if (!string.IsNullOrEmpty(s.Telefono)) sede.Add(new XElement("telefono", s.Telefono));
+            if (!string.IsNullOrEmpty(s.Fax)) sede.Add(new XElement("fax", s.Fax));
+            if (!string.IsNullOrEmpty(s.CodFiscale)) sede.Add(new XElement("codFiscale", s.CodFiscale));
+            if (!string.IsNullOrEmpty(s.Pariva)) sede.Add(new XElement("pariva", s.Pariva));
+            if (!string.IsNullOrEmpty(s.Descrizione)) sede.Add(new XElement("descrizione", s.Descrizione));
+            return sede;
+        }
+
+        private static XElement BuildMittenteEsterno(MittenteEsterno m)
+        {
+            var x = new XElement("it.lispa.edma.telemaco.po.MittenteEsterno",
+                new XElement("manuale", ToXmlBool(m.Manuale)),
+                new XElement("descrizione", m.Descrizione ?? string.Empty));
+            if (m.IndirizzoPostale != null)
+                x.Add(new XElement("indirizzoPostale",
+                    new XElement("indirizzo", m.IndirizzoPostale.Indirizzo ?? string.Empty),
+                    new XElement("comune", m.IndirizzoPostale.Comune ?? string.Empty),
+                    new XElement("provincia", m.IndirizzoPostale.Provincia ?? string.Empty),
+                    new XElement("cap", m.IndirizzoPostale.Cap ?? string.Empty)));
+            if (!string.IsNullOrEmpty(m.Email)) x.Add(new XElement("email", m.Email));
+            if (!string.IsNullOrEmpty(m.Fax)) x.Add(new XElement("fax", m.Fax));
+            if (!string.IsNullOrEmpty(m.Telefono)) x.Add(new XElement("telefono", m.Telefono));
+            if (!string.IsNullOrEmpty(m.PartitaIva)) x.Add(new XElement("partitaIva", m.PartitaIva));
+            if (!string.IsNullOrEmpty(m.CodFisc)) x.Add(new XElement("codFisc", m.CodFisc));
+            x.Add(new XElement("emailPec", ToXmlBool(m.EmailPec)));
+            return x;
+        }
+
+        private static XElement BuildDestinatarioInterno(DestinatarioInterno d, int tipologia)
+        {
+            return new XElement("it.lispa.edma.telemaco.po.DestinatarioInterno",
+                new XElement("codiceEc", d.CodiceEc ?? string.Empty),
+                new XElement("tipologia", d.Tipologia > 0 ? d.Tipologia : tipologia),
+                new XElement("principale", ToXmlBool(d.Principale)));
+        }
+
+        private static string ToXmlBool(bool value)
+        {
+            return value ? "true" : "false";
+        }
+
+        private static string WithXmlDeclaration(XElement root)
+        {
+            var doc = new XDocument(new XDeclaration("1.0", "ISO-8859-1", null), root);
+            return doc.Declaration + Environment.NewLine + root;
         }
     }
 }

@@ -44,11 +44,20 @@
     <ItemGroup>
         <Compile Include="Contracts\IEdmaApiService.cs" />
         <Compile Include="Helpers\EdmaXmlHelper.cs" />
+        <Compile Include="Helpers\EdmaXmlParser.cs" />
+        <Compile Include="Models\DestinatarioInterno.cs" />
         <Compile Include="Models\DocumentoBase.cs" />
         <Compile Include="Models\DocumentoFile.cs" />
         <Compile Include="Models\EdmaResponse.cs" />
+        <Compile Include="Models\FascicoloPratica.cs" />
         <Compile Include="Models\MetaDocumento.cs" />
+        <Compile Include="Models\MittenteEsterno.cs" />
+        <Compile Include="Models\ParametriProtocollazioneApplicativa.cs" />
+        <Compile Include="Models\Response\DocumentoFileOutput.cs" />
+        <Compile Include="Models\Response\FascicoloPraticaOutput.cs" />
+        <Compile Include="Models\Response\ProtocollazioneOutput.cs" />
         <Compile Include="Models\SchedaProtocollo.cs" />
+        <Compile Include="Models\SedeSoggetto.cs" />
         <Compile Include="Persistance\EdmaApiService.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>

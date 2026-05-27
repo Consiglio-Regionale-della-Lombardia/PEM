@@ -18,13 +18,54 @@
 
 using System.Threading.Tasks;
 using PortaleRegione.SDK.EDMA.Models;
+using PortaleRegione.SDK.EDMA.Models.Response;
 
 namespace PortaleRegione.SDK.EDMA.Contracts
 {
+    /// <summary>
+    ///     Servizi EDMA utilizzati per il flusso di protocollazione degli atti
+    ///     DASI. L'ordine delle chiamate previsto e':
+    ///     <list type="number">
+    ///         <item><see cref="CreaInserisciPraticaAsync"/></item>
+    ///         <item><see cref="CreaDocumentoAsync"/> (pdf principale)</item>
+    ///         <item><see cref="CreaInserisciDocumentoFiglioAsync"/> per ogni allegato</item>
+    ///         <item><see cref="AssociaDocumentiAsync"/> (lega il pdf alla pratica)</item>
+    ///         <item><see cref="ProtocollazioneApplicativaAsync"/> (assegna la segnatura)</item>
+    ///     </list>
+    ///     I metodi sono indipendenti per permettere riprese idempotenti in
+    ///     caso di errore parziale del flusso.
+    /// </summary>
     public interface IEdmaApiService
     {
-        Task<EdmaResponse> CreaDocumentoAsync(DocumentoBase documento, byte[] fileBytes, string estensioneFile);
-        Task<EdmaResponse> ProtocollaDocumentoAsync(string idDocumento, SchedaProtocollo scheda);
-        Task<EdmaResponse> CaricaMetaDocumentoAsync(MetaDocumento metaDocumento);
+        Task<EdmaResponse<int>> CaricaMetaDocumentoIdAsync(string codiceMetadocumento);
+
+        Task<EdmaResponse<FascicoloPraticaOutput>> CreaInserisciPraticaAsync(
+            string idSottoFascicoloPadre,
+            string codiceMetadocPadre,
+            int metamoduloPadre,
+            FascicoloPratica pratica);
+
+        Task<EdmaResponse<DocumentoFileOutput>> CreaDocumentoAsync(
+            DocumentoBase documento,
+            string nomeFile,
+            byte[] fileBytes,
+            string estensioneFile);
+
+        Task<EdmaResponse<DocumentoFileOutput>> CreaInserisciDocumentoFiglioAsync(
+            string idDocumentoPadre,
+            string codiceMetadocPadre,
+            DocumentoBase figlio,
+            string nomeFile,
+            byte[] fileBytes,
+            string estensioneFile);
+
+        Task<EdmaResponse<bool>> AssociaDocumentiAsync(
+            string idPratica,
+            string idDocumento,
+            int metamoduloDocumento);
+
+        Task<EdmaResponse<ProtocollazioneOutput>> ProtocollazioneApplicativaAsync(
+            string idDocumento,
+            ParametriProtocollazioneApplicativa parametri);
     }
 }

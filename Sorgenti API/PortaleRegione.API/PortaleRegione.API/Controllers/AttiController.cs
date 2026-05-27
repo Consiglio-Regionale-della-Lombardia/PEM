@@ -879,7 +879,11 @@ namespace PortaleRegione.API.Controllers
                     }
                 };
 
-                var result = await edmaService.CreaDocumentoAsync(documento, null, null);
+                // NB: questo endpoint verra' sostituito nello sprint 5 da
+                // POST api/dasi/{uid}/protocolla che orchestra l'intero flusso
+                // a 5 step EDMA. Lascio qui solo lo scheletro compilabile per
+                // non perdere il routing nel frattempo.
+                var result = await edmaService.CreaDocumentoAsync(documento, null, null, null);
 
                 return Ok(result);
             }

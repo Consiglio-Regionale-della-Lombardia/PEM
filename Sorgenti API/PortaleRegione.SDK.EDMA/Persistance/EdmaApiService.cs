@@ -21,139 +21,172 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using PortaleRegione.SDK.EDMA.Contracts;
 using PortaleRegione.SDK.EDMA.Helpers;
 using PortaleRegione.SDK.EDMA.Models;
+using PortaleRegione.SDK.EDMA.Models.Response;
 
 namespace PortaleRegione.SDK.EDMA.Persistance
 {
+    /// <summary>
+    ///     Implementazione del client EDMA. Le chiamate sono POST XML in
+    ///     ISO-8859-1 con autenticazione Basic, secondo quanto previsto dalla
+    ///     specifica RSI3. L'<see cref="HttpClient"/> e' un singleton statico
+    ///     condiviso fra tutte le istanze del servizio: ASP.NET le ricrea
+    ///     spesso e il pattern <c>using new HttpClient()</c> esaurirebbe le
+    ///     socket disponibili sotto carico.
+    /// </summary>
     public class EdmaApiService : IEdmaApiService
     {
+        private static readonly HttpClient SharedHttpClient = new HttpClient
+        {
+            // Il timeout effettivo viene poi sovrascritto per ogni chiamata
+            // tramite CancellationToken se servisse un valore piu' restrittivo.
+            Timeout = TimeSpan.FromMinutes(15)
+        };
+
+        private static readonly Encoding Iso88591 = Encoding.GetEncoding("ISO-8859-1");
+
         private readonly string _url;
         private readonly string _username;
         private readonly string _password;
+        private readonly bool _noSession;
+        private readonly Action<string, Exception> _logger;
 
-        public EdmaApiService(string url, string username, string password)
+        public EdmaApiService(string url, string username, string password,
+            bool noSession = true,
+            Action<string, Exception> logger = null)
         {
-            _url = url;
-            _username = username;
-            _password = password;
+            _url = (url ?? string.Empty).TrimEnd('/');
+            _username = username ?? string.Empty;
+            _password = password ?? string.Empty;
+            _noSession = noSession;
+            _logger = logger;
         }
 
-        /// <summary>
-        ///     Crea un documento in EDMA
-        /// </summary>
-        public async Task<EdmaResponse> CreaDocumentoAsync(DocumentoBase documento, byte[] fileBytes, string estensioneFile)
+        public async Task<EdmaResponse<int>> CaricaMetaDocumentoIdAsync(string codiceMetadocumento)
+        {
+            var body = EdmaXmlHelper.GeneraCaricaMetadocumentoXml(codiceMetadocumento);
+            var endpoint = BuildEndpoint("Metadocumento/caricaMetadocumento");
+            var raw = await PostXmlAsync(endpoint, body).ConfigureAwait(false);
+            if (raw.Errore != null)
+                return EdmaResponse<int>.Fail(raw.Errore, raw.Body);
+            var id = EdmaXmlParser.ParseMetadocumentoId(raw.Body);
+            return EdmaResponse<int>.Ok(id, raw.Body);
+        }
+
+        public async Task<EdmaResponse<FascicoloPraticaOutput>> CreaInserisciPraticaAsync(
+            string idSottoFascicoloPadre,
+            string codiceMetadocPadre,
+            int metamoduloPadre,
+            FascicoloPratica pratica)
+        {
+            var body = EdmaXmlHelper.GeneraCreaInserisciPraticaXml(idSottoFascicoloPadre, codiceMetadocPadre,
+                metamoduloPadre, pratica);
+            var endpoint = BuildEndpoint("FascicoloPratica/creaInserisciDocumento");
+            var raw = await PostXmlAsync(endpoint, body).ConfigureAwait(false);
+            if (raw.Errore != null)
+                return EdmaResponse<FascicoloPraticaOutput>.Fail(raw.Errore, raw.Body);
+            var parsed = EdmaXmlParser.ParseFascicoloPratica(raw.Body);
+            return EdmaResponse<FascicoloPraticaOutput>.Ok(parsed, raw.Body);
+        }
+
+        public async Task<EdmaResponse<DocumentoFileOutput>> CreaDocumentoAsync(
+            DocumentoBase documento, string nomeFile, byte[] fileBytes, string estensioneFile)
+        {
+            var body = EdmaXmlHelper.GeneraCreaDocumentoXml(documento, nomeFile, fileBytes, estensioneFile);
+            var endpoint = BuildEndpoint("DocumentoFile/creaDocumento");
+            var raw = await PostXmlAsync(endpoint, body).ConfigureAwait(false);
+            if (raw.Errore != null)
+                return EdmaResponse<DocumentoFileOutput>.Fail(raw.Errore, raw.Body);
+            var parsed = EdmaXmlParser.ParseDocumentoFile(raw.Body);
+            return EdmaResponse<DocumentoFileOutput>.Ok(parsed, raw.Body);
+        }
+
+        public async Task<EdmaResponse<DocumentoFileOutput>> CreaInserisciDocumentoFiglioAsync(
+            string idDocumentoPadre, string codiceMetadocPadre,
+            DocumentoBase figlio, string nomeFile, byte[] fileBytes, string estensioneFile)
+        {
+            var body = EdmaXmlHelper.GeneraCreaInserisciDocumentoFiglioXml(idDocumentoPadre, codiceMetadocPadre,
+                figlio, nomeFile, fileBytes, estensioneFile);
+            var endpoint = BuildEndpoint("DocumentoFile/creaInserisciDocumento");
+            var raw = await PostXmlAsync(endpoint, body).ConfigureAwait(false);
+            if (raw.Errore != null)
+                return EdmaResponse<DocumentoFileOutput>.Fail(raw.Errore, raw.Body);
+            var parsed = EdmaXmlParser.ParseDocumentoFile(raw.Body);
+            return EdmaResponse<DocumentoFileOutput>.Ok(parsed, raw.Body);
+        }
+
+        public async Task<EdmaResponse<bool>> AssociaDocumentiAsync(
+            string idPratica, string idDocumento, int metamoduloDocumento)
+        {
+            var body = EdmaXmlHelper.GeneraAssociaDocumentiXml(idPratica,
+                new[] { (IdDocumento: idDocumento, Metamodulo: metamoduloDocumento) });
+            var endpoint = BuildEndpoint($"FascicoloPratica/{idPratica}/associaDocumenti");
+            var raw = await PostXmlAsync(endpoint, body).ConfigureAwait(false);
+            if (raw.Errore != null)
+                return EdmaResponse<bool>.Fail(raw.Errore, raw.Body);
+            var esito = EdmaXmlParser.ParseBoolean(raw.Body);
+            return EdmaResponse<bool>.Ok(esito, raw.Body);
+        }
+
+        public async Task<EdmaResponse<ProtocollazioneOutput>> ProtocollazioneApplicativaAsync(
+            string idDocumento, ParametriProtocollazioneApplicativa parametri)
+        {
+            var body = EdmaXmlHelper.GeneraProtocollazioneApplicativaXml(parametri);
+            var endpoint = BuildEndpoint($"DocumentoFile/{idDocumento}/protocollazioneApplicativa");
+            var raw = await PostXmlAsync(endpoint, body).ConfigureAwait(false);
+            if (raw.Errore != null)
+                return EdmaResponse<ProtocollazioneOutput>.Fail(raw.Errore, raw.Body);
+            var parsed = EdmaXmlParser.ParseProtocollazione(raw.Body);
+            return EdmaResponse<ProtocollazioneOutput>.Ok(parsed, raw.Body);
+        }
+
+        // ----------------------------------------------------------------
+        // Trasporto HTTP
+        // ----------------------------------------------------------------
+
+        private string BuildEndpoint(string servicePath)
+        {
+            var url = $"{_url}/EdmaWeb/service/{servicePath}";
+            if (_noSession)
+                url += url.Contains("?") ? "&no-session=true" : "?no-session=true";
+            return url;
+        }
+
+        private async Task<(string Body, string Errore)> PostXmlAsync(string endpoint, string xmlBody)
         {
             try
             {
-                var xmlBody = EdmaXmlHelper.GeneraCreaDocumentoXml(documento, fileBytes, estensioneFile);
-                var endpoint = $"{_url}/EdmaWeb/service/DocumentoFile/creaDocumento?no-session=true";
-                var responseData = await PostXmlAsync(endpoint, xmlBody);
-
-                return new EdmaResponse
+                using (var request = new HttpRequestMessage(HttpMethod.Post, endpoint))
                 {
-                    Success = true,
-                    RawResponse = responseData
-                };
+                    var basic = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_username}:{_password}"));
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", basic);
+
+                    var content = new StringContent(xmlBody, Iso88591, "text/xml");
+                    // Forziamo il charset corretto sull'header (StringContent
+                    // a volte aggiunge utf-8 anche con l'Encoding settato).
+                    content.Headers.ContentType.CharSet = "ISO-8859-1";
+                    request.Content = content;
+
+                    using (var response = await SharedHttpClient.SendAsync(request).ConfigureAwait(false))
+                    {
+                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            var msg = $"HTTP {(int)response.StatusCode} {response.ReasonPhrase} su {endpoint}";
+                            _logger?.Invoke(msg + Environment.NewLine + responseBody, null);
+                            return (responseBody, msg);
+                        }
+
+                        return (responseBody, null);
+                    }
+                }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return new EdmaResponse
-                {
-                    Success = false,
-                    Message = e.Message,
-                    RawResponse = e.ToString()
-                };
-            }
-        }
-
-        /// <summary>
-        ///     Invia un documento al protocollo EDMA
-        /// </summary>
-        public async Task<EdmaResponse> ProtocollaDocumentoAsync(string idDocumento, SchedaProtocollo scheda)
-        {
-            try
-            {
-                var xmlBody = EdmaXmlHelper.GeneraProtocollaXml(scheda);
-                var endpoint = $"{_url}/EdmaWeb/service/DocumentoFile/{idDocumento}/protocolla?no-session=true";
-                var responseData = await PostXmlAsync(endpoint, xmlBody);
-
-                return new EdmaResponse
-                {
-                    Success = true,
-                    RawResponse = responseData
-                };
-            }
-            catch (Exception e)
-            {
-                return new EdmaResponse
-                {
-                    Success = false,
-                    Message = e.Message,
-                    RawResponse = e.ToString()
-                };
-            }
-        }
-
-        /// <summary>
-        ///     Carica un metadocumento in EDMA
-        /// </summary>
-        public async Task<EdmaResponse> CaricaMetaDocumentoAsync(MetaDocumento metaDocumento)
-        {
-            try
-            {
-                var xmlBody = new XElement("metadocumento",
-                    new XAttribute("class", "it.lispa.edma.erato.po.Metadocumento"),
-                    new XAttribute("id", "5"),
-                    new XAttribute("resolves-to", "it.lispa.edma.erato.po.Metadocumento"),
-                    new XElement("codice", metaDocumento.Codice ?? string.Empty),
-                    new XElement("descrizione", metaDocumento.Descrizione ?? string.Empty),
-                    new XElement("daProtocollare", metaDocumento.DaProtocollare.ToString().ToLower()),
-                    new XElement("daFirmare", metaDocumento.DaFirmare.ToString().ToLower()),
-                    new XElement("fascicolo", metaDocumento.Fascicolo.ToString().ToLower()),
-                    new XElement("modelloobbligatorio", metaDocumento.ModelloObbligatorio.ToString().ToLower()),
-                    new XElement("privato", metaDocumento.Privato.ToString().ToLower()),
-                    new XElement("esportabile", metaDocumento.Esportabile.ToString().ToLower()),
-                    new XElement("id", metaDocumento.Id)
-                ).ToString();
-
-                var endpoint = $"{_url}/EdmaWeb/service/Metadocumento/caricaMetadocumento?no-session=true";
-                var responseData = await PostXmlAsync(endpoint, xmlBody);
-
-                return new EdmaResponse
-                {
-                    Success = true,
-                    RawResponse = responseData
-                };
-            }
-            catch (Exception e)
-            {
-                return new EdmaResponse
-                {
-                    Success = false,
-                    Message = e.Message,
-                    RawResponse = e.ToString()
-                };
-            }
-        }
-
-        private async Task<string> PostXmlAsync(string endpoint, string xmlBody)
-        {
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.Timeout = TimeSpan.FromMinutes(10);
-
-                var byteArray = Encoding.ASCII.GetBytes($"{_username}:{_password}");
-                var token = Convert.ToBase64String(byteArray);
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-
-                var content = new StringContent(xmlBody, Encoding.GetEncoding("ISO-8859-1"), "text/xml");
-                var response = await httpClient.PostAsync(endpoint, content);
-                response.EnsureSuccessStatusCode();
-
-                return await response.Content.ReadAsStringAsync();
+                _logger?.Invoke($"Eccezione su {endpoint}", ex);
+                return (null, ex.Message);
             }
         }
     }
