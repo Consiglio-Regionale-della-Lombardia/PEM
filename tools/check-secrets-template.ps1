@@ -1,53 +1,77 @@
-# Verifica che ogni Secrets.config locale e il corrispondente Secrets.config.example
-# elenchino le stesse chiavi. Lo scopo è non dimenticare di aggiornare il template
-# quando si introduce una nuova chiave riservata nel proprio ambiente.
+# Verifica che ogni *.config locale e il corrispondente *.config.example
+# elenchino le stesse chiavi. Lo scopo e' non dimenticare di aggiornare il
+# template quando si introduce una nuova chiave riservata / di configurazione
+# nel proprio ambiente.
 #
-# Restituisce exit code 1 se nel Secrets.config locale ci sono chiavi non presenti
-# nel template, exit code 0 altrimenti. Le chiavi presenti solo nel template (cioè
-# previste ma non ancora popolate in locale) sono segnalate come warning.
+# Per default lo script valida sia Secrets.config che Edma.config.
+# Il nome del file e' rimasto "check-secrets-template.ps1" per non rompere
+# il pre-commit (.githooks/pre-commit) e gli alias gia' presenti.
+#
+# Restituisce exit code 1 se, in uno qualsiasi dei file locali, ci sono
+# chiavi non presenti nel template corrispondente. Le chiavi presenti solo
+# nel template (cioe' previste ma non ancora popolate in locale) sono
+# segnalate come warning ma non causano fallimento.
+#
+# Uso:
+#   .\check-secrets-template.ps1
+#   .\check-secrets-template.ps1 -Patterns 'Secrets.config.example','Edma.config.example'
+#   .\check-secrets-template.ps1 -Patterns 'Edma.config.example'    # solo EDMA
 
 [CmdletBinding()]
-param()
+param(
+    [string[]]$Patterns = @('Secrets.config.example', 'Edma.config.example')
+)
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 
-function Get-AppSettingKeys {
+function Get-ConfigKeys {
     param([string]$Path)
     [xml]$xml = Get-Content -Path $Path -Encoding UTF8 -Raw
-    $nodes = $xml.SelectNodes('//appSettings/add')
+    # La root del file e' <appSettings> per Secrets.config e <edmaSettings>
+    # per Edma.config; in entrambi i casi le chiavi sono in <add key="...">,
+    # quindi un XPath generico va bene.
+    $nodes = $xml.SelectNodes('//add[@key]')
     return @($nodes | ForEach-Object { $_.GetAttribute('key') } | Where-Object { $_ })
 }
 
-$templates = Get-ChildItem -Path $repoRoot -Recurse -Filter 'Secrets.config.example' -File
 $exitCode = 0
 
-foreach ($template in $templates) {
-    $localPath = Join-Path $template.DirectoryName 'Secrets.config'
-    if (-not (Test-Path $localPath)) {
-        Write-Host "[skip] $($template.FullName.Substring($repoRoot.Length + 1)) (Secrets.config non presente in locale)"
+foreach ($pattern in $Patterns) {
+    $templates = Get-ChildItem -Path $repoRoot -Recurse -Filter $pattern -File
+    if ($templates.Count -eq 0) {
+        Write-Host "[info] nessun template trovato per pattern '$pattern'"
         continue
     }
 
-    $templateKeys = Get-AppSettingKeys -Path $template.FullName
-    $localKeys    = Get-AppSettingKeys -Path $localPath
+    foreach ($template in $templates) {
+        $localName = $template.Name.Replace('.example', '')
+        $localPath = Join-Path $template.DirectoryName $localName
+        $rel = $template.FullName.Substring($repoRoot.Length + 1)
 
-    $missingInTemplate = @($localKeys | Where-Object { $templateKeys -notcontains $_ })
-    $missingInLocal    = @($templateKeys | Where-Object { $localKeys -notcontains $_ })
+        if (-not (Test-Path $localPath)) {
+            Write-Host "[skip] $rel ($localName non presente in locale)"
+            continue
+        }
 
-    $rel = $template.FullName.Substring($repoRoot.Length + 1)
+        $templateKeys = Get-ConfigKeys -Path $template.FullName
+        $localKeys    = Get-ConfigKeys -Path $localPath
 
-    if ($missingInTemplate.Count -gt 0) {
-        Write-Host "[errore] $rel : chiavi presenti in Secrets.config ma assenti dal template:" -ForegroundColor Red
-        $missingInTemplate | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
-        $exitCode = 1
-    }
-    if ($missingInLocal.Count -gt 0) {
-        Write-Host "[avviso] $rel : chiavi nel template ma assenti dal Secrets.config locale:" -ForegroundColor Yellow
-        $missingInLocal | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
-    }
-    if ($missingInTemplate.Count -eq 0 -and $missingInLocal.Count -eq 0) {
-        Write-Host "[ok] $rel"
+        $missingInTemplate = @($localKeys | Where-Object { $templateKeys -notcontains $_ })
+        $missingInLocal    = @($templateKeys | Where-Object { $localKeys -notcontains $_ })
+
+        if ($missingInTemplate.Count -gt 0) {
+            Write-Host "[errore] $rel : chiavi presenti in $localName ma assenti dal template:" -ForegroundColor Red
+            $missingInTemplate | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+            $exitCode = 1
+        }
+        if ($missingInLocal.Count -gt 0) {
+            Write-Host "[avviso] $rel : chiavi nel template ma assenti dal $localName locale:" -ForegroundColor Yellow
+            $missingInLocal | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
+        }
+        if ($missingInTemplate.Count -eq 0 -and $missingInLocal.Count -eq 0) {
+            Write-Host "[ok] $rel"
+        }
     }
 }
 

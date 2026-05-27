@@ -88,9 +88,66 @@ namespace PortaleRegione.BAL
         public static string GEA_Username => ConfigurationManager.AppSettings["GEA_Username"];
         public static string GEA_Password => ConfigurationManager.AppSettings["GEA_Password"];
 
-        /*INTEGRAZIONE EDMA*/
-        public static string EDMA_Url => ConfigurationManager.AppSettings["EDMA_Url"];
-        public static string EDMA_Username => ConfigurationManager.AppSettings["EDMA_Username"];
-        public static string EDMA_Password => ConfigurationManager.AppSettings["EDMA_Password"];
+        /*INTEGRAZIONE EDMA
+         * Tutte le chiavi EDMA_* sono nella sezione custom <edmaSettings> del
+         * Web.config, popolata via configSource="Edma.config" (file gitignored,
+         * template in Edma.config.example). Vedi EdmaSettings.cs. */
+
+        // -- Connessione EDMA --
+        public static string EDMA_Url => EdmaSettings.Get("EDMA_Url");
+        public static string EDMA_Username => EdmaSettings.Get("EDMA_Username");
+        public static string EDMA_Password => EdmaSettings.Get("EDMA_Password");
+        public static bool EDMA_NoSession => EdmaSettings.GetBool("EDMA_NoSession", true);
+        public static int EDMA_TimeoutSeconds => EdmaSettings.GetInt("EDMA_TimeoutSeconds", 300);
+        public static string EDMA_EdmaWebUrl => EdmaSettings.Get("EDMA_EdmaWebUrl");
+
+        // -- Identita' autore e mittente Pratica --
+        public static string EDMA_CodAutore => EdmaSettings.GetOrDefault("EDMA_CodAutore", "SYSTEM_GEDASI");
+        public static string EDMA_CF_Consiglio => EdmaSettings.Get("EDMA_CF_Consiglio");
+        public static string EDMA_DescrizioneSoggettoPratica => EdmaSettings.GetOrDefault("EDMA_DescrizioneSoggettoPratica", "Consiglio Regionale della Lombardia");
+
+        // -- Metadocumenti --
+        public static string EDMA_CodiceMetadocumento_Atto => EdmaSettings.GetOrDefault("EDMA_CodiceMetadocumento_Atto", "GEDASI_FILE");
+        public static string EDMA_CodiceMetadocumento_Allegato => EdmaSettings.GetOrDefault("EDMA_CodiceMetadocumento_Allegato", "GEDASI_ALLEGATO");
+        public static string EDMA_CodiceMetadocumento_Pratica => EdmaSettings.GetOrDefault("EDMA_CodiceMetadocumento_Pratica", "FascicoloPratica");
+
+        // -- Sotto-fascicoli per tipologia atto --
+        public static string EDMA_Sottofascicolo_ITL_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_ITL_Titolario");
+        public static string EDMA_Sottofascicolo_ITL_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_ITL_IdEdma");
+        public static string EDMA_Sottofascicolo_ITR_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_ITR_Titolario");
+        public static string EDMA_Sottofascicolo_ITR_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_ITR_IdEdma");
+        public static string EDMA_Sottofascicolo_MOZ_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_MOZ_Titolario");
+        public static string EDMA_Sottofascicolo_MOZ_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_MOZ_IdEdma");
+        public static string EDMA_Sottofascicolo_ODG_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_ODG_Titolario");
+        public static string EDMA_Sottofascicolo_ODG_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_ODG_IdEdma");
+        public static string EDMA_Sottofascicolo_IQT_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_IQT_Titolario");
+        public static string EDMA_Sottofascicolo_IQT_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_IQT_IdEdma");
+        public static string EDMA_Sottofascicolo_RIS_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_RIS_Titolario");
+        public static string EDMA_Sottofascicolo_RIS_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_RIS_IdEdma");
+
+        // -- Pratica - istruttore e parametri --
+        public static string EDMA_Istruttore_CodPersona => EdmaSettings.Get("EDMA_Istruttore_CodPersona");
+        public static string EDMA_Responsabile_CodPersona => EdmaSettings.Get("EDMA_Responsabile_CodPersona");
+        public static int EDMA_AnniConservazione_Pratica => EdmaSettings.GetInt("EDMA_AnniConservazione_Pratica", 10);
+        public static string EDMA_DataChiusura_Pratica => EdmaSettings.GetOrDefault("EDMA_DataChiusura_Pratica", "09/09/2099");
+
+        // -- Protocollazione --
+        public static bool EDMA_UseProtocollazioneApplicativa => EdmaSettings.GetBool("EDMA_UseProtocollazioneApplicativa", true);
+        public static string EDMA_StrutturaProtocollante => EdmaSettings.Get("EDMA_StrutturaProtocollante");
+        public static string EDMA_TipoProtocollo => EdmaSettings.GetOrDefault("EDMA_TipoProtocollo", "Arrivo");
+        public static int EDMA_FlagRiscontro => EdmaSettings.GetInt("EDMA_FlagRiscontro", 1);
+        public static string EDMA_MezzoSpedizione => EdmaSettings.GetOrDefault("EDMA_MezzoSpedizione", "Posta interna");
+        public static string EDMA_TipoDocumento => EdmaSettings.GetOrDefault("EDMA_TipoDocumento", "Atto DASI");
+        public static string EDMA_CodiceEnteCompetente_Destinatario_Competenza => EdmaSettings.GetOrDefault("EDMA_CodiceEnteCompetente_Destinatario_Competenza", "CRA0060102");
+        public static string EDMA_CodiceEnteCompetente_Destinatari_PerConoscenza => EdmaSettings.GetOrDefault("EDMA_CodiceEnteCompetente_Destinatari_PerConoscenza", string.Empty);
+
+        // -- Resilienza e modalita' degradata --
+        public static int EDMA_RetryMaxAttempts => EdmaSettings.GetInt("EDMA_RetryMaxAttempts", 5);
+        public static string EDMA_RetryBackoffSeconds => EdmaSettings.GetOrDefault("EDMA_RetryBackoffSeconds", "60,180,600,1800,3600");
+        public static bool EDMA_UseFallbackEmail => EdmaSettings.GetBool("EDMA_UseFallbackEmail", false);
+
+        // -- Feature flag UI --
+        public static bool EDMA_AbilitaEditManualeProtocollo => EdmaSettings.GetBool("EDMA_AbilitaEditManualeProtocollo", true);
+        public static bool EDMA_AbilitaAnnulloProtocollo => EdmaSettings.GetBool("EDMA_AbilitaAnnulloProtocollo", false);
     }
 }

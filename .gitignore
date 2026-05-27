@@ -11,9 +11,13 @@
 
 # File di configurazione con credenziali: tenuti fuori dal repository.
 # I Web.config / App.config strutturali sono invece versionati e leggono i
-# secrets da Secrets.config tramite l'attributo file= di <appSettings>.
+# secrets da Secrets.config tramite l'attributo file= di <appSettings>,
+# e la configurazione EDMA da Edma.config tramite configSource sulla
+# sezione custom <edmaSettings>.
 Secrets.config
 *.Secrets.config
+Edma.config
+*.Edma.config
 *.local.config
 /Sorgenti API/PortaleRegione.API/.vs/PortaleRegione.API/v16/TestStore/0
 /Sorgenti API/PortaleRegione.API/packages

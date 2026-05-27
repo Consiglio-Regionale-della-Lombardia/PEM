@@ -173,6 +173,7 @@
   <ItemGroup>
     <Compile Include="AdminLogic.cs" />
     <Compile Include="AppSettingsConfiguration.cs" />
+    <Compile Include="EdmaSettings.cs" />
     <Compile Include="AttiFirmeLogic.cs" />
     <Compile Include="AttiLogic.cs" />
     <Compile Include="AuthLogic.cs" />

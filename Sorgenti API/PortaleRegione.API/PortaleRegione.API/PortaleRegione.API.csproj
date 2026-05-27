@@ -266,6 +266,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <Content Include="Secrets.config.example" />
+    <Content Include="Edma.config.example" />
     <Content Include="Templates\DASI\template_report_item_card.html" />
     <Content Include="Templates\DASI\template_report_header_default.html" />
     <Content Include="Templates\DASI\template_firma.html" />
@@ -284,6 +285,7 @@
     <Content Include="Templates\template_pdf_copertina.html" />
     <Content Include="Web.config" />
     <None Include="Secrets.config" />
+    <None Include="Edma.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
