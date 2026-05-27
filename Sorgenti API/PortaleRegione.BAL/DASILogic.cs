@@ -65,7 +65,7 @@ namespace PortaleRegione.API.Controllers
         internal AdminLogic _logicAdmin;
 
         public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicAttiFirme,
-            SeduteLogic logicSedute, AttiLogic logicAtti, UtilsLogic logicUtil, AdminLogic logicAdmin)
+            SeduteLogic logicSedute, AttiLogic logicAtti, UtilsLogic logicUtil, AdminLogic logicAdmin, IMapper mapper)
         {
             _logicAdmin = logicAdmin;
             _unitOfWork = unitOfWork;
@@ -74,6 +74,7 @@ namespace PortaleRegione.API.Controllers
             _logicSedute = logicSedute;
             _logicAtti = logicAtti;
             _logicUtil = logicUtil;
+            _mapper = mapper;
 
             GetUsersInDb();
             GetGroupsInDb();
@@ -517,7 +518,7 @@ namespace PortaleRegione.API.Controllers
                 notaInDb.UIDPersona = currentUser.UID_persona;
                 notaInDb.Data = DateTime.Now;
                 await _unitOfWork.CompleteAsync();
-                return Mapper.Map<ATTI_NOTE, NoteDto>(notaInDb);
+                return _mapper.Map<ATTI_NOTE, NoteDto>(notaInDb);
             }
             else
             {
@@ -546,7 +547,7 @@ namespace PortaleRegione.API.Controllers
                 _unitOfWork.DASI.AggiungiNota(newNota);
                 await _unitOfWork.CompleteAsync();
 
-                return Mapper.Map<ATTI_NOTE, NoteDto>(newNota);
+                return _mapper.Map<ATTI_NOTE, NoteDto>(newNota);
             }
         }
 
@@ -1289,7 +1290,7 @@ namespace PortaleRegione.API.Controllers
         {
             var attoInDb = await _unitOfWork.DASI.Get(attoUid);
 
-            var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+            var dto = _mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
             dto.DisplayTipo = Utility.GetText_Tipo(attoInDb.Tipo);
 
@@ -1311,7 +1312,7 @@ namespace PortaleRegione.API.Controllers
 
                 if (dto.id_gruppo > 0)
                     dto.gruppi_politici =
-                        Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                        _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                             await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
 
                 if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
@@ -1378,11 +1379,11 @@ namespace PortaleRegione.API.Controllers
                 : dto.PersonaCreazione;
 
             if (attoInDb.UIDSeduta.HasValue)
-                dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(await _unitOfWork.Sedute.Get(attoInDb.UIDSeduta.Value));
+                dto.Seduta = _mapper.Map<SEDUTE, SeduteDto>(await _unitOfWork.Sedute.Get(attoInDb.UIDSeduta.Value));
 
             var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
             dto.Organi = commissioni
-                .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
+                .Select(_mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
 
             return dto;
         }
@@ -1396,7 +1397,7 @@ namespace PortaleRegione.API.Controllers
 
             columns ??= typeof(AttiDASIColums).GetProperties().Select(prop => prop.Name).ToList();
 
-            var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+            var dto = _mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
             // #1191
             if (cleanText)
@@ -1517,7 +1518,7 @@ namespace PortaleRegione.API.Controllers
 
                 if (!dto.IsRIS())
                     dto.gruppi_politici =
-                        Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                        _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                             await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
 
                 if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
@@ -1556,7 +1557,7 @@ namespace PortaleRegione.API.Controllers
 
                 var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
                 dto.Organi = commissioni
-                    .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
+                    .Select(_mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
 
                 if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO
                     && attoInDb.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
@@ -1580,7 +1581,7 @@ namespace PortaleRegione.API.Controllers
 
                     if (sedutaInDb != null)
                     {
-                        dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
+                        dto.Seduta = _mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
                         var presentato_oltre_termini = IsOutdate(dto);
                         dto.PresentatoOltreITermini = presentato_oltre_termini;
                     }
@@ -2670,7 +2671,7 @@ namespace PortaleRegione.API.Controllers
                 || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
             {
                 var firmatari =
-                    await _logicAttiFirme.GetFirme(Mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
+                    await _logicAttiFirme.GetFirme(_mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
                 var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma) && i.Prioritario).ToList();
                 var firmatari_di_altri_gruppi = firme.Any(i => i.id_gruppo != atto.id_gruppo);
 
@@ -3120,7 +3121,7 @@ namespace PortaleRegione.API.Controllers
         {
             var result = await _unitOfWork.DASI.GetSoggettiInterrogabili();
             return result
-                .Select(Mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>)
+                .Select(_mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>)
                 .ToList();
         }
 
@@ -3191,7 +3192,7 @@ namespace PortaleRegione.API.Controllers
         {
             var result = await _unitOfWork.DASI.GetCommissioniAttive();
             return result
-                .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>)
+                .Select(_mapper.Map<View_Commissioni_attive, OrganoDto>)
                 .ToList();
         }
 
@@ -3369,7 +3370,7 @@ namespace PortaleRegione.API.Controllers
                     return;
                 var attoDto = await GetAttoDto(atto.UIDAtto);
                 attoDto.Seduta =
-                    Mapper.Map<SEDUTE, SeduteDto>(
+                    _mapper.Map<SEDUTE, SeduteDto>(
                         await _unitOfWork.Sedute.Get(Convert.ToDateTime(attoDto.DataRichiestaIscrizioneSeduta)));
                 var out_of_date = IsOutdate(attoDto);
                 try
@@ -3546,7 +3547,7 @@ namespace PortaleRegione.API.Controllers
                     return;
                 atto = await GetAttoDto(guid);
                 atto.Seduta =
-                    Mapper.Map<SEDUTE, SeduteDto>(
+                    _mapper.Map<SEDUTE, SeduteDto>(
                         await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta)));
                 if (IsOutdate(atto))
                     try
@@ -3756,7 +3757,7 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .GetInvitati(atto.UIDAtto);
                 var destinatari = invitati
-                    .Select(Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>)
+                    .Select(_mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>)
                     .ToList();
                 var result = new List<DestinatariNotificaDto>();
                 foreach (var destinatario in destinatari)
@@ -4867,7 +4868,7 @@ namespace PortaleRegione.API.Controllers
             var pdfs = new List<FileModel>();
             foreach (var dto in attiList)
             {
-                var pdf = await PDFIstantaneo(Mapper.Map<AttoDASIDto, ATTI_DASI>(dto), null);
+                var pdf = await PDFIstantaneo(_mapper.Map<AttoDASIDto, ATTI_DASI>(dto), null);
                 pdfs.Add(new FileModel
                 {
                     Name = dto.Display + ".pdf",

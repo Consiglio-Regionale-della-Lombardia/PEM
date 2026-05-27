@@ -46,12 +46,13 @@ namespace PortaleRegione.BAL
     public class EmendamentiLogic : BaseLogic
     {
         public EmendamentiLogic(IUnitOfWork unitOfWork, FirmeLogic logicFirme, PersoneLogic logicPersone,
-            UtilsLogic logicUtil)
+            UtilsLogic logicUtil, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logicFirme = logicFirme;
             _logicPersona = logicPersone;
             _logicUtil = logicUtil;
+            _mapper = mapper;
 
             GetUsersInDb();
             GetGroupsInDb();
@@ -254,7 +255,7 @@ namespace PortaleRegione.BAL
                     emendamento.id_gruppo = persona.Gruppo.id_gruppo;
 
                 emendamento.UIDAtto = atto.UIDAtto;
-                emendamento.ATTI = Mapper.Map<ATTI, AttiDto>(atto);
+                emendamento.ATTI = _mapper.Map<ATTI, AttiDto>(atto);
 
                 result.ListaPartiEmendabili = await GetPartiEM();
                 result.ListaTipiEmendamento = await GetTipiEM();
@@ -263,7 +264,7 @@ namespace PortaleRegione.BAL
                 result.ListaArticoli = await GetArticoli(atto.UIDAtto);
 
                 result.Emendamento = emendamento;
-                result.Atto = Mapper.Map<ATTI, AttiDto>(atto);
+                result.Atto = _mapper.Map<ATTI, AttiDto>(atto);
 
                 if (persona.IsSegreteriaAssemblea)
                     result.Emendamento.TestoEM_originale = AppSettingsConfiguration.TestoEMCartaceo;
@@ -292,17 +293,17 @@ namespace PortaleRegione.BAL
                         result.ListaConsiglieri =
                             (await _unitOfWork.Persone.GetConsiglieri(
                                 await _unitOfWork.Legislature.Legislatura_Attiva()))
-                            .Select(Mapper.Map<View_UTENTI, PersonaDto>);
+                            .Select(_mapper.Map<View_UTENTI, PersonaDto>);
                         result.ListaAssessori = (await _unitOfWork.Persone
                                 .GetAssessoriRiferimento(await _unitOfWork.Legislature.Legislatura_Attiva()))
-                            .Select(Mapper.Map<View_UTENTI, PersonaDto>);
+                            .Select(_mapper.Map<View_UTENTI, PersonaDto>);
                         result.ListaAreaPolitica = Utility.GetEnumList<AreaPoliticaIntEnum>();
                     }
                     else
                     {
                         result.ListaGruppo = (await _unitOfWork.Gruppi.GetConsiglieriGruppo(
                                 await _unitOfWork.Legislature.Legislatura_Attiva(), persona.Gruppo.id_gruppo))
-                            .Select(Mapper.Map<View_UTENTI, PersonaDto>);
+                            .Select(_mapper.Map<View_UTENTI, PersonaDto>);
                     }
                 }
 
@@ -313,7 +314,7 @@ namespace PortaleRegione.BAL
                 result.ListaArticoli = (await _unitOfWork
                         .Articoli
                         .GetArticoli(em.UIDAtto))
-                    .Select(Mapper.Map<ARTICOLI, ArticoliDto>);
+                    .Select(_mapper.Map<ARTICOLI, ArticoliDto>);
 
                 if (string.IsNullOrEmpty(em.TestoEM_Modificabile)) em.TestoEM_Modificabile = em.TestoEM_originale;
 
@@ -352,7 +353,7 @@ namespace PortaleRegione.BAL
                 else
                     emendamentoDto.Progressivo = progressivo;
 
-                var em = Mapper.Map<EmendamentiDto, EM>(emendamentoDto);
+                var em = _mapper.Map<EmendamentiDto, EM>(emendamentoDto);
                 em.N_EM = null;
                 em.ATTI = null;
                 em.UIDEM = Guid.NewGuid();
@@ -426,8 +427,8 @@ namespace PortaleRegione.BAL
                     && model.IDStato != (int)StatiEnum.Bozza_Riservata)
                     throw new InvalidOperationException($"Stato non valido [{model.IDStato}]");
 
-                var updateDto = Mapper.Map<EmendamentiDto, EmendamentoLightDto>(model);
-                Mapper.Map(updateDto, em);
+                var updateDto = _mapper.Map<EmendamentiDto, EmendamentoLightDto>(model);
+                _mapper.Map(updateDto, em);
 
                 em.Tags = model.Tags;
 
@@ -544,8 +545,8 @@ namespace PortaleRegione.BAL
                 InputSanitizer.ValidateAndThrowIfDangerous(model.TestoEM_Modificabile, "Testo modificabile");
                 model.TestoEM_Modificabile = model.TestoEM_Modificabile;
                 
-                var updateMetaDatiDto = Mapper.Map<EmendamentiDto, MetaDatiEMDto>(model);
-                var emAggiornato = Mapper.Map(updateMetaDatiDto, em);
+                var updateMetaDatiDto = _mapper.Map<EmendamentiDto, MetaDatiEMDto>(model);
+                var emAggiornato = _mapper.Map(updateMetaDatiDto, em);
                 
                 emAggiornato.UIDPersonaModifica = persona.UID_persona;
                 emAggiornato.DataModifica = DateTime.Now;
@@ -699,7 +700,7 @@ namespace PortaleRegione.BAL
                     .Emendamenti
                     .GetInvitati(em.UIDEM);
                 var destinatari = invitati
-                    .Select(Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>)
+                    .Select(_mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>)
                     .ToList();
                 var result = new List<DestinatariNotificaDto>();
                 foreach (var destinatario in destinatari)
@@ -745,7 +746,7 @@ namespace PortaleRegione.BAL
             try
             {
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
-                var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
+                var attoDto = _mapper.Map<ATTI, AttiDto>(atto);
 
                 try
                 {
@@ -1427,7 +1428,7 @@ namespace PortaleRegione.BAL
         /// <returns></returns>
         public async Task<IEnumerable<PartiTestoDto>> GetPartiEM()
         {
-            return (await _unitOfWork.Emendamenti.GetPartiEmendabili()).Select(Mapper.Map<PARTI_TESTO, PartiTestoDto>);
+            return (await _unitOfWork.Emendamenti.GetPartiEmendabili()).Select(_mapper.Map<PARTI_TESTO, PartiTestoDto>);
         }
 
         /// <summary>
@@ -1439,7 +1440,7 @@ namespace PortaleRegione.BAL
             return (await _unitOfWork
                     .Emendamenti
                     .GetTipiEmendamento())
-                .Select(Mapper.Map<TIPI_EM, Tipi_EmendamentiDto>);
+                .Select(_mapper.Map<TIPI_EM, Tipi_EmendamentiDto>);
         }
 
         /// <summary>
@@ -1451,7 +1452,7 @@ namespace PortaleRegione.BAL
             return (await _unitOfWork
                     .Emendamenti
                     .GetMissioniEmendamento())
-                .Select(Mapper.Map<MISSIONI, MissioniDto>);
+                .Select(_mapper.Map<MISSIONI, MissioniDto>);
         }
 
         /// <summary>
@@ -1463,7 +1464,7 @@ namespace PortaleRegione.BAL
             return (await _unitOfWork
                     .Emendamenti
                     .GetTitoliMissioneEmendamento())
-                .Select(Mapper.Map<TITOLI_MISSIONI, TitoloMissioniDto>);
+                .Select(_mapper.Map<TITOLI_MISSIONI, TitoloMissioniDto>);
         }
 
         /// <summary>
@@ -1475,7 +1476,7 @@ namespace PortaleRegione.BAL
             return (await _unitOfWork
                     .Emendamenti
                     .GetStatiEmendamento())
-                .Select(Mapper.Map<STATI_EM, StatiDto>);
+                .Select(_mapper.Map<STATI_EM, StatiDto>);
         }
 
         /// <summary>
@@ -1488,7 +1489,7 @@ namespace PortaleRegione.BAL
             return (await _unitOfWork
                     .Articoli
                     .GetArticoli(atto))
-                .Select(Mapper.Map<ARTICOLI, ArticoliDto>);
+                .Select(_mapper.Map<ARTICOLI, ArticoliDto>);
         }
 
         public async Task EliminaEmendamento(EM em, PersonaDto currentUser)
@@ -1623,9 +1624,9 @@ namespace PortaleRegione.BAL
             {
                 em.ATTI = atto;
 
-                var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
+                var emendamentoDto = _mapper.Map<EM, EmendamentiDto>(em);
 
-                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
+                emendamentoDto.N_EM = GetNomeEM(_mapper.Map<EM, EmendamentiDto>(em),
                     em.Rif_UIDEM.HasValue
                         ? await GetEM_DTO(em.Rif_UIDEM.Value, atto, persona)
                         : null);
@@ -1744,9 +1745,9 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
+                var emendamentoDto = _mapper.Map<EM, EmendamentiDto>(em);
 
-                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
+                emendamentoDto.N_EM = GetNomeEM(_mapper.Map<EM, EmendamentiDto>(em),
                     em.Rif_UIDEM.HasValue
                         ? await GetEM_DTO(em.Rif_UIDEM.Value)
                         : null);
@@ -1814,7 +1815,7 @@ namespace PortaleRegione.BAL
                 var em = await _unitOfWork.Emendamenti.Get(uidEM);
                 em.ATTI = atto;
 
-                var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
+                var emendamentoDto = _mapper.Map<EM, EmendamentiDto>(em);
                 EmendamentiDto rifEM = null;
                 if (em.Rif_UIDEM.HasValue) rifEM = await GetEM_DTO_Light(em.Rif_UIDEM.Value, atto, persona);
 
@@ -1840,9 +1841,9 @@ namespace PortaleRegione.BAL
             try
             {
                 var em = await _unitOfWork.Emendamenti.Get(uidEM);
-                var emendamentoDto = Mapper.Map<EM, EmendamentoExtraLightDto>(em);
+                var emendamentoDto = _mapper.Map<EM, EmendamentoExtraLightDto>(em);
 
-                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
+                emendamentoDto.N_EM = GetNomeEM(_mapper.Map<EM, EmendamentiDto>(em),
                     em.Rif_UIDEM.HasValue
                         ? await GetEM_DTO(em.Rif_UIDEM.Value)
                         : null);
@@ -1852,7 +1853,7 @@ namespace PortaleRegione.BAL
 
                 var proponente = await _logicPersona.GetPersona(em.UIDPersonaProponente);
 
-                emendamentoDto.PersonaProponente = Mapper.Map<PersonaDto, PersonaExtraLightDto>(proponente);
+                emendamentoDto.PersonaProponente = _mapper.Map<PersonaDto, PersonaExtraLightDto>(proponente);
 
                 var gruppo = await _unitOfWork.Gruppi.Get(em.id_gruppo);
                 emendamentoDto.PersonaProponente.codice_gruppo = gruppo.codice_gruppo;
@@ -2004,15 +2005,15 @@ namespace PortaleRegione.BAL
                         uri),
                     // Atto popolato anche nel ramo nuovo: i flussi di export/stampa lo richiedono
                     // per ricavare intestazione documento, fascicolo presentazione/votazione, ecc.
-                    Atto = Mapper.Map<ATTI, AttiDto>(atto),
+                    Atto = _mapper.Map<ATTI, AttiDto>(atto),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
                     Ordinamento = model.ordine,
                     ConteggiGruppi = conteggiGruppi
-                        .Select(Mapper.Map<View_Conteggi_EM_Gruppi_Politici, View_Conteggi_EM_Gruppi_PoliticiDto>)
+                        .Select(_mapper.Map<View_Conteggi_EM_Gruppi_Politici, View_Conteggi_EM_Gruppi_PoliticiDto>)
                         .ToList(),
                     ConteggiAreePolitiche = conteggiAreePolitiche
-                        .Select(Mapper.Map<View_Conteggi_EM_Area_Politica, View_Conteggi_EM_Area_PoliticaDto>).ToList(),
+                        .Select(_mapper.Map<View_Conteggi_EM_Area_Politica, View_Conteggi_EM_Area_PoliticaDto>).ToList(),
                     EmendamentiSaltati = emendamentiSaltati,
                     CurrentUser = persona
                 };
@@ -2537,7 +2538,7 @@ namespace PortaleRegione.BAL
             var result = await _unitOfWork.Emendamenti.GetTags();
 
             return result
-                .Select(Mapper.Map<TAGS, TagDto>)
+                .Select(_mapper.Map<TAGS, TagDto>)
                 .ToList();
         }
 

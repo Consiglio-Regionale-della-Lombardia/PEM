@@ -91,7 +91,7 @@ namespace PortaleRegione.API.Controllers
                 var results =
                     await _emendamentiLogic.GetEmendamenti(model, user, Convert.ToInt16(CLIENT_MODE), (int)VIEW_MODE,
                         presidente, Request.RequestUri);
-                results.Atto = Mapper.Map<ATTI, AttiDto>(atto);
+                results.Atto = _mapper.Map<ATTI, AttiDto>(atto);
                 return Ok(results);
             }
             catch (Exception e)
@@ -184,7 +184,7 @@ namespace PortaleRegione.API.Controllers
                         model.filtro,
                         results.Count,
                         Request.RequestUri),
-                    Atto = Mapper.Map<ATTI, AttiDto>(atto),
+                    Atto = _mapper.Map<ATTI, AttiDto>(atto),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     CurrentUser = user
                 });
@@ -1285,9 +1285,9 @@ namespace PortaleRegione.API.Controllers
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
-            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
-            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+            esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
         }
     }

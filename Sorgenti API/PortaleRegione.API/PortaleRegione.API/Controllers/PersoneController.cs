@@ -61,9 +61,9 @@ namespace PortaleRegione.API.Controllers
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
-            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
-            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+            esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
         }
 
@@ -100,7 +100,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var ruolo = await _personeLogic.GetRuolo((RuoliIntEnum)id);
-                return Ok(Mapper.Map<RUOLI, RuoliDto>(ruolo));
+                return Ok(_mapper.Map<RUOLI, RuoliDto>(ruolo));
             }
             catch (Exception e)
             {

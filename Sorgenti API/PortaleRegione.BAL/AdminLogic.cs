@@ -39,11 +39,12 @@ namespace PortaleRegione.BAL
 {
     public class AdminLogic : BaseLogic
     {
-        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, UtilsLogic logicUtil)
+        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, UtilsLogic logicUtil, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
             _logicUtil = logicUtil;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetPersoneIn_DB(BaseRequest<PersonaDto> model,
@@ -97,7 +98,7 @@ namespace PortaleRegione.BAL
                             personaDto,
                             queryFilter,
                             filtro_userAd))
-                    .Select(Mapper.Map<View_UTENTI, PersonaDto>);
+                    .Select(_mapper.Map<View_UTENTI, PersonaDto>);
 
                 return listaPersone;
             }
@@ -201,7 +202,7 @@ namespace PortaleRegione.BAL
                         .GetAllByGiunta(model.page,
                             model.size,
                             queryFilter))
-                    .Select(Mapper.Map<View_UTENTI, PersonaDto>);
+                    .Select(_mapper.Map<View_UTENTI, PersonaDto>);
 
                 return listaPersone;
             }
@@ -344,7 +345,7 @@ namespace PortaleRegione.BAL
         public async Task<IEnumerable<RuoliDto>> GetRuoliAD(bool SoloRuoliGiunta)
         {
             var listaRuoli = await _unitOfWork.Ruoli.GetAll(SoloRuoliGiunta);
-            return listaRuoli.Select(Mapper.Map<RUOLI, RuoliDto>);
+            return listaRuoli.Select(_mapper.Map<RUOLI, RuoliDto>);
         }
 
         public async Task<IEnumerable<GruppoAD_Dto>> GetGruppiPoliticiAD(bool SoloRuoliGiunta)
@@ -354,7 +355,7 @@ namespace PortaleRegione.BAL
                 .GetGruppiPoliticiAD(
                     await _unitOfWork.Legislature.Legislatura_Attiva(),
                     SoloRuoliGiunta);
-            return listaGruppiAD.Select(Mapper.Map<JOIN_GRUPPO_AD, GruppoAD_Dto>);
+            return listaGruppiAD.Select(_mapper.Map<JOIN_GRUPPO_AD, GruppoAD_Dto>);
         }
 
         public async Task ResetPin(ResetRequest request)
@@ -404,7 +405,7 @@ namespace PortaleRegione.BAL
             var ruoli_utente = (await _unitOfWork.Ruoli.RuoliUtente(gruppi_utente)).ToList();
             if (ruoli_utente.Any())
             {
-                persona.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
+                persona.Ruoli = ruoli_utente.Select(_mapper.Map<RUOLI, RuoliDto>);
                 persona.CurrentRole = (RuoliIntEnum)ruoli_utente[0].IDruolo;
             }
             else
@@ -438,7 +439,7 @@ namespace PortaleRegione.BAL
 
         public async Task<PersonaDto> GetUtente(Guid id)
         {
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(id));
+            var persona = _mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(id));
 
             var intranetAdService = new proxyAD();
 

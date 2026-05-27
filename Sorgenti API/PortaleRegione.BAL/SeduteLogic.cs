@@ -33,9 +33,10 @@ namespace PortaleRegione.BAL
 {
     public class SeduteLogic : BaseLogic
     {
-        public SeduteLogic(IUnitOfWork unitOfWork)
+        public SeduteLogic(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<BaseResponse<SeduteDto>> GetSedute(BaseRequest<SeduteDto> model, Uri url)
@@ -48,12 +49,12 @@ namespace PortaleRegione.BAL
                 .GetAll(legislatura_attiva, model.page, model.size, queryFilter);
             var countSedute = await _unitOfWork.Sedute.Count(legislatura_attiva, queryFilter);
             
-            var results = listaSedute.Select(Mapper.Map<SEDUTE, SeduteDto>).ToList();
+            var results = listaSedute.Select(_mapper.Map<SEDUTE, SeduteDto>).ToList();
 
             foreach (var seduteDto in results)
             {
                 var attiFromDb = await _unitOfWork.Atti.GetAllBySeduta(seduteDto.UIDSeduta);
-                var resultsAtti = attiFromDb.Select(Mapper.Map<ATTI, AttiDto>).ToList();
+                var resultsAtti = attiFromDb.Select(_mapper.Map<ATTI, AttiDto>).ToList();
                 var dasiFromDb = await _unitOfWork.DASI.GetAttiBySeduta(seduteDto.UIDSeduta);
                seduteDto.AttiList = resultsAtti;
                seduteDto.DasiList = dasiFromDb;
@@ -111,7 +112,7 @@ namespace PortaleRegione.BAL
                 throw new InvalidOperationException("Data seduta non valida");
 
             var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
-            Mapper.Map(sedutaDto, sedutaInDb);
+            _mapper.Map(sedutaDto, sedutaInDb);
             CleanSeduta(sedutaDto, sedutaInDb);
 
             sedutaInDb.UIDPersonaModifica = persona.UID_persona;
@@ -170,7 +171,7 @@ namespace PortaleRegione.BAL
                 1,
                 10,
                 seduteAttive
-                    .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                    .Select(_mapper.Map<SEDUTE, SeduteDto>),
                 null,
                 seduteAttive.Count);
         }
@@ -184,7 +185,7 @@ namespace PortaleRegione.BAL
                 1,
                 10,
                 seduteAttive
-                    .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                    .Select(_mapper.Map<SEDUTE, SeduteDto>),
                 null,
                 seduteAttive.Count);
         }
@@ -198,7 +199,7 @@ namespace PortaleRegione.BAL
                 1,
                 10,
                 seduteAttive
-                    .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                    .Select(_mapper.Map<SEDUTE, SeduteDto>),
                 null,
                 seduteAttive.Count());
         }

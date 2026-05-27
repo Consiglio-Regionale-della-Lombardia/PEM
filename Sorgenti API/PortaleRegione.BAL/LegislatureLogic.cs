@@ -28,21 +28,22 @@ namespace PortaleRegione.BAL
 {
     public class LegislatureLogic : BaseLogic
     {
-        public LegislatureLogic(IUnitOfWork unitOfWork)
+        public LegislatureLogic(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<LegislaturaDto>> GetLegislature()
         {
             var result = await _unitOfWork.Legislature.GetLegislature();
-            return (result).Select(Mapper.Map<legislature, LegislaturaDto>);
+            return (result).Select(_mapper.Map<legislature, LegislaturaDto>);
         }
 
         public async Task<LegislaturaDto> GetLegislatura(int id)
         {
             var legislatura = await _unitOfWork.Legislature.Get(id);
-            return Mapper.Map<legislature, LegislaturaDto>(legislatura);
+            return _mapper.Map<legislature, LegislaturaDto>(legislatura);
         }
 
         public async Task<int> GetLegislaturaAttuale()

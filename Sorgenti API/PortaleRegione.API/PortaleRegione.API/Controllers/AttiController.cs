@@ -71,10 +71,10 @@ namespace PortaleRegione.API.Controllers
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic,
             StampeLogic stampeLogic,
-            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic,
             notificheLogic,
-            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+            esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
         }
 
@@ -143,7 +143,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var atto = await _attiLogic.GetAtto(id);
-                var result = Mapper.Map<ATTI, AttiDto>(atto);
+                var result = _mapper.Map<ATTI, AttiDto>(atto);
                 result.Relatori = await _attiLogic.GetRelatori(atto.UIDAtto);
                 return Ok(result);
             }
@@ -205,7 +205,7 @@ namespace PortaleRegione.API.Controllers
                         "Impossibile settare una data di chiusura inferiore alla data di apertura");
 
                 var nuovoAtto = await _attiLogic.NuovoAtto(attoModel, CurrentUser);
-                return Created(new Uri(Request.RequestUri.ToString()), Mapper.Map<ATTI, AttiDto>(nuovoAtto));
+                return Created(new Uri(Request.RequestUri.ToString()), _mapper.Map<ATTI, AttiDto>(nuovoAtto));
             }
             catch (Exception e)
             {
@@ -236,7 +236,7 @@ namespace PortaleRegione.API.Controllers
 
                 await _attiLogic.SalvaAtto(attoInDb, attoModel, CurrentUser);
 
-                return Ok(Mapper.Map<ATTI, AttiDto>(attoInDb));
+                return Ok(_mapper.Map<ATTI, AttiDto>(attoInDb));
             }
             catch (Exception e)
             {
@@ -405,7 +405,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var commiDtos = (await _attiLogic.GetCommi(id, expanded)).Select(Mapper.Map<COMMI, CommiDto>);
+                var commiDtos = (await _attiLogic.GetCommi(id, expanded)).Select(_mapper.Map<COMMI, CommiDto>);
                 return Ok(commiDtos);
             }
             catch (Exception e)
@@ -480,7 +480,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var lettereDtos = (await _attiLogic.GetLettere(id)).Select(Mapper.Map<LETTERE, LettereDto>);
+                var lettereDtos = (await _attiLogic.GetLettere(id)).Select(_mapper.Map<LETTERE, LettereDto>);
 
                 return Ok(lettereDtos);
             }

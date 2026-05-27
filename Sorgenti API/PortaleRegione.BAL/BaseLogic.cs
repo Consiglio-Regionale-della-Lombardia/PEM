@@ -56,6 +56,8 @@ namespace PortaleRegione.BAL
         internal SeduteLogic _logicSedute;
         internal UtilsLogic _logicUtil;
         internal IUnitOfWork _unitOfWork;
+        // Mapper risolto via Unity, valorizzato dai costruttori delle Logic figlie
+        internal IMapper _mapper;
 
         internal List<PersonaLightDto> Users
         {
@@ -88,7 +90,7 @@ namespace PortaleRegione.BAL
                 return;
             var task_op = Task.Run(async () => await _unitOfWork.Persone.GetAll());
             var personeInDb = task_op.Result;
-            var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+            var personeInDbLight = personeInDb.Select(_mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
             Users = personeInDbLight;
         }
@@ -99,7 +101,7 @@ namespace PortaleRegione.BAL
                 return;
             var task_op = Task.Run(async () => await _unitOfWork.Gruppi.GetAllWithGiunta());
             var personeInDb = task_op.Result;
-            var personeInDbLight = personeInDb.Select(Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>).ToList();
+            var personeInDbLight = personeInDb.Select(_mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>).ToList();
 
             Groups = personeInDbLight;
         }
@@ -222,8 +224,8 @@ namespace PortaleRegione.BAL
 
         internal string GetNomeEM(EM emendamento, EM riferimento)
         {
-            return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento),
-                Mapper.Map<EM, EmendamentiDto>(riferimento));
+            return GetNomeEM(_mapper.Map<EM, EmendamentiDto>(emendamento),
+                _mapper.Map<EM, EmendamentiDto>(riferimento));
         }
 
         internal string GetNome(string nAtto, int? progressivo)

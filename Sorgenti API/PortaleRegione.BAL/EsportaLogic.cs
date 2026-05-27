@@ -53,7 +53,8 @@ namespace PortaleRegione.BAL
     public class EsportaLogic : BaseLogic
     {
         public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, DASILogic logicDASI,
-            FirmeLogic logicFirme, AttiLogic logicAtti, AttiFirmeLogic logicFirmeAtti, PersoneLogic logicPersona)
+            FirmeLogic logicFirme, AttiLogic logicAtti, AttiFirmeLogic logicFirmeAtti, PersoneLogic logicPersona,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEm;
@@ -62,6 +63,7 @@ namespace PortaleRegione.BAL
             _logicAtti = logicAtti;
             _logicPersona = logicPersona;
             _logicAttiFirme = logicFirmeAtti;
+            _mapper = mapper;
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
@@ -506,7 +508,7 @@ namespace PortaleRegione.BAL
             var pdfs = new List<FileModel>();
             foreach (var dto in attiList)
             {
-                var pdf = await _logicDasi.PDFIstantaneo(Mapper.Map<AttoDASIDto, ATTI_DASI>(dto), null);
+                var pdf = await _logicDasi.PDFIstantaneo(_mapper.Map<AttoDASIDto, ATTI_DASI>(dto), null);
                 pdfs.Add(new FileModel
                 {
                     Name = dto.Display + ".pdf",

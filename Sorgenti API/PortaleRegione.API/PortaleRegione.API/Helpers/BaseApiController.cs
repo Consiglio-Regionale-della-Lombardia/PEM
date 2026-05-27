@@ -21,6 +21,7 @@ using System.Data.Entity.Validation;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
+using AutoMapper;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
@@ -51,6 +52,7 @@ namespace PortaleRegione.API.Helpers
         internal readonly IUnitOfWork _unitOfWork;
         internal readonly UtilsLogic _utilsLogic;
         internal readonly AdminLogic _adminLogic;
+        internal readonly IMapper _mapper;
 
         /// <summary>
         ///     Costruttore
@@ -87,7 +89,8 @@ namespace PortaleRegione.API.Helpers
             EsportaLogic esportaLogic,
             StampeLogic stampeLogic,
             UtilsLogic utilsLogic,
-            AdminLogic adminLogic)
+            AdminLogic adminLogic,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _authLogic = authLogic;
@@ -105,6 +108,7 @@ namespace PortaleRegione.API.Helpers
             _stampeLogic = stampeLogic;
             _utilsLogic = utilsLogic;
             _adminLogic = adminLogic;
+            _mapper = mapper;
         }
 
         /// <summary>
