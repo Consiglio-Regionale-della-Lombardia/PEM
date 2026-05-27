@@ -4250,6 +4250,27 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        /// <summary>
+        ///     Scrive manualmente il campo Protocollo dell'atto, bypassando il
+        ///     flusso EDMA. Pensato come rete di sicurezza per atti pre-EDMA o
+        ///     casi anomali in cui la segreteria deve allineare a mano la
+        ///     segnatura. L'autorizzazione (ruolo segreteria + feature flag)
+        ///     viene verificata dall'endpoint API che chiama questo metodo.
+        /// </summary>
+        public async Task SalvaProtocolloManuale(Guid uidAtto, string protocollo, PersonaDto persona)
+        {
+            var atto = await _unitOfWork.DASI.Get(uidAtto);
+            if (atto == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            InputSanitizer.ValidateAndThrowIfDangerous(protocollo, "Protocollo");
+
+            atto.Protocollo = protocollo ?? string.Empty;
+            atto.UIDPersonaModifica = persona.UID_persona;
+            atto.DataModifica = DateTime.Now;
+            await _unitOfWork.CompleteAsync();
+        }
+
         public async Task DeclassaMozione(List<string> data, PersonaDto currentUser)
         {
             foreach (var moz_id in data)

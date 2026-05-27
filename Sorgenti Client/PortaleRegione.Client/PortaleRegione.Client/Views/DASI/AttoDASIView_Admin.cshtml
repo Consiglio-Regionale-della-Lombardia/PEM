@@ -427,6 +427,17 @@
                                 <i class="material-icons left">send</i>
                                 Protocolla
                             </button>
+                            if (PortaleRegione.Client.Helpers.AppSettingsConfiguration.EDMA_AbilitaEditManualeProtocollo)
+                            {
+                                <button type="button"
+                                        id="btnEditProtocolloManuale"
+                                        class="btn-flat grey-text text-darken-2 tooltipped"
+                                        style="margin-top: 6px"
+                                        data-tooltip="Modifica manuale (atti pre-EDMA)"
+                                        data-id="@Model.Atto.UIDAtto">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                            }
                         }
                     </div>
                     <div class="input-field col s12 m12 l6">
@@ -2803,6 +2814,59 @@
                     } else {
                         Error(err);
                     }
+                }
+            });
+        });
+    });
+
+    // Edit manuale del campo Protocollo per atti pre-EDMA o casi
+    // anomali: prompt SweetAlert con campo testo precompilato col valore
+    // corrente, POST a /DASI/ProtocolloManuale/{id}, aggiornamento
+    // immediato della casella in caso di esito positivo.
+    $(document).on('click', '#btnEditProtocolloManuale', function () {
+        var btn = $(this);
+        var id = btn.data('id');
+        if (!id) return;
+        var valoreCorrente = $('#Atto_Protocollo').val() || '';
+
+        swal({
+            title: "Modifica manuale protocollo",
+            text: "Inserisci la segnatura per atti pre-EDMA o casi anomali. " +
+                  "Lasciare vuoto per svuotare il campo.",
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "AAO.AAAA.0000000",
+                    type: "text",
+                    value: valoreCorrente
+                }
+            },
+            buttons: ["Annulla", "Salva"]
+        }).then(function (nuovoValore) {
+            // SweetAlert v1: passa null se l'utente annulla, altrimenti la
+            // stringa inserita (anche vuota = ammessa, vuol dire svuotare).
+            if (nuovoValore === null) return;
+
+            var url = '@Url.Content("~/DASI/protocollo-manuale/")' + id;
+            waiting(true, 'Salvataggio protocollo in corso...');
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: { protocollo: nuovoValore },
+                success: function (data) {
+                    waiting(false);
+                    var nuovo = (data && typeof data.Protocollo !== 'undefined')
+                        ? data.Protocollo : nuovoValore;
+                    var $input = $('#Atto_Protocollo');
+                    $input.val(nuovo);
+                    if (nuovo) {
+                        $input.siblings('label').addClass('active');
+                    }
+                    M.toast({ html: 'Protocollo aggiornato manualmente.', classes: 'green' });
+                },
+                error: function (err) {
+                    waiting(false);
+                    Error(err);
                 }
             });
         });

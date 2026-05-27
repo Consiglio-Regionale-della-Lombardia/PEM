@@ -42,6 +42,13 @@ namespace PortaleRegione.Client.Helpers
         public static bool EnableMOZ => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["MOZ"]));
         public static bool EnableODG => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["ODG"]));
 
+        // Feature flag duplicato dal Web.config dell'API (Edma.config lato
+        // server). Lato client serve solo per decidere se mostrare in UI
+        // l'icona di edit manuale: il server verifica comunque il flag al
+        // momento del POST. False di default per essere conservativi.
+        public static bool EDMA_AbilitaEditManualeProtocollo => bool.TryParse(
+            ConfigurationManager.AppSettings["EDMA_AbilitaEditManualeProtocollo"], out var v) && v;
+
 
         #region REPORT
 

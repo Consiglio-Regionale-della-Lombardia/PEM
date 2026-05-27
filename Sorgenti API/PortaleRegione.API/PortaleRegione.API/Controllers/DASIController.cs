@@ -76,6 +76,38 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Scrive manualmente il campo Protocollo dell'atto, riservato
+        ///     alla segreteria come rete di sicurezza per atti pre-EDMA o
+        ///     casi anomali. Disabilitato a default: si attiva impostando il
+        ///     feature flag EDMA_AbilitaEditManualeProtocollo a true nel
+        ///     file Edma.config.
+        /// </summary>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route(ApiRoutes.DASI.ProtocolloManuale)]
+        public async Task<IHttpActionResult> ProtocolloManuale(Guid id, [FromBody] string protocollo)
+        {
+            try
+            {
+                if (!AppSettingsConfiguration.EDMA_AbilitaEditManualeProtocollo)
+                    return BadRequest("Modifica manuale del protocollo non abilitata.");
+
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                    throw new UnauthorizedAccessException(
+                        $"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+
+                await _dasiLogic.SalvaProtocolloManuale(id, protocollo, currentUser);
+                return Ok(new { Protocollo = protocollo ?? string.Empty });
+            }
+            catch (Exception e)
+            {
+                Log.Error("ProtocolloManuale DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Avvia la protocollazione su EDMA dell'atto indicato. E' l'endpoint
         ///     che la segreteria UOLA invoca dal click "Protocolla" sul dettaglio
         ///     dell'atto. Internamente esegue l'intero flusso a cinque step e

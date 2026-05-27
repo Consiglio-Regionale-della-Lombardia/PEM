@@ -2840,5 +2840,28 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        /// <summary>
+        ///     Salva manualmente il campo Protocollo dell'atto. Endpoint
+        ///     riservato alla segreteria per atti pre-EDMA o casi anomali;
+        ///     l'autorizzazione finale viene comunque verificata dal server
+        ///     (ruolo + feature flag EDMA_AbilitaEditManualeProtocollo).
+        /// </summary>
+        [Route("protocollo-manuale/{id:guid}")]
+        [HttpPost]
+        public async Task<ActionResult> ProtocolloManuale(Guid id, string protocollo)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.SalvaProtocolloManuale(id, protocollo);
+                return Json(new { Protocollo = protocollo ?? string.Empty }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

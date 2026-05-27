@@ -812,5 +812,15 @@ namespace PortaleRegione.Gateway
             var raw = await Post(requestUrl, "{}", _token);
             return JsonConvert.DeserializeObject<EdmaProtocollazioneEsitoDto>(raw);
         }
+
+        public async Task SalvaProtocolloManuale(Guid id, string protocollo)
+        {
+            var path = ApiRoutes.DASI.ProtocolloManuale.Replace("{id:guid}", id.ToString());
+            var requestUrl = $"{apiUrl}/{path}";
+            // L'endpoint accetta [FromBody] string: in WebApi e' necessario
+            // serializzare il valore come stringa JSON (con i doppi apici).
+            var body = JsonConvert.SerializeObject(protocollo ?? string.Empty);
+            await Post(requestUrl, body, _token);
+        }
     }
 }
