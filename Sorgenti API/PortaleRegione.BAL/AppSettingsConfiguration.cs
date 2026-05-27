@@ -148,6 +148,5 @@ namespace PortaleRegione.BAL
 
         // -- Feature flag UI --
         public static bool EDMA_AbilitaEditManualeProtocollo => EdmaSettings.GetBool("EDMA_AbilitaEditManualeProtocollo", true);
-        public static bool EDMA_AbilitaAnnulloProtocollo => EdmaSettings.GetBool("EDMA_AbilitaAnnulloProtocollo", false);
     }
 }

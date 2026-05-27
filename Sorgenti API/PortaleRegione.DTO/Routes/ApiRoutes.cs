@@ -260,7 +260,6 @@ namespace PortaleRegione.DTO.Routes
 
             public const string StampaImmediata = Base + "/{id}/stampa-immediata";
             public const string StampaImmediataPrivacy = Base + "/{id}/stampa-immediata-privacy";
-            public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
             public const string CambiaOrdineVisualizzazioneFirme = Base + "/change-signature-order-view";
             public const string SaveCartaceo = Base + "/salva-bozza-cartacea";
             public const string CambiaPrioritaFirma = Base + "/cambia-priorità-firma";
@@ -278,7 +277,6 @@ namespace PortaleRegione.DTO.Routes
             public const string GetReportsCovers = Base + "/reports/templates/covers";
             public const string GetReportsCardTemplates = Base + "/reports/templates/cards";
             public const string GetCommissioniAttive = Base + "/commissioni-attive";
-            public const string InviaAttoEdma = Base + "/invia-atto-edma";
             // Click "Protocolla" della segreteria UOLA: orchestra l'intero
             // flusso a 5 step verso EDMA (creazione pratica, creazione
             // documento, fascicolazione, protocollazione applicativa).

@@ -1561,29 +1561,6 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per inviare l'atto al protocollo
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [HttpGet]
-        [Route(ApiRoutes.DASI.InviaAlProtocollo)]
-        public async Task<IHttpActionResult> InviaAlProtocollo(Guid id)
-        {
-            try
-            {
-                await _dasiLogic.InviaAlProtocollo(id);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Invio al protocollo", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
         ///     Endpoint per declassare una lista di mozioni e farle tornare ORDINARIE
         /// </summary>
         /// <param name="data">Lista di mozioni urgenti da declassare</param>

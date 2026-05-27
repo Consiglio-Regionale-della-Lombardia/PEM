@@ -1669,28 +1669,6 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
-        /// <summary>
-        ///     Controller per inviare l'atto al protocollo
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [Route("invia-al-protocollo")]
-        [HttpGet]
-        public async Task<ActionResult> InviaAlProtocollo(Guid id)
-        {
-            try
-            {
-                var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.InviaAlProtocollo(id);
-                return Json(Url.Action("RiepilogoDASI", "DASI"), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
-
         //FILTRI
 
         [HttpGet]
@@ -2839,27 +2817,6 @@ namespace PortaleRegione.Client.Controllers
             }
         }
         
-        /// <summary>
-        ///     Endpoint di integrazione per inviare un atto DASI al protocollo EDMA
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [Route("invia-atto-edma/{id:guid}")]
-        [HttpGet]
-        public async Task<ActionResult> InviaAttoEdma(Guid id)
-        {
-            try
-            {
-                var apiGateway = new ApiGateway(Token);
-                return Json(await apiGateway.DASI.InviaAttoEdma(id), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
-
         /// <summary>
         ///     Avvia la protocollazione EDMA dell'atto: e' la action che la
         ///     view invoca dal click "Protocolla" della segreteria, dopo il

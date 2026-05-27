@@ -851,47 +851,5 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        /// <summary>
-        ///     Endpoint di integrazione per inviare un atto DASI al protocollo EDMA
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [HttpGet]
-        [Route(ApiRoutes.DASI.InviaAttoEdma + "/{id:guid}")]
-        public async Task<IHttpActionResult> InviaAttoEdma(Guid id)
-        {
-            try
-            {
-                var edmaService = new EdmaApiService(
-                    AppSettingsConfiguration.EDMA_Url,
-                    AppSettingsConfiguration.EDMA_Username,
-                    AppSettingsConfiguration.EDMA_Password);
-
-                // TODO: Completare con i dati dell'atto e le specifiche mancanti
-                var documento = new SDK.EDMA.Models.DocumentoBase
-                {
-                    Oggetto = $"Atto DASI {id}",
-                    CodAutore = "SYSTEM_",
-                    MetaDocumento = new MetaDocumento
-                    {
-                        
-                    }
-                };
-
-                // NB: questo endpoint verra' sostituito nello sprint 5 da
-                // POST api/dasi/{uid}/protocolla che orchestra l'intero flusso
-                // a 5 step EDMA. Lascio qui solo lo scheletro compilabile per
-                // non perdere il routing nel frattempo.
-                var result = await edmaService.CreaDocumentoAsync(documento, null, null, null);
-
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                Log.Error("InviaAttoEdma", e);
-                return ErrorHandler(e);
-            }
-        }
     }
 }

@@ -72,7 +72,6 @@ namespace PortaleRegione.Gateway
         Task PresentazioneCartacea(PresentazioneCartaceaModel model);
         Task<FileResponse> Download(Guid id);
         Task<FileResponse> DownloadWithPrivacy(Guid id);
-        Task InviaAlProtocollo(Guid id);
         Task DeclassaMozione(List<string> data);
         Task<List<AttoDASIDto>> GetCartacei();
         Task SalvaCartaceo(AttoDASIDto atto);
@@ -110,7 +109,6 @@ namespace PortaleRegione.Gateway
         Task Pubblica_Documento(AttiDocumentiDto request);
         Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request);
         Task Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request);
-        Task<string> InviaAttoEdma(Guid id);
         Task<EdmaProtocollazioneEsitoDto> Protocolla(Guid id);
     }
 }

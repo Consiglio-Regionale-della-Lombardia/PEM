@@ -4250,30 +4250,6 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task InviaAlProtocollo(Guid id)
-        {
-            var atto = await _unitOfWork.DASI.Get(id);
-            var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)}-{GetNome(atto.NAtto, atto.Progressivo)}";
-            var content = await PDFIstantaneo(atto, null);
-            var mailModel = new MailModel
-            {
-                DA = AppSettingsConfiguration.EmailInvioDASI,
-                A = AppSettingsConfiguration.EmailProtocolloDASI,
-                OGGETTO = $"Richiesta di protocollazione dell’atto {nome_atto}",
-                MESSAGGIO =
-                    $"Si invia in allegato l'atto {nome_atto} con oggetto \"{atto.Oggetto}\". " +
-                    $"Si chiede l'apertura del fascicolo dedicato e la protocollazione dell'atto con preghiera di comunicare i relativi protocolli inviando una email a: {AppSettingsConfiguration.EmailInvioDASI} " +
-                    "<br> Cordiali saluti, <br><br>Segreteria dell’Assemblea Consiliare",
-                ATTACHMENTS = new List<AllegatoMail> { new AllegatoMail(content, $"{nome_atto}.pdf") }
-            };
-            await _logicUtil.InvioMail(mailModel);
-
-            atto.Inviato_Al_Protocollo = true;
-            atto.DataInvioAlProtocollo = DateTime.Now;
-
-            await _unitOfWork.CompleteAsync();
-        }
-
         public async Task DeclassaMozione(List<string> data, PersonaDto currentUser)
         {
             foreach (var moz_id in data)

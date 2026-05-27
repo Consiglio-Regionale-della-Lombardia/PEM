@@ -655,12 +655,6 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task InviaAlProtocollo(Guid id)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.InviaAlProtocollo.Replace("{id}", id.ToString())}";
-            await Get(requestUrl, _token);
-        }
-
         public async Task DeclassaMozione(List<string> data)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.DeclassaMozione}";
@@ -808,13 +802,6 @@ namespace PortaleRegione.Gateway
             return result;
         }
         
-        public async Task<string> InviaAttoEdma(Guid id)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.InviaAttoEdma}/{id}";
-            var lst = await Get(requestUrl, _token);
-            return lst;
-        }
-
         public async Task<EdmaProtocollazioneEsitoDto> Protocolla(Guid id)
         {
             // La route in ApiRoutes contiene il placeholder "{id:guid}" perche'

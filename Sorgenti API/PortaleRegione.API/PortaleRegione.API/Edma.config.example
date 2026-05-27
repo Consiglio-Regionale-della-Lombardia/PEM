@@ -126,8 +126,5 @@
   <!-- Mostra l'icona "edit" sulla casella Protocollo come rete di sicurezza
        per atti pre-EDMA o casi anomali. -->
   <add key="EDMA_AbilitaEditManualeProtocollo" value="true" />
-  <!-- Quando true, mostra il pulsante "Annulla protocollo" alla segreteria.
-       Inizialmente disattivato in attesa di sviluppo dedicato. -->
-  <add key="EDMA_AbilitaAnnulloProtocollo" value="false" />
 
 </edmaSettings>

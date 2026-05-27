@@ -1661,31 +1661,6 @@ function JollyODG(attoUId, jolly) {
     });
 }
 
-function InviaAlProtocollo(attoUId) {
-    waiting(true);
-    $.ajax({
-        url: baseUrl + "/dasi/invia-al-protocollo",
-        data: { id: attoUId },
-        type: "GET"
-    }).done(function(result) {
-        waiting(false);
-        if (result.message) {
-            swal({
-                title: "Errore",
-                text: result.message,
-                icon: "error"
-            });
-            return;
-        }
-        swal("Atto inviato al protocollo con successo!").then((val) => {
-                location.reload();
-            });
-    }).fail(function(err) {
-        console.log("error", err);
-        waiting(false);
-        Error(err);
-    });
-}
 
 //NOTIFICHE
 
