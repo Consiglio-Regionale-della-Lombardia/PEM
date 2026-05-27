@@ -73,7 +73,7 @@
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="HtmlSanitizer, Version=9.0.0.0, Culture=neutral, PublicKeyToken=61c49a1a9e79cc28, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlSanitizer.9.0.886\lib\net47\HtmlSanitizer.dll</HintPath>
+      <HintPath>..\packages\HtmlSanitizer.9.0.892\lib\net47\HtmlSanitizer.dll</HintPath>
     </Reference>
     <Reference Include="HtmlToOpenXml, Version=2.1.0.0, Culture=neutral, PublicKeyToken=6ad79d83e2b60e63, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlToOpenXml.dll.2.2.0\lib\net46\HtmlToOpenXml.dll</HintPath>
