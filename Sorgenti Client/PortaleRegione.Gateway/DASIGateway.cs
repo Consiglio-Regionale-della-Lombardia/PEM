@@ -814,5 +814,16 @@ namespace PortaleRegione.Gateway
             var lst = await Get(requestUrl, _token);
             return lst;
         }
+
+        public async Task<EdmaProtocollazioneEsitoDto> Protocolla(Guid id)
+        {
+            // La route in ApiRoutes contiene il placeholder "{id:guid}" perche'
+            // viene risolta lato server da WebApi; qui dobbiamo sostituirlo con
+            // l'id reale dell'atto.
+            var path = ApiRoutes.DASI.Protocolla.Replace("{id:guid}", id.ToString());
+            var requestUrl = $"{apiUrl}/{path}";
+            var raw = await Post(requestUrl, "{}", _token);
+            return JsonConvert.DeserializeObject<EdmaProtocollazioneEsitoDto>(raw);
+        }
     }
 }

@@ -111,5 +111,6 @@ namespace PortaleRegione.Gateway
         Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request);
         Task Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request);
         Task<string> InviaAttoEdma(Guid id);
+        Task<EdmaProtocollazioneEsitoDto> Protocolla(Guid id);
     }
 }

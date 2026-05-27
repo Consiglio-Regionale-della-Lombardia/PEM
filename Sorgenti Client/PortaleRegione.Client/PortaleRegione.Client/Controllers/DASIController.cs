@@ -2859,5 +2859,29 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        /// <summary>
+        ///     Avvia la protocollazione EDMA dell'atto: e' la action che la
+        ///     view invoca dal click "Protocolla" della segreteria, dopo il
+        ///     modale di conferma. La risposta porta segnatura, id pratica,
+        ///     id documento e l'eventuale messaggio di errore: la view la usa
+        ///     per popolare la casella Protocollo e mostrare un toast.
+        /// </summary>
+        [Route("protocolla/{id:guid}")]
+        [HttpPost]
+        public async Task<ActionResult> Protocolla(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var esito = await apiGateway.DASI.Protocolla(id);
+                return Json(esito, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

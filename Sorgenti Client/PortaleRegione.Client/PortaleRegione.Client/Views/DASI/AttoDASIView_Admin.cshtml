@@ -100,21 +100,12 @@
         <div class="chip @Utility.GetCSS_StatoDASI(atto.IDStato) white" style="min-width: unset;border-color:black!important;color:black!important;">@labelStato</div>
     </div>
 </div>
-@if (Model.CurrentUser.IsSegreteriaAssemblea)
-{
-    <div class="card-action grey lighten-4 center" style="border-top: unset">
-        <div class="row" style="margin: 0 !important">
-            <div class="col s12" style="margin-top: 5px">
-                <button type="button" role="button" class="btn-flat teal-text tooltipped"
-                        data-tooltip="Invia atto al protocollo EDMA (BETA)"
-                        onclick="InviaAttoEdma('@atto.UIDAtto')">
-                    <i class="material-icons left">send</i>
-                    Protocollo EDMA
-                </button>
-            </div>
-        </div>
-    </div>
-}
+@*
+    Il vecchio pulsante "Protocollo EDMA (BETA)" e' stato rimosso da qui:
+    l'azione "Protocolla" ora vive accanto alla casella Protocollo nelle
+    informazioni generali dell'atto, cosi' la segreteria UOLA ha tutto a
+    portata di mano nello stesso pannello.
+*@
 <div class="row" style="padding-top: 35px">
 <div class="col s12">
 <ul class="collapsible expandable">
@@ -412,8 +403,31 @@
                 }
                 <div class="row">
                     <div class="input-field col s12 m12 l6">
-                        @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
+                        @* La segnatura di protocollo arriva esclusivamente dal
+                           flusso "Protocolla" verso EDMA: il campo e' percio'
+                           in sola lettura. Eventuale edit manuale per atti
+                           pre-EDMA va aggiunto in seguito come azione
+                           separata, governata dal feature flag
+                           EDMA_AbilitaEditManualeProtocollo. *@
+                        @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control", @readonly = "readonly" })
                         @Html.LabelFor(s => s.Atto.Protocollo)
+                        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                        {
+                            var isProtocollato = !string.IsNullOrEmpty(Model.Atto.Protocollo);
+                            var titolo = isProtocollato
+                                ? "Atto gia' protocollato"
+                                : "Invia l'atto al protocollo EDMA";
+                            <button type="button"
+                                    id="btnProtocollaEdma"
+                                    class="btn-flat teal-text tooltipped"
+                                    style="margin-top: 6px"
+                                    data-tooltip="@titolo"
+                                    data-id="@Model.Atto.UIDAtto"
+                                    @(isProtocollato ? "disabled" : "")>
+                                <i class="material-icons left">send</i>
+                                Protocolla
+                            </button>
+                        }
                     </div>
                     <div class="input-field col s12 m12 l6">
                         @Html.TextBoxFor(model => model.Atto.CodiceMateria, new { @class = "form-control" })
@@ -2718,30 +2732,54 @@
         updateLabel();
     });
 
-    function InviaAttoEdma(id) {
-        if (!confirm('Confermi l\'invio dell\'atto al protocollo EDMA?')) return;
-        var url = '@Url.Action("InviaAttoEdma", "DASI")';
-        console.log(url);
-        waiting(true, 'Invio al protocollo EDMA in corso...');
+    // Gestione del pulsante "Protocolla" accanto alla casella Protocollo.
+    // Click -> conferma -> POST /DASI/Protocolla/{id} -> aggiorna casella con
+    // la segnatura restituita o toast d'errore con il dettaglio.
+    $(document).on('click', '#btnProtocollaEdma', function () {
+        var btn = $(this);
+        var id = btn.data('id');
+        if (!id) return;
+        if (!confirm('Confermi la protocollazione dell\'atto su EDMA?\nVerranno create la pratica e il protocollo in un\'unica operazione.'))
+            return;
+
+        var url = '@Url.Action("Protocolla", "DASI")/' + id;
+        waiting(true, 'Protocollazione EDMA in corso...');
+        btn.prop('disabled', true);
+
         $.ajax({
             url: url,
-            type: 'GET',
+            type: 'POST',
             contentType: 'application/json',
             success: function (data) {
                 waiting(false);
                 if (data && data.Success) {
-                    M.toast({ html: 'Atto inviato al protocollo EDMA', classes: 'green' });
+                    if (data.Segnatura) {
+                        var $input = $('#Atto_Protocollo');
+                        $input.val(data.Segnatura);
+                        // Materialize: forza il label "active" quando popoliamo
+                        // l'input via JavaScript, altrimenti resta sovrapposto.
+                        $input.siblings('label').addClass('active');
+                    }
+                    var html = 'Atto protocollato' +
+                        (data.Segnatura ? ': <b>' + data.Segnatura + '</b>' : '') +
+                        (data.NumeroPratica ? ' &middot; pratica ' + data.NumeroPratica : '');
+                    M.toast({ html: html, classes: 'green', displayLength: 6000 });
+                    btn.attr('data-tooltip', 'Atto gia\' protocollato');
                 } else {
-                    var msg = (data && data.Message) ? data.Message : 'Errore durante l\'invio al protocollo EDMA';
-                    M.toast({ html: msg, classes: 'red' });
+                    var msg = (data && (data.Messaggio || data.Message)) ||
+                              'Errore durante la protocollazione EDMA';
+                    if (data && data.UltimoErrore) msg += ' (' + data.UltimoErrore + ')';
+                    M.toast({ html: msg, classes: 'red', displayLength: 8000 });
+                    btn.prop('disabled', false);
                 }
             },
             error: function (err) {
                 waiting(false);
+                btn.prop('disabled', false);
                 Error(err);
             }
         });
-    }
+    });
 
 </script>
 
