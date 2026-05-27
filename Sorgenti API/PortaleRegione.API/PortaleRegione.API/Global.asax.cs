@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using AutoMapper;
 using Newtonsoft.Json;
 using System.Web;
 using System;
@@ -38,8 +37,7 @@ namespace PortaleRegione.API
         {
             // Inizializza Log
             log4net.Config.XmlConfigurator.Configure();
-            // Inizializza mappaggio dominio database
-            Mapper.Initialize(c => c.AddProfile<MappingProfile>());
+            // Il MapperConfiguration di AutoMapper viene creato e registrato in WebApiConfig.Register
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);

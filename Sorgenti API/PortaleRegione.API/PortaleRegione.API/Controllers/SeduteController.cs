@@ -61,9 +61,9 @@ namespace PortaleRegione.API.Controllers
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
-            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
-            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+            esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
         }
 
@@ -102,7 +102,7 @@ namespace PortaleRegione.API.Controllers
 
                 if (result == null) return NotFound();
 
-                return Ok(Mapper.Map<SEDUTE, SeduteDto>(result));
+                return Ok(_mapper.Map<SEDUTE, SeduteDto>(result));
             }
             catch (Exception e)
             {
@@ -192,7 +192,7 @@ namespace PortaleRegione.API.Controllers
 
                 if (sedutaInDb == null) return NotFound();
 
-                await _seduteLogic.DeleteSeduta(Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb), CurrentUser);
+                await _seduteLogic.DeleteSeduta(_mapper.Map<SEDUTE, SeduteDto>(sedutaInDb), CurrentUser);
 
                 return Ok();
             }
@@ -218,7 +218,7 @@ namespace PortaleRegione.API.Controllers
                 if (sedutaDto.Data_seduta <= DateTime.Now) throw new InvalidOperationException("Data seduta non valida");
 
                 var seduta =
-                    Mapper.Map<SEDUTE, SeduteDto>(await _seduteLogic.NuovaSeduta(Mapper.Map<SeduteDto, SEDUTE>(sedutaDto),
+                    _mapper.Map<SEDUTE, SeduteDto>(await _seduteLogic.NuovaSeduta(_mapper.Map<SeduteDto, SEDUTE>(sedutaDto),
                         CurrentUser));
                 return Created(new Uri(Request.RequestUri + "/" + seduta.UIDSeduta), seduta);
             }

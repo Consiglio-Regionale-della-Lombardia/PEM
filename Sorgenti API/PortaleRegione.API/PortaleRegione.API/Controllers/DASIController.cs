@@ -67,10 +67,10 @@ namespace PortaleRegione.API.Controllers
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic,
             StampeLogic stampeLogic,
             UtilsLogic utilsLogic, AdminLogic adminLogic,
-            DASIProtocollazioneService protocollazioneService) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            DASIProtocollazioneService protocollazioneService, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic,
             notificheLogic,
-            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+            esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
             _protocollazioneService = protocollazioneService;
         }
@@ -182,7 +182,7 @@ namespace PortaleRegione.API.Controllers
 
                 var nuovoAtto = await _dasiLogic.Salva(request, CurrentUser);
 
-                return Created(new Uri(Request.RequestUri.ToString()), Mapper.Map<ATTI_DASI, AttoDASIDto>(nuovoAtto));
+                return Created(new Uri(Request.RequestUri.ToString()), _mapper.Map<ATTI_DASI, AttoDASIDto>(nuovoAtto));
             }
             catch (Exception e)
             {

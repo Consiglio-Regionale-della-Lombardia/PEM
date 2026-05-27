@@ -36,10 +36,12 @@ namespace PortaleRegione.BAL
     public class PersoneLogic
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public PersoneLogic(IUnitOfWork unitOfWork)
+        public PersoneLogic(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<PinDto> GetPin(PersonaDto persona)
@@ -50,7 +52,7 @@ namespace PortaleRegione.BAL
                 return null;
             }
 
-            var pin = Mapper.Map<View_PINS, PinDto>(pinInDb);
+            var pin = _mapper.Map<View_PINS, PinDto>(pinInDb);
             pin.PIN_Decrypt = BALHelper.Decrypt(pin.PIN);
             return pin;
         }
@@ -76,7 +78,7 @@ namespace PortaleRegione.BAL
             var persone = (await _unitOfWork
                     .Persone
                     .GetConsiglieri(await _unitOfWork.Legislature.Legislatura_Attiva()))
-                .Select(Mapper.Map<View_UTENTI, PersonaDto>).ToList();
+                .Select(_mapper.Map<View_UTENTI, PersonaDto>).ToList();
             var result = new List<PersonaDto>();
             foreach (var persona in persone)
             {
@@ -92,7 +94,7 @@ namespace PortaleRegione.BAL
             var result = (await _unitOfWork
                     .Persone
                     .GetAssessoriRiferimento(await _unitOfWork.Legislature.Legislatura_Attiva()))
-                .Select(Mapper.Map<View_UTENTI, PersonaDto>);
+                .Select(_mapper.Map<View_UTENTI, PersonaDto>);
             return result;
         }
 
@@ -103,8 +105,8 @@ namespace PortaleRegione.BAL
                 await _unitOfWork.Persone.GetConsiglieri(legislatura_corrente);
             var assessori = await _unitOfWork.Persone.GetAssessoriRiferimento(legislatura_corrente);
             var persone = new List<PersonaDto>();
-            persone.AddRange(consiglieri.Select(Mapper.Map<View_UTENTI, PersonaDto>));
-            persone.AddRange(assessori.Select(Mapper.Map<View_UTENTI, PersonaDto>));
+            persone.AddRange(consiglieri.Select(_mapper.Map<View_UTENTI, PersonaDto>));
+            persone.AddRange(assessori.Select(_mapper.Map<View_UTENTI, PersonaDto>));
 
             return persone;
         }
@@ -141,7 +143,7 @@ namespace PortaleRegione.BAL
         {
             var personaDtos = (await _unitOfWork.Persone
                     .GetRelatori(id == null || id == Guid.Empty ? Guid.Empty : id))
-                .Select(Mapper.Map<View_UTENTI, PersonaDto>);
+                .Select(_mapper.Map<View_UTENTI, PersonaDto>);
 
             return personaDtos;
         }
@@ -153,7 +155,7 @@ namespace PortaleRegione.BAL
 
         public async Task<PersonaDto> GetPersona(Guid proponenteUId, bool isGiunta)
         {
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(proponenteUId));
+            var persona = _mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(proponenteUId));
             persona.Gruppo = await GetGruppoAttualePersona(persona.UID_persona, isGiunta);
             return persona;
         }
@@ -165,7 +167,7 @@ namespace PortaleRegione.BAL
                 return null;
             }
 
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
+            var persona = _mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
             persona.CurrentRole = session._currentRole;
             persona.Gruppo = await GetGruppo(session._currentGroup);
             if (persona.Gruppo != null)
@@ -183,21 +185,21 @@ namespace PortaleRegione.BAL
 
         public async Task<PersonaDto> GetPersona(int personaId)
         {
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(personaId));
+            var persona = _mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(personaId));
             persona.Gruppo = await GetGruppoAttualePersona(new List<string>() { persona.GruppiAD });
             return persona;
         }
 
         public async Task<PersonaDto> GetPersona(Guid personaUId)
         {
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(personaUId));
+            var persona = _mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(personaUId));
             persona.Gruppo = await GetGruppoAttualePersona(new List<string>() { persona.GruppiAD });
             return persona;
         }
 
         public async Task<PersonaDto> GetPersona(string userAD)
         {
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(userAD));
+            var persona = _mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(userAD));
             return persona;
         }
 
@@ -245,18 +247,18 @@ namespace PortaleRegione.BAL
                 };
             }
 
-            return Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(await _unitOfWork.Gruppi.Get(id));
+            return _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(await _unitOfWork.Gruppi.Get(id));
         }
 
         public async Task<GruppiDto> GetGruppoAttualePersona(List<string> gruppi)
         {
-            return Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+            return _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                 await _unitOfWork.Gruppi.GetGruppoAttuale(gruppi));
         }
 
         public async Task<GruppiDto> GetGruppoAttualePersona(Guid personaUId, bool isGiunta)
         {
-            return Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+            return _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                 await _unitOfWork.Gruppi.GetGruppoAttuale(personaUId, isGiunta));
         }
 
@@ -266,13 +268,13 @@ namespace PortaleRegione.BAL
                     .Gruppi
                     .GetConsiglieriGruppo(await _unitOfWork.Legislature.Legislatura_Attiva(),
                         gruppoId))
-                .Select(Mapper.Map<View_UTENTI, PersonaDto>);
+                .Select(_mapper.Map<View_UTENTI, PersonaDto>);
             return result;
         }
 
         public async Task<PersonaDto> GetCapoGruppo(int gruppoId)
         {
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Gruppi.GetCapoGruppo(gruppoId));
+            var persona = _mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Gruppi.GetCapoGruppo(gruppoId));
             return persona;
         }
 
@@ -281,20 +283,20 @@ namespace PortaleRegione.BAL
             return (await _unitOfWork
                     .Persone
                     .GetAll())
-                .Select(Mapper.Map<View_UTENTI, PersonaDto>);
+                .Select(_mapper.Map<View_UTENTI, PersonaDto>);
         }
 
         public async Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool notifica_firma,
             bool notifica_deposito)
         {
             return (await _unitOfWork.Gruppi.GetSegreteriaPolitica(id, notifica_firma, notifica_deposito))
-                .Select(Mapper.Map<UTENTI_NoCons, PersonaDto>);
+                .Select(_mapper.Map<UTENTI_NoCons, PersonaDto>);
         }
 
         public async Task<IEnumerable<PersonaDto>> GetGiuntaRegionale()
         {
             return (await _unitOfWork.Persone.GetGiuntaRegionale())
-                .Select(Mapper.Map<View_Composizione_GiuntaRegionale, PersonaDto>);
+                .Select(_mapper.Map<View_Composizione_GiuntaRegionale, PersonaDto>);
         }
 
         public async Task<IEnumerable<PersonaDto>> GetSegreteriaGiuntaRegionale(bool notificaFirma,
@@ -302,7 +304,7 @@ namespace PortaleRegione.BAL
         {
             var segreteria_giunta =
                 await _unitOfWork.Persone.GetSegreteriaGiuntaRegionale(notificaFirma, notificaDeposito);
-            return segreteria_giunta.Select(Mapper.Map<UTENTI_NoCons, PersonaDto>);
+            return segreteria_giunta.Select(_mapper.Map<UTENTI_NoCons, PersonaDto>);
         }
 
         public async Task<IEnumerable<GruppiDto>> GetGruppi(BaseRequest<GruppiDto> model)

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using AutoMapper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using PortaleRegione.BAL;
@@ -49,6 +50,12 @@ namespace PortaleRegione.API
 
             // DI
             var container = new UnityContainer();
+
+            // AutoMapper: una sola configurazione validata al boot, IMapper come singleton
+            var mapperConfig = new MapperConfiguration(c => c.AddProfile<MappingProfile>());
+            mapperConfig.AssertConfigurationIsValid();
+            container.RegisterInstance<IMapper>(mapperConfig.CreateMapper());
+
             container.RegisterType<IUnitOfWork, UnitOfWork>(new HierarchicalLifetimeManager());
             container.RegisterType<AuthLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<PersoneLogic>(new HierarchicalLifetimeManager());

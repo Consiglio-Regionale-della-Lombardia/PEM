@@ -32,14 +32,15 @@ namespace PortaleRegione.BAL
 {
     public class AttiFirmeLogic : BaseLogic
     {
-        public AttiFirmeLogic(IUnitOfWork unitOfWork)
+        public AttiFirmeLogic(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<List<AttiFirmeDto>> GetFirme(AttoDASIDto atto, FirmeTipoEnum tipo)
         {
-            var attoInDb = Mapper.Map<AttoDASIDto, ATTI_DASI>(atto);
+            var attoInDb = _mapper.Map<AttoDASIDto, ATTI_DASI>(atto);
             return await GetFirme(attoInDb, tipo);
         }
 

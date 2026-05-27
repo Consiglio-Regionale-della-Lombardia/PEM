@@ -42,11 +42,12 @@ namespace PortaleRegione.BAL
     {
         private readonly Worker _worker;
 
-        public StampeLogic(IUnitOfWork unitOfWork, DASILogic logicDasi, Worker worker)
+        public StampeLogic(IUnitOfWork unitOfWork, DASILogic logicDasi, Worker worker, IMapper mapper)
         {
             _worker = worker;
             _unitOfWork = unitOfWork;
             _logicDasi = logicDasi;
+            _mapper = mapper;
         }
 
         public async Task<STAMPE> GetStampa(Guid id)
@@ -256,11 +257,11 @@ namespace PortaleRegione.BAL
             {
                 foreach (var stampa in stampe)
                 {
-                    var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
+                    var stampaDto = _mapper.Map<STAMPE, StampaDto>(stampa);
                     var infos = await GetLastInfo(stampa);
                     stampaDto.Info = infos?.Message;
                     stampaDto.Richiedente =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
+                        _mapper.Map<View_UTENTI, PersonaLightDto>(
                             await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
                     result.Add(stampaDto);
                 }
@@ -269,7 +270,7 @@ namespace PortaleRegione.BAL
             {
                 foreach (var stampa in stampe)
                 {
-                    var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
+                    var stampaDto = _mapper.Map<STAMPE, StampaDto>(stampa);
                     var infos = await GetLastInfo(stampa);
                     stampaDto.Info = infos?.Message;
                     result.Add(stampaDto);
@@ -288,7 +289,7 @@ namespace PortaleRegione.BAL
         public async Task<BaseResponse<StampaDto>> GetStampe(BaseRequest<StampaDto> model, Uri url)
         {
             var result = (await _unitOfWork.Stampe.GetAll(model.page, model.size))
-                .Select(Mapper.Map<STAMPE, StampaDto>);
+                .Select(_mapper.Map<STAMPE, StampaDto>);
 
             await LockStampa(result);
 
@@ -310,19 +311,19 @@ namespace PortaleRegione.BAL
         public async Task<IEnumerable<Stampa_InfoDto>> GetInfo(STAMPE stampa)
         {
             var result = await _unitOfWork.Stampe.GetInfo(stampa.UIDStampa);
-            return result.Select(Mapper.Map<STAMPE_INFO, Stampa_InfoDto>);
+            return result.Select(_mapper.Map<STAMPE_INFO, Stampa_InfoDto>);
         }
 
         public async Task<Stampa_InfoDto> GetLastInfo(STAMPE stampa)
         {
             var result = await _unitOfWork.Stampe.GetLastInfo(stampa.UIDStampa);
-            return Mapper.Map<STAMPE_INFO, Stampa_InfoDto>(result);
+            return _mapper.Map<STAMPE_INFO, Stampa_InfoDto>(result);
         }
 
         public async Task<IEnumerable<Stampa_InfoDto>> GetInfo()
         {
             var result = await _unitOfWork.Stampe.GetInfo();
-            return result.Select(Mapper.Map<STAMPE_INFO, Stampa_InfoDto>);
+            return result.Select(_mapper.Map<STAMPE_INFO, Stampa_InfoDto>);
         }
 
         public async Task EliminaStampa(STAMPE stampa)
