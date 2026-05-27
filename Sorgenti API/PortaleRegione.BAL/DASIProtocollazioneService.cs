@@ -88,7 +88,8 @@ namespace PortaleRegione.BAL
                     var subfasc = GetSottofascicoloPerTipo(atto.Tipo);
                     if (string.IsNullOrEmpty(subfasc.IdEdma))
                         return await SalvaErrore(atto,
-                            $"Sotto-fascicolo non configurato per il tipo {Utility.GetText_Tipo(atto.Tipo)}.");
+                            $"Sotto-fascicolo non configurato per il tipo {Utility.GetText_Tipo(atto.Tipo)}.",
+                            step: "creaPratica");
 
                     var pratica = BuildPratica(atto, subfasc.Titolario);
                     var resp = await client.CreaInserisciPraticaAsync(
@@ -98,7 +99,9 @@ namespace PortaleRegione.BAL
                         pratica);
 
                     if (!resp.Success || resp.Data == null || string.IsNullOrEmpty(resp.Data.IdPratica))
-                        return await SalvaErrore(atto, $"Errore creazione pratica: {resp.Message ?? "id assente"}");
+                        return await SalvaErrore(atto,
+                            $"Errore creazione pratica: {resp.Message ?? "id assente"}",
+                            step: "creaPratica", dettaglio: resp.RawResponse);
 
                     atto.EDMA_IdPratica = resp.Data.IdPratica;
                     atto.EDMA_NumeroPratica = resp.Data.NumeroPratica;
@@ -110,14 +113,17 @@ namespace PortaleRegione.BAL
                 {
                     var pdfBytes = await _logicDasi.PDFIstantaneo(atto, currentUser);
                     if (pdfBytes == null || pdfBytes.Length == 0)
-                        return await SalvaErrore(atto, "Impossibile generare il pdf dell'atto.");
+                        return await SalvaErrore(atto, "Impossibile generare il pdf dell'atto.",
+                            step: "creaDocumento");
 
                     var nomeFile = GetNomeFileAtto(atto);
                     var documento = BuildDocumentoBase(atto);
                     var resp = await client.CreaDocumentoAsync(documento, nomeFile, pdfBytes, "pdf");
 
                     if (!resp.Success || resp.Data == null || string.IsNullOrEmpty(resp.Data.IdDocumento))
-                        return await SalvaErrore(atto, $"Errore creazione documento: {resp.Message ?? "id assente"}");
+                        return await SalvaErrore(atto,
+                            $"Errore creazione documento: {resp.Message ?? "id assente"}",
+                            step: "creaDocumento", dettaglio: resp.RawResponse);
 
                     atto.EDMA_IdDocumento = resp.Data.IdDocumento;
                     await _unitOfWork.CompleteAsync();
@@ -172,7 +178,8 @@ namespace PortaleRegione.BAL
 
                         if (!resp.Success || resp.Data == null || string.IsNullOrEmpty(resp.Data.IdDocumento))
                             return await SalvaErrore(atto,
-                                $"Errore creazione allegato: {resp.Message ?? "id assente"}");
+                                $"Errore creazione allegato: {resp.Message ?? "id assente"}",
+                                step: "creaAllegato", dettaglio: resp.RawResponse);
 
                         atto.EDMA_IdAllegatoGenerico = resp.Data.IdDocumento;
                         await _unitOfWork.CompleteAsync();
@@ -201,7 +208,9 @@ namespace PortaleRegione.BAL
                     var resp = await client.ProtocollazioneApplicativaAsync(atto.EDMA_IdDocumento, parametri);
 
                     if (!resp.Success || resp.Data == null)
-                        return await SalvaErrore(atto, $"Errore protocollazione: {resp.Message ?? "esito vuoto"}");
+                        return await SalvaErrore(atto,
+                            $"Errore protocollazione: {resp.Message ?? "esito vuoto"}",
+                            step: "protocollazioneApplicativa", dettaglio: resp.RawResponse);
 
                     atto.EDMA_IdProtocollo = resp.Data.IdScheda;
                     atto.EDMA_Segnatura = resp.Data.Segnatura ?? string.Empty;
@@ -220,7 +229,8 @@ namespace PortaleRegione.BAL
             catch (Exception ex)
             {
                 Log.Error($"Protocollazione EDMA atto {uidAtto}", ex);
-                return await SalvaErrore(atto, ex.Message);
+                return await SalvaErrore(atto, ex.Message,
+                    step: "eccezione", dettaglio: ex.ToString());
             }
         }
 
@@ -428,12 +438,20 @@ namespace PortaleRegione.BAL
             };
         }
 
-        private async Task<EdmaProtocollazioneEsitoDto> SalvaErrore(ATTI_DASI atto, string messaggio)
+        private async Task<EdmaProtocollazioneEsitoDto> SalvaErrore(ATTI_DASI atto, string messaggio,
+            string step = null, string dettaglio = null)
         {
+            // L'ultimo errore in DB include anche lo step e il dettaglio se
+            // disponibili, cosi' anche guardando direttamente la tabella
+            // ATTI_DASI si capisce dove il flusso si e' fermato e perche'.
+            var ultimoErrore = string.IsNullOrEmpty(step) ? messaggio : $"[{step}] {messaggio}";
+            if (!string.IsNullOrEmpty(dettaglio))
+                ultimoErrore += Environment.NewLine + dettaglio;
+
             if (atto != null)
             {
                 atto.EDMA_TentativiInvio = atto.EDMA_TentativiInvio + 1;
-                atto.EDMA_UltimoErrore = TruncaPerSicurezza(messaggio, 4000);
+                atto.EDMA_UltimoErrore = TruncaPerSicurezza(ultimoErrore, 4000);
                 atto.EDMA_DataUltimoTentativo = DateTime.Now;
                 try
                 {
@@ -449,6 +467,8 @@ namespace PortaleRegione.BAL
             {
                 Success = false,
                 Messaggio = messaggio,
+                StepFallito = step,
+                Dettaglio = dettaglio,
                 IdPratica = atto?.EDMA_IdPratica,
                 NumeroPratica = atto?.EDMA_NumeroPratica,
                 IdDocumento = atto?.EDMA_IdDocumento,

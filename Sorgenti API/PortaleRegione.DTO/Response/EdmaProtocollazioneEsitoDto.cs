@@ -42,5 +42,23 @@ namespace PortaleRegione.DTO.Response
 
         public int TentativiInvio { get; set; }
         public string UltimoErrore { get; set; }
+
+        /// <summary>
+        ///     Nome dello step del flusso che ha fallito (es. "creaPratica",
+        ///     "creaDocumento", "creaAllegato", "associaDocumenti",
+        ///     "protocollazioneApplicativa"). Utile alla segreteria per
+        ///     capire quale operazione ripetere e ai test su Regione per
+        ///     restringere il campo dell'indagine.
+        /// </summary>
+        public string StepFallito { get; set; }
+
+        /// <summary>
+        ///     Dettaglio grezzo della risposta EDMA (body XML, stack trace
+        ///     dell'eccezione, etc.) quando disponibile. Mostrato nel modale
+        ///     di errore per agevolare il debug in fase di collaudo con
+        ///     ARIA/Regione, dove gli endpoint EDMA non sono raggiungibili
+        ///     dai PC degli sviluppatori.
+        /// </summary>
+        public string Dettaglio { get; set; }
     }
 }

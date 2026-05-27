@@ -2733,53 +2733,129 @@
     });
 
     // Gestione del pulsante "Protocolla" accanto alla casella Protocollo.
-    // Click -> conferma -> POST /DASI/Protocolla/{id} -> aggiorna casella con
-    // la segnatura restituita o toast d'errore con il dettaglio.
+    // Click -> swal di conferma -> POST /DASI/Protocolla/{id} -> aggiorna
+    // la casella con la segnatura restituita; in caso di errore mostra un
+    // modale dettagliato con lo step EDMA fallito e l'eventuale risposta
+    // grezza, utile durante il collaudo con Regione visto che da locale gli
+    // endpoint EDMA non sono raggiungibili per policy di sicurezza.
     $(document).on('click', '#btnProtocollaEdma', function () {
         var btn = $(this);
         var id = btn.data('id');
         if (!id) return;
-        if (!confirm('Confermi la protocollazione dell\'atto su EDMA?\nVerranno create la pratica e il protocollo in un\'unica operazione.'))
-            return;
-        
-        var url = '@Url.Content("~/DASI/protocolla/")' + id;
-        waiting(true, 'Protocollazione EDMA in corso...');
-        btn.prop('disabled', true);
 
-        $.ajax({
-            url: url,
-            type: 'POST',
-            contentType: 'application/json',
-            success: function (data) {
-                waiting(false);
-                if (data && data.Success) {
-                    if (data.Segnatura) {
-                        var $input = $('#Atto_Protocollo');
-                        $input.val(data.Segnatura);
-                        // Materialize: forza il label "active" quando popoliamo
-                        // l'input via JavaScript, altrimenti resta sovrapposto.
-                        $input.siblings('label').addClass('active');
+        swal({
+            title: "Conferma protocollazione",
+            text: "Verranno create la pratica e il protocollo su EDMA in un'unica operazione. Procedere?",
+            icon: "warning",
+            buttons: ["Annulla", "Protocolla"]
+        }).then(function (answer) {
+            if (!answer) return;
+
+            // NB: usiamo Url.Content e non Url.Action perche' Url.Action riusa
+            // automaticamente l'id presente nei RouteValues della pagina
+            // corrente (l'atto in dettaglio), e poi appendendo "/+ id"
+            // otterremmo il guid duplicato nel path.
+            var url = '@Url.Content("~/DASI/protocolla/")' + id;
+            waiting(true, 'Protocollazione EDMA in corso...');
+            btn.prop('disabled', true);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                success: function (data) {
+                    waiting(false);
+                    if (data && data.Success) {
+                        if (data.Segnatura) {
+                            var $input = $('#Atto_Protocollo');
+                            $input.val(data.Segnatura);
+                            // Materialize: forza il label "active" quando
+                            // popoliamo l'input via JavaScript, altrimenti
+                            // resta sovrapposto al valore.
+                            $input.siblings('label').addClass('active');
+                        }
+                        var html = 'Atto protocollato' +
+                            (data.Segnatura ? ': <b>' + data.Segnatura + '</b>' : '') +
+                            (data.NumeroPratica ? ' &middot; pratica ' + data.NumeroPratica : '');
+                        M.toast({ html: html, classes: 'green', displayLength: 6000 });
+                        btn.attr('data-tooltip', 'Atto gia\' protocollato');
+                    } else {
+                        mostraErroreProtocollazione(data);
+                        btn.prop('disabled', false);
                     }
-                    var html = 'Atto protocollato' +
-                        (data.Segnatura ? ': <b>' + data.Segnatura + '</b>' : '') +
-                        (data.NumeroPratica ? ' &middot; pratica ' + data.NumeroPratica : '');
-                    M.toast({ html: html, classes: 'green', displayLength: 6000 });
-                    btn.attr('data-tooltip', 'Atto gia\' protocollato');
-                } else {
-                    var msg = (data && (data.Messaggio || data.Message)) ||
-                              'Errore durante la protocollazione EDMA';
-                    if (data && data.UltimoErrore) msg += ' (' + data.UltimoErrore + ')';
-                    M.toast({ html: msg, classes: 'red', displayLength: 8000 });
+                },
+                error: function (err) {
+                    waiting(false);
                     btn.prop('disabled', false);
+
+                    // 502 BadGateway o altri errori HTTP: il body contiene
+                    // comunque l'EdmaProtocollazioneEsitoDto con
+                    // StepFallito e Dettaglio, lo estraiamo da responseJSON
+                    // se disponibile.
+                    var payload = null;
+                    if (err && err.responseJSON) {
+                        payload = err.responseJSON;
+                    } else if (err && err.responseText) {
+                        try { payload = JSON.parse(err.responseText); } catch (_) { /* ignore */ }
+                    }
+                    if (payload) {
+                        mostraErroreProtocollazione(payload);
+                    } else {
+                        Error(err);
+                    }
                 }
-            },
-            error: function (err) {
-                waiting(false);
-                btn.prop('disabled', false);
-                Error(err);
-            }
+            });
         });
     });
+
+    // Modale di errore dettagliato per la protocollazione EDMA. Mostra
+    // il messaggio principale e (sotto un blocco <pre>) lo step fallito e
+    // la risposta grezza di EDMA quando disponibili. Cosi' in fase di test
+    // con Regione si capisce subito cosa ha risposto il server EDMA.
+    function mostraErroreProtocollazione(data) {
+        var messaggio = (data && (data.Messaggio || data.Message)) ||
+                        'Errore durante la protocollazione EDMA.';
+        var step = data && data.StepFallito;
+        var dettaglio = data && (data.Dettaglio || data.UltimoErrore);
+
+        var wrapper = document.createElement('div');
+        wrapper.style.textAlign = 'left';
+
+        var p = document.createElement('p');
+        p.textContent = messaggio;
+        wrapper.appendChild(p);
+
+        if (step) {
+            var sLabel = document.createElement('p');
+            sLabel.innerHTML = '<b>Step fallito:</b> ' + step;
+            wrapper.appendChild(sLabel);
+        }
+
+        if (dettaglio) {
+            var dLabel = document.createElement('p');
+            dLabel.innerHTML = '<b>Dettaglio EDMA:</b>';
+            wrapper.appendChild(dLabel);
+
+            var pre = document.createElement('pre');
+            pre.textContent = dettaglio;
+            pre.style.maxHeight = '240px';
+            pre.style.overflow = 'auto';
+            pre.style.background = '#f5f5f5';
+            pre.style.border = '1px solid #ddd';
+            pre.style.padding = '8px';
+            pre.style.fontSize = '11px';
+            pre.style.whiteSpace = 'pre-wrap';
+            pre.style.wordBreak = 'break-word';
+            wrapper.appendChild(pre);
+        }
+
+        swal({
+            title: 'Errore protocollazione EDMA',
+            content: wrapper,
+            icon: 'error',
+            buttons: { ok: 'Chiudi' }
+        });
+    }
 
 </script>
 
