@@ -124,13 +124,60 @@ namespace PortaleRegione.BAL
                 }
 
                 // STEP 3 - allegato come figlio del documento principale.
-                //
-                // Per la specifica condivisa da ARIA il pdf principale gia'
-                // include gli allegati embedded, e protocollando il documento
-                // EDMA include automaticamente i figli nel pacchetto. Per la
-                // prima messa in esercizio NON creiamo un figlio separato;
-                // il branch resta predisposto per quando si decidera' di
-                // attivarlo, sotto controllo di una feature flag dedicata.
+                // Se l'atto ha un PATH_AllegatoGenerico valorizzato, lo
+                // carichiamo in EDMA come DocumentoFile figlio del pdf
+                // principale: cosi' finisce nella pratica e viene incluso
+                // automaticamente nel pacchetto del protocollo.
+                if (!string.IsNullOrEmpty(atto.PATH_AllegatoGenerico)
+                    && string.IsNullOrEmpty(atto.EDMA_IdAllegatoGenerico))
+                {
+                    var pathAllegato = System.IO.Path.Combine(
+                        AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                        System.IO.Path.GetFileName(atto.PATH_AllegatoGenerico));
+
+                    if (!System.IO.File.Exists(pathAllegato))
+                    {
+                        // L'allegato e' indicato in DB ma il file non esiste piu'
+                        // sul filesystem: lo segnaliamo nel log e proseguiamo,
+                        // perche' bloccare la protocollazione su questo sarebbe
+                        // troppo restrittivo (il pdf principale lo contiene
+                        // gia' embedded).
+                        Log.Debug($"EDMA allegato non trovato su disco per atto {uidAtto}: {pathAllegato}");
+                    }
+                    else
+                    {
+                        var fileBytes = System.IO.File.ReadAllBytes(pathAllegato);
+                        var nomeAllegato = System.IO.Path.GetFileName(atto.PATH_AllegatoGenerico);
+                        var estensione = System.IO.Path.GetExtension(atto.PATH_AllegatoGenerico)
+                            ?.TrimStart('.').ToLowerInvariant() ?? "bin";
+
+                        var figlio = new DocumentoBase
+                        {
+                            Oggetto = TruncaPerSicurezza($"Allegato {GetNomeAtto(atto)}", 1000),
+                            CodAutore = AppSettingsConfiguration.EDMA_CodAutore,
+                            Metamodulo = 200031,
+                            MetaDocumento = new MetaDocumento
+                            {
+                                Codice = AppSettingsConfiguration.EDMA_CodiceMetadocumento_Allegato
+                            }
+                        };
+
+                        var resp = await client.CreaInserisciDocumentoFiglioAsync(
+                            atto.EDMA_IdDocumento,
+                            AppSettingsConfiguration.EDMA_CodiceMetadocumento_Atto,
+                            figlio,
+                            nomeAllegato,
+                            fileBytes,
+                            estensione);
+
+                        if (!resp.Success || resp.Data == null || string.IsNullOrEmpty(resp.Data.IdDocumento))
+                            return await SalvaErrore(atto,
+                                $"Errore creazione allegato: {resp.Message ?? "id assente"}");
+
+                        atto.EDMA_IdAllegatoGenerico = resp.Data.IdDocumento;
+                        await _unitOfWork.CompleteAsync();
+                    }
+                }
 
                 // STEP 4 - fascicolazione del pdf principale nella pratica.
                 // L'esito boolean non blocca il flusso: alcuni provider EDMA
