@@ -405,8 +405,8 @@
                     <div class="input-field col s12 m12 l6">
                         @* La segnatura di protocollo arriva esclusivamente dal
                            flusso "Protocolla" verso EDMA: il campo e' percio'
-                           in sola lettura. Eventuale edit manuale per atti
-                           pre-EDMA va aggiunto in seguito come azione
+                           in sola lettura. Eventuale edit manuale per gli atti
+                           va aggiunto in seguito come azione
                            separata, governata dal feature flag
                            EDMA_AbilitaEditManualeProtocollo. *@
                         @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control", @readonly = "readonly" })
@@ -433,7 +433,7 @@
                                         id="btnEditProtocolloManuale"
                                         class="btn-flat grey-text text-darken-2 tooltipped"
                                         style="margin-top: 6px"
-                                        data-tooltip="Modifica manuale (atti pre-EDMA)"
+                                        data-tooltip="Modifica manuale"
                                         data-id="@Model.Atto.UIDAtto">
                                     <i class="material-icons">edit</i>
                                 </button>
@@ -2819,8 +2819,7 @@
         });
     });
 
-    // Edit manuale del campo Protocollo per atti pre-EDMA o casi
-    // anomali: prompt SweetAlert con campo testo precompilato col valore
+    // Edit manuale del campo Protocollo: prompt SweetAlert con campo testo precompilato col valore
     // corrente, POST a /DASI/ProtocolloManuale/{id}, aggiornamento
     // immediato della casella in caso di esito positivo.
     $(document).on('click', '#btnEditProtocolloManuale', function () {

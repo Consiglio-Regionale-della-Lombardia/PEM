@@ -2843,7 +2843,7 @@ namespace PortaleRegione.Client.Controllers
 
         /// <summary>
         ///     Salva manualmente il campo Protocollo dell'atto. Endpoint
-        ///     riservato alla segreteria per atti pre-EDMA o casi anomali;
+        ///     riservato alla segreteria;
         ///     l'autorizzazione finale viene comunque verificata dal server
         ///     (ruolo + feature flag EDMA_AbilitaEditManualeProtocollo).
         /// </summary>

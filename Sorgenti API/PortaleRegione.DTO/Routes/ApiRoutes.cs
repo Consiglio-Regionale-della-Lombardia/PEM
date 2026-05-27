@@ -281,8 +281,7 @@ namespace PortaleRegione.DTO.Routes
             // flusso a 5 step verso EDMA (creazione pratica, creazione
             // documento, fascicolazione, protocollazione applicativa).
             public const string Protocolla = Base + "/{id:guid}/protocolla";
-            // Edit manuale del campo Protocollo per atti pre-EDMA o casi
-            // anomali, riservato alla segreteria e governato dal feature
+            // Edit manuale del campo Protocollo, riservato alla segreteria e governato dal feature
             // flag EDMA_AbilitaEditManualeProtocollo.
             public const string ProtocolloManuale = Base + "/{id:guid}/protocollo-manuale";
         }
