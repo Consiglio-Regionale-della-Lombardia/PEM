@@ -51,8 +51,15 @@ namespace PortaleRegione.API
             // DI
             var container = new UnityContainer();
 
-            // AutoMapper: una sola configurazione validata al boot, IMapper come singleton
-            var mapperConfig = new MapperConfiguration(c => c.AddProfile<MappingProfile>());
+            // AutoMapper: una sola configurazione validata al boot, IMapper come singleton.
+            // ShouldMapMethod = _ => false disattiva la convenzione "metodo Get<Membro>() come
+            // sorgente del mapping": diversi DTO/Domain espongono un GetLegislatura() (string)
+            // accanto alla property Legislatura (int) e la convention di v10 li mette in conflitto.
+            var mapperConfig = new MapperConfiguration(c =>
+            {
+                c.ShouldMapMethod = _ => false;
+                c.AddProfile<MappingProfile>();
+            });
             mapperConfig.AssertConfigurationIsValid();
             container.RegisterInstance<IMapper>(mapperConfig.CreateMapper());
 
