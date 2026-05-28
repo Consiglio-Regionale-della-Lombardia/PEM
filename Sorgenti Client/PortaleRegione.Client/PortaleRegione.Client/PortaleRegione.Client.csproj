@@ -142,6 +142,7 @@
     <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Models\ClientJsonResponse.cs" />
     <Compile Include="Controllers\EmendamentiController.cs" />
+    <Compile Include="Controllers\FiltriController.cs" />
     <Compile Include="Controllers\PersoneController.cs" />
     <Compile Include="Controllers\StampeController.cs" />
     <Compile Include="Controllers\VideoTutorialController.cs" />

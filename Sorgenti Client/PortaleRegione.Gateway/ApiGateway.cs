@@ -38,6 +38,7 @@ namespace PortaleRegione.Gateway
             Notifiche = new NotificheGateway(_token);
             Stampe = new StampeGateway(_token);
             Esporta = new EsportaGateway(_token);
+            Filtri = new FiltriGateway(_token);
             Emendamento = new EMGateway(_token);
             Atti = new AttiGateway(_token);
             Admin = new AdminGateway(_token);
@@ -56,6 +57,7 @@ namespace PortaleRegione.Gateway
         public INotificheGateway Notifiche { get; }
         public IStampeGateway Stampe { get; }
         public IEsportaGateway Esporta { get; }
+        public IFiltriGateway Filtri { get; }
         public IEMGateway_Pubblico Emendamento_Pubblico { get; }
         public IDASIGateway_Pubblico DASI_Pubblico { get; }
         public IEMGateway Emendamento { get; }

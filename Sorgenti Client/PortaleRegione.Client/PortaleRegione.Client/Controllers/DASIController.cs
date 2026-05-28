@@ -178,54 +178,11 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("salva-gruppo-filtri")]
-        public async Task<ActionResult> SalvaGruppoFiltri(FiltroPreferitoDto model)
-        {
-            try
-            {
-                var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.SalvaGruppoFiltri(model);
-                return Json("OK");
-            }
-            catch (Exception e)
-            {
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
+        // Le tre action salva-gruppo-filtri/elimina-gruppo-filtri/gruppo-filtri sono
+        // state spostate nel nuovo FiltriController unificato (v2026.5.1).
+        // Il client DASI ora invoca /filtri/salva, /filtri/{modulo}, /filtri/elimina.
 
-        [HttpGet]
-        [Route("elimina-gruppo-filtri")]
-        public async Task<ActionResult> EliminaGruppoFiltri(string nomeFiltro)
-        {
-            try
-            {
-                var apiGateway = new ApiGateway(Token);
-                await apiGateway.DASI.EliminaGruppoFiltri(nomeFiltro);
-                return Json("OK", JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
 
-        [HttpGet]
-        [Route("gruppo-filtri")]
-        public async Task<ActionResult> GetGruppoFiltri()
-        {
-            try
-            {
-                var apiGateway = new ApiGateway(Token);
-                var res = await apiGateway.DASI.GetGruppoFiltri();
-                return Json(res, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
-        
         /// <summary>
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo cartacei
         /// </summary>

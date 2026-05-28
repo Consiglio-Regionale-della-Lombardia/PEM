@@ -696,25 +696,9 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
-        public async Task SalvaGruppoFiltri(FiltroPreferitoDto model)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.SalvaFiltriPreferiti}";
-            var body = JsonConvert.SerializeObject(model);
-            await Post(requestUrl, body, _token);
-        }
-
-        public async Task<List<FiltroPreferitoDto>> GetGruppoFiltri()
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetFiltriPreferiti}";
-            var lst = JsonConvert.DeserializeObject<List<FiltroPreferitoDto>>(await Get(requestUrl, _token));
-            return lst;
-        }
-
-        public async Task EliminaGruppoFiltri(string nomeFiltro)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.EliminaFiltriPreferiti}?nomeFiltro={nomeFiltro}";
-            await Delete(requestUrl, _token);
-        }
+        // I tre metodi SalvaGruppoFiltri/GetGruppoFiltri/EliminaGruppoFiltri sono
+        // stati migrati a FiltriGateway (v2026.5.1): apiGateway.Filtri.Salva/Get/Elimina
+        // con ModuloEnum.DASI.
 
         public async Task<FileResponse> GeneraReport(ReportDto request)
         {

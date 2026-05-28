@@ -527,9 +527,10 @@ function GetFiltriPreferitiEM() {
 }
 
 function GetFiltriPreferitiDASI() {
+    // FiltriController unificato (v2026.5.1): /filtri/{modulo}. ModuloEnum.DASI = 2.
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/dasi/gruppo-filtri",
+            url: baseUrl + "/filtri/2",
             type: "GET"
         }).done(function(result) {
             resolve(result);
