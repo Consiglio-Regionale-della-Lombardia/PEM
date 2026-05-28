@@ -4675,7 +4675,8 @@ namespace PortaleRegione.API.Controllers
                 Colonne = request.columns,
                 DettagliOrdinamento = request.sorting,
                 Nome = request.name,
-                Preferito = request.favourite
+                Preferito = request.favourite,
+                Modulo = ModuloEnum.DASI
             };
 
             _unitOfWork.Filtri.Add(filtro);
@@ -4684,7 +4685,7 @@ namespace PortaleRegione.API.Controllers
 
         public async Task<List<FiltroPreferitoDto>> GetGruppoFiltri(PersonaDto currentUser)
         {
-            var listFromDb = await _unitOfWork.Filtri.GetByUser(currentUser.UID_persona);
+            var listFromDb = await _unitOfWork.Filtri.GetByUser(currentUser.UID_persona, ModuloEnum.DASI);
             var res = new List<FiltroPreferitoDto>();
             foreach (var f in listFromDb)
                 res.Add(new FiltroPreferitoDto
@@ -4693,7 +4694,8 @@ namespace PortaleRegione.API.Controllers
                     favourite = f.Preferito,
                     filters = f.Filtri,
                     columns = f.Colonne,
-                    sorting = f.DettagliOrdinamento
+                    sorting = f.DettagliOrdinamento,
+                    modulo = ModuloEnum.DASI
                 });
 
             return res;
@@ -4701,7 +4703,7 @@ namespace PortaleRegione.API.Controllers
 
         public async Task EliminaGruppoFiltri(string nomeFiltro, PersonaDto currentUser)
         {
-            var filtro = await _unitOfWork.Filtri.Get(nomeFiltro, currentUser.UID_persona);
+            var filtro = await _unitOfWork.Filtri.Get(nomeFiltro, currentUser.UID_persona, ModuloEnum.DASI);
             _unitOfWork.Filtri.Remove(filtro);
             await _unitOfWork.CompleteAsync();
         }

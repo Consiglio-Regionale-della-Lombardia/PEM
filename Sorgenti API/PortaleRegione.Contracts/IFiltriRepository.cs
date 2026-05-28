@@ -20,12 +20,16 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Contracts
 {
     public interface IFiltriRepository : IRepository<FILTRI>
     {
-        Task<List<FILTRI>> GetByUser(Guid uidPersona);
-        Task<FILTRI> Get(string nomeFiltro, Guid UidPersona);
+        // Recupera i filtri preferiti dell'utente per il modulo richiesto (PEM o DASI).
+        Task<List<FILTRI>> GetByUser(Guid uidPersona, ModuloEnum modulo);
+
+        // Cerca un filtro per nome+utente all'interno del modulo richiesto.
+        Task<FILTRI> Get(string nomeFiltro, Guid UidPersona, ModuloEnum modulo);
     }
 }
