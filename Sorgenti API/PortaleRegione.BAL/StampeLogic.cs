@@ -98,7 +98,7 @@ namespace PortaleRegione.BAL
                         Query = JsonConvert.SerializeObject(slice), // Serializza il slice attuale
                         Da = request.Da,
                         A = request.A,
-                        DASI = request.Modulo == ModuloStampaEnum.DASI,
+                        DASI = request.Modulo == ModuloEnum.DASI,
                         Ordine = (int)request.Ordinamento,
                         UIDFascicolo = uidFascicolo, // GUID di raggruppamento
                         NumeroFascicolo = numeroFascicolo // Ordine progressivo
@@ -138,7 +138,7 @@ namespace PortaleRegione.BAL
                     Query = JsonConvert.SerializeObject(request.Lista), // Serializza la lista intera
                     Da = request.Da,
                     A = request.A,
-                    DASI = request.Modulo == ModuloStampaEnum.DASI,
+                    DASI = request.Modulo == ModuloEnum.DASI,
                     Ordine = (int)request.Ordinamento
                 };
 

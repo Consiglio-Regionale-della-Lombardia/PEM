@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2019 Consiglio Regionale della Lombardia
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -18,7 +18,12 @@
 
 namespace PortaleRegione.DTO.Enum
 {
-    public enum ModuloStampaEnum
+    /// <summary>
+    ///     Discrimina i moduli applicativi a cui appartengono entita' trasversali
+    ///     come le richieste di stampa o i filtri preferiti.
+    ///     Sostituisce il vecchio ModuloStampaEnum, ora rimosso.
+    /// </summary>
+    public enum ModuloEnum
     {
         PEM = 1,
         DASI = 2

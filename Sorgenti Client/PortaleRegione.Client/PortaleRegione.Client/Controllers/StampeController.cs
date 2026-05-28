@@ -100,7 +100,7 @@ namespace PortaleRegione.Client.Controllers
             return Json(await apiGateway.Stampe.InserisciStampa(new NuovaStampaRequest
             {
                 Lista = res,
-                Modulo = ModuloStampaEnum.PEM,
+                Modulo = ModuloEnum.PEM,
                 Ordinamento = modelInCache.Ordinamento,
                 Da = model.da,
                 A = model.a,
@@ -165,7 +165,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(await apiGateway.Stampe.InserisciStampa(new NuovaStampaRequest
                 {
                     Lista = res,
-                    Modulo = ModuloStampaEnum.DASI,
+                    Modulo = ModuloEnum.DASI,
                     Da = model.da,
                     A = model.a
                 }), JsonRequestBehavior.AllowGet);
