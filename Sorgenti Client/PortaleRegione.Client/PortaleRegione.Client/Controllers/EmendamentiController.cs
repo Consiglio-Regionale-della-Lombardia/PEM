@@ -1193,6 +1193,11 @@ namespace PortaleRegione.Client.Controllers
                     case ExportFormatEnum.WORD:
                         file = await apiGateway.Esporta.EsportaWORD(viewModel);
                         break;
+                    case ExportFormatEnum.EXCEL_UOLA:
+                        // Export PEM dedicato alla segreteria UOLA (v2026.5.1):
+                        // usa il gateway EsportaXLS_UOLA gia' esistente.
+                        file = await apiGateway.Esporta.EsportaXLS_UOLA(viewModel);
+                        break;
                     default:
                         return Json(new ErrorResponse("Formato di esportazione non supportato"),
                             JsonRequestBehavior.AllowGet);
