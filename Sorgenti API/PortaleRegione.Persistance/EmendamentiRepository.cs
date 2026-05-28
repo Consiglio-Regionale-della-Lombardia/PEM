@@ -1659,19 +1659,30 @@ namespace PortaleRegione.Persistance
         private IOrderedQueryable<EM> ApplicaOrdinamentoEM(IQueryable<EM> query, OrdinamentoEnum ordine,
             PersonaDto persona, int CLIENT_MODE)
         {
+            // v2026.5.1 - L'ordine richiesto esplicitamente (Presentazione o Votazione)
+            // prevale sul ruolo: il client cambia tab "Presentazione/Votazione" e si
+            // aspetta che la griglia rispetti la scelta sia per il consigliere che per
+            // l'admin/segreteria, sia in modalita' GRUPPI che TRATTAZIONE.
+            // Bug precedente: lo switch era annidato nel ramo "segreteria/presidente/
+            // trattazione", quindi il consigliere PEM in GRUPPI (e anche l'admin PEM
+            // in GRUPPI) cadeva sempre nell'ordine "naturale" per stato, ignorando il
+            // parametro ordine inviato dal client.
+            switch (ordine)
+            {
+                case OrdinamentoEnum.Presentazione:
+                    return query.OrderBy(em => em.SubEM).ThenBy(em => em.OrdinePresentazione);
+                case OrdinamentoEnum.Votazione:
+                    return query.OrderBy(em => em.OrdineVotazione);
+            }
+
+            // Default: fallback su ordine "naturale". Per segreteria/presidente o vista
+            // TRATTAZIONE manteniamo il ramo IDStato + DataCreazione; per il consigliere
+            // GRUPPI manteniamo IDStato + Timestamp + progressivi.
             if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE
                 || persona.IsSegreteriaAssemblea
                 || persona.IsPresidente)
             {
-                switch (ordine)
-                {
-                    case OrdinamentoEnum.Presentazione:
-                        return query.OrderBy(em => em.SubEM).ThenBy(em => em.OrdinePresentazione);
-                    case OrdinamentoEnum.Votazione:
-                        return query.OrderBy(em => em.OrdineVotazione);
-                    default:
-                        return query.OrderBy(em => em.IDStato).ThenByDescending(em => em.DataCreazione);
-                }
+                return query.OrderBy(em => em.IDStato).ThenByDescending(em => em.DataCreazione);
             }
 
             return query.OrderBy(em => em.IDStato)
