@@ -156,6 +156,13 @@
 
             ripristinaFiltriEM();
             ripristinaOrdinamentoEM();
+            // v2026.5.1: il click su una chip preferito deve rilanciare la query
+            // sulla griglia. ripristinaFiltriEM aggiorna solo le chip nel DOM (allinea
+            // al pattern DASI dove invece era ripristinaFiltri a fare anche la query;
+            // qui lo invochiamo dal call site per non rompere init/reset).
+            if (typeof inviaDatiChipsEM === 'function') {
+                inviaDatiChipsEM(1);
+            }
         };
 
         chipsContainer.appendChild(newChip);
@@ -229,6 +236,11 @@
                     window.chipsKeysEM = [];
                     ripristinaFiltriEM();
                     ripristinaOrdinamentoEM();
+                    // v2026.5.1: rilancia la query sulla griglia dopo aver applicato
+                    // il filtro preferito dalla lista laterale (caso favourite=false).
+                    if (typeof inviaDatiChipsEM === 'function') {
+                        inviaDatiChipsEM(1);
+                    }
                 }
             };
 
