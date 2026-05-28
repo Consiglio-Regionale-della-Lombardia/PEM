@@ -952,7 +952,19 @@ function GetCounterAlert(lista, selezionaTutti) {
 
 function GetCounterAlertStampa(lista, selezionaTutti) {
     var text_counter = "";
-    var total_entities = parseInt($("#hdTotaleDocumenti").val());
+
+    // v2026.5.1: il totale viene letto dall'attributo data-totale-risultati
+    // della <ul class="pagination"> (sempre valorizzato lato server in
+    // _PaginationBar.cshtml). Il vecchio fallback su #hdTotaleDocumenti
+    // restava undefined quando la paginazione bottom non era ancora
+    // renderizzata e produceva NaN nel titolo della modale stampa.
+    var total_entities = parseInt($('ul.pagination').first().data('totale-risultati'));
+    if (isNaN(total_entities)) {
+        total_entities = parseInt($("#hdTotaleDocumenti").val());
+    }
+    if (isNaN(total_entities)) {
+        total_entities = 0;
+    }
 
     if (selezionaTutti && lista.length == 0) {
         text_counter = total_entities;
