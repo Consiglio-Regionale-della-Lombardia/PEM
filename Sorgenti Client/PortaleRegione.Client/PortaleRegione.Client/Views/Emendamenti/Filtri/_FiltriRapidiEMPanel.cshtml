@@ -23,7 +23,9 @@
     </div>
     <div class="col l5 m12 s12 right-align">
         <button id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</button>
-        <button id="btnReportConfig" class="btn-flat pink-text">Genera report</button>
+        @* v2026.5.1: rimosso il pulsante "Genera report". L'export e' ora pilotato
+           dalla partial Filtri/_ExportButtonsEM resa sopra la griglia con tre
+           pulsanti diretti (Word/Excel/Excel Segreteria) o uno solo per i consiglieri. *@
         <div class="row">
             <div class="col s12">
                 <div id="chips-container-selected-report"></div>
@@ -1757,6 +1759,6 @@
 @{
     Html.RenderPartial("Filtri/_DettaglioFiltroModalEM");
     Html.RenderPartial("Filtri/_FiltroConfigModalEM");
-    Html.RenderPartial("Filtri/_ReportConfigModalEM");
+    @* v2026.5.1: _ReportConfigModalEM rimossa (vedi _ExportButtonsEM). *@
     Html.RenderPartial("Filtri/_OrdinamentoColonneEM");
 }

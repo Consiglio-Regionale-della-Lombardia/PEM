@@ -1,0 +1,106 @@
+@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+
+@*
+    Pulsanti di export emendamenti sopra la griglia (v2026.5.1).
+    Sostituisce la vecchia modale "Genera report" + select formato.
+
+    - CONSIGLIERI (load_gruppi == false): 1 pulsante "Excel".
+    - SEGRETERIA/ADMIN (load_gruppi == true): 3 pulsanti "Word", "Excel",
+      "Excel Segreteria".
+
+    Ogni pulsante invia la FilterRequestEM corrente all'endpoint server
+    POST /emendamenti/genera-report con un formato fisso (Word, Excel,
+    Excel UOLA). Il flusso server e' identico al precedente, cambia solo
+    la UI: niente modale, niente nome utente, niente select.
+*@
+
+@{
+    var load_gruppi = User.IsInRole(RuoliExt.Amministratore_PEM)
+                      || User.IsInRole(RuoliExt.Segreteria_Assemblea);
+}
+
+<div id="pnlExportButtonsEM" class="right-align" style="padding-bottom: 8px;">
+    @if (load_gruppi)
+    {
+        <button type="button" role="button" class="btn-flat blue-text tooltipped"
+                data-tooltip="Esporta in formato Word" onclick="exportEM(@((int)ExportFormatEnum.WORD));">
+            <i class="material-icons left">description</i>Word
+        </button>
+        <button type="button" role="button" class="btn-flat green-text tooltipped"
+                data-tooltip="Esporta in formato Excel" onclick="exportEM(@((int)ExportFormatEnum.EXCEL));">
+            <i class="material-icons left">grid_on</i>Excel
+        </button>
+        <button type="button" role="button" class="btn-flat pink-text tooltipped"
+                data-tooltip="Esporta in formato Excel per la segreteria UOLA"
+                onclick="exportEM(@((int)ExportFormatEnum.EXCEL_UOLA));">
+            <i class="material-icons left">grid_on</i>Excel Segreteria
+        </button>
+    }
+    else
+    {
+        <button type="button" role="button" class="btn-flat green-text tooltipped"
+                data-tooltip="Esporta in formato Excel" onclick="exportEM(@((int)ExportFormatEnum.EXCEL));">
+            <i class="material-icons left">grid_on</i>Excel
+        </button>
+    }
+</div>
+
+<script>
+    // Genera il file di export per il formato richiesto. Il nome file segue il
+    // pattern Estrazione_{timestamp} (es. Estrazione_20260528_143215) ed e'
+    // identico per tutti i formati: l'utente lo riconosce facilmente nei download.
+    function exportEM(formato) {
+        if (typeof buildFilterRequestEM !== 'function') {
+            console.error('buildFilterRequestEM non disponibile: pannello filtri non inizializzato.');
+            return;
+        }
+
+        var payload = {
+            Filter: buildFilterRequestEM(),
+            ReportName: 'Estrazione_' + _timestampReportEM(),
+            ExportFormat: formato.toString()
+        };
+
+        var url = '@Url.Action("GeneraReport", "Emendamenti")';
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: JSON.stringify(payload),
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function () {
+                waiting(true, "Generazione export in corso...");
+            },
+            success: function (response) {
+                if (response && response.message) {
+                    swal({ title: "Errore", text: response.message, icon: "error" });
+                    return;
+                }
+                var a = document.createElement("a");
+                a.href = response;
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            },
+            error: function (xhr, status, error) {
+                console.error("Errore nella richiesta export EM: " + status + ". Motivo: " + error);
+            },
+            complete: function () {
+                waiting(false);
+            }
+        });
+    }
+
+    function _timestampReportEM() {
+        var d = new Date();
+        var pad = function (n) { return n.toString().padStart(2, '0'); };
+        return d.getFullYear().toString()
+            + pad(d.getMonth() + 1)
+            + pad(d.getDate())
+            + '_'
+            + pad(d.getHours())
+            + pad(d.getMinutes())
+            + pad(d.getSeconds());
+    }
+</script>
