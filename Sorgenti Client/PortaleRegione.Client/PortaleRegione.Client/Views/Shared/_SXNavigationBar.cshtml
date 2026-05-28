@@ -118,7 +118,7 @@
 												if (ruolo.IDruolo != (int)currentRole)
 												{
 													<li>
-														<a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new { ruolo = ruolo.IDruolo, returnUrl = Request.Url })">@ruolo.Ruolo</a>
+														<a style="overflow: hidden; text-overflow: ellipsis; cursor: pointer;" onclick="cambioRuolo('@Url.Action("CambioRuolo", "Autenticazione", new { ruolo = ruolo.IDruolo, returnUrl = Request.Url })')">@ruolo.Ruolo</a>
 													</li>
 												}
 											}
@@ -157,8 +157,8 @@
 											@foreach (var gruppiDto in gruppiJson)
 											{
 												<li>
-													<a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
-													   href="@Url.Action("CambioGruppo", "Autenticazione", new { gruppo = gruppiDto.id, returnUrl = Request.Url })">
+													<a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important; cursor: pointer;"
+													   onclick="cambioGruppo('@Url.Action("CambioGruppo", "Autenticazione", new { gruppo = gruppiDto.id, returnUrl = Request.Url })')">
 														<label class="active">(@gruppiDto.sigla)</label> @gruppiDto.descr
 													</a>
 												</li>
@@ -374,20 +374,39 @@
             });
     }
 
-    function logout() {
-        // Clear filtri/ordinamento/colonne PEM
+    // Pulisce lo stato lato client (chip filtri, ordinamento, colonne, paging)
+    // condiviso tra logout e cambio ruolo/gruppo. I filtri preferiti EM/DASI
+    // sono persistiti a server (tabella FILTRI con Modulo) e quindi non vengono
+    // azzerati qui: l'utente li ritrova al login successivo o dopo il cambio ruolo.
+    function clearClientStateForRoleSwitch() {
+        // PEM
         localStorage.removeItem('filtriChipsEM');
         localStorage.removeItem('selectedSortColumnsEM');
         localStorage.removeItem('selectedColumnsEM');
-        // Clear filtri/ordinamento/colonne DASI
+        // DASI
         localStorage.removeItem('filtriDasi');
         localStorage.removeItem('selectedSortColumns');
         localStorage.removeItem('selectedColumns');
         localStorage.removeItem('pagingDasi');
-        // filtriPreferitiEM e' migrato a server (tabella FILTRI con Modulo=PEM)
-        // dalla v2026.5.1: il logout non deve piu' azzerarlo lato client.
         localStorage.removeItem('reportsEM');
+    }
+
+    function logout() {
+        clearClientStateForRoleSwitch();
         $('#formLogout').submit();
+    }
+
+    // Cambio ruolo/gruppo: prima di navigare ripuliamo lo stato client, cosi'
+    // chip filtri e selezioni del ruolo precedente non vengono ereditate (la
+    // cache server-side viene invalidata in AutenticazioneController).
+    function cambioRuolo(url) {
+        clearClientStateForRoleSwitch();
+        window.location = url;
+    }
+
+    function cambioGruppo(url) {
+        clearClientStateForRoleSwitch();
+        window.location = url;
     }
 
     var templateSXSeduteAttive = "<li><a href='{URL}'>{TEXT}</a></li>";

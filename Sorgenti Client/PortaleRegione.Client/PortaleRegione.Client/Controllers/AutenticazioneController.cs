@@ -101,6 +101,11 @@ namespace PortaleRegione.Client.Controllers
                 return HttpNotFound(e.Message);
             }
 
+            // v2026.5.1: prima di emettere i nuovi cookie azzeriamo la cache server
+            // legata all'utente (modalita' client, ordinamento PEM, stato DASI, ecc.),
+            // cosi' la nuova identita' non eredita filtri/contesti del ruolo precedente.
+            InvalidateUserContextCache();
+
             await SalvaDatiInCookies(response.persona, response.jwt,
                 response.persona.userAD.Replace(@"CONSIGLIO\", ""));
 
@@ -124,10 +129,45 @@ namespace PortaleRegione.Client.Controllers
                 return HttpNotFound(e.Message);
             }
 
+            // v2026.5.1: vedi nota in CambioRuolo.
+            InvalidateUserContextCache();
+
             await SalvaDatiInCookies(response.persona, response.jwt,
                 response.persona.userAD.Replace(@"CONSIGLIO\", ""));
 
             return RedirectToAction("Index", "Home");
+        }
+
+        /// <summary>
+        ///     Rimuove dalla HttpContext.Cache le chiavi di contesto dell'utente
+        ///     corrente (modalita' di vista, ordinamento, paginazione, stato/tipo
+        ///     DASI, gruppi attivi). E' un'operazione idempotente: se la chiave
+        ///     non esiste il Remove non solleva eccezioni.
+        ///     I cookie applicativi vengono rinnovati subito dopo da
+        ///     <see cref="SalvaDatiInCookies"/>.
+        /// </summary>
+        private void InvalidateUserContextCache()
+        {
+            if (HttpContext?.Cache == null || CurrentUser == null) return;
+
+            var keys = new[]
+            {
+                CacheHelper.CLIENT_MODE,
+                CacheHelper.ORDINAMENTO_PEM,
+                CacheHelper.VIEW_MODE_PEM,
+                CacheHelper.PAGE_PEM,
+                CacheHelper.SIZE_PEM,
+                CacheHelper.STATO_DASI,
+                CacheHelper.TIPO_DASI,
+                CacheHelper.PAGE_DASI,
+                CacheHelper.SIZE_DASI,
+                CacheHelper.VIEW_MODE_DASI,
+                CacheHelper.GRUPPI_ATTIVI
+            };
+            foreach (var key in keys)
+            {
+                HttpContext.Cache.Remove(GetCacheKey(key));
+            }
         }
 
         private async Task SalvaDatiInCookies(PersonaDto persona, string jwt, string username)
