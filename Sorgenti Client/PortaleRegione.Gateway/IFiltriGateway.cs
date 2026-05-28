@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2019 Consiglio Regionale della Lombardia
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,19 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 
-namespace PortaleRegione.DTO.Request
+namespace PortaleRegione.Gateway
 {
-    public class NuovaStampaRequest
+    /// <summary>
+    ///     Gateway unificato per la gestione dei filtri preferiti utente.
+    ///     Sostituisce DASIGateway.SalvaGruppoFiltri/GetGruppoFiltri/EliminaGruppoFiltri
+    ///     e copre anche il modulo PEM (v2026.5.1).
+    /// </summary>
+    public interface IFiltriGateway
     {
-        public List<Guid> Lista { get; set; }
-        public int Da { get; set; }
-        public int A { get; set; }
-        public ModuloEnum Modulo { get; set; }
-        public OrdinamentoEnum Ordinamento { get; set; } = OrdinamentoEnum.Default;
-        public Guid UIDAtto { get; set; }
+        Task Salva(FiltroPreferitoDto model);
+        Task<List<FiltroPreferitoDto>> Get(ModuloEnum modulo);
+        Task Elimina(string nomeFiltro, ModuloEnum modulo);
     }
 }

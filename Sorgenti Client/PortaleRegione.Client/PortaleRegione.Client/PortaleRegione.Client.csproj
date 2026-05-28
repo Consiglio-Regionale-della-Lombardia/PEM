@@ -142,6 +142,7 @@
     <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Models\ClientJsonResponse.cs" />
     <Compile Include="Controllers\EmendamentiController.cs" />
+    <Compile Include="Controllers\FiltriController.cs" />
     <Compile Include="Controllers\PersoneController.cs" />
     <Compile Include="Controllers\StampeController.cs" />
     <Compile Include="Controllers\VideoTutorialController.cs" />
@@ -363,7 +364,7 @@
     <Content Include="Views\Emendamenti\Filtri\_FiltriRapidiEMPanel.cshtml" />
     <Content Include="Views\Emendamenti\Filtri\_FiltroConfigModalEM.cshtml" />
     <Content Include="Views\Emendamenti\Filtri\_OrdinamentoColonneEM.cshtml" />
-    <Content Include="Views\Emendamenti\Filtri\_ReportConfigModalEM.cshtml" />
+    <Content Include="Views\Emendamenti\Filtri\_ExportButtonsEM.cshtml" />
     <Content Include="Views\Emendamenti\_PannelloRicercheEM.cshtml" />
     <Content Include="Content\editor\plugins\colors\ui\sass\trumbowyg.colors.scss" />
     <Content Include="Content\editor\plugins\emoji\ui\sass\trumbowyg.emoji.scss" />

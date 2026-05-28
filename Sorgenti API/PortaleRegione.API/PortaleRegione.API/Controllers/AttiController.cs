@@ -641,7 +641,7 @@ namespace PortaleRegione.API.Controllers
                         Da = 0,
                         A = 0,
                         Lista = list,
-                        Modulo = ModuloStampaEnum.PEM,
+                        Modulo = ModuloEnum.PEM,
                         Ordinamento = model.Ordinamento,
                         UIDAtto = model.Id
                     }, CurrentUser);

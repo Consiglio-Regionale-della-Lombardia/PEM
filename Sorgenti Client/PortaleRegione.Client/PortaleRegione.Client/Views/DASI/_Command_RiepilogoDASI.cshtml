@@ -66,8 +66,14 @@
             Url.Action("RiepilogoDASI", "DASI", new { view = new_view, stato = statoFromCache, tipo = tipoFromCache });
             if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
             {
-                var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
-                Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = uidSeduta, tipo = Model.Tipo, view = new_view });
+                // v2026.5.1 fix: usare FirstOrDefault per coerenza con RiepilogoDASI_Admin
+                // (cfr. nota nel partial padre). Se UIDSeduta non e' nei Filters non si
+                // genera la URL ma si lascia il fallback precedente.
+                var sedutaFilter = Model.Data.Filters.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
+                if (sedutaFilter != null)
+                {
+                    Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = sedutaFilter.Value, tipo = Model.Tipo, view = new_view });
+                }
             }
 
         }

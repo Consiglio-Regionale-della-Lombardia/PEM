@@ -18,6 +18,7 @@
 using System.ComponentModel.DataAnnotations;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Domain
 {
@@ -27,7 +28,10 @@ namespace PortaleRegione.Domain
         public FILTRI()
         {
             Id = Guid.NewGuid();
-            DataCreazione = DateTime.Now;    
+            DataCreazione = DateTime.Now;
+            // Default DASI per coerenza con il backfill SQL (DEFAULT 2 sulla colonna Modulo):
+            // i record storici esistenti sono tutti DASI.
+            Modulo = ModuloEnum.DASI;
         }
 
         [Key] public Guid Id { get; set; }
@@ -38,5 +42,10 @@ namespace PortaleRegione.Domain
         public string DettagliOrdinamento { get; set; }
         public bool Preferito { get; set; }
         public Guid UId_persona { get; set; }
+
+        // Discrimina il modulo applicativo (PEM o DASI) a cui appartiene il filtro preferito.
+        // La colonna sul DB e' tinyint NOT NULL DEFAULT 2 (vedi 2026-05-28_001_FILTRI_Modulo_column.sql).
+        [Column(TypeName = "tinyint")]
+        public ModuloEnum Modulo { get; set; }
     }
 }

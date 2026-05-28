@@ -263,9 +263,6 @@ namespace PortaleRegione.DTO.Routes
             public const string CambiaOrdineVisualizzazioneFirme = Base + "/change-signature-order-view";
             public const string SaveCartaceo = Base + "/salva-bozza-cartacea";
             public const string CambiaPrioritaFirma = Base + "/cambia-priorità-firma";
-            public const string SalvaFiltriPreferiti = Base + "/filters/salva";
-            public const string GetFiltriPreferiti = Base + "/filters";
-            public const string EliminaFiltriPreferiti = Base + "/filters/elimina";
             public const string GeneraReport = Base + "/reports/genera";
             public const string GeneraZIP = Base + "/reports/genera-zip";
             public const string SalvaReport = Base + "/reports/salva";
@@ -325,6 +322,17 @@ namespace PortaleRegione.DTO.Routes
             public const string GetAll = Base + "/all";
             public const string Get = Base + "/{id}";
             public const string GetAttuale = Base + "/attuale";
+        }
+
+        public static class Filtri
+        {
+            // api/filtri — gestione filtri preferiti utente, trasversale ai moduli PEM e DASI.
+            // Sostituisce le vecchie route DASI /dasi/filters/* (rimosse).
+            private const string Base = Root + "/filtri";
+
+            public const string Salva = Base + "/salva";
+            public const string Get = Base + "/{modulo}";
+            public const string Elimina = Base + "/{modulo}/{nome}";
         }
 
         public static class Esporta

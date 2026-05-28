@@ -47,9 +47,12 @@
         request.sorting = JSON.stringify(sorting);
         request.name = document.getElementById('filter_name').value;
         request.favourite = document.getElementById('filter_favourite').checked;
+        // ModuloEnum.DASI = 2 (vedi PortaleRegione.DTO.Enum.ModuloEnum).
+        // Il payload viaggia verso il FiltriController unificato.
+        request.modulo = 2;
 
         // Invia la richiesta al server
-        const response = await fetch('@Url.Action("SalvaGruppoFiltri")', {
+        const response = await fetch('@Url.Action("Salva", "Filtri")', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -257,8 +260,10 @@
 				}).then(async (value) => {
 					if (value == true) {
 						try {
-							let deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
-							deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
+							// ModuloEnum.DASI = 2: il nuovo FiltriController distingue il modulo
+							// tramite query string (nessun cambio di semantica rispetto a prima).
+							let deleteUrl = '@Url.Action("Elimina", "Filtri")';
+							deleteUrl = `${deleteUrl}?modulo=2&nome=${encodeURIComponent(item.name)}`;
 							const response = await fetch(deleteUrl, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 							if (!response.ok) throw new Error('Network response was not ok');
 

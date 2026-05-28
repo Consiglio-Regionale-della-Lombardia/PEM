@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
+using ExpressionBuilder.Generics;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -59,19 +60,37 @@ namespace PortaleRegione.Client.Controllers
             var contextMode = HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
             if (contextMode != null) mode = (ClientModeEnum)Convert.ToInt16(contextMode);
 
-            var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
-
             SetCache(page, size, ordine, view);
 
-            // Il punto di ingresso restituisce l'involucro della pagina con i dati di intestazione
-            // (atto, conteggi base). Il pannello filtri lato browser popola la griglia chiamando
-            // l'endpoint POST asincrono "riepilogoEM".
-            var composeModel = await ComposeModel(id, mode, ordine, view, page, size, view_require_my_sign);
+            // v2026.5.1 - Fix doppia chiamata GetEmendamenti.
+            // Il punto di ingresso restituisce ora SOLO l'involucro della pagina
+            // (atto + paging vuoto) senza interrogare la pipeline emendamenti: la
+            // griglia viene popolata dal pannello filtri via POST AJAX a
+            // /emendamenti/riepilogo-emendamenti (inviaDatiChipsEM). Prima il vecchio
+            // ComposeModel chiamava apiGateway.Emendamento.Get() generando una prima
+            // query inutile, doppia rispetto a quella AJAX.
+            var apiGateway = new ApiGateway(Token);
+            var atto = await apiGateway.Atti.Get(id);
+            var model = new EmendamentiViewModel
+            {
+                Atto = atto,
+                Mode = mode,
+                ViewMode = view,
+                Ordinamento = ordine,
+                CurrentUser = CurrentUser,
+                Data = new BaseResponse<EmendamentiDto>(
+                    page,
+                    size,
+                    new List<EmendamentiDto>(),
+                    new List<FilterStatement<EmendamentiDto>>(),
+                    0,
+                    Request.Url)
+            };
 
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                return View("RiepilogoEM_Admin", composeModel);
-            return View("RiepilogoEM", composeModel);
+                return View("RiepilogoEM_Admin", model);
+            return View("RiepilogoEM", model);
         }
 
         /// <summary>
@@ -98,43 +117,14 @@ namespace PortaleRegione.Client.Controllers
             return RedirectToAction("RiepilogoEmendamenti", "Emendamenti", new { id });
         }
 
-        private async Task<EmendamentiViewModel> ComposeModel(Guid id, ClientModeEnum mode,
-            OrdinamentoEnum ordine, ViewModeEnum view, int page,
-            int size, bool view_require_my_sign)
-        {
-            var apiGateway = new ApiGateway(Token);
-            EmendamentiViewModel model;
-            if (!view_require_my_sign)
-                model = await apiGateway.Emendamento.Get(id, mode, ordine, page, size);
-            else
-                model = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
-            model.ViewMode = view;
-            if (view == ViewModeEnum.PREVIEW)
-                foreach (var emendamentiDto in model.Data.Results)
-                    emendamentiDto.BodyEM =
-                        await apiGateway.Emendamento.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
-
-            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                return model;
-
-            if (mode == ClientModeEnum.GRUPPI)
-                foreach (var emendamentiDto in model.Data.Results)
-                    if (emendamentiDto.IDStato <= (int)StatiEnum.Depositato)
-                    {
-                        if (emendamentiDto.ConteggioFirme > 0)
-                            emendamentiDto.Firmatari = await Utility.GetFirmatari(
-                                await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM,
-                                    FirmeTipoEnum.TUTTE),
-                                CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, Token, true);
-
-                        emendamentiDto.Destinatari =
-                            await Utility.GetDestinatariNotifica(
-                                await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), Token);
-                    }
-
-            return model;
-        }
+        // v2026.5.1 - ComposeModel rimosso: la pipeline di caricamento del riepilogo EM
+        // e' stata semplificata. L'intestazione viene costruita inline in
+        // RiepilogoEmendamenti (sola query Atti.Get), la griglia parte da lista vuota
+        // e viene popolata dall'AJAX inviaDatiChipsEM in _FiltriRapidiEMPanel.cshtml.
+        // L'arricchimento PREVIEW (BodyEM) e quello del consigliere (Firmatari /
+        // Destinatari sugli emendamenti in stato <= Depositato) sono coperti dalla
+        // pipeline server-side che alimenta l'AJAX, gli arricchimenti client-side
+        // erano duplicati.
 
         private void SetCache(int page, int size, OrdinamentoEnum ordine, ViewModeEnum view)
         {
@@ -1192,6 +1182,11 @@ namespace PortaleRegione.Client.Controllers
                         break;
                     case ExportFormatEnum.WORD:
                         file = await apiGateway.Esporta.EsportaWORD(viewModel);
+                        break;
+                    case ExportFormatEnum.EXCEL_UOLA:
+                        // Export PEM dedicato alla segreteria UOLA (v2026.5.1):
+                        // usa il gateway EsportaXLS_UOLA gia' esistente.
+                        file = await apiGateway.Esporta.EsportaXLS_UOLA(viewModel);
                         break;
                     default:
                         return Json(new ErrorResponse("Formato di esportazione non supportato"),

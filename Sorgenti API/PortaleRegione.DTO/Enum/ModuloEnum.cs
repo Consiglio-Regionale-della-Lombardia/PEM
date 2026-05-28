@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2019 Consiglio Regionale della Lombardia
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -18,7 +18,18 @@
 
 namespace PortaleRegione.DTO.Enum
 {
-    public enum ModuloStampaEnum
+    /// <summary>
+    ///     Discrimina i moduli applicativi a cui appartengono entita' trasversali
+    ///     come le richieste di stampa o i filtri preferiti.
+    ///     Sostituisce il vecchio ModuloStampaEnum, ora rimosso.
+    ///
+    ///     Il backing type e' esplicitamente byte: la colonna FILTRI.Modulo e'
+    ///     tinyint su SQL Server e EF6 richiede che il tipo CLR dell'enum
+    ///     combaci (altrimenti errore di mapping "type ModuloEnum is not
+    ///     compatible with SqlServer.tinyint"). Per gli altri consumer (es.
+    ///     NuovaStampaRequest) il cambio di backing type e' trasparente.
+    /// </summary>
+    public enum ModuloEnum : byte
     {
         PEM = 1,
         DASI = 2

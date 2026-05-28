@@ -77,9 +77,8 @@ namespace PortaleRegione.Gateway
         Task SalvaCartaceo(AttoDASIDto atto);
         Task CambiaPrioritaFirma(AttiFirmeDto firma);
         Task CambiaOrdineVisualizzazioneFirme(List<AttiFirmeDto> firme);
-        Task SalvaGruppoFiltri(FiltroPreferitoDto model);
-        Task<List<FiltroPreferitoDto>> GetGruppoFiltri();
-        Task EliminaGruppoFiltri(string nomeFiltro);
+        // Filtri preferiti DASI migrati al FiltriGateway unificato (v2026.5.1):
+        //   apiGateway.Filtri.Salva/Get/Elimina con ModuloEnum.DASI.
         Task<FileResponse> GeneraReport(ReportDto request);
         Task<FileResponse> GeneraZIP(ReportDto request);
         Task SalvaReport(ReportDto report);

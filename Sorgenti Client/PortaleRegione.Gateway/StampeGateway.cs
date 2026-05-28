@@ -47,9 +47,9 @@ namespace PortaleRegione.Gateway
         public async Task<List<StampaDto>> InserisciStampa(NuovaStampaRequest request)
         {
             var requestUrl = $"{apiUrl}/";
-            if (request.Modulo == ModuloStampaEnum.PEM)
+            if (request.Modulo == ModuloEnum.PEM)
                 requestUrl += $"{ApiRoutes.PEM.InserisciStampaMassiva}";
-            else if (request.Modulo == ModuloStampaEnum.DASI)
+            else if (request.Modulo == ModuloEnum.DASI)
                 requestUrl += $"{ApiRoutes.DASI.InserisciStampaMassiva}";
 
             var body = JsonConvert.SerializeObject(request);

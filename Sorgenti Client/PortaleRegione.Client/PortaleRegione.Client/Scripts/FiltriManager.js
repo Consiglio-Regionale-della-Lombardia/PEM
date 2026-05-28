@@ -518,18 +518,28 @@ function GetStatiDASI() {
     });
 }
 
-// Stub per filtri preferiti EM (per ora legge da localStorage)
+// FiltriController unificato (v2026.5.1): /filtri/{modulo}. ModuloEnum.PEM = 1.
+// Persistenza solo server, niente piu' fallback localStorage per evitare divergenze
+// tra cache client e tabella FILTRI.
 function GetFiltriPreferitiEM() {
-    return new Promise(function(resolve) {
-        var saved = localStorage.getItem('filtriPreferitiEM');
-        resolve(saved ? JSON.parse(saved) : []);
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/filtri/1",
+            type: "GET"
+        }).done(function(result) {
+            resolve(Array.isArray(result) ? result : []);
+        }).fail(function(err) {
+            console.log("error GetFiltriPreferitiEM", err);
+            resolve([]);
+        });
     });
 }
 
 function GetFiltriPreferitiDASI() {
+    // FiltriController unificato (v2026.5.1): /filtri/{modulo}. ModuloEnum.DASI = 2.
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/dasi/gruppo-filtri",
+            url: baseUrl + "/filtri/2",
             type: "GET"
         }).done(function(result) {
             resolve(result);

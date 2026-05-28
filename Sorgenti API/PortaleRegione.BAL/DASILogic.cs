@@ -4663,48 +4663,10 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task SalvaGruppoFiltri(FiltroPreferitoDto request, PersonaDto currentUser)
-        {
-            if (string.IsNullOrEmpty(request.name))
-                throw new Exception("E' necessario dare un nome al filtro per poterlo salvare.");
-
-            var filtro = new FILTRI
-            {
-                UId_persona = currentUser.UID_persona,
-                Filtri = request.filters,
-                Colonne = request.columns,
-                DettagliOrdinamento = request.sorting,
-                Nome = request.name,
-                Preferito = request.favourite
-            };
-
-            _unitOfWork.Filtri.Add(filtro);
-            await _unitOfWork.CompleteAsync();
-        }
-
-        public async Task<List<FiltroPreferitoDto>> GetGruppoFiltri(PersonaDto currentUser)
-        {
-            var listFromDb = await _unitOfWork.Filtri.GetByUser(currentUser.UID_persona);
-            var res = new List<FiltroPreferitoDto>();
-            foreach (var f in listFromDb)
-                res.Add(new FiltroPreferitoDto
-                {
-                    name = f.Nome,
-                    favourite = f.Preferito,
-                    filters = f.Filtri,
-                    columns = f.Colonne,
-                    sorting = f.DettagliOrdinamento
-                });
-
-            return res;
-        }
-
-        public async Task EliminaGruppoFiltri(string nomeFiltro, PersonaDto currentUser)
-        {
-            var filtro = await _unitOfWork.Filtri.Get(nomeFiltro, currentUser.UID_persona);
-            _unitOfWork.Filtri.Remove(filtro);
-            await _unitOfWork.CompleteAsync();
-        }
+        // I metodi SalvaGruppoFiltri/GetGruppoFiltri/EliminaGruppoFiltri sono
+        // stati spostati in FiltriLogic (v2026.5.1) per renderli condivisi tra
+        // i moduli PEM e DASI. Il consumer client passa esplicitamente
+        // Modulo = DASI al nuovo endpoint /api/filtri/*.
 
         public async Task<List<ReportDto>> GetReports(PersonaDto currentUser)
         {

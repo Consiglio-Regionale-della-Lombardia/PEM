@@ -13,7 +13,8 @@ CREATE TABLE [dbo].[FILTRI](
 	[Filtri] [varchar](max) NULL,
 	[Preferito] [bit] NOT NULL,
 	[Colonne] [varchar](max) NULL,
-	[DettagliOrdinamento] [varchar](max) NULL
+	[DettagliOrdinamento] [varchar](max) NULL,
+	[Modulo] [tinyint] NOT NULL CONSTRAINT [DF_FILTRI_Modulo] DEFAULT ((2))
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 

@@ -26,6 +26,7 @@ namespace PortaleRegione.Gateway
         IEMGateway Emendamento { get; }
         IEMGateway_Pubblico Emendamento_Pubblico { get; }
         IEsportaGateway Esporta { get; }
+        IFiltriGateway Filtri { get; }
         INotificheGateway Notifiche { get; }
         IPersoneGateway Persone { get; }
         ISeduteGateway Sedute { get; }

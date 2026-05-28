@@ -117,7 +117,7 @@
     <Compile Include="Enum\DataViewTypeEnum.cs" />
     <Compile Include="Enum\ExportFormatEnum.cs" />
     <Compile Include="Enum\FirmeTipoEnum.cs" />
-    <Compile Include="Enum\ModuloStampaEnum.cs" />
+    <Compile Include="Enum\ModuloEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />
     <Compile Include="Enum\ReportTypeEnum.cs" />
     <Compile Include="Enum\RisultatoVotazioneIterEnum.cs" />

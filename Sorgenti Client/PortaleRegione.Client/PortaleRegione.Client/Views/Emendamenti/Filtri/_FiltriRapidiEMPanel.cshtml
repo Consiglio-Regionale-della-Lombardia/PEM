@@ -23,7 +23,9 @@
     </div>
     <div class="col l5 m12 s12 right-align">
         <button id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</button>
-        <button id="btnReportConfig" class="btn-flat pink-text">Genera report</button>
+        @* v2026.5.1: rimosso il pulsante "Genera report". L'export e' ora pilotato
+           dalla partial Filtri/_ExportButtonsEM resa sopra la griglia con tre
+           pulsanti diretti (Word/Excel/Excel Segreteria) o uno solo per i consiglieri. *@
         <div class="row">
             <div class="col s12">
                 <div id="chips-container-selected-report"></div>
@@ -52,12 +54,28 @@
     var chipsKeysEM = {};
     var idLegislaturaEM = "@(Model.Atto.Legislatura ?? Model.Atto.SEDUTE?.id_legislatura)";
 
-    // Chiavi dei filtri default/fissi (non eliminabili dall'utente)
+    // Chiavi dei filtri default/fissi (non eliminabili dall'utente in UI).
+    // Per il consigliere il gruppo e' bloccato sul proprio; per l'admin no.
     var defaultKeysEM = new Set(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
         new List<string>(new[] { nameof(EmendamentiDto.UIDAtto) }
             .Concat(Model.Mode == ClientModeEnum.GRUPPI && !load_gruppi && Model.CurrentUser?.Gruppo != null
                 ? new[] { nameof(EmendamentiDto.id_gruppo) }
                 : new string[0]))
+    )));
+
+    // Chiavi dei filtri "contestuali" che non devono essere persistiti tra una
+    // ricerca e l'altra (versione 2026.5.1): atto, seduta, gruppo e legislatura
+    // sono legati al contesto della pagina e renderebbero un gruppo di filtri
+    // non riutilizzabile su un altro riepilogo. Sono esclusi dal payload salvato
+    // a DB anche se la chip rimane visibile in UI per l'admin.
+    var contextKeysEM = new Set(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+        new List<string>
+        {
+            nameof(EmendamentiDto.UIDAtto),
+            "UIDSeduta",
+            nameof(EmendamentiDto.id_gruppo),
+            "Legislatura"
+        }
     )));
 
     var availableFilterArrayEM = [
@@ -1011,9 +1029,35 @@
                 + '    </label>';
         }
 
+        // v2026.5.1: pulsanti rotondi di export sopra la griglia (prima di
+        // btnOrdinamentoRisultati). Consigliere: solo Excel; segreteria/admin
+        // (load_gruppi=true): Word + Excel + Excel Segreteria (UOLA).
+        var loadGruppi = @(load_gruppi ? "true" : "false");
+
         html += '  </div>'
-            + '  <div class="col l6 s6 right-align">'
-            + '    <button type="button" id="btnOrdinamentoRisultati" class="btn-floating white black-text tooltipped" '
+            + '  <div class="col l6 s6 right-align">';
+
+        if (loadGruppi) {
+            html += '    <button type="button" class="btn-floating blue white-text tooltipped" '
+                + '            onclick="exportEM(@((int)ExportFormatEnum.WORD))" data-tooltip="Esporta Word" data-position="bottom">'
+                + '      <i class="material-icons">description</i>'
+                + '    </button>'
+                + '    <button type="button" class="btn-floating green white-text tooltipped" '
+                + '            onclick="exportEM(@((int)ExportFormatEnum.EXCEL))" data-tooltip="Esporta Excel" data-position="bottom">'
+                + '      <i class="material-icons">grid_on</i>'
+                + '    </button>'
+                + '    <button type="button" class="btn-floating pink white-text tooltipped" '
+                + '            onclick="exportEM(@((int)ExportFormatEnum.EXCEL_UOLA))" data-tooltip="Esporta Excel Segreteria" data-position="bottom">'
+                + '      <i class="material-icons">table_chart</i>'
+                + '    </button>';
+        } else {
+            html += '    <button type="button" class="btn-floating green white-text tooltipped" '
+                + '            onclick="exportEM(@((int)ExportFormatEnum.EXCEL))" data-tooltip="Esporta Excel" data-position="bottom">'
+                + '      <i class="material-icons">grid_on</i>'
+                + '    </button>';
+        }
+
+        html += '    <button type="button" id="btnOrdinamentoRisultati" class="btn-floating white black-text tooltipped" '
             + '            data-tooltip="Ordinamento secondario" data-position="bottom">'
             + '      <i class="material-icons">sort_by_alpha</i>'
             + '    </button>'
@@ -1741,6 +1785,6 @@
 @{
     Html.RenderPartial("Filtri/_DettaglioFiltroModalEM");
     Html.RenderPartial("Filtri/_FiltroConfigModalEM");
-    Html.RenderPartial("Filtri/_ReportConfigModalEM");
+    @* v2026.5.1: _ReportConfigModalEM rimossa (vedi _ExportButtonsEM). *@
     Html.RenderPartial("Filtri/_OrdinamentoColonneEM");
 }
