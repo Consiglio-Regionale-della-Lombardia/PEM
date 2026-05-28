@@ -11,8 +11,17 @@
 
 	if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
 	{
-		var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
-		url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
+		// v2026.5.1 fix: usare FirstOrDefault perche' nel flusso /dasi/seduta?uidAtto=...
+		// il filtro UIDSeduta non viene sempre promosso nei Model.Data.Filters,
+		// e .First() sollevava InvalidOperationException "La sequenza non contiene
+		// elementi corrispondenti". Se manca, ripieghiamo sul valore disponibile in
+		// query string o sull'Index home come fallback sicuro.
+		var sedutaFilter = Model.Data.Filters.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
+		var uidSeduta = sedutaFilter?.Value ?? Request.QueryString["id"];
+		if (uidSeduta != null)
+		{
+			url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
+		}
 	}
 
 	var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
