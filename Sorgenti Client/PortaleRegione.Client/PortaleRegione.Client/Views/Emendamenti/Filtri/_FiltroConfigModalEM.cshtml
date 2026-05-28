@@ -11,18 +11,9 @@
                 <label for="filter_name">Nome filtro</label>
             </div>
         </div>
-
-        <div class="row">
-            <div class="input-field col s12">
-                <p>
-                    <label>
-                        <input id="filter_favourite" type="checkbox"/>
-                        <span>Preferito</span>
-                    </label>
-                </p>
-            </div>
-        </div>
     </div>
+    @* v2026.5.1: rimosso il checkbox "Preferito". Tutti i filtri salvati sono
+       sempre prioritari (Preferito=true di default lato server). *@
     <div class="modal-footer">
         <button type="button" class="btn-flat modal-close">Annulla</button>
         <button type="button" id="btnSalvaConfig" class="btn-flat blue-text">Salva</button>
@@ -30,6 +21,10 @@
 </div>
 
 <script>
+    // ModuloEnum.PEM = 1 (vedi PortaleRegione.DTO.Enum.ModuloEnum).
+    // Il client EM usa il FiltriController unificato passando sempre modulo = 1.
+    var MODULO_PEM = 1;
+
     var filtriPreferitiArrayEM = [];
     if (document.getElementById('btnFiltroConfig')) {
         document.getElementById('btnFiltroConfig').addEventListener('click', function () {
@@ -41,28 +36,49 @@
         var filtri = JSON.parse(localStorage.getItem('filtriChipsEM')) || [];
         var sorting = JSON.parse(localStorage.getItem('selectedSortColumnsEM'));
 
-        // Le chip "fisse" (atto di riferimento, gruppo per il consigliere) non vanno persistite:
-        // sono filtri immodificabili dipendenti dal contesto della pagina e renderebbero il
-        // gruppo di filtri non riutilizzabile su un altro riepilogo.
-        var fixedKeys = (typeof defaultKeysEM !== 'undefined' && defaultKeysEM)
-            ? Array.from(defaultKeysEM)
+        // Chip "contestuali" (atto, seduta, gruppo, legislatura) non vengono persistite:
+        // dipendono dal contesto della pagina e renderebbero il gruppo di filtri non
+        // riutilizzabile su un altro riepilogo. La lista contextKeysEM e' definita
+        // in _FiltriRapidiEMPanel.cshtml.
+        var fixedKeys = (typeof contextKeysEM !== 'undefined' && contextKeysEM)
+            ? Array.from(contextKeysEM)
             : ["UIDAtto"];
         var filtriUtente = filtri.filter(function (f) { return fixedKeys.indexOf(f.key) === -1; });
 
         request.filters = JSON.stringify(filtriUtente);
         request.sorting = JSON.stringify(sorting);
         request.name = document.getElementById('filter_name').value;
-        request.favourite = document.getElementById('filter_favourite').checked;
+        // I filtri PEM sono sempre prioritari (richiesta utente v2026.5.1):
+        // niente checkbox in UI, Preferito = true forzato lato server e qui per UX immediata.
+        request.favourite = true;
+        request.modulo = MODULO_PEM;
 
-        // Per ora salviamo solo in localStorage
-        var savedFilters = JSON.parse(localStorage.getItem('filtriPreferitiEM') || '[]');
-        var existing = savedFilters.findIndex(f => f.name === request.name);
-        if (existing >= 0) {
-            savedFilters[existing] = request;
-        } else {
-            savedFilters.push(request);
+        if (!request.name) {
+            ErrorAlert("Indicare un nome per il filtro prima di salvare.");
+            return;
         }
-        localStorage.setItem('filtriPreferitiEM', JSON.stringify(savedFilters));
+
+        // Persistenza solo server (DB), niente localStorage: il dato di verita'
+        // e' la tabella FILTRI con Modulo = 1 (PEM).
+        try {
+            const response = await fetch('@Url.Action("Salva", "Filtri")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            if (data && data.message) {
+                ErrorAlert(data.message);
+                return;
+            }
+        } catch (err) {
+            console.error('Salva filtro preferito EM:', err);
+            ErrorAlert(err.message);
+            return;
+        }
 
         await addChipIfNotExists_PreferitiEM(request.name, request.filters, request.sorting, request.favourite);
         M.toast({
@@ -72,13 +88,12 @@
     });
 
     function openModalWithContent_PreferitiEM(name, filters) {
-        $('#filter_favourite').prop("checked", false);
         $('#filter_name').val(name);
         $('#chips-container-config').empty();
         var filtri = [];
         try { filtri = JSON.parse(filters); } catch(e) {}
-        var fixedKeys = (typeof defaultKeysEM !== 'undefined' && defaultKeysEM)
-            ? Array.from(defaultKeysEM)
+        var fixedKeys = (typeof contextKeysEM !== 'undefined' && contextKeysEM)
+            ? Array.from(contextKeysEM)
             : ["UIDAtto"];
         if (filtri && filtri.length) {
             filtri
@@ -172,9 +187,18 @@
             collection.appendChild(li);
         });
 
-        // Carica preferiti da localStorage
-        var preferiti = JSON.parse(localStorage.getItem('filtriPreferitiEM') || '[]');
-        window.filtriPreferitiArrayEM = Array.isArray(preferiti) ? preferiti : [];
+        // Carica preferiti da server (modulo PEM). In caso di errore mostriamo la
+        // sezione vuota: niente fallback localStorage per evitare divergenze tra
+        // cache client e DB.
+        var preferiti = [];
+        try {
+            preferiti = await GetFiltriPreferitiEM();
+            if (!Array.isArray(preferiti)) preferiti = [];
+        } catch (err) {
+            console.error('GetFiltriPreferitiEM:', err);
+            preferiti = [];
+        }
+        window.filtriPreferitiArrayEM = preferiti;
         renderPreferitiEM(preferitiSection, window.filtriPreferitiArrayEM);
     }
 
@@ -212,23 +236,37 @@
             deleteIcon.className = 'material-icons secondary-content red-text';
             deleteIcon.style.marginRight = '10px';
             deleteIcon.textContent = 'delete';
-            deleteIcon.onclick = function (event) {
+            deleteIcon.onclick = async function (event) {
                 event.stopPropagation();
-                swal('Sei sicuro di voler eliminare il gruppo di filtri "' + item.name + '"?', {
-                    buttons: ["No", "Si"],
-                }).then(function (value) {
-                    if (value == true) {
-                        var savedFilters = JSON.parse(localStorage.getItem('filtriPreferitiEM') || '[]');
-                        savedFilters = savedFilters.filter(function(f) { return f.name !== item.name; });
-                        localStorage.setItem('filtriPreferitiEM', JSON.stringify(savedFilters));
-
-                        M.toast({ html: '<span><b class="yellow-text">' + item.name + '</b> eliminato con successo</span>', classes: 'rounded', displayLength: 5000 });
-                        li.remove();
-                        var chipEl = document.querySelector('[data-nome-gruppo-filtri="' + item.name + '"]');
-                        if (chipEl) chipEl.remove();
-                        toggleChipsGroupsRowEM();
-                    }
+                var conferma = await swal('Sei sicuro di voler eliminare il gruppo di filtri "' + item.name + '"?', {
+                    buttons: ["No", "Si"]
                 });
+                if (conferma !== true) return;
+
+                try {
+                    var deleteUrl = '@Url.Action("Elimina", "Filtri")';
+                    deleteUrl += '?modulo=' + MODULO_PEM + '&nome=' + encodeURIComponent(item.name);
+                    var response = await fetch(deleteUrl, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    var data = await response.json();
+                    if (data && data.message) {
+                        ErrorAlert(data.message);
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Elimina filtro preferito EM:', err);
+                    ErrorAlert(err.message);
+                    return;
+                }
+
+                M.toast({ html: '<span><b class="yellow-text">' + item.name + '</b> eliminato con successo</span>', classes: 'rounded', displayLength: 5000 });
+                li.remove();
+                var chipEl = document.querySelector('[data-nome-gruppo-filtri="' + item.name + '"]');
+                if (chipEl) chipEl.remove();
+                toggleChipsGroupsRowEM();
             };
 
             li.appendChild(deleteIcon);

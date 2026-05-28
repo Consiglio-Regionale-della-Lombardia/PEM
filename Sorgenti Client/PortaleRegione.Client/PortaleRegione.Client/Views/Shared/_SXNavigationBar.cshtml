@@ -384,7 +384,8 @@
         localStorage.removeItem('selectedSortColumns');
         localStorage.removeItem('selectedColumns');
         localStorage.removeItem('pagingDasi');
-        localStorage.removeItem('filtriPreferitiEM');
+        // filtriPreferitiEM e' migrato a server (tabella FILTRI con Modulo=PEM)
+        // dalla v2026.5.1: il logout non deve piu' azzerarlo lato client.
         localStorage.removeItem('reportsEM');
         $('#formLogout').submit();
     }

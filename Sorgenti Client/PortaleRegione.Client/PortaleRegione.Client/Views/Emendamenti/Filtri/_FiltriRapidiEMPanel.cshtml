@@ -52,12 +52,28 @@
     var chipsKeysEM = {};
     var idLegislaturaEM = "@(Model.Atto.Legislatura ?? Model.Atto.SEDUTE?.id_legislatura)";
 
-    // Chiavi dei filtri default/fissi (non eliminabili dall'utente)
+    // Chiavi dei filtri default/fissi (non eliminabili dall'utente in UI).
+    // Per il consigliere il gruppo e' bloccato sul proprio; per l'admin no.
     var defaultKeysEM = new Set(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
         new List<string>(new[] { nameof(EmendamentiDto.UIDAtto) }
             .Concat(Model.Mode == ClientModeEnum.GRUPPI && !load_gruppi && Model.CurrentUser?.Gruppo != null
                 ? new[] { nameof(EmendamentiDto.id_gruppo) }
                 : new string[0]))
+    )));
+
+    // Chiavi dei filtri "contestuali" che non devono essere persistiti tra una
+    // ricerca e l'altra (versione 2026.5.1): atto, seduta, gruppo e legislatura
+    // sono legati al contesto della pagina e renderebbero un gruppo di filtri
+    // non riutilizzabile su un altro riepilogo. Sono esclusi dal payload salvato
+    // a DB anche se la chip rimane visibile in UI per l'admin.
+    var contextKeysEM = new Set(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+        new List<string>
+        {
+            nameof(EmendamentiDto.UIDAtto),
+            "UIDSeduta",
+            nameof(EmendamentiDto.id_gruppo),
+            "Legislatura"
+        }
     )));
 
     var availableFilterArrayEM = [
