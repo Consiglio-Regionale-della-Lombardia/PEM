@@ -1029,9 +1029,35 @@
                 + '    </label>';
         }
 
+        // v2026.5.1: pulsanti rotondi di export sopra la griglia (prima di
+        // btnOrdinamentoRisultati). Consigliere: solo Excel; segreteria/admin
+        // (load_gruppi=true): Word + Excel + Excel Segreteria (UOLA).
+        var loadGruppi = @(load_gruppi ? "true" : "false");
+
         html += '  </div>'
-            + '  <div class="col l6 s6 right-align">'
-            + '    <button type="button" id="btnOrdinamentoRisultati" class="btn-floating white black-text tooltipped" '
+            + '  <div class="col l6 s6 right-align">';
+
+        if (loadGruppi) {
+            html += '    <button type="button" class="btn-floating blue white-text tooltipped" '
+                + '            onclick="exportEM(@((int)ExportFormatEnum.WORD))" data-tooltip="Esporta Word" data-position="bottom">'
+                + '      <i class="material-icons">description</i>'
+                + '    </button>'
+                + '    <button type="button" class="btn-floating green white-text tooltipped" '
+                + '            onclick="exportEM(@((int)ExportFormatEnum.EXCEL))" data-tooltip="Esporta Excel" data-position="bottom">'
+                + '      <i class="material-icons">grid_on</i>'
+                + '    </button>'
+                + '    <button type="button" class="btn-floating pink white-text tooltipped" '
+                + '            onclick="exportEM(@((int)ExportFormatEnum.EXCEL_UOLA))" data-tooltip="Esporta Excel Segreteria" data-position="bottom">'
+                + '      <i class="material-icons">table_chart</i>'
+                + '    </button>';
+        } else {
+            html += '    <button type="button" class="btn-floating green white-text tooltipped" '
+                + '            onclick="exportEM(@((int)ExportFormatEnum.EXCEL))" data-tooltip="Esporta Excel" data-position="bottom">'
+                + '      <i class="material-icons">grid_on</i>'
+                + '    </button>';
+        }
+
+        html += '    <button type="button" id="btnOrdinamentoRisultati" class="btn-floating white black-text tooltipped" '
             + '            data-tooltip="Ordinamento secondario" data-position="bottom">'
             + '      <i class="material-icons">sort_by_alpha</i>'
             + '    </button>'
