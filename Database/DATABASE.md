@@ -414,6 +414,28 @@ Colore: String //Colore dellâ€™emendamento, utilizzato per gestire la funzione â
 
 Tags: varchar(max) //memorizza i #tags dell'emendamento
 
+#### FILTRI
+Tabella per la persistenza dei filtri preferiti utente. Originariamente usata solo dal modulo DASI, dalla versione 2026.5.1 ospita anche i filtri preferiti del modulo PEM grazie alla colonna `Modulo`.
+
+##### Campi
+Id: Guid //chiave primaria del record
+
+UId_persona: Guid //utente proprietario del filtro preferito
+
+DataCreazione: DateTime //data/ora di salvataggio
+
+Nome: varchar(100) //nome del filtro mostrato in interfaccia
+
+Filtri: varchar(max) //payload JSON delle chip filtro applicate
+
+Preferito: bit //true se il filtro deve apparire come chip "prioritaria" in homepage del riepilogo
+
+Colonne: varchar(max) //payload JSON delle colonne visibili (configurazione griglia)
+
+DettagliOrdinamento: varchar(max) //payload JSON dell'ordinamento multi-colonna
+
+Modulo: tinyint //modulo applicativo (1 = PEM, 2 = DASI). DEFAULT = 2 per backfill record storici DASI
+
 #### FIRME
 Tabella per la gestione delle FIRME degli EMENDAMENTI/SUBEMENDAMENTI
 
