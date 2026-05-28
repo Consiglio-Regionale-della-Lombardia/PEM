@@ -1633,70 +1633,9 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        /// <summary>
-        ///     Endpoint per salvare un gruppo di filtri
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route(ApiRoutes.DASI.SalvaFiltriPreferiti)]
-        public async Task<IHttpActionResult> SalvaGruppoFiltri(FiltroPreferitoDto request)
-        {
-            try
-            {
-                await _dasiLogic.SalvaGruppoFiltri(request, CurrentUser);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Salva gruppo di filtri", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
-        ///     Endpoint per avere il proprio gruppo di filtri preferito
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route(ApiRoutes.DASI.GetFiltriPreferiti)]
-        public async Task<IHttpActionResult> GetGruppoFiltri()
-        {
-            try
-            {
-                var res = await _dasiLogic.GetGruppoFiltri(CurrentUser);
-
-                return Ok(res);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Get filtri preferiti", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
-        ///     Endpoint per eliminare un gruppo di filtri preferiti
-        /// </summary>
-        /// <returns></returns>
-        [HttpDelete]
-        [Route(ApiRoutes.DASI.EliminaFiltriPreferiti)]
-        public async Task<IHttpActionResult> EliminaGruppoFiltri(string nomeFiltro)
-        {
-            try
-            {
-                await _dasiLogic.EliminaGruppoFiltri(nomeFiltro, CurrentUser);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Elimina filtri preferiti", e);
-                return ErrorHandler(e);
-            }
-        }
+        // I 3 endpoint SalvaGruppoFiltri/GetGruppoFiltri/EliminaGruppoFiltri
+        // sono stati spostati nel nuovo FiltriController unificato (v2026.5.1).
+        // Il client DASI ora chiama direttamente /api/filtri/* con Modulo = DASI.
 
         /// <summary>
         ///     Endpoint per generare i report

@@ -72,6 +72,7 @@ namespace PortaleRegione.API
             container.RegisterType<FirmeLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<StampeLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<EsportaLogic>(new HierarchicalLifetimeManager());
+            container.RegisterType<FiltriLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<UtilsLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<NotificheLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<DASIProtocollazioneService>(new HierarchicalLifetimeManager());

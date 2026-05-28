@@ -234,6 +234,7 @@
     <Compile Include="Controllers\EmendamentiController.cs" />
     <Compile Include="Controllers\PublicController.cs" />
     <Compile Include="Controllers\EsportaController.cs" />
+    <Compile Include="Controllers\FiltriController.cs" />
     <Compile Include="Controllers\JobController.cs" />
     <Compile Include="Controllers\LegislatureController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />

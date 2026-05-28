@@ -186,6 +186,7 @@
     <Compile Include="EmendamentiLogic.cs" />
     <Compile Include="EMPublicLogic.cs" />
     <Compile Include="EsportaLogic.cs" />
+    <Compile Include="FiltriLogic.cs" />
     <Compile Include="FirmeLogic.cs" />
     <Compile Include="BaseLogic.cs" />
     <Compile Include="Helpers\InputSanitizer.cs" />
