@@ -4231,9 +4231,6 @@ namespace PortaleRegione.API.Controllers
             }
 
             var body = await GetBodyDASI(atto.UIDAtto, persona, TemplateTypeEnum.PDF, privacy);
-            /*var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-            return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}",
-                listAttachments);*/
 
             try
             {
