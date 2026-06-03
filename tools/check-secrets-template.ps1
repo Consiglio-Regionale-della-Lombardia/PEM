@@ -38,7 +38,15 @@ function Get-ConfigKeys {
 $exitCode = 0
 
 foreach ($pattern in $Patterns) {
-    $templates = Get-ChildItem -Path $repoRoot -Recurse -Filter $pattern -File
+    # Escludiamo i template che si trovano sotto cartelle di build (obj/, bin/,
+    # Pubblicazione/, Package/): sono copie temporanee dell'output di MSBuild e
+    # non rappresentano file sorgente da validare. Senza il filtro lo script
+    # finiva per segnalare due volte la stessa cosa e sporcava l'output.
+    $templates = Get-ChildItem -Path $repoRoot -Recurse -Filter $pattern -File |
+        Where-Object {
+            $rel = $_.FullName.Substring($repoRoot.Length + 1)
+            $rel -notmatch '(^|[\\/])(obj|bin|Pubblicazione|Package)([\\/]|$)'
+        }
     if ($templates.Count -eq 0) {
         Write-Host "[info] nessun template trovato per pattern '$pattern'"
         continue
