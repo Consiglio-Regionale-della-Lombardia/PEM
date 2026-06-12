@@ -151,6 +151,8 @@
             obj.Lista = listaAtti.length > 0 ? listaAtti : [];
             obj.ListaDestinatari = listaDestinatari;
 			obj.Tutti = getSelezionaTutti_DASI(); // #975
+			// #1611: con "Seleziona tutto" gli id sono risolti server-side dai filtri correnti (chips).
+			obj.Filter = (typeof buildDasiFilterRequest === 'function') ? buildDasiFilterRequest(1, 99999) : null;
 
             $.ajax({
                 url: baseUrl + "/dasi/azioni-massive",

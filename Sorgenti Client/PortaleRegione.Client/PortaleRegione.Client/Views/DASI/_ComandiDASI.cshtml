@@ -144,6 +144,9 @@
                 obj.Lista = lista.length > 0 ? lista : [];
 				obj.Tutti = selezionaTutti;
 				obj.Richiesta_Firma = $('#checkAllMy').is(':checked');
+				// #1611: con "Seleziona tutto" gli id vengono risolti dal server tramite i filtri
+				// correnti (chips) inviati qui, non piu' dalla Session.
+				obj.Filter = (typeof buildDasiFilterRequest === 'function') ? buildDasiFilterRequest(1, 99999) : null;
 
                 $.ajax({
                     url: baseUrl + "/dasi/azioni-massive",

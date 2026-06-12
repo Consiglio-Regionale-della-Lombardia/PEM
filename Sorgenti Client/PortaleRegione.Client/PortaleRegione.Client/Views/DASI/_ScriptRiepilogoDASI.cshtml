@@ -109,85 +109,17 @@
         });
     }
 
-	$('#btnExportXLS').on("click", async function () {
-		waiting(true);
-
-		var url = $('#btnExportXLS').data("href");
-		var request = {};
-		var chipsData = [];
-		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
-			if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
-				chipsData.push({
-					property: chip.getAttribute('data-filterby'),
-					value: '',
-					not_empty: true
-				});
-			}
-			else {
-				chipsData.push({
-					property: chip.getAttribute('data-filterby'),
-					value: chip.getAttribute('data-val')
-				});
-			}
-		});
-
-		try {
-			request.filters = chipsData;
-			request.page = 1;
-			request.size = 999999;
-
-			const savedSortColumns = JSON.parse(localStorage.getItem('selectedSortColumns')) || [];
-            // Aggiungi le impostazioni di ordinamento alla richiesta
-            request.sort_settings = savedSortColumns;
-
-			// Invia la richiesta al server
-			const response = await fetch(url, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(request),
-			});
-
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-
-			responseData = await response.json();
-			if (responseData.message){
-				waiting(false);
-				ErrorAlert(responseData.message);
-				return;
-			}
-			waiting(false);
-			var a = document.createElement("a");
-			a.href = responseData;
-			document.body.appendChild(a);
-			a.click();
-
-		} catch (error) {
-			waiting(false);
-			console.error('Errore: ', error);
-			ErrorAlert('Errore: ' + error.message);
-		}
-	});
-
-	// #1611: estrazione rapida in excel (formato consiglieri) per la griglia GRUPPI/TRATTAZIONE.
-	// La vecchia action GET leggeva i filtri dalla Session, non piu' popolata nel nuovo
-	// flusso client-side (inviaDatiChips -> CreaTabella): per questo dava
-	// "Riferimento a un oggetto non impostato". Ora i filtri viaggiano via POST, come per
-	// l'export UOLA (EsportaXLSRapido). Replichiamo la stessa raccolta chip della ricerca,
-	// inclusa la guard id_gruppo in area GRUPPI, cosi' l'export riflette gli atti mostrati.
-	$('#btnExportXLSConsiglieri').on("click", async function () {
-		waiting(true, "Elaborazione in corso..");
-		var url = $('#btnExportXLSConsiglieri').data("href");
-
+	// Punto unico: costruisce il payload filtri (chips + guard gruppo) condiviso da
+	// estrazioni rapide e azioni massive "Seleziona tutto", allineato a cio' che la griglia
+	// mostra (stessa raccolta chip di inviaDatiChips) e senza dipendere dalla Session.
+	function buildDasiFilterRequest(page, size) {
 		var chipsData = [];
 		document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function (chip) {
-			if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
+			var val = chip.getAttribute('data-val');
+			if (val && val.indexOf("Non vuoto") !== -1) {
 				chipsData.push({ property: chip.getAttribute('data-filterby'), value: '', not_empty: true });
 			} else {
-				chipsData.push({ property: chip.getAttribute('data-filterby'), value: chip.getAttribute('data-val') });
+				chipsData.push({ property: chip.getAttribute('data-filterby'), value: val });
 			}
 		});
 
@@ -201,20 +133,31 @@
 			}
 		}
 
-		try {
-			var request = {
-				filters: chipsData,
-				page: 1,
-				size: 999999,
-				viewMode: localStorage.getItem('viewModeDasi'),
-				clientMode: clientMode,
-				sort_settings: JSON.parse(localStorage.getItem('selectedSortColumns')) || []
-			};
+		var sort = [];
+		try { sort = JSON.parse(localStorage.getItem('selectedSortColumns')) || []; } catch (e) { sort = []; }
+		var cols = [];
+		try { (JSON.parse(localStorage.getItem('selectedColumns')) || []).forEach(function (it) { cols.push(it.propertyName); }); } catch (e) { cols = []; }
 
+		return {
+			filters: chipsData,
+			page: page || 1,
+			size: size || 20,
+			viewMode: localStorage.getItem('viewModeDasi'),
+			clientMode: clientMode,
+			sort_settings: sort,
+			columns_settings: cols
+		};
+	}
+
+	// Estrazione rapida (excel / zip / consiglieri): unico flusso POST verso l'action in data-href.
+	async function esportaRapidoDASI(url) {
+		if (!url) return;
+		waiting(true, "Elaborazione in corso..");
+		try {
 			const response = await fetch(url, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(request)
+				body: JSON.stringify(buildDasiFilterRequest(1, 999999))
 			});
 
 			if (!response.ok) {
@@ -232,71 +175,18 @@
 			a.href = responseData;
 			document.body.appendChild(a);
 			a.click();
-
 		} catch (error) {
 			waiting(false);
 			console.error('Errore: ', error);
 			ErrorAlert('Errore: ' + error.message);
 		}
-	});
+	}
 
-	$('#btnExportZip').on("click", async function () {
-		waiting(true);
-		var url = $('#btnExportZip').data("href");
-		var request = {};
-		var chipsData = [];
-		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
-			if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
-				chipsData.push({
-					property: chip.getAttribute('data-filterby'),
-					value: '',
-					not_empty: true
-				});
-			}
-			else {
-				chipsData.push({
-					property: chip.getAttribute('data-filterby'),
-					value: chip.getAttribute('data-val')
-				});
-			}
-		});
+	$('#btnExportXLS').on("click", function () { esportaRapidoDASI($('#btnExportXLS').data("href")); });
 
-		try {
-			request.filters = chipsData;
-			request.page = 1;
-			request.size = 999999;
+	$('#btnExportXLSConsiglieri').on("click", function () { esportaRapidoDASI($('#btnExportXLSConsiglieri').data("href")); });
 
-			// Invia la richiesta al server
-			const response = await fetch(url, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(request),
-			});
-
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-
-			responseData = await response.json();
-			if (responseData.message) {
-				waiting(false);
-				ErrorAlert(responseData.message);
-				return;
-			}
-			waiting(false);
-			var a = document.createElement("a");
-			a.href = responseData;
-			document.body.appendChild(a);
-			a.click();
-
-		} catch (error) {
-			waiting(false);
-			console.error('Errore: ', error);
-			ErrorAlert('Errore: ' + error.message);
-		}
-	});
+	$('#btnExportZip').on("click", function () { esportaRapidoDASI($('#btnExportZip').data("href")); });
 
     window.addEventListener("message", (event) => {
 	    // Controlla l'origine del messaggio per motivi di sicurezza
