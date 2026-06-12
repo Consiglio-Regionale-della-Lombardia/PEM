@@ -927,8 +927,20 @@ function CambioStatoDASI(uidatto, stato) {
 
 function GetCounterAlert(lista, selezionaTutti) {
     var text_counter = "";
+    // NaN fix: nella griglia consiglieri client-side i vecchi campi nascosti
+    // (#hdLimitePaginazioneDocumenti / #hdTotaleDocumenti) possono non esistere ancora.
+    // Il totale robusto si legge dalla paginazione corrente, come in GetCounterAlertStampa.
+    var total_entities = parseInt($('ul.pagination').first().data('totale-risultati'));
+    if (isNaN(total_entities)) {
+        total_entities = parseInt($("#hdTotaleDocumenti").val());
+    }
+    if (isNaN(total_entities)) {
+        total_entities = 0;
+    }
     var size = parseInt($("#hdLimitePaginazioneDocumenti").val());
-    var total_entities = parseInt($("#hdTotaleDocumenti").val());
+    if (isNaN(size)) {
+        size = total_entities; // nessun cap qui se il limite non e' disponibile (gestito a valle)
+    }
 
     if (selezionaTutti && lista.length == 0) {
         if (total_entities < size) {
