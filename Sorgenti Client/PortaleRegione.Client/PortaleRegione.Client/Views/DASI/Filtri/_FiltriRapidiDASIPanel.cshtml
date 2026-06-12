@@ -726,7 +726,9 @@ else
         localStorage.setItem('pagingDasi', JSON.stringify(paging));
 
         document.getElementById('tableResults').innerHTML = "";
-        document.getElementById('paginazione-container-top').innerHTML = "";
+        // Issue #1614: la barra di paginazione viene rigenerata da creaPaginazione(), che prima
+        // distrugge le istanze Tooltip. Svuotarla qui staccherebbe i nodi senza passare per destroy(),
+        // lasciando orfani i .material-tooltip nel body (label "appese" tipo "Prossima pagina").
         document.getElementById('loadingSpinner').style.display = 'block';
 
         var request = {};
@@ -1435,104 +1437,24 @@ else
         var instances = M.Tooltip.init(elems, {});
     }
 
+    // Barra di paginazione: il rendering e' centralizzato in renderPaginazione (site.js),
+    // condiviso con PEM. DASI accoda gli <input hidden> (hdPaginazioneCorrente ecc.) letti
+    // dalle funzioni di filtro per conoscere pagina/taglio correnti.
     function creaPaginazione(data) {
-        if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
-            document.getElementById('paginazione-container-top').innerHTML = "";
-            return;
+        var afterHtml = "";
+        if (data && data.Data && data.Data.Results && data.Data.Results.length > 0) {
+            var p = data.Data.Paging;
+            afterHtml = '<input id="hdPaginaCorrente" type="hidden" value="' + p.Page + '"/>'
+                + '<input id="hdPaginazioneCorrente" type="hidden" value="' + p.Limit + '"/>'
+                + '<input id="hdTotaleDocumenti" type="hidden" value="' + p.Total + '"/>';
         }
-
-        // Dati della paginazione ottenuti dalla risposta JSON
-        var totalePagine = data.Data.Paging.Last_Page;
-        var paginaCorrente = data.Data.Paging.Page;
-        var totaleRisultati = data.Data.Paging.Total;
-        var risultatiPerPagina = data.Data.Paging.Limit;
-
-        // Elemento HTML per la paginazione
-        var paginationHTML = `<ul class="pagination" data-totale-pagine="${totalePagine}" data-totale-risultati="${totaleRisultati}" data-risultati-pagina="${risultatiPerPagina}" data-pagina-corrente="${paginaCorrente}">`;
-
-        // Aggiungi controlli di navigazione se necessario
-        if (data.Data.Paging.Has_Prev) {
-            paginationHTML += `
-            <li class="waves-effect" style="margin-top: 7px;">
-                <a onclick="filterByPage(1)">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina" aria-label="Prima pagina">first_page</i>
-                </a>
-            </li>
-            <li class="waves-effect" style="margin-top: 7px;">
-                <a onclick="filterByPage(${paginaCorrente - 1})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente" aria-label="Pagina precedente">chevron_left</i>
-                </a>
-            </li>`;
-        }
-
-        // Informazioni sulla pagina corrente e input per selezione diretta della pagina
-        paginationHTML += `
-    <li class="waves-effect">
-        <div style="margin-top: -2px;">
-            Pagina <input type="number" id="page-input" min="1" max="${totalePagine}" value="${paginaCorrente}" style="width: 50px; text-align: center;" onchange="goToPage(this.value, ${totalePagine})">
-            di ${totalePagine}
-        </div>
-    </li>`;
-
-        // Aggiungi controlli di navigazione se necessario
-        if (data.Data.Paging.Has_Next) {
-            paginationHTML += `
-            <li class="waves-effect" style="margin-top: 7px;">
-                <a onclick="filterByPage(${paginaCorrente + 1})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina" aria-label="Prossima pagina">chevron_right</i>
-                </a>
-            </li>
-            <li class="waves-effect" style="margin-top: 7px;">
-                <a onclick="filterByPage(${totalePagine})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina" aria-label="Ultima pagina">last_page</i>
-                </a>
-            </li>`;
-        }
-
-        paginationHTML += `
-<li class="waves-effect" style="margin-top:5px;padding-left:10px;height:36px;">
-    <span class="chip deep-purple lighten-4">${totaleRisultati} risultati</span>
-</li>`;
-
-        paginationHTML += `</ul>`;
-
-        // Costruzione del selettore per i tagli di paginazione
-        var tagliPaginazione = [20, 50, 100];
-        var dropdownHTML_top = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
-        Paginazione
-        <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
-        <ul id="ddlPaginazione-top" class="dropdown-content">`;
-
-        tagliPaginazione.forEach(function(limite) {
-            // Verifica se il limite corrente è uguale al valore selezionato per aggiungere la classe "selected"
-            var selectedClass = risultatiPerPagina == limite ? 'class="selected"' : '';
-
-            dropdownHTML_top += `<li ${selectedClass}><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+        renderPaginazione({
+            data: data,
+            onPage: function (page) { filterByPage(page); },
+            onSize: function (size) { filterBySize(1, size); },
+            afterHtml: afterHtml
         });
-
-        dropdownHTML_top += `</ul></div>`;
-        var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/>
-    <input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>
-    <input id="hdTotaleDocumenti" type="hidden" value="${totaleRisultati}"/>`;
-
-        // Inserisci l'HTML nel DOM (paginazione solo in alto; gli hidden restano qui)
-        document.getElementById('paginazione-container-top').innerHTML = paginationHTML + dropdownHTML_top + hiddenHTML;
-
-        // Inizializza il dropdown con Materialize
-        var elems = document.querySelectorAll('.dropdown-trigger.trigger-paginazione');
-        var instances = M.Dropdown.init(elems, { constrainWidth: true });
     }
-
-// Funzione per andare alla pagina specificata dall'utente
-    function goToPage(pageNumber, totalePagine) {
-        var page = parseInt(pageNumber);
-        if (!isNaN(page) && page > 0 && page <= totalePagine) {
-            filterByPage(page);
-        } else {
-            ErrorAlert("Inserisci un numero di pagina valido tra 1 e " + totalePagine);
-        }
-    }
-
 
     function AggiornaContatori(responseData) {
         aggiornaConteggi('li.collection-item div', "TOTALE", responseData.CountBarData.TUTTI);

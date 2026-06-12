@@ -828,7 +828,9 @@
         var spinner = document.getElementById('loadingSpinner');
         if (spinner) spinner.style.display = 'block';
         document.getElementById('tableResults').innerHTML = '';
-        document.getElementById('paginazione-container-top').innerHTML = '';
+        // Issue #1614: la barra di paginazione viene rigenerata da creaPaginazioneEM(), che prima
+        // distrugge le istanze Tooltip. Svuotarla qui staccherebbe i nodi senza passare per destroy(),
+        // lasciando orfani i .material-tooltip nel body (label "appese" tipo "Prossima pagina").
 
         try {
             var response = await fetch(baseUrl + '/emendamenti/riepilogoEM', {
@@ -1202,94 +1204,18 @@
         if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(1);
     };
 
-    // Paginazione orizzontale: a sinistra navigazione pagine + chip "N risultati", a destra
-    // chip "Paginazione" con dropdown taglio (20/50/100). Replicata nei container top/bottom.
+    // Barra di paginazione: il rendering e' centralizzato in renderPaginazione (site.js),
+    // condiviso con le griglie DASI. Qui restano solo le callback specifiche di PEM.
     window.creaPaginazioneEM = function (data) {
-        var top = document.getElementById('paginazione-container-top');
-        if (!data || !data.Data || !data.Data.Results || data.Data.Results.length === 0) {
-            if (top) top.innerHTML = '';
-            return;
-        }
-
-        var paging = data.Data.Paging;
-        var totalePagine = paging.Last_Page || 1;
-        var paginaCorrente = paging.Page;
-        var totaleRisultati = paging.Total;
-        var risultatiPerPagina = paging.Limit;
-
-        function buildNavigazione() {
-            var html = '<ul class="pagination" style="margin:0;display:inline-flex;align-items:center;line-height:1;"'
-                + ' data-totale-pagine="' + totalePagine
-                + '" data-totale-risultati="' + totaleRisultati
-                + '" data-risultati-pagina="' + risultatiPerPagina
-                + '" data-pagina-corrente="' + paginaCorrente + '">';
-
-            if (paging.Has_Prev) {
-                html += '<li class="waves-effect"><a onclick="paginazioneEM(1)" style="padding:0 8px;">'
-                    + '<i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina">first_page</i></a></li>'
-                    + '<li class="waves-effect"><a onclick="paginazioneEM(' + (paginaCorrente - 1) + ')" style="padding:0 8px;">'
-                    + '<i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">chevron_left</i></a></li>';
-            }
-            html += '<li style="padding:0 12px;line-height:36px;">'
-                + 'Pagina <input type="number" min="1" max="' + totalePagine
-                + '" value="' + paginaCorrente
-                + '" style="width:55px;text-align:center;height:28px;margin:0 4px;" '
-                + 'onchange="vaiPaginaEM(this.value, ' + totalePagine + ')">'
-                + ' di ' + totalePagine + '</li>';
-            if (paging.Has_Next) {
-                html += '<li class="waves-effect"><a onclick="paginazioneEM(' + (paginaCorrente + 1) + ')" style="padding:0 8px;">'
-                    + '<i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">chevron_right</i></a></li>'
-                    + '<li class="waves-effect"><a onclick="paginazioneEM(' + totalePagine + ')" style="padding:0 8px;">'
-                    + '<i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">last_page</i></a></li>';
-            }
-            html += '<li style="margin-left:8px;line-height:36px;">'
-                + '<span class="chip deep-purple lighten-4" style="margin:0;line-height:32px;height:32px;">'
-                + totaleRisultati + ' risultati</span></li>';
-            html += '</ul>';
-            return html;
-        }
-
-        var tagli = [20, 50, 100];
-        function buildDropdown(suffix) {
-            var dd = '<span class="chip deep-purple lighten-4 center" '
-                + 'style="display:inline-flex;align-items:center;height:32px;line-height:32px;margin:0;padding:0 8px;min-width:unset;">'
-                + '<span style="margin-right:4px;">Paginazione</span>'
-                + '<a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-em-' + suffix
-                + '" style="font-size:small;margin:0;height:24px;line-height:24px;padding:0 8px;min-width:unset;">'
-                + risultatiPerPagina + '</a>'
-                + '<ul id="ddlPaginazione-em-' + suffix + '" class="dropdown-content">';
-            tagli.forEach(function (limite) {
-                var sel = risultatiPerPagina == limite ? ' class="selected"' : '';
-                dd += '<li' + sel + '><a onclick="paginazioneSizeEM(' + limite + ')">' + limite + '</a></li>';
-            });
-            dd += '</ul></span>';
-            return dd;
-        }
-
-        function buildRiga(suffix) {
-            return '<div class="row valign-wrapper" style="margin: 6px 0;">'
-                + '  <div class="col s8 left-align">' + buildNavigazione() + '</div>'
-                + '  <div class="col s4 right-align">' + buildDropdown(suffix) + '</div>'
-                + '</div>';
-        }
-
-        if (top) top.innerHTML = buildRiga('top');
-
-        if (window.M) {
-            if (top) M.AutoInit(top);
-            $('.dropdown-trigger.trigger-paginazione').dropdown();
-        }
+        renderPaginazione({
+            data: data,
+            onPage: function (page) { paginazioneEM(page); },
+            onSize: function (size) { paginazioneSizeEM(size); }
+        });
     };
 
     window.paginazioneEM = function (page) {
         if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(page);
-    };
-
-    window.vaiPaginaEM = function (page, totalePagine) {
-        var p = parseInt(page, 10);
-        if (isNaN(p) || p < 1) p = 1;
-        if (p > totalePagine) p = totalePagine;
-        if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(p);
     };
 
     window.paginazioneSizeEM = function (size) {

@@ -83,6 +83,125 @@ function loaderView(enable) {
     }
 }
 
+// Componente unico per la barra di paginazione delle griglie aggiornate via AJAX
+// (PEM/Emendamenti, DASI consiglieri, DASI UOLA/admin). Centralizza il rendering, prima
+// duplicato in tre copie di creaPaginazione, e il ciclo di vita dei tooltip Materialize
+// (issue #1614): distrugge le istanze Tooltip della barra precedente prima di rigenerarla
+// e re-inizializza quelle nuove, evitando le label ".material-tooltip" "appese" nel body.
+//
+// opts:
+//   data        : responseData del riepilogo (usa data.Data.Paging e data.Data.Results)
+//   onPage      : function(numeroPagina) per navigare a una pagina
+//   onSize      : function(taglio) al cambio di risultati per pagina
+//   containerId : id del contenitore (default "paginazione-container-top")
+//   sizes       : tagli selezionabili (default [20, 50, 100])
+//   afterHtml   : HTML extra accodato nel contenitore (es. gli <input hidden> usati da DASI)
+function renderPaginazione(opts) {
+    opts = opts || {};
+    var container = document.getElementById(opts.containerId || "paginazione-container-top");
+    if (!container) {
+        return;
+    }
+
+    // Ciclo di vita tooltip: distruggi le istanze esistenti PRIMA di rigenerare il contenuto,
+    // cosi' Materialize rimuove i relativi .material-tooltip dal body (niente label "appese").
+    if (window.M) {
+        container.querySelectorAll(".tooltipped").forEach(function (el) {
+            var tooltipInstance = M.Tooltip.getInstance(el);
+            if (tooltipInstance) {
+                tooltipInstance.destroy();
+            }
+        });
+    }
+
+    var data = opts.data;
+    if (!data || !data.Data || !data.Data.Results || data.Data.Results.length === 0) {
+        container.innerHTML = "";
+        return;
+    }
+
+    var paging = data.Data.Paging;
+    var totalePagine = paging.Last_Page || 1;
+    var paginaCorrente = paging.Page;
+    var totaleRisultati = paging.Total;
+    var risultatiPerPagina = paging.Limit;
+    var sizes = opts.sizes || [20, 50, 100];
+    var ddlId = "ddlPaginazione-" + (opts.containerId || "paginazione-container-top");
+
+    function freccia(pagina, icona, etichetta) {
+        return '<li class="waves-effect"><a data-pag-goto="' + pagina + '" style="cursor:pointer;padding:0 8px;">'
+            + '<i class="material-icons tooltipped" data-position="top" data-tooltip="' + etichetta
+            + '" aria-label="' + etichetta + '">' + icona + '</i></a></li>';
+    }
+
+    var nav = '<ul class="pagination" style="margin:0;display:inline-flex;align-items:center;line-height:1;"'
+        + ' data-totale-pagine="' + totalePagine + '" data-totale-risultati="' + totaleRisultati
+        + '" data-risultati-pagina="' + risultatiPerPagina + '" data-pagina-corrente="' + paginaCorrente + '">';
+    if (paging.Has_Prev) {
+        nav += freccia(1, "first_page", "Prima pagina") + freccia(paginaCorrente - 1, "chevron_left", "Pagina precedente");
+    }
+    nav += '<li style="padding:0 12px;line-height:36px;">Pagina '
+        + '<input type="number" data-pag-input min="1" max="' + totalePagine + '" value="' + paginaCorrente
+        + '" style="width:55px;text-align:center;height:28px;margin:0 4px;"> di ' + totalePagine + '</li>';
+    if (paging.Has_Next) {
+        nav += freccia(paginaCorrente + 1, "chevron_right", "Prossima pagina") + freccia(totalePagine, "last_page", "Ultima pagina");
+    }
+    nav += '<li style="margin-left:8px;line-height:36px;"><span class="chip deep-purple lighten-4" style="margin:0;line-height:32px;height:32px;">'
+        + totaleRisultati + ' risultati</span></li></ul>';
+
+    var dropdown = '<span class="chip deep-purple lighten-4 center" style="display:inline-flex;align-items:center;height:32px;line-height:32px;margin:0;padding:0 8px;min-width:unset;">'
+        + '<span style="margin-right:4px;">Paginazione</span>'
+        + '<a class="dropdown-trigger chip white" data-target="' + ddlId
+        + '" style="font-size:small;margin:0;height:24px;line-height:24px;padding:0 8px;min-width:unset;">' + risultatiPerPagina + '</a>'
+        + '<ul id="' + ddlId + '" class="dropdown-content">';
+    sizes.forEach(function (limite) {
+        var selected = risultatiPerPagina == limite ? ' class="selected"' : '';
+        dropdown += '<li' + selected + '><a data-pag-size="' + limite + '" style="cursor:pointer;">' + limite + '</a></li>';
+    });
+    dropdown += '</ul></span>';
+
+    container.innerHTML = '<div class="row valign-wrapper" style="margin:6px 0;">'
+        + '<div class="col s8 left-align">' + nav + '</div>'
+        + '<div class="col s4 right-align">' + dropdown + '</div></div>'
+        + (opts.afterHtml || "");
+
+    // Re-inizializza i componenti Materialize della barra appena creata (tooltip + dropdown).
+    if (window.M) {
+        M.AutoInit(container);
+    }
+
+    // Callback agganciate via JS (niente onclick inline): navigazione e cambio taglio.
+    container.querySelectorAll("[data-pag-goto]").forEach(function (link) {
+        link.addEventListener("click", function () {
+            if (typeof opts.onPage === "function") {
+                opts.onPage(parseInt(link.getAttribute("data-pag-goto"), 10));
+            }
+        });
+    });
+    var pageInput = container.querySelector("[data-pag-input]");
+    if (pageInput) {
+        pageInput.addEventListener("change", function () {
+            var p = parseInt(pageInput.value, 10);
+            if (isNaN(p) || p < 1) {
+                p = 1;
+            }
+            if (p > totalePagine) {
+                p = totalePagine;
+            }
+            if (typeof opts.onPage === "function") {
+                opts.onPage(p);
+            }
+        });
+    }
+    container.querySelectorAll("[data-pag-size]").forEach(function (link) {
+        link.addEventListener("click", function () {
+            if (typeof opts.onSize === "function") {
+                opts.onSize(parseInt(link.getAttribute("data-pag-size"), 10));
+            }
+        });
+    });
+}
+
 function waiting(enable, message) {
     var instance = M.Modal.getInstance($("#waiting"));
     if (enable) {
