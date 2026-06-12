@@ -1456,6 +1456,30 @@
         return 'Emendamento ' + escapeText(tipo) + '<br>' + escapeText(parte);
     }
 
+    // Issue #1615: BodyEM e' un frammento HTML "autoportante" (vista standalone del singolo
+    // emendamento): include i <link> a Material Icons, materialize.min.css e site.css. Iniettato
+    // tal quale nella pagina viva, e per 20 EM a pagina, quei fogli di stile vengono ri-applicati
+    // in coda alla cascata globale e scavalcano le personalizzazioni del portale: le chip tornano
+    // al grigio Materialize e le icone dei btn-floating bianchi tornano bianche (invisibili su
+    // sfondo bianco). I <link> a CDN non in whitelist generano anche errori CSP, uno per EM.
+    // Qui ripuliamo il frammento dai tag di livello documento: la pagina ospite ha gia' caricato
+    // materialize + site.css, quindi il markup dell'emendamento resta stilizzato correttamente.
+    function sanitizePreviewBodyEM(rawHtml) {
+        if (!rawHtml) return '';
+        try {
+            var doc = new DOMParser().parseFromString(rawHtml, 'text/html');
+            doc.querySelectorAll('link, style, script, meta, base, title')
+                .forEach(function (n) { n.remove(); });
+            return doc.body ? doc.body.innerHTML : rawHtml;
+        } catch (e) {
+            // Fallback se DOMParser non e' disponibile: rimuove almeno i tag che fanno il danno.
+            return rawHtml
+                .replace(/<link\b[^>]*>/gi, '')
+                .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+                .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+        }
+    }
+
     // Rendering "preview" (lista card) attivato quando ViewMode == PREVIEW.
     // Pattern allineato al riepilogo DASI (_FiltriRapidiDASIPanel.cshtml > createCard):
     // una card per emendamento con i pulsanti in alto a destra e, sotto, il BodyEM
@@ -1472,7 +1496,7 @@
                 + '</div>';
         }
         results.filter(function (em) { return em != null; }).forEach(function (em) {
-            var bodyEm = em.BodyEM || '<em class="grey-text">Anteprima non disponibile</em>';
+            var bodyEm = sanitizePreviewBodyEM(em.BodyEM) || '<em class="grey-text">Anteprima non disponibile</em>';
 
             html += '<div class="row card" style="margin-bottom: 12px;">'
                 + '  <div class="col s12 right-align" style="position:absolute;margin-top:10px;z-index:1;">'
