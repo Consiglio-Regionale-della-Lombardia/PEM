@@ -1412,6 +1412,34 @@
                 + '</div></div>';
         }
 
+        // Pannello tag (dentro il card-reveal): replica del ramo Razor che deserializza itemEM.Tags.
+        // em.Tags arriva dal backend come stringa JSON (default "[]"), quindi il parse e' sempre sicuro.
+        var tagsHtml = '';
+        try {
+            var tagsArr = em.Tags ? JSON.parse(em.Tags) : [];
+            if (tagsArr && tagsArr.length) {
+                tagsHtml = '<ul>';
+                tagsArr.forEach(function (t) { tagsHtml += '<li>#' + escapeText(t.tag) + '</li>'; });
+                tagsHtml += '</ul>';
+            }
+        } catch (e) { tagsHtml = ''; }
+
+        // Card-reveal: pannello scorrevole con firmatari (caricati via AJAX da RevealFirmatari) e tag.
+        // DEVE essere figlio diretto di .card: Materialize aggancia il reveal con un handler delegato
+        // su document che agisce solo se la card ha un figlio .card-reveal (cfr. materialize.js).
+        // Replica fedele di _GridView_RiepilogoEM.cshtml; senza questo blocco il chip proponente non
+        // apre nulla e #panelRevealFirmatari_<uidem> non esiste (issue #1613).
+        var cardReveal = '<div class="card-reveal" id="reveal_' + em.UIDEM + '" style="padding-bottom: 65px">'
+            + '<span class="card-title grey-text text-darken-4 center">'
+            + '<span id="titleReveal_' + em.UIDEM + '">Firmatari</span> <i class="material-icons right">close</i>'
+            + '</span>'
+            + '<div id="panelRevealFirmatari_' + em.UIDEM + '" style="display: none;">'
+            + '<div id="dataItems" class="collection" style="height: 100%; overflow: auto;">'
+            + '<div class="progress"><div class="indeterminate"></div></div>'
+            + '</div></div>'
+            + '<div id="panelRevealTags_' + em.UIDEM + '" style="display: none;">' + tagsHtml + '</div>'
+            + '</div>';
+
         return '<div class="col l12 m12 s12">'
             + '<div class="card sticky-action hoverable" style="min-height: 300px">'
             + '  <div class="card-content">'
@@ -1457,6 +1485,7 @@
             + '      </div>'
             + '    </div>'
             + '  </div>'
+            + cardReveal
             + '</div>'
             + '</div>';
     }
