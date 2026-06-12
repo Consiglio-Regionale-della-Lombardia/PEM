@@ -445,7 +445,7 @@
                     '<div id="proponenti-em-list" class="collection" style="max-height:300px;overflow-y:auto">';
                 if (persone && persone.length) {
                     persone.forEach(function (item) {
-                        selectHTML += '<a class="collection-item proponente-em-item" data-uid="' + item.UID_persona + '" href="#">' + item.DisplayName + '</a>';
+                        selectHTML += '<a class="collection-item proponente-em-item" data-uid="' + item.uid + '" href="#">' + item.DisplayName + '</a>';
                     });
                 }
                 selectHTML += '</div></div>';
@@ -461,7 +461,7 @@
                     '<div id="firmatari-em-list" class="collection" style="max-height:300px;overflow-y:auto">';
                 if (persone && persone.length) {
                     persone.forEach(function (item) {
-                        selectHTML += '<a class="collection-item firmatario-em-item" data-uid="' + item.UID_persona + '" href="#">' + item.DisplayName + '</a>';
+                        selectHTML += '<a class="collection-item firmatario-em-item" data-uid="' + item.uid + '" href="#">' + item.DisplayName + '</a>';
                     });
                 }
                 selectHTML += '</div></div>';
@@ -829,7 +829,6 @@
         if (spinner) spinner.style.display = 'block';
         document.getElementById('tableResults').innerHTML = '';
         document.getElementById('paginazione-container-top').innerHTML = '';
-        document.getElementById('paginazione-container-bottom').innerHTML = '';
 
         try {
             var response = await fetch(baseUrl + '/emendamenti/riepilogoEM', {
@@ -1207,10 +1206,8 @@
     // chip "Paginazione" con dropdown taglio (20/50/100). Replicata nei container top/bottom.
     window.creaPaginazioneEM = function (data) {
         var top = document.getElementById('paginazione-container-top');
-        var bottom = document.getElementById('paginazione-container-bottom');
         if (!data || !data.Data || !data.Data.Results || data.Data.Results.length === 0) {
             if (top) top.innerHTML = '';
-            if (bottom) bottom.innerHTML = '';
             return;
         }
 
@@ -1277,11 +1274,9 @@
         }
 
         if (top) top.innerHTML = buildRiga('top');
-        if (bottom) bottom.innerHTML = buildRiga('bottom');
 
         if (window.M) {
             if (top) M.AutoInit(top);
-            if (bottom) M.AutoInit(bottom);
             $('.dropdown-trigger.trigger-paginazione').dropdown();
         }
     };

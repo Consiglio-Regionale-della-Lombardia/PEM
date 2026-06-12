@@ -451,7 +451,6 @@ else
 
         document.getElementById('tableResults').innerHTML = "";
         document.getElementById('paginazione-container-top').innerHTML = "";
-        document.getElementById('paginazione-container-bottom').innerHTML = "";
         document.getElementById('loadingSpinner').style.display = 'block';
 
         var request = {};
@@ -482,7 +481,6 @@ else
 </span>
 </div>`;
                 document.getElementById('paginazione-container-top').innerHTML = "";
-                document.getElementById('paginazione-container-bottom').innerHTML = "";
                 var comandiGriglia = document.getElementById('comandiGriglia');
                 if (comandiGriglia) comandiGriglia.style.display = 'none';
                 document.getElementById('loadingSpinner').style.display = 'none';
@@ -825,7 +823,6 @@ else
     function creaPaginazione(data) {
         if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
             document.getElementById('paginazione-container-top').innerHTML = "";
-            document.getElementById('paginazione-container-bottom').innerHTML = "";
             return;
         }
 
@@ -884,29 +881,21 @@ else
         Paginazione
         <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
         <ul id="ddlPaginazione-top" class="dropdown-content">`;
-        var dropdownHTML_bottom = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
-        Paginazione
-        <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-bottom" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
-        <ul id="ddlPaginazione-bottom" class="dropdown-content">`;
 
         tagliPaginazione.forEach(function(limite) {
             var selectedClass = risultatiPerPagina == limite ? 'class="selected"' : '';
             dropdownHTML_top += `<li ${selectedClass}><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
-            dropdownHTML_bottom += `<li ${selectedClass}><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
         });
 
         dropdownHTML_top += `</ul></div>`;
-        dropdownHTML_bottom += `</ul></div>`;
         var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/>
     <input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>
     <input id="hdTotaleDocumenti" type="hidden" value="${totaleRisultati}"/>`;
 
+        // Paginazione solo in alto; gli hidden restano qui.
         document.getElementById('paginazione-container-top').innerHTML = '<div class="row valign-wrapper" style="margin-bottom:0">' +
             '<div class="col l8 m12 s12">' + paginationHTML + '</div>' +
-            '<div class="col l4 m12 s12 right-align">' + dropdownHTML_top + '</div></div>';
-        document.getElementById('paginazione-container-bottom').innerHTML = '<div class="row valign-wrapper" style="margin-bottom:0">' +
-            '<div class="col l8 m12 s12">' + paginationHTML + '</div>' +
-            '<div class="col l4 m12 s12 right-align">' + dropdownHTML_bottom + '</div></div>' + hiddenHTML;
+            '<div class="col l4 m12 s12 right-align">' + dropdownHTML_top + '</div></div>' + hiddenHTML;
 
         var elems = document.querySelectorAll('.dropdown-trigger.trigger-paginazione');
         var instances = M.Dropdown.init(elems, { constrainWidth: true });

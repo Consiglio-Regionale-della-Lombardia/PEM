@@ -2649,7 +2649,11 @@ namespace PortaleRegione.BAL
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.IDParte), qx.Parti, int.Parse);
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.id_gruppo), qx.GruppiProponenti, int.Parse);
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.UIDPersonaProponente), qx.Proponenti, Guid.Parse);
-            ExtractAndAddFiltersEM(model, "Firmatario", qx.Firmatari, Guid.Parse);
+            // La chip firmatari del pannello PEM usa la chiave del DTO (Firme), come DASI.
+            // Il vecchio letterale "Firmatario" (helper AddFilter_Signers, ora rimosso) non
+            // combaciava, quindi i firmatari non venivano mai estratti e il filtro era
+            // silenziosamente ignorato. Cfr. issue #1610.
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.Firme), qx.Firmatari, Guid.Parse);
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.UIDArticolo), qx.Articoli, Guid.Parse);
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.UIDComma), qx.Commi, Guid.Parse);
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.UIDLettera), qx.Lettere, Guid.Parse);
