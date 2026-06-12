@@ -414,9 +414,6 @@ namespace PortaleRegione.Client.Controllers
                     var request = BuildDasiRequest(model.Filter);
                     request.size = 99999;
 
-                    if (model.Richiesta_Firma) // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/916
-                        request.param["RequireMySign"] = "true";
-
                     var list = await apiGateway.DASI.GetSoloIds(request);
 
                     if (model.Lista != null)
