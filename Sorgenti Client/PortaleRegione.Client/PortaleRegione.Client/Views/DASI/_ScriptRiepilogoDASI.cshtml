@@ -172,6 +172,74 @@
 		}
 	});
 
+	// #1611: estrazione rapida in excel (formato consiglieri) per la griglia GRUPPI/TRATTAZIONE.
+	// La vecchia action GET leggeva i filtri dalla Session, non piu' popolata nel nuovo
+	// flusso client-side (inviaDatiChips -> CreaTabella): per questo dava
+	// "Riferimento a un oggetto non impostato". Ora i filtri viaggiano via POST, come per
+	// l'export UOLA (EsportaXLSRapido). Replichiamo la stessa raccolta chip della ricerca,
+	// inclusa la guard id_gruppo in area GRUPPI, cosi' l'export riflette gli atti mostrati.
+	$('#btnExportXLSConsiglieri').on("click", async function () {
+		waiting(true, "Elaborazione in corso..");
+		var url = $('#btnExportXLSConsiglieri').data("href");
+
+		var chipsData = [];
+		document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function (chip) {
+			if (chip.getAttribute('data-val').indexOf("Non vuoto") !== -1) {
+				chipsData.push({ property: chip.getAttribute('data-filterby'), value: '', not_empty: true });
+			} else {
+				chipsData.push({ property: chip.getAttribute('data-filterby'), value: chip.getAttribute('data-val') });
+			}
+		});
+
+		var clientMode = localStorage.getItem('clientMode') || '@Html.Raw((int)PortaleRegione.DTO.Enum.ClientModeEnum.GRUPPI)';
+
+		// Guard GRUPPI: limita agli atti del gruppo del consigliere (come inviaDatiChips).
+		if (clientMode != '@Html.Raw((int)PortaleRegione.DTO.Enum.ClientModeEnum.TRATTAZIONE)') {
+			var gruppoGuard = '@Html.Raw(Model.CurrentUser?.Gruppo != null ? Model.CurrentUser.Gruppo.id_gruppo.ToString() : "")';
+			if (gruppoGuard && !chipsData.some(function (c) { return c.property === '@Html.Raw(nameof(AttoDASIDto.id_gruppo))'; })) {
+				chipsData.push({ property: '@Html.Raw(nameof(AttoDASIDto.id_gruppo))', value: gruppoGuard });
+			}
+		}
+
+		try {
+			var request = {
+				filters: chipsData,
+				page: 1,
+				size: 999999,
+				viewMode: localStorage.getItem('viewModeDasi'),
+				clientMode: clientMode,
+				sort_settings: JSON.parse(localStorage.getItem('selectedSortColumns')) || []
+			};
+
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(request)
+			});
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			var responseData = await response.json();
+			if (responseData && responseData.message) {
+				waiting(false);
+				ErrorAlert(responseData.message);
+				return;
+			}
+			waiting(false);
+			var a = document.createElement("a");
+			a.href = responseData;
+			document.body.appendChild(a);
+			a.click();
+
+		} catch (error) {
+			waiting(false);
+			console.error('Errore: ', error);
+			ErrorAlert('Errore: ' + error.message);
+		}
+	});
+
 	$('#btnExportZip').on("click", async function () {
 		waiting(true);
 		var url = $('#btnExportZip').data("href");

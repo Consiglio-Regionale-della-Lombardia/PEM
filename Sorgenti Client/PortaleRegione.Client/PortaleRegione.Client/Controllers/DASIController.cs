@@ -1233,6 +1233,54 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     #1611: estrazione rapida in excel (formato consiglieri) conforme al nuovo sistema a chips.
+        ///     L'action GET EsportaXLSConsiglieri leggeva i filtri dalla Session["RiepilogoDASI"], che nel
+        ///     nuovo flusso client-side (inviaDatiChips -> CreaTabella) non viene popolata: da qui la
+        ///     NullReferenceException. Qui i filtri arrivano via POST, come per EsportaXLSRapido/Riepilogo.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("excel-consiglieri-rapido")]
+        public async Task<ActionResult> EsportaXLSConsiglieriRapido(FilterRequest model)
+        {
+            try
+            {
+                if (model == null || !model.filters.Any())
+                {
+                    return Json(new RiepilogoDASIModel { CurrentUser = CurrentUser });
+                }
+
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = model.page,
+                    size = model.size,
+                    param = new Dictionary<string, object>
+                    {
+                        { "CLIENT_MODE", model.clientMode },
+                        { nameof(FilterRequest.viewMode), model.viewMode }
+                    }
+                };
+
+                if (model.sort_settings.Any())
+                {
+                    request.dettagliOrdinamento = model.sort_settings;
+                }
+
+                var apiGateway = new ApiGateway(Token);
+                request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
+
+                var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                var file = await apiGateway.Esporta.EsportaXLSConsiglieriDASI(soloIds);
+
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
         ///     Controller per esportare gli atti
         /// </summary>
         /// <returns></returns>
