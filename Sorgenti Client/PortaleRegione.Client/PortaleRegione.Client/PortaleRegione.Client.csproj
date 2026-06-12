@@ -416,16 +416,12 @@
     <Content Include="Views\Emendamenti\RiepilogoEM_Admin.cshtml" />
     <Content Include="Views\Emendamenti\RiepilogoEM.cshtml" />
     <Content Include="Views\Emendamenti\EmendamentoForm.cshtml" />
-    <Content Include="Views\Emendamenti\_Command_RiepilogoEM.cshtml" />
-    <Content Include="Views\Emendamenti\_GridView_RiepilogoEM.cshtml" />
-    <Content Include="Views\Emendamenti\_ZoomView_RiepilogoEM.cshtml" />
     <Content Include="Views\Emendamenti\ViewEmendamento.cshtml" />
     <Content Include="Views\Web.config" />
     <Content Include="Views\Persone\CambioPinForm.cshtml" />
     <Content Include="Views\VideoTutorial\Index.cshtml" />
     <Content Include="Views\Stampe\Index.cshtml" />
     <Content Include="Views\Stampe\Index_Admin.cshtml" />
-    <Content Include="Views\Emendamenti\_GridView_Admin_RiepilogoEM.cshtml" />
     <Content Include="Views\Emendamenti\_ComandiMassiviAdmin.cshtml" />
     <Content Include="Views\Emendamenti\_ComandiMassivi.cshtml" />
     <Content Include="Views\Emendamenti\EmendamentoFormAdmin.cshtml" />
@@ -484,7 +480,6 @@
     <Content Include="Views\Emendamenti\_TagsPanel.cshtml" />
     <Content Include="Views\Emendamenti\_ConteggiGruppiPartial.cshtml" />
     <Content Include="Views\Emendamenti\_ConteggiAreePolitichePartial.cshtml" />
-    <Content Include="Views\Emendamenti\_DataRiepilogoEMPartial.cshtml" />
     <Content Include="Views\Atti\_Testi_Articoli_Commi_Lettere_Partial.cshtml" />
     <Content Include="Views\Atti\_AttoFormScript.cshtml" />
     <Content Include="Views\Shared\_MenuStandard.cshtml" />

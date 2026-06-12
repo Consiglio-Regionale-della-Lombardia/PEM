@@ -190,8 +190,6 @@ namespace PortaleRegione.Client.Controllers
                     await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(id), Token);
             em.ATTI = await apiGateway.Atti.Get(em.UIDAtto);
 
-            Session["RicaricaFiltri"] = true;
-
             return View(em);
         }
 
@@ -393,7 +391,6 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}/edit-meta-dati")]
         public async Task<ActionResult> ModificaMetaDatiEmendamento(Guid id)
         {
-            Session["RicaricaFiltri"] = true;
             var apiGateway = new ApiGateway(Token);
             var emModel = await apiGateway.Emendamento.GetModificaMetaDatiModel(id);
             return View("MetaDatiForm", emModel);
