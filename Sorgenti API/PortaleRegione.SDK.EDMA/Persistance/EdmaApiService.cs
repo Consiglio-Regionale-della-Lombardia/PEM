@@ -17,10 +17,12 @@
  */
 
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using PortaleRegione.SDK.EDMA.Contracts;
 using PortaleRegione.SDK.EDMA.Helpers;
 using PortaleRegione.SDK.EDMA.Models;
@@ -77,11 +79,10 @@ namespace PortaleRegione.SDK.EDMA.Persistance
 
         public async Task<EdmaResponse<FascicoloPraticaOutput>> CreaInserisciPraticaAsync(
             string idSottoFascicoloPadre,
-            string codiceMetadocPadre,
             int metamoduloPadre,
             FascicoloPratica pratica)
         {
-            var body = EdmaXmlHelper.GeneraCreaInserisciPraticaXml(idSottoFascicoloPadre, codiceMetadocPadre,
+            var body = EdmaXmlHelper.GeneraCreaInserisciPraticaXml(idSottoFascicoloPadre,
                 metamoduloPadre, pratica);
             var endpoint = BuildEndpoint("FascicoloPratica/creaInserisciDocumento");
             var raw = await PostXmlAsync(endpoint, body).ConfigureAwait(false);
@@ -158,6 +159,12 @@ namespace PortaleRegione.SDK.EDMA.Persistance
         {
             try
             {
+                // Log di richiesta e risposta (Debug, troncati) per diagnosticare
+                // sia gli errori di deserializzazione lato EDMA sia il parsing di
+                // id e segnatura. I payload con file allegato contengono il base64
+                // del documento, quindi vengono troncati.
+                _logger?.Invoke($"POST {endpoint}{Environment.NewLine}{TroncaPerLog(xmlBody)}", null);
+
                 using (var request = new HttpRequestMessage(HttpMethod.Post, endpoint))
                 {
                     var basic = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_username}:{_password}"));
@@ -172,11 +179,23 @@ namespace PortaleRegione.SDK.EDMA.Persistance
                     using (var response = await SharedHttpClient.SendAsync(request).ConfigureAwait(false))
                     {
                         var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        _logger?.Invoke($"RISPOSTA {endpoint}{Environment.NewLine}{TroncaPerLog(responseBody)}", null);
+
                         if (!response.IsSuccessStatusCode)
                         {
                             var msg = $"HTTP {(int)response.StatusCode} {response.ReasonPhrase} su {endpoint}";
-                            _logger?.Invoke(msg + Environment.NewLine + responseBody, null);
+                            _logger?.Invoke(msg, null);
                             return (responseBody, msg);
+                        }
+
+                        // EDMA restituisce gli errori applicativi con HTTP 200 e
+                        // una root di tipo *Exception: vanno trattati come errore,
+                        // altrimenti il flusso prosegue su dati inesistenti.
+                        var erroreEdma = EstraiErroreEdma(responseBody);
+                        if (erroreEdma != null)
+                        {
+                            _logger?.Invoke($"Errore applicativo EDMA su {endpoint}: {erroreEdma}", null);
+                            return (responseBody, erroreEdma);
                         }
 
                         return (responseBody, null);
@@ -188,6 +207,38 @@ namespace PortaleRegione.SDK.EDMA.Persistance
                 _logger?.Invoke($"Eccezione su {endpoint}", ex);
                 return (null, ex.Message);
             }
+        }
+
+        private static string TroncaPerLog(string testo)
+        {
+            const int max = 8000;
+            if (string.IsNullOrEmpty(testo) || testo.Length <= max) return testo;
+            return testo.Substring(0, max) + $"... [troncato, {testo.Length} caratteri totali]";
+        }
+
+        // EDMA segnala gli errori applicativi con HTTP 200 e una root di tipo
+        // *Exception (it.lispa.rsi3.service.SystemException, ServiceException,
+        // ...). Se la risposta e' una di queste, restituisce il detailMessage
+        // (cioe' il motivo dell'errore); altrimenti null (risposta valida).
+        private static string EstraiErroreEdma(string body)
+        {
+            if (string.IsNullOrWhiteSpace(body)) return null;
+            XElement root;
+            try { root = XDocument.Parse(body).Root; }
+            catch { return null; }
+            if (root == null) return null;
+            if (root.Name.LocalName.IndexOf("Exception", StringComparison.OrdinalIgnoreCase) < 0)
+                return null;
+
+            // Preferiamo il <detailMessage> di primo livello (piu' informativo,
+            // es. "Numeratore di protocollo non definito..."); in mancanza,
+            // ripieghiamo sul primo annidato (es. quello tecnico di Hibernate).
+            var dettaglio = root.Elements()
+                    .FirstOrDefault(e => e.Name.LocalName.Equals("detailMessage", StringComparison.OrdinalIgnoreCase))
+                ?? root.Descendants()
+                    .FirstOrDefault(e => e.Name.LocalName.Equals("detailMessage", StringComparison.OrdinalIgnoreCase));
+            var msg = dettaglio != null ? ((string)dettaglio)?.Trim() : null;
+            return string.IsNullOrEmpty(msg) ? "Errore applicativo EDMA" : msg;
         }
     }
 }

@@ -49,24 +49,23 @@ namespace PortaleRegione.SDK.EDMA.Helpers
 
         /// <summary>
         ///     Da <c>FascicoloPratica/creaInserisciDocumento</c>: l'id EDMA, il
-        ///     codice (numero pratica) e l'identificatore univoco. I percorsi
-        ///     possono variare leggermente fra ambienti; cerchiamo i tag per
-        ///     nome ovunque siano.
+        ///     codice (numero pratica) e l'identificatore univoco della pratica.
+        ///     Vanno letti SOLO come figli diretti della root: la risposta annida
+        ///     referente, procedimento, documentoBase ecc., ciascuno con propri
+        ///     &lt;id&gt;/&lt;codice&gt;, quindi una ricerca "ovunque" prenderebbe
+        ///     per errore quelli del referente (es. l'id del referente al posto
+        ///     dell'id pratica).
         /// </summary>
         public static FascicoloPraticaOutput ParseFascicoloPratica(string xml)
         {
             var root = ParseRoot(xml);
             if (root == null) return null;
 
-            var id = FirstNonEmpty(root, "id");
-            var codice = FirstNonEmpty(root, "codice");
-            var identificatore = FirstNonEmpty(root, "identificatore");
-
             return new FascicoloPraticaOutput
             {
-                IdPratica = id,
-                NumeroPratica = codice,
-                Identificatore = identificatore
+                IdPratica = (string)root.Element("id"),
+                NumeroPratica = (string)root.Element("codice"),
+                Identificatore = (string)root.Element("identificatore")
             };
         }
 

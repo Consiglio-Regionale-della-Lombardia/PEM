@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
-using PortaleRegione.Crypto;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -91,11 +90,10 @@ namespace PortaleRegione.BAL
                             $"Sotto-fascicolo non configurato per il tipo {Utility.GetText_Tipo(atto.Tipo)}.",
                             step: "creaPratica");
 
-                    var pratica = BuildPratica(atto, subfasc.Titolario);
+                    var pratica = BuildPratica(atto, subfasc.CodProcedimento);
                     var resp = await client.CreaInserisciPraticaAsync(
                         subfasc.IdEdma,
-                        AppSettingsConfiguration.EDMA_CodiceMetadocumento_Pratica,
-                        100128, // metamodulo FascicoloProcedimento (padre del sotto-fascicolo)
+                        100127, // metamodulo SottoFascicolo (il padre della pratica)
                         pratica);
 
                     if (!resp.Success || resp.Data == null || string.IsNullOrEmpty(resp.Data.IdPratica))
@@ -159,7 +157,7 @@ namespace PortaleRegione.BAL
 
                         var figlio = new DocumentoBase
                         {
-                            Oggetto = TruncaPerSicurezza($"Allegato {GetNomeAtto(atto)}", 1000),
+                            Oggetto = $"Allegato {GetNomeAtto(atto)}",
                             CodAutore = AppSettingsConfiguration.EDMA_CodAutore,
                             Metamodulo = 200031,
                             MetaDocumento = new MetaDocumento
@@ -207,9 +205,9 @@ namespace PortaleRegione.BAL
                     var parametri = BuildParametriProtocollazione(atto, firmatari);
                     var resp = await client.ProtocollazioneApplicativaAsync(atto.EDMA_IdDocumento, parametri);
 
-                    if (!resp.Success || resp.Data == null)
+                    if (!resp.Success || resp.Data == null || string.IsNullOrEmpty(resp.Data.Segnatura))
                         return await SalvaErrore(atto,
-                            $"Errore protocollazione: {resp.Message ?? "esito vuoto"}",
+                            $"Errore protocollazione: {resp.Message ?? "segnatura non restituita da EDMA"}",
                             step: "protocollazioneApplicativa", dettaglio: resp.RawResponse);
 
                     atto.EDMA_IdProtocollo = resp.Data.IdScheda;
@@ -252,60 +250,68 @@ namespace PortaleRegione.BAL
                 });
         }
 
-        private (string IdEdma, string Titolario) GetSottofascicoloPerTipo(int tipo)
+        // Restituisce, per tipo atto, l'id EDMA del SottoFascicolo titolario
+        // (tag <padre><id>) e il suo codProcedimento (tag <codProcedimento> del
+        // documento). Entrambi sono valori specifici dell'ambiente forniti da ARIA.
+        private (string IdEdma, string CodProcedimento) GetSottofascicoloPerTipo(int tipo)
         {
             switch ((TipoAttoEnum)tipo)
             {
                 case TipoAttoEnum.ITL:
                     return (AppSettingsConfiguration.EDMA_Sottofascicolo_ITL_IdEdma,
-                        AppSettingsConfiguration.EDMA_Sottofascicolo_ITL_Titolario);
+                        AppSettingsConfiguration.EDMA_Sottofascicolo_ITL_CodProcedimento);
                 case TipoAttoEnum.ITR:
                     return (AppSettingsConfiguration.EDMA_Sottofascicolo_ITR_IdEdma,
-                        AppSettingsConfiguration.EDMA_Sottofascicolo_ITR_Titolario);
+                        AppSettingsConfiguration.EDMA_Sottofascicolo_ITR_CodProcedimento);
                 case TipoAttoEnum.MOZ:
                     return (AppSettingsConfiguration.EDMA_Sottofascicolo_MOZ_IdEdma,
-                        AppSettingsConfiguration.EDMA_Sottofascicolo_MOZ_Titolario);
+                        AppSettingsConfiguration.EDMA_Sottofascicolo_MOZ_CodProcedimento);
                 case TipoAttoEnum.ODG:
                     return (AppSettingsConfiguration.EDMA_Sottofascicolo_ODG_IdEdma,
-                        AppSettingsConfiguration.EDMA_Sottofascicolo_ODG_Titolario);
+                        AppSettingsConfiguration.EDMA_Sottofascicolo_ODG_CodProcedimento);
                 case TipoAttoEnum.IQT:
                     return (AppSettingsConfiguration.EDMA_Sottofascicolo_IQT_IdEdma,
-                        AppSettingsConfiguration.EDMA_Sottofascicolo_IQT_Titolario);
+                        AppSettingsConfiguration.EDMA_Sottofascicolo_IQT_CodProcedimento);
                 case TipoAttoEnum.RIS:
                     return (AppSettingsConfiguration.EDMA_Sottofascicolo_RIS_IdEdma,
-                        AppSettingsConfiguration.EDMA_Sottofascicolo_RIS_Titolario);
+                        AppSettingsConfiguration.EDMA_Sottofascicolo_RIS_CodProcedimento);
                 default:
                     return (null, null);
             }
         }
 
-        private SDK.EDMA.Models.FascicoloPratica BuildPratica(ATTI_DASI atto, string titolario)
+        private SDK.EDMA.Models.FascicoloPratica BuildPratica(ATTI_DASI atto, string codProcedimentoSottofascicolo)
         {
             var nomeAtto = GetNomeAtto(atto);
             var titolo = $"{nomeAtto} – \"{atto.Oggetto}\"";
 
-            var pratica = new SDK.EDMA.Models.FascicoloPratica
+            // Niente attributi in creazione: il titolario e' gia' dato dal
+            // SottoFascicolo padre (cfr. SIS.EDMA - Fascicolazione v5,
+            // "Caricare un Metadocumento", in Documentazione/EDMA).
+            return new SDK.EDMA.Models.FascicoloPratica
             {
-                Titolo = TruncaPerSicurezza(titolo, 1000),
-                CodProcedimento = atto.Etichetta ?? nomeAtto,
+                Titolo = titolo,
+                // codProcedimento del SottoFascicolo padre (NON dell'atto):
+                // valore per ambiente fornito da ARIA, configurato per tipo.
+                CodProcedimento = codProcedimentoSottofascicolo,
                 DataApertura = DateTime.Now.Date,
                 AnniConservazione = AppSettingsConfiguration.EDMA_AnniConservazione_Pratica,
                 DataChiusura = ParseDataChiusura(AppSettingsConfiguration.EDMA_DataChiusura_Pratica),
                 ResponsabileCodPersona = AppSettingsConfiguration.EDMA_Responsabile_CodPersona,
                 ReferenteCodPersona = AppSettingsConfiguration.EDMA_Istruttore_CodPersona,
                 MetadocumentoCodice = AppSettingsConfiguration.EDMA_CodiceMetadocumento_Pratica,
+                // <procedimento> = id del Fascicolo principale (FascicoloProcedimento)
+                // e <livelloAppartenenza> = id del livello del fascicolo: entrambi
+                // obbligatori in creaInserisciDocumento e specifici dell'ambiente
+                // (forniti da ARIA), comuni a tutte le tipologie di atto.
+                ProcedimentoIdEdma = AppSettingsConfiguration.EDMA_FascicoloPrincipale_IdEdma,
+                LivelloAppartenenzaId = AppSettingsConfiguration.EDMA_LivelloAppartenenza_IdEdma,
                 SedeSoggetto = new SedeSoggetto
                 {
                     Descrizione = AppSettingsConfiguration.EDMA_DescrizioneSoggettoPratica,
-                    CodFiscale = AppSettingsConfiguration.EDMA_CF_Consiglio,
-                    Pariva = AppSettingsConfiguration.EDMA_CF_Consiglio
+                    CodFiscale = AppSettingsConfiguration.EDMA_CF_Consiglio
                 }
             };
-
-            if (!string.IsNullOrEmpty(titolario))
-                pratica.Attributi["titolario"] = titolario;
-
-            return pratica;
         }
 
         private DocumentoBase BuildDocumentoBase(ATTI_DASI atto)
@@ -313,7 +319,7 @@ namespace PortaleRegione.BAL
             var oggetto = $"{GetNomeAtto(atto)} – {atto.Oggetto}";
             return new DocumentoBase
             {
-                Oggetto = TruncaPerSicurezza(oggetto, 1000),
+                Oggetto = oggetto,
                 CodAutore = AppSettingsConfiguration.EDMA_CodAutore,
                 Metamodulo = 200031, // DocumentoFile
                 MetaDocumento = new MetaDocumento
@@ -372,8 +378,10 @@ namespace PortaleRegione.BAL
 
                 var nomi = firme
                     .Where(f => string.IsNullOrEmpty(f.Data_ritirofirma))
-                    .Select(f => RimuoviGruppoDaFirmatario(
-                        CryptoHelper.DecryptString(f.FirmaCert, AppSettingsConfiguration.masterKey)))
+                    // f.FirmaCert e' gia' decifrato da GetFirme (BALHelper.Decrypt):
+                    // contiene il display name "Cognome Nome (SIGLA)". Non va
+                    // decifrato di nuovo, altrimenti torna "Valore Corrotto".
+                    .Select(f => RimuoviGruppoDaFirmatario(f.FirmaCert))
                     .Where(s => !string.IsNullOrEmpty(s))
                     .Distinct()
                     .ToList();
@@ -419,12 +427,6 @@ namespace PortaleRegione.BAL
             return $"{tipo}_{numero}.pdf".Replace(' ', '_');
         }
 
-        private static string TruncaPerSicurezza(string testo, int max)
-        {
-            if (string.IsNullOrEmpty(testo)) return testo;
-            return testo.Length <= max ? testo : testo.Substring(0, max);
-        }
-
         // ----------------------------------------------------------------
         // Esito
         // ----------------------------------------------------------------
@@ -451,7 +453,7 @@ namespace PortaleRegione.BAL
             if (atto != null)
             {
                 atto.EDMA_TentativiInvio = atto.EDMA_TentativiInvio + 1;
-                atto.EDMA_UltimoErrore = TruncaPerSicurezza(ultimoErrore, 4000);
+                atto.EDMA_UltimoErrore = ultimoErrore;
                 atto.EDMA_DataUltimoTentativo = DateTime.Now;
                 try
                 {

@@ -41,7 +41,6 @@ namespace PortaleRegione.SDK.EDMA.Contracts
 
         Task<EdmaResponse<FascicoloPraticaOutput>> CreaInserisciPraticaAsync(
             string idSottoFascicoloPadre,
-            string codiceMetadocPadre,
             int metamoduloPadre,
             FascicoloPratica pratica);
 

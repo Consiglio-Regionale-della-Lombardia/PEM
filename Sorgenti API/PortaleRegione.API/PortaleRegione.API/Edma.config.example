@@ -1,111 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Template della configurazione dell'integrazione EDMA. Copiare questo file
-  accanto al Web.config rinominandolo in Edma.config e compilare i valori
-  reali per l'ambiente (DEV, PRE, PROD). Il file Edma.config e' escluso dal
-  versionamento tramite .gitignore.
+  accanto al Web.config rinominandolo in Edma.config e compilare i valori per
+  l'ambiente di destinazione. Il file Edma.config e' escluso dal versionamento
+  tramite .gitignore.
 
-  La root element <edmaSettings> e' il nome della sezione custom dichiarata
-  nel Web.config: NON rinominarla. Le chiavi seguono lo stesso schema di
+  La root element <edmaSettings> e' il nome della sezione custom dichiarata nel
+  Web.config: NON rinominarla. Le chiavi seguono lo stesso schema di
   <appSettings> (NameValueCollection): <add key="..." value="..." />.
 
-  I valori marcati come "(da fornire)" sono in attesa di risposta da ARIA.
+  I valori lasciati vuoti sono specifici dell'ambiente/installazione e vanno
+  forniti dal gestore della piattaforma documentale.
 -->
 <edmaSettings>
 
   <!-- ============================================================ -->
-  <!-- Connessione EDMA                                              -->
+  <!-- Connessione                                                   -->
   <!-- ============================================================ -->
-  <!-- Base URL EDMAWeb, senza /EdmaWeb/... finale (lo aggiunge la SDK).
-       DEV : https://intedmacloudsvil.lispa.local
-       PRE : https://edmarl-pre.lispa.local
-       PROD: https://edmarl-prod.lispa.local -->
+  <!-- Base URL EDMAWeb, senza /EdmaWeb/... finale (lo aggiunge la SDK) -->
   <add key="EDMA_Url" value="" />
-  <!-- Utenza applicativa fornita da ARIA -->
-  <add key="EDMA_Username" value="SYSTEM_GEDASI" />
-  <!-- Password: DEV = siresv, PRE/PROD = (da fornire) -->
+  <!-- Utenza applicativa per l'autenticazione Basic -->
+  <add key="EDMA_Username" value="" />
   <add key="EDMA_Password" value="" />
-  <!-- Se true, ogni chiamata aggiunge ?no-session=true (evita gestione cookie) -->
+  <!-- Se true, ogni chiamata aggiunge ?no-session=true (evita la gestione dei cookie) -->
   <add key="EDMA_NoSession" value="true" />
   <!-- Timeout HTTP per singola chiamata, in secondi -->
   <add key="EDMA_TimeoutSeconds" value="300" />
-  <!-- URL UI EDMAWeb, usato solo per generare link "Apri in EDMA" dall'interfaccia GEDASI -->
-  <add key="EDMA_EdmaWebUrl" value="https://crlcloud.lispadev.local" />
+  <!-- URL della UI documentale, usato solo per i link "Apri in EDMA" dall'interfaccia -->
+  <add key="EDMA_EdmaWebUrl" value="" />
 
   <!-- ============================================================ -->
-  <!-- Identita' autore e mittente Pratica                           -->
+  <!-- Identita' autore e soggetto della Pratica                     -->
   <!-- ============================================================ -->
   <!-- Tag <codAutore> nel DocumentoFile -->
-  <add key="EDMA_CodAutore" value="SYSTEM_GEDASI" />
-  <!-- CF del Consiglio Regionale Lombardia (tag <sedeSoggetto><codFiscale>) (da fornire) -->
+  <add key="EDMA_CodAutore" value="" />
+  <!-- Codice fiscale del soggetto (tag <sedeSoggetto><codFiscale>) -->
   <add key="EDMA_CF_Consiglio" value="" />
   <!-- Descrizione del soggetto della Pratica (tag <sedeSoggetto><descrizione>) -->
-  <add key="EDMA_DescrizioneSoggettoPratica" value="Consiglio Regionale della Lombardia" />
+  <add key="EDMA_DescrizioneSoggettoPratica" value="" />
 
   <!-- ============================================================ -->
-  <!-- Metadocumenti                                                 -->
+  <!-- Metadocumenti (codici definiti nella piattaforma documentale) -->
   <!-- ============================================================ -->
   <!-- PDF principale dell'atto -->
-  <add key="EDMA_CodiceMetadocumento_Atto" value="GEDASI_FILE" />
+  <add key="EDMA_CodiceMetadocumento_Atto" value="" />
   <!-- Allegati figli del PDF -->
-  <add key="EDMA_CodiceMetadocumento_Allegato" value="GEDASI_ALLEGATO" />
-  <!-- Creazione Pratica (FascicoloPratica) -->
-  <add key="EDMA_CodiceMetadocumento_Pratica" value="FascicoloPratica" />
+  <add key="EDMA_CodiceMetadocumento_Allegato" value="" />
+  <!-- Creazione Pratica -->
+  <add key="EDMA_CodiceMetadocumento_Pratica" value="" />
+
+  <!-- ============================================================ -->
+  <!-- Fascicolo principale e livello di appartenenza                -->
+  <!-- Comuni a tutte le tipologie. Vanno rispettivamente in         -->
+  <!-- <procedimento><id> e <livelloAppartenenza><id> di             -->
+  <!-- creaInserisciDocumento. Specifici dell'ambiente.              -->
+  <!-- ============================================================ -->
+  <add key="EDMA_FascicoloPrincipale_IdEdma" value="" />
+  <add key="EDMA_LivelloAppartenenza_IdEdma" value="" />
 
   <!-- ============================================================ -->
   <!-- Sotto-fascicoli per tipologia atto                            -->
-  <!-- Per ciascun tipo servono due chiavi:                          -->
-  <!--   _Titolario : codice del titolario (es. 2.6.1) - informativa -->
-  <!--   _IdEdma   : id EDMA del SottoFascicolo, usato in            -->
-  <!--               <padre><id>...</id></padre> di                  -->
-  <!--               creaInserisciDocumento (da fornire)             -->
+  <!-- Per ciascun tipo:                                             -->
+  <!--   _Titolario       : codice titolario (informativo)           -->
+  <!--   _IdEdma          : id del SottoFascicolo -> <padre><id>     -->
+  <!--   _CodProcedimento : -> <codProcedimento> del documento       -->
+  <!-- IdEdma e CodProcedimento sono specifici dell'ambiente.        -->
   <!-- ============================================================ -->
-  <add key="EDMA_Sottofascicolo_ITL_Titolario" value="2.6.1" />
+  <add key="EDMA_Sottofascicolo_ITL_Titolario" value="" />
   <add key="EDMA_Sottofascicolo_ITL_IdEdma" value="" />
-  <add key="EDMA_Sottofascicolo_ITR_Titolario" value="2.6.2" />
+  <add key="EDMA_Sottofascicolo_ITL_CodProcedimento" value="" />
+  <add key="EDMA_Sottofascicolo_ITR_Titolario" value="" />
   <add key="EDMA_Sottofascicolo_ITR_IdEdma" value="" />
-  <add key="EDMA_Sottofascicolo_MOZ_Titolario" value="2.6.3" />
+  <add key="EDMA_Sottofascicolo_ITR_CodProcedimento" value="" />
+  <add key="EDMA_Sottofascicolo_MOZ_Titolario" value="" />
   <add key="EDMA_Sottofascicolo_MOZ_IdEdma" value="" />
-  <add key="EDMA_Sottofascicolo_ODG_Titolario" value="2.6.4" />
+  <add key="EDMA_Sottofascicolo_MOZ_CodProcedimento" value="" />
+  <add key="EDMA_Sottofascicolo_ODG_Titolario" value="" />
   <add key="EDMA_Sottofascicolo_ODG_IdEdma" value="" />
-  <!-- IQT e RIS: codice titolario da chiedere -->
+  <add key="EDMA_Sottofascicolo_ODG_CodProcedimento" value="" />
   <add key="EDMA_Sottofascicolo_IQT_Titolario" value="" />
   <add key="EDMA_Sottofascicolo_IQT_IdEdma" value="" />
+  <add key="EDMA_Sottofascicolo_IQT_CodProcedimento" value="" />
   <add key="EDMA_Sottofascicolo_RIS_Titolario" value="" />
   <add key="EDMA_Sottofascicolo_RIS_IdEdma" value="" />
+  <add key="EDMA_Sottofascicolo_RIS_CodProcedimento" value="" />
 
   <!-- ============================================================ -->
   <!-- Pratica - istruttore e parametri                              -->
   <!-- ============================================================ -->
-  <!-- codPersona EDMA del Referente/Istruttore di default delle Pratiche (da fornire) -->
+  <!-- codPersona del Referente/Istruttore di default delle Pratiche -->
   <add key="EDMA_Istruttore_CodPersona" value="" />
-  <!-- codPersona EDMA del Responsabile (se distinto dall'istruttore). Vuoto = usa istruttore -->
+  <!-- codPersona del Responsabile (vuoto = usa l'istruttore) -->
   <add key="EDMA_Responsabile_CodPersona" value="" />
   <!-- Tag <anniConservazione> -->
   <add key="EDMA_AnniConservazione_Pratica" value="10" />
-  <!-- Tag <dataChiusura> della Pratica - data fittizia come da esempi ARIA -->
+  <!-- Tag <dataChiusura> della Pratica (data fittizia, formato gg/MM/aaaa) -->
   <add key="EDMA_DataChiusura_Pratica" value="09/09/2099" />
 
   <!-- ============================================================ -->
   <!-- Protocollazione                                               -->
   <!-- ============================================================ -->
-  <!-- true = usa protocollazioneApplicativa (sceglie esplicitamente la
-       strutturaProtocollante); false = usa il servizio protocolla. -->
+  <!-- true = usa protocollazioneApplicativa (struttura protocollante
+       esplicita); false = usa il servizio protocolla. -->
   <add key="EDMA_UseProtocollazioneApplicativa" value="true" />
-  <!-- Codice AOO CRL per <strutturaProtocollante> (da fornire) -->
+  <!-- Codice AOO della struttura protocollante (tag <strutturaProtocollante>) -->
   <add key="EDMA_StrutturaProtocollante" value="" />
-  <!-- Tipologia di protocollo. Valori ammessi: Arrivo, Partenza, Interno.
-       Per gli atti DASI e' Arrivo (mittente esterno = firmatari,
-       destinatario interno = UO competente). -->
+  <!-- Tipologia di protocollo. Valori ammessi: Arrivo, Partenza, Interno. -->
   <add key="EDMA_TipoProtocollo" value="Arrivo" />
   <!-- Tag <flagRiscontro> -->
   <add key="EDMA_FlagRiscontro" value="1" />
   <!-- Tag <mezzoSpedizione> -->
-  <add key="EDMA_MezzoSpedizione" value="Posta interna" />
+  <add key="EDMA_MezzoSpedizione" value="" />
   <!-- Tag <tipoDocumento> -->
-  <add key="EDMA_TipoDocumento" value="Atto DASI" />
-  <!-- EC del destinatario per competenza: UO Procedure d'aula, atti e resoconti -->
-  <add key="EDMA_CodiceEnteCompetente_Destinatario_Competenza" value="CRA0060102" />
+  <add key="EDMA_TipoDocumento" value="" />
+  <!-- EC del destinatario per competenza -->
+  <add key="EDMA_CodiceEnteCompetente_Destinatario_Competenza" value="" />
   <!-- EC dei destinatari per conoscenza (lista CSV, vuoto = nessuno) -->
   <add key="EDMA_CodiceEnteCompetente_Destinatari_PerConoscenza" value="" />
 
@@ -116,15 +125,13 @@
   <add key="EDMA_RetryMaxAttempts" value="5" />
   <!-- Scaletta di backoff in secondi (CSV) -->
   <add key="EDMA_RetryBackoffSeconds" value="60,180,600,1800,3600" />
-  <!-- Se true e tutti i retry falliscono, invia mail alla segreteria
-       (preserva il comportamento ante-EDMA). -->
+  <!-- Se true e tutti i retry falliscono, invia una mail di notifica -->
   <add key="EDMA_UseFallbackEmail" value="false" />
 
   <!-- ============================================================ -->
   <!-- Feature flag UI                                               -->
   <!-- ============================================================ -->
-  <!-- Mostra l'icona "edit" sulla casella Protocollo come rete di sicurezza
-       per atti pre-EDMA o casi anomali. -->
+  <!-- Mostra l'icona "edit" sulla casella Protocollo come rete di sicurezza -->
   <add key="EDMA_AbilitaEditManualeProtocollo" value="true" />
 
 </edmaSettings>

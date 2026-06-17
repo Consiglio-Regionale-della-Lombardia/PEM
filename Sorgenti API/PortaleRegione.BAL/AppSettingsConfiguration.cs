@@ -109,21 +109,36 @@ namespace PortaleRegione.BAL
         // -- Metadocumenti --
         public static string EDMA_CodiceMetadocumento_Atto => EdmaSettings.GetOrDefault("EDMA_CodiceMetadocumento_Atto", "GEDASI_FILE");
         public static string EDMA_CodiceMetadocumento_Allegato => EdmaSettings.GetOrDefault("EDMA_CodiceMetadocumento_Allegato", "GEDASI_ALLEGATO");
-        public static string EDMA_CodiceMetadocumento_Pratica => EdmaSettings.GetOrDefault("EDMA_CodiceMetadocumento_Pratica", "FascicoloPratica");
+        public static string EDMA_CodiceMetadocumento_Pratica => EdmaSettings.GetOrDefault("EDMA_CodiceMetadocumento_Pratica", "Pratica_Gen_CRL");
+
+        // -- Fascicolo principale e livello di appartenenza (id per ambiente) --
+        // Comuni a tutte le tipologie: vanno rispettivamente in <procedimento><id>
+        // e <livelloAppartenenza><id> di creaInserisciDocumento.
+        public static string EDMA_FascicoloPrincipale_IdEdma => EdmaSettings.Get("EDMA_FascicoloPrincipale_IdEdma");
+        public static string EDMA_LivelloAppartenenza_IdEdma => EdmaSettings.Get("EDMA_LivelloAppartenenza_IdEdma");
 
         // -- Sotto-fascicoli per tipologia atto --
+        // _Titolario : codice titolario (informativo); _IdEdma : id del SottoFascicolo
+        // (tag <padre><id>); _CodProcedimento : codProcedimento del SottoFascicolo
+        // (tag <codProcedimento> del documento). IdEdma e CodProcedimento variano per ambiente.
         public static string EDMA_Sottofascicolo_ITL_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_ITL_Titolario");
         public static string EDMA_Sottofascicolo_ITL_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_ITL_IdEdma");
+        public static string EDMA_Sottofascicolo_ITL_CodProcedimento => EdmaSettings.Get("EDMA_Sottofascicolo_ITL_CodProcedimento");
         public static string EDMA_Sottofascicolo_ITR_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_ITR_Titolario");
         public static string EDMA_Sottofascicolo_ITR_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_ITR_IdEdma");
+        public static string EDMA_Sottofascicolo_ITR_CodProcedimento => EdmaSettings.Get("EDMA_Sottofascicolo_ITR_CodProcedimento");
         public static string EDMA_Sottofascicolo_MOZ_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_MOZ_Titolario");
         public static string EDMA_Sottofascicolo_MOZ_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_MOZ_IdEdma");
+        public static string EDMA_Sottofascicolo_MOZ_CodProcedimento => EdmaSettings.Get("EDMA_Sottofascicolo_MOZ_CodProcedimento");
         public static string EDMA_Sottofascicolo_ODG_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_ODG_Titolario");
         public static string EDMA_Sottofascicolo_ODG_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_ODG_IdEdma");
+        public static string EDMA_Sottofascicolo_ODG_CodProcedimento => EdmaSettings.Get("EDMA_Sottofascicolo_ODG_CodProcedimento");
         public static string EDMA_Sottofascicolo_IQT_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_IQT_Titolario");
         public static string EDMA_Sottofascicolo_IQT_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_IQT_IdEdma");
+        public static string EDMA_Sottofascicolo_IQT_CodProcedimento => EdmaSettings.Get("EDMA_Sottofascicolo_IQT_CodProcedimento");
         public static string EDMA_Sottofascicolo_RIS_Titolario => EdmaSettings.Get("EDMA_Sottofascicolo_RIS_Titolario");
         public static string EDMA_Sottofascicolo_RIS_IdEdma => EdmaSettings.Get("EDMA_Sottofascicolo_RIS_IdEdma");
+        public static string EDMA_Sottofascicolo_RIS_CodProcedimento => EdmaSettings.Get("EDMA_Sottofascicolo_RIS_CodProcedimento");
 
         // -- Pratica - istruttore e parametri --
         public static string EDMA_Istruttore_CodPersona => EdmaSettings.Get("EDMA_Istruttore_CodPersona");

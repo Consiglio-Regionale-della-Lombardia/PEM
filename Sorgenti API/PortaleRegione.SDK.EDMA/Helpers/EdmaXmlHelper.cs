@@ -153,15 +153,15 @@ namespace PortaleRegione.SDK.EDMA.Helpers
         ///     &lt;documento&gt; descrive la pratica da creare.
         /// </summary>
         public static string GeneraCreaInserisciPraticaXml(string idSottoFascicoloPadre,
-            string codiceMetadocPadre, int metamoduloPadre, FascicoloPratica pratica)
+            int metamoduloPadre, FascicoloPratica pratica)
         {
+            // Il <padre> punta al SottoFascicolo titolario gia' esistente: per
+            // creaInserisciDocumento bastano metamodulo (100127 = SottoFascicolo)
+            // e id, senza metadocumento (cfr. esempio ufficiale ARIA in
+            // Documentazione/EDMA).
             var padre = new XElement("padre",
                 new XAttribute("class", "it.lispa.edma.erato.po.DocumentoBase"),
                 new XElement("metamodulo", metamoduloPadre),
-                new XElement("metadocumento",
-                    new XAttribute("class", "it.lispa.edma.erato.po.Metadocumento"),
-                    new XElement("codice", codiceMetadocPadre ?? string.Empty)
-                ),
                 new XElement("id", idSottoFascicoloPadre)
             );
 
@@ -202,14 +202,25 @@ namespace PortaleRegione.SDK.EDMA.Helpers
                         ? null
                         : new XElement("codProcedimento", pratica.ProcedimentoCodice)));
 
+            // documentoBase: stato 1 = aperto; metadocumentoImpostazione vuoto
+            // come da esempio ufficiale ARIA.
             var documentoBase = new XElement("documentoBase",
                 new XAttribute("class", "it.lispa.edma.erato.po.DocumentoBase"),
+                new XElement("stato", 1),
                 new XElement("metamodulo", pratica.Metamodulo),
                 new XElement("metadocumento",
                     new XAttribute("class", "it.lispa.edma.erato.po.Metadocumento"),
-                    new XElement("codice", pratica.MetadocumentoCodice ?? string.Empty)));
+                    new XElement("codice", pratica.MetadocumentoCodice ?? string.Empty),
+                    new XElement("metadocumentoImpostazione")));
             documento.Add(documentoBase);
 
+            // Attributi opzionali (chiave/valore) in forma di lista di entry,
+            // come da spec EDMA. ATTENZIONE: se valorizzati in fase di
+            // creazione, EDMA richiede anche l'id del metadocumento dentro
+            // <documentoBase> (cfr. SIS.EDMA - Fascicolazione v5, "Caricare un
+            // Metadocumento"), altrimenti la deserializzazione XStream lato
+            // server fallisce con NullPointerException sul tag attributi. Per il
+            // flusso DASI gli attributi non vengono valorizzati.
             if (pratica.Attributi != null && pratica.Attributi.Count > 0)
             {
                 var attributi = new XElement("attributi");
