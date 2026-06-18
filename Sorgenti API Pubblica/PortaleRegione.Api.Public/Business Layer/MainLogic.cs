@@ -277,6 +277,13 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
                 var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);
                 var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+
+                // #1618 - allineamento a #1521: il tipo di risposta fornita va esposto solo se la
+                // risposta e' stata effettivamente fornita dall'organo (almeno una risposta con data
+                // valorizzata). In caso contrario il ws restituisce stringa vuota.
+                if (!risposteInDb.Any(r => r.Data.HasValue))
+                    tipo_risposta_fornita = string.Empty;
+
                 var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
                 {
                     data = r.Data.HasValue ? r.Data.Value.ToString("dd/MM/yyyy") : string.Empty,
