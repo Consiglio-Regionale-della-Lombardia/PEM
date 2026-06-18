@@ -377,6 +377,24 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 // In sua assenza tutti i campi correlati (dcrl, dcr, dcrc) devono tornare vuoti, per evitare
                 // valori spuri come "XII/0" o "/0" derivanti dai default (legislatura impostata, numero a 0).
                 var dcrPresente = attoInDb.DCR.HasValue && attoInDb.DCR.Value > 0;
+
+                // #1619 - per ITL e ITR il campo data_chiusura_iter espone la data della risposta fornita
+                // dall'organo interrogato/interpellato. In presenza di piu' risposte si considera la prima
+                // ricevuta (data piu' antica). In assenza di risposta il comportamento resta invariato
+                // (data di chiusura iter dell'atto).
+                var data_chiusura_iter = attoInDb.DataChiusuraIter.HasValue
+                    ? attoInDb.DataChiusuraIter.Value.ToString("dd/MM/yyyy")
+                    : string.Empty;
+                if (attoInDb.Tipo == (int)TipoAttoEnum.ITL || attoInDb.Tipo == (int)TipoAttoEnum.ITR)
+                {
+                    var primaRisposta = risposteInDb
+                        .Where(r => r.Data.HasValue)
+                        .OrderBy(r => r.Data.Value)
+                        .FirstOrDefault();
+                    if (primaRisposta != null)
+                        data_chiusura_iter = primaRisposta.Data.Value.ToString("dd/MM/yyyy");
+                }
+
                 var attoDto = new AttoDasiPublicDto
                 {
                     uidAtto = attoInDb.UIDAtto,
@@ -392,9 +410,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     tipo_risposta_richiesta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
                     tipo_risposta_fornita = tipo_risposta_fornita,
                     area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
-                    data_chiusura_iter = attoInDb.DataChiusuraIter.HasValue
-                        ? attoInDb.DataChiusuraIter.Value.ToString("dd/MM/yyyy")
-                        : string.Empty,
+                    data_chiusura_iter = data_chiusura_iter, // #1619
                     data_annunzio = attoInDb.DataAnnunzio.HasValue
                         ? attoInDb.DataAnnunzio.Value.ToString("dd/MM/yyyy")
                         : string.Empty,
