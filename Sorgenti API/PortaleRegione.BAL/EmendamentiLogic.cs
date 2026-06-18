@@ -362,6 +362,8 @@ namespace PortaleRegione.BAL
                 em.DataCreazione = DateTime.Now;
                 em.OrdinePresentazione = 0;
                 em.id_gruppo = persona.Gruppo.id_gruppo;
+                // #1622 - carta bianca: salva la scelta di nascondere il gruppo
+                em.NascondiGruppo = emendamentoDto.NascondiGruppo;
                 _unitOfWork.Emendamenti.Add(em);
                 await _unitOfWork.CompleteAsync();
 
@@ -431,6 +433,9 @@ namespace PortaleRegione.BAL
                 _mapper.Map(updateDto, em);
 
                 em.Tags = model.Tags;
+
+                // #1622 - carta bianca: il flag non transita dal light dto, va assegnato a parte
+                em.NascondiGruppo = model.NascondiGruppo;
 
                 if (em.IDStato < (int)StatiEnum.Depositato)
                 {

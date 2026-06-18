@@ -186,6 +186,9 @@ namespace PortaleRegione.DTO.Domain
         [DisplayName("Tags")]
         public string Tags { get; set; } = "[]";
 
+        // #1622 - carta bianca: nasconde il gruppo politico del proponente nell'intestazione dell'atto
+        public bool NascondiGruppo { get; set; } = false;
+
         public EmendamentoExtraLightDto toLight()
         {
             return new EmendamentoExtraLightDto

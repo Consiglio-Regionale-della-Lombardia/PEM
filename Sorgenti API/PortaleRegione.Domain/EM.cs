@@ -190,6 +190,9 @@ namespace PortaleRegione.Domain
         public string PathStampa { get; set; }
         public bool StampaValida { get; set; } = false;
 
+        // #1622 - carta bianca: nasconde il gruppo politico del proponente nell'intestazione dell'atto
+        public bool NascondiGruppo { get; set; } = false;
+
         public static implicit operator EM(EmendamentiDto dto)
         {
             return new EM

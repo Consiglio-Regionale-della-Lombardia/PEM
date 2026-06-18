@@ -514,7 +514,9 @@ namespace PortaleRegione.BAL
             body = body.Replace("{DepositatoEMView}", testo_deposito);
 
             body = body.Replace("{STATO}", emendamento.STATI_EM.Stato.ToUpper());
-            body = body.Replace("{GRUPPO_POLITICO}", emendamento.gruppi_politici.nome_gruppo);
+            // #1622 - carta bianca: se richiesto, l'intestazione non riporta il gruppo politico
+            body = body.Replace("{GRUPPO_POLITICO}",
+                emendamento.NascondiGruppo ? "" : emendamento.gruppi_politici.nome_gruppo);
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
             
             var logoBase64 = PdfCssProvider.GetLogoBase64();
