@@ -19,6 +19,7 @@
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.DTO.Routes;
 
 namespace PortaleRegione.Gateway
@@ -32,6 +33,13 @@ namespace PortaleRegione.Gateway
             var lst = JsonConvert.DeserializeObject<string>(result);
 
             return lst;
+        }
+
+        // #1620 - scarica il PDF del testo dell'atto dalla pagina pubblica (anonima)
+        public async Task<FileResponse> GetPdf(Guid id, bool approvato = false)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Public.ViewDASI_PDF.Replace("{id}", id.ToString()).Replace("{approvato}", approvato.ToString())}";
+            return await GetFile(requestUrl, string.Empty);
         }
     }
 }

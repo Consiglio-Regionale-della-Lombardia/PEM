@@ -369,6 +369,7 @@ namespace PortaleRegione.DTO.Routes
 
             public const string ViewEM = Base + "/em/{id}";
             public const string ViewDASI = Base + "/dasi/{id}/{approvato}";
+            public const string ViewDASI_PDF = Base + "/dasi/{id}/{approvato}/pdf"; // #1620
         }
 
         public static class Ruoli

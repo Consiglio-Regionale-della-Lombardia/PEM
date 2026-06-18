@@ -4248,6 +4248,58 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Genera il PDF del testo dell'atto per la pagina pubblica (anonima). #1620
+        ///     A differenza della stampa immediata interna, l'allegato parte integrante
+        ///     viene incluso solo se marcato come pubblico.
+        /// </summary>
+        /// <param name="atto">Atto da stampare</param>
+        /// <param name="persona">Utente corrente (puo' essere nullo su pagina pubblica)</param>
+        /// <param name="approvato">Variante testo: true = trattazione/approvato, false = originale</param>
+        public async Task<HttpResponseMessage> DownloadPDFIstantaneoPubblico(ATTI_DASI atto, PersonaDto persona,
+            bool approvato)
+        {
+            var content = await PDFIstantaneoPubblico(atto, persona, approvato);
+            var res = ComposeFileResponse(content,
+                $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}.pdf");
+            return res;
+        }
+
+        internal async Task<byte[]> PDFIstantaneoPubblico(ATTI_DASI atto, PersonaDto persona, bool approvato)
+        {
+            var attoDto = await GetAttoDto(atto.UIDAtto);
+            var listAttachments = new List<string>();
+
+            // #1620 - includi l'allegato parte integrante solo se marcato come pubblico
+            var allegati = await _unitOfWork.DASI.GetDocumento(atto.UIDAtto, TipoDocumentoEnum.TESTO_ALLEGATO);
+            var allegatoPubblico = allegati.FirstOrDefault(d => d.Pubblica);
+            if (allegatoPubblico != null && !string.IsNullOrEmpty(allegatoPubblico.Path))
+            {
+                var complete_path = Path.Combine(
+                    AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                    Path.GetFileName(allegatoPubblico.Path));
+                listAttachments.Add(complete_path);
+            }
+
+            // Stesso testo mostrato a video sulla pagina pubblica (approvato = privacy),
+            // ma reso come la stampa immediata (QR e logo attivi).
+            var body = await GetBodyDASI(atto.UIDAtto, persona, TemplateTypeEnum.PDF, approvato);
+
+            try
+            {
+                var stamper = new PdfStamper_Playwright();
+                return await stamper.CreaPDFInMemory(
+                    body,
+                    $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}",
+                    listAttachments);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Scrive manualmente il campo Protocollo dell'atto, bypassando il
         ///     flusso EDMA. Pensato come rete di sicurezza per atti pre-EDMA o
         ///     casi anomali in cui la segreteria deve allineare a mano la

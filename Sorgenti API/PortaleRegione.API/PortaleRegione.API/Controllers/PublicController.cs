@@ -110,6 +110,37 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per scaricare in PDF il testo dell'atto pubblico (incluso
+        ///     l'allegato parte integrante, se pubblico). #1620
+        /// </summary>
+        /// <param name="id">Guid del QR code dell'atto</param>
+        /// <param name="approvato">Variante del testo: true = trattazione/approvato, false = originale</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.Public.ViewDASI_PDF)]
+        public async Task<IHttpActionResult> ViewDASI_PDF(Guid id, bool approvato)
+        {
+            try
+            {
+                var atto = await _dasiLogic.Get_ByQR(id);
+                if (atto == null)
+                {
+                    return NotFound();
+                }
+
+                var response = ResponseMessage(
+                    await _dasiLogic.DownloadPDFIstantaneoPubblico(atto, CurrentUser, approvato));
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                Log.Error("ViewDASI_PDF", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Costruttore
         /// </summary>
         /// <param name="unitOfWork"></param>

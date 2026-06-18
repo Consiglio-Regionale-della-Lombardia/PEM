@@ -18,11 +18,13 @@
 
 using System.Threading.Tasks;
 using System;
+using PortaleRegione.DTO.Response;
 
 namespace PortaleRegione.Gateway
 {
     public interface IDASIGateway_Pubblico
     {
         Task<string> GetBody(Guid id, bool approvato = false);
+        Task<FileResponse> GetPdf(Guid id, bool approvato = false);
     }
 }
