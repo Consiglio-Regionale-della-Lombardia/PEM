@@ -2777,17 +2777,20 @@
                 success: function (data) {
                     waiting(false);
                     if (data && data.Success) {
-                        if (data.Segnatura) {
+                        // La casella "Protocollo" mostra il numero pratica EDMA
+                        // (cio' che la segreteria chiama protocollo); la segnatura
+                        // resta informativa nel toast e viene riportata sul PDF.
+                        if (data.NumeroPratica) {
                             var $input = $('#Atto_Protocollo');
-                            $input.val(data.Segnatura);
+                            $input.val(data.NumeroPratica);
                             // Materialize: forza il label "active" quando
                             // popoliamo l'input via JavaScript, altrimenti
                             // resta sovrapposto al valore.
                             $input.siblings('label').addClass('active');
                         }
                         var html = 'Atto protocollato' +
-                            (data.Segnatura ? ': <b>' + data.Segnatura + '</b>' : '') +
-                            (data.NumeroPratica ? ' &middot; pratica ' + data.NumeroPratica : '');
+                            (data.NumeroPratica ? ' &middot; protocollo <b>' + data.NumeroPratica + '</b>' : '') +
+                            (data.Segnatura ? ' (segnatura ' + data.Segnatura + ')' : '');
                         M.toast({ html: html, classes: 'green', displayLength: 6000 });
                         btn.attr('data-tooltip', 'Atto gia\' protocollato');
                     } else {

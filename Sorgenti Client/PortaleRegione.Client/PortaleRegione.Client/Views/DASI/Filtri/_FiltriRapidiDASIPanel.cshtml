@@ -1390,6 +1390,20 @@ else
      Iscrivi
  </button>`;
                     }
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Protocollo)') {
+                    // Colonna Protocollo: se valorizzato mostra il numero pratica;
+                    // se vuoto, l'utente e' segreteria e l'atto e' in uno stato
+                    // protocollabile, mostra il pulsante "Protocolla" (come "Iscrivi").
+                    if (result.Protocollo) {
+                        td.innerHTML = result.Protocollo;
+                    } else if (responseData.CurrentUser && responseData.CurrentUser.IsSegreteriaAssemblea
+                        && (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO)
+                            || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)
+                            || result.IDStato == @Html.Raw((int)StatiAttoEnum.COMPLETATO))) {
+                        td.innerHTML = `<button type="button" role="button" class="btn-flat teal-text tooltipped" data-tooltip="Invia al protocollo EDMA" aria-label="Invia al protocollo EDMA" onclick="ProtocollaDASI('${result.UIDAtto}', '${result.Display}')">
+     <i class="material-icons tiny left">send</i>Protocolla
+ </button>`;
+                    }
                 } else {
                     if (dateRegex.test(result[col.propertyName])) {
                         const match = result[col.propertyName].match(dateRegex);
@@ -1478,6 +1492,55 @@ else
             if (element.textContent.includes(testo)) {
                 element.querySelector('span').textContent = valore;
             }
+        });
+    }
+
+    // Lancia la protocollazione EDMA dell'atto direttamente dalla griglia,
+    // usando lo stesso endpoint del pulsante nel dettaglio
+    // (POST ~/DASI/protocolla/{id}). In caso di successo ricarica la griglia;
+    // in caso di errore mostra il messaggio restituito da EDMA.
+    function ProtocollaDASI(uid, display) {
+        if (!uid) return;
+        swal({
+            title: "Conferma protocollazione",
+            text: "Verranno create la pratica e il protocollo su EDMA per l'atto " + (display || '') + ". Procedere?",
+            icon: "warning",
+            buttons: ["Annulla", "Protocolla"]
+        }).then(function (answer) {
+            if (!answer) return;
+
+            var url = '@Url.Content("~/DASI/protocolla/")' + uid;
+            waiting(true, 'Protocollazione EDMA in corso...');
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                success: function (data) {
+                    waiting(false);
+                    if (data && data.Success) {
+                        var html = 'Atto protocollato' +
+                            (data.NumeroPratica ? ' &middot; protocollo <b>' + data.NumeroPratica + '</b>' : '');
+                        M.toast({ html: html, classes: 'green', displayLength: 5000 });
+                        setTimeout(function () { location.reload(); }, 1200);
+                    } else {
+                        var messaggio = (data && (data.Messaggio || data.Message)) ||
+                            'Errore durante la protocollazione EDMA.';
+                        swal({ title: 'Errore protocollazione EDMA', text: messaggio, icon: 'error', buttons: { ok: 'Chiudi' } });
+                    }
+                },
+                error: function (err) {
+                    waiting(false);
+                    var payload = null;
+                    if (err && err.responseJSON) {
+                        payload = err.responseJSON;
+                    } else if (err && err.responseText) {
+                        try { payload = JSON.parse(err.responseText); } catch (_) { /* ignore */ }
+                    }
+                    var messaggio = (payload && (payload.Messaggio || payload.Message)) ||
+                        'Errore durante la protocollazione EDMA.';
+                    swal({ title: 'Errore protocollazione EDMA', text: messaggio, icon: 'error', buttons: { ok: 'Chiudi' } });
+                }
+            });
         });
     }
 

@@ -212,8 +212,10 @@ namespace PortaleRegione.BAL
 
                     atto.EDMA_IdProtocollo = resp.Data.IdScheda;
                     atto.EDMA_Segnatura = resp.Data.Segnatura ?? string.Empty;
-                    if (!string.IsNullOrEmpty(atto.EDMA_Segnatura))
-                        atto.Protocollo = atto.EDMA_Segnatura;
+                    // La segreteria gestisce come "Protocollo" il numero pratica
+                    // EDMA; la segnatura (EDMA_Segnatura) va invece riportata sul PDF.
+                    if (!string.IsNullOrEmpty(atto.EDMA_NumeroPratica))
+                        atto.Protocollo = atto.EDMA_NumeroPratica;
                     atto.Inviato_Al_Protocollo = true;
                     atto.DataInvioAlProtocollo = DateTime.Now;
                 }
