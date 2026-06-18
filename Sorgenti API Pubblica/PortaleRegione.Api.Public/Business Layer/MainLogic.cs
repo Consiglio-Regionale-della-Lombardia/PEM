@@ -365,6 +365,11 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     ? attoInDb.Timestamp.Value.ToString("dd/MM/yyyy")
                     : CryptoHelper.DecryptString(attoInDb.DataPresentazione,
                         AppSettingsConfigurationHelper.masterKey);
+
+                // #1617 - la deliberazione si considera presente solo se il numero DCR è valorizzato (> 0).
+                // In sua assenza tutti i campi correlati (dcrl, dcr, dcrc) devono tornare vuoti, per evitare
+                // valori spuri come "XII/0" o "/0" derivanti dai default (legislatura impostata, numero a 0).
+                var dcrPresente = attoInDb.DCR.HasValue && attoInDb.DCR.Value > 0;
                 var attoDto = new AttoDasiPublicDto
                 {
                     uidAtto = attoInDb.UIDAtto,
@@ -399,9 +404,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     risposte = risposte,
                     documenti = documenti,
                     abbinamenti = abbinamenti,
-                    dcrl = string.IsNullOrEmpty(attoInDb.DCRL) ? string.Empty : attoInDb.DCRL, // #1549
-                    dcr = attoInDb.DCR.HasValue ? attoInDb.DCR.ToString() : string.Empty,
-                    dcrc = attoInDb.DCCR.HasValue ? attoInDb.DCCR.ToString() : string.Empty,
+                    dcrl = dcrPresente && !string.IsNullOrEmpty(attoInDb.DCRL) ? attoInDb.DCRL : string.Empty, // #1617 (era #1549)
+                    dcr = dcrPresente ? attoInDb.DCR.Value.ToString() : string.Empty, // #1617
+                    dcrc = dcrPresente && attoInDb.DCCR.HasValue && attoInDb.DCCR.Value > 0 ? attoInDb.DCCR.Value.ToString() : string.Empty, // #1617
                     firme = firme,
                     burl = string.IsNullOrEmpty(attoInDb.BURL) ? string.Empty : attoInDb.BURL, // #1427
                     note = note,
