@@ -300,10 +300,19 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
                 }).ToList();
                 var documentiInDb = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
+                // #1621 - per gli atti di sindacato (ITL, ITR, IQT) il titolo del documento di risposta
+                // riporta le informazioni della risposta al posto del valore statico "Testo risposta".
+                var attoDiSindacato = attoInDb.Tipo == (int)TipoAttoEnum.ITL
+                                      || attoInDb.Tipo == (int)TipoAttoEnum.ITR
+                                      || attoInDb.Tipo == (int)TipoAttoEnum.IQT;
                 var documenti = documentiInDb.Select(d => new AttiDocumentiPublicDto
                 {
                     Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
-                    Titolo = d.Titolo,
+                    Titolo = attoDiSindacato
+                             && (d.Tipo == (int)TipoDocumentoEnum.RISPOSTA ||
+                                 d.Tipo == (int)TipoDocumentoEnum.TESTO_RISPOSTA)
+                        ? GetTitoloDocumentoRisposta(d, risposteInDb, attoInDb) // #1621
+                        : d.Titolo,
                     Link = $"{hostUrl}/{ApiRoutes.ScaricaDocumento}?path={d.Path.Replace('\\', '/')}", // #1429
                     TipoEnum = (TipoDocumentoEnum)d.Tipo
                 }).ToList();
@@ -458,6 +467,44 @@ namespace PortaleRegione.Api.Public.Business_Layer
             {
                 Log.Error(currentMethod, e);
                 throw e;
+            }
+        }
+
+        /// <summary>
+        ///     #1621 - Costruisce il titolo del documento di risposta per gli atti di sindacato
+        ///     (ITL, ITR, IQT), riportando le informazioni della risposta (tipo, assessore, eventuale
+        ///     commissione) al posto del valore statico "Testo risposta".
+        /// </summary>
+        private static string GetTitoloDocumentoRisposta(ATTI_DOCUMENTI documento, List<ATTI_RISPOSTE> risposte,
+            ATTI_DASI atto)
+        {
+            var rispostaCollegata = risposte.FirstOrDefault(r => r.UIDDocumento == documento.Uid);
+            if (rispostaCollegata == null)
+                return documento.Titolo;
+
+            var assessore = rispostaCollegata.DescrizioneOrgano ?? string.Empty;
+
+            // IQT: nessun dettaglio sul tipo, solo l'assessore che ha fornito la risposta.
+            if (atto.Tipo == (int)TipoAttoEnum.IQT)
+                return $"Testo della risposta fornita da {assessore}";
+
+            switch ((TipoRispostaEnum)atto.IDTipo_Risposta_Effettiva.GetValueOrDefault(0))
+            {
+                case TipoRispostaEnum.ORALE:
+                    return $"Testo della risposta orale fornita da {assessore}";
+                case TipoRispostaEnum.SCRITTA:
+                    return $"Testo della risposta scritta fornita da {assessore}";
+                case TipoRispostaEnum.COMMISSIONE:
+                    // Per le risposte in commissione l'organo della risposta collegata e' la commissione,
+                    // mentre gli assessori che hanno risposto sono nelle risposte associate.
+                    var assessoriAssociati = string.Join(", ",
+                        risposte.Where(r => r.UIDRispostaAssociata == rispostaCollegata.Uid)
+                            .Select(r => r.DescrizioneOrgano));
+                    return string.IsNullOrWhiteSpace(assessoriAssociati)
+                        ? $"Testo della risposta fornita in {assessore}"
+                        : $"Testo della risposta fornita da {assessoriAssociati} in {assessore}";
+                default:
+                    return documento.Titolo;
             }
         }
 
