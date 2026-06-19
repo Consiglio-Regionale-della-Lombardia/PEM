@@ -492,9 +492,11 @@ namespace PortaleRegione.BAL
 
             var allegato_generico = new StringBuilder();
 
+            // #1624 - nel corpo dell'atto vanno inclusi solo gli allegati parte integrante
+            // marcati come pubblici: UOLA puo' inibirne la pubblicazione togliendo la spunta.
             if (atto.Documenti.Any())
-                if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
-                    foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
+                if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO && d.Pubblico))
+                    foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO && d.Pubblico))
                         allegato_generico.AppendLine(
                             $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a class='blue-text' href='{doc.Link}' target='_blank'>SCARICA - {doc.Titolo}</a></td></tr>");
 

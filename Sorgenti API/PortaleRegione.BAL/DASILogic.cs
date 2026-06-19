@@ -6056,6 +6056,11 @@ namespace PortaleRegione.API.Controllers
         public async Task Rimuovi_Documento(AttiDocumentiDto request, PersonaDto currentUser)
         {
             var doc = await _unitOfWork.DASI.GetDocumento(request.Uid);
+            // #1624 - se rimuovo un allegato parte integrante gia' pubblicato devo ricertificare
+            // l'atto: rilevo tipo e stato di pubblicazione prima del soft-delete.
+            var eraAllegatoPubblicato =
+                (TipoDocumentoEnum)doc.Tipo == TipoDocumentoEnum.TESTO_ALLEGATO && doc.Pubblica;
+            var uidAttoDoc = doc.UIDAtto;
             doc.UIDUtenteModifica = currentUser.UID_persona;
             doc.DataModifica = DateTime.Now;
             doc.Eliminato = true;
@@ -6086,6 +6091,15 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
 
+            // #1624 - la rimozione di un allegato parte integrante pubblicato cambia il
+            // contenuto pubblicato: rigenero il corpo certificato dell'atto.
+            if (eraAllegatoPubblicato)
+            {
+                var atto = await _unitOfWork.DASI.Get(uidAttoDoc);
+                if (atto != null)
+                    await RicertificaAttoPerAllegato(atto, currentUser);
+            }
+
             /*var pathFile = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{doc.Path}";
 
             if (File.Exists(pathFile))
@@ -6105,6 +6119,58 @@ namespace PortaleRegione.API.Controllers
             doc.Pubblica = !doc.Pubblica;
             doc.UIDUtenteModifica = currentUser.UID_persona;
             doc.DataModifica = DateTime.Now;
+            await _unitOfWork.CompleteAsync();
+
+            // #1624 - pubblicare o inibire un allegato parte integrante deve avere effetto
+            // sulla visualizzazione e sulla stampa: se l'atto e' gia' certificato si rigenera
+            // il corpo certificato (il testo dell'atto e le firme restano invariati).
+            if ((TipoDocumentoEnum)doc.Tipo == TipoDocumentoEnum.TESTO_ALLEGATO)
+            {
+                var atto = await _unitOfWork.DASI.Get(doc.UIDAtto);
+                if (atto != null)
+                    await RicertificaAttoPerAllegato(atto, currentUser);
+            }
+        }
+
+        /// <summary>
+        ///     #1624 - Rigenera e ri-cifra il corpo certificato di un atto a seguito di un
+        ///     intervento di UOLA su un allegato parte integrante (pubblicazione, inibizione o
+        ///     rimozione). Il testo dell'atto non cambia e le firme restano valide: si aggiorna
+        ///     solo l'elenco degli allegati pubblicati nel corpo. Riusa la stessa meccanica di
+        ///     ri-certificazione gia' adottata altrove (re-crypt #527), con la chiave dell'atto.
+        ///     Se l'atto e' gia' presentato/in trattazione si invalida la stampa, cosi' il modulo
+        ///     asincrono archivia e rigenera il PDF aggiornato (stesso pattern usato per le firme).
+        /// </summary>
+        private async Task RicertificaAttoPerAllegato(ATTI_DASI atto, PersonaDto currentUser)
+        {
+            // Atto non ancora certificato: il corpo e' gia' generato "vivo" e filtrato, niente da fare.
+            if (string.IsNullOrEmpty(atto.Atto_Certificato))
+                return;
+
+            var body = await GetBodyDASI(atto.UIDAtto, currentUser, TemplateTypeEnum.FIRMA);
+            atto.Atto_Certificato = CryptoHelper.EncryptString(body, BALHelper.Decrypt(atto.Hash));
+
+            // Backup/rigenerazione della stampa solo se esiste gia' un PDF ufficiale da riallineare.
+            if (atto.IDStato == (int)StatiAttoEnum.PRESENTATO ||
+                atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE)
+            {
+                atto.StampaValida = false;
+                _unitOfWork.Stampe.Add(new STAMPE
+                {
+                    UIDStampa = Guid.NewGuid(),
+                    UIDUtenteRichiesta = currentUser.UID_persona,
+                    CurrentRole = (int)currentUser.CurrentRole,
+                    DataRichiesta = DateTime.Now,
+                    UIDAtto = atto.UIDAtto,
+                    Da = 1,
+                    A = 1,
+                    Ordine = 1,
+                    Notifica = true,
+                    Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                    DASI = true
+                });
+            }
+
             await _unitOfWork.CompleteAsync();
         }
 
