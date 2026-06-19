@@ -49,6 +49,17 @@
                 </p>
             </div>
         </div>
+        @* #1623: estrazione massiva in Word con un file per atto (ZIP), disponibile solo per il formato WORD *@
+        <div class="row" id="file-separati-panel" style="display: none;">
+            <div class="col s12">
+                <p>
+                    <label>
+                        <input type="checkbox" id="chk-file-separati"/>
+                        <span>Genera un file separato per ogni atto (ZIP)</span>
+                    </label>
+                </p>
+            </div>
+        </div>
         <div class="row" id="extraOptions-panel" style="display: none;">
             <div class="input-field col s6">
                 <select name="coverType">
@@ -98,6 +109,15 @@
 			} else {
 				extraOptions.style.display = 'none';
 			}
+
+		// #1623: il flag "un file per atto (ZIP)" ha senso solo per il formato WORD
+		var fileSeparatiPanel = document.getElementById('file-separati-panel');
+		if (exportFormat == '@Html.Raw((int)ExportFormatEnum.WORD)') {
+			fileSeparatiPanel.style.display = 'block';
+		} else {
+			fileSeparatiPanel.style.display = 'none';
+			document.getElementById('chk-file-separati').checked = false;
+		}
 
 		var columnsOptions = document.getElementById('columns-select-panel');
 		if (exportFormat == '@Html.Raw((int)ExportFormatEnum.EXCEL_SITUAZIONE)'
@@ -207,6 +227,8 @@
 		request.dataviewtype_template = document.querySelector('select[name="dataViewType_Templates"]').value;
 		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
 		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
+		// #1623: se attivo (solo WORD) il report genera un file per atto raccolto in uno ZIP
+		request.file_separati = document.getElementById('chk-file-separati').checked;
 
         var url = '@Url.Action("GeneraReport", "DASI")';
 

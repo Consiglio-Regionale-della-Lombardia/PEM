@@ -4768,6 +4768,12 @@ namespace PortaleRegione.API.Controllers
                 case ExportFormatEnum.WORD:
                     try
                     {
+                        // #1623: con il flag attivo si produce un file Word per ogni atto filtrato,
+                        // raccolti in un unico ZIP (es. generazione massiva delle DCR), invece del
+                        // singolo documento riepilogativo.
+                        if (model.file_separati)
+                            return await GeneraZipWord(model, currentUser);
+
                         filePath += ".docx";
                         var bodyWord = await ComposeReportBodyFromTemplate(model, currentUser);
                         CreateWordReport(filePath, bodyWord, (WordSizeEnum)model.wordsize);
@@ -4826,6 +4832,67 @@ namespace PortaleRegione.API.Controllers
 
             var pdfs = await GetPDF(attiList);
             return ResponseZip(pdfs);
+        }
+
+        /// <summary>
+        ///     #1623: genera un file Word per ogni atto che soddisfa i filtri (riusando lo stesso
+        ///     template scelto nel report) e li raccoglie in un unico archivio ZIP. Usato, ad esempio,
+        ///     per estrarre in blocco le DCR degli atti presenti in griglia.
+        /// </summary>
+        private async Task<HttpResponseMessage> GeneraZipWord(ReportDto model, PersonaDto currentUser)
+        {
+            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
+            var request = new BaseRequest<AttoDASIDto>
+            {
+                filtro = Utility.ParseFilterDasi(filtri),
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+            };
+
+            if (!string.IsNullOrEmpty(model.sorting))
+            {
+                var ordinamento = JsonConvert.DeserializeObject<List<SortingInfo>>(model.sorting);
+                request.dettagliOrdinamento = ordinamento;
+            }
+
+            var idsList = await GetSoloIds(request, currentUser, null);
+
+            var files = new List<FileModel>();
+            foreach (var uid in idsList)
+            {
+                var dto = await GetAttoDto(uid);
+
+                // Riusa la composizione del documento singolo, restringendo i filtri al solo atto corrente:
+                // ogni file Word risulta identico a quello prodotto dalla generazione del report sul singolo atto.
+                var reportSingolo = new ReportDto
+                {
+                    covertype = model.covertype,
+                    columns = model.columns,
+                    dataviewtype = model.dataviewtype,
+                    dataviewtype_template = model.dataviewtype_template,
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    wordsize = model.wordsize,
+                    filters = JsonConvert.SerializeObject(new List<FilterItem>
+                    {
+                        new FilterItem
+                        {
+                            property = nameof(AttoDASIDto.UIDAtto),
+                            value = uid.ToString()
+                        }
+                    })
+                };
+
+                var body = await ComposeReportBodyFromTemplate(reportSingolo, currentUser);
+                var contenuto = CreateWordReportToBytes(body, (WordSizeEnum)model.wordsize);
+
+                var nomeFile = string.Join("_", dto.Display.Split(Path.GetInvalidFileNameChars()));
+                files.Add(new FileModel
+                {
+                    Name = $"{nomeFile}.docx",
+                    Content = contenuto
+                });
+            }
+
+            return ResponseZip(files);
         }
 
         private HttpResponseMessage ResponseZip(List<FileModel> pdfs)
@@ -5729,6 +5796,26 @@ namespace PortaleRegione.API.Controllers
         private void CreateWordReport(string filePath, string body, WordSizeEnum wordSize = WordSizeEnum.A4)
         {
             using var document = WordprocessingDocument.Create(filePath, WordprocessingDocumentType.Document);
+            PopolaWordReport(document, body, wordSize);
+        }
+
+        /// <summary>
+        ///     #1623: variante di <see cref="CreateWordReport" /> che restituisce il documento Word
+        ///     in memoria, per poterlo impacchettare in uno ZIP senza passare da file su disco.
+        /// </summary>
+        private byte[] CreateWordReportToBytes(string body, WordSizeEnum wordSize = WordSizeEnum.A4)
+        {
+            using var stream = new MemoryStream();
+            using (var document = WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document))
+            {
+                PopolaWordReport(document, body, wordSize);
+            }
+
+            return stream.ToArray();
+        }
+
+        private void PopolaWordReport(WordprocessingDocument document, string body, WordSizeEnum wordSize)
+        {
             var mainPart = document.MainDocumentPart;
 
             if (mainPart == null)
