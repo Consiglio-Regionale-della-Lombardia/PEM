@@ -1716,38 +1716,49 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.DataSeduta.Any())
             {
+                // #1625 - sedute interessate dal filtro (range DA-A oppure data singola).
+                // I due rami sono stati uniformati: in entrambi i casi si applica la stessa
+                // logica in base all'opzione "solo atti effettivamente iscritti in seduta".
+                List<SEDUTE> seduteList;
                 if (queryExtended.DataSeduta.Count > 1)
                 {
                     var startDate = queryExtended.DataSeduta[0];
                     var endDate = queryExtended.DataSeduta[1];
 
-                    var seduteList = PRContext.SEDUTE
+                    seduteList = PRContext.SEDUTE
                         .Where(s => s.Data_seduta >= startDate && s.Data_seduta <= endDate)
                         .ToList();
-                    
-                    var ids = seduteList.Select(s => s.UIDSeduta).ToList();
-                    
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataSeduta[0];
+
+                    seduteList = PRContext.SEDUTE
+                        .Where(s => s.Data_seduta.Date == singleDate.Date)
+                        .ToList();
+                }
+
+                var ids = seduteList.Select(s => s.UIDSeduta).ToList();
+
+                if (queryExtended.SoloAttiIscrittiInSeduta)
+                {
+                    // #1625 - solo gli atti effettivamente iscritti in seduta da UOLA
+                    query = query.Where(a => a.UIDSeduta.HasValue && ids.Contains(a.UIDSeduta.Value));
+                }
+                else
+                {
+                    // #1625 - comportamento storico: atti iscritti + atti con sola richiesta
+                    // di iscrizione (data proposta seduta dai gruppi)
                     // #1341
                     var listaDateSedutaCrypt = seduteList
                         .Select(s => CryptoHelper.EncryptString(
                             s.Data_seduta.ToString("dd/MM/yyyy"),
                             AppSettingsConfiguration.masterKey))
                         .ToList();
-                    
+
                     query = query.Where(a =>
                         (a.UIDSeduta.HasValue && ids.Contains(a.UIDSeduta.Value))
                         || listaDateSedutaCrypt.Contains(a.DataRichiestaIscrizioneSeduta));
-                }
-                else
-                {
-                    var singleDate = queryExtended.DataSeduta[0];
-
-                    var seduteIds = PRContext.SEDUTE
-                        .Where(s => s.Data_seduta.Date == singleDate.Date)
-                        .Select(s => s.UIDSeduta)
-                        .Distinct();
-
-                    query = query.Where(a => a.UIDSeduta.HasValue && seduteIds.Contains(a.UIDSeduta.Value));
                 }
             }
 

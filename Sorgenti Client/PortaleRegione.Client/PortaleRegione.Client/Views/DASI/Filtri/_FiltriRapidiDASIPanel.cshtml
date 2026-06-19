@@ -497,6 +497,17 @@ else
                             }
                         }
                         chipText = keyLabel + ": " + text;
+
+                        // #1625 - la spunta "solo atti iscritti in seduta" diventa un chip
+                        // dedicato, cosi' da essere salvata insieme al filtro/report.
+                        var chkSoloIscritti = document.getElementById('chkSoloIscrittiSeduta');
+                        if (chkSoloIscritti && chkSoloIscritti.checked) {
+                            addChipIfNotExists('@nameof(AttoDASIDto.SoloAttiIscrittiInSeduta)',
+                                'Solo atti iscritti in seduta', 'true', 'true',
+                                'Solo atti effettivamente iscritti in seduta', false, true);
+                        } else {
+                            rimuoviChipPerChiave('@nameof(AttoDASIDto.SoloAttiIscrittiInSeduta)');
+                        }
                     } else if (key === "@nameof(AttoDASIDto.DataIscrizioneSeduta)") {
                         text = "";
                         val = "";
@@ -2245,6 +2256,14 @@ else
     ${buttonsHTML_A}
   </div>
 </div>
+<div class="row">
+  <div class="col s12">
+    <label>
+      <input type="checkbox" id="chkSoloIscrittiSeduta" class="filled-in" ${document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.SoloAttiIscrittiInSeduta)"]') ? 'checked' : ''} />
+      <span>Solo atti effettivamente iscritti in seduta</span>
+    </label>
+  </div>
+</div>
 `;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
@@ -3683,19 +3702,34 @@ else
         }
     }
 
+    // #1625 - rimuove un chip dato il suo data-filterby (senza ricaricare la griglia:
+    // il refresh lo fa la chiamata principale che segue).
+    function rimuoviChipPerChiave(key) {
+        var chip = document.querySelector(`.chip[data-filterby="${key}"]`);
+        if (chip) {
+            delete chipsKeys[key];
+            chip.remove();
+            salvaFiltri();
+        }
+    }
+
     function addIconsToChip(chip, key, keyLabel, val) {
 
-        // Aggiungi un'icona per modificare la chip, se desiderato
-        var editIcon = document.createElement('i');
-        editIcon.classList.add('material-icons', 'tiny');
-        editIcon.style.setProperty('margin-left', '10px');
-        editIcon.style.setProperty('top', '2px');
-        editIcon.textContent = 'edit';
-        editIcon.onclick = async function(event) {
-            event.stopPropagation();
-            await openModalWithContent(key, keyLabel, true, val);
-        };
-        chip.appendChild(editIcon);
+        // #1625 - il chip "solo atti iscritti in seduta" non e' modificabile a se' stante
+        // (si gestisce dalla spunta nella modale Data seduta): mostra solo la rimozione.
+        if (key !== '@nameof(AttoDASIDto.SoloAttiIscrittiInSeduta)') {
+            // Aggiungi un'icona per modificare la chip, se desiderato
+            var editIcon = document.createElement('i');
+            editIcon.classList.add('material-icons', 'tiny');
+            editIcon.style.setProperty('margin-left', '10px');
+            editIcon.style.setProperty('top', '2px');
+            editIcon.textContent = 'edit';
+            editIcon.onclick = async function(event) {
+                event.stopPropagation();
+                await openModalWithContent(key, keyLabel, true, val);
+            };
+            chip.appendChild(editIcon);
+        }
 
         // Aggiungi un'icona per rimuovere la chip
         var closeIcon = document.createElement('i');

@@ -43,6 +43,10 @@ public class QueryExtendedRequest
     public bool RispostaMancante { get; set; }
     public bool OrganiIsNull { get; set; }
     public List<DateTime> DataSeduta { get; set; } = new();
+
+    // #1625 - estrai solo gli atti effettivamente iscritti in seduta da UOLA
+    // (default false = comportamento storico: iscritti + atti con richiesta iscrizione)
+    public bool SoloAttiIscrittiInSeduta { get; set; } = false;
     public List<DateTime> DataRisposta { get; set; } = new();
     public bool DataRispostaIsNull { get; set; }
     public bool DataAnnunzioIsNull { get; set; }
@@ -88,6 +92,7 @@ public class QueryExtendedRequest
             RispostaMancante = RispostaMancante,
             OrganiIsNull = OrganiIsNull,
             DataSeduta = new List<DateTime>(DataSeduta),
+            SoloAttiIscrittiInSeduta = SoloAttiIscrittiInSeduta, // #1625
             DataRisposta = new List<DateTime>(DataRisposta),
             DataRispostaIsNull = DataRispostaIsNull,
             DataAnnunzioIsNull = DataAnnunzioIsNull,

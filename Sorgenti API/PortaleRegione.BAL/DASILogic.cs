@@ -858,6 +858,21 @@ namespace PortaleRegione.API.Controllers
         {
             var queryExtended = new QueryExtendedRequest();
 
+            // #1625 - opzione "solo atti effettivamente iscritti in seduta": chip booleano
+            // legato al filtro Data seduta. Lo leggo qui e lo rimuovo da model.filtro cosi'
+            // da non passarlo al filtro SQL generico (stesso schema di Ritardo).
+            var statementSoloIscritti = model.filtro
+                .FirstOrDefault(statement =>
+                    statement.PropertyId == nameof(AttoDASIDto.SoloAttiIscrittiInSeduta));
+            if (statementSoloIscritti != null)
+            {
+                queryExtended.SoloAttiIscrittiInSeduta =
+                    statementSoloIscritti.Value != null
+                    && statementSoloIscritti.Value.ToString().Equals("true");
+                model.filtro.RemoveAll(statement =>
+                    statement.PropertyId == nameof(AttoDASIDto.SoloAttiIscrittiInSeduta));
+            }
+
             ExtractAndAddFilters(model, nameof(AttoDASIDto.UIDPersonaProponente), queryExtended.Proponenti, Guid.Parse,
                 queryExtended);
             ExtractAndAddFilters(model, nameof(AttoDASIDto.AreaPolitica), queryExtended.AreaPolitica, int.Parse,

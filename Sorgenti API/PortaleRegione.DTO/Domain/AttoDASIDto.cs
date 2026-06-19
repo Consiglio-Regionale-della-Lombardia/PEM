@@ -441,6 +441,11 @@ public class AttoDASIDto
 
     public bool FlussoRespingi { get; set; } = false;
     [DisplayName("Ritardo")] public int Ritardo { get; set; } = 0;
+
+    // #1625 - proprieta' di solo filtro: estrai unicamente gli atti effettivamente iscritti
+    // in seduta da UOLA (esclude gli atti con sola richiesta di iscrizione / data proposta).
+    [DisplayName("Solo atti iscritti in seduta")]
+    public bool SoloAttiIscrittiInSeduta { get; set; } = false;
     public Guid? UIDPersonaFlussoRespingi { get; set; }
     public DateTime? DataFlussoRespingi { get; set; }
     
