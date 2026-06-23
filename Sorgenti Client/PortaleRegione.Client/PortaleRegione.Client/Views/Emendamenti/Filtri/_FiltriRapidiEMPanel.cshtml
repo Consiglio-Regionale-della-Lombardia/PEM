@@ -527,7 +527,7 @@
             subContainer.innerHTML = html;
             M.FormSelect.init(document.querySelectorAll('#articoli-em-select'));
         } else if (parteValue === '@((int)PartiEMEnum.Missione)') {
-            var missioni = []; // TODO: endpoint missioni da implementare
+            var missioni = await GetMissioni();
             var html = '<div class="input-field col s8"><label class="active">Missione</label>' +
                 '<select id="missioni-em-select"><option value="" disabled selected>Seleziona</option>';
             if (missioni) missioni.forEach(function(m) { html += '<option value="' + m.NMissione + '">' + m.Display + '</option>'; });
