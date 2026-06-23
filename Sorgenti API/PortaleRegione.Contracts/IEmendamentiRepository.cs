@@ -40,6 +40,9 @@ namespace PortaleRegione.Contracts
         Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter, int CLIENT_MODE,
             Filter<EM> filtro, QueryExtendedRequestEM queryExtended);
 
+        // #1626 - Conteggio per la ricerca trasversale EM/SUBEM (Area Aula), senza singolo atto.
+        Task<int> CountGlobale(PersonaDto persona, Filter<EM> filtro, QueryExtendedRequestEM queryExtended);
+
         Task<int> Count(string query);
 
         [Obsolete("Usa l'overload basato su QueryExtendedRequestEM.")]
@@ -48,8 +51,7 @@ namespace PortaleRegione.Contracts
             List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null);
 
         Task<IEnumerable<Guid>> GetAll(PersonaDto persona, int? page, int? size, int CLIENT_MODE,
-            OrdinamentoEnum ordine, Filter<EM> filtro, QueryExtendedRequestEM queryExtended,
-            List<SortingInfo> dettagliOrdinamento);
+            OrdinamentoEnum ordine, Filter<EM> filtro, QueryExtendedRequestEM queryExtended);
 
         IEnumerable<EM> GetAll(ByQueryModel model);
 

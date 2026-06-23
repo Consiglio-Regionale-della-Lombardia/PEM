@@ -150,6 +150,8 @@ namespace PortaleRegione.DTO.Routes
                 public const string AggiornaMetaDati = Base + "/edit/model/meta";
                 public const string Edit = Base + "/edit";
                 public const string GetAll = Base + "/all";
+                // #1626 - Ricerca trasversale EM/SUBEM (Area Aula), non vincolata al singolo atto.
+                public const string GetAllGlobale = Base + "/all/globale";
                 public const string GetAllSoloIds = Base + "/all/solo-ids";
                 public const string GetByJson = Base + "/all-by-json";
                 public const string GetAllRichiestaPropriaFirma = Base + "/all/richiesta-firma";
@@ -347,6 +349,10 @@ namespace PortaleRegione.DTO.Routes
             public const string EsportaGrigliaExcel = Base + "/pem/griglia-xls";
             public const string EsportaGrigliaExcelUOLA = Base + "/pem/griglia-xls-uola";
             public const string EsportaGrigliaWord = Base + "/pem/griglia-doc";
+
+            // #1626 - Export della ricerca trasversale EM/SUBEM (Area Aula), cross-atto.
+            public const string EsportaGrigliaExcelGlobale = Base + "/pem/griglia-xls-globale";
+            public const string EsportaGrigliaWordGlobale = Base + "/pem/griglia-doc-globale";
         }
 
         public static class Persone

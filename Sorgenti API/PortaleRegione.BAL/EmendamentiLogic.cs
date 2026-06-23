@@ -1894,8 +1894,7 @@ namespace PortaleRegione.BAL
                         CLIENT_MODE,
                         model.ordine,
                         queryFilter,
-                        queryExtended,
-                        model.dettagliOrdinamento);
+                        queryExtended);
 
                 if (!em_in_db.Any())
                     return new EmendamentiViewModel
@@ -2029,7 +2028,118 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
+        /// <summary>
+        ///     #1626 - Ricerca trasversale degli emendamenti/subemendamenti (Area Aula). A differenza
+        ///     di GetEmendamenti non e' vincolata a un singolo atto: applica i filtri (legislatura,
+        ///     proponente, firmatario, gruppo, area politica, testo/oggetto, effetti finanziari,
+        ///     EM/SUBEM) su tutto l'archivio dei depositati e per ogni emendamento popola l'atto
+        ///     (PDL) e la seduta di riferimento, necessari alla griglia dei risultati.
+        /// </summary>
+        public async Task<EmendamentiViewModel> GetEmendamentiGlobale(BaseRequest<EmendamentiDto> model,
+            PersonaDto persona, int VIEW_MODE, Uri uri)
+        {
+            try
+            {
+                var filterModel = model.filtro.ToList();
+
+                // CreateQueryExtendedRequestEM rimuove dal model.filtro gli statement promossi/estratti.
+                var queryExtended = CreateQueryExtendedRequestEM(model, persona);
+                queryExtended.RicercaGlobale = true;
+
+                var queryFilter = new Filter<EM>();
+                queryFilter.ImportStatements(model.filtro);
+
+                var em_in_db = await _unitOfWork
+                    .Emendamenti
+                    .GetAll(persona,
+                        model.page,
+                        model.size,
+                        (int)ClientModeEnum.TRATTAZIONE,
+                        model.ordine,
+                        queryFilter,
+                        queryExtended);
+
+                if (!em_in_db.Any())
+                    return new EmendamentiViewModel
+                    {
+                        Data = new BaseResponse<EmendamentiDto>(
+                            model.page, model.size, new List<EmendamentiDto>(), filterModel, 0, uri),
+                        Mode = ClientModeEnum.TRATTAZIONE,
+                        ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
+                        Ordinamento = model.ordine,
+                        CurrentUser = persona
+                    };
+
+                // Gli EM provengono da atti diversi: cache degli atti per evitare letture ripetute.
+                var attiCache = new Dictionary<Guid, ATTI>();
+                var result = new List<EmendamentiDto>();
+                var emendamentiSaltati = new List<string>();
+
+                foreach (var uid in em_in_db)
+                {
+                    var em = await GetEM(uid);
+                    if (em == null)
+                    {
+                        emendamentiSaltati.Add($"EM (uid {uid})");
+                        continue;
+                    }
+
+                    if (!attiCache.TryGetValue(em.UIDAtto, out var atto))
+                    {
+                        atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                        attiCache[em.UIDAtto] = atto;
+                    }
+
+                    // Griglia di sola lettura: enable_cmd=false evita i controlli sui comandi per EM.
+                    var dto = await GetEM_DTO(em, atto, persona, null, null, false);
+                    if (dto != null)
+                        result.Add(dto);
+                    else
+                        emendamentiSaltati.Add($"EM (uid {uid})");
+                }
+
+                var total_em = await _unitOfWork.Emendamenti.CountGlobale(persona, queryFilter, queryExtended);
+
+                return new EmendamentiViewModel
+                {
+                    Data = new BaseResponse<EmendamentiDto>(
+                        model.page, model.size, result, filterModel, total_em, uri),
+                    Mode = ClientModeEnum.TRATTAZIONE,
+                    ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
+                    Ordinamento = model.ordine,
+                    EmendamentiSaltati = emendamentiSaltati,
+                    CurrentUser = persona
+                };
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetEmendamentiGlobale", e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     #1626 - Scarica tutti gli emendamenti che soddisfano i filtri della ricerca
+        ///     trasversale (size = -1) per la generazione dei report cross-atto.
+        /// </summary>
+        public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamentiGlobale(EmendamentiViewModel model,
+            PersonaDto persona)
+        {
+            var vm = await GetEmendamentiGlobale(new BaseRequest<EmendamentiDto>
+            {
+                ordine = model.Ordinamento,
+                page = 1,
+                size = -1,
+                filtro = model.Data.Filters
+            },
+                persona,
+                (int)model.ViewMode,
+                new Uri(AppSettingsConfiguration.url_CLIENT));
+
+            return vm.Data.Results;
+        }
+
         public async Task<EmendamentiViewModel> GetEmendamentiWord(BaseRequest<EmendamentiDto> model,
             PersonaDto persona, int CLIENT_MODE, int VIEW_MODE, PersonaDto presidente_regione, int total_em)
         {
@@ -2125,8 +2235,7 @@ namespace PortaleRegione.BAL
                         CLIENT_MODE,
                         model.ordine,
                         queryFilter,
-                        queryExtended,
-                        model.dettagliOrdinamento);
+                        queryExtended);
 
                 return em_in_db.ToList();
             }
@@ -2163,8 +2272,7 @@ namespace PortaleRegione.BAL
                         CLIENT_MODE,
                         model.ordine,
                         queryFilter,
-                        queryExtended,
-                        model.dettagliOrdinamento);
+                        queryExtended);
 
                 var result = new List<EmendamentiDto>();
 
@@ -2668,6 +2776,20 @@ namespace PortaleRegione.BAL
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NMissione), qx.NMissioni, int.Parse);
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NProgramma), qx.NProgrammi, int.Parse);
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.Rif_UIDEM), qx.RiferimentiEM, Guid.Parse);
+
+            // #1626 - Filtri della ricerca trasversale (Area Aula): area politica e legislatura
+            // a scelta multipla. Le chiavi non sono presenti nel pannello del riepilogo per atto,
+            // quindi l'estrazione e' inerte sulla ricerca standard.
+            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.AreaPolitica), qx.AreePolitiche, int.Parse);
+            ExtractAndAddFiltersEM(model, "Legislatura", qx.Legislature, int.Parse);
+
+            var tipoRicercaStmt = model.filtro.FirstOrDefault(f => f.PropertyId == "TipoRicercaEM");
+            if (tipoRicercaStmt?.Value != null
+                && int.TryParse(tipoRicercaStmt.Value.ToString(), out var tipoRicerca))
+            {
+                qx.TipoRicerca = tipoRicerca;
+                model.filtro.Remove(tipoRicercaStmt);
+            }
 
             // EffettiFinanziari: chip booleana, accetta "1" / "true"
             var efStmt = model.filtro.FirstOrDefault(f =>

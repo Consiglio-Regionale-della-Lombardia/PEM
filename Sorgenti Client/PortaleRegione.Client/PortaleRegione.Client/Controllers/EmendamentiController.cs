@@ -1199,6 +1199,111 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     #1626 - Ricerca trasversale degli emendamenti/subemendamenti (Area Aula): pagina
+        ///     di ingresso che ospita il pannello filtri e la griglia dei risultati cross-atto.
+        /// </summary>
+        [HttpGet]
+        [Route("ricerca")]
+        public ActionResult RicercaEmendamenti()
+        {
+            var model = new EmendamentiViewModel
+            {
+                CurrentUser = CurrentUser,
+                Mode = ClientModeEnum.TRATTAZIONE,
+                Data = new BaseResponse<EmendamentiDto>(
+                    1, 20, new List<EmendamentiDto>(),
+                    new List<FilterStatement<EmendamentiDto>>(), 0, Request.Url)
+            };
+            return View("RicercaEM", model);
+        }
+
+        /// <summary>
+        ///     #1626 - Endpoint AJAX della ricerca trasversale: applica i filtri su tutto
+        ///     l'archivio dei depositati (nessun atto singolo) e restituisce la griglia.
+        /// </summary>
+        [HttpPost]
+        [Route("ricerca/data")]
+        public async Task<ActionResult> RicercaEmendamentiData(FilterRequestEM model)
+        {
+            try
+            {
+                if (model == null || model.filters == null || !model.filters.Any())
+                    return Json(new EmendamentiViewModel { CurrentUser = CurrentUser });
+
+                var request = BuildBaseRequestEM(model);
+                // Ricerca trasversale: nessun vincolo di atto singolo.
+                request.id = Guid.Empty;
+
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.Emendamento.GetGlobale(request);
+                res.CurrentUser = CurrentUser;
+                return Json(res);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     #1626 - Genera report (Word/Excel/Excel Segreteria) della ricerca trasversale:
+        ///     recupera l'insieme filtrato cross-atto e lo passa al gateway di esportazione
+        ///     dedicato. Excel Segreteria e' riservato ad Amministratore PEM / Segreteria.
+        /// </summary>
+        [HttpPost]
+        [Route("ricerca/genera-report")]
+        public async Task<ActionResult> GeneraReportGlobale(GeneraReportRequestEM model)
+        {
+            try
+            {
+                if (model?.Filter == null || model.Filter.filters == null || !model.Filter.filters.Any())
+                    return Json(new ErrorResponse("Nessun filtro impostato"), JsonRequestBehavior.AllowGet);
+
+                var request = BuildBaseRequestEM(model.Filter);
+                request.id = Guid.Empty;
+                request.size = -1;
+                if (model.Columns != null && model.Columns.Count > 0)
+                    request.columns = model.Columns;
+
+                var apiGateway = new ApiGateway(Token);
+                var viewModel = await apiGateway.Emendamento.GetGlobale(request);
+
+                var formatRaw = (model.ExportFormat ?? string.Empty).Trim();
+                ExportFormatEnum format;
+                if (int.TryParse(formatRaw, out var formatInt)
+                    && System.Enum.IsDefined(typeof(ExportFormatEnum), formatInt))
+                {
+                    format = (ExportFormatEnum)formatInt;
+                }
+                else if (!System.Enum.TryParse(formatRaw, true, out format))
+                {
+                    return Json(new ErrorResponse("Formato di esportazione non supportato"),
+                        JsonRequestBehavior.AllowGet);
+                }
+
+                FileResponse file;
+                switch (format)
+                {
+                    case ExportFormatEnum.EXCEL:
+                        file = await apiGateway.Esporta.EsportaXLSGlobale(viewModel);
+                        break;
+                    case ExportFormatEnum.WORD:
+                        file = await apiGateway.Esporta.EsportaWORDGlobale(viewModel);
+                        break;
+                    default:
+                        return Json(new ErrorResponse("Formato di esportazione non supportato"),
+                            JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(file?.Url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
         ///     Costruisce il <see cref="BaseRequest{EmendamentiDto}" /> a partire dalla
         ///     <see cref="FilterRequestEM" /> inviata dal client.
         /// </summary>
@@ -1215,9 +1320,6 @@ namespace PortaleRegione.Client.Controllers
                     { "VIEW_MODE", model.viewMode }
                 }
             };
-
-            if (model.sort_settings != null && model.sort_settings.Any())
-                request.dettagliOrdinamento = model.sort_settings;
 
             if (model.columns_settings != null && model.columns_settings.Any())
                 request.columns = model.columns_settings;

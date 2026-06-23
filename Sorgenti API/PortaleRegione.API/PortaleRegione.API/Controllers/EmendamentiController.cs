@@ -102,6 +102,35 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     #1626 - Endpoint per la ricerca trasversale degli emendamenti/subemendamenti
+        ///     (Area Aula): non vincolata a un singolo atto, applica i filtri su tutto l'archivio
+        ///     dei depositati e restituisce per ogni EM l'atto e la seduta di riferimento.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.PEM.Emendamenti.GetAllGlobale)]
+        public async Task<IHttpActionResult> GetEmendamentiGlobale(BaseRequest<EmendamentiDto> model)
+        {
+            try
+            {
+                model.param.TryGetValue("VIEW_MODE", out var viewMode);
+                var VIEW_MODE = ViewModeEnum.GRID;
+                if (viewMode != null)
+                    Enum.TryParse(viewMode.ToString(), out VIEW_MODE);
+
+                var results = await _emendamentiLogic.GetEmendamentiGlobale(model, CurrentUser,
+                    (int)VIEW_MODE, Request.RequestUri);
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetEmendamentiGlobale", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere tutti gli emendamenti appartenenti ad un atto
         /// </summary>
         /// <param name="model"></param>

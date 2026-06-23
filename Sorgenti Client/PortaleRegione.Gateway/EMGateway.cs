@@ -93,6 +93,15 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        // #1626 - Ricerca trasversale EM/SUBEM (Area Aula), non vincolata al singolo atto.
+        public async Task<EmendamentiViewModel> GetGlobale(BaseRequest<EmendamentiDto> model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetAllGlobale}";
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<EmendamentiViewModel>(await Post(requestUrl, body, _token));
+            return lst;
+        }
+
         public async Task<List<Guid>> GetSoloIds(BaseRequest<EmendamentiDto> model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetAllSoloIds}";

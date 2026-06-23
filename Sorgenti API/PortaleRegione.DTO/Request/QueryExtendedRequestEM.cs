@@ -57,4 +57,13 @@ public class QueryExtendedRequestEM
 
     public Guid? UIDAtto { get; set; }
     public Guid? UIDPersonaCorrente { get; set; }
+
+    // #1626 - Ricerca trasversale EM/SUBEM (Area Aula): quando RicercaGlobale e' true il
+    // repository non vincola la query a un singolo atto ma applica i filtri qui sotto su
+    // tutto l'archivio dei depositati. Legislature e AreePolitiche sono filtri a scelta
+    // multipla; TipoRicerca discrimina EM / SUBEM / entrambi.
+    public bool RicercaGlobale { get; set; }
+    public List<int> Legislature { get; set; } = new();
+    public List<int> AreePolitiche { get; set; } = new();
+    public int TipoRicerca { get; set; }
 }

@@ -74,9 +74,7 @@
     <Compile Include="Domain\AttiDASISorting.cs" />
     <Compile Include="Domain\AttiDASIColumnsConsiglieri.cs" />
     <Compile Include="Domain\AttiDASISortingConsiglieri.cs" />
-    <Compile Include="Domain\AttiEMSorting.cs" />
     <Compile Include="Domain\EmendamentiColumns.cs" />
-    <Compile Include="Domain\EmendamentiSorting.cs" />
     <Compile Include="Domain\AttiDocumentiDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />
@@ -124,6 +122,7 @@
     <Compile Include="Enum\StatiAttoCSSConst.cs" />
     <Compile Include="Enum\StatiAttoEnum.cs" />
     <Compile Include="Enum\StatoPinEnum.cs" />
+    <Compile Include="Enum\TipoRicercaEmendamentiEnum.cs" />
     <Compile Include="Enum\TemplateTypeEnum.cs" />
     <Compile Include="Enum\TipiEMEnum.cs" />
     <Compile Include="Enum\TipoAllegatoEnum.cs" />

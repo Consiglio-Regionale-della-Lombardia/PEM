@@ -1,0 +1,414 @@
+@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Common.Utility
+@model PortaleRegione.DTO.Response.EmendamentiViewModel
+
+@*
+    #1626 - Ricerca trasversale degli emendamenti/subemendamenti (Area Aula).
+    Pagina autonoma: pannello filtri multi-criterio + griglia cross-atto. La ricerca
+    parte solo se e' impostato almeno un filtro (come l'area gruppi DASI); per ogni
+    EM/SUBEM la griglia mostra anche l'atto (PDL), la seduta e la legislatura.
+*@
+
+@{
+    ViewBag.Title = "Ricerca emendamenti";
+}
+
+<style>
+    #ricercaEMTable tr { border: unset; }
+    #ricercaEMTable td, #ricercaEMTable th { text-align: center; vertical-align: middle; }
+    .ricerca-em-oggetto { max-width: 320px; text-align: left !important; }
+</style>
+
+<div id="waiting" class="modal" style="height: 120px">
+    <div class="modal-content center">
+        <div class="preloader-wrapper active">
+            <div class="spinner-layer spinner-blue-only">
+                <div class="circle-clipper left"><div class="circle"></div></div>
+                <div class="gap-patch"><div class="circle"></div></div>
+                <div class="circle-clipper right"><div class="circle"></div></div>
+            </div>
+        </div>
+        <div id="waiting_info_message"></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col s12">
+        <h4><b>Ricerca emendamenti / subemendamenti</b></h4>
+        <p class="grey-text">
+            Ricerca trasversale sugli emendamenti e subemendamenti depositati, su tutte le
+            sedute e gli atti di una o piu' legislature.
+        </p>
+    </div>
+</div>
+
+<div class="card-panel">
+    <div class="row" style="margin-bottom:0">
+        <div class="input-field col s12 m6 l3">
+            <select id="filtroTipoRicerca">
+                <option value="@((int)TipoRicercaEmendamentiEnum.Tutti)" selected>EM e SUBEM</option>
+                <option value="@((int)TipoRicercaEmendamentiEnum.SoloEM)">Solo EM</option>
+                <option value="@((int)TipoRicercaEmendamentiEnum.SoloSubEM)">Solo SUBEM</option>
+            </select>
+            <label>Tipo</label>
+        </div>
+        <div class="input-field col s12 m6 l3">
+            <select id="filtroLegislature" multiple></select>
+            <label>Legislatura</label>
+        </div>
+        <div class="input-field col s12 m6 l3">
+            <select id="filtroProponenti" multiple></select>
+            <label>Proponente</label>
+        </div>
+        <div class="input-field col s12 m6 l3">
+            <select id="filtroFirmatari" multiple></select>
+            <label>Firmatario</label>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom:0">
+        <div class="input-field col s12 m6 l3">
+            <select id="filtroGruppi" multiple></select>
+            <label>Gruppo / Giunta</label>
+        </div>
+        <div class="input-field col s12 m6 l3">
+            <select id="filtroAreePolitiche" multiple>
+                <option value="@((int)AreaPoliticaIntEnum.Maggioranza)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza)</option>
+                <option value="@((int)AreaPoliticaIntEnum.Minoranza)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)</option>
+                <option value="@((int)AreaPoliticaIntEnum.Misto_Maggioranza)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)</option>
+                <option value="@((int)AreaPoliticaIntEnum.Misto_Minoranza)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)</option>
+                <option value="@((int)AreaPoliticaIntEnum.Misto)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)</option>
+                <option value="@((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)</option>
+            </select>
+            <label>Area politica</label>
+        </div>
+        <div class="input-field col s12 m6 l4">
+            <input type="text" id="filtroTesto" />
+            <label for="filtroTesto">Parole nel testo / oggetto</label>
+        </div>
+        <div class="col s12 m6 l2">
+            <label style="margin-top:24px;display:inline-block">
+                <input type="checkbox" id="filtroEffettiFinanziari" class="filled-in" />
+                <span>Effetti finanziari</span>
+            </label>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom:0">
+        <div class="col s12 right-align">
+            <button type="button" class="btn-flat grey-text" id="btnPulisciFiltri">
+                <i class="material-icons left">clear</i>Pulisci
+            </button>
+            <button type="button" class="btn waves-effect waves-light" id="btnCercaEM">
+                <i class="material-icons left">search</i>Cerca
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-bottom:0">
+    <div class="col s12 right-align" id="ricercaEMExportButtons" style="display:none">
+        <button type="button" class="btn-flat blue-text" onclick="esportaRicercaEM(@((int)ExportFormatEnum.WORD))">
+            <i class="material-icons left">description</i>Word
+        </button>
+        <button type="button" class="btn-flat green-text" onclick="esportaRicercaEM(@((int)ExportFormatEnum.EXCEL))">
+            <i class="material-icons left">grid_on</i>Excel
+        </button>
+    </div>
+</div>
+
+<div id="contentTable" class="row">
+    <div id="paginazione-container-top"></div>
+    <div id="loadingSpinner" class="progress" style="display: none;">
+        <div class="indeterminate"></div>
+    </div>
+    <div id="tableResults"></div>
+</div>
+
+@section scripts
+{
+    <script>
+        // Mappa area politica id -> etichetta (per la griglia)
+        var areaPoliticaMap = {
+            '@((int)AreaPoliticaIntEnum.Maggioranza)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Maggioranza)',
+            '@((int)AreaPoliticaIntEnum.Minoranza)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)',
+            '@((int)AreaPoliticaIntEnum.Misto_Maggioranza)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)',
+            '@((int)AreaPoliticaIntEnum.Misto_Minoranza)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)',
+            '@((int)AreaPoliticaIntEnum.Misto)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)',
+            '@((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)'
+        };
+
+        var ricercaCorrentePagina = 1;
+        var ricercaCorrenteSize = 20;
+
+        // Formatta la data della seduta gestendo sia il formato Microsoft (/Date()/) sia ISO.
+        function formatDataSeduta(d) {
+            if (!d) return '--';
+            try {
+                var s = formatDate(d);
+                if (s) return s;
+            } catch (e) { /* fallback sotto */ }
+            var dt = new Date(d);
+            if (!isNaN(dt.getTime())) {
+                return String(dt.getDate()).padStart(2, '0') + '/'
+                    + String(dt.getMonth() + 1).padStart(2, '0') + '/' + dt.getFullYear();
+            }
+            return '--';
+        }
+
+        function valoriSelezionati(idSelect) {
+            var el = document.getElementById(idSelect);
+            if (!el) return [];
+            return Array.from(el.selectedOptions).map(function (o) { return o.value; })
+                .filter(function (v) { return v !== "" && v != null; });
+        }
+
+        // Popola proponenti, firmatari e gruppi in base alle legislature selezionate.
+        async function ricaricaListePerLegislatura() {
+            var legislature = valoriSelezionati('filtroLegislature');
+
+            var personeMap = {};
+            var gruppiMap = {};
+            for (var i = 0; i < legislature.length; i++) {
+                try {
+                    var persone = await GetProponenti(legislature[i]);
+                    (persone || []).forEach(function (p) { personeMap[p.uid] = p.DisplayName; });
+                } catch (e) { console.error('GetProponenti', e); }
+                try {
+                    var gruppi = await GetGruppiByLegislatura(legislature[i]);
+                    (gruppi || []).forEach(function (g) {
+                        gruppiMap[g.id_gruppo] = g.nome_gruppo + ' (' + g.codice_gruppo + ')';
+                    });
+                } catch (e) { console.error('GetGruppi', e); }
+            }
+
+            popolaSelect('filtroProponenti', personeMap);
+            popolaSelect('filtroFirmatari', personeMap);
+            popolaSelect('filtroGruppi', gruppiMap);
+        }
+
+        function popolaSelect(idSelect, mappa) {
+            var el = document.getElementById(idSelect);
+            if (!el) return;
+            var selezionatiPrec = valoriSelezionati(idSelect);
+            el.innerHTML = '';
+            Object.keys(mappa).forEach(function (key) {
+                var opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = mappa[key];
+                if (selezionatiPrec.indexOf(key) !== -1) opt.selected = true;
+                el.appendChild(opt);
+            });
+            M.FormSelect.init(el);
+        }
+
+        // Costruisce il FilterRequestEM (chip = FilterItem) dai controlli del pannello.
+        function buildFilterRequestRicerca() {
+            var filters = [];
+
+            var legislature = valoriSelezionati('filtroLegislature');
+            if (legislature.length > 0)
+                filters.push({ property: 'Legislatura', value: legislature.join(',') });
+
+            var proponenti = valoriSelezionati('filtroProponenti');
+            if (proponenti.length > 0)
+                filters.push({ property: 'UIDPersonaProponente', value: proponenti.join(',') });
+
+            var firmatari = valoriSelezionati('filtroFirmatari');
+            if (firmatari.length > 0)
+                filters.push({ property: 'Firme', value: firmatari.join(',') });
+
+            var gruppi = valoriSelezionati('filtroGruppi');
+            if (gruppi.length > 0)
+                filters.push({ property: 'id_gruppo', value: gruppi.join(',') });
+
+            var aree = valoriSelezionati('filtroAreePolitiche');
+            if (aree.length > 0)
+                filters.push({ property: 'AreaPolitica', value: aree.join(',') });
+
+            var testo = (document.getElementById('filtroTesto').value || '').trim();
+            if (testo !== '')
+                filters.push({ property: 'TestoEM_originale', value: testo });
+
+            if (document.getElementById('filtroEffettiFinanziari').checked)
+                filters.push({ property: 'EffettiFinanziari', value: '1' });
+
+            // Il tipo EM/SUBEM e' un discriminante di scope, non conta come "filtro" ai fini
+            // dell'obbligo di impostarne almeno uno: lo accodiamo a parte.
+            var tipo = document.getElementById('filtroTipoRicerca').value;
+
+            return {
+                request: {
+                    filters: filters.concat([{ property: 'TipoRicercaEM', value: tipo }]),
+                    page: ricercaCorrentePagina,
+                    size: ricercaCorrenteSize,
+                    ordine: @((int)OrdinamentoEnum.Presentazione),
+                    clientMode: @((int)ClientModeEnum.TRATTAZIONE),
+                    viewMode: @((int)ViewModeEnum.GRID)
+                },
+                filtriDiscriminanti: filters.length
+            };
+        }
+
+        function messaggioCortesia(testo, classe) {
+            document.getElementById('tableResults').innerHTML =
+                '<div class="card-panel ' + (classe || 'blue lighten-5') + ' center"><span><p>' + testo + '</p></span></div>';
+            document.getElementById('paginazione-container-top').innerHTML = '';
+            document.getElementById('ricercaEMExportButtons').style.display = 'none';
+        }
+
+        async function eseguiRicercaEM(page) {
+            ricercaCorrentePagina = page || 1;
+            var built = buildFilterRequestRicerca();
+
+            if (built.filtriDiscriminanti === 0) {
+                messaggioCortesia('Imposta almeno un filtro tra quelli disponibili per avviare la ricerca.', 'amber lighten-4');
+                return;
+            }
+
+            var spinner = document.getElementById('loadingSpinner');
+            spinner.style.display = 'block';
+            try {
+                var response = await fetch(baseUrl + '/emendamenti/ricerca/data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(built.request)
+                });
+                var data = await response.json();
+                renderGrigliaRicercaEM(data);
+            } catch (err) {
+                console.error('Ricerca EM:', err);
+                messaggioCortesia('Si e\' verificato un errore durante la ricerca.', 'red lighten-4');
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        function renderGrigliaRicercaEM(data) {
+            if (!data || !data.Data || !data.Data.Results || data.Data.Results.length === 0) {
+                messaggioCortesia('Nessun emendamento trovato per i filtri impostati.', 'amber lighten-4');
+                return;
+            }
+
+            var rows = '';
+            data.Data.Results.forEach(function (em) {
+                var atto = em.ATTI || {};
+                var seduta = (atto.SEDUTE && atto.SEDUTE.Data_seduta)
+                    ? formatDataSeduta(atto.SEDUTE.Data_seduta) : '--';
+                var areaTxt = (em.AreaPolitica != null && areaPoliticaMap[em.AreaPolitica])
+                    ? areaPoliticaMap[em.AreaPolitica] : '--';
+                var tipoEM = em.Rif_UIDEM ? 'SUBEM' : 'EM';
+                var linkView = baseUrl + '/emendamenti/view/' + em.UIDEM;
+
+                rows += '<tr>'
+                    + '<td>' + (atto.Legislatura != null ? atto.Legislatura : '--') + '</td>'
+                    + '<td>' + (atto.NAtto || '--') + '</td>'
+                    + '<td class="ricerca-em-oggetto">' + (atto.Oggetto || '--') + '</td>'
+                    + '<td>' + seduta + '</td>'
+                    + '<td>' + (em.N_EM || '--') + '</td>'
+                    + '<td>' + tipoEM + '</td>'
+                    + '<td>' + (em.STATI_EM ? em.STATI_EM.Stato : '--') + '</td>'
+                    + '<td>' + (em.PersonaProponente ? em.PersonaProponente.DisplayName : '--') + '</td>'
+                    + '<td>' + (em.gruppi_politici ? em.gruppi_politici.nome_gruppo : '--') + '</td>'
+                    + '<td>' + areaTxt + '</td>'
+                    + '<td>' + (em.ConteggioFirme != null ? em.ConteggioFirme : 0) + '</td>'
+                    + '<td>' + (em.EffettiFinanziari === 1 ? 'Si' : 'No') + '</td>'
+                    + '<td><a class="btn-flat" onclick="goIntoOtherTab(\'' + linkView + '\')" title="Apri emendamento">'
+                    + '<i class="material-icons">open_in_new</i></a></td>'
+                    + '</tr>';
+            });
+
+            var html = '<table id="ricercaEMTable" class="striped responsive-table">'
+                + '<thead><tr>'
+                + '<th>Legisl.</th><th>Atto (PDL)</th><th>Oggetto</th><th>Seduta</th>'
+                + '<th>Numero</th><th>Tipo</th><th>Stato</th><th>Proponente</th>'
+                + '<th>Gruppo</th><th>Area pol.</th><th>Firme</th><th>Eff. fin.</th><th></th>'
+                + '</tr></thead><tbody>' + rows + '</tbody></table>';
+
+            document.getElementById('tableResults').innerHTML = html;
+            document.getElementById('ricercaEMExportButtons').style.display = 'block';
+
+            renderPaginazione({
+                data: data,
+                onPage: function (p) { eseguiRicercaEM(p); },
+                onSize: function (s) { ricercaCorrenteSize = s; eseguiRicercaEM(1); }
+            });
+        }
+
+        async function esportaRicercaEM(formato) {
+            var built = buildFilterRequestRicerca();
+            if (built.filtriDiscriminanti === 0) {
+                swal('Attenzione', 'Imposta almeno un filtro prima di esportare.', 'warning');
+                return;
+            }
+
+            waiting(true);
+            try {
+                var payload = {
+                    Filter: built.request,
+                    ReportName: 'Ricerca_Emendamenti',
+                    ExportFormat: formato.toString()
+                };
+                var response = await fetch(baseUrl + '/emendamenti/ricerca/genera-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                var url = await response.json();
+                waiting(false);
+                if (url && typeof url === 'string') {
+                    window.open(url, '_blank');
+                } else {
+                    swal('Errore', (url && url.message) ? url.message : 'Esportazione non riuscita.', 'error');
+                }
+            } catch (err) {
+                waiting(false);
+                console.error('Export ricerca EM:', err);
+                swal('Errore', 'Esportazione non riuscita.', 'error');
+            }
+        }
+
+        $(window).on('load', async function () {
+            // Init dei select e dei controlli Materialize.
+            M.FormSelect.init(document.querySelectorAll('select'));
+
+            try {
+                var legislature = await GetLegislature();
+                var selLeg = document.getElementById('filtroLegislature');
+                (legislature || []).forEach(function (item) {
+                    var opt = document.createElement('option');
+                    opt.value = item.id_legislatura;
+                    opt.textContent = item.num_legislatura;
+                    selLeg.appendChild(opt);
+                });
+                // Preseleziona la legislatura piu' recente (prima della lista).
+                if (selLeg.options.length > 0) selLeg.options[0].selected = true;
+                M.FormSelect.init(selLeg);
+                await ricaricaListePerLegislatura();
+            } catch (e) {
+                console.error('Init legislature', e);
+            }
+
+            document.getElementById('filtroLegislature').addEventListener('change', function () {
+                ricaricaListePerLegislatura();
+            });
+            document.getElementById('btnCercaEM').addEventListener('click', function () { eseguiRicercaEM(1); });
+            document.getElementById('filtroTesto').addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { e.preventDefault(); eseguiRicercaEM(1); }
+            });
+            document.getElementById('btnPulisciFiltri').addEventListener('click', function () {
+                ['filtroProponenti', 'filtroFirmatari', 'filtroGruppi', 'filtroAreePolitiche'].forEach(function (id) {
+                    Array.from(document.getElementById(id).options).forEach(function (o) { o.selected = false; });
+                    M.FormSelect.init(document.getElementById(id));
+                });
+                document.getElementById('filtroTesto').value = '';
+                document.getElementById('filtroEffettiFinanziari').checked = false;
+                document.getElementById('filtroTipoRicerca').selectedIndex = 0;
+                M.FormSelect.init(document.getElementById('filtroTipoRicerca'));
+                M.updateTextFields();
+                messaggioCortesia('Imposta almeno un filtro tra quelli disponibili per avviare la ricerca.', 'blue lighten-5');
+            });
+
+            messaggioCortesia('Imposta almeno un filtro tra quelli disponibili per avviare la ricerca.', 'blue lighten-5');
+        });
+    </script>
+}

@@ -40,6 +40,9 @@ namespace PortaleRegione.Gateway
         Task DOWN_EM_TRATTAZIONE(Guid id);
         Task Elimina(Guid id);
         Task<EmendamentiViewModel> Get(BaseRequest<EmendamentiDto> model);
+
+        // #1626 - Ricerca trasversale EM/SUBEM (Area Aula), non vincolata al singolo atto.
+        Task<EmendamentiViewModel> GetGlobale(BaseRequest<EmendamentiDto> model);
         Task<List<Guid>> GetSoloIds(BaseRequest<EmendamentiDto> model);
         Task<EmendamentiDto> Get(Guid id);
         Task<EmendamentiViewModel> Get(Guid attoUId, ClientModeEnum mode, OrdinamentoEnum ordine, int page, int size);

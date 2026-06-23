@@ -1322,20 +1322,17 @@ namespace PortaleRegione.Persistance
 
         /// <summary>
         ///     Riepilogo emendamenti, pattern unificato: filtri specializzati in <see cref="QueryExtendedRequestEM" />,
-        ///     statement residui nel <paramref name="filtro" />, ordinamento di colonna in
-        ///     <paramref name="dettagliOrdinamento" /> (elenco ammesso <see cref="AttiEMSorting" />).
+        ///     statement residui nel <paramref name="filtro" />.
         ///     Costruisce un'unica IQueryable: scoping per ruolo + range N_EM/N_SUBEM + statement
-        ///     promossi + sub-query EF per Firmatari/MyEM/EMDaFirmare + ordinamento composto
-        ///     (primario per ruolo, ThenBy dinamico) + paginazione. Niente materializzazione
+        ///     promossi + sub-query EF per Firmatari/MyEM/EMDaFirmare + ordinamento primario
+        ///     per ruolo + paginazione. Niente materializzazione
         ///     intermedia (eccetto Tags, dove il pattern di traduzione EF6 dell'OR su lista non
         ///     e' garantito).
         /// </summary>
         public async Task<IEnumerable<Guid>> GetAll(PersonaDto persona, int? page, int? size, int CLIENT_MODE,
-            OrdinamentoEnum ordine, Filter<EM> filtro, QueryExtendedRequestEM queryExtended,
-            List<SortingInfo> dettagliOrdinamento)
+            OrdinamentoEnum ordine, Filter<EM> filtro, QueryExtendedRequestEM queryExtended)
         {
             if (queryExtended == null) queryExtended = new QueryExtendedRequestEM();
-            if (dettagliOrdinamento == null) dettagliOrdinamento = new List<SortingInfo>();
 
             // 1. Promozione dei filtri specializzati a statement del Filter<EM> + estrazione
             //    delle liste tipizzate (firmatari, proponenti, gruppi, stati, tag).
@@ -1350,9 +1347,18 @@ namespace PortaleRegione.Persistance
             var tags = queryExtended.Tags != null && queryExtended.Tags.Count > 0
                 ? queryExtended.Tags : null;
 
-            // 2. Base + scoping per ruolo/modalita'.
-            var query = await ApplicaScopingBaseEM(filtroPromosso, persona, CLIENT_MODE, ordine, queryExtended.UIDAtto);
-            if (query == null) return new List<Guid>();
+            // 2. Base + scoping per ruolo/modalita'. In ricerca trasversale (#1626) lo scoping
+            //    non e' legato a un singolo atto: si parte da tutti i depositati.
+            IQueryable<EM> query;
+            if (queryExtended.RicercaGlobale)
+            {
+                query = ApplicaScopingGlobaleEM();
+            }
+            else
+            {
+                query = await ApplicaScopingBaseEM(filtroPromosso, persona, CLIENT_MODE, ordine, queryExtended.UIDAtto);
+                if (query == null) return new List<Guid>();
+            }
 
             // 3. Range N_EM/N_SUBEM (token "1,3-5,7") estratti dagli statement e applicati come
             //    OR di Where; gli statement consumati vengono rimossi dal Filter<EM>.
@@ -1366,9 +1372,15 @@ namespace PortaleRegione.Persistance
             query = ApplicaFiltriEstesi(query, firmatari, proponenti, gruppi, stati, tags,
                 queryExtended, persona);
 
-            // 6. Ordinamento composto: primario per ruolo + ThenBy dinamico via AttiEMSorting.
-            var ordered = ApplicaOrdinamentoEM(query, ordine, persona, CLIENT_MODE);
-            ordered = ApplicaSortCustomEM(ordered, dettagliOrdinamento);
+            // 5-bis. Filtri specifici della ricerca trasversale (legislatura, area politica, EM/SUBEM).
+            if (queryExtended.RicercaGlobale)
+                query = ApplicaFiltriGlobaliEM(query, queryExtended);
+
+            // 6. Ordinamento primario per ruolo (in ricerca trasversale gli EM appartengono
+            //    ad atti diversi: si raggruppa per atto).
+            var ordered = queryExtended.RicercaGlobale
+                ? ApplicaOrdinamentoGlobaleEM(query)
+                : ApplicaOrdinamentoEM(query, ordine, persona, CLIENT_MODE);
 
             // 7. Paginazione.
             if (!size.HasValue || size.Value == -1)
@@ -1496,6 +1508,98 @@ namespace PortaleRegione.Persistance
                                           || em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
 
             return query;
+        }
+
+        /// <summary>
+        ///     #1626 - Base per la ricerca trasversale EM/SUBEM (Area Aula): tutti gli emendamenti
+        ///     non eliminati e depositati, senza vincolo di singolo atto ne' di gruppo. La
+        ///     visibilita' "depositati da tutti i gruppi" e' garantita dalla regola sullo stato,
+        ///     coerente con la modalita' TRATTAZIONE.
+        /// </summary>
+        private IQueryable<EM> ApplicaScopingGlobaleEM()
+        {
+            return PRContext.EM.Where(em =>
+                !em.Eliminato
+                && em.IDStato >= (int)StatiEnum.Depositato
+                && !string.IsNullOrEmpty(em.DataDeposito));
+        }
+
+        /// <summary>
+        ///     #1626 - Filtri specifici della ricerca trasversale: legislatura (join su ATTI),
+        ///     area politica (campo EM.AreaPolitica) e tipo EM/SUBEM (presenza di Rif_UIDEM).
+        /// </summary>
+        private IQueryable<EM> ApplicaFiltriGlobaliEM(IQueryable<EM> query, QueryExtendedRequestEM qx)
+        {
+            if (qx.Legislature != null && qx.Legislature.Count > 0)
+            {
+                var legislature = qx.Legislature;
+                query = query.Where(em => PRContext.ATTI.Any(a =>
+                    a.UIDAtto == em.UIDAtto
+                    && a.Legislatura.HasValue
+                    && legislature.Contains(a.Legislatura.Value)));
+            }
+
+            if (qx.AreePolitiche != null && qx.AreePolitiche.Count > 0)
+            {
+                var aree = qx.AreePolitiche;
+                query = query.Where(em => em.AreaPolitica.HasValue && aree.Contains(em.AreaPolitica.Value));
+            }
+
+            switch ((TipoRicercaEmendamentiEnum)qx.TipoRicerca)
+            {
+                case TipoRicercaEmendamentiEnum.SoloEM:
+                    query = query.Where(em => !em.Rif_UIDEM.HasValue);
+                    break;
+                case TipoRicercaEmendamentiEnum.SoloSubEM:
+                    query = query.Where(em => em.Rif_UIDEM.HasValue);
+                    break;
+            }
+
+            return query;
+        }
+
+        /// <summary>
+        ///     #1626 - Ordinamento per la ricerca trasversale: gli EM provengono da atti diversi,
+        ///     quindi si raggruppa per atto e poi per EM/SUBEM e ordine di presentazione.
+        /// </summary>
+        private IOrderedQueryable<EM> ApplicaOrdinamentoGlobaleEM(IQueryable<EM> query)
+        {
+            return query
+                .OrderBy(em => em.UIDAtto)
+                .ThenBy(em => em.SubEM)
+                .ThenBy(em => em.OrdinePresentazione);
+        }
+
+        /// <summary>
+        ///     #1626 - Conteggio per la ricerca trasversale: replica la pipeline di GetAll in
+        ///     modalita' globale (scoping depositati + filtri estesi + filtri globali) e termina
+        ///     con un CountAsync.
+        /// </summary>
+        public async Task<int> CountGlobale(PersonaDto persona, Filter<EM> filtro, QueryExtendedRequestEM queryExtended)
+        {
+            if (queryExtended == null) queryExtended = new QueryExtendedRequestEM();
+            queryExtended.RicercaGlobale = true;
+
+            var filtroPromosso = PromuoviFiltriEM(filtro, queryExtended);
+            var firmatari = queryExtended.Firmatari != null && queryExtended.Firmatari.Count > 0
+                ? queryExtended.Firmatari : null;
+            var proponenti = queryExtended.Proponenti != null && queryExtended.Proponenti.Count > 0
+                ? queryExtended.Proponenti : null;
+            var gruppi = queryExtended.GruppiProponenti != null && queryExtended.GruppiProponenti.Count > 0
+                ? queryExtended.GruppiProponenti : null;
+            var stati = PromuoviStatiEM(queryExtended.Stati);
+            var tags = queryExtended.Tags != null && queryExtended.Tags.Count > 0
+                ? queryExtended.Tags : null;
+
+            var query = ApplicaScopingGlobaleEM();
+            query = ApplicaRangeNEM(query, filtroPromosso);
+            query = ApplicaRangeNSubEM(query, filtroPromosso);
+            filtroPromosso?.BuildExpression(ref query);
+            query = ApplicaFiltriEstesi(query, firmatari, proponenti, gruppi, stati, tags,
+                queryExtended, persona);
+            query = ApplicaFiltriGlobaliEM(query, queryExtended);
+
+            return await query.CountAsync();
         }
 
         /// <summary>
@@ -1689,41 +1793,6 @@ namespace PortaleRegione.Persistance
                 .ThenBy(em => em.Timestamp)
                 .ThenBy(em => em.Progressivo)
                 .ThenBy(em => em.SubProgressivo);
-        }
-
-        /// <summary>
-        ///     Aggiunge i ThenBy / ThenByDescending dinamici letti da <paramref name="dettagli" />,
-        ///     filtrando contro l'elenco ammesso <see cref="AttiEMSorting" /> per evitare
-        ///     sort su proprieta' non whitelist. Pattern uguale a DASIRepository: reflection su
-        ///     Expression.Property + MakeGenericMethod su Queryable.ThenBy[Descending].
-        /// </summary>
-        private IOrderedQueryable<EM> ApplicaSortCustomEM(IOrderedQueryable<EM> ordered,
-            List<SortingInfo> dettagli)
-        {
-            if (dettagli == null) return ordered;
-
-            foreach (var sort in dettagli)
-            {
-                if (string.IsNullOrEmpty(sort.propertyName)) continue;
-                if (typeof(AttiEMSorting).GetProperty(sort.propertyName) == null) continue;
-                var entityProp = typeof(EM).GetProperty(sort.propertyName);
-                if (entityProp == null) continue;
-
-                var param = Expression.Parameter(typeof(EM), "em");
-                var body = Expression.Property(param, sort.propertyName);
-                var lambda = Expression.Lambda(body, param);
-                var methodName = sort.sortDirection == 1
-                    ? nameof(Queryable.ThenBy)
-                    : nameof(Queryable.ThenByDescending);
-
-                var thenByMethod = typeof(Queryable).GetMethods()
-                    .First(m => m.Name == methodName && m.GetParameters().Length == 2)
-                    .MakeGenericMethod(typeof(EM), entityProp.PropertyType);
-
-                ordered = (IOrderedQueryable<EM>)thenByMethod.Invoke(null, new object[] { ordered, lambda });
-            }
-
-            return ordered;
         }
 
         /// <summary>
