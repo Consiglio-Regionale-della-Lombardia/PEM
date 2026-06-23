@@ -175,6 +175,27 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere le ultime sedute chiuse (#1627)
+        /// </summary>
+        /// <param></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.PEM.Sedute.GetChiuse)]
+        public async Task<IHttpActionResult> GetSeduteChiuse()
+        {
+            try
+            {
+                var result = await _seduteLogic.GetSeduteChiuse();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetSeduteChiuse", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per eliminare virtualmente una seduta
         /// </summary>
         /// <param name="id">Guid seduta</param>

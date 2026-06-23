@@ -180,6 +180,23 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
+        // #1627 - Ultime sedute chiuse per consentire a UOLA l'iscrizione ex post di un atto.
+        [HttpGet]
+        [Route("sedute-chiuse")]
+        public async Task<ActionResult> SeduteChiuse()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                return Json(await apiGateway.Sedute.GetChiuse(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet]
         [Route("seduta-by-data")]
         public async Task<ActionResult> SedutaByData(DateTime data)

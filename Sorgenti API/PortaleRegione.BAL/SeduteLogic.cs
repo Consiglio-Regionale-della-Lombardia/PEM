@@ -203,5 +203,20 @@ namespace PortaleRegione.BAL
                 null,
                 seduteAttive.Count());
         }
+
+        // #1627 - Ultime 20 sedute chiuse, per l'iscrizione ex post di un atto da parte di UOLA.
+        public async Task<BaseResponse<SeduteDto>> GetSeduteChiuse()
+        {
+            var sedute_chiuse = await _unitOfWork.Sedute.GetChiuse();
+
+            var seduteChiuse = sedute_chiuse.ToList();
+            return new BaseResponse<SeduteDto>(
+                1,
+                20,
+                seduteChiuse
+                    .Select(_mapper.Map<SEDUTE, SeduteDto>),
+                null,
+                seduteChiuse.Count);
+        }
     }
 }

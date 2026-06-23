@@ -72,6 +72,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string GetAttive = Base + "/attive";
                 public const string GetAttiveMOZU = Base + "/attive/mozioni-urgenti";
                 public const string GetAttiveDashboard = Base + "/attive/dashboard";
+                public const string GetChiuse = Base + "/chiuse";
                 public const string Delete = Base + "/{id}";
                 public const string Create = Base + "/create";
                 public const string Edit = Base + "/edit";

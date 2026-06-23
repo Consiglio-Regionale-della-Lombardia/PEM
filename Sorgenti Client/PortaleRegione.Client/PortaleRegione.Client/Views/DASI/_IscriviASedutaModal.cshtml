@@ -5,6 +5,18 @@
         <h4 id="txtIscriviSeduta"></h4>
         <ul class="collection with-header" id="lstSeduteAttive">
         </ul>
+        @* #1627 - Iscrizione ex post su una seduta gia' chiusa (ultime 20 sedute chiuse) *@
+        <div id="sezioneSeduteChiuse">
+            <button type="button" role="button" class="btn-flat blue-text" id="btnAltraSedutaDASI">
+                <i class="material-icons left">event_busy</i>Altra seduta
+            </button>
+            <div id="containerSeduteChiuse" class="input-field" style="display:none;">
+                <select id="ddlSeduteChiuse">
+                    <option value="" disabled selected>Seleziona una seduta chiusa</option>
+                </select>
+                <label for="ddlSeduteChiuse">Iscrivi a una seduta gi&agrave; chiusa</label>
+            </div>
+        </div>
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Iscrivi</a>
@@ -13,6 +25,8 @@
 
 <script>
     var sedute = [];
+    // #1627 - cache delle ultime sedute chiuse (caricate al primo click su "Altra seduta")
+    var seduteChiuse = [];
     $(window).on('load',
         async function() {
             if (sedute.length == 0) {
@@ -31,7 +45,57 @@
                             .replace("{CHECKED}", checked ? "checked='checked'" : ""));
                     });
             }
+
+            // #1627 - "Altra seduta": carica e mostra le ultime 20 sedute chiuse
+            $('#btnAltraSedutaDASI').off('click').on('click',
+                async function() {
+                    var ddl = document.getElementById('ddlSeduteChiuse');
+                    if (seduteChiuse.length == 0) {
+                        var dataChiuse = await GetSeduteChiuse();
+                        seduteChiuse = (dataChiuse && dataChiuse.Results) ? dataChiuse.Results : [];
+                        // svuoto le opzioni tranne il placeholder
+                        $('#ddlSeduteChiuse option:not(:first)').remove();
+                        $.each(seduteChiuse,
+                            function(i, item) {
+                                var text = "Seduta del " + GetFormattedDate(item.Data_seduta);
+                                $('#ddlSeduteChiuse').append("<option value='" + item.UIDSeduta + "'>" + text + "</option>");
+                            });
+                        var instance = M.FormSelect.getInstance(ddl);
+                        if (instance) instance.destroy();
+                        M.FormSelect.init(ddl);
+                    }
+                    $('#containerSeduteChiuse').show();
+                });
+
+            // #1627 - selezione di una seduta chiusa: diventa l'opzione di iscrizione attiva
+            $('#ddlSeduteChiuse').off('change').on('change',
+                function() {
+                    var uidSeduta = this.value;
+                    if (!uidSeduta) return;
+                    var text = this.options[this.selectedIndex].text;
+                    // sostituisco l'eventuale seduta chiusa selezionata in precedenza
+                    $('#lstSeduteAttive li.seduta-chiusa-item').remove();
+                    $('#lstSeduteAttive').append(
+                        "<li class='collection-item seduta-chiusa-item'><div><p><label>"
+                        + "<input name='gruppoSeduteAttive' type='radio' value='" + uidSeduta + "' checked='checked'/>"
+                        + "<span>" + text + " <b>(chiusa)</b></span></label></p></div></li>");
+                });
         });
+
+    // #1627 - reset della sezione "Altra seduta" ad ogni apertura della maschera
+    function ResetSeduteChiuse() {
+        $('#containerSeduteChiuse').hide();
+        $('#lstSeduteAttive li.seduta-chiusa-item').remove();
+        var ddl = document.getElementById('ddlSeduteChiuse');
+        if (ddl) {
+            ddl.selectedIndex = 0;
+            var instance = M.FormSelect.getInstance(ddl);
+            if (instance) {
+                instance.destroy();
+                M.FormSelect.init(ddl);
+            }
+        }
+    }
 
     function RimuoviSedutaDASI(uidAtto, nomeAtto) {
 
@@ -97,9 +161,7 @@
         text = "Iscrivi in una delle seguenti sedute:";
 
         $('#txtIscriviSeduta').html(text);
-        $('#btnNuovaSedutaDASI').show();
-        $('#dtSeduta').hide();
-        $('#dtSeduta').val("");
+        ResetSeduteChiuse();
         $('#btnIscriviSeduta_Salva').text("Iscrivi");
         $('#btnIscriviSeduta_Salva').off("click");
         $("#btnIscriviSeduta_Salva").on("click",
@@ -152,9 +214,7 @@
 
     function IscriviSedutaDASI(uidAtto, nomeAtto) {
         $('#hfUidAtto').val(uidAtto);
-        $('#btnNuovaSedutaDASI').show();
-        $('#dtSeduta').hide();
-        $('#dtSeduta').val("");
+        ResetSeduteChiuse();
         $('#txtIscriviSeduta').html("Iscrivi <b>" + nomeAtto + "</b> ad una delle seguenti sedute");
         $('#btnIscriviSeduta_Salva').text("Iscrivi");
         $('#btnIscriviSeduta_Salva').off("click");
