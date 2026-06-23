@@ -813,7 +813,9 @@ namespace PortaleRegione.API.Controllers
                 viewMode = (ViewModeEnum)fromRequest;
             }
 
-            await AddRequireMySignData(queryExtended, persona, Convert.ToBoolean(RequireMySign));
+            // #1616 - "atti da firmare" attivo sia dal vecchio param RequireMySign sia dalla chip
+            await AddRequireMySignData(queryExtended, persona,
+                Convert.ToBoolean(RequireMySign) || queryExtended.RequireMySign);
 
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(model.filtro);
@@ -871,6 +873,21 @@ namespace PortaleRegione.API.Controllers
                     && statementSoloIscritti.Value.ToString().Equals("true");
                 model.filtro.RemoveAll(statement =>
                     statement.PropertyId == nameof(AttoDASIDto.SoloAttiIscrittiInSeduta));
+            }
+
+            // #1616 - chip "Atti da firmare" del pannello filtri consiglieri. Viaggia come filtro
+            // generico ma non corrisponde a una colonna di ATTI_DASI: la leggo qui, attivo il flag
+            // RequireMySign quando vale "true" e la rimuovo da model.filtro cosi' da non passarla al
+            // filtro SQL generico (dove verrebbe silenziosamente ignorata). Stesso schema di EMDaFirmare.
+            const string attiDaFirmareKey = "AttiDaFirmare";
+            var statementDaFirmare = model.filtro
+                .FirstOrDefault(statement => statement.PropertyId == attiDaFirmareKey);
+            if (statementDaFirmare != null)
+            {
+                queryExtended.RequireMySign =
+                    statementDaFirmare.Value != null
+                    && statementDaFirmare.Value.ToString().Equals("true");
+                model.filtro.RemoveAll(statement => statement.PropertyId == attiDaFirmareKey);
             }
 
             ExtractAndAddFilters(model, nameof(AttoDASIDto.UIDPersonaProponente), queryExtended.Proponenti, Guid.Parse,
@@ -1168,6 +1185,13 @@ namespace PortaleRegione.API.Controllers
                 {
                     queryExtended.AttiDaFirmare.Add(guid);
                 }
+
+                // #1633 - se l'utente non ha atti per cui e' richiesta la sua firma la lista resta
+                // vuota: senza sentinella il filtro a valle (AttiDaFirmare.Any()) verrebbe ignorato e
+                // la griglia mostrerebbe TUTTI gli atti invece di nessuno. Aggiungo un UID impossibile
+                // per forzare il risultato vuoto, coerente con "solo gli atti da firmare".
+                if (!queryExtended.AttiDaFirmare.Any())
+                    queryExtended.AttiDaFirmare.Add(Guid.Empty);
             }
         }
 
@@ -1293,7 +1317,9 @@ namespace PortaleRegione.API.Controllers
             if (RequireMySign == null)
                 RequireMySign = false;
 
-            await AddRequireMySignData(queryExtended, persona, Convert.ToBoolean(RequireMySign));
+            // #1616 - "atti da firmare" attivo sia dal vecchio param RequireMySign sia dalla chip
+            await AddRequireMySignData(queryExtended, persona,
+                Convert.ToBoolean(RequireMySign) || queryExtended.RequireMySign);
 
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(model.filtro);

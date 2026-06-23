@@ -99,12 +99,10 @@
            atti dell'utente collegato e' gia' ottenibile dal filtro dedicato "Proponente";
            la combinazione di MyEM con gli altri filtri (sempre in AND) risultava ambigua
            e in conflitto per l'utente. *@
-        @if (!load_gruppi)
-        {
-            // "Emendamenti da firmare" e' un filtro personale del consigliere/assessore (richieste
-            // firma a lui destinate). Per admin/segreteria non ha significato e viene nascosto.
-            <text>{ tag: "Emendamenti da firmare", id: "EMDaFirmare" },</text>
-        }
+        @* Issue #1633: rimosso il parametro selezionabile "Emendamenti da firmare" (EMDaFirmare)
+           dal Dettaglio ricerca. La funzione resta disponibile dalla sola spunta sopra la griglia
+           ("Visualizza solo gli EM/SUBEM per i quali e' richiesta la mia firma"), che continua a
+           usare internamente la chip invisibile EMDaFirmare come trasporto del flag al backend. *@
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.EffettiFinanziari))", id: "@nameof(EmendamentiDto.EffettiFinanziari)" },
     ];
 
@@ -267,10 +265,6 @@
                         var tagsData = tagsInstance ? tagsInstance.chipsData : [];
                         val = JSON.stringify(tagsData);
                         text = tagsData.map(function(t) { return t.tag; }).join(', ');
-                        chipText = keyLabel + ": " + text;
-                    } else if (key === "EMDaFirmare") {
-                        val = document.getElementById('em_da_firmare').checked;
-                        text = val ? 'Si' : 'No';
                         chipText = keyLabel + ": " + text;
                     } else if (key === "@nameof(EmendamentiDto.EffettiFinanziari)") {
                         val = document.getElementById('em_effetti_finanziari').checked;
@@ -483,13 +477,6 @@
                     secondaryPlaceholder: '+ Tag',
                     autocompleteOptions: { data: tagsInDb, limit: Infinity, minLength: 1 }
                 });
-                break;
-
-            case 'EMDaFirmare':
-                var checked = isEditing && currentValue === true ? 'checked' : '';
-                selectHTML = '<p><label><input id="em_da_firmare" type="checkbox" ' + checked + '/>' +
-                    '<span>Mostra solo emendamenti per cui \u00E8 richiesta la mia firma</span></label></p>';
-                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
                 break;
 
             case '@nameof(EmendamentiDto.EffettiFinanziari)':

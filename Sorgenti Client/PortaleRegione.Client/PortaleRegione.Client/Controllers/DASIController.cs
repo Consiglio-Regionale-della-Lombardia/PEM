@@ -978,6 +978,20 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         private BaseRequest<AttoDASIDto> BuildDasiRequest(FilterRequest model)
         {
+            // #1633 - la spunta "Visualizza solo gli atti per i quali e' richiesta la mia firma"
+            // invia uno pseudo-filtro "AttiDaFirmare". Qui lo traduco nel parametro RequireMySign
+            // (#539, gia' gestito lato API da AddRequireMySignData) e lo escludo dal filtro SQL
+            // generico, che non conosce questa proprieta'. Cosi' ricerca, "Seleziona tutto", azioni
+            // massive ed estrazioni rapide - che passano tutte da qui - restano coerenti.
+            var richiestaPropriaFirma = model.filters
+                .Any(f => f.property == "AttiDaFirmare"
+                          && !string.IsNullOrEmpty(f.value)
+                          && f.value.Equals("true", StringComparison.OrdinalIgnoreCase));
+
+            var filtriEffettivi = model.filters
+                .Where(f => f.property != "AttiDaFirmare")
+                .ToList();
+
             var request = new BaseRequest<AttoDASIDto>
             {
                 page = model.page > 0 ? model.page : 1,
@@ -985,7 +999,8 @@ namespace PortaleRegione.Client.Controllers
                 param = new Dictionary<string, object>
                 {
                     { "CLIENT_MODE", model.clientMode },
-                    { nameof(FilterRequest.viewMode), model.viewMode }
+                    { nameof(FilterRequest.viewMode), model.viewMode },
+                    { "RequireMySign", richiestaPropriaFirma }
                 }
             };
 
@@ -995,7 +1010,7 @@ namespace PortaleRegione.Client.Controllers
             if (model.columns_settings != null && model.columns_settings.Any())
                 request.columns = model.columns_settings;
 
-            request.filtro.AddRange(Utility.ParseFilterDasi(model.filters));
+            request.filtro.AddRange(Utility.ParseFilterDasi(filtriEffettivi));
 
             return request;
         }

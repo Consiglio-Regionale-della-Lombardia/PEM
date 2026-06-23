@@ -133,6 +133,11 @@
 			}
 		}
 
+		// #1633 - propaga la spunta "richiesta la mia firma" alle azioni massive ed estrazioni rapide,
+		// cosi' che "Seleziona tutto + Firma massiva" e gli export operino sullo stesso insieme di atti
+		// mostrato in griglia.
+		if (typeof window.appendRichiestaFirmaDASI === 'function') window.appendRichiestaFirmaDASI(chipsData);
+
 		var sort = [];
 		try { sort = JSON.parse(localStorage.getItem('selectedSortColumns')) || []; } catch (e) { sort = []; }
 		var cols = [];

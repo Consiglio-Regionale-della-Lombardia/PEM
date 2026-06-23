@@ -128,6 +128,19 @@
             </div>
         </li>
     </ul>
+
+    @* Issue #1633: unica leva "richiesta la mia firma", al posto del vecchio parametro selezionabile
+       "Atti da firmare". Sempre visibile in area gruppi, sopra la griglia. Da sola e' una ricerca
+       valida (mostra gli atti propri/da invito non ancora firmati); spuntata insieme ad altri filtri
+       li raffina in AND. E' un toggle di vista: non viene salvata nei filtri/preferiti/report. *@
+    <div class="row" style="margin-bottom: 0;">
+        <div class="col s12">
+            <label>
+                <input type="checkbox" id="chkRichiestaFirmaDASI" onchange="filtraDASI_RichiestaFirma(this.checked)"/>
+                <span for="chkRichiestaFirmaDASI">Visualizza solo gli atti per i quali &#232; richiesta la mia firma</span>
+            </label>
+        </div>
+    </div>
 }
 
 @{

@@ -70,7 +70,9 @@ else
         { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Abbinamenti))", id: "@nameof(AttoDASIDto.Abbinamenti)" },
         { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Firme))", id: "@nameof(AttoDASIDto.Firme)" },
         { tag: "Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)" },
-        { tag: "Atti da firmare", id: "AttiDaFirmare" },
+        @* Issue #1633: rimosso il parametro selezionabile "Atti da firmare" (AttiDaFirmare) dal
+           Dettaglio ricerca. La funzione resta disponibile dalla sola spunta sopra la griglia
+           ("Visualizza solo gli atti per i quali e' richiesta la mia firma"). *@
     ];
 
     var availableFilterTrattazioneArray = [
@@ -417,10 +419,6 @@ else
                         val = selectedOption.options[selectedOption.selectedIndex].value;
                         text = selectedOption.options[selectedOption.selectedIndex].text;
                         chipText = keyLabel + ": " + text;
-                    } else if (key === "AttiDaFirmare") {
-                        val = document.getElementById('atti-da-firmare').checked;
-                        text = val ? 'Si' : 'No';
-                        chipText = "Atti da firmare: " + text;
                     } else {
                         var selectedOption = document.querySelector('#dynamic-select-container select');
                         val = selectedOption.options[selectedOption.selectedIndex].value;
@@ -485,9 +483,13 @@ else
 
         // Gate GRUPPI: se l'utente non ha nessuna chip VISIBILE (rimane solo la chip invisibile id_gruppo),
         // non inviare richiesta al server e mostra il messaggio di cortesia.
+        // #1633 - la spunta "richiesta la mia firma" e' un criterio di ricerca a se' stante: se attiva,
+        // la ricerca e' valida anche senza altre chip visibili.
         if (clientMode != @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
             var visibleChipsCount = document.querySelectorAll('#chips-container .chip.filter-chip:not([style*="display: none"])').length;
-            if (visibleChipsCount === 0) {
+            var chkRichiestaFirma = document.getElementById('chkRichiestaFirmaDASI');
+            var soloAttiDaFirmare = chkRichiestaFirma && chkRichiestaFirma.checked;
+            if (visibleChipsCount === 0 && !soloAttiDaFirmare) {
                 document.getElementById('tableResults').innerHTML = `<div class="card-panel blue lighten-5 center">
 <span class="center">
     <p>Esegui una ricerca per poter visualizzare gli atti</p>
@@ -510,6 +512,10 @@ else
                 chipsData.push({ property: "@Html.Raw(nameof(AttoDASIDto.id_gruppo))", value: _gruppoGuard });
             }
         }
+
+        // #1633 - aggiunge lo pseudo-filtro "AttiDaFirmare" quando la spunta sopra la griglia
+        // "Visualizza solo gli atti per i quali e' richiesta la mia firma" e' attiva.
+        appendRichiestaFirmaDASI(chipsData);
 
         try {
             request.filters = chipsData;
@@ -607,6 +613,9 @@ else
             }
         });
 
+        // #1633 - propaga la spunta "richiesta la mia firma" anche alla risoluzione "Seleziona tutto".
+        appendRichiestaFirmaDASI(chipsData);
+
         try {
             request.filters = chipsData;
             request.page = page;
@@ -641,6 +650,25 @@ else
             console.error('Errore durante l\'invio dei dati delle chips solo ids:', error);
         }
     }
+
+    // #1633 - Spunta "Visualizza solo gli atti per i quali e' richiesta la mia firma".
+    // A differenza del vecchio parametro selezionabile, NON e' una chip: resta un toggle
+    // di vista che non viene salvato in filtri/preferiti/report. Quando attiva, aggiunge alla
+    // richiesta uno pseudo-filtro "AttiDaFirmare" che il controller client traduce nel parametro
+    // RequireMySign (riusando la logica gia' presente lato API). Va in AND con gli altri filtri.
+    window.appendRichiestaFirmaDASI = function (chipsData) {
+        var chk = document.getElementById('chkRichiestaFirmaDASI');
+        if (chk && chk.checked) {
+            chipsData.push({ property: 'AttiDaFirmare', value: 'true' });
+        }
+        return chipsData;
+    };
+
+    // Handler della spunta: ricarica la griglia mantenendo i filtri correnti (la pagina torna
+    // alla prima). Lo stato "checked" e' letto direttamente dal checkbox in fase di invio.
+    window.filtraDASI_RichiestaFirma = function (enable) {
+        inviaDatiChips(1, $("#hdPaginazioneCorrente").val());
+    };
 
     var responseData = {};
     var risultatiTabella = [];
@@ -1364,25 +1392,6 @@ else
                         $('#infoModal').modal('close');
                     });
             }
-            break;
-        case 'AttiDaFirmare':
-            var isChecked = isEditing && currentValue ? 'checked="checked"' : '';
-            selectHTML = `
-                <div class="input-field col s12">
-                <p>
-                    <label>
-                        <input id="atti-da-firmare" type="checkbox" ${isChecked}/>
-                        <span>Si / No</span>
-                    </label>
-                </p>
-                </div>
-                <div class="card blue lighten-5">
-                    <div class="card-content black-text">
-                        <span class="card-title">Informazioni</span>
-                        <p>Spuntare per trovare tutti gli atti in attesa di firma. Lasciare vuoto per trovare tutti gli atti che non richiedono firma.</p>
-                    </div>
-                </div>`;
-            document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
         default:
             console.log("Filtro non riconosciuto!");
