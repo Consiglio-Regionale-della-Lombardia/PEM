@@ -34,6 +34,10 @@ public class QueryExtendedRequest
     public List<Guid> Proponenti { get; set; } = new();
     public List<Guid> Provvedimenti { get; set; } = new();
     public List<Guid> AttiDaFirmare { get; set; } = new();
+
+    // #1616 - flag "Atti da firmare" arrivato come chip dal pannello filtri consiglieri.
+    // Quando true si popola AttiDaFirmare (inviti aperti + atti propri non ancora firmati).
+    public bool RequireMySign { get; set; } = false;
     public List<int> Risposte { get; set; } = new();
     public List<int> Organi { get; set; } = new();
     public List<int> Organi_Commissione { get; set; } = new();
@@ -85,6 +89,7 @@ public class QueryExtendedRequest
             Proponenti = new List<Guid>(Proponenti),
             Provvedimenti = new List<Guid>(Provvedimenti),
             AttiDaFirmare = new List<Guid>(AttiDaFirmare),
+            RequireMySign = RequireMySign, // #1616
             Risposte = new List<int>(Risposte),
             Organi = new List<int>(Organi),
             DataTrasmissione = new List<DateTime>(DataTrasmissione),
