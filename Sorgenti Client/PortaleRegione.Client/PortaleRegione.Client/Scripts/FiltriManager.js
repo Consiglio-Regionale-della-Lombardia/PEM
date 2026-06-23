@@ -102,10 +102,15 @@ function GetLegislature() {
     });
 }
 
-function GetProponenti(idLegislatura) {
+function GetProponenti(idLegislatura, gruppoId) {
     return new Promise(async function(resolve, reject) {
+        var url = baseUrl + "/persone/proponenti-firmatari?legislaturaId=" + idLegislatura;
+        // #1630 - in area privata del gruppo restringe la lista ai soli consiglieri del gruppo
+        if (gruppoId) {
+            url += "&gruppoId=" + gruppoId;
+        }
         $.ajax({
-            url: baseUrl + "/persone/proponenti-firmatari?legislaturaId=" + idLegislatura,
+            url: url,
             type: "GET"
         }).done(function(result) {
             set_ListaProponenti(result);

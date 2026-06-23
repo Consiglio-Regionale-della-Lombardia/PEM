@@ -126,9 +126,11 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
-        public async Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId)
+        public async Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId, int? gruppoId = null)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.GetProponentiFirmatari}?legislaturaId={legislaturaId}";
+            if (gruppoId.HasValue && gruppoId.Value > 0)
+                requestUrl += $"&gruppoId={gruppoId.Value}";
             var lst = JsonConvert.DeserializeObject<List<PersonaPublicDto>>(await Get(requestUrl, _token));
             return lst;
         }

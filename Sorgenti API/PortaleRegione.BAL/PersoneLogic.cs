@@ -111,10 +111,10 @@ namespace PortaleRegione.BAL
             return persone;
         }
 
-        public async Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId)
+        public async Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId, int? gruppoId = null)
         {
             var consiglieri =
-                await _unitOfWork.Persone.GetProponentiFirmatari(legislaturaId);
+                await _unitOfWork.Persone.GetProponentiFirmatari(legislaturaId, gruppoId);
             var persone = new List<PersonaPublicDto>();
             foreach (var c in consiglieri)
             {

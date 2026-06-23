@@ -1204,7 +1204,11 @@ else
                         });
                     break;
                 }
-                var persone = await GetProponenti(idLegislatura);
+                // #1630 - in area GRUPPI proponiamo solo i consiglieri del gruppo; in trattazione/aula tutti
+                var _gruppoFiltroProponenti = (localStorage.getItem('clientMode') != @Html.Raw((int)ClientModeEnum.TRATTAZIONE))
+                    ? '@Html.Raw(Model.CurrentUser?.Gruppo != null ? Model.CurrentUser.Gruppo.id_gruppo.ToString() : "")'
+                    : '';
+                var persone = await GetProponenti(idLegislatura, _gruppoFiltroProponenti);
                 setupPersonePickerDASI({
                     prefix: 'proponenti',
                     dataAttr: 'proponente-uid',
@@ -1230,7 +1234,11 @@ else
                         });
                     break;
                 }
-                var persone = await GetProponenti(idLegislatura);
+                // #1630 - in area GRUPPI proponiamo solo i consiglieri del gruppo; in trattazione/aula tutti
+                var _gruppoFiltroProponenti = (localStorage.getItem('clientMode') != @Html.Raw((int)ClientModeEnum.TRATTAZIONE))
+                    ? '@Html.Raw(Model.CurrentUser?.Gruppo != null ? Model.CurrentUser.Gruppo.id_gruppo.ToString() : "")'
+                    : '';
+                var persone = await GetProponenti(idLegislatura, _gruppoFiltroProponenti);
                 setupPersonePickerDASI({
                     prefix: 'firme',
                     dataAttr: 'firme-uid',
