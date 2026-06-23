@@ -53,6 +53,9 @@
     var selectedSortColumnsEM = [];
     var chipsKeysEM = {};
     var idLegislaturaEM = "@(Model.Atto.Legislatura ?? Model.Atto.SEDUTE?.id_legislatura)";
+    // #1630 - in area privata del gruppo (consigliere, non admin/segreteria) i picker proponente/firmatari
+    // propongono solo i consiglieri del gruppo; admin e area trattazione/aula vedono tutti.
+    var gruppoFiltroProponentiEM = '@(Model.Mode == ClientModeEnum.GRUPPI && !load_gruppi && Model.CurrentUser?.Gruppo != null ? Model.CurrentUser.Gruppo.id_gruppo.ToString() : "")';
 
     // Chiavi dei filtri default/fissi (non eliminabili dall'utente in UI).
     // Per il consigliere il gruppo e' bloccato sul proprio; per l'admin no.
@@ -94,7 +97,10 @@
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.TestoEM_originale))", id: "@nameof(EmendamentiDto.TestoEM_originale)" },
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.Tags))", id: "@nameof(EmendamentiDto.Tags)" },
         { tag: "@Utility.GetDisplayName(typeof(EmendamentiDto), nameof(EmendamentiDto.Rif_UIDEM))", id: "@nameof(EmendamentiDto.Rif_UIDEM)" },
-        { tag: "Miei emendamenti", id: "MyEM" },
+        @* Issue #1634: rimosso il filtro "Miei emendamenti" (MyEM). La selezione dei soli
+           atti dell'utente collegato e' gia' ottenibile dal filtro dedicato "Proponente";
+           la combinazione di MyEM con gli altri filtri (sempre in AND) risultava ambigua
+           e in conflitto per l'utente. *@
         @if (!load_gruppi)
         {
             // "Emendamenti da firmare" e' un filtro personale del consigliere/assessore (richieste
@@ -263,10 +269,6 @@
                         var tagsData = tagsInstance ? tagsInstance.chipsData : [];
                         val = JSON.stringify(tagsData);
                         text = tagsData.map(function(t) { return t.tag; }).join(', ');
-                        chipText = keyLabel + ": " + text;
-                    } else if (key === "MyEM") {
-                        val = document.getElementById('em_my').checked;
-                        text = val ? 'Si' : 'No';
                         chipText = keyLabel + ": " + text;
                     } else if (key === "EMDaFirmare") {
                         val = document.getElementById('em_da_firmare').checked;
@@ -438,7 +440,7 @@
                 break;
 
             case '@nameof(EmendamentiDto.UIDPersonaProponente)':
-                var persone = await GetProponenti(idLegislaturaEM);
+                var persone = await GetProponenti(idLegislaturaEM, gruppoFiltroProponentiEM);
                 selectHTML = '<div id="modal-proponenti-container">' +
                     '<div class="input-field col s12"><input id="proponenti-em-search" type="text" placeholder="Cerca persona..."><label for="proponenti-em-search" class="active">Cerca</label></div>' +
                     '<div id="proponenti-em-chips"></div>' +
@@ -454,7 +456,7 @@
                 break;
 
             case '@nameof(EmendamentiDto.Firme)':
-                var persone = await GetProponenti(idLegislaturaEM);
+                var persone = await GetProponenti(idLegislaturaEM, gruppoFiltroProponentiEM);
                 selectHTML = '<div id="modal-firmatari-container">' +
                     '<div class="input-field col s12"><input id="firmatari-em-search" type="text" placeholder="Cerca persona..."><label for="firmatari-em-search" class="active">Cerca</label></div>' +
                     '<div id="firmatari-em-chips"></div>' +
@@ -483,13 +485,6 @@
                     secondaryPlaceholder: '+ Tag',
                     autocompleteOptions: { data: tagsInDb, limit: Infinity, minLength: 1 }
                 });
-                break;
-
-            case 'MyEM':
-                var checked = isEditing && currentValue === true ? 'checked' : '';
-                selectHTML = '<p><label><input id="em_my" type="checkbox" ' + checked + '/>' +
-                    '<span>Visualizza i miei EM</span></label></p>';
-                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
                 break;
 
             case 'EMDaFirmare':
@@ -731,8 +726,13 @@
         // Chiavi default per escluderle dai filtri utente
         var defaultKeys = new Set(defaultFiltri.map(function(f) { return f.key; }));
 
-        // Filtri utente = quelli in filtriEM con key NON di default
-        var filtriUtente = (filtriEM || []).filter(function(f) { return !defaultKeys.has(f.key); });
+        // Filtri utente = quelli in filtriEM con key NON di default.
+        // Issue #1634: il filtro "Miei emendamenti" (MyEM) e' stato rimosso dal pannello;
+        // scartiamo eventuali chip MyEM rimaste in localStorage da versioni precedenti per
+        // non re-iniettarle al ripristino dei filtri.
+        var filtriUtente = (filtriEM || []).filter(function(f) {
+            return !defaultKeys.has(f.key) && f.key !== 'MyEM';
+        });
 
         // Merge: prima i default, poi i filtri utente (evita duplicati per key)
         var visti = new Set();
