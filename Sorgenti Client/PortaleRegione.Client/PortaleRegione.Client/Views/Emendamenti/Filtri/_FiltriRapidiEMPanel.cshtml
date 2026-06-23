@@ -19,7 +19,6 @@
 <div class="row">
     <div class="col l7 m12 s12 left-align" style="padding-top: 10px;">
         <div id="chips-container"></div>
-        <div id="chips-container-sorting"></div>
     </div>
     <div class="col l5 m12 s12 right-align">
         <button id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</button>
@@ -50,7 +49,6 @@
 
 
 <script>
-    var selectedSortColumnsEM = [];
     var chipsKeysEM = {};
     var idLegislaturaEM = "@(Model.Atto.Legislatura ?? Model.Atto.SEDUTE?.id_legislatura)";
     // #1630 - in area privata del gruppo (consigliere, non admin/segreteria) i picker proponente/firmatari
@@ -749,30 +747,10 @@
     }
 
     function ripristinaOrdinamentoEM() {
+        // v2026.5.1 #1628 - l'ordinamento secondario degli emendamenti e' stato rimosso:
+        // resta solo l'ordinamento primario (tab Presentazione/Votazione). La funzione e'
+        // mantenuta come no-op per non rompere eventuali chiamanti residui.
         $('#chips-container-sorting').empty();
-
-        var ordinamenti = JSON.parse(localStorage.getItem('selectedSortColumnsEM')) || [];
-
-        // L'ordinamento principale Presentazione/Votazione e' gestito dalle tab sopra la griglia,
-        // quindi qui non si reinietta piu' un ordinamento predefinito: la chip "Ordinato per ..." resta
-        // visibile solo se l'utente ha effettivamente impostato un ordinamento secondario dal modale.
-        // Per sicurezza, se in localStorage sono rimasti residui di Presentazione/Votazione salvati
-        // da versioni precedenti, li ripuliamo affinche' il ripristino funzioni come atteso.
-        var residui = ordinamenti.filter(function (o) {
-            return o && (o.propertyName === '@nameof(EmendamentiDto.OrdinePresentazione)'
-                || o.propertyName === '@nameof(EmendamentiDto.OrdineVotazione)');
-        });
-        if (residui.length > 0) {
-            ordinamenti = ordinamenti.filter(function (o) {
-                return o && o.propertyName !== '@nameof(EmendamentiDto.OrdinePresentazione)'
-                    && o.propertyName !== '@nameof(EmendamentiDto.OrdineVotazione)';
-            });
-            localStorage.setItem('selectedSortColumnsEM', JSON.stringify(ordinamenti));
-        }
-
-        ordinamenti.forEach(function (ordinamento) {
-            addSortChipIfNotExistsEM(ordinamento.propertyName, ordinamento.sortDirection, ordinamento.displayText);
-        });
     }
 
     // =============================================
@@ -807,7 +785,6 @@
             viewMode: view,
             clientMode: clientMode,
             ordine: ordine,
-            sort_settings: selectedSortColumnsEM || [],
             columns_settings: []
         };
     };
@@ -1030,9 +1007,8 @@
                 + '    </label>';
         }
 
-        // v2026.5.1: pulsanti rotondi di export sopra la griglia (prima di
-        // btnOrdinamentoRisultati). Consigliere: solo Excel; segreteria/admin
-        // (load_gruppi=true): Word + Excel + Excel Segreteria (UOLA).
+        // v2026.5.1: pulsanti rotondi di export sopra la griglia. Consigliere: solo Excel;
+        // segreteria/admin (load_gruppi=true): Word + Excel + Excel Segreteria (UOLA).
         var loadGruppi = @(load_gruppi ? "true" : "false");
 
         html += '  </div>'
@@ -1058,11 +1034,7 @@
                 + '    </button>';
         }
 
-        html += '    <button type="button" id="btnOrdinamentoRisultati" class="btn-floating white black-text tooltipped" '
-            + '            data-tooltip="Ordinamento secondario" data-position="bottom">'
-            + '      <i class="material-icons">sort_by_alpha</i>'
-            + '    </button>'
-            + '    <button type="button" class="btn-floating white black-text tooltipped" '
+        html += '    <button type="button" class="btn-floating white black-text tooltipped" '
             + '            onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="bottom">'
             + '      <i class="material-icons">print</i>'
             + '    </button>'
@@ -1760,5 +1732,4 @@
     Html.RenderPartial("Filtri/_DettaglioFiltroModalEM");
     Html.RenderPartial("Filtri/_FiltroConfigModalEM");
     @* v2026.5.1: _ReportConfigModalEM rimossa (vedi _ExportButtonsEM). *@
-    Html.RenderPartial("Filtri/_OrdinamentoColonneEM");
 }

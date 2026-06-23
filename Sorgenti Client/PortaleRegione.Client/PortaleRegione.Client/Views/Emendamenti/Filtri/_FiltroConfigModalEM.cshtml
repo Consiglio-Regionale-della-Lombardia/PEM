@@ -34,7 +34,6 @@
     document.getElementById('btnSalvaConfig').addEventListener('click', async function () {
         var request = {};
         var filtri = JSON.parse(localStorage.getItem('filtriChipsEM')) || [];
-        var sorting = JSON.parse(localStorage.getItem('selectedSortColumnsEM'));
 
         // Chip "contestuali" (atto, seduta, gruppo, legislatura) non vengono persistite:
         // dipendono dal contesto della pagina e renderebbero il gruppo di filtri non
@@ -46,7 +45,9 @@
         var filtriUtente = filtri.filter(function (f) { return fixedKeys.indexOf(f.key) === -1; });
 
         request.filters = JSON.stringify(filtriUtente);
-        request.sorting = JSON.stringify(sorting);
+        // #1628 - l'ordinamento secondario degli EM e' stato rimosso: i filtri PEM non
+        // persistono piu' alcun ordinamento (campo mantenuto vuoto per il DTO condiviso).
+        request.sorting = "[]";
         request.name = document.getElementById('filter_name').value;
         // I filtri PEM sono sempre prioritari (richiesta utente v2026.5.1):
         // niente checkbox in UI, Preferito = true forzato lato server e qui per UX immediata.
@@ -151,7 +152,6 @@
             resetSelezionePreferitiEM();
             newChip.classList.replace("white", "yellow");
             localStorage.setItem('filtriChipsEM', filters);
-            localStorage.setItem('selectedSortColumnsEM', sorting);
             chipsKeysEM = [];
 
             ripristinaFiltriEM();
@@ -232,7 +232,6 @@
                 } else {
                     resetSelezionePreferitiEM();
                     localStorage.setItem('filtriChipsEM', item.filters);
-                    localStorage.setItem('selectedSortColumnsEM', item.sorting);
                     window.chipsKeysEM = [];
                     ripristinaFiltriEM();
                     ripristinaOrdinamentoEM();
