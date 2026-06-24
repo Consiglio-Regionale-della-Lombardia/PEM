@@ -23,6 +23,7 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Interfaces;
 using PortaleRegione.BAL;
@@ -1431,6 +1432,14 @@ namespace PortaleRegione.Persistance
 
                     if (combinedRangePredicate != null)
                         query = query.Where(combinedRangePredicate);
+                }
+                else if ((f.PropertyId == nameof(ATTI_DASI.DCR) || f.PropertyId == nameof(ATTI_DASI.DCCR))
+                         && f.Operation == Operation.IsNotEmpty)
+                {
+                    // #1637: filtro "Non vuoti" su DCR/DCCR -> l'atto ha un numero DCR oppure DCCR
+                    // assegnato. A db il campo puo' essere 0, null o vuoto: solo > 0 vale come
+                    // "valorizzato" (in EF il confronto > 0 esclude correttamente sia 0 sia null).
+                    query = query.Where(item => item.DCR > 0 || item.DCCR > 0);
                 }
                 else if ((f.PropertyId == nameof(ATTI_DASI.DCR) || f.PropertyId == nameof(ATTI_DASI.DCCR)) && hasText)
                 {

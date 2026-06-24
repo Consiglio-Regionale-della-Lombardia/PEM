@@ -875,9 +875,14 @@ namespace PortaleRegione.Common
                 {
                     if (filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
                     {
+                        // #1637: "Non vuoti" su DCR/DCCR deve restituire solo gli atti con un
+                        // numero effettivamente assegnato. Non si puo' usare DCRL (legislatura),
+                        // che e' quasi sempre valorizzato di default: il marcatore viaggia sul
+                        // campo DCR e la condizione vera (DCR > 0 OR DCCR > 0) viene applicata
+                        // nel repository (vedi DASIRepository.ApplyFilters).
                         result.Add(new FilterStatement<AttoDASIDto>
                         {
-                            PropertyId = nameof(AttoDASIDto.DCRL),
+                            PropertyId = nameof(AttoDASIDto.DCR),
                             Operation = Operation.IsNotEmpty,
                             Connector = FilterStatementConnector.And
                         });
