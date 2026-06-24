@@ -225,8 +225,12 @@
             if (aree.length > 0)
                 filters.push({ property: 'AreaPolitica', value: aree.join(',') });
 
-            var testo = (document.getElementById('filtroTesto').value || '').trim();
-            if (testo !== '')
+            // #1643 - Non si fa il TRIM del testo cercato: gli spazi iniziali/finali
+            // sono significativi e servono all'utente per delimitare il valore ed
+            // evitare il match parziale (es. " 50000,00" non deve pescare "250000,00").
+            // Il trim si usa solo per la guardia di non-vuoto (no ricerca di soli spazi).
+            var testo = document.getElementById('filtroTesto').value || '';
+            if (testo.trim() !== '')
                 filters.push({ property: 'TestoEM_originale', value: testo });
 
             if (document.getElementById('filtroEffettiFinanziari').checked)

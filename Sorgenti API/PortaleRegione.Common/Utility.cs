@@ -1232,8 +1232,11 @@ namespace PortaleRegione.Common
             if (string.IsNullOrEmpty(raw)) return;
 
             var parts = raw.Split('|');
-            var primo = parts[0]?.Trim();
-            if (!string.IsNullOrEmpty(primo))
+            // #1643 - Niente TRIM sul testo cercato: gli spazi a inizio/fine sono
+            // significativi (servono a delimitare il valore ed evitare il match parziale
+            // dei numeri). Si usa IsNullOrWhiteSpace solo come guardia di non-vuoto.
+            var primo = parts[0];
+            if (!string.IsNullOrWhiteSpace(primo))
             {
                 result.Add(new FilterStatement<EmendamentiDto>
                 {
@@ -1245,8 +1248,9 @@ namespace PortaleRegione.Common
             }
 
             if (parts.Length < 3) return;
-            var secondo = parts[2]?.Trim();
-            if (string.IsNullOrEmpty(secondo)) return;
+            // #1643 - Anche il secondo testo non viene trimmato (vedi sopra).
+            var secondo = parts[2];
+            if (string.IsNullOrWhiteSpace(secondo)) return;
 
             var connettoreRaw = parts[1]?.Trim();
             var connettore = FilterStatementConnector.And;
