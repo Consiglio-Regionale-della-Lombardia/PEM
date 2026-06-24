@@ -275,6 +275,20 @@
                         val = document.getElementById('em_effetti_finanziari').checked;
                         text = val ? 'Si' : 'No';
                         chipText = keyLabel + ": " + text;
+                    } else if (key === "@nameof(EmendamentiDto.id_gruppo)") {
+                        text = "";
+                        val = "";
+                        var existingChips = document.querySelectorAll('.chip[data-gruppo-em-id]');
+                        existingChips.forEach(function (item, index) {
+                            var chipInnerText = Array.from(item.childNodes)
+                                .filter(function (node) { return node.nodeType === Node.TEXT_NODE; })
+                                .map(function (node) { return node.textContent.trim(); })
+                                .join('');
+                            if (index > 0) { text += ", "; val += ","; }
+                            text += chipInnerText;
+                            val += item.getAttribute('data-gruppo-em-id');
+                        });
+                        chipText = keyLabel + ": " + text;
                     }
 
                     addChipIfNotExistsEM(key, keyLabel, val, text, chipText, true, true);
@@ -499,6 +513,94 @@
                 selectHTML = '<p><label><input id="em_effetti_finanziari" type="checkbox" ' + checked + '/>' +
                     '<span>Visualizza solo EM con effetti finanziari</span></label></p>';
                 document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+                break;
+
+            case '@nameof(EmendamentiDto.id_gruppo)':
+                // Filtro "Gruppi" (solo Amministratore PEM / Segreteria Assemblea): propone i
+                // gruppi politici della legislatura corrente, con selezione multipla a chip.
+                if (!idLegislaturaEM) {
+                    document.getElementById('dynamic-select-container').innerHTML =
+                        '<p>Legislatura non disponibile: impossibile caricare l\'elenco dei gruppi.</p>';
+                    break;
+                }
+                var gruppiEM = await GetGruppiByLegislatura(idLegislaturaEM);
+                var gruppiDataEM = [];
+                selectHTML = '<select id="gruppi-em-select"><option value="0" disabled selected>Seleziona</option>';
+                if (gruppiEM && gruppiEM.length) {
+                    gruppiEM.forEach(function (item) {
+                        var tagText = item.nome_gruppo + ' (' + item.codice_gruppo + ')';
+                        if (item.data_fine) {
+                            tagText += ' fino al ' + formatDate(item.data_fine);
+                        }
+                        selectHTML += '<option value="' + item.id_gruppo + '">' + tagText + '</option>';
+                        gruppiDataEM.push({ tag: tagText, id: String(item.id_gruppo) });
+                    });
+                }
+                selectHTML += '</select>' +
+                    '<div id="gruppi-em-selected"></div>' +
+                    '<div class="card blue lighten-5"><div class="card-content black-text">' +
+                    '<span class="card-title">Informazioni</span>' +
+                    '<p>Seleziona uno o piu\' gruppi politici dall\'elenco.</p>' +
+                    '</div></div>';
+                document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+
+                document.getElementById('gruppi-em-select').addEventListener('change', function (event) {
+                    var selectElement = event.target;
+                    var selectedOption = selectElement.options[selectElement.selectedIndex];
+                    var idGruppo = selectedOption.value;
+                    var txtGruppo = selectedOption.text;
+                    if (idGruppo === '0') return;
+
+                    if (!document.querySelector('.chip[data-gruppo-em-id="' + idGruppo + '"]')) {
+                        var chipsContainerGruppi = document.getElementById('gruppi-em-selected');
+                        var newChip = document.createElement('div');
+                        newChip.setAttribute('data-gruppo-em-id', idGruppo);
+                        newChip.classList.add('chip');
+                        newChip.textContent = txtGruppo;
+
+                        var closeIcon = document.createElement('i');
+                        closeIcon.classList.add('close', 'material-icons');
+                        closeIcon.style.setProperty('top', 'unset', 'important');
+                        closeIcon.textContent = 'close';
+                        closeIcon.onclick = function () {
+                            newChip.remove();
+                            var option = document.querySelector('#gruppi-em-select option[value="' + idGruppo + '"]');
+                            if (option) option.selected = false;
+                        };
+                        newChip.appendChild(closeIcon);
+                        chipsContainerGruppi.appendChild(newChip);
+                    }
+
+                    selectElement.selectedIndex = 0;
+                });
+
+                M.FormSelect.init(document.querySelectorAll('#gruppi-em-select'));
+
+                // In modifica: ricostruisce le chip dei gruppi gia' selezionati (id separati da virgola)
+                if (isEditing && currentValue) {
+                    var currentGruppiEM = currentValue.toString().split(',');
+                    var chipsContainerGruppiEdit = document.getElementById('gruppi-em-selected');
+                    currentGruppiEM.forEach(function (idSel) {
+                        var item = gruppiDataEM.find(function (g) { return g.id === idSel.trim(); });
+                        if (!item) return;
+                        var newChip = document.createElement('div');
+                        newChip.setAttribute('data-gruppo-em-id', item.id);
+                        newChip.classList.add('chip');
+                        newChip.textContent = item.tag;
+
+                        var closeIcon = document.createElement('i');
+                        closeIcon.classList.add('close', 'material-icons');
+                        closeIcon.style.setProperty('top', 'unset', 'important');
+                        closeIcon.textContent = 'close';
+                        closeIcon.onclick = function () {
+                            newChip.remove();
+                            var option = document.querySelector('#gruppi-em-select option[value="' + item.id + '"]');
+                            if (option) option.selected = false;
+                        };
+                        newChip.appendChild(closeIcon);
+                        chipsContainerGruppiEdit.appendChild(newChip);
+                    });
+                }
                 break;
         }
 
