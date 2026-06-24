@@ -445,6 +445,9 @@
                 selectHTML += '</div></div>';
                 document.getElementById('dynamic-select-container').innerHTML = selectHTML;
                 setupMultiPickerEM('proponente-em', 'proponenti-em', 'data-proponente-em-uid');
+                if (isEditing && currentValue) {
+                    ripristinaChipPickerEM(persone, 'proponenti-em', 'data-proponente-em-uid', currentValue);
+                }
                 break;
 
             case '@nameof(EmendamentiDto.Firme)':
@@ -461,6 +464,9 @@
                 selectHTML += '</div></div>';
                 document.getElementById('dynamic-select-container').innerHTML = selectHTML;
                 setupMultiPickerEM('firmatario-em', 'firmatari-em', 'data-firmatario-em-uid');
+                if (isEditing && currentValue) {
+                    ripristinaChipPickerEM(persone, 'firmatari-em', 'data-firmatario-em-uid', currentValue);
+                }
                 break;
 
             case '@nameof(EmendamentiDto.Tags)':
@@ -551,9 +557,49 @@
     // =============================================
     // Multi-picker helper
     // =============================================
+    // #1631 - Aggiunge (se non gia' presente) un chip nel contenitore del picker
+    // proponenti/firmatari. Condiviso tra la selezione dalla lista e il ripristino
+    // in modifica, cosi' la logica di creazione chip e' una sola.
+    function aggiungiChipPickerEM(chipsContainer, dataAttr, uid, name) {
+        if (!chipsContainer) return;
+        // Un uid non valorizzato (es. dati sporchi) non deve bloccare gli altri
+        // inserimenti: in passato il dedup su "undefined" impediva di selezionare
+        // un secondo nominativo (#1631 caso A). Lo ignoriamo e basta.
+        if (!uid || uid === 'undefined' || uid === 'null') return;
+        if (chipsContainer.querySelector('[' + dataAttr + '="' + uid + '"]')) return;
+
+        var chip = document.createElement('div');
+        chip.classList.add('chip');
+        chip.setAttribute(dataAttr, uid);
+        chip.textContent = name;
+
+        var closeIcon = document.createElement('i');
+        closeIcon.classList.add('close', 'material-icons');
+        closeIcon.textContent = 'close';
+        closeIcon.onclick = function () { chip.remove(); };
+        chip.appendChild(closeIcon);
+        chipsContainer.appendChild(chip);
+    }
+
+    // #1631 - In modifica ripristina i chip dei nominativi gia' selezionati.
+    // currentValue contiene gli UID separati da virgola; il DisplayName lo
+    // recuperiamo dalla lista "persone" gia' caricata per il picker.
+    function ripristinaChipPickerEM(persone, containerPrefix, dataAttr, currentValue) {
+        if (!currentValue) return;
+        var chipsContainer = document.getElementById(containerPrefix + '-chips');
+        var mappaNomi = {};
+        (persone || []).forEach(function (p) { mappaNomi[p.uid] = p.DisplayName; });
+        currentValue.toString().split(',').forEach(function (uid) {
+            var u = uid.trim();
+            if (!u) return;
+            aggiungiChipPickerEM(chipsContainer, dataAttr, u, mappaNomi[u] || u);
+        });
+    }
+
     function setupMultiPickerEM(itemPrefix, containerPrefix, dataAttr) {
         var searchInput = document.getElementById(containerPrefix + '-search');
         var listItems = document.querySelectorAll('.' + itemPrefix + '-item');
+        var chipsContainer = document.getElementById(containerPrefix + '-chips');
 
         if (searchInput) {
             searchInput.addEventListener('input', function () {
@@ -569,20 +615,14 @@
                 e.preventDefault();
                 var uid = item.getAttribute('data-uid') || item.getAttribute('data-id');
                 var name = item.textContent.trim();
-                var chipsContainer = document.getElementById(containerPrefix + '-chips');
-                if (chipsContainer.querySelector('[' + dataAttr + '="' + uid + '"]')) return;
+                aggiungiChipPickerEM(chipsContainer, dataAttr, uid, name);
 
-                var chip = document.createElement('div');
-                chip.classList.add('chip');
-                chip.setAttribute(dataAttr, uid);
-                chip.textContent = name;
-
-                var closeIcon = document.createElement('i');
-                closeIcon.classList.add('close', 'material-icons');
-                closeIcon.textContent = 'close';
-                closeIcon.onclick = function () { chip.remove(); };
-                chip.appendChild(closeIcon);
-                chipsContainer.appendChild(chip);
+                // Dopo la selezione svuoto la ricerca e ri-mostro la lista completa,
+                // cosi' si possono aggiungere altri nominativi senza restare filtrati (#1631).
+                if (searchInput) {
+                    searchInput.value = '';
+                    listItems.forEach(function (it) { it.style.display = ''; });
+                }
             });
         });
     }
