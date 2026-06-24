@@ -199,6 +199,7 @@
                         var letteraSelect = document.getElementById('lettere-em-select');
                         var missioneSelect = document.getElementById('missioni-em-select');
                         var programmaInput = document.getElementById('em_programma');
+                        var titoloMSelect = document.getElementById('titoli-missioni-em-select');
                         var titoloInput = document.getElementById('em_titolo');
                         var capoInput = document.getElementById('em_capo');
 
@@ -221,6 +222,10 @@
                         if (programmaInput && programmaInput.value) {
                             val += "|prog:" + programmaInput.value;
                             text += ", Prog. " + programmaInput.value;
+                        }
+                        if (titoloMSelect && titoloMSelect.value) {
+                            val += "|titm:" + titoloMSelect.value;
+                            text += ", TitoloM " + (titoloMSelect.options[titoloMSelect.selectedIndex] ? titoloMSelect.options[titoloMSelect.selectedIndex].text : '');
                         }
                         if (titoloInput && titoloInput.value) {
                             val += "|tit:" + titoloInput.value;
@@ -420,6 +425,10 @@
                         var progInput = document.getElementById('em_programma');
                         if (progInput) progInput.value = subVals['prog'];
                     }
+                    if (subVals['titm']) {
+                        var titmSelect = document.getElementById('titoli-missioni-em-select');
+                        if (titmSelect) { titmSelect.value = subVals['titm']; M.FormSelect.init(document.querySelectorAll('#titoli-missioni-em-select')); }
+                    }
                     if (subVals['tit']) {
                         var titInput = document.getElementById('em_titolo');
                         if (titInput) titInput.value = subVals['tit'];
@@ -513,14 +522,24 @@
             subContainer.innerHTML = html;
             M.FormSelect.init(document.querySelectorAll('#articoli-em-select'));
         } else if (parteValue === '@((int)PartiEMEnum.Missione)') {
+            // #1640 - oltre a Missione e Programma il Dettaglio ricerca espone anche TitoloM
+            // (NTitoloB), coerentemente con la colonna in griglia e col form metadati EM. La
+            // tendina TitoloM e' una lista indipendente (TITOLI_MISSIONI), non in cascata dalla
+            // Missione, quindi la popoliamo una volta sola da GetTitoliMissioni().
             var missioni = await GetMissioni();
-            var html = '<div class="input-field col s8"><label class="active">Missione</label>' +
+            var titoliMissioni = await GetTitoliMissioni();
+            var html = '<div class="input-field col s5"><label class="active">Missione</label>' +
                 '<select id="missioni-em-select"><option value="" disabled selected>Seleziona</option>';
             if (missioni) missioni.forEach(function(m) { html += '<option value="' + m.NMissione + '">' + m.Display + '</option>'; });
             html += '</select></div>' +
-                '<div class="input-field col s4"><input id="em_programma" type="text" placeholder="Programma"><label for="em_programma" class="active">Programma</label></div>';
+                '<div class="input-field col s3"><input id="em_programma" type="text" placeholder="Programma"><label for="em_programma" class="active">Programma</label></div>' +
+                '<div class="input-field col s4"><label class="active">TitoloM</label>' +
+                '<select id="titoli-missioni-em-select"><option value="" disabled selected>Seleziona</option>';
+            if (titoliMissioni) titoliMissioni.forEach(function(t) { html += '<option value="' + t.NTitoloB + '">' + t.Display + '</option>'; });
+            html += '</select></div>';
             subContainer.innerHTML = html;
             M.FormSelect.init(document.querySelectorAll('#missioni-em-select'));
+            M.FormSelect.init(document.querySelectorAll('#titoli-missioni-em-select'));
         } else if (parteValue === '@((int)PartiEMEnum.Titolo)') {
             subContainer.innerHTML = '<div class="input-field col s12"><input id="em_titolo" type="text" placeholder="Immetti il titolo"><label for="em_titolo" class="active">Titolo</label></div>';
         } else if (parteValue === '@((int)PartiEMEnum.Capo)') {

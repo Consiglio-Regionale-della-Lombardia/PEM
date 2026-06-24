@@ -1132,7 +1132,7 @@ namespace PortaleRegione.Common
                 if (filterItem.property == nameof(EmendamentiDto.IDParte))
                 {
                     // La chip Parte viene serializzata dal pannello filtri come valore composto
-                    // "<idParte>|art:<uid>|com:<uid>|let:<uid>|tit:<n>|capo:<n>|mis:<n>|prog:<n>".
+                    // "<idParte>|art:<uid>|com:<uid>|let:<uid>|tit:<n>|capo:<n>|mis:<n>|prog:<n>|titm:<n>".
                     // Lo spacchettiamo in piu' FilterStatement separati (uno per IDParte e uno
                     // per ciascun campo di cascata) cosi' il backend puo' applicarli singolarmente.
                     AggiungiStatementParteComposta(result, filterItem.value);
@@ -1211,6 +1211,9 @@ namespace PortaleRegione.Common
                     case "capo": propertyId = nameof(EmendamentiDto.NCapo); break;
                     case "mis": propertyId = nameof(EmendamentiDto.NMissione); break;
                     case "prog": propertyId = nameof(EmendamentiDto.NProgramma); break;
+                    // #1640 - TitoloM (NTitoloB) aggiunto come filtro della Parte=Missione.
+                    // Prefisso "titm" distinto da "tit" (NTitolo, usato dalla Parte=Titolo).
+                    case "titm": propertyId = nameof(EmendamentiDto.NTitoloB); break;
                     default: continue;
                 }
 
