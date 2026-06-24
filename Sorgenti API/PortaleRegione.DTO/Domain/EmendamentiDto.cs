@@ -212,7 +212,7 @@ namespace PortaleRegione.DTO.Domain
         public bool AbilitaSUBEM { get; set; } = false;
         public string Destinatari { get; set; }
         public string Firmatari { get; set; }
-        [DisplayName("Firme")]
+        [DisplayName("Firmatari")]
         public string Firme { get; set; }
         public bool PresentatoOltreITermini { get; set; } = false;
         public bool Proponente_Relatore { get; set; } = false;
