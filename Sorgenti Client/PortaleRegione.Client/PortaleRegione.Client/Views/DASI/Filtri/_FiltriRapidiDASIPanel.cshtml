@@ -3778,7 +3778,19 @@ else
             // ripristinate: per l'amministratore devono comparire solo se valorizzate, per il
             // consigliere la chip "Gruppo" e' gestita come fissa invisibile nel pannello dedicato.
             const filtriValorizzati = filtri.filter(function (f) {
-                return f && f.val !== null && f.val !== undefined && String(f.val).trim() !== '';
+                if (!f || f.val === null || f.val === undefined || String(f.val).trim() === '') {
+                    return false;
+                }
+                // Scarta la chip "Gruppo" fissa/invisibile ereditata dall'area consiglieri tramite
+                // il localStorage condiviso: admin/UOLA non hanno un gruppo di appartenenza, quindi
+                // una chip id_gruppo senza testo visibile e' un residuo da ignorare (altrimenti
+                // comparirebbe vuota e filtrerebbe di nascosto i risultati). Un filtro Gruppo
+                // aggiunto a mano dall'admin ha invece il chipText valorizzato e resta.
+                var chipText = f.chipText !== null && f.chipText !== undefined ? String(f.chipText).trim() : '';
+                if (f.key === '@Html.Raw(nameof(AttoDASIDto.id_gruppo))' && chipText === '') {
+                    return false;
+                }
+                return true;
             });
             filtriValorizzati.forEach(function (filtro) {
                 addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false, true);
