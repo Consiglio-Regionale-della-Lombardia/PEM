@@ -1458,19 +1458,17 @@ else
         }
 
         // #1647 - Chip Legislatura: SEMPRE presente, VISIBILE ma FISSA (non modificabile/non rimovibile,
-        // vedi defaultKeysConsiglieri). Bloccata sulla legislatura del gruppo dell'utente: resta cosi'
-        // coerente con id_gruppo (che cambia ad ogni legislatura) ed evita ricerche incongruenti.
-        // I filtri dipendenti (Proponente/Firmatari/Abbinamenti) la leggono in automatico.
-        var legislaturaVal = '@Html.Raw(Model.CurrentUser?.Gruppo != null ? Model.CurrentUser.Gruppo.id_legislatura.ToString() : "")';
-        if (legislaturaVal) {
+        // vedi defaultKeysConsiglieri). Bloccata sulla legislatura ATTIVA: resta cosi' coerente con
+        // id_gruppo (che cambia ad ogni legislatura) ed evita ricerche incongruenti.
+        // NB: la legislatura NON e' affidabile su CurrentUser.Gruppo (puo' arrivare a 0): si prende
+        // quella con flag "attiva" dalla lista restituita da GetLegislature.
+        // I filtri dipendenti (Proponente/Firmatari/Abbinamenti) la leggono in automatico dal chip.
+        var legislatureList = await GetLegislature();
+        var legislaturaAttiva = (legislatureList || []).find(function (l) { return l.attiva; });
+        if (legislaturaAttiva) {
             var legislaturaKeyLabel = "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))";
-            var legislatureList = await GetLegislature();
-            var legislaturaCorrente = (legislatureList || []).find(function (l) {
-                return String(l.id_legislatura) === String(legislaturaVal);
-            });
-            var legislaturaText = legislaturaCorrente
-                ? legislaturaKeyLabel + ": " + legislaturaCorrente.num_legislatura
-                : legislaturaKeyLabel;
+            var legislaturaVal = String(legislaturaAttiva.id_legislatura);
+            var legislaturaText = legislaturaKeyLabel + ": " + legislaturaAttiva.num_legislatura;
             addChipIfNotExists(
                 "@Html.Raw(nameof(AttoDASIDto.Legislatura))",
                 legislaturaKeyLabel,
