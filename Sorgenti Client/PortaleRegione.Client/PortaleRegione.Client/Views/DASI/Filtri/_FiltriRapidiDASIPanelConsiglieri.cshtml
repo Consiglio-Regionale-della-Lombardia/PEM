@@ -1143,14 +1143,6 @@ else
     </button>
     ${buttonsHTML_A}
   </div>
-</div>
-<div class="row">
-  <div class="col s12">
-    <label>
-      <input type="checkbox" id="chkSoloIscrittiSeduta" class="filled-in" ${document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.SoloAttiIscrittiInSeduta)"]') ? 'checked' : ''} />
-      <span>Solo atti effettivamente iscritti in seduta</span>
-    </label>
-  </div>
 </div>`;
             document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
