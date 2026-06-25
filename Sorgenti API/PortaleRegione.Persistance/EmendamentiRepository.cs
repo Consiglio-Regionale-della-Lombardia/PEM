@@ -1825,9 +1825,12 @@ namespace PortaleRegione.Persistance
             AggiungiStatementOr(filtro, nameof(EM.NMissione), qx.NMissioni);
             AggiungiStatementOr(filtro, nameof(EM.NProgramma), qx.NProgrammi);
 
-            if (qx.EffettiFinanziari)
+            // #1645 - "Effetti finanziari" e' tri-stato: Si' => solo EM con effetti (== 1),
+            // No => solo EM senza effetti (== 0), chip assente (null) => nessun filtro.
+            if (qx.EffettiFinanziari.HasValue)
                 filtro._statements.Add(new FilterStatement<int>(
-                    nameof(EM.EffettiFinanziari), Operation.EqualTo, 1));
+                    nameof(EM.EffettiFinanziari), Operation.EqualTo,
+                    qx.EffettiFinanziari.Value ? 1 : 0));
 
             if (!string.IsNullOrEmpty(qx.TestoLibero1))
             {

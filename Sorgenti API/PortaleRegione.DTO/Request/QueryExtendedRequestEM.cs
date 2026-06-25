@@ -48,7 +48,10 @@ public class QueryExtendedRequestEM
 
     public bool MyEM { get; set; }
     public bool EMDaFirmare { get; set; }
-    public bool EffettiFinanziari { get; set; }
+
+    // #1645 - Chip booleana "Effetti finanziari": true => solo EM con effetti (== 1),
+    // false => solo EM senza effetti (== 0), null => nessun vincolo (chip assente).
+    public bool? EffettiFinanziari { get; set; }
 
     // #1644 - Chip booleana "Sub-emendamenti": true => solo SUBEM (Rif_UIDEM valorizzato),
     // false => solo EM (senza riferimento), null => nessun vincolo.
