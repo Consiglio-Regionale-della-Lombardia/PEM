@@ -1,4 +1,5 @@
 ﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
 <div id="modalFiltroConfig" class="modal">
     <div class="modal-content">
         <h4>Filtro</h4>
@@ -13,16 +14,23 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="input-field col s12">
-                <p>
-                    <label>
-                        <input id="filter_favourite" type="checkbox"/>
-                        <span>Preferito</span>
-                    </label>
-                </p>
+        @* #1650: il checkbox "Preferito" e' riservato a UOLA/Amministratore
+           (IsSegreteriaAssemblea include gia' l'Amministratore PEM). Per i consiglieri
+           il filtro salvato e' sempre prioritario, quindi il checkbox non viene
+           renderizzato e favourite viene forzato a true lato client. *@
+        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            <div class="row">
+                <div class="input-field col s12">
+                    <p>
+                        <label>
+                            <input id="filter_favourite" type="checkbox"/>
+                            <span>Preferito</span>
+                        </label>
+                    </p>
+                </div>
             </div>
-        </div>
+        }
     </div>
     <div class="modal-footer">
         <button type="button" class="btn-flat modal-close">Annulla</button>
@@ -46,7 +54,10 @@
         request.columns = JSON.stringify(columns);
         request.sorting = JSON.stringify(sorting);
         request.name = document.getElementById('filter_name').value;
-        request.favourite = document.getElementById('filter_favourite').checked;
+        // #1650: per i consiglieri il checkbox non viene renderizzato (filtro sempre
+        // prioritario): se assente forziamo favourite = true; UOLA/Admin usa il checkbox.
+        var chkFavourite = document.getElementById('filter_favourite');
+        request.favourite = chkFavourite ? chkFavourite.checked : true;
         // ModuloEnum.DASI = 2 (vedi PortaleRegione.DTO.Enum.ModuloEnum).
         // Il payload viaggia verso il FiltriController unificato.
         request.modulo = 2;
@@ -78,6 +89,8 @@
     });
 
 	function openModalWithContent_Preferiti(name, filters) {
+		// #1650: il checkbox "Preferito" esiste solo per UOLA/Admin; per i consiglieri
+		// non e' renderizzato (la prop su selezione vuota e' un no-op innocuo in jQuery).
 		$('#filter_favourite').prop("checked", false);
 		$('#filter_name').val(name);
 		$('#chips-container-config').empty();

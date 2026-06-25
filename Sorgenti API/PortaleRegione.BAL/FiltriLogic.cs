@@ -42,9 +42,10 @@ namespace PortaleRegione.BAL
 
         /// <summary>
         ///     Salva un nuovo filtro preferito per l'utente sul modulo richiesto.
-        ///     Il campo Preferito e' impostato sempre a true: l'interfaccia
-        ///     non espone piu' la distinzione "prioritario / non prioritario"
-        ///     (richiesta utente v2026.5.1).
+        ///     Il campo Preferito riflette la scelta dell'utente (#1650): per i
+        ///     consiglieri e per il modulo PEM il client invia sempre favourite = true
+        ///     (il checkbox non e' esposto), mentre UOLA/Amministratore puo' salvare
+        ///     anche filtri non prioritari tramite il checkbox della modal DASI.
         /// </summary>
         public async Task Salva(FiltroPreferitoDto request, PersonaDto currentUser, ModuloEnum modulo)
         {
@@ -58,7 +59,7 @@ namespace PortaleRegione.BAL
                 Colonne = request.columns,
                 DettagliOrdinamento = request.sorting,
                 Nome = request.name,
-                Preferito = true,
+                Preferito = request.favourite,
                 Modulo = modulo
             };
 
