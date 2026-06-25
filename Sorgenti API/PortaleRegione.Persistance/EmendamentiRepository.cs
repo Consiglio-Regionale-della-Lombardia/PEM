@@ -1712,6 +1712,13 @@ namespace PortaleRegione.Persistance
             if (stati != null && stati.Count > 0)
                 query = query.Where(em => stati.Contains(em.IDStato));
 
+            // #1644 - Chip "Sub-emendamenti": presenza/assenza del riferimento all'EM padre.
+            // true => solo SUBEM (Rif_UIDEM valorizzato), false => solo EM.
+            if (qx.SoloSubEM.HasValue)
+                query = qx.SoloSubEM.Value
+                    ? query.Where(em => em.Rif_UIDEM.HasValue)
+                    : query.Where(em => !em.Rif_UIDEM.HasValue);
+
             if (tags != null && tags.Count > 0)
             {
                 // EF6 non traduce in modo affidabile un OR su lista di stringhe combinato con
@@ -1817,7 +1824,6 @@ namespace PortaleRegione.Persistance
             AggiungiStatementOr(filtro, nameof(EM.NCapo), qx.NCapi);
             AggiungiStatementOr(filtro, nameof(EM.NMissione), qx.NMissioni);
             AggiungiStatementOr(filtro, nameof(EM.NProgramma), qx.NProgrammi);
-            AggiungiStatementOr(filtro, nameof(EM.Rif_UIDEM), qx.RiferimentiEM);
 
             if (qx.EffettiFinanziari)
                 filtro._statements.Add(new FilterStatement<int>(

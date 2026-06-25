@@ -2775,7 +2775,6 @@ namespace PortaleRegione.BAL
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NCapo), qx.NCapi, s => s);
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NMissione), qx.NMissioni, int.Parse);
             ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.NProgramma), qx.NProgrammi, int.Parse);
-            ExtractAndAddFiltersEM(model, nameof(EmendamentiDto.Rif_UIDEM), qx.RiferimentiEM, Guid.Parse);
 
             // #1626 - Filtri della ricerca trasversale (Area Aula): area politica e legislatura
             // a scelta multipla. Le chiavi non sono presenti nel pannello del riepilogo per atto,
@@ -2799,6 +2798,20 @@ namespace PortaleRegione.BAL
                 var v = efStmt.Value?.ToString();
                 qx.EffettiFinanziari = v == "1" || string.Equals(v, "true", StringComparison.OrdinalIgnoreCase);
                 model.filtro.Remove(efStmt);
+            }
+
+            // #1644 - Sub-emendamenti: chip booleana sulla presenza di Rif_UIDEM. "Si"/true
+            // restituisce i soli SUBEM, "No"/false i soli EM. La chiave del DTO e' Rif_UIDEM
+            // ma il valore non e' un Guid (e' un flag dalla checkbox "Cerca solo Sub-Emendamenti"):
+            // va quindi interpretata come booleana, non parsata come riferimento.
+            var subEmStmt = model.filtro.FirstOrDefault(f =>
+                f.PropertyId == nameof(EmendamentiDto.Rif_UIDEM));
+            if (subEmStmt != null)
+            {
+                var v = subEmStmt.Value?.ToString();
+                if (!string.IsNullOrEmpty(v))
+                    qx.SoloSubEM = v == "1" || string.Equals(v, "true", StringComparison.OrdinalIgnoreCase);
+                model.filtro.Remove(subEmStmt);
             }
 
             // Tags: payload JSON serializzato (array di TagDto)

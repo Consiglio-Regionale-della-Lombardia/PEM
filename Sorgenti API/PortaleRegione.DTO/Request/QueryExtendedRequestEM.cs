@@ -36,7 +36,6 @@ public class QueryExtendedRequestEM
     public List<Guid> Proponenti { get; set; } = new();
     public List<Guid> Firmatari { get; set; } = new();
     public List<TagDto> Tags { get; set; } = new();
-    public List<Guid> RiferimentiEM { get; set; } = new();
 
     public List<Guid> Articoli { get; set; } = new();
     public List<Guid> Commi { get; set; } = new();
@@ -50,6 +49,10 @@ public class QueryExtendedRequestEM
     public bool MyEM { get; set; }
     public bool EMDaFirmare { get; set; }
     public bool EffettiFinanziari { get; set; }
+
+    // #1644 - Chip booleana "Sub-emendamenti": true => solo SUBEM (Rif_UIDEM valorizzato),
+    // false => solo EM (senza riferimento), null => nessun vincolo.
+    public bool? SoloSubEM { get; set; }
 
     public string TestoLibero1 { get; set; }
     public string TestoLibero2 { get; set; }
