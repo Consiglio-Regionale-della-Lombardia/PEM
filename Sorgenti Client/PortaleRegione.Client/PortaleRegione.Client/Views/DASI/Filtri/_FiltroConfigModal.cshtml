@@ -117,9 +117,14 @@
 		var existingChip = document.querySelector(`.chip[data-nome-gruppo-filtri="${name}"]`);
 
 		if (existingChip) {
-			return;
+			// #1651 - salvataggio su un preferito gia' esistente: rimuovo la vecchia chip
+			// e la lascio ricreare piu' sotto con i filtri aggiornati. Prima si usciva
+			// subito e la chip restava ancorata ai filtri vecchi tramite la closure onclick,
+			// percio' in area gruppi i preferiti non si aggiornavano fino al reload.
+			existingChip.remove();
+			toggleChipsGroupsRow();
 		}
-				
+
 		var item = {};
 		item.name = name;
 		item.favourite = favourite;
