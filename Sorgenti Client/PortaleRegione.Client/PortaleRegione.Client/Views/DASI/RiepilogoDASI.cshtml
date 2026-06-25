@@ -128,11 +128,22 @@
             </div>
         </li>
     </ul>
+}
 
-    @* Issue #1633: unica leva "richiesta la mia firma", al posto del vecchio parametro selezionabile
-       "Atti da firmare". Sempre visibile in area gruppi, sopra la griglia. Da sola e' una ricerca
-       valida (mostra gli atti propri/da invito non ancora firmati); spuntata insieme ad altri filtri
-       li raffina in AND. E' un toggle di vista: non viene salvata nei filtri/preferiti/report. *@
+@{
+    Html.RenderPartial("Filtri/_FiltriRapidiDASIPanelConsiglieri", Model);
+}
+
+@if (Model.ClientMode == ClientModeEnum.GRUPPI)
+{
+    @* Issue #1646: spunta "richiesta la mia firma" spostata qui, sopra la griglia (come in PEM),
+       fuori dal cluster dei filtri (prima era tra le scorciatoie e il pannello di ricerca).
+       Resta sempre visibile e NON dentro #comandiGriglia: quella barra e' nascosta finche' non
+       ci sono risultati, mentre #1633 usa questa spunta anche come ricerca autonoma (vedi gate in
+       _FiltriRapidiDASIPanelConsiglieri) e l'utente deve poterla togliere anche a 0 risultati.
+       Unica leva al posto del vecchio parametro "Atti da firmare": da sola mostra gli atti
+       propri/da invito non ancora firmati; con altre chip raffina in AND. E' un toggle di vista:
+       non viene salvata nei filtri/preferiti/report. *@
     <div class="row" style="margin-bottom: 0;">
         <div class="col s12">
             <label>
@@ -141,10 +152,6 @@
             </label>
         </div>
     </div>
-}
-
-@{
-    Html.RenderPartial("Filtri/_FiltriRapidiDASIPanelConsiglieri", Model);
 }
 
 <div id="loadingSpinner" class="progress">
