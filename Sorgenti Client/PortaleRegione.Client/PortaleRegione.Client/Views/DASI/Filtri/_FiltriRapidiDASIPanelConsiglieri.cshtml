@@ -57,7 +57,10 @@ else
     var gridCollapsibleInstance = null;
 
     var availableFilterArray = [
-        { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))", id: "@nameof(AttoDASIDto.Legislatura)" },
+        @* Issue #1647: rimosso il filtro selezionabile "Legislatura" dal Dettaglio ricerca per
+           consiglieri/segreteria di gruppo. La legislatura del gruppo viene mostrata come chip fissa
+           non modificabile (vedi ripristinaFiltri) e usata in automatico dai filtri dipendenti
+           (Proponente/Firmatari/Abbinamenti). Resta selezionabile nel pannello Admin. *@
         { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))", id: "@nameof(AttoDASIDto.IDStato)" },
         { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "@nameof(AttoDASIDto.Tipo)" },
         { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDTipo_Risposta))", id: "@nameof(AttoDASIDto.IDTipo_Risposta)" },
@@ -184,7 +187,9 @@ else
     @{
         var defaultKeysConsiglieriList = new List<string>
         {
-            nameof(AttoDASIDto.id_gruppo)
+            nameof(AttoDASIDto.id_gruppo),
+            // #1647 - la legislatura del gruppo e' una chip fissa, solo informativa, non modificabile
+            nameof(AttoDASIDto.Legislatura)
         };
     }
     var defaultKeysConsiglieri = new Set(@Html.Raw(JsonConvert.SerializeObject(defaultKeysConsiglieriList)));
@@ -241,7 +246,7 @@ else
                     localStorage.setItem('filtriDasi', JSON.stringify([]));
                 }
 
-                ripristinaFiltri();
+                await ripristinaFiltri();
                 ripristinaOrdinamento();
 
                 await creaPannelloFiltriLaterale2();
@@ -468,7 +473,13 @@ else
         // #1633 - la spunta "richiesta la mia firma" e' un criterio di ricerca a se' stante: se attiva,
         // la ricerca e' valida anche senza altre chip visibili.
         if (clientMode != @Html.Raw((int)ClientModeEnum.TRATTAZIONE)) {
-            var visibleChipsCount = document.querySelectorAll('#chips-container .chip.filter-chip:not([style*="display: none"])').length;
+            // #1647 - le chip fisse (Legislatura, gruppo) sono solo informative e non contano come
+            // "ricerca dell'utente": vanno escluse dal gate, altrimenti la chip Legislatura visibile
+            // farebbe partire la ricerca all'apertura saltando il pannello di cortesia.
+            var visibleChips = document.querySelectorAll('#chips-container .chip.filter-chip:not([style*="display: none"])');
+            var visibleChipsCount = Array.prototype.filter.call(visibleChips, function (chip) {
+                return !defaultKeysConsiglieri.has(chip.getAttribute('data-filterby'));
+            }).length;
             var chkRichiestaFirma = document.getElementById('chkRichiestaFirmaDASI');
             var soloAttiDaFirmare = chkRichiestaFirma && chkRichiestaFirma.checked;
             if (visibleChipsCount === 0 && !soloAttiDaFirmare) {
@@ -1439,7 +1450,7 @@ else
         localStorage.setItem('filtriDasi', JSON.stringify(filtri));
     }
 
-    function ripristinaFiltri() {
+    async function ripristinaFiltri() {
         $('#chips-container').empty();
 
         var filtriDasi = JSON.parse(localStorage.getItem('filtriDasi')) || [];
@@ -1454,10 +1465,33 @@ else
             );
         }
 
-        // Filtri utente dal localStorage (escludi il gruppo che e' gia' stato aggiunto come chip
-        // invisibile fissa e ignora eventuali chip salvate senza valore per evitare residui vuoti).
+        // #1647 - Chip Legislatura: SEMPRE presente, VISIBILE ma FISSA (non modificabile/non rimovibile,
+        // vedi defaultKeysConsiglieri). Bloccata sulla legislatura del gruppo dell'utente: resta cosi'
+        // coerente con id_gruppo (che cambia ad ogni legislatura) ed evita ricerche incongruenti.
+        // I filtri dipendenti (Proponente/Firmatari/Abbinamenti) la leggono in automatico.
+        var legislaturaVal = '@Html.Raw(Model.CurrentUser?.Gruppo != null ? Model.CurrentUser.Gruppo.id_legislatura.ToString() : "")';
+        if (legislaturaVal) {
+            var legislaturaKeyLabel = "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))";
+            var legislatureList = await GetLegislature();
+            var legislaturaCorrente = (legislatureList || []).find(function (l) {
+                return String(l.id_legislatura) === String(legislaturaVal);
+            });
+            var legislaturaText = legislaturaCorrente
+                ? legislaturaKeyLabel + ": " + legislaturaCorrente.num_legislatura
+                : legislaturaKeyLabel;
+            addChipIfNotExists(
+                "@Html.Raw(nameof(AttoDASIDto.Legislatura))",
+                legislaturaKeyLabel,
+                legislaturaVal, "", legislaturaText, false, true
+            );
+        }
+
+        // Filtri utente dal localStorage (escludi gruppo e legislatura, gia' aggiunti come chip fisse,
+        // e ignora eventuali chip salvate senza valore per evitare residui vuoti).
         var filtriUtente = filtriDasi.filter(function (f) {
-            if (!f || f.key === "@Html.Raw(nameof(AttoDASIDto.id_gruppo))") return false;
+            if (!f) return false;
+            if (f.key === "@Html.Raw(nameof(AttoDASIDto.id_gruppo))") return false;
+            if (f.key === "@Html.Raw(nameof(AttoDASIDto.Legislatura))") return false;
             return f.val !== null && f.val !== undefined && String(f.val).trim() !== '';
         });
 
