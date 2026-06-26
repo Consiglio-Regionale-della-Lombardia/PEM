@@ -391,8 +391,22 @@
         localStorage.removeItem('reportsEM');
     }
 
+    // #1652 - Al logout azzeriamo solo lo stato volatile di ricerca (chip filtri,
+    // paging, report), preservando il layout di griglia (colonne e ordinamento)
+    // scelto dall'utente: chi rientra dopo il logout e' lo stesso utente e non deve
+    // riconfigurare le colonne ad ogni accesso (fastidio segnalato lato admin/UOLA).
+    // Il cambio ruolo/gruppo continua invece ad azzerare tutto (contesto diverso).
+    function clearVolatileClientState() {
+        // PEM
+        localStorage.removeItem('filtriChipsEM');
+        // DASI
+        localStorage.removeItem('filtriDasi');
+        localStorage.removeItem('pagingDasi');
+        localStorage.removeItem('reportsEM');
+    }
+
     function logout() {
-        clearClientStateForRoleSwitch();
+        clearVolatileClientState();
         $('#formLogout').submit();
     }
 
