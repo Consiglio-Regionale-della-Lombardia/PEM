@@ -319,7 +319,6 @@
                     + '<td>' + (em.PersonaProponente ? em.PersonaProponente.DisplayName : '--') + '</td>'
                     + '<td>' + (em.gruppi_politici ? em.gruppi_politici.nome_gruppo : '--') + '</td>'
                     + '<td>' + areaTxt + '</td>'
-                    + '<td>' + (em.ConteggioFirme != null ? em.ConteggioFirme : 0) + '</td>'
                     + '<td>' + (em.EffettiFinanziari === 1 ? 'Si' : 'No') + '</td>'
                     + '<td><a class="btn-flat" onclick="goIntoOtherTab(\'' + linkView + '\')" title="Apri emendamento">'
                     + '<i class="material-icons">open_in_new</i></a></td>'
@@ -330,7 +329,7 @@
                 + '<thead><tr>'
                 + '<th>Legisl.</th><th>Atto (PDL)</th><th>Oggetto</th><th>Seduta</th>'
                 + '<th>Numero</th><th>Stato</th><th>Proponente</th>'
-                + '<th>Gruppo</th><th>Area pol.</th><th>Firme</th><th>Eff. fin.</th><th></th>'
+                + '<th>Gruppo</th><th>Area pol.</th><th>Eff. fin.</th><th></th>'
                 + '</tr></thead><tbody>' + rows + '</tbody></table>';
 
             document.getElementById('tableResults').innerHTML = html;

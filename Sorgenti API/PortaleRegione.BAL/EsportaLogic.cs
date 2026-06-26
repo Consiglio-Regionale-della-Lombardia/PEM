@@ -308,7 +308,6 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, excelSheet, "Proponente", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "Gruppo", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "Area Politica", ref columnIndex);
-                SetColumnValue(ref row, excelSheet, "N. Firme", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "Effetti Finanziari", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "LinkEM", ref columnIndex);
 
@@ -334,7 +333,6 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref row, excelSheet,
                         em.AreaPolitica.HasValue ? Utility.GetText_AreaPolitica(em.AreaPolitica.Value) : "",
                         ref columnIndex);
-                    SetColumnValue(ref row, excelSheet, em.ConteggioFirme.ToString(), ref columnIndex);
                     SetColumnValue(ref row, excelSheet, em.EffettiFinanziari == 1 ? "Si" : "No", ref columnIndex);
                     SetColumnValue(ref row, excelSheet,
                         $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}", ref columnIndex);
