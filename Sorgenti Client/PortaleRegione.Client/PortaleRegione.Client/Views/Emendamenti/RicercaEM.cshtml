@@ -307,7 +307,6 @@
                     ? formatDataSeduta(atto.SEDUTE.Data_seduta) : '--';
                 var areaTxt = (em.AreaPolitica != null && areaPoliticaMap[em.AreaPolitica])
                     ? areaPoliticaMap[em.AreaPolitica] : '--';
-                var tipoEM = em.Rif_UIDEM ? 'SUBEM' : 'EM';
                 var linkView = baseUrl + '/emendamenti/view/' + em.UIDEM;
 
                 rows += '<tr>'
@@ -316,7 +315,6 @@
                     + '<td class="ricerca-em-oggetto">' + (atto.Oggetto || '--') + '</td>'
                     + '<td>' + seduta + '</td>'
                     + '<td>' + (em.N_EM || '--') + '</td>'
-                    + '<td>' + tipoEM + '</td>'
                     + '<td>' + (em.STATI_EM ? em.STATI_EM.Stato : '--') + '</td>'
                     + '<td>' + (em.PersonaProponente ? em.PersonaProponente.DisplayName : '--') + '</td>'
                     + '<td>' + (em.gruppi_politici ? em.gruppi_politici.nome_gruppo : '--') + '</td>'
@@ -331,7 +329,7 @@
             var html = '<table id="ricercaEMTable" class="striped responsive-table">'
                 + '<thead><tr>'
                 + '<th>Legisl.</th><th>Atto (PDL)</th><th>Oggetto</th><th>Seduta</th>'
-                + '<th>Numero</th><th>Tipo</th><th>Stato</th><th>Proponente</th>'
+                + '<th>Numero</th><th>Stato</th><th>Proponente</th>'
                 + '<th>Gruppo</th><th>Area pol.</th><th>Firme</th><th>Eff. fin.</th><th></th>'
                 + '</tr></thead><tbody>' + rows + '</tbody></table>';
 

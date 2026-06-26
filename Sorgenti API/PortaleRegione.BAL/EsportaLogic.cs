@@ -302,7 +302,6 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, excelSheet, "Oggetto atto", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "Seduta", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "Numero", ref columnIndex);
-                SetColumnValue(ref row, excelSheet, "EM/SUBEM", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "Data Deposito", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "Stato", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "Tipo", ref columnIndex);
@@ -327,7 +326,6 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref row, excelSheet,
                         atto?.SEDUTE != null ? atto.SEDUTE.Data_seduta.ToString("dd/MM/yyyy") : "", ref columnIndex);
                     SetColumnValue(ref row, excelSheet, em.N_EM, ref columnIndex);
-                    SetColumnValue(ref row, excelSheet, em.Rif_UIDEM.HasValue ? "SUBEM" : "EM", ref columnIndex);
                     SetColumnValue(ref row, excelSheet, em.DataDeposito, ref columnIndex);
                     SetColumnValue(ref row, excelSheet, em.STATI_EM?.Stato ?? "", ref columnIndex);
                     SetColumnValue(ref row, excelSheet, em.TIPI_EM?.Tipo_EM ?? "", ref columnIndex);
