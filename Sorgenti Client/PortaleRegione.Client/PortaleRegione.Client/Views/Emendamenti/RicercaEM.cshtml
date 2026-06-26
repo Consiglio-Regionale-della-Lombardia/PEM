@@ -173,24 +173,32 @@
         async function ricaricaListePerLegislatura() {
             var legislature = valoriSelezionati('filtroLegislature');
 
-            var personeMap = {};
-            var gruppiMap = {};
-            for (var i = 0; i < legislature.length; i++) {
-                try {
-                    var persone = await GetProponenti(legislature[i]);
-                    (persone || []).forEach(function (p) { personeMap[p.uid] = p.DisplayName; });
-                } catch (e) { console.error('GetProponenti', e); }
-                try {
-                    var gruppi = await GetGruppiByLegislatura(legislature[i]);
-                    (gruppi || []).forEach(function (g) {
-                        gruppiMap[g.id_gruppo] = g.nome_gruppo + ' (' + g.codice_gruppo + ')';
-                    });
-                } catch (e) { console.error('GetGruppi', e); }
-            }
+            // #1659 - la ricarica delle liste fa una o piu' chiamate AJAX per legislatura:
+            // mostriamo il waiter gia' presente in pagina cosi' l'utente ha feedback dell'attesa.
+            var spinner = document.getElementById('loadingSpinner');
+            if (spinner) spinner.style.display = 'block';
+            try {
+                var personeMap = {};
+                var gruppiMap = {};
+                for (var i = 0; i < legislature.length; i++) {
+                    try {
+                        var persone = await GetProponenti(legislature[i]);
+                        (persone || []).forEach(function (p) { personeMap[p.uid] = p.DisplayName; });
+                    } catch (e) { console.error('GetProponenti', e); }
+                    try {
+                        var gruppi = await GetGruppiByLegislatura(legislature[i]);
+                        (gruppi || []).forEach(function (g) {
+                            gruppiMap[g.id_gruppo] = g.nome_gruppo + ' (' + g.codice_gruppo + ')';
+                        });
+                    } catch (e) { console.error('GetGruppi', e); }
+                }
 
-            popolaSelect('filtroProponenti', personeMap);
-            popolaSelect('filtroFirmatari', personeMap);
-            popolaSelect('filtroGruppi', gruppiMap);
+                popolaSelect('filtroProponenti', personeMap);
+                popolaSelect('filtroFirmatari', personeMap);
+                popolaSelect('filtroGruppi', gruppiMap);
+            } finally {
+                if (spinner) spinner.style.display = 'none';
+            }
         }
 
         function popolaSelect(idSelect, mappa) {
