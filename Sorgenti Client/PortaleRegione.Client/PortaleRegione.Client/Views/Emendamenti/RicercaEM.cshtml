@@ -142,6 +142,11 @@
         var ricercaCorrentePagina = 1;
         var ricercaCorrenteSize = 20;
 
+        // #1655 - mappa id_legislatura -> numero romano (num_legislatura), popolata all'init.
+        // La griglia riceve l'id intero della legislatura, qui lo traduciamo nel romano
+        // coerente col resto della piattaforma.
+        var legislaturaRomanaMap = {};
+
         // Formatta la data della seduta gestendo sia il formato Microsoft (/Date()/) sia ISO.
         function formatDataSeduta(d) {
             if (!d) return '--';
@@ -306,7 +311,7 @@
                 var linkView = baseUrl + '/emendamenti/view/' + em.UIDEM;
 
                 rows += '<tr>'
-                    + '<td>' + (atto.Legislatura != null ? atto.Legislatura : '--') + '</td>'
+                    + '<td>' + (atto.Legislatura != null ? (legislaturaRomanaMap[atto.Legislatura] || atto.Legislatura) : '--') + '</td>'
                     + '<td>' + (atto.NAtto || '--') + '</td>'
                     + '<td class="ricerca-em-oggetto">' + (atto.Oggetto || '--') + '</td>'
                     + '<td>' + seduta + '</td>'
@@ -385,6 +390,8 @@
                     opt.value = item.id_legislatura;
                     opt.textContent = item.num_legislatura;
                     selLeg.appendChild(opt);
+                    // #1655 - alimenta la mappa id -> romano usata dalla griglia
+                    legislaturaRomanaMap[item.id_legislatura] = item.num_legislatura;
                 });
                 // Preseleziona la legislatura piu' recente (prima della lista).
                 if (selLeg.options.length > 0) selLeg.options[0].selected = true;
