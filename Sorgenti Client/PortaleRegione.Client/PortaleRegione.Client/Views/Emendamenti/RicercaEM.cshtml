@@ -77,7 +77,9 @@
                 <option value="@((int)AreaPoliticaIntEnum.Minoranza)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)</option>
                 <option value="@((int)AreaPoliticaIntEnum.Misto_Maggioranza)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)</option>
                 <option value="@((int)AreaPoliticaIntEnum.Misto_Minoranza)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)</option>
-                <option value="@((int)AreaPoliticaIntEnum.Misto)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)</option>
+                @* #1658 - rimossa la voce Misto (0): non ha testo descrittivo (GetText_AreaPolitica
+                   ritorna stringa vuota) e renderebbe una label vuota nel filtro. Coerente con
+                   AreaPoliticaEnum.GetItems() che esclude id == 0. *@
                 <option value="@((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)">@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)</option>
             </select>
             <label>Area politica</label>
@@ -133,7 +135,7 @@
             '@((int)AreaPoliticaIntEnum.Minoranza)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Minoranza)',
             '@((int)AreaPoliticaIntEnum.Misto_Maggioranza)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza)',
             '@((int)AreaPoliticaIntEnum.Misto_Minoranza)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Minoranza)',
-            '@((int)AreaPoliticaIntEnum.Misto)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto)',
+            // #1658 - tolta la voce Misto (0): testo vuoto, la griglia gestisce gia' il fallback a '--'
             '@((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)': '@Utility.GetText_AreaPolitica((int)AreaPoliticaIntEnum.Misto_Maggioranza_Minoranza)'
         };
 
