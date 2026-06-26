@@ -3996,7 +3996,10 @@ namespace PortaleRegione.API.Controllers
             var stati = Enum.GetValues(typeof(StatiAttoEnum));
             foreach (var stato in stati)
             {
-                if (persona.IsSegreteriaAssemblea)
+                // #1653 - L'Amministratore PEM deve vedere lo stato "Bozza" nel filtro
+                // della ricerca atti: la Segreteria "pura" continua a non vedere le bozze,
+                // l'admin invece ricade nel ramo standard (nasconde solo la bozza cartacea).
+                if (persona.IsSegreteriaAssemblea && !persona.IsAmministratorePEM)
                 {
                     if (Utility.statiNonVisibili_Segreteria.Contains(Convert.ToInt16(stato)))
                         continue;
