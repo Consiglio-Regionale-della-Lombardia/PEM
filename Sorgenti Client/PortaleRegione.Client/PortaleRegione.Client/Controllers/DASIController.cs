@@ -70,6 +70,27 @@ namespace PortaleRegione.Client.Controllers
             });
         }
 
+        // #1636 - Contatore degli atti per i quali e' richiesta la firma dell'utente: alimenta il
+        // numero "(n)" mostrato dentro la spunta "Visualizza solo gli atti per i quali e' richiesta
+        // la mia firma" in area consiglieri. Chiamata una sola volta all'apertura del riepilogo
+        // (poi il client aggiorna il numero dopo le firme o dalla paginazione col flag attivo).
+        [HttpGet]
+        [Route("contatore-firme")]
+        public async Task<ActionResult> ContatoreFirme()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.ContatoreFirme();
+
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpPost]
         [Route("riepilogoUOLA")]
         public async Task<ActionResult> Riepilogo(FilterRequest model)

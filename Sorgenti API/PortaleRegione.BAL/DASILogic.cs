@@ -3818,6 +3818,22 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        // #1636 - Numero di atti per i quali e' richiesta la firma della persona (atti ancora da
+        // firmare). Stesso universo del filtro "Visualizza solo gli atti per i quali e' richiesta
+        // la mia firma": serve al contatore "(n)" mostrato accanto alla spunta in area consiglieri.
+        public async Task<int> CountAttiDaFirmare(PersonaDto persona)
+        {
+            try
+            {
+                return await _unitOfWork.DASI.CountAttiDaFirmare(persona.UID_persona);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Count Atti Da Firmare DASI", e);
+                throw e;
+            }
+        }
+
         public async Task<int> CountByQuery(ByQueryModel model)
         {
             try

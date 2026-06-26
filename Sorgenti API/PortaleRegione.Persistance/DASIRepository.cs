@@ -642,6 +642,40 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
+        // #1636 - Conteggio degli atti per i quali e' richiesta la firma della persona, in una sola
+        // query (niente ciclo N+1). E' lo stesso universo usato dal filtro "atti da firmare"
+        // (vedi AddRequireMySignData): inviti a firmare ancora aperti + atti propri non ancora
+        // firmati. Serve a popolare il contatore "(n)" accanto alla spunta "richiesta la mia firma".
+        public async Task<int> CountAttiDaFirmare(Guid personaUid)
+        {
+            // Atti con invito a firmare ancora aperto per la persona: notifiche DASI (UIDEM nullo)
+            // non chiuse e destinatario non chiuso.
+            var attiDaInvito = PRContext
+                .NOTIFICHE_DESTINATARI
+                .Where(nd => nd.UIDPersona == personaUid && !nd.Chiuso)
+                .Join(PRContext.NOTIFICHE.Where(n => !n.Chiuso && !n.UIDEM.HasValue),
+                    nd => nd.UIDNotifica, n => n.UIDNotifica, (nd, n) => n.UIDAtto);
+
+            // Atti propri non ancora firmati (stessa logica di GetAttiProponente).
+            var allowStates = new List<int>
+            {
+                (int)StatiAttoEnum.BOZZA,
+                (int)StatiAttoEnum.BOZZA_RISERVATA,
+                (int)StatiAttoEnum.PRESENTATO,
+                (int)StatiAttoEnum.IN_TRATTAZIONE
+            };
+            var attiPropri = PRContext
+                .DASI
+                .Where(dasi => dasi.UIDPersonaProponente == personaUid
+                               && !dasi.UIDPersonaPrimaFirma.HasValue
+                               && allowStates.Contains(dasi.IDStato)
+                               && !dasi.UIDSeduta.HasValue
+                               && !dasi.Eliminato)
+                .Select(dasi => dasi.UIDAtto);
+
+            return await attiDaInvito.Union(attiPropri).Distinct().CountAsync();
+        }
+
         public async Task<List<AttiRisposteDto>> GetRisposte(Guid uidAtto)
         {
             var dataFromDb = await PRContext

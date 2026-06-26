@@ -564,6 +564,10 @@ else
             }
             creaPaginazione(responseData);
             AggiornaContatori(responseData);
+            // #1636 - col flag "richiesta la mia firma" attivo, aggiorno il contatore dal totale
+            // di paginazione (nessuna chiamata extra al server).
+            if (typeof window.sincronizzaContatoreFirmeDaPaginazione === 'function')
+                window.sincronizzaContatoreFirmeDaPaginazione(responseData);
             document.getElementById('loadingSpinner').style.display = 'none';
         } catch (error) {
             document.getElementById('loadingSpinner').style.display = 'none';
@@ -662,6 +666,51 @@ else
     window.filtraDASI_RichiestaFirma = function (enable) {
         inviaDatiChips(1, $("#hdPaginazioneCorrente").val());
     };
+
+    // #1636 - Contatore "(n)" degli atti ancora da firmare, mostrato dentro la spunta
+    // "richiesta la mia firma". Nascosto quando n = 0.
+    window.renderContatoreFirmeDASI = function (n) {
+        var badge = document.getElementById('contatoreFirmeDASI');
+        if (!badge) return;
+        n = parseInt(n, 10);
+        if (isNaN(n) || n <= 0) {
+            badge.style.display = 'none';
+            badge.textContent = '';
+        } else {
+            badge.textContent = n;
+            badge.style.display = '';
+        }
+    };
+
+    // Ricarica il contatore dal server. Chiamata una sola volta all'apertura del riepilogo:
+    // dopo una firma la pagina viene comunque ricaricata (location.reload), quindi il numero
+    // si riallinea da solo senza agganci sui singoli flussi di firma.
+    window.aggiornaContatoreFirmeDASI = function () {
+        if (!document.getElementById('contatoreFirmeDASI')) return;
+        $.ajax({ url: '@Url.Action("ContatoreFirme", "DASI")', type: 'GET' })
+            .done(function (res) { window.renderContatoreFirmeDASI(res); })
+            .fail(function (err) { console.log('contatore firme - errore', err); });
+    };
+
+    // #1636 - Quando la spunta "richiesta la mia firma" e' attiva e non ci sono altri filtri
+    // dell'utente, il totale di paginazione coincide con gli atti da firmare: aggiorno il
+    // contatore da li' SENZA una nuova chiamata al server. Con altri filtri attivi il totale
+    // e' un sottoinsieme, quindi non sovrascrivo il valore reale.
+    window.sincronizzaContatoreFirmeDaPaginazione = function (responseData) {
+        var chk = document.getElementById('chkRichiestaFirmaDASI');
+        if (!chk || !chk.checked) return;
+        var visibleChips = document.querySelectorAll('#chips-container .chip.filter-chip:not([style*="display: none"])');
+        var visibleChipsCount = Array.prototype.filter.call(visibleChips, function (chip) {
+            return !defaultKeysConsiglieri.has(chip.getAttribute('data-filterby'));
+        }).length;
+        if (visibleChipsCount !== 0) return;
+        var total = responseData && responseData.Data && responseData.Data.Paging
+            ? responseData.Data.Paging.Total : 0;
+        window.renderContatoreFirmeDASI(total);
+    };
+
+    // Carica il contatore all'apertura della vista (solo area consiglieri: la spunta esiste li').
+    $(function () { window.aggiornaContatoreFirmeDASI(); });
 
     var responseData = {};
     var risultatiTabella = [];

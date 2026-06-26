@@ -247,6 +247,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Elimina = Base + "/{id}/elimina";
 
             public const string GetFirmatari = Base + "/{id}/firme/{tipo}";
+            public const string ContatoreFirme = Base + "/firme/contatore"; // #1636
             public const string GetBody = Base + "/get-corpo";
             public const string GetBodyCopertina = Base + "/get-copertina";
             public const string DownloadDoc = Base + "/scarica-documento";

@@ -166,6 +166,28 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     #1636 - Numero di atti per i quali e' richiesta la firma dell'utente corrente
+        ///     (atti ancora da firmare). Popola il contatore accanto alla spunta
+        ///     "Visualizza solo gli atti per i quali e' richiesta la mia firma".
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.ContatoreFirme)]
+        public async Task<IHttpActionResult> ContatoreFirme()
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                return Ok(await _dasiLogic.CountAttiDaFirmare(currentUser));
+            }
+            catch (Exception e)
+            {
+                Log.Error("ContatoreFirme", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere l'oggetto atto da modificare
         /// </summary>
         /// <param name="id">Identificativo atto</param>

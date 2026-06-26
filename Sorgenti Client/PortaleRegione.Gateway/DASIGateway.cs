@@ -201,6 +201,14 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        // #1636 - Contatore atti per i quali e' richiesta la firma dell'utente corrente.
+        public async Task<int> ContatoreFirme()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.ContatoreFirme}";
+            var result = JsonConvert.DeserializeObject<int>(await Get(requestUrl, _token));
+            return result;
+        }
+
         public async Task<List<AttoDASIDto>> GetMOZAbbinabili()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetMOZAbbinabili}";

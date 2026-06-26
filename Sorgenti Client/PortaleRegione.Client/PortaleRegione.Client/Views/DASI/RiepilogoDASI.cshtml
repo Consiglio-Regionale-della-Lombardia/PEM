@@ -148,7 +148,8 @@
         <div class="col s12">
             <label>
                 <input type="checkbox" id="chkRichiestaFirmaDASI" onchange="filtraDASI_RichiestaFirma(this.checked)"/>
-                <span for="chkRichiestaFirmaDASI">Visualizza solo gli atti per i quali &#232; richiesta la mia firma</span>
+                @* #1636 - contatore degli atti ancora da firmare, dentro la label. Nascosto a 0. *@
+                <span for="chkRichiestaFirmaDASI">Visualizza solo gli atti per i quali &#232; richiesta la mia firma<span id="contatoreFirmeDASI" class="new badge" style="display:none;" data-badge-caption=""></span></span>
             </label>
         </div>
     </div>
