@@ -43,7 +43,21 @@
     </div>
 </div>
 
-<div class="card-panel">
+<div class="card-panel" id="pannelloFiltriEM" style="position:relative">
+    @* #1659 - overlay localizzato sul pannello filtri: al cambio legislatura
+       si ricaricano Proponenti, Firmatari e Gruppi e l'utente deve capire che
+       sono questi campi a essere in aggiornamento (non la griglia). *@
+    <div id="filtriLoader" style="display:none; position:absolute; top:0; left:0; right:0; bottom:0;
+         background:rgba(255,255,255,0.75); z-index:10; align-items:center; justify-content:center; flex-direction:column;">
+        <div class="preloader-wrapper small active">
+            <div class="spinner-layer spinner-blue-only">
+                <div class="circle-clipper left"><div class="circle"></div></div>
+                <div class="gap-patch"><div class="circle"></div></div>
+                <div class="circle-clipper right"><div class="circle"></div></div>
+            </div>
+        </div>
+        <span class="grey-text text-darken-1" style="margin-top:8px">Aggiornamento filtri Proponenti, Firmatari e Gruppi...</span>
+    </div>
     <div class="row" style="margin-bottom:0">
         <div class="input-field col s12 m6 l3">
             <select id="filtroTipoRicerca">
@@ -174,9 +188,10 @@
             var legislature = valoriSelezionati('filtroLegislature');
 
             // #1659 - la ricarica delle liste fa una o piu' chiamate AJAX per legislatura:
-            // mostriamo il waiter gia' presente in pagina cosi' l'utente ha feedback dell'attesa.
-            var spinner = document.getElementById('loadingSpinner');
-            if (spinner) spinner.style.display = 'block';
+            // mostriamo un loader sul pannello filtri (non sulla griglia) cosi' e' chiaro che
+            // a essere aggiornati sono Proponenti, Firmatari e Gruppi.
+            var filtriLoader = document.getElementById('filtriLoader');
+            if (filtriLoader) filtriLoader.style.display = 'flex';
             try {
                 var personeMap = {};
                 var gruppiMap = {};
@@ -197,7 +212,7 @@
                 popolaSelect('filtroFirmatari', personeMap);
                 popolaSelect('filtroGruppi', gruppiMap);
             } finally {
-                if (spinner) spinner.style.display = 'none';
+                if (filtriLoader) filtriLoader.style.display = 'none';
             }
         }
 
