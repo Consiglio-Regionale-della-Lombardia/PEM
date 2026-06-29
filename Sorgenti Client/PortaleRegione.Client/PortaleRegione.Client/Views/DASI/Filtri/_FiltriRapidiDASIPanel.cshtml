@@ -1577,6 +1577,16 @@ else
             break;
         case '@nameof(AttoDASIDto.IDStato)':
             var stati = [];
+            // #1653 - L'admin deve poter filtrare anche gli atti in bozza
+            // (bozza riservata e bozza), allineando il modale al profilo standard.
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.BOZZA_RISERVATA),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA_RISERVATA))'
+            });
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.BOZZA),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA))'
+            });
             stati.push({
                 IDStato: @((int)StatiAttoEnum.PRESENTATO),
                 Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO))'
