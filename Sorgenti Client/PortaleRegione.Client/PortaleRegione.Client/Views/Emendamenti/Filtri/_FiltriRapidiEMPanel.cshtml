@@ -890,6 +890,11 @@
 
         nuoviFiltri.forEach(function(filtro) {
             var visible = filtro.visible !== undefined ? filtro.visible : true;
+            // #1662 - EMDaFirmare e' la chip invisibile che trasporta il flag "richiesta la mia
+            // firma": non ha testo e, finendo nel filtro preferito salvato, al ripristino veniva
+            // ricreata come chip vuota visibile (visible default true). La forziamo invisibile:
+            // il flag resta applicato alla query e l'interruttore sopra la griglia resta spuntato.
+            if (filtro.key === 'EMDaFirmare') visible = false;
             addChipIfNotExistsEM(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false, visible);
         });
     }
