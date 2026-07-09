@@ -776,7 +776,8 @@ function NCapo_OnChange(item) {
 }
 
 function TestoEmendamento_ParteEM(value, text) {
-    if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text().length < 200) {
+    // #1666 - EM/SUBEM cartaceo: non sovrascrivere la frase standard del proponente con l'autocompletamento del testo
+    if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text().length < 200 && !window.bloccaTestoAutomaticoEM) {
         var tipoEMList = $('input[name="Emendamento.IDTipo_EM"]');
         $.each(tipoEMList,
             function(index, itemTipoEM) {

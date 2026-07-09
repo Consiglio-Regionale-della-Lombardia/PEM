@@ -255,7 +255,8 @@
         var container_testo_em = $("#Emendamento_TestoEM_originale").parent();
         var editor_test_em = $(container_testo_em).find(".trumbowyg-editor");
 
-        if (editor_test_em.html().length < 200 && !block_edit_text_auto) {
+        // #1666 - EM/SUBEM cartaceo: non sovrascrivere la frase standard del proponente con l'autocompletamento del testo
+        if (editor_test_em.html().length < 200 && !block_edit_text_auto && !window.bloccaTestoAutomaticoEM) {
             var parteEMList = $('input[name="Emendamento.IDParte"]');
             $.each(parteEMList,
                 function(index, itemParteEM) {

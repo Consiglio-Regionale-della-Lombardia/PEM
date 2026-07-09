@@ -186,6 +186,12 @@
 @Html.Partial("_EMFormScript")
 
 <script>
+    // #1666 - EM/SUBEM cartaceo: blocca l'autocompletamento del testo per non sovrascrivere la frase standard del proponente
+    // (impostato solo per la Segreteria Assemblea, cioe' l'unico contesto in cui il testo cartaceo viene precompilato lato server)
+    window.bloccaTestoAutomaticoEM = @(Model.CurrentUser != null && Model.CurrentUser.IsSegreteriaAssemblea ? "true" : "false");
+</script>
+
+<script>
     $(document).ready(function() {
         EffettiFinanziari_OnChange(@effetti_finanziari_visible);
         PartiTestoEmendamento_OnChange(@Model.Emendamento.IDParte);
