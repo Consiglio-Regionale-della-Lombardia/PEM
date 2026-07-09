@@ -7,6 +7,13 @@
 @{
     bool load_gruppi = User.IsInRole(RuoliExt.Amministratore_PEM)
                        || User.IsInRole(RuoliExt.Segreteria_Assemblea);
+
+    // #1668 - La Segreteria d'Aula (UOLA, anche in sola lettura) non deve poter filtrare
+    // gli emendamenti per Bozza e Bozza riservata: sono stati privati del proponente.
+    // L'Amministratore e i consiglieri continuano a vederli.
+    bool nascondiBozzeUOLA = Model.CurrentUser != null
+                             && (Model.CurrentUser.IsSoloSegreteriaAssemblea
+                                 || Model.CurrentUser.IsSegreteriaAssemblea_Read);
 }
 
 <div class="row">
@@ -359,8 +366,13 @@
             case '@nameof(EmendamentiDto.IDStato)':
                 var currentStati = isEditing && currentValue ? currentValue.toString().split(',') : [];
                 selectHTML = '<select id="stati-em-select" multiple>' +
+                    @if (!nascondiBozzeUOLA)
+                    {
+                        <text>
                     '<option value="@((int)StatiEnum.Bozza_Riservata)"' + (currentStati.indexOf('@((int)StatiEnum.Bozza_Riservata)') !== -1 ? ' selected' : '') + '>Bozza Riservata</option>' +
                     '<option value="@((int)StatiEnum.Bozza)"' + (currentStati.indexOf('@((int)StatiEnum.Bozza)') !== -1 ? ' selected' : '') + '>Bozza</option>' +
+                        </text>
+                    }
                     '<option value="@((int)StatiEnum.Depositato)"' + (currentStati.indexOf('@((int)StatiEnum.Depositato)') !== -1 ? ' selected' : '') + '>Depositato</option>' +
                     '<option value="@((int)StatiEnum.Approvato)"' + (currentStati.indexOf('@((int)StatiEnum.Approvato)') !== -1 ? ' selected' : '') + '>Approvato</option>' +
                     '<option value="@((int)StatiEnum.Non_Approvato)"' + (currentStati.indexOf('@((int)StatiEnum.Non_Approvato)') !== -1 ? ' selected' : '') + '>Non Approvato</option>' +

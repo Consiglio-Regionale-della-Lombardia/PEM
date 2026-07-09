@@ -4,6 +4,15 @@
 @using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
+@{
+    // #1668 - La Segreteria d'Aula (UOLA, anche in sola lettura) non deve poter filtrare
+    // gli atti per Bozza e Bozza riservata: sono stati privati del proponente.
+    // L'Amministratore continua a vederli (cfr. #1653).
+    var nascondiBozzeUOLA = Model.CurrentUser != null
+                            && (Model.CurrentUser.IsSoloSegreteriaAssemblea
+                                || Model.CurrentUser.IsSegreteriaAssemblea_Read);
+}
+
 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
 {
     <div class="row">
@@ -1577,8 +1586,12 @@ else
             break;
         case '@nameof(AttoDASIDto.IDStato)':
             var stati = [];
-            // #1653 - L'admin deve poter filtrare anche gli atti in bozza
-            // (bozza riservata e bozza), allineando il modale al profilo standard.
+            @if (!nascondiBozzeUOLA)
+            {
+                <text>
+            // #1653 - L'Amministratore puo' filtrare anche gli atti in bozza (bozza
+            // riservata e bozza). #1668 - la Segreteria d'Aula (UOLA) no: per lei le
+            // due voci restano nascoste.
             stati.push({
                 IDStato: @((int)StatiAttoEnum.BOZZA_RISERVATA),
                 Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA_RISERVATA))'
@@ -1587,6 +1600,8 @@ else
                 IDStato: @((int)StatiAttoEnum.BOZZA),
                 Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA))'
             });
+                </text>
+            }
             stati.push({
                 IDStato: @((int)StatiAttoEnum.PRESENTATO),
                 Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO))'
