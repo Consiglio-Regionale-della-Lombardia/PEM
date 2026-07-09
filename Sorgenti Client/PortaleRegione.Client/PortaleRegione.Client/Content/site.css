@@ -275,6 +275,18 @@ a.orange-text {
 	right: 10px;
 }
 
+/* Selezione colonne griglia DASI: la footer e' posizionata in modo assoluto sopra il
+   contenuto e a certi livelli di zoom copriva le ultime checkbox rendendole non
+   spuntabili. Riservo lo spazio della footer e faccio scorrere il solo modal-content,
+   cosi' ogni colonna resta cliccabile a qualsiasi zoom (#1667) */
+#modalColonneGriglia { overflow: hidden; }
+#modalColonneGriglia .modal-content {
+	height: 100%;
+	overflow-y: auto;
+	padding-bottom: 72px;
+	box-sizing: border-box;
+}
+
 a { cursor: pointer }
 
 .bodyEMClass > table > tbody > tr { border-bottom: unset !important; }

@@ -47,7 +47,7 @@
         <div class="row">
             <div class="col s12">
                 <h4>Seleziona le colonne della griglia</h4>
-                <ul id="columns-grid-list" class="collection" style="height: 450px; overflow-y:auto">
+                <ul id="columns-grid-list" class="collection">
                     @foreach (var prop in typeof(AttiDASIColumnsConsiglieri).GetProperties())
                     {
                         var displayName = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
