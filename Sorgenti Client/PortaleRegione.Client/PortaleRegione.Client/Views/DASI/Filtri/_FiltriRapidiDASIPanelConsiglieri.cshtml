@@ -715,6 +715,24 @@ else
     var responseData = {};
     var risultatiTabella = [];
 
+    // #1665 - Dati dell'utente corrente esposti al JS della griglia per replicare le condizioni
+    // di visibilita' dei comandi d'atto nel corpo espanso (proponente, capogruppo, responsabile
+    // di segreteria politica, gruppo di appartenenza).
+    var uidPersonaCorrenteDASI = '@Model.CurrentUser.UID_persona';
+    var isCapoGruppoDASI = @(Model.CurrentUser.IsCapoGruppo ? "true" : "false");
+    var isResponsabileSegrPolDASI = @(Model.CurrentUser.IsResponsabileSegreteriaPolitica ? "true" : "false");
+    var idGruppoCorrenteDASI = @(Model.CurrentUser.Gruppo?.id_gruppo ?? 0);
+
+    // #1665 - Formatta una data ISO (es. Seduta.Data_seduta) come gg/mm/aaaa; se non valida torna il valore originale.
+    function formattaDataSedutaDASI(iso) {
+        if (!iso) return '';
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return iso;
+        var gg = ('0' + d.getDate()).slice(-2);
+        var mm = ('0' + (d.getMonth() + 1)).slice(-2);
+        return gg + '/' + mm + '/' + d.getFullYear();
+    }
+
     function createCard(result) {
         const rowCard = document.createElement('div');
         rowCard.className = "row card";
@@ -751,6 +769,112 @@ else
             case @Html.Raw((int)TipoAttoEnum.RIS): return 'badgeRIS';
             default: return '';
         }
+    }
+
+    // #1665 - Ricostruisce il corpo espanso dell'atto nella griglia dell'area gruppi/consiglieri:
+    // reintroduce le informazioni di seduta e il blocco comandi (Proponi urgenza/abbinamento/iscrizione,
+    // Stampa, Vedi Info Pubbliche, Elimina, Ritira) andati persi quando la griglia e' passata al
+    // rendering JS (refactor be503472). Le condizioni di visibilita' replicano il vecchio partial
+    // server-side _GridView_RiepilogoDASI.cshtml, basandosi sui flag gia' calcolati dal server
+    // (Eliminabile, Ritirabile, Pubblicato, ...) e sui dati dell'utente corrente.
+    function creaCorpoEspansoDASI(result, oggetto) {
+        var isBozza = result.IDStato === @Html.Raw((int)StatiAttoEnum.BOZZA);
+        var isPresentato = result.IDStato >= @Html.Raw((int)StatiAttoEnum.PRESENTATO);
+        var isChiuso = result.IDStato === @Html.Raw((int)StatiAttoEnum.COMPLETATO);
+        var isMOZ = result.Tipo === @Html.Raw((int)TipoAttoEnum.MOZ);
+        var isODG = result.Tipo === @Html.Raw((int)TipoAttoEnum.ODG);
+        var isIQT = result.Tipo === @Html.Raw((int)TipoAttoEnum.IQT);
+        var isITL = result.Tipo === @Html.Raw((int)TipoAttoEnum.ITL);
+        var isITR = result.Tipo === @Html.Raw((int)TipoAttoEnum.ITR);
+        var isGruppi = localStorage.getItem('clientMode') == @Html.Raw((int)ClientModeEnum.GRUPPI);
+        var isProponente = !!result.UIDPersonaProponente
+            && result.UIDPersonaProponente.toString().toLowerCase() === uidPersonaCorrenteDASI.toLowerCase();
+        var isCapoOrResp = isCapoGruppoDASI || isResponsabileSegrPolDASI;
+
+        // Sezione informativa: (creato da, se bozza) + stato + tipo risposta
+        var info = '<div class="col s12">';
+        if (isBozza && result.PersonaCreazione && result.PersonaCreazione.DisplayName) {
+            info += `<label>Creato da:</label> <span class="black-text">${result.PersonaCreazione.DisplayName}</span><br/>`;
+        }
+        info += `<label>Stato:</label> <span class="black-text">${result.DisplayStato}</span>`;
+        if (!isMOZ && !isODG && result.DisplayTipoRispostaRichiesta) {
+            info += `<br/><label>Tipo Risposta:</label> <span>${result.DisplayTipoRispostaRichiesta}</span>`;
+        }
+        info += '</div>';
+
+        // Oggetto + dettaglio seduta (solo area gruppi/consiglieri)
+        var corpo = `<div class="col s12"><label>Oggetto:</label> <span style="font-weight: normal !important">${oggetto}</span>`;
+        if (isGruppi) {
+            if (result.DataRichiestaIscrizioneSeduta && !result.DataIscrizioneSeduta) {
+                corpo += `<br/><label>Seduta:</label> <span>Seduta del ${result.DataRichiestaIscrizioneSeduta}`
+                    + ` <a class="btn-floating white blue-text tooltipped" data-tooltip="Richiesta in attesa di elaborazione"><i class="material-icons">info</i></a>`;
+                if (!isPresentato && ((!isODG && isProponente) || (isCapoGruppoDASI && result.id_gruppo === idGruppoCorrenteDASI))) {
+                    corpo += ` <button type="button" role="button" class="btn-floating white red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('${result.UIDAtto}', '${result.Display}')"><i class="material-icons">close</i></button>`;
+                }
+                corpo += '</span>';
+            } else if (result.DataIscrizioneSeduta && result.Seduta && result.Seduta.Data_seduta) {
+                corpo += `<br/><label>Seduta:</label> <span><b>${formattaDataSedutaDASI(result.Seduta.Data_seduta)}</b></span>`;
+            }
+
+            if (isMOZ && result.TipoMOZ === @Html.Raw((int)TipoMOZEnum.ORDINARIA) && result.DataPresentazione_MOZ) {
+                corpo += `<br/><label>Richiesta di iscrizione effettuata il </label> <span><b>${result.DataPresentazione_MOZ}</b></span>`;
+            } else if (isMOZ && result.TipoMOZ === @Html.Raw((int)TipoMOZEnum.URGENTE) && result.DataPresentazione_MOZ_URGENTE) {
+                corpo += `<br/><label>Richiesta di iscrizione effettuata il </label> <span><b>${result.DataPresentazione_MOZ_URGENTE}</b></span>`;
+            } else if (isMOZ && result.TipoMOZ === @Html.Raw((int)TipoMOZEnum.ABBINATA) && result.DataPresentazione_MOZ_ABBINATA) {
+                corpo += `<br/><label>Richiesta di iscrizione effettuata il </label> <span><b>${result.DataPresentazione_MOZ_ABBINATA}</b></span>`;
+            }
+        }
+        corpo += '</div>';
+
+        // Blocco comandi (allineato a destra, in fondo al dettaglio)
+        var comandi = '';
+
+        // Proposte di iscrizione/urgenza/abbinamento (condizioni replicate dal vecchio partial)
+        var mostraProposte = false;
+        if (isMOZ && !isCapoOrResp) {
+            mostraProposte = false;
+        } else if (result.IDStato < @Html.Raw((int)StatiAttoEnum.COMPLETATO)
+            && ((!result.DataIscrizioneSeduta && !isITL && !isITR && !isODG && isCapoOrResp)
+                || (isIQT && isProponente)
+                || (isMOZ && result.TipoMOZ === @Html.Raw((int)TipoMOZEnum.ORDINARIA)))) {
+            mostraProposte = true;
+        }
+        if (mostraProposte) {
+            if (isMOZ && result.TipoMOZ === @Html.Raw((int)TipoMOZEnum.ORDINARIA)
+                && result.IDStato > @Html.Raw((int)StatiAttoEnum.BOZZA) && isCapoOrResp) {
+                comandi += `<button type="button" role="button" class="btn-flat pink-text" onclick="ProponiUrgenzaDASI('${result.UIDAtto}', '${result.Display}')">Proponi urgenza</button>`;
+                comandi += `<button type="button" role="button" class="btn-flat pink-text" onclick="ProponiAbbinataDASI('${result.UIDAtto}', '${result.Display}')">Proponi abbinamento</button>`;
+            }
+            if ((result.IDStato > @Html.Raw((int)StatiAttoEnum.BOZZA) || isODG || isMOZ || isIQT) && !isChiuso) {
+                if ((isIQT && (isCapoOrResp || isProponente)) || (isMOZ && result.IDStato > @Html.Raw((int)StatiAttoEnum.BOZZA))) {
+                    if (!result.DataIscrizioneSeduta && !result.DataRichiestaIscrizioneSeduta) {
+                        comandi += `<button type="button" role="button" class="btn-flat pink-text" onclick="RichiediIscrizioneSedutaDASI('${result.UIDAtto}', '${result.Display}', ${result.Tipo}, ${result.TipoMOZ})">Proponi iscrizione</button>`;
+                    }
+                }
+            }
+        }
+
+        // Stampa: il proponente sceglie originale/privacy (StampaUOLA), gli altri stampano solo la versione privacy
+        if (isProponente) {
+            comandi += `<button type="button" role="button" class="btn-flat black-text" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}" data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI")?id=${result.UIDAtto}" onclick="StampaUOLA(this)">Stampa</button>`;
+        } else {
+            comandi += `<a class="btn-flat black-text" target="_blank" href="@Url.Action("DownloadWithPrivacy", "DASI")?id=${result.UIDAtto}">Stampa</a>`;
+        }
+
+        // Vedi Info Pubbliche: solo per atti presentati e pubblicati
+        if (isPresentato && result.Pubblicato) {
+            comandi += `<button type="button" role="button" class="btn-flat blue-text" onclick="goToGeasi('${result.UIDAtto}', '${result.DisplayTipo}', '${result.NAtto}', '${result.Legislatura}')">Vedi Info Pubbliche</button>`;
+        }
+
+        // Elimina / Ritira: guidati dai flag di autorizzazione gia' calcolati dal server
+        if (result.Eliminabile) {
+            comandi += `<button type="button" role="button" class="btn-flat red-text" onclick="ConfirmActionDASI('${result.UIDAtto}', '${result.Display}', @Html.Raw((int)ActionEnum.ELIMINA))">Elimina</button>`;
+        }
+        if (result.Ritirabile) {
+            comandi += `<button type="button" role="button" class="btn-flat red-text" onclick="ConfirmActionDASI('${result.UIDAtto}', '${result.Display}', @Html.Raw((int)ActionEnum.RITIRA))">Ritira</button>`;
+        }
+
+        return `<div class="row">${info}${corpo}</div><div class="row"><div class="col s12 right-align"><hr/>${comandi}</div></div>`;
     }
 
     function CreaTabella() {
@@ -871,15 +995,7 @@ else
     </div>
 </div>
 <div class="collapsible-body">
-    <div class="row">
-        <div class="col s12">
-            <label>Stato:</label>
-            <span class="black-text">${result.DisplayStato}</span>
-            <br/>
-            <label>Oggetto:</label>
-            <span style="font-weight: normal !important">${oggetto}</span>
-        </div>
-    </div>
+    ${creaCorpoEspansoDASI(result, oggetto)}
 </div>`;
 
             ul.appendChild(li);
