@@ -1160,8 +1160,9 @@
                 + '    </label>';
         }
 
-        // v2026.5.1: pulsanti rotondi di export sopra la griglia. Consigliere: solo Excel;
-        // segreteria/admin (load_gruppi=true): Word + Excel + Excel Segreteria (UOLA).
+        // v2026.5.1: pulsanti rotondi di export sopra la griglia.
+        // #1664: il consigliere (gruppi) ha Word + Excel; segreteria/admin (load_gruppi=true)
+        // ha in piu' l'Excel Segreteria (UOLA), export dedicato non esposto ai consiglieri.
         var loadGruppi = @(load_gruppi ? "true" : "false");
 
         html += '  </div>'
@@ -1181,7 +1182,13 @@
                 + '      <i class="material-icons">table_chart</i>'
                 + '    </button>';
         } else {
-            html += '    <button type="button" class="btn-floating green white-text tooltipped" '
+            // #1664: anche il consigliere/gruppi puo' esportare in Word, come in UOLA.
+            // L'Excel Segreteria resta escluso perche' dedicato alla segreteria.
+            html += '    <button type="button" class="btn-floating blue white-text tooltipped" '
+                + '            onclick="exportEM(@((int)ExportFormatEnum.WORD))" data-tooltip="Esporta Word" data-position="bottom">'
+                + '      <i class="material-icons">description</i>'
+                + '    </button>'
+                + '    <button type="button" class="btn-floating green white-text tooltipped" '
                 + '            onclick="exportEM(@((int)ExportFormatEnum.EXCEL))" data-tooltip="Esporta Excel" data-position="bottom">'
                 + '      <i class="material-icons">grid_on</i>'
                 + '    </button>';
