@@ -191,6 +191,15 @@
         <div class="card-panel blue lighten-5 center">
             <span class="center">
                 <p>Esegui una ricerca per poter visualizzare gli atti</p>
+                @* #1669 - pulsante di avvio ricerca: mostra tutti gli atti del gruppo/legislatura senza
+                   costringere il consigliere ad aggiungere un filtro. Solo area GRUPPI (dove c'e' il
+                   gate #1647); in TRATTAZIONE la griglia si popola con la sua logica. *@
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                {
+                    <button type="button" class="btn waves-effect waves-light blue" style="margin-top: 10px;" onclick="avviaRicercaCompletaDASI()">
+                        <i class="material-icons left">search</i>Avvia ricerca
+                    </button>
+                }
             </span>
         </div>
     </div>
@@ -219,14 +228,16 @@
     // Override filtraByTipo per usare le chip invece del form POST
     function filtraByTipo(tipo) {
         if (tipo == @((int)TipoAttoEnum.TUTTI)) {
-            // Rimuovi la chip tipo se "Tutti" e' selezionato
+            // #1669 - "Tutti" = mostra tutti gli atti senza filtro tipo: rimuove l'eventuale chip tipo
+            // e avvia comunque la ricerca. Prima, senza una chip tipo gia' presente, non partiva nulla.
             var existingChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Tipo)"]');
             if (existingChip) {
                 delete chipsKeys['@nameof(AttoDASIDto.Tipo)'];
                 existingChip.remove();
                 salvaFiltri();
-                inviaDatiChips(1, 20);
             }
+            window.ricercaConfermataDASI = true;
+            inviaDatiChips(1, 20);
             return;
         }
         var tipoText = '';

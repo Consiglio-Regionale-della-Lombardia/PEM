@@ -194,6 +194,20 @@ else
     }
     var defaultKeysConsiglieri = new Set(@Html.Raw(JsonConvert.SerializeObject(defaultKeysConsiglieriList)));
 
+    // #1669 - Flag volatile (in-page, NON salvato in localStorage): quando true sblocca il gate GRUPPI
+    // e permette di mostrare tutti gli atti del gruppo/legislatura anche senza chip di ricerca
+    // dell'utente. Volutamente non persistito: alla riapertura della pagina torna il pannello di
+    // cortesia (nessun avvio automatico, coerente con la scelta di #1647).
+    window.ricercaConfermataDASI = false;
+
+    // #1669 - Handler del pulsante "Avvia ricerca" nel pannello di cortesia: conferma la ricerca e
+    // lancia il riepilogo completo. La stessa leva e' usata dalla scorciatoia "Tutti" (tipo atto).
+    window.avviaRicercaCompletaDASI = function () {
+        window.ricercaConfermataDASI = true;
+        var size = $("#hdPaginazioneCorrente").val() || 20;
+        inviaDatiChips(1, size);
+    };
+
     document.addEventListener('DOMContentLoaded',
         async function() {
             document.getElementById('loadingSpinner').style.display = 'none';
@@ -482,10 +496,16 @@ else
             }).length;
             var chkRichiestaFirma = document.getElementById('chkRichiestaFirmaDASI');
             var soloAttiDaFirmare = chkRichiestaFirma && chkRichiestaFirma.checked;
-            if (visibleChipsCount === 0 && !soloAttiDaFirmare) {
+            // #1669 - il flag ricercaConfermataDASI, impostato dal pulsante "Avvia ricerca" (o dalla
+            // chip "Tutti"), sblocca il gate per la sessione di pagina corrente: cosi' anche la
+            // paginazione successiva non ricade nel pannello di cortesia finche' non si ricarica.
+            if (visibleChipsCount === 0 && !soloAttiDaFirmare && !window.ricercaConfermataDASI) {
                 document.getElementById('tableResults').innerHTML = `<div class="card-panel blue lighten-5 center">
 <span class="center">
     <p>Esegui una ricerca per poter visualizzare gli atti</p>
+    <button type="button" class="btn waves-effect waves-light blue" style="margin-top: 10px;" onclick="avviaRicercaCompletaDASI()">
+        <i class="material-icons left">search</i>Avvia ricerca
+    </button>
 </span>
 </div>`;
                 document.getElementById('paginazione-container-top').innerHTML = "";
