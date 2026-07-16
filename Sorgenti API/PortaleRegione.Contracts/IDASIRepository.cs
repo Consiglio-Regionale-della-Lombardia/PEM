@@ -31,7 +31,7 @@ namespace PortaleRegione.Contracts
 {
     public interface IDASIRepository : IRepository<ATTI_DASI>
     {
-        Task<ATTI_DASI> Get(Guid attoUId);
+        Task<ATTI_DASI> Get(Guid attoUId, bool includeEliminati = false);
 
         Task<List<Guid>> GetAll(PersonaDto currentUser, int page, int size, ClientModeEnum mode,
             Filter<ATTI_DASI> filtro, QueryExtendedRequest queryExtended, List<SortingInfo> dettaglioOrdinamento);

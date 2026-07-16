@@ -417,11 +417,13 @@ namespace PortaleRegione.Persistance
             return result.FirstOrDefault();
         }
 
+        // #1671 GetByQR restituisce l'entita' senza passare dalla Get: il filtro va ripetuto qui,
+        // altrimenti il canale pubblico resta aperto sugli emendamenti eliminati.
         public async Task<EM> GetByQR(Guid id)
         {
             return await PRContext
                 .EM
-                .FirstOrDefaultAsync(em => em.UID_QRCode == id);
+                .FirstOrDefaultAsync(em => em.UID_QRCode == id && !em.Eliminato);
         }
 
         /// <summary>
@@ -810,7 +812,9 @@ namespace PortaleRegione.Persistance
         /// </summary>
         /// <param name="emendamentoUId"></param>
         /// <returns></returns>
-        public async Task<EM> Get(Guid emendamentoUId, bool includes = true)
+        // #1671 Come per gli atti DASI: un emendamento eliminato non e' piu' leggibile per id,
+        // quindi nemmeno firmabile o depositabile. includeEliminati solo per audit/ripristino.
+        public async Task<EM> Get(Guid emendamentoUId, bool includes = true, bool includeEliminati = false)
         {
             var query = PRContext.EM.AsQueryable();
             if (includes)
@@ -821,7 +825,8 @@ namespace PortaleRegione.Persistance
                     .Include(em => em.STATI_EM)
                     .Include(em => em.TIPI_EM);
 
-            var result = await query.SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId);
+            var result = await query.SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId
+                                                               && (includeEliminati || !em.Eliminato));
 
             return result;
         }

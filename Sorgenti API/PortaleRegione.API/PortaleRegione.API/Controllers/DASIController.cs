@@ -832,6 +832,8 @@ namespace PortaleRegione.API.Controllers
             {
                 var currentUser = CurrentUser;
                 var atto = await _dasiLogic.GetAttoDto(id, currentUser);
+                // #1671 atto inesistente o eliminato
+                if (atto == null) return NotFound();
 
                 // #711 Controllo se l'utente che sta richiedendo (consigliere/assessore) ha una notifica pendente.
                 // In quel caso aggiorno il campo "Visto" nei destinatari della notifica

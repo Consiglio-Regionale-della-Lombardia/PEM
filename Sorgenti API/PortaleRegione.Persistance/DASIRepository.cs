@@ -49,11 +49,15 @@ namespace PortaleRegione.Persistance
 
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
-        public async Task<ATTI_DASI> Get(Guid attoUId)
+        // #1671 Un atto eliminato non e' piu' raggiungibile nemmeno per id. Il filtro sta qui
+        // perche' e' l'unico punto da cui passano tutti i canali di accesso puntuale
+        // (link email, QR pubblico, firma, deposito). includeEliminati solo per audit/ripristino.
+        public async Task<ATTI_DASI> Get(Guid attoUId, bool includeEliminati = false)
         {
             var result = await PRContext
                 .DASI
-                .SingleOrDefaultAsync(a => a.UIDAtto == attoUId);
+                .SingleOrDefaultAsync(a => a.UIDAtto == attoUId
+                                           && (includeEliminati || !a.Eliminato));
             return result;
         }
 
