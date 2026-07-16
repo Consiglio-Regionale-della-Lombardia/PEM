@@ -205,7 +205,7 @@ namespace PortaleRegione.API.Controllers
 
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
-                if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea)
+                if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea_Vista)
                     return NotFound();
 
                 return Ok(await _dasiLogic.ModificaModello(atto, currentUser));
@@ -806,6 +806,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.CambiaOrdineVisualizzazione(firme);
                 return Ok();
             }
@@ -936,6 +940,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
@@ -975,6 +983,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
@@ -1014,6 +1026,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
@@ -1054,6 +1070,10 @@ namespace PortaleRegione.API.Controllers
             
             try
             {
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 // Tentativo di lock
                 var locked = await _dasiLogic.TryAcquireDepositoLock(currentUser.UID_persona);
                 if (!locked)
@@ -1199,6 +1219,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
 
@@ -1224,6 +1248,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
 
@@ -1302,6 +1330,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.RichiediIscrizione(model, CurrentUser);
                 return Ok();
             }
@@ -1345,6 +1377,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.RimuoviRichiesta(model, CurrentUser);
                 return Ok();
             }
@@ -1366,6 +1402,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.ProponiMozioneUrgente(model, CurrentUser);
                 return Ok();
             }
@@ -1387,6 +1427,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.ProponiMozioneAbbinata(model, CurrentUser);
                 return Ok();
             }
@@ -1626,6 +1670,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.DeclassaMozione(data, CurrentUser);
                 return Ok();
             }

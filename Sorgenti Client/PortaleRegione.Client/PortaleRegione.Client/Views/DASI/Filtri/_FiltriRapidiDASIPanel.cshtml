@@ -1499,7 +1499,7 @@ else
         aggiornaConteggi('li.collection-item div', "ODG", responseData.CountBarData.ODG);
         aggiornaConteggi('li.collection-item div', "RIS", responseData.CountBarData.RIS);
 
-        if (!responseData.CurrentUser.IsSegreteriaAssemblea) {
+        if (!responseData.CurrentUser.IsSegreteriaAssemblea_Vista) {
             aggiornaConteggi('li.collection-item div', "BOZZE", responseData.CountBarData.BOZZE);
         }
         aggiornaConteggi('li.collection-item div', "PRESENTATI", responseData.CountBarData.PRESENTATI);

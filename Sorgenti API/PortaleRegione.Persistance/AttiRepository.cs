@@ -72,7 +72,7 @@ namespace PortaleRegione.Persistance
 
             if (clientMode == (int) ClientModeEnum.GRUPPI)
             {
-                if (!persona.IsSegreteriaAssemblea)
+                if (!persona.IsSegreteriaAssemblea_Vista)
                     query = query.Where(item => item.Emendabile);
             }
 
@@ -145,7 +145,7 @@ namespace PortaleRegione.Persistance
                                           || em.IDStato == (int)StatiEnum.Bozza
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
-                if (persona.IsSegreteriaAssemblea)
+                if (persona.IsSegreteriaAssemblea_Vista)
                 {
                     //Solo segreteria
                     query = query.Where(e => !string.IsNullOrEmpty(e.DataDeposito));
@@ -176,7 +176,7 @@ namespace PortaleRegione.Persistance
             filtro?.BuildExpression(ref query);
             if (clientMode == (int)ClientModeEnum.GRUPPI)
             {
-                if (!persona.IsSegreteriaAssemblea)
+                if (!persona.IsSegreteriaAssemblea_Vista)
                     query = query.Where(item => item.Emendabile);
             }
 

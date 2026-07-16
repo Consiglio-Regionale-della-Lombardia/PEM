@@ -85,7 +85,12 @@ namespace PortaleRegione.DTO.Domain
 
         //Parametro valorizzato solo da pannello amministratore
         public StatoPinEnum Stato_Pin { get; set; }
-        public bool IsSegreteriaAssemblea => IsAmministratorePEM || CurrentRole == RuoliIntEnum.Segreteria_Assemblea || CurrentRole == RuoliIntEnum.Segreteria_Assemblea_Read;
+        // #1670 - Le due proprieta' vanno tenute distinte:
+        // IsSegreteriaAssemblea = puo' operare come UOLA (scrittura), esclude il ruolo in sola lettura;
+        // IsSegreteriaAssemblea_Vista = vede l'area UOLA, include anche il ruolo in sola lettura.
+        // Usare _Vista solo per filtri di query e visibilita', mai per abilitare una modifica.
+        public bool IsSegreteriaAssemblea => IsAmministratorePEM || CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+        public bool IsSegreteriaAssemblea_Vista => IsSegreteriaAssemblea || CurrentRole == RuoliIntEnum.Segreteria_Assemblea_Read;
         public bool IsSegreteriaAssemblea_Read => CurrentRole == RuoliIntEnum.Segreteria_Assemblea_Read;
         public bool IsSoloSegreteriaAssemblea => CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
         public bool IsConsigliereRegionale => CurrentRole == RuoliIntEnum.Consigliere_Regionale;

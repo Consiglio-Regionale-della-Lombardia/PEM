@@ -76,7 +76,7 @@ namespace PortaleRegione.Persistance
                 if (persona.IsGiunta)
                     query = query
                         .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-                else if (!persona.IsSegreteriaAssemblea
+                else if (!persona.IsSegreteriaAssemblea_Vista
                          && !persona.IsPresidente)
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
@@ -280,13 +280,13 @@ namespace PortaleRegione.Persistance
                     return await query.CountAsync();
                 }
                 case CounterEmendamentiEnum.EM:
-                    if (persona.IsSegreteriaAssemblea)
+                    if (persona.IsSegreteriaAssemblea_Vista)
                         return await query.CountAsync(e =>
                             !string.IsNullOrEmpty(e.N_EM) && string.IsNullOrEmpty(e.N_SUBEM));
                     return await query.CountAsync(e => string.IsNullOrEmpty(e.N_SUBEM));
 
                 case CounterEmendamentiEnum.SUB_EM:
-                    if (persona.IsSegreteriaAssemblea)
+                    if (persona.IsSegreteriaAssemblea_Vista)
                         return await query.CountAsync(e =>
                             string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM));
                     return await query.CountAsync(e => !string.IsNullOrEmpty(e.N_SUBEM));
@@ -465,7 +465,7 @@ namespace PortaleRegione.Persistance
                     if (persona.IsGiunta)
                         query = query
                             .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-                    else if (!persona.IsSegreteriaAssemblea
+                    else if (!persona.IsSegreteriaAssemblea_Vista
                              && !persona.IsPresidente)
                         query = query
                             .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
@@ -665,7 +665,7 @@ namespace PortaleRegione.Persistance
                             .Where(em => stati.Contains(em.IDStato));
 
                 if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE ||
-                    persona.IsSegreteriaAssemblea
+                    persona.IsSegreteriaAssemblea_Vista
                     || persona.IsPresidente)
                     switch (ordine)
                     {
@@ -749,7 +749,7 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
 
-                if (persona.IsSegreteriaAssemblea)
+                if (persona.IsSegreteriaAssemblea_Vista)
                     query = query.Where(em =>
                         !string.IsNullOrEmpty(em.DataDeposito) ||
                         em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
@@ -1430,12 +1430,12 @@ namespace PortaleRegione.Persistance
                 case CounterEmendamentiEnum.NONE:
                     return await query.CountAsync();
                 case CounterEmendamentiEnum.EM:
-                    return persona.IsSegreteriaAssemblea
+                    return persona.IsSegreteriaAssemblea_Vista
                         ? await query.CountAsync(e =>
                             !string.IsNullOrEmpty(e.N_EM) && string.IsNullOrEmpty(e.N_SUBEM))
                         : await query.CountAsync(e => string.IsNullOrEmpty(e.N_SUBEM));
                 case CounterEmendamentiEnum.SUB_EM:
-                    return persona.IsSegreteriaAssemblea
+                    return persona.IsSegreteriaAssemblea_Vista
                         ? await query.CountAsync(e =>
                             string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM))
                         : await query.CountAsync(e => !string.IsNullOrEmpty(e.N_SUBEM));
@@ -1500,7 +1500,7 @@ namespace PortaleRegione.Persistance
 
             if (persona.IsGiunta)
                 query = query.Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-            else if (!persona.IsSegreteriaAssemblea && !persona.IsPresidente)
+            else if (!persona.IsSegreteriaAssemblea_Vista && !persona.IsPresidente)
                 query = query.Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
 
             if (persona.IsSoloSegreteriaAssemblea)
@@ -1790,7 +1790,7 @@ namespace PortaleRegione.Persistance
             // TRATTAZIONE manteniamo il ramo IDStato + DataCreazione; per il consigliere
             // GRUPPI manteniamo IDStato + Timestamp + progressivi.
             if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE
-                || persona.IsSegreteriaAssemblea
+                || persona.IsSegreteriaAssemblea_Vista
                 || persona.IsPresidente)
             {
                 return query.OrderBy(em => em.IDStato).ThenByDescending(em => em.DataCreazione);

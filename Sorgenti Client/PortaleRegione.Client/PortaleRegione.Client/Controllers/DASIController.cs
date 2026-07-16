@@ -330,7 +330,7 @@ namespace PortaleRegione.Client.Controllers
                     }
                 }
 
-                if (currentUser.IsSegreteriaAssemblea)
+                if (currentUser.IsSegreteriaAssemblea_Vista)
                 {
                     return View("AttoDASIView_Admin", result);
                 }

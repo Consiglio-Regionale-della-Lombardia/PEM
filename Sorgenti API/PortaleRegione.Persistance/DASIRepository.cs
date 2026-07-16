@@ -557,9 +557,9 @@ namespace PortaleRegione.Persistance
                                                 && (atto.UIDPersonaCreazione == persona.UID_persona
                                                     || atto.UIDPersonaProponente == persona.UID_persona)));
 
-                if (persona.IsSegreteriaAssemblea)
+                if (persona.IsSegreteriaAssemblea_Vista)
                     query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
-                else if (!persona.IsSegreteriaAssemblea
+                else if (!persona.IsSegreteriaAssemblea_Vista
                          && !persona.IsPresidente)
                     query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
             }
@@ -1195,7 +1195,7 @@ namespace PortaleRegione.Persistance
                 .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
-            if (!currentUser.IsSegreteriaAssemblea)
+            if (!currentUser.IsSegreteriaAssemblea_Vista)
             {
                 queryExtended.Tipi.Clear();
                 queryExtended.Stati.Clear();
@@ -1218,7 +1218,7 @@ namespace PortaleRegione.Persistance
                 .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
-            if (!currentUser.IsSegreteriaAssemblea)
+            if (!currentUser.IsSegreteriaAssemblea_Vista)
             {
                 queryExtended.Stati.Clear();
             }
@@ -1580,11 +1580,11 @@ namespace PortaleRegione.Persistance
                                                 && (atto.UIDPersonaCreazione == currentUser.UID_persona
                                                     || atto.UIDPersonaProponente == currentUser.UID_persona)));
 
-                if (!currentUser.IsSegreteriaAssemblea
+                if (!currentUser.IsSegreteriaAssemblea_Vista
                     && !currentUser.IsPresidente)
                     query = query.Where(item => item.id_gruppo == currentUser.Gruppo.id_gruppo);
 
-                if (currentUser.IsSegreteriaAssemblea && !queryExtended.Stati.Any())
+                if (currentUser.IsSegreteriaAssemblea_Vista && !queryExtended.Stati.Any())
                 {
                     query = query.Where(atto => atto.IDStato == (int)StatiAttoEnum.PRESENTATO
                                                 || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE

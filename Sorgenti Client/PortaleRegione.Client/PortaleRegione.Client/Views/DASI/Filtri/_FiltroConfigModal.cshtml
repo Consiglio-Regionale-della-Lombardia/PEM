@@ -14,11 +14,12 @@
             </div>
         </div>
 
-        @* #1650: il checkbox "Preferito" e' riservato a UOLA/Amministratore
-           (IsSegreteriaAssemblea include gia' l'Amministratore PEM). Per i consiglieri
-           il filtro salvato e' sempre prioritario, quindi il checkbox non viene
+        @* #1650: il checkbox "Preferito" e' riservato a chi vede l'area UOLA
+           (IsSegreteriaAssemblea_Vista include Amministratore PEM e sola lettura:
+           il filtro e' dato personale, non un atto). Per i consiglieri il filtro
+           salvato e' sempre prioritario, quindi il checkbox non viene
            renderizzato e favourite viene forzato a true lato client. *@
-        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+        @if (Model.CurrentUser.IsSegreteriaAssemblea_Vista)
         {
             <div class="row">
                 <div class="input-field col s12">

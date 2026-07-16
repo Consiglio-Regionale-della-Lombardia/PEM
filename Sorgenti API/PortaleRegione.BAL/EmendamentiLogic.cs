@@ -1677,7 +1677,7 @@ namespace PortaleRegione.BAL
                                               (persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
                                                persona.IsSegreteriaAssemblea);
 
-                if (persona.IsSegreteriaAssemblea)
+                if (persona.IsSegreteriaAssemblea_Vista)
                     if (emendamentoDto.ConteggioFirme > 1)
                     {
                         var firme = await _logicFirme.GetFirme(emendamentoDto, FirmeTipoEnum.ATTIVI);
@@ -1992,7 +1992,7 @@ namespace PortaleRegione.BAL
                 var conteggiGruppi = new List<View_Conteggi_EM_Gruppi_Politici>();
                 var conteggiAreePolitiche = new List<View_Conteggi_EM_Area_Politica>();
 
-                if (persona.IsSegreteriaAssemblea || CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
+                if (persona.IsSegreteriaAssemblea_Vista || CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
                 {
                     conteggiGruppi = await _unitOfWork.Emendamenti.GetConteggiGruppi(atto.UIDAtto);
                     conteggiAreePolitiche = await _unitOfWork.Emendamenti.GetConteggiAreePolitiche(atto.UIDAtto);

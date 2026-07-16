@@ -67,11 +67,15 @@ namespace PortaleRegione.BAL
                     appoggio.Conteggio_SubEM = await _unitOfWork.Emendamenti.Count(appoggio.UIDAtto,
                         currentUser, CounterEmendamentiEnum.SUB_EM, CLIENT_MODE);
                     appoggio.CounterODG = await _unitOfWork.DASI.CountODGByAttoPEM(appoggio.UIDAtto);
-                    if (currentUser.IsSegreteriaAssemblea)
+                    if (currentUser.IsSegreteriaAssemblea_Vista)
                     {
-                        appoggio.CanMoveUp = _unitOfWork.Atti.CanMoveUp(appoggio.Priorita.Value);
-                        appoggio.CanMoveDown =
-                            await _unitOfWork.Atti.CanMoveDown(appoggio.UIDSeduta.Value, appoggio.Priorita.Value);
+                        // #1670 - le frecce di spostamento restano a chi puo' scrivere
+                        if (currentUser.IsSegreteriaAssemblea)
+                        {
+                            appoggio.CanMoveUp = _unitOfWork.Atti.CanMoveUp(appoggio.Priorita.Value);
+                            appoggio.CanMoveDown =
+                                await _unitOfWork.Atti.CanMoveDown(appoggio.UIDSeduta.Value, appoggio.Priorita.Value);
+                        }
 
                         var listaArticoli = await _unitOfWork.Articoli.GetArticoli(appoggio.UIDAtto);
                         var listaRelatori = await _unitOfWork.Persone.GetRelatori(appoggio.UIDAtto);

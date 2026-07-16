@@ -241,7 +241,7 @@
                     </div>
                 </div>
                 @if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
-                        || Model.CurrentUser.IsSegreteriaAssemblea
+                        || Model.CurrentUser.IsSegreteriaAssemblea_Vista
                         || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
                         || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
                     {

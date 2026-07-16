@@ -637,7 +637,7 @@ namespace PortaleRegione.BAL
 
             if (currentUser != null)
             {
-                if (currentUser.IsSegreteriaAssemblea &&
+                if (currentUser.IsSegreteriaAssemblea_Vista &&
                     !string.IsNullOrEmpty(emendamento.NOTE_EM))
                     body = body.Replace("{lblNotePrivateEMView}",
                             $"Note Riservate: {emendamento.NOTE_EM}")

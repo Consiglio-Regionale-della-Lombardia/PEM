@@ -164,7 +164,7 @@ namespace PortaleRegione.BAL
 
         public async Task<BaseResponse<SeduteDto>> GetSeduteAttive(PersonaDto persona)
         {
-            var sedute_attive = await _unitOfWork.Sedute.GetAttive(!persona.IsSegreteriaAssemblea, false);
+            var sedute_attive = await _unitOfWork.Sedute.GetAttive(!persona.IsSegreteriaAssemblea_Vista, false);
 
             var seduteAttive = sedute_attive.ToList();
             return new BaseResponse<SeduteDto>(

@@ -467,6 +467,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
@@ -603,6 +607,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var user = CurrentUser;
+                if (user.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = user.IsSegreteriaAssemblea;
                 if (firmaUfficio)
                 {
@@ -653,6 +661,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var user = CurrentUser;
+                if (user.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = user.IsSegreteriaAssemblea;
                 if (firmaUfficio)
                 {
@@ -701,6 +713,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var user = CurrentUser;
+                if (user.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = user.IsSegreteriaAssemblea;
                 if (firmaUfficio)
                 {
@@ -749,6 +765,10 @@ namespace PortaleRegione.API.Controllers
             var user = CurrentUser;
             try
             {
+                if (user.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 // Tentativo di lock
                 var locked = await _emendamentiLogic.TryAcquireDepositoLock(user.UID_persona);
                 if (!locked)
@@ -806,6 +826,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
@@ -841,6 +865,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {

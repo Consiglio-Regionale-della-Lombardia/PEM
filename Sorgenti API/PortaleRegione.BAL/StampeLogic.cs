@@ -252,7 +252,7 @@ namespace PortaleRegione.BAL
 
             var stampe = await _unitOfWork.Stampe.GetAll(persona, model.page, model.size, queryFilter);
             var result = new List<StampaDto>();
-            if (persona.IsSegreteriaAssemblea
+            if (persona.IsSegreteriaAssemblea_Vista
                 || persona.IsAmministratoreGiunta)
             {
                 foreach (var stampa in stampe)
