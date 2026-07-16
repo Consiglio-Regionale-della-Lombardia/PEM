@@ -723,6 +723,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route(ApiRoutes.DASI.Save_Privacy)]
         public async Task<IHttpActionResult> Salva_PrivacyAtto(AttoDASIDto request)

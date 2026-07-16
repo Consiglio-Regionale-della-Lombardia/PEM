@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
+using PortaleRegione.Crypto;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -220,6 +221,11 @@ namespace PortaleRegione.BAL
                     atto.DataInvioAlProtocollo = DateTime.Now;
                 }
 
+                // #1663 - EDMA ha gia' ricevuto l'originale: da qui in avanti
+                // ogni altro flusso deve vedere solo l'offuscato.
+                ConsolidaTestoOffuscato(atto);
+                await RicertificaTestoOffuscato(atto, currentUser);
+
                 atto.EDMA_UltimoErrore = null;
                 atto.EDMA_DataUltimoTentativo = DateTime.Now;
                 await _unitOfWork.CompleteAsync();
@@ -232,6 +238,52 @@ namespace PortaleRegione.BAL
                 return await SalvaErrore(atto, ex.Message,
                     step: "eccezione", dettaglio: ex.ToString());
             }
+        }
+
+        // ----------------------------------------------------------------
+        // Consolidamento del testo offuscato
+        // ----------------------------------------------------------------
+
+        /// <summary>
+        ///     Sostituisce il testo dell'atto con l'offuscato, dove presente.
+        ///     Non reversibile: l'originale resta solo a protocollo e in audit.
+        ///     I campi offuscati non vengono azzerati.
+        /// </summary>
+        private static void ConsolidaTestoOffuscato(ATTI_DASI atto)
+        {
+            var oggetto = atto.OggettoView();
+            if (HaTesto(oggetto))
+                atto.Oggetto = oggetto;
+
+            if (HaTesto(atto.Premesse_Modificato))
+                atto.Premesse = atto.Premesse_Modificato;
+
+            if (HaTesto(atto.Richiesta_Modificata))
+                atto.Richiesta = atto.Richiesta_Modificata;
+        }
+
+        // Premesse e richiesta sono html: il markup lasciato da un editor
+        // svuotato (<p><br></p>, &nbsp;) non e' testo valido.
+        private static bool HaTesto(string testo)
+        {
+            if (string.IsNullOrWhiteSpace(testo))
+                return false;
+
+            return !string.IsNullOrWhiteSpace(Utility.StripHTML(testo));
+        }
+
+        /// <summary>
+        ///     Riallinea il corpo certificato, che nei pdf senza vista privacy
+        ///     ha la precedenza sui campi (cfr. BaseLogic.GetBody). Cambia solo
+        ///     il testo, le firme restano valide.
+        /// </summary>
+        private async Task RicertificaTestoOffuscato(ATTI_DASI atto, PersonaDto currentUser)
+        {
+            if (string.IsNullOrEmpty(atto.Atto_Certificato))
+                return;
+
+            var body = await _logicDasi.GetBodyDASI(atto.UIDAtto, currentUser, TemplateTypeEnum.FIRMA);
+            atto.Atto_Certificato = CryptoHelper.EncryptString(body, BALHelper.Decrypt(atto.Hash));
         }
 
         // ----------------------------------------------------------------
