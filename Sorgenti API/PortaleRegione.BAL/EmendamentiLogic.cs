@@ -45,6 +45,16 @@ namespace PortaleRegione.BAL
 {
     public class EmendamentiLogic : BaseLogic
     {
+        /// <summary>
+        ///     Stati degli emendamenti trasmessi in OpenData: solo quelli votati in aula
+        /// </summary>
+        private static readonly StatiEnum[] StatiOpenData =
+        {
+            StatiEnum.Approvato,
+            StatiEnum.Non_Approvato,
+            StatiEnum.Approvato_Con_Modifiche
+        };
+
         public EmendamentiLogic(IUnitOfWork unitOfWork, FirmeLogic logicFirme, PersoneLogic logicPersone,
             UtilsLogic logicUtil, IMapper mapper)
         {
@@ -1406,7 +1416,8 @@ namespace PortaleRegione.BAL
                 try
                 {
                     //OPENDATA
-                    if (AppSettingsConfiguration.AbilitaOpenData == "1")
+                    if (AppSettingsConfiguration.AbilitaOpenData == "1"
+                        && StatiOpenData.Contains(model.Stato))
                     {
                         var wsOD = new UpsertOpenData();
                         var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
