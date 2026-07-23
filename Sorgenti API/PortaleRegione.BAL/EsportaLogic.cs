@@ -207,7 +207,9 @@ namespace PortaleRegione.BAL
                         persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                             ? $"{em.PersonaProponente.id_persona}-{em.PersonaProponente.DisplayName}"
                             : em.PersonaProponente.DisplayName, ref columnIndex);
-                    SetColumnValue(ref row, excelSheet, "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        em.AreaPolitica.HasValue ? Utility.GetText_AreaPolitica(em.AreaPolitica.Value) : "",
+                        ref columnIndex);
 
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                     {
