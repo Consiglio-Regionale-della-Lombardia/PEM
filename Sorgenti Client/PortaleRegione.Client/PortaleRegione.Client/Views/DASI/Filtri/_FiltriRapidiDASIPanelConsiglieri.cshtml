@@ -211,10 +211,11 @@ else
     document.addEventListener('DOMContentLoaded',
         async function() {
             document.getElementById('loadingSpinner').style.display = 'none';
-            var clientMode = localStorage.getItem('clientMode');
-            if (clientMode != @Html.Raw((int)Model.ClientMode)) {
-                localStorage.setItem('clientMode', @Html.Raw((int)Model.ClientMode));
-            }
+            // #1673 - la modalita' e' quella autorevole della pagina (Model.ClientMode): non usare il
+            // valore stale di localStorage, che puo' restare su GRUPPI arrivando dall'area gruppi e far
+            // imboccare il ramo GRUPPI (iniezione chip id_gruppo) anche in Aula.
+            var clientMode = @Html.Raw((int)Model.ClientMode);
+            localStorage.setItem('clientMode', clientMode);
 
             var dataSource = clientMode == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)
                 ? availableFilterTrattazioneArray
