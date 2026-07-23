@@ -399,6 +399,9 @@ namespace PortaleRegione.BAL
                     em.NLettera = lettera.Lettera;
                 }
 
+                // #1675 - azzera i metadati non pertinenti alla parte scelta (come gia' avviene in modifica)
+                PuliziaMetaDati(em);
+
                 await _unitOfWork.CompleteAsync();
 
                 //Controllo Tags
