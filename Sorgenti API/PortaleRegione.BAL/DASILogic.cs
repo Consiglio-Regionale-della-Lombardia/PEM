@@ -2730,9 +2730,10 @@ namespace PortaleRegione.API.Controllers
                 var consiglieriGruppo =
                     await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
                 var count_consiglieri = consiglieriGruppo.Count();
-                var minimo_firme = count_consiglieri < minimo_consiglieri && !firmatari_di_altri_gruppi
-                                                                          && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA
-                                                                          && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA
+                // #1677 la deroga sul minimo firme per i gruppi piccoli vale solo per le IQT
+                var minimo_firme = atto.Tipo == (int)TipoAttoEnum.IQT
+                                   && count_consiglieri < minimo_consiglieri
+                                   && !firmatari_di_altri_gruppi
                     ? count_consiglieri
                     : minimo_consiglieri;
 
@@ -2761,6 +2762,9 @@ namespace PortaleRegione.API.Controllers
                     var moz_firmatari =
                         await _unitOfWork.Atti_Firme.GetFirmatari(moz_da_esaminare.Select(i => i.UIDAtto).ToList(),
                             minimo_consiglieri_config);
+
+                    // #1677 come per le IQT il conteggio parte dal minimo di regolamento
+                    count_firme = minimo_consiglieri_config;
 
                     foreach (var firma in firme.Take(minimo_consiglieri_config).ToList())
                     {
