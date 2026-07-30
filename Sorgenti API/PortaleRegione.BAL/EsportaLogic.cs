@@ -1316,7 +1316,7 @@ namespace PortaleRegione.BAL
                     {
                         var converter = new HtmlConverter(mainPart);
                         var resHtml = ComposeWordTableFromList(emendamenti, ordine);
-                        converter.ParseHtml(resHtml);
+                        converter.ParseHtml(NormalizzaTitoliPerWord(resHtml)); // #1674
                     }
                     catch (Exception e)
                     {

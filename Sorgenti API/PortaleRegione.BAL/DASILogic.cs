@@ -5901,7 +5901,7 @@ namespace PortaleRegione.API.Controllers
 
             // Converti l'HTML in contenuto Word e aggiungilo al documento
             var converter = new HtmlConverter(mainPart);
-            converter.ParseHtml(body);
+            converter.ParseHtml(NormalizzaTitoliPerWord(body)); // #1674
 
             // Salva il documento
             mainPart.Document.Save();

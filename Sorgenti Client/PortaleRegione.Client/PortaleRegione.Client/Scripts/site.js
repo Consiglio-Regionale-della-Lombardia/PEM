@@ -1885,6 +1885,12 @@ function StampaUOLA(ctrl) {
             },
             success: function (response) {
                 console.log("Risposta ricevuta", response);
+                // #1674: in errore l'API risponde 200 con { message }, non con l'url del file
+                if (response && response.message) {
+                    waiting(false);
+                    ErrorAlert(response.message);
+                    return;
+                }
                 var a = document.createElement("a");
                 a.href = response;
 				a.target = '_blank';

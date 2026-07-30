@@ -26,6 +26,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Caching;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using AutoMapper;
@@ -46,6 +47,15 @@ namespace PortaleRegione.BAL
 {
     public class BaseLogic
     {
+        // #1674
+        private static readonly Regex RegexTitolo =
+            new Regex(@"<h([1-6])\b[^>]*>(.*?)</h\1>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        private static readonly Regex RegexBloccoAnnidato =
+            new Regex(@"<(p|div|table|ul|ol)\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        private static readonly Regex RegexTagHtml = new Regex("<[^>]+>", RegexOptions.Singleline);
+
         private readonly MemoryCache memoryCache = MemoryCache.Default;
         internal AttiLogic _logicAtti;
         internal AttiFirmeLogic _logicAttiFirme;
@@ -332,6 +342,33 @@ namespace PortaleRegione.BAL
             var result = File.ReadAllText(path);
 
             return result;
+        }
+
+        /// <summary>
+        ///     #1674: nella conversione in Word i titoli che non producono testo mandano in eccezione
+        ///     HtmlToOpenXml. Capita con l'HTML incollato da Word, dove un h1..h6 puo' essere vuoto
+        ///     oppure contenere un blocco annidato. Il titolo viene chiuso prima del blocco - come fa
+        ///     il parser dei browser - e scartato se resta senza testo, cosi' il documento rispecchia
+        ///     quello che si vede a video.
+        /// </summary>
+        internal static string NormalizzaTitoliPerWord(string body)
+        {
+            if (string.IsNullOrEmpty(body)) return body;
+
+            return RegexTitolo.Replace(body, titolo =>
+            {
+                var contenuto = titolo.Groups[2].Value;
+                var tagApertura = titolo.Value.Substring(0, titolo.Value.IndexOf('>') + 1);
+
+                var blocco = RegexBloccoAnnidato.Match(contenuto);
+                var testa = blocco.Success ? contenuto.Substring(0, blocco.Index) : contenuto;
+                var coda = blocco.Success ? contenuto.Substring(blocco.Index) : string.Empty;
+
+                var testo = RegexTagHtml.Replace(testa, "").Replace("&nbsp;", " ").Trim();
+                if (testo.Length == 0) return coda;
+
+                return $"{tagApertura}{testa}</h{titolo.Groups[1].Value}>{coda}";
+            });
         }
 
         internal void GetBodyTemporaneo(EmendamentiDto emendamento, AttiDto atto, ref string body)
