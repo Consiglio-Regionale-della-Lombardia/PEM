@@ -769,13 +769,33 @@ namespace PortaleRegione.Client.Controllers
                     model.Lista = list;
                 }
 
-                await apiGateway.Emendamento.CambioStato(model);
-                return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
+                var esiti = await apiGateway.Emendamento.CambioStato(model);
+                return Json(RiepilogoEsitiEM(esiti), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
+        }
+
+        /// <summary>
+        ///     Comprime gli esiti per emendamento restituiti dall'api in un riepilogo per il client:
+        ///     quanti aggiornati, quanti scartati e con quale motivo. Nessuna chiave "message" sul
+        ///     percorso di successo, altrimenti il cambio stato del singolo emendamento la legge come errore.
+        /// </summary>
+        private static object RiepilogoEsitiEM(Dictionary<Guid, string> esiti)
+        {
+            if (esiti == null)
+                return new { aggiornati = 0, saltati = 0, dettagli = new List<string>() };
+
+            var aggiornati = esiti.Count(esito => esito.Value == "OK");
+            var dettagli = esiti
+                .Where(esito => esito.Value != "OK")
+                .GroupBy(esito => esito.Value)
+                .Select(gruppo => $"{gruppo.Key} ({gruppo.Count()})")
+                .ToList();
+
+            return new { aggiornati, saltati = esiti.Count - aggiornati, dettagli };
         }
 
         /// <summary>

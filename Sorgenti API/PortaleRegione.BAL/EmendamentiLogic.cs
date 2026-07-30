@@ -1372,11 +1372,20 @@ namespace PortaleRegione.BAL
         {
             var results = new Dictionary<Guid, string>();
 
-            var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First());
-            var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+            if (model.Lista == null || !model.Lista.Any())
+                return results;
+
+            // #1678: il grafo collegato (articolo, comma, lettera, parte, stato, tipo) serve solo al
+            // ramo OpenData. Sulle modifiche massive si carica la sola entita' EM, altrimenti ogni
+            // emendamento trascina in memoria una manciata di entita' che poi il change tracker
+            // ricontrolla a ogni salvataggio.
+            var openDataAbilitato = AppSettingsConfiguration.AbilitaOpenData == "1"
+                                    && StatiOpenData.Contains(model.Stato);
+
+            ATTI atto = null;
             foreach (var idGuid in model.Lista)
             {
-                var em = await GetEM(idGuid);
+                var em = await _unitOfWork.Emendamenti.Get(idGuid, openDataAbilitato);
                 if (em == null)
                 {
                     results.Add(idGuid, "ERROR: NON TROVATO");
@@ -1384,22 +1393,22 @@ namespace PortaleRegione.BAL
                 }
 
                 if (string.IsNullOrEmpty(em.DataDeposito))
+                {
+                    results.Add(idGuid, "SALTATO: NON DEPOSITATO");
                     continue;
+                }
+
+                if (atto == null)
+                    atto = await _unitOfWork.Atti.Get(em.UIDAtto);
 
                 em.IDStato = (int)model.Stato;
-                await _unitOfWork.CompleteAsync();
-                results.Add(idGuid, "OK");
+                em.StampaValida = false;
 
                 if (!atto.Fascicoli_Da_Aggiornare &&
                     (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
                      !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
-                    if (!string.IsNullOrEmpty(em.DataDeposito))
-                    {
-                        atto.Fascicoli_Da_Aggiornare = true;
-                        await _unitOfWork.CompleteAsync();
-                    }
+                    atto.Fascicoli_Da_Aggiornare = true;
 
-                em.StampaValida = false;
                 _unitOfWork.Stampe.Add(new STAMPE
                 {
                     UIDStampa = Guid.NewGuid(),
@@ -1414,13 +1423,16 @@ namespace PortaleRegione.BAL
                     Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
                     UIDEM = em.UIDEM
                 });
+
+                // Un solo salvataggio per emendamento: il trigger di audit duplica l'intera riga EM
+                // a ogni UPDATE, quindi i salvataggi intermedi si pagano due volte.
                 await _unitOfWork.CompleteAsync();
-                
+                results.Add(idGuid, "OK");
+
                 try
                 {
                     //OPENDATA
-                    if (AppSettingsConfiguration.AbilitaOpenData == "1"
-                        && StatiOpenData.Contains(model.Stato))
+                    if (openDataAbilitato)
                     {
                         var wsOD = new UpsertOpenData();
                         var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);

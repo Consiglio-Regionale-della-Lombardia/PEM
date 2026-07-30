@@ -282,11 +282,12 @@ namespace PortaleRegione.Gateway
             await Put(requestUrl, body, _token);
         }
 
-        public async Task CambioStato(ModificaStatoModel model)
+        public async Task<Dictionary<Guid, string>> CambioStato(ModificaStatoModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.ModificaStato}";
             var body = JsonConvert.SerializeObject(model);
-            await Put(requestUrl, body, _token);
+            var result = await Put(requestUrl, body, _token);
+            return JsonConvert.DeserializeObject<Dictionary<Guid, string>>(result);
         }
 
         public async Task<Dictionary<Guid, string>> Raggruppa(RaggruppaEmendamentiModel model)

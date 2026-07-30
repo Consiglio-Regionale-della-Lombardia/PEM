@@ -1845,8 +1845,13 @@
 
     // Variante "solo identificatori" usata dai comandi massivi quando l'utente vuole agire sull'intero
     // risultato corrente (Tutti=true). Restituisce una Promise<List<Guid>>.
+    // size = -1: l'insieme va risolto tutto in una volta, prima di modificare qualsiasi stato.
+    // Risolverlo pagina per pagina lo farebbe slittare man mano che gli emendamenti cambiano stato
+    // ed escono dal filtro corrente (issue #1678).
     window.inviaDatiChipsEMSoloIds = async function () {
         var request = window.buildFilterRequestEM();
+        request.page = 1;
+        request.size = -1;
         var response = await fetch(baseUrl + '/emendamenti/riepilogoEMSoloIds', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json; charset=utf-8' },

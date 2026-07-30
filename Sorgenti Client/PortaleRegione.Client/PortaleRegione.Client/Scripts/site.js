@@ -979,6 +979,13 @@ function CambioStato(uidem, stato) {
                 text: data.message,
                 icon: "error"
             });
+        } else if (data.aggiornati === 0) {
+            // L'api ha scartato l'emendamento (es. non depositato): inutile mostrare il nuovo stato.
+            swal({
+                title: "Stato non modificato",
+                text: (data.dettagli || []).join(', ') || "L'emendamento non e' stato aggiornato.",
+                icon: "warning"
+            });
         } else {
             var label = $("#tdStato_" + uidem + ">label");
             var textStato = "";
@@ -1109,54 +1116,82 @@ function GetCounterAlertStampa(lista, selezionaTutti) {
     return text_counter;
 }
 
-function CambioStatoMassivo(stato) {
-    const listaEM = [...document.querySelectorAll('input[type="checkbox"][id^="chk_EM_"]:checked')]
-        .map(cb => cb.id.replace('chk_EM_', ''));
+// #1678: unico punto di invio del cambio stato emendamenti. Ritorna una promise vera, cosi' i
+// comandi massivi possono aspettare la fine di un blocco prima di mandare il successivo: le
+// richieste sovrapposte si accodano sul lock di sessione e piantano il resto dell'applicazione.
+async function inviaCambioStatoEM(payload) {
+    const response = await fetch(baseUrl + "/emendamenti/modifica-stato", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify(payload)
+    });
 
-    var obj = {};
-    obj.Stato = stato;
-    obj.Lista = listaEM;
-    obj.AttoUId = $("#hdUIdAtto").val();
-    waiting(true);
-    $.ajax({
-        url: baseUrl + "/emendamenti/modifica-stato",
-        type: "POST",
-        data: JSON.stringify(obj),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json"
-    }).done(function(data) {
-        waiting(false);
-        if (data.message) {
-            console.log("error", data.message);
-            ErrorAlert(data.message);
-            return;
-        }
-        DeselectALLEM();
-        location.reload();
-    }).fail(function(err) {
-        waiting(false);
-        console.log("error", err);
-        Error(err);
+    if (!response.ok) {
+        throw new Error("Errore di rete (" + response.status + ")");
+    }
+
+    const esito = await response.json();
+    if (esito && esito.message) {
+        throw new Error(esito.message);
+    }
+    return esito;
+}
+
+// Mostra quanti emendamenti sono stati davvero aggiornati e, se ce ne sono, il motivo degli scarti.
+function mostraEsitoCambioStatoEM(esito) {
+    var aggiornati = (esito && esito.aggiornati) || 0;
+    var saltati = (esito && esito.saltati) || 0;
+
+    if (saltati === 0) {
+        M.toast({
+            html: `<span>${aggiornati} emendamenti aggiornati</span>`,
+            classes: 'rounded',
+            displayLength: 4000
+        });
+        return new Promise(resolve => setTimeout(resolve, 1500));
+    }
+
+    var dettagli = (esito.dettagli || []).join(', ');
+    return swal({
+        title: "Operazione completata",
+        text: `${aggiornati} emendamenti aggiornati, ${saltati} non modificati.`
+            + (dettagli ? ` Motivo: ${dettagli}` : ''),
+        icon: "warning"
     });
 }
 
-function CambioStatoMassivoSoloIds(stato, lista) {
-    
-    var obj = {};
-    obj.Stato = stato;
-    obj.Lista = lista;
-    obj.AttoUId = $("#hdUIdAtto").val();
+async function CambioStatoMassivo(stato) {
+    const listaEM = [...document.querySelectorAll('input[type="checkbox"][id^="chk_EM_"]:checked')]
+        .map(cb => cb.id.replace('chk_EM_', ''));
 
-    $.ajax({
-        url: baseUrl + "/emendamenti/modifica-stato",
-        type: "POST",
-        data: JSON.stringify(obj),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json"
-    }).done(function(data) {
-        
-    }).fail(function(err) {
+    if (listaEM.length === 0) {
+        ErrorAlert("Seleziona almeno un emendamento");
+        return;
+    }
+
+    waiting(true);
+    try {
+        const esito = await inviaCambioStatoEM({
+            Stato: stato,
+            Lista: listaEM,
+            AttoUId: $("#hdUIdAtto").val()
+        });
+        waiting(false);
+        DeselectALLEM();
+        await mostraEsitoCambioStatoEM(esito);
+        location.reload();
+    } catch (err) {
+        waiting(false);
         console.log("error", err);
+        ErrorAlert(err.message);
+    }
+}
+
+function CambioStatoMassivoSoloIds(stato, lista) {
+    return inviaCambioStatoEM({
+        Stato: stato,
+        Lista: lista,
+        AttoUId: $("#hdUIdAtto").val()
     });
 }
 

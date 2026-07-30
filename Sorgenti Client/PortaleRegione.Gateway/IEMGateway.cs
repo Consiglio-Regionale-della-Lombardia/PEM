@@ -30,7 +30,7 @@ namespace PortaleRegione.Gateway
     public interface IEMGateway
     {
         Task<Dictionary<Guid, string>> AssegnaNuovoPorponente(AssegnaProponenteModel model);
-        Task CambioStato(ModificaStatoModel model);
+        Task<Dictionary<Guid, string>> CambioStato(ModificaStatoModel model);
         Task<Dictionary<Guid, string>> Deposita(ComandiAzioneModel model);
         Task<Dictionary<Guid, string>> Deposita(Guid emendamentoUId, string pin);
         Task<Dictionary<Guid, string>> EliminaFirma(ComandiAzioneModel model);
