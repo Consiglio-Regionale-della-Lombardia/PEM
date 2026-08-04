@@ -374,6 +374,12 @@ namespace PortaleRegione.BAL
                 em.id_gruppo = persona.Gruppo.id_gruppo;
                 // #1622 - carta bianca: salva la scelta di nascondere il gruppo
                 em.NascondiGruppo = emendamentoDto.NascondiGruppo;
+
+                // #1675 - azzera i metadati non pertinenti alla parte scelta (come gia' avviene in modifica).
+                // Va fatto prima dell'insert: EF valida le lunghezze e un capo residuo oltre i 5 caratteri
+                // farebbe fallire il salvataggio prima della pulizia.
+                PuliziaMetaDati(em);
+
                 _unitOfWork.Emendamenti.Add(em);
                 await _unitOfWork.CompleteAsync();
 
@@ -398,9 +404,6 @@ namespace PortaleRegione.BAL
                     var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
                     em.NLettera = lettera.Lettera;
                 }
-
-                // #1675 - azzera i metadati non pertinenti alla parte scelta (come gia' avviene in modifica)
-                PuliziaMetaDati(em);
 
                 await _unitOfWork.CompleteAsync();
 
