@@ -41,7 +41,7 @@
                     }
                     <div id="pnlTitolo" style="display: @pnlTitoloVisible">
                         @Html.LabelFor(m => m.Emendamento.NTitolo)
-                        <input type="text" name="Emendamento.NTitolo" value="@Model.Emendamento.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
+                        <input type="text" name="Emendamento.NTitolo" value="@Model.Emendamento.NTitolo" maxlength="5" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
 
                     </div>
                     @{
@@ -49,7 +49,7 @@
                     }
                     <div id="pnlCapo" style="display: @pnlCapoVisible">
                         @Html.LabelFor(m => m.Emendamento.NCapo)
-                        <input type="text" name="Emendamento.NCapo" value="@Model.Emendamento.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
+                        <input type="text" name="Emendamento.NCapo" value="@Model.Emendamento.NCapo" maxlength="5" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
                     </div>
                     @{
                         var pnlArticoliVisible = Model.Emendamento.UIDArticolo.HasValue ? "block" : "none";
@@ -137,11 +137,11 @@
                                 @Html.LabelFor(m => m.Emendamento.NLettera)
                                 @if (_disabled)
                                 {
-                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD", disabled = true })
+                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD", maxlength = 5, disabled = true })
                                 }
                                 else
                                 {
-                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD" })
+                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD", maxlength = 5 })
                                 }
 
                             </div>
