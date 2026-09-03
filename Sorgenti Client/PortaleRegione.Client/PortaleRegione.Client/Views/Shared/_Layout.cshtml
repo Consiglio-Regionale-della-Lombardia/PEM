@@ -22,6 +22,9 @@
     @Scripts.Render("~/bundles/logic")
     @Scripts.Render("~/bundles/filevalidation")
     @Scripts.Render("~/bundles/editor")
+    @*Trumbowyg deduce il path delle icone leggendo il src del proprio <script>: dentro un
+        bundle quel nome non compare piu' e la toolbar dell'editor resta senza icone.*@
+    <script>$.trumbowyg.svgPath = '@Url.Content("~/Content/editor/ui/icons.svg")';</script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="~/Scripts/moment.js"></script>
     
