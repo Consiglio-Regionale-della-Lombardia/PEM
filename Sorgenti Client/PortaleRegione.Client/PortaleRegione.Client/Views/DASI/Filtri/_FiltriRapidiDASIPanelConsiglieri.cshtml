@@ -744,11 +744,14 @@ else
     var isResponsabileSegrPolDASI = @(Model.CurrentUser.IsResponsabileSegreteriaPolitica ? "true" : "false");
     var idGruppoCorrenteDASI = @(Model.CurrentUser.Gruppo?.id_gruppo ?? 0);
 
-    // #1665 - Formatta una data ISO (es. Seduta.Data_seduta) come gg/mm/aaaa; se non valida torna il valore originale.
-    function formattaDataSedutaDASI(iso) {
-        if (!iso) return '';
-        var d = new Date(iso);
-        if (isNaN(d.getTime())) return iso;
+    // #1665 - Formatta una data (es. Seduta.Data_seduta) come gg/mm/aaaa; se non valida torna il valore originale.
+    // #1682 - JsonResult serializza le DateTime nel formato JavaScriptSerializer "/Date(1784620800000)/",
+    // che new Date() non sa leggere: senza estrarre i millisecondi in griglia finiva la stringa grezza.
+    function formattaDataSedutaDASI(valore) {
+        if (!valore) return '';
+        var millisecondi = /^\/Date\((-?\d+)(?:[+-]\d{4})?\)\/$/.exec(valore);
+        var d = millisecondi ? new Date(parseInt(millisecondi[1], 10)) : new Date(valore);
+        if (isNaN(d.getTime())) return valore;
         var gg = ('0' + d.getDate()).slice(-2);
         var mm = ('0' + (d.getMonth() + 1)).slice(-2);
         return gg + '/' + mm + '/' + d.getFullYear();
