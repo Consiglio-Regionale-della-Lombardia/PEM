@@ -2704,7 +2704,7 @@
 
                 }).fail(function(err) {
                     console.log("error", err);
-                    Error(err);
+                    MostraErrore(err);
                 });
             }
         });
@@ -2815,7 +2815,7 @@
                     if (payload) {
                         mostraErroreProtocollazione(payload);
                     } else {
-                        Error(err);
+                        MostraErrore(err);
                     }
                 }
             });
@@ -2868,7 +2868,7 @@
                 },
                 error: function (err) {
                     waiting(false);
-                    Error(err);
+                    MostraErrore(err);
                 }
             });
         });

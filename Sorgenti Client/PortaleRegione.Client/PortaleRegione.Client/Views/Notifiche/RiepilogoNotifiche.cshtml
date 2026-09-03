@@ -91,7 +91,7 @@ else if (is_inviate)
 
                 }).fail(function(err) {
                     console.log("error", err);
-                    Error(err);
+                    MostraErrore(err);
                 });
             }
         });
@@ -152,7 +152,7 @@ else if (is_inviate)
 			}).fail(function (err) {
 				waiting(false);
 				console.log("error", err);
-				Error(err);
+				MostraErrore(err);
 			});
 		});
 }
@@ -218,7 +218,7 @@ else if (is_inviate)
 				}).fail(function (err) {
 					waiting(false);
 					console.log("error", err);
-					Error(err);
+					MostraErrore(err);
 				});
 			});
 	}

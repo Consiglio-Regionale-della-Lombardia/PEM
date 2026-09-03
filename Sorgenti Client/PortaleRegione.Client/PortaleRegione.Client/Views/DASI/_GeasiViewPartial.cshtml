@@ -106,7 +106,7 @@
                 .done(function (result) {
                     // Se il risultato contiene una proprietà 'message' che include "Error"
                     if (result && result.message && result.message.indexOf("Error") !== -1) {
-                        // Chiamiamo il metodo Error() passandogli il messaggio
+                        // Chiamiamo il metodo MostraErrore() passandogli il messaggio
                         ErrorAlert(result.message);
                         // Rifiutiamo la promise
                         reject(result.message);

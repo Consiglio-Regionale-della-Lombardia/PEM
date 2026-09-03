@@ -398,7 +398,7 @@ function Sposta_EMTrattazione(em) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -417,7 +417,7 @@ function SpostaUP_EMTrattazione(em) {
             }
         }).fail(function (err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });    
 }
 
@@ -440,7 +440,7 @@ function SpostaDOWN_EMTrattazione(em) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -468,7 +468,7 @@ async function GetEM(emUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -482,7 +482,7 @@ async function GetAttiCartacei() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -496,7 +496,7 @@ async function GetAtto(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -692,7 +692,7 @@ function RevealFirmatari(uidem) {
             }
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -729,7 +729,7 @@ function AccettaPropostaFirmaAttoDASI(idNotifica) {
 
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         }
     });
@@ -760,7 +760,7 @@ function AccettaRitiroFirmaAttoDASI(idNotifica) {
 
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         }
     });
@@ -954,7 +954,7 @@ function ResetStampa(stampaUId, url) {
         go(url);
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1018,7 +1018,7 @@ function CambioStato(uidem, stato) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1048,7 +1048,7 @@ function CambioStatoDASI(uidatto, stato) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1341,7 +1341,7 @@ function GetPersoneFromDB() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1355,7 +1355,7 @@ function GetPersonePerInviti(attoUId, tipo) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1369,7 +1369,7 @@ function GetPersonePerInvitiDASI(tipo) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1402,7 +1402,7 @@ function Ordina_EMTrattazione(attoUId) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1538,7 +1538,7 @@ function CreaArticolo(attoUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1569,7 +1569,7 @@ function CreaComma(articoloUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1600,7 +1600,7 @@ function CreaLettera(commaUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1631,7 +1631,7 @@ function EliminaArticolo(articoloUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1663,7 +1663,7 @@ function EliminaComma(commaUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1695,7 +1695,7 @@ function EliminaLettera(letteraUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1733,7 +1733,7 @@ function PubblicaFascicolo(attoUId, ordine) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1763,7 +1763,7 @@ function BloccaODG(attoUId, blocca) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1805,7 +1805,7 @@ function BloccaEM(attoUId) {
         $("#chkBloccoEM_" + attoUId).data("blocco", new_blocco);
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1836,7 +1836,7 @@ function JollyODG(attoUId, jolly) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1854,7 +1854,7 @@ function GetDestinatariNotifica(notificaId) {
         panel.append(data);
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1988,10 +1988,13 @@ function ErrorAlert(message) {
     });
 }
 
-function Error(ex) {
-    // Il motivo arriva in forme diverse: jqXHR dai .fail() di $.ajax, ErrorResponse gia'
-    // deserializzato dai pannelli filtri che usano fetch, Error nativo dai catch. Leggendo
-    // solo statusText le prime due finivano nel modale come "Motivo: undefined".
+// Errore imprevisto: all'utente il messaggio generico, il dettaglio tecnico in console.
+// Il motivo arriva in forme diverse a seconda del chiamante: jqXHR dai .fail() di $.ajax,
+// ErrorResponse gia' deserializzato dai pannelli filtri che usano fetch, Error dai catch.
+// Prima veniva letto solo statusText e finiva a video come "Motivo: undefined"; adesso il
+// messaggio vero resta in console, dove serve a noi, e non arriva addosso a chi usa il
+// portale (sono testi in inglese, quando non nomi di tabelle e colonne).
+function MostraErrore(ex) {
     var motivo = "";
     if (typeof ex === "string") {
         motivo = ex;
@@ -2005,9 +2008,11 @@ function Error(ex) {
         }
     }
 
+    console.error("MostraErrore:", motivo || "(nessun motivo)", ex);
+
     swal({
         title: "Errore",
-        text: motivo ? MESSAGGIO_ERRORE_500 + " Motivo: " + motivo : MESSAGGIO_ERRORE_500,
+        text: MESSAGGIO_ERRORE_500,
         icon: "error",
         button: "Ok"
     });

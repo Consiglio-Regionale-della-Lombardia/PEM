@@ -983,7 +983,7 @@
             if (!response.ok) throw new Error('Errore di rete (' + response.status + ')');
             var data = await response.json();
             if (data && data.message) {
-                if (typeof Error === 'function') Error(data);
+                if (typeof MostraErrore === 'function') MostraErrore(data);
                 return;
             }
             window.responseData = data;

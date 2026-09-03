@@ -227,7 +227,7 @@
                         });
                     }).fail(function(err) {
                         console.log("error", err);
-                        Error(err);
+                        MostraErrore(err);
                     });
                 });
         }
@@ -303,7 +303,7 @@ function RevealFirmaDeposito(id, action) {
 			}).fail(function (err) {
                 waiting(false);
 				console.log("error", err);
-				Error(err);
+				MostraErrore(err);
 			});
 		});
 }

@@ -97,7 +97,7 @@ function GetLegislature() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -117,7 +117,7 @@ function GetProponenti(idLegislatura, gruppoId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -239,7 +239,7 @@ function GetOrganiDisponibili(legislaturaId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -253,7 +253,7 @@ function GetSedutaByData(dataSeduta) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -267,7 +267,7 @@ function GetSeduteAttive() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -281,7 +281,7 @@ function GetSeduteAttiveMOZU() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -295,7 +295,7 @@ function GetSeduteAttiveDashboard() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -310,7 +310,7 @@ function GetSeduteChiuse() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -325,7 +325,7 @@ function GetTags() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -340,7 +340,7 @@ function GetRiepilogoFirmeAtto() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -354,7 +354,7 @@ function GetGruppiInDb() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -513,7 +513,7 @@ function GetStatiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -533,7 +533,7 @@ function GetStatiDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -565,7 +565,7 @@ function GetFiltriPreferitiDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -579,7 +579,7 @@ function GetReportsDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -599,7 +599,7 @@ function GetTipiDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -619,7 +619,7 @@ function GetTipiMOZDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -633,7 +633,7 @@ function GetAttiSeduteAttive() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -647,7 +647,7 @@ function GetTipiMOZAbbinabiliDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -667,7 +667,7 @@ function GetSoggettiInterrogabiliDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -715,7 +715,7 @@ function GetTipiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -955,7 +955,7 @@ function GetPartiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -970,7 +970,7 @@ function GetArticoli(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -985,7 +985,7 @@ function GetGrigliaTesto(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1000,7 +1000,7 @@ function GetGrigliaTestoEM(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1015,7 +1015,7 @@ function GetGrigliaOrdinamentoEM(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1029,7 +1029,7 @@ function GetCommi(articoloUId, expanded) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1045,7 +1045,7 @@ function GetLettere(commaUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1065,7 +1065,7 @@ function GetMissioni() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1085,7 +1085,7 @@ function GetTitoliMissioni() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }

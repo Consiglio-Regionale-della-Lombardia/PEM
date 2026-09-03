@@ -324,7 +324,7 @@
 			}).fail(function (err) {
 				waiting(false);
 				console.log("error", err);
-				Error(err);
+				MostraErrore(err);
 			});
 		});
 }
@@ -363,7 +363,7 @@ function ConfirmActionDASI(id, name, action) {
 				}
 			}).fail(function (err) {
 				console.log("error", err);
-				Error(err);
+				MostraErrore(err);
 			});
 		});
 	$("#modalActionDASI").modal("open");

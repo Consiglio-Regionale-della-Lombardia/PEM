@@ -273,7 +273,7 @@
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
     }
@@ -361,7 +361,7 @@
                                             M.toast({ html: 'Il Pin è stato cambiato', classes: 'rounded' });
                                         }).fail(function(err) {
                                             console.log("error", err);
-                                            Error(err);
+                                            MostraErrore(err);
                                         });
                                     }
                                 });
@@ -369,7 +369,7 @@
 
                 }).fail(function(err) {
                     console.log("error", err);
-                    Error(err);
+                    MostraErrore(err);
                 });
             });
     }
