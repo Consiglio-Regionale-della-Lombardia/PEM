@@ -1989,9 +1989,25 @@ function ErrorAlert(message) {
 }
 
 function Error(ex) {
+    // Il motivo arriva in forme diverse: jqXHR dai .fail() di $.ajax, ErrorResponse gia'
+    // deserializzato dai pannelli filtri che usano fetch, Error nativo dai catch. Leggendo
+    // solo statusText le prime due finivano nel modale come "Motivo: undefined".
+    var motivo = "";
+    if (typeof ex === "string") {
+        motivo = ex;
+    } else if (ex) {
+        if (ex.responseJSON && ex.responseJSON.message) {
+            motivo = ex.responseJSON.message;
+        } else if (ex.message) {
+            motivo = ex.message;
+        } else if (ex.statusText) {
+            motivo = ex.statusText;
+        }
+    }
+
     swal({
         title: "Errore",
-        text: MESSAGGIO_ERRORE_500 + " Motivo: " + ex.statusText,
+        text: motivo ? MESSAGGIO_ERRORE_500 + " Motivo: " + motivo : MESSAGGIO_ERRORE_500,
         icon: "error",
         button: "Ok"
     });

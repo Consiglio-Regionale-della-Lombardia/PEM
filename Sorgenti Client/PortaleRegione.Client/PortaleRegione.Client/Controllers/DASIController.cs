@@ -107,7 +107,9 @@ namespace PortaleRegione.Client.Controllers
                 var res = await apiGateway.DASI.Get(request);
                 res.CurrentUser = CurrentUser;
 
-                return Json(res);
+                // #1681: come per la griglia emendamenti, il taglio da 100 atti supera i 2 MB
+                // di default del JavaScriptSerializer e la risposta diventa un 500.
+                return JsonSenzaLimiti(res);
             }
             catch (Exception e)
             {
@@ -129,7 +131,7 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
 
                 var res = await apiGateway.DASI.GetSoloIds(request);
-                return Json(res);
+                return JsonSenzaLimiti(res);
             }
             catch (Exception e)
             {

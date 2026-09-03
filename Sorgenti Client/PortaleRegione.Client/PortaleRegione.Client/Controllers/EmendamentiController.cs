@@ -1122,7 +1122,10 @@ namespace PortaleRegione.Client.Controllers
                 }
 
                 res.CurrentUser = CurrentUser;
-                return Json(res);
+                // #1681: una pagina da 100 emendamenti supera i 2 MB di default del
+                // JavaScriptSerializer (EmendamentiDto porta con se' testo, relazione e firme),
+                // e la griglia riceveva un 500 al posto dei risultati.
+                return JsonSenzaLimiti(res);
             }
             catch (Exception e)
             {
@@ -1146,7 +1149,7 @@ namespace PortaleRegione.Client.Controllers
                 var request = BuildBaseRequestEM(model);
                 var apiGateway = new ApiGateway(Token);
                 var ids = await apiGateway.Emendamento.GetSoloIds(request);
-                return Json(ids);
+                return JsonSenzaLimiti(ids);
             }
             catch (Exception e)
             {
