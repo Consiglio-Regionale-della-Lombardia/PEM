@@ -1094,7 +1094,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<GruppiDto>> GetGruppiDisponibili(int legislaturaId, int page, int size)
         {
-            var query = PRContext
+            var gruppi = await PRContext
                 .View_gruppi_politici_ws
                 .Where(a => a.id_legislatura.Equals(legislaturaId))
                 .Distinct()
@@ -1105,13 +1105,37 @@ namespace PortaleRegione.Persistance
                     codice_gruppo = a.codice_gruppo,
                     data_inizio = a.data_inizio,
                     data_fine = a.data_fine
-                });
+                })
+                .ToListAsync();
 
-            return await query
-                .OrderBy(abb => abb.nome_gruppo)
+            // #1684 - La Giunta non e' censita in gruppi_politici, quindi non passa dalla view
+            // dei gruppi per legislatura: l'unica tabella che la tiene e' JOIN_GRUPPO_AD, dove
+            // il flag GiuntaRegionale la distingue e id_legislatura dice a quale legislatura
+            // appartiene (l'id cambia da una legislatura all'altra). Senza questa aggiunta il
+            // filtro "Gruppo / Giunta" non puo' proporla e gli emendamenti a firma Giunta
+            // restano fuori dalla ricerca.
+            var idGiunta = await PRContext
+                .JOIN_GRUPPO_AD
+                .Where(g => g.GiuntaRegionale && g.id_legislatura == legislaturaId)
+                .Select(g => g.id_gruppo)
+                .Distinct()
+                .ToListAsync();
+
+            gruppi.AddRange(idGiunta.Select(id => new GruppiDto
+            {
+                id_gruppo = id,
+                nome_gruppo = "GIUNTA REGIONALE",
+                codice_gruppo = "GIUNTA",
+                giunta = true
+            }));
+
+            // I gruppi di una legislatura sono poche decine e ora arrivano da due tabelle
+            // diverse: l'impaginazione si fa in memoria sull'elenco gia' unito.
+            return gruppi
+                .OrderBy(g => g.nome_gruppo)
                 .Skip((page - 1) * size)
                 .Take(size)
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId)
