@@ -167,6 +167,8 @@
 		request.dataviewtype_template = document.querySelector('select[name="dataViewType_Templates"]').value;
 		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
 		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
+		// #1688: il flag va salvato tra i parametri, non solo passato alla generazione
+		request.file_separati = document.getElementById('chk-file-separati').checked;
 
 		request.sorting = localStorage.getItem('selectedSortColumns');
 
@@ -316,6 +318,8 @@
 		document.getElementById('columns-select-panel').style.display = 'block';
 		document.getElementById('extraOptions-panel').style.display = 'none';
 		document.getElementById('panelDataViewType_Templates').style.display = 'none';
+		document.getElementById('file-separati-panel').style.display = 'none';
+		document.getElementById('chk-file-separati').checked = false;
 
 		var cardTemplates = await GetCardTemplates();
 		var cardTemplatesTypeSelect = $('select[name="dataViewType_Templates"]');
@@ -376,6 +380,12 @@
 
 			if (selectedReport.exportformat != '@Html.Raw((int)ExportFormatEnum.EXCEL)'){
 				document.getElementById('extraOptions-panel').style.display = 'block';
+			}
+			// #1688: impostando il formato via val() l'onchange non scatta, quindi il
+			// pannello del flag "un file per atto (ZIP)" va riaperto a mano
+			if (selectedReport.exportformat == '@Html.Raw((int)ExportFormatEnum.WORD)'){
+				document.getElementById('file-separati-panel').style.display = 'block';
+				document.getElementById('chk-file-separati').checked = !!selectedReport.file_separati;
 			}
 			if (selectedReport.dataviewtype == '@Html.Raw((int)DataViewTypeEnum.TEMPLATE)'){
 				document.getElementById('panelDataViewType_Templates').style.display = 'block';

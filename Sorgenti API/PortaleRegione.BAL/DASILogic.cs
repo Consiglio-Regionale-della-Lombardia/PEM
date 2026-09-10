@@ -4757,7 +4757,8 @@ namespace PortaleRegione.API.Controllers
                     TipoCopertina = report.covertype,
                     TipoVisualizzazione = report.dataviewtype,
                     TipoVisualizzazione_Card_Template = report.dataviewtype_template,
-                    DettagliOrdinamento = report.sorting
+                    DettagliOrdinamento = report.sorting,
+                    FileSeparati = report.file_separati
                 };
 
                 _unitOfWork.Reports.Add(item);
@@ -4771,6 +4772,7 @@ namespace PortaleRegione.API.Controllers
                 reportInDb.TipoVisualizzazione = report.dataviewtype;
                 reportInDb.TipoVisualizzazione_Card_Template = report.dataviewtype_template;
                 reportInDb.DettagliOrdinamento = report.sorting;
+                reportInDb.FileSeparati = report.file_separati;
             }
 
             await _unitOfWork.CompleteAsync();
@@ -4795,7 +4797,8 @@ namespace PortaleRegione.API.Controllers
                     dataviewtype = f.TipoVisualizzazione,
                     dataviewtype_template = f.TipoVisualizzazione_Card_Template,
                     exportformat = f.FormatoEsportazione,
-                    sorting = f.DettagliOrdinamento
+                    sorting = f.DettagliOrdinamento,
+                    file_separati = f.FileSeparati
                 });
 
             return res;
