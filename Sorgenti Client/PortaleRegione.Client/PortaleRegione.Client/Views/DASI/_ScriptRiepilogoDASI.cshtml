@@ -109,9 +109,9 @@
         });
     }
 
-	// Punto unico: costruisce il payload filtri (chips + guard gruppo) condiviso da
-	// estrazioni rapide e azioni massive "Seleziona tutto", allineato a cio' che la griglia
-	// mostra (stessa raccolta chip di inviaDatiChips) e senza dipendere dalla Session.
+	// Punto unico: costruisce il payload filtri condiviso da estrazioni rapide e azioni
+	// massive "Seleziona tutto", allineato a cio' che la griglia mostra (stessa raccolta
+	// chip di inviaDatiChips) e senza dipendere dalla Session.
 	function buildDasiFilterRequest(page, size) {
 		var chipsData = [];
 		document.querySelectorAll('#chips-container .chip.filter-chip').forEach(function (chip) {
@@ -125,13 +125,9 @@
 
 		var clientMode = localStorage.getItem('clientMode') || '@Html.Raw((int)PortaleRegione.DTO.Enum.ClientModeEnum.GRUPPI)';
 
-		// Guard GRUPPI: limita agli atti del gruppo del consigliere (come inviaDatiChips).
-		if (clientMode != '@Html.Raw((int)PortaleRegione.DTO.Enum.ClientModeEnum.TRATTAZIONE)') {
-			var gruppoGuard = '@Html.Raw(Model.CurrentUser?.Gruppo != null ? Model.CurrentUser.Gruppo.id_gruppo.ToString() : "")';
-			if (gruppoGuard && !chipsData.some(function (c) { return c.property === '@Html.Raw(nameof(AttoDASIDto.id_gruppo))'; })) {
-				chipsData.push({ property: '@Html.Raw(nameof(AttoDASIDto.id_gruppo))', value: gruppoGuard });
-			}
-		}
+		// #1686 - niente chip id_gruppo aggiunta qui: in area consiglieri il gruppo e' gia' una
+		// chip fissa invisibile del pannello, in area UOLA/admin non deve esserci affatto (#1638).
+		// Aggiungerla significava estrarre con un filtro che la griglia non applica.
 
 		// #1633 - propaga la spunta "richiesta la mia firma" alle azioni massive ed estrazioni rapide,
 		// cosi' che "Seleziona tutto + Firma massiva" e gli export operino sullo stesso insieme di atti

@@ -905,6 +905,11 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
+        // #1686 - se la ricerca non produce atti, l'api genera comunque un file (excel con le
+        // sole intestazioni, zip senza pdf): meglio dirlo che consegnare un file vuoto.
+        private const string NESSUN_ATTO_DA_ESPORTARE =
+            "Nessun atto da esportare: la ricerca corrente non ha prodotto risultati.";
+
         /// <summary>
         ///     Controller per esportare gli atti
         /// </summary>
@@ -924,6 +929,10 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
 
                 var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                if (soloIds == null || !soloIds.Any())
+                    return Json(new ErrorResponse { message = NESSUN_ATTO_DA_ESPORTARE },
+                        JsonRequestBehavior.AllowGet);
+
                 var file = await apiGateway.Esporta.EsportaXLSDASI(soloIds);
 
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
@@ -953,6 +962,10 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
 
                 var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                if (soloIds == null || !soloIds.Any())
+                    return Json(new ErrorResponse { message = NESSUN_ATTO_DA_ESPORTARE },
+                        JsonRequestBehavior.AllowGet);
+
                 var file = await apiGateway.Esporta.EsportaZipDASI(soloIds);
 
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
@@ -984,6 +997,10 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
 
                 var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                if (soloIds == null || !soloIds.Any())
+                    return Json(new ErrorResponse { message = NESSUN_ATTO_DA_ESPORTARE },
+                        JsonRequestBehavior.AllowGet);
+
                 var file = await apiGateway.Esporta.EsportaXLSConsiglieriDASI(soloIds);
 
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
