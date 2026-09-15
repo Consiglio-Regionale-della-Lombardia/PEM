@@ -26,7 +26,7 @@ Gli utenti appartenenti alla Giunta Regionale (Presidente, Assessori, Sottosegre
 
 ### PIN dispositivo (autenticazione di secondo livello)
 
-Per effettuare le operazioni di firma e di deposito viene scelto, da ogni soggetto titolato, un PIN dispositivo di 4 caratteri alfanumerici case-sensitive (o di 4 cifre).
+Per effettuare le operazioni di firma e di deposito viene scelto, da ogni soggetto titolato, un PIN dispositivo di 4 cifre.
 Come previsto dall’attuale normativa in materia di trattamento dati personali, il PIN deve essere scelto dall’intestatario stesso.
 I PIN dispositivi sono forniti ai seguenti soggetti:
 - Consiglieri regionali: uno per ogni consigliere (che ne sarà custode). Può essere utilizzato per le operazioni di firma e di deposito di atti già firmati.
@@ -67,9 +67,10 @@ Per poter ritirare una firma ad un ATTO il software richiede l’immissione del 
 Utilizzando la chiave embedded crittografa e memorizza i dati relativi al ritiro della firma ovvero l’orario in cui è avvenuta l’operazione. (Nel caso un ATTO non sia ancora stato depositato, la firma viene eliminata dal sistema)
 
 ## Ruoli degli utenti
-Di seguito sono riportati i ruouli ricoperti dagli utenti all'interno dei moduli PEM e DASI, fatto salvo per gli utenti della Giunta regionale i quali possono operare solo all'interno del modulo PEM:
+Di seguito sono riportati i ruoli ricoperti dagli utenti all'interno dei moduli PEM e DASI, fatto salvo per gli utenti della Giunta regionale i quali possono operare solo all'interno del modulo PEM:
 
 - Servizio Segreteria Dell’assemblea (PEM e DASI/GeDASI)
+- Servizio Segreteria Dell’assemblea in sola lettura (PEM e DASI/GeDASI)
 - Segreteria Dei Diversi Gruppi Consiliari (PEM e DASI)
 - Responsabile Di Segreteria Dei Diversi Gruppi Consiliari (PEM e DASI)
 - Consiglieri Regionali (PEM e DASI)
@@ -79,10 +80,9 @@ Di seguito sono riportati i ruouli ricoperti dagli utenti all'interno dei moduli
 - Responsabili Di Segreteria Di Presidente/Assessori/Sottosegretari (PEM)
 - Amministratori Di Giunta (PEM)
 - Amministratori del sistema (PEM e DASI/GeDASI)
-- Segreterie particolari dei componenti dell’Ufficio di presidenza (PEM e DASI)
 
 ## Integrazione con altri applicativi presenti nel Consiglio regionale della Lombardia
-Sotto il profilo degli applicativi, nell’iter di ciascun ATTO interviene la piattaforma EDMA (sistema documentale e di protocollazione) per la gestione delle comunicazioni elettroniche relative a ciascun atto. Questa integrazione può essere disabilitata tramite opportuni parametri di configurazione.
+Sotto il profilo degli applicativi, gli atti di indirizzo e di sindacato ispettivo presentati vengono protocollati nella piattaforma EDMA (sistema documentale e di protocollazione). La Segreteria dell’Assemblea avvia la protocollazione con il pulsante “Protocolla”, dal dettaglio dell’atto oppure dalla colonna Protocollo della griglia: GeDASI crea la pratica in EDMA, vi carica il testo e l’eventuale allegato e riporta il numero di pratica nel campo Protocollo. Per un atto con parti oscurate per privacy, dopo la protocollazione resta a sistema solo il testo oscurato. Se abilitato in configurazione, il numero di protocollo si può anche inserire a mano, per gli atti protocollati fuori da GeDASI.
 
 Il sito istituzionale del Consiglio Regionale acquisisce i dati relativi agli atti dal WebService esposto da GeDASI e li presenta all'interno del proprio spazio. Il WebService è uno strumento di sola lettura, appositamente sviluppato per l'esposizione degli atti al pubblico.
 Di seguito un elenco delle chiamate esposte:
@@ -94,8 +94,14 @@ Di seguito un elenco delle chiamate esposte:
 - GetCaricheGiunta: ritorna l'elenco delle cariche di giunta disponibili per legislatura
 - GetCommissioni: ritorna l'elenco delle commissioni disponibili per legislatura
 - GetStati: ritorna l'elenco degli stati disponibili
+- GetStatiChiusura: ritorna l'elenco degli stati di chiusura dell'iter
 - Search: restituisce una lista di atti paginati opportunamente filtrati
 - GetAtto: restituisce le informazioni complete dell'atto
+- ScaricaDocumento: scarica un documento pubblicato dell'atto
+
+Dal sito istituzionale si raggiunge la pagina pubblica di ciascun atto, consultabile senza credenziali. Il pulsante di stampa in alto a destra scarica il PDF del testo, con l'allegato parte integrante se questo è pubblicato.
+
+![DASI_pagina_pubblica](/Documentazione/Screenshot/DASI_pagina_pubblica.png)
 
 Altro applicativo con cui i moduli di GeDASI dialogano è Ge.CO. disponibile su gitHub all’url https://github.com/Consiglio-Regionale-della-Lombardia/GeCo. L’applicazione GeCo (GEstione COnsiglieri) permette la gestione e consultazione delle informazioni istituzionali relative ai Consiglieri e agli Assessori regionali. Attraverso questa integrazione la piattaforma GeDASI “recupera” tutte le informazioni relative a:
 - Anagrafica dei consiglieri regionali
@@ -111,7 +117,7 @@ A seguire, verranno illustrate le differenti funzionalità del Portale suddivise
 # Modulo PEM - Presentazione Emendamenti
 Gli emendamenti sono proposte di modifica riferite ad uno specifico punto di un progetto di legge (titolo, articolo, comma, allegato, ecc.) prima che questo venga votato dall’assemblea legislativa regionale. I subemendamenti sono invece proposte di modifica riferite ad un emendamento precedentemente presentato. Il Portale PEM aiuta a de-materializzare e informatizzare le procedure del Consiglio Regionale per la presentazione di emendamenti/subemendamenti (EM/SUBEM).
 
-- [Introduzione](#introduzione)
+- [Introduzione](#introduzione-modulo-pem)
 - [Servizio Segreteria dell’Assemblea](#servizio-segreteria-dellassemblea)
 - [Segreteria dei diversi gruppi consiliari](#segreteria-dei-diversi-gruppi-consiliari)
 - [Responsabile di segreteria dei diversi gruppi consiliari](#responsabile-di-segreteria-dei-diversi-gruppi-consiliari)
@@ -121,6 +127,7 @@ Gli emendamenti sono proposte di modifica riferite ad uno specifico punto di un 
 - [Segreterie di presidente/assessori/sottosegretari](#segreterie-di-presidenteassessorisottosegretari)
 - [Responsabili di segreteria di presidente/assessori/sottosegretari](#responsabili-di-segreteria-di-presidenteassessorisottosegretari)
 - [Amministratori di Giunta](#amministratori-di-giunta)
+- [Ricerca degli emendamenti in Aula](#ricerca-degli-emendamenti-in-aula)
 - [Allegati](#allegati)
 
 ## Introduzione Modulo PEM
@@ -142,7 +149,11 @@ Per illustrare le funzionalità del modulo PEM verranno di seguito descritte le 
 Gli utenti del Servizio Segreteria dell’Assemblea si possono collegare al sistema utilizzando le proprie credenziali di rete.
 Tramite il Portale PEM, predispongono le informazioni relative alle sedute consiliari e inseriscono a sistema gli atti emendabili, in base all’OdG della seduta consiliare, indicando la data della seduta e il termine (data e orario) stabilito per la presentazione degli emendamenti. A decorrere da tale orario il sistema “marcherà” gli emendamenti come “pervenuti oltre il termine ordinario”.
 
+Nella scheda “Info” della seduta si indicano le date della seduta, di apertura e di effettivo inizio e fine, gli intervalli e le note. Le spunte segnano la seduta come dedicata agli atti di indirizzo e di sindacato ispettivo e, separatamente, alle mozioni e alle IQT: solo le sedute con queste ultime spunte vengono proposte ai consiglieri per l’iscrizione di mozioni e IQT. Un’ulteriore spunta blocca le mozioni abbinate. Nella scheda “Scadenze” si fissano i termini di presentazione di emendamenti, IQT, mozioni, mozioni abbinate, mozioni urgenti e ordini del giorno.
+
 ![PEM_1](/Documentazione/Screenshot/PEM_1.jpg)
+
+Il riepilogo delle sedute evidenzia quelle aperte e permette di modificarle o di aprire il riepilogo degli atti iscritti.
 
 ![PEM_2](/Documentazione/Screenshot/PEM_2.jpg)
 
@@ -150,15 +161,17 @@ Creata la seduta, è possibile inserire i Progetti di Legge, sui quali potranno 
 
 ![PEM_3](/Documentazione/Screenshot/PEM_3.jpg)
 
-All’atto di inserimento del PDL per ogni parte emendabile codificata a sistema (articolo, comma, lettera) si potrà aggiungere il relativo testo e l’eventuale rubrica. L’inserimento è facilitato da una griglia che compone in maniera “visuale” il testo del progetto di legge man mano che vengono inserite le informazioni. 
+Nel riepilogo degli atti iscritti alla seduta ogni progetto di legge riporta le opzioni per abilitare i fascicoli di presentazione e di votazione e per bloccare la presentazione di EM e di ODG; i pulsanti accanto permettono di cambiare l’ordine degli atti, modificarli, eliminarli e aprire la griglia degli EM/SUBEM.
+
+All’atto di inserimento del PDL per ogni parte emendabile codificata a sistema (articolo, comma, lettera) si potrà aggiungere il relativo testo e l’eventuale rubrica. Le parti si creano nella scheda “Articoli, commi e lettere”; il pulsante “Visualizza testo” compone il testo del progetto di legge man mano che vengono inserite le informazioni.
 
 ![PEM_4](/Documentazione/Screenshot/PEM_4.jpg)
 
-Cliccando sull’ articolo/comma/lettera si aprirà una tendina editabile all’interno della quale sarà possibile inserire il testo. 
+Cliccando sull’articolo, sul comma o sulla lettera si apre l’editor in cui inserire il testo, che si registra con “Salva”.
 
 ![PEM_5](/Documentazione/Screenshot/PEM_5.jpg)
 
-Terminata la predisposizione della seduta potranno visualizzare in un’apposita GrigliadiLavoro gli EM/SUBEM man mano depositati, raggruppati per atto (datati e numerati automaticamente dal sistema) e ordinati a partire dagli ultimi EM/SUBEM depositati.
+Terminata la predisposizione della seduta potranno visualizzare in un’apposita GrigliadiLavoro gli EM/SUBEM man mano depositati, raggruppati per atto (datati e numerati automaticamente dal sistema). La scheda “Ordine presentazione” li elenca per numero, la scheda “Ordine votazione” nell’ordine stabilito per l’Aula.
 
 ![PEM_6](/Documentazione/Screenshot/PEM_6.jpg)
 
@@ -174,9 +187,13 @@ Attraverso un’apposita funzione di riordino semi automatica, gli utenti del Se
  
 4. l’elenco degli emendamenti in ordine di votazione, durante la fase di lavorazione, è visibile solo alla Segreteria Assemblea. L’elenco degli EM/SUBEM in ordine di votazione viene pubblicato (disponibile per la visualizzazione a tutti gli utenti del sistema) solo a lavorazione conclusa, su disposizione del dirigente della Segreteria Assemblea.
  
-NOTA: le informazioni relative alla parte oggetto di modifica (titolo, capo, articolo, comma, lettera,…) e il tipo di EM/SUBEM presenti in griglia possono essere modificate dal personale della Segreteria dell’Assemblea per poter gestire i casi di informazioni non corrette inserite dai presentatori degli emendamenti. Tale modifica opera solo sui metadati dell’EM ma non va a sovrascrivere in nessun caso le informazioni indicate dai presentatori e presenti al momento del deposito (che sono contenute e crittografate nel testo dell’EM/SUBEM – Vedi Allegato 1). La griglia on-line pubblicata, unica per tutti, può essere lavorata anche in contemporanea, dal personale autorizzato, in qualsiasi momento e gli effetti sono visibili a tutti in tempo reale. Possibile anche un’esportazione in excel/PDF dei metadati contenuti nella griglia per lavorazioni diverse.
+NOTA: le informazioni relative alla parte oggetto di modifica (titolo, capo, articolo, comma, lettera,…) e il tipo di EM/SUBEM presenti in griglia possono essere modificate dal personale della Segreteria dell’Assemblea per poter gestire i casi di informazioni non corrette inserite dai presentatori degli emendamenti. Tale modifica opera solo sui metadati dell’EM ma non va a sovrascrivere in nessun caso le informazioni indicate dai presentatori e presenti al momento del deposito (che sono contenute e crittografate nel testo dell’EM/SUBEM – Vedi Allegato 1). La griglia on-line pubblicata, unica per tutti, può essere lavorata anche in contemporanea, dal personale autorizzato, in qualsiasi momento e gli effetti sono visibili a tutti in tempo reale. Sopra la griglia i pulsanti Word, Excel ed Excel Segreteria esportano gli EM/SUBEM secondo i filtri attivi.
 
 La GrigliadiLavoro è completa di strumenti per filtrare gli emendamenti presenti ed inserire annotazioni. Permette l’individuazione, la selezione rapida e la catalogazione degli EM/SUBEM inammissibili, ritirati, decaduti, respinti, approvati e di quelli presentati oltre i termini regolamentari (12.30 del giorno antecedente la seduta). Alcune operazioni possono essere effettuate su blocchi di emendamenti (es. decadenza di 10 emendamenti con un’unica operazione).
+
+I filtri si aggiungono dal campo “Ricerca filtri disponibili” e compaiono sopra la griglia. Con “Salva filtro” la combinazione in uso si registra con un nome e resta disponibile come scorciatoia sopra la griglia: un clic la riapplica.
+
+![PEM_salva_filtro](/Documentazione/Screenshot/PEM_salva_filtro.png)
 Durante la discussione in aula, attraverso la GrigliadiLavoro, è inoltre possibile indicare attraverso una spunta l’EM/SUBEM attualmente in discussione/votazione.
 
 Terminato l'ordinamento per votazione degli EM/SUBEM depositati, gli utenti del Servizio Segreteria dell’Assemblea generano, attraverso un’apposita funzionalità del sistema, il file contenente i testi degli EM/SUBEM in ordine di votazione.
@@ -209,6 +226,8 @@ Inseriscono gli EM/SUBEM in bozza e li visualizzano in un’apposita GrigliadiLa
 - tipo di EM/SUBEM (soppressivo, modificativo, aggiuntivo);
 - testo dell’EM/SUBEM. Indicano poi, obbligatoriamente, in fase di predisposizione dell’EM/SUBEM, il consigliere titolare dell’iniziativa dell’atto. Tale consigliere verrà identificato dal sistema come “primo firmatario” dell’EM/SUBEM.
 
+Con la spunta “Nascondi gruppo” il nome del gruppo politico non compare nell’intestazione dell’EM/SUBEM né nella sua stampa.
+
 Grazie alla predisposizione del Progetto di Legge codificato in base alle singole parti con i relativi testi (Articolo, Comma, Lettera) la piattaforma permette di creare emendamenti posizionandosi con il mouse direttamente sulla parte del PDL visualizzato “in anteprima” a video. Questo processo visuale e assistito consente di ridurre al minimo gli errori sulle parti del PDL che si intende emendare nonché evitare l’utilizzo di versioni errate (modificate) del PDL e il possibile inserimento di emendamenti duplicati.
 Cliccando sulla parte da emendare il sistema predisporrà in automatico il format per l’inserimento dell’emendamento.
 Dopo aver inserito un emendamento/subemendamento in bozza si ha sempre la possibilità di gestirlo attraverso un’apposita GrigliadiLavoro dedicata al gruppo politico:
@@ -236,7 +255,7 @@ Affinché un emendamento possa essere depositato devono essere compilate le TUTT
 NOTA: il deposito di un EM/SUBEM può essere effettuato direttamente dal consigliere, se primo firmatario, ovvero dal responsabile di segreteria del gruppo per gli EM/SUBEM per i quali il primo firmatario appartiene a quello specifico gruppo.
 
 Il responsabile di segreteria può visualizzare gli EM/SUBEM depositati relativi al proprio gruppo ma anche quelli presentati con consiglieri di altro gruppo, previo invito.
-Per questo può accedere all’AREA INVITI contenente l’elenco dei EM/SUBEM per i quali un consigliere del proprio gruppo politico ha ricevuto o effettuato un invito a firmare.
+Per questo può accedere all’AREA INVITI contenente l’elenco dei EM/SUBEM per i quali un consigliere del proprio gruppo politico ha ricevuto o effettuato un invito a firmare. L’area si apre dalla voce di menu “Notifiche” e separa le notifiche ricevute da quelle inviate, attive o archiviate; aprendo una notifica si vedono mittente, destinatari e dati dell’EM/SUBEM.
 
 ![PEM_25](/Documentazione/Screenshot/PEM_25.jpg)
 
@@ -251,11 +270,17 @@ Il consigliere regionale si può collegare al sistema utilizzando le proprie cre
 
 Inserisce gli EM/SUBEM in bozza e li visualizza nell'area condivisa con tutto il suo gruppo politico. Il sistema individua automaticamente il consigliere che inserisce l’EM/SUBEM e lo identifica come “primo firmatario” (titolare dell’iniziativa).
 
+Nella griglia degli EM/SUBEM del progetto di legge il consigliere può esportare l’elenco in Word ed Excel e, con la spunta “Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma”, limitarlo a quelli che attendono la sua firma.
+
+![PEM_griglia_consigliere](/Documentazione/Screenshot/PEM_griglia_consigliere.png)
+
 Il consigliere regionale firma, utilizzando il proprio “PIN dispositivo”, i propri EM/SUBEM e quelli presenti a sistema inseriti da un appartenente al proprio gruppo politico. Affinché un emendamento possa essere firmato devono essere compilate le seguenti informazioni obbligatorie: 
 - PDL di riferimento, parte (titolo, articolo, comma, lettera, ecc…) a cui si riferisce l’EM/SUBEM;
 - tipo di EM/SUBEM (soppressivo, interamente sostitutivo, modificativo, aggiuntivo);
 - testo dell’EM/SUBEM;
 - indicazione se l’EM/SUBEM ha effetti finanziari.
+
+Al momento della firma il sistema chiede il PIN dispositivo.
 
 ![PEM_9](/Documentazione/Screenshot/PEM_9.jpg)
 
@@ -375,6 +400,12 @@ Gli Amministratori di Giunta gestiscono gli utenti “GIUNTA” del sistema e po
 - creazione/disabilitazione di utenze: al nuovo utente dovrà essere richiesto il cambio password al primo accesso;
 - reset delle password operative gestite tramite Active directory.
 
+## Ricerca degli emendamenti in Aula
+
+Entrando in Aula, la voce di menu “Ricerca emendamenti” permette a tutti gli utenti di cercare gli EM/SUBEM depositati su tutte le sedute e gli atti di una o più legislature. I criteri disponibili sono il tipo (EM, SUBEM o entrambi), la legislatura, il proponente, il firmatario, il gruppo o la Giunta, l’area politica, le parole contenute nel testo o nell’oggetto e gli effetti finanziari; oltre al tipo va indicato almeno un altro criterio. I risultati si esportano in Word o in Excel.
+
+![PEM_ricerca_emendamenti](/Documentazione/Screenshot/PEM_ricerca_emendamenti.png)
+
 ## Allegati
 
 ### Allegato 1. Output di un emendamento generato dal sistema
@@ -390,18 +421,20 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
 
 A questo modulo, nella terza fase di sviluppo del progetto, sono state poi aggiunte tutte le funzionalità per la gestione del ciclo di vita degli atti di indirizzo e di sindacato ispettivo per UOLA.
 
-- [Introduzione Modulo DASI](#Introduzione-Modulo-DASI)
-- [Modalità di digitalizzazione degli Atti](#Modalità-di-digitalizzazione-degli-Atti)
-- [Caratteristiche peculiari delle diverse tipologie degli atti](#Caratteristiche-peculiari-delle-diverse-tipologie-degli-atti)
-  - [Atti di sindacato ispettivo](#Atti-di-sindacato-ispettivo):
-    - [Interrogazione (ITR)](#Interrogazione-(ITR))
-    - [Interrogazione a Risposta Immediata (IQT)](#Interrogazione-a-Risposta-Immediata)
-    - [Interpellanza (ITL)](#Interpellanza-(ITL))
-  - [Atti di indirizzo](#Atti-di-indirizzo):
-    - [Mozione (MOZ)](#Mozione-(MOZ))
-    - [Ordine del Giorno (OdG)](#Ordine-del-Giorno-(OdG))
-    - [Risoluzioni (RIS)](#Risoluzioni-(RIS))
-    
+- [Introduzione Modulo DASI](#introduzione-modulo-dasi)
+- [Modalità di digitalizzazione degli Atti](#modalità-di-digitalizzazione-degli-atti)
+- [Caratteristiche peculiari delle diverse tipologie degli atti](#caratteristiche-peculiari-delle-diverse-tipologie-degli-atti)
+  - [Atti di sindacato ispettivo](#atti-di-sindacato-ispettivo):
+    - [Interrogazione (ITR)](#interrogazione-itr)
+    - [Interrogazione a Risposta Immediata (IQT)](#interrogazione-a-risposta-immediata-iqt)
+    - [Interpellanza (ITL)](#interpellanza-itl)
+  - [Atti di indirizzo](#atti-di-indirizzo):
+    - [Mozione (MOZ)](#mozione-moz)
+    - [Ordine del Giorno (OdG)](#ordine-del-giorno-odg)
+    - [Risoluzioni (RIS)](#risoluzione-ris)
+- [Gestione degli atti](#gestione-degli-atti)
+- [Amministrazione del sistema](#amministrazione-del-sistema)
+
 ## Introduzione Modulo DASI 
 L'obiettivo del Portale DASI è mettere a disposizione strumenti e procedure atte a consentire ai Consiglieri la presentazione in forma dematerializzata degli atti di sindacato ispettivo e di indirizzo. 
 Il modulo DASI è in grado di dialogare con le piattaforme e le banche dati che gestiscono, con modalità̀ diverse e con finalità̀ diverse, le varie operazioni relative al successivo iter di ciascun atto.
@@ -432,7 +465,7 @@ La funzione di controllo si estrinseca nell’attività̀ di sindacato ispettivo
 
 Ognuno di questi atti è soggetto a un distinto iter rispetto agli emendamenti ai progetti di legge, ma hanno in comune le medesime regole quanto a modalità di inserimento e presentazione.
 
-Ogni ATTO sarà redatto secondo una precisa struttura determinata dal tipo di atto, che conterrà alcuni dati identificativi. Una volta che l’ATTO è stato redatto verrà salvato a sistema come bozza (riconoscibile dalla dicitura TEMP seguito da un numero progressivo datole dal sistema). 
+Ogni ATTO sarà redatto secondo una precisa struttura determinata dal tipo di atto, che conterrà alcuni dati identificativi. Una volta che l’ATTO è stato redatto verrà salvato a sistema come bozza (riconoscibile dalla dicitura TEMP seguito da un numero progressivo datole dal sistema). Come per gli emendamenti, la spunta “Nascondi gruppo” toglie il nome del gruppo politico dall’intestazione dell’atto, dalla stampa e dalla pagina pubblica.
 
 Il consigliere proponente potrà decidere di firmare, modificare, eliminare l’ATTO o lasciarlo in bozza e successivamente svolgere una delle operazioni previste per lo specifico atto (deposito, proposta di iscrizione in seduta, raccolta firme, abbinamento, ecc). 
 
@@ -460,7 +493,9 @@ I consiglieri e i collaboratori dei gruppi accederanno alla loro area personale 
 
 Una volta fatto il login si verrà reindirizzati nella schermata principale del portale PEM- DASI. 
 Per la redazione delle varie tipologie di ATTI è necessario entrare nel Modulo DASI. 
-Apparirà la schermata riepilogativa degli ATTI. Mediante il pulsante + in basso a destra apparirà un menù a scomparsa che permetterà di selezionare il tipo di atto che si vuole redigere. 
+Apparirà la schermata riepilogativa degli ATTI, inizialmente senza risultati: la ricerca parte con il pulsante “Avvia ricerca” oppure cliccando una delle scorciatoie di filtro (tipo di atto e stato), che si aggiungono ai filtri attivi. La spunta “Visualizza solo gli atti per i quali è richiesta la mia firma” limita l’elenco agli atti ancora da firmare, il cui numero è riportato accanto. Anche i consiglieri possono salvare i filtri e generare report, con le modalità descritte in [Gestione degli atti](#gestione-degli-atti).
+
+Mediante il pulsante + in basso a destra apparirà un menù a scomparsa che permetterà di selezionare il tipo di atto che si vuole redigere. 
 
 ![PEM_12](/Documentazione/Screenshot/PEM_12.jpg)
 
@@ -497,7 +532,7 @@ Seguendo quanto sopra descritto per la presentazione delle ITR, il consigliere p
 - Premesse dell’IQT 
 - Soggetto interrogato: possono essere solo il Presidente di Regione, la Giunta, il singolo assessore o più assessori. Il presentatore della IQT può porre un flag su quale tra i soggetti sopra indicati è rivolta l’interrogazione. 
 - Testo dell’atto (Richieste): la compilazione del testo prevede l’inserimento di una sola domanda e l’uso limitato di parole e/o caratteri.  
-- Firma: Le modalità e il numero delle firme necessari per la presentazione delle diverse tipologie di ATTI sono attualmente impostate sulla base del regolamento generale del consiglio regionale della Lombardia. Tuttavia, il sistema permette di definire, attraverso opportuni parametri di configurazione, le regole da applicare a ciascuna tipologia di ATTO.
+- Firma: per il deposito della IQT serve un numero minimo di firme, impostato in configurazione sulla base del regolamento generale del consiglio regionale della Lombardia. Se il gruppo del proponente conta meno consiglieri del minimo e nessun consigliere di altri gruppi ha firmato, bastano le firme di tutti i consiglieri del gruppo.
 - Allegati: è possibile allegare all’interrogazione anche la documentazione che si ritiene opportuna
 
 ![PEM_14](/Documentazione/Screenshot/PEM_14.jpg)
@@ -509,9 +544,11 @@ Le IQT vengono presentate unicamente per la trattazione in una seduta. La presen
 Le IQT, predisposte in bozza, possono essere depositate solo se è presente a sistema una seduta d’Aula in cui è prevista la trattazione degli ATTI (una spunta selezionabile dalla segreteria del Servizio Assemblea indicherà questa possibilità).
 L’iscrizione dell’atto a una seduta prevede solo il collegamento dell’atto ad una seduta specifica ma non dovrà comportare il cambio di stato dell’atto che rimarrà “depositato”.
 
+Il consigliere proponente la IQT, come il capogruppo e il responsabile di segreteria del gruppo, apre la riga dell’atto nel riepilogo e sceglie “Proponi iscrizione”.
+
 ![PEM_15](/Documentazione/Screenshot/PEM_15.jpg)
 
-Il consigliere proponente la IQT cliccherà sul pulsante a forma di ingranaggio e apparirà la dicitura “proponi iscrizione”. Selezionandola, apparirà una finestra dove verrà proposta dal sistema la seduta d’Aula codificata a sistema dal personale della Segreteria dell’Assemblea consiliare.
+Apparirà una finestra con le sedute d’Aula dedicate alle IQT, codificate a sistema dal personale della Segreteria dell’Assemblea consiliare: selezionata la seduta, la proposta si conferma con “Proponi”.
 
 ![PEM_16](/Documentazione/Screenshot/PEM_16.jpg)
 
@@ -535,7 +572,7 @@ Il tipo di risposta condiziona la procedura e la numerazione (in Consiglio regio
 
 ![PEM_17](/Documentazione/Screenshot/PEM_17.jpg)
 
-Per la risposta in commissione il proponente deve indicare anche la commissione (permanente o speciale) a cui indirizzare il quesito. ll format di inserimento prevede l’elenco delle commissioni tra cui scegliere. 
+Per la risposta in commissione il proponente deve indicare anche la commissione (permanente o speciale) a cui indirizzare il quesito. Il format di inserimento prevede l’elenco delle commissioni tra cui scegliere. 
 
 ![PEM_18](/Documentazione/Screenshot/PEM_18.jpg)
 
@@ -564,7 +601,7 @@ Il consigliere presentatore della MOZ accederà alla sua area riservata e potrà
 - Premesse della mozione
 - Soggetti Interessati: si vedano le medesime disposizioni indicate per gli altri ATTI. Il consigliere presentatore viene inoltre guidato nel drafting dell’atto fleggando una delle seguenti opzioni: chiede – invita – impegna
 - Testo dell’atto (Richieste)
-- Firma della mozione: il Consigliere proponente firma la Mozione con le proprie credenziali ed è identificato come “primo firmatario” dal sistema. Le modalità e il numero delle firme necessari per la presentazione delle diverse tipologie di mozioni sono attualmente impostate sulla base del Regolamento Generale del Consiglio Regionale della Lombardia. Tuttavia, il sistema permette di definire, attraverso opportuni parametri di configurazione, le regole da applicare a ciascuna tipologia di ATTO. Il sistema controlla il numero di sottoscrittori necessari per la presentazione (deposito) e nel caso le regole non siano state rispettate, avvisa il presentatore e non procede all’operazione di deposito. Come prescritto dal Regolamento Generale del consiglio regionale lombardo le mozioni, per poter essere depositate, richiedono un numero minimo di firme definito in base alla loro tipologia:
+- Firma della mozione: il Consigliere proponente firma la Mozione con le proprie credenziali ed è identificato come “primo firmatario” dal sistema. Le modalità e il numero delle firme necessari per la presentazione delle diverse tipologie di mozioni sono attualmente impostate sulla base del Regolamento Generale del Consiglio Regionale della Lombardia. Tuttavia, il sistema permette di definire, attraverso opportuni parametri di configurazione, le regole da applicare a ciascuna tipologia di ATTO. Il sistema controlla il numero di sottoscrittori necessari per il deposito delle mozioni urgenti e delle mozioni di sfiducia e di censura, secondo i minimi impostati in configurazione, e nel caso il numero non sia raggiunto avvisa il presentatore e non procede all’operazione di deposito. La deroga prevista per le IQT dei gruppi con pochi consiglieri non vale per le mozioni. Come prescritto dal Regolamento Generale del consiglio regionale lombardo le mozioni, per poter essere depositate, richiedono un numero minimo di firme definito in base alla loro tipologia:
   - La mozione urgente, o richiesta di trattazione urgente per una mozione, può essere effettuata dal presidente del gruppo solo se una mozione è firmata da almeno 8 consiglieri (anche appartenenti a gruppi diversi). Ogni consigliere può comparire una sola volta come uno degli otto sottoscrittori di una mozione urgente, per la medesima seduta. Qualora una mozione sia stata sottoscritta da tutti i capigruppo presenti in Consiglio, non si applicano limiti al numero di mozioni che possono essere richieste per la trattazione urgente nella medesima seduta. 
   - La mozione di sfiducia al Presidente della Regione deve essere presentata da almeno un quinto dei componenti del Consiglio regionale. 
   - La mozione di censura nei confronti di un assessore deve essere presentata da almeno un quinto dei componenti del Consiglio regionale). 
@@ -582,7 +619,7 @@ Gli ordini del giorno sono iscritti per la trattazione in aula collegati a un pr
 
 Tramite la piattaforma accedendo alla tipologia OdG, il Consigliere proponente dell’OdG compila il format che prevede le seguenti caratteristiche:
 - Argomento a cui abbinare l’ordine del giorno: può essere un Progetto di legge o un altro tipo di atto
-- Oggetto dell’ordine del griono
+- Oggetto dell’ordine del giorno
 - Premesse
 - Soggetti interessati: si vedano le medesime disposizioni indicate per gli altri ATTI
 - Testo dell’atto (Richieste)
@@ -595,7 +632,7 @@ Il processo di presentazione dell’OdG si concluderà con la firma dell’atto 
 
 Il sistema permetterà di iscrivere tutti gli OdG depositati, a prescindere dalla data di deposito, alla seduta d’Aula prescelta, selezionandola tra quelle disponibili e preventivamente codificate da parte della segreteria del Servizio Assemblea. Gli ordini del giorno possono essere presentati solo se è presente una seduta aperta (si veda la procedura descritta per le IQT).
 
-Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto depositato dell’OdG.
+Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto deposito dell’OdG.
 
 ### Risoluzione (RIS)
 
@@ -626,42 +663,46 @@ e potranno essere caricati allegati.
 
 # Gestione degli atti
 
-In questa sezione saranno descritte le principali funzionalità di gestione degli atti all'interno del sistema, quindi la loro ricerca, la possibilità di estrarre reportistiche e di effettuare modifiche massive alle liste ricercate, e le funzionalità di visualizzazione e aggiornamento dei dati legati al singolo atto. Quanto trattato di seguito è accessibile dal modulo DASI
+In questa sezione saranno descritte le principali funzionalità di gestione degli atti all'interno del sistema, quindi la loro ricerca, la possibilità di estrarre reportistiche e di effettuare modifiche massive alle liste ricercate, e le funzionalità di visualizzazione e aggiornamento dei dati legati al singolo atto. Quanto trattato di seguito è accessibile dal modulo DASI agli utenti della Segreteria dell'Assemblea e agli amministratori; i consiglieri dispongono dei filtri e dei report nel proprio riepilogo, con meno opzioni.
+
+La griglia mostra le colonne scelte con l'apposito pulsante, fra cui il Protocollo: per gli atti non ancora protocollati la colonna riporta il pulsante “Protocolla”.
 
 ![DASI_principale](/Documentazione/Screenshot/DASI_principale.png)
 
 ## Filtraggio
 
-E' possibile fintrare la lista degli atti presenti a sistema indicando una serie di criteri di ricerca. Questi possono essere configurati formando un filtraggio complesso che può essere memorizzato per essere poi usato più volte, richiamandolo dal pannello di selezione. 
+È possibile filtrare la lista degli atti presenti a sistema indicando una serie di criteri di ricerca. Questi possono essere configurati formando un filtraggio complesso che può essere memorizzato per essere poi usato più volte, richiamandolo dal pannello di selezione. 
 
-Per aggiungere un filtro è possibile cliccare sull'icona "lente di ingrandimento" in alto a destra, ricercare e selezionare il filtro desiderato, inserire le informazioni richieste e dare conferma.
+Per aggiungere un filtro è possibile scrivere nel campo “Ricerca filtri disponibili”, oppure cliccare sull'icona "lente di ingrandimento" in alto a destra e scorrere l'elenco dei filtri, selezionare il filtro desiderato, inserire le informazioni richieste e dare conferma con “Aggiungi”. Gli stati Bozza e Bozza riservata sono disponibili solo agli amministratori.
 
 ![DASI_nuovo_filtro](/Documentazione/Screenshot/DASI_nuovo_filtro.png)
 
-A questo punto il filtro sarà aggiunto alla lista di quelli attivi e la lista sottostante sarà aggiornata con gli atti che soddisferanno i requisiti di ricerca. Per salvare i criteri di filtraggio con cui si sta lavorando, premere l'apposito pulsante, definire un nome e dare conferma. Quanto memorizzato sarà poi disponibile nel pannello filtri e potrà essere richiamato per un utilizzo successivo.
+A questo punto il filtro sarà aggiunto alla lista di quelli attivi e la lista sottostante sarà aggiornata con gli atti che soddisferanno i requisiti di ricerca. Per salvare i criteri di filtraggio con cui si sta lavorando, premere “Salva filtro”, definire un nome e dare conferma. Il filtro salvato compare nel pannello della lente, alla voce “I miei gruppi”, e si richiama con un clic insieme alle colonne e all'ordinamento in uso al momento del salvataggio. La Segreteria dell'Assemblea e gli amministratori possono marcarlo come “Preferito”: in questo caso compare anche come scorciatoia sopra la griglia.
 
 ![DASI_salvataggio_filtro](/Documentazione/Screenshot/DASI_salvataggio_filtro.png)
 
 ## Reportistica
 
-Il sistema permette di generare report sugli atti memorizzati. Le informazioni relative agli atti vengono riversate in un documento (excel, word o PDF), nella procedura di generazione è possibile selezionare diverse modalità di disposizione dei dati e le colonne da includere. Dalla schermata di generazione del report è anche possibile scaricare un archivio (.zip) degli atti cercati.
+Il sistema permette di generare report sugli atti memorizzati. Le informazioni relative agli atti vengono riversate in un documento (excel, word o PDF), nella procedura di generazione è possibile selezionare diverse modalità di disposizione dei dati e le colonne da includere. Dalla schermata di generazione del report il pulsante “Estrai testi (ZIP)” scarica un archivio con il PDF di ciascun atto cercato.
 
 Il pannello di generazione è accessibile dal pulsante "Genera report". Come parametri di ricerca verranno utilizzati quelli attivi al momento, che saranno riportati nella schermata. Una volta stabilito il formato e le colonne, si può aggiungere un nome e salvare per poi richiamare il report successivamente dal pannello laterale, raggiungibile dall'icona "lente di ingrandimento".
 
 ![DASI_nuovo_report](/Documentazione/Screenshot/DASI_nuovo_report.png)
+
+Nel formato Word la spunta “Genera un file separato per ogni atto (ZIP)” produce un documento per ciascun atto, raccolti in un unico archivio. Oltre a Excel, PDF e Word sono disponibili due estrazioni Excel già impostate: il conteggio delle risposte agli atti ispettivi e il conteggio degli atti in commissione. I consiglieri generano i report in Excel, PDF o Word, con visualizzazione tabellare o a lista.
 
 Il modo in cui sono stati realizzati i report basa il funzionamento sui filtri messi a disposizione e sulla possibilità di aggiungere o togliere criteri di selezione e sulla loro memorizzazione. In questo modo è possibile preparare una serie di report "ricorrenti" che possono essere richiamati dall'interfaccia e, allo stesso tempo, avvalersi della possibilità di configurare richieste ad-hoc che possono servire in casi eccezionali. Dei report è possibile configurare:
 - il formato di estrazione dei dati (word, excel, pdf),
 - la modalità di visualizzazione dati (tabellare, a lista o template),
 - quali informazioni visualizzare ovvero la possibilità di definire i campi da riportare all'interno delle stampe.
 
-Le stampe che possono essere prodotte sfruttando i report sono realizzate partendo da un modello, o template, completamente configurabile nell'apposita interfaccia di gestione. Questa funzionalità può essere acceduta solamente dagli utenti amministratori, e consente di disporre i dati provenienti dalla selezione degli atti, all'interno di un testo tramite il riferimento ad una serie di variabili, che vengono disposte all'interno del tempalte.
+Le stampe che possono essere prodotte sfruttando i report sono realizzate partendo da un modello, o template, completamente configurabile nell'apposita interfaccia di gestione. Questa funzionalità può essere acceduta solamente dagli utenti amministratori, e consente di disporre i dati provenienti dalla selezione degli atti, all'interno di un testo tramite il riferimento ad una serie di variabili, che vengono disposte all'interno del template.
 
 ![DASI_template](/Documentazione/Screenshot/DASI_template.png)
 
 ## Operazioni massive
 
-Per modificare più atti in un'unica azione, selezionare gli atti dalla tabella, premere il pulsante "Comandi massivi" in basso a destra, appena comparso, e poi "Modifica massiva dati". Verrà esposta una schermata con una sezione dedicata al riepologo degli atti coinvolti nella modifica e un'altra dove si potranno abilitare e riempire i campi che saranno poi modificati alla conferma.
+Per modificare più atti in un'unica azione, selezionare gli atti dalla tabella, premere il pulsante "Comandi massivi" in basso a destra, appena comparso, e poi "Modifica massiva dati". Verrà esposta una schermata con una sezione dedicata al riepilogo degli atti coinvolti nella modifica e un'altra dove si potranno abilitare e riempire i campi che saranno poi modificati alla conferma.
 
 ![DASI_modifiche_massive](/Documentazione/Screenshot/DASI_modifiche_massive.png)
 
@@ -673,16 +714,26 @@ Selezionando un atto dalla griglia si accede alla sua pagina di riepilogo.
 
 In questa schermata sono presenti le seguenti sezioni:
 - Testo atto: il testo dell'atto con un link per scaricare il documento e la lista dei firmatari
-- Informazioni generali: i metadati dell'atto, con la possibilità di modificarli e di aggiungere allegati
+- Informazioni generali: i metadati dell'atto, con la possibilità di modificarli e di aggiungere allegati. Qui si trova il Protocollo, con il pulsante “Protocolla” per gli atti non ancora protocollati e, se abilitata in configurazione, la modifica manuale del numero
 - Abbinamenti: la lista degli abbinamenti per quell'atto, con la possibilità di aggiungere o rimuovere abbinamenti
-- Trattazione: la lista delle risposte e la possibilità di aggiungere o eliminare risposte e/o allegati
-- Chiusura iter: i metadati relativi alla chiusura dell'iter amministrativo dell'atto, con la possibilità di modificarli e di aggiungere allegati
+- Trattazione (“Informazioni risposta/Iter” per interrogazioni e interpellanze): la lista delle risposte e la possibilità di aggiungere o eliminare risposte e/o allegati
+- Monitoraggio, per mozioni, ordini del giorno e risoluzioni
+- Trattazione in commissione, per le risoluzioni
+- Chiusura iter (“Trattazione in assemblea” per le risoluzioni): i metadati relativi alla chiusura dell'iter amministrativo dell'atto, con la possibilità di modificarli e di aggiungere allegati
 - Note: l'elenco delle note associate all'atto, con la possibilità di aggiungere e/o eliminare note
 - Privacy: la configurazione dei marcatori privacy, con la possibilità di aggiornarli
+- Pubblicazione documenti: i documenti dell'atto; per l'allegato parte integrante la spunta “Pubblico” decide se l'allegato si può scaricare dal testo dell'atto e se viene unito al PDF della pagina pubblica
+- Stampe e lettere: la generazione della DCR (per mozioni, ordini del giorno e risoluzioni), delle copertine e delle lettere
+
+## Iscrizione degli atti in seduta
+
+Dalla colonna Seduta della griglia la Segreteria dell'Assemblea iscrive a una seduta un atto presentato o in trattazione, oppure conferma la proposta di iscrizione arrivata dal consigliere. Oltre alle sedute aperte, con “Altra seduta” si può scegliere una delle ultime sedute già chiuse. L'iscrizione non è prevista per le interrogazioni e per le interpellanze con risposta scritta o in commissione.
+
+![DASI_iscrizione_seduta_chiusa](/Documentazione/Screenshot/DASI_iscrizione_seduta_chiusa.png)
 
 # Amministrazione del sistema
 
-L'area amministrativa del sistema è comune ad entrambi moduli e consente di gestire gli utenti della piattaform e i relativi permessi, sfruttando un'integrazione con l'Active Directory di dominio.
+L'area amministrativa del sistema è comune a entrambi i moduli e consente di gestire gli utenti della piattaforma e i relativi permessi, sfruttando un'integrazione con l'Active Directory di dominio.
 Gli Amministratori del sistema accedono al portale con visibilità completa sugli atti inseriti e in qualsiasi stato si trovino.
 Possono autenticarsi al sistema “impersonando” una qualsiasi tipologia d’utenza (Segreteria dell’Assemblea, Consigliere, Responsabile di Segreteria, Assessore, ecc…).
 Possono gestire completamente gli utenti del sistema che possono accedere al modulo PEM e al modulo DASI.
