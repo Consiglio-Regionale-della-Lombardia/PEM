@@ -72,6 +72,9 @@
     <Compile Include="Domain\AttiAbbinamentoDto.cs" />
     <Compile Include="Domain\AttiDASIColums.cs" />
     <Compile Include="Domain\AttiDASISorting.cs" />
+    <Compile Include="Domain\AttiDASIColumnsConsiglieri.cs" />
+    <Compile Include="Domain\AttiDASISortingConsiglieri.cs" />
+    <Compile Include="Domain\EmendamentiColumns.cs" />
     <Compile Include="Domain\AttiDocumentiDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />
@@ -112,13 +115,14 @@
     <Compile Include="Enum\DataViewTypeEnum.cs" />
     <Compile Include="Enum\ExportFormatEnum.cs" />
     <Compile Include="Enum\FirmeTipoEnum.cs" />
-    <Compile Include="Enum\ModuloStampaEnum.cs" />
+    <Compile Include="Enum\ModuloEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />
     <Compile Include="Enum\ReportTypeEnum.cs" />
     <Compile Include="Enum\RisultatoVotazioneIterEnum.cs" />
     <Compile Include="Enum\StatiAttoCSSConst.cs" />
     <Compile Include="Enum\StatiAttoEnum.cs" />
     <Compile Include="Enum\StatoPinEnum.cs" />
+    <Compile Include="Enum\TipoRicercaEmendamentiEnum.cs" />
     <Compile Include="Enum\TemplateTypeEnum.cs" />
     <Compile Include="Enum\TipiEMEnum.cs" />
     <Compile Include="Enum\TipoAllegatoEnum.cs" />
@@ -193,12 +197,15 @@
     <Compile Include="Model\SessionManager.cs" />
     <Compile Include="Domain\TagDto.cs" />
     <Compile Include="Model\TestoAttoModel.cs" />
+    <Compile Include="Request\AzioneMassivaRequestEM.cs" />
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\CercaAttiGeaRequest.cs" />
     <Compile Include="Request\DatiInlineRequest.cs" />
     <Compile Include="Request\DatiMassiviRequest.cs" />
     <Compile Include="Request\NuovaStampaRequest.cs" />
     <Compile Include="Request\FilterRequest.cs" />
+    <Compile Include="Request\FilterRequestEM.cs" />
+    <Compile Include="Request\GeneraReportRequestEM.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
     <Compile Include="Request\Public\AttoRequest.cs" />
@@ -208,6 +215,7 @@
     <Compile Include="Request\Public\FirmatariRequest.cs" />
     <Compile Include="Request\Public\GruppiRequest.cs" />
     <Compile Include="Request\QueryExtendedRequest.cs" />
+    <Compile Include="Request\QueryExtendedRequestEM.cs" />
     <Compile Include="Request\ResetRequest.cs" />
     <Compile Include="Request\RimuoviComandoMassivoRequest.cs" />
     <Compile Include="Request\SalvaComandoMassivoRequest.cs" />
@@ -220,6 +228,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\SeduteDto.cs" />
     <Compile Include="Response\EmendamentiViewModel.cs" />
+    <Compile Include="Response\EdmaProtocollazioneEsitoDto.cs" />
     <Compile Include="Response\ErrorResponse.cs" />
     <Compile Include="Response\FileResponse.cs" />
     <Compile Include="Response\LoginResponse.cs" />

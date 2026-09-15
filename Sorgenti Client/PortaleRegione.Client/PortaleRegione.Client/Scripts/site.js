@@ -83,6 +83,125 @@ function loaderView(enable) {
     }
 }
 
+// Componente unico per la barra di paginazione delle griglie aggiornate via AJAX
+// (PEM/Emendamenti, DASI consiglieri, DASI UOLA/admin). Centralizza il rendering, prima
+// duplicato in tre copie di creaPaginazione, e il ciclo di vita dei tooltip Materialize
+// (issue #1614): distrugge le istanze Tooltip della barra precedente prima di rigenerarla
+// e re-inizializza quelle nuove, evitando le label ".material-tooltip" "appese" nel body.
+//
+// opts:
+//   data        : responseData del riepilogo (usa data.Data.Paging e data.Data.Results)
+//   onPage      : function(numeroPagina) per navigare a una pagina
+//   onSize      : function(taglio) al cambio di risultati per pagina
+//   containerId : id del contenitore (default "paginazione-container-top")
+//   sizes       : tagli selezionabili (default [20, 50, 100])
+//   afterHtml   : HTML extra accodato nel contenitore (es. gli <input hidden> usati da DASI)
+function renderPaginazione(opts) {
+    opts = opts || {};
+    var container = document.getElementById(opts.containerId || "paginazione-container-top");
+    if (!container) {
+        return;
+    }
+
+    // Ciclo di vita tooltip: distruggi le istanze esistenti PRIMA di rigenerare il contenuto,
+    // cosi' Materialize rimuove i relativi .material-tooltip dal body (niente label "appese").
+    if (window.M) {
+        container.querySelectorAll(".tooltipped").forEach(function (el) {
+            var tooltipInstance = M.Tooltip.getInstance(el);
+            if (tooltipInstance) {
+                tooltipInstance.destroy();
+            }
+        });
+    }
+
+    var data = opts.data;
+    if (!data || !data.Data || !data.Data.Results || data.Data.Results.length === 0) {
+        container.innerHTML = "";
+        return;
+    }
+
+    var paging = data.Data.Paging;
+    var totalePagine = paging.Last_Page || 1;
+    var paginaCorrente = paging.Page;
+    var totaleRisultati = paging.Total;
+    var risultatiPerPagina = paging.Limit;
+    var sizes = opts.sizes || [20, 50, 100];
+    var ddlId = "ddlPaginazione-" + (opts.containerId || "paginazione-container-top");
+
+    function freccia(pagina, icona, etichetta) {
+        return '<li class="waves-effect"><a data-pag-goto="' + pagina + '" style="cursor:pointer;padding:0 8px;">'
+            + '<i class="material-icons tooltipped" data-position="top" data-tooltip="' + etichetta
+            + '" aria-label="' + etichetta + '">' + icona + '</i></a></li>';
+    }
+
+    var nav = '<ul class="pagination" style="margin:0;display:inline-flex;align-items:center;line-height:1;"'
+        + ' data-totale-pagine="' + totalePagine + '" data-totale-risultati="' + totaleRisultati
+        + '" data-risultati-pagina="' + risultatiPerPagina + '" data-pagina-corrente="' + paginaCorrente + '">';
+    if (paging.Has_Prev) {
+        nav += freccia(1, "first_page", "Prima pagina") + freccia(paginaCorrente - 1, "chevron_left", "Pagina precedente");
+    }
+    nav += '<li style="padding:0 12px;line-height:36px;">Pagina '
+        + '<input type="number" data-pag-input min="1" max="' + totalePagine + '" value="' + paginaCorrente
+        + '" style="width:55px;text-align:center;height:28px;margin:0 4px;"> di ' + totalePagine + '</li>';
+    if (paging.Has_Next) {
+        nav += freccia(paginaCorrente + 1, "chevron_right", "Prossima pagina") + freccia(totalePagine, "last_page", "Ultima pagina");
+    }
+    nav += '<li style="margin-left:8px;line-height:36px;"><span class="chip deep-purple lighten-4" style="margin:0;line-height:32px;height:32px;">'
+        + totaleRisultati + ' risultati</span></li></ul>';
+
+    var dropdown = '<span class="chip deep-purple lighten-4 center" style="display:inline-flex;align-items:center;height:32px;line-height:32px;margin:0;padding:0 8px;min-width:unset;">'
+        + '<span style="margin-right:4px;">Paginazione</span>'
+        + '<a class="dropdown-trigger chip white" data-target="' + ddlId
+        + '" style="font-size:small;margin:0;height:24px;line-height:24px;padding:0 8px;min-width:unset;">' + risultatiPerPagina + '</a>'
+        + '<ul id="' + ddlId + '" class="dropdown-content">';
+    sizes.forEach(function (limite) {
+        var selected = risultatiPerPagina == limite ? ' class="selected"' : '';
+        dropdown += '<li' + selected + '><a data-pag-size="' + limite + '" style="cursor:pointer;">' + limite + '</a></li>';
+    });
+    dropdown += '</ul></span>';
+
+    container.innerHTML = '<div class="row valign-wrapper" style="margin:6px 0;">'
+        + '<div class="col s8 left-align">' + nav + '</div>'
+        + '<div class="col s4 right-align">' + dropdown + '</div></div>'
+        + (opts.afterHtml || "");
+
+    // Re-inizializza i componenti Materialize della barra appena creata (tooltip + dropdown).
+    if (window.M) {
+        M.AutoInit(container);
+    }
+
+    // Callback agganciate via JS (niente onclick inline): navigazione e cambio taglio.
+    container.querySelectorAll("[data-pag-goto]").forEach(function (link) {
+        link.addEventListener("click", function () {
+            if (typeof opts.onPage === "function") {
+                opts.onPage(parseInt(link.getAttribute("data-pag-goto"), 10));
+            }
+        });
+    });
+    var pageInput = container.querySelector("[data-pag-input]");
+    if (pageInput) {
+        pageInput.addEventListener("change", function () {
+            var p = parseInt(pageInput.value, 10);
+            if (isNaN(p) || p < 1) {
+                p = 1;
+            }
+            if (p > totalePagine) {
+                p = totalePagine;
+            }
+            if (typeof opts.onPage === "function") {
+                opts.onPage(p);
+            }
+        });
+    }
+    container.querySelectorAll("[data-pag-size]").forEach(function (link) {
+        link.addEventListener("click", function () {
+            if (typeof opts.onSize === "function") {
+                opts.onSize(parseInt(link.getAttribute("data-pag-size"), 10));
+            }
+        });
+    });
+}
+
 function waiting(enable, message) {
     var instance = M.Modal.getInstance($("#waiting"));
     if (enable) {
@@ -279,7 +398,7 @@ function Sposta_EMTrattazione(em) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -298,7 +417,7 @@ function SpostaUP_EMTrattazione(em) {
             }
         }).fail(function (err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });    
 }
 
@@ -321,7 +440,7 @@ function SpostaDOWN_EMTrattazione(em) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -349,7 +468,7 @@ async function GetEM(emUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -363,7 +482,7 @@ async function GetAttiCartacei() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -377,7 +496,7 @@ async function GetAtto(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -417,6 +536,15 @@ function go(link, switchMode) {
 
 async function AbilitaTrattazione(mode) {
     localStorage.setItem('clientMode', mode);
+    // Reset filtri/ordinamento/colonne PEM su switch modalita'
+    localStorage.removeItem('filtriChipsEM');
+    localStorage.removeItem('selectedSortColumnsEM');
+    localStorage.removeItem('selectedColumnsEM');
+    // Reset filtri/ordinamento/colonne DASI su switch modalita'
+    localStorage.removeItem('filtriDasi');
+    localStorage.removeItem('selectedSortColumns');
+    localStorage.removeItem('selectedColumns');
+    localStorage.removeItem('pagingDasi');
     if (mode === 2) {
         var data = await GetSeduteAttiveDashboard();
         if (data.Results.length > 0) {
@@ -564,7 +692,7 @@ function RevealFirmatari(uidem) {
             }
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -601,7 +729,7 @@ function AccettaPropostaFirmaAttoDASI(idNotifica) {
 
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         }
     });
@@ -632,7 +760,7 @@ function AccettaRitiroFirmaAttoDASI(idNotifica) {
 
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         }
     });
@@ -648,7 +776,8 @@ function NCapo_OnChange(item) {
 }
 
 function TestoEmendamento_ParteEM(value, text) {
-    if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text().length < 200) {
+    // #1666 - EM/SUBEM cartaceo: non sovrascrivere la frase standard del proponente con l'autocompletamento del testo
+    if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text().length < 200 && !window.bloccaTestoAutomaticoEM) {
         var tipoEMList = $('input[name="Emendamento.IDTipo_EM"]');
         $.each(tipoEMList,
             function(index, itemTipoEM) {
@@ -825,7 +954,7 @@ function ResetStampa(stampaUId, url) {
         go(url);
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -849,6 +978,13 @@ function CambioStato(uidem, stato) {
                 title: "Errore",
                 text: data.message,
                 icon: "error"
+            });
+        } else if (data.aggiornati === 0) {
+            // L'api ha scartato l'emendamento (es. non depositato): inutile mostrare il nuovo stato.
+            swal({
+                title: "Stato non modificato",
+                text: (data.dettagli || []).join(', ') || "L'emendamento non e' stato aggiornato.",
+                icon: "warning"
             });
         } else {
             var label = $("#tdStato_" + uidem + ">label");
@@ -882,7 +1018,7 @@ function CambioStato(uidem, stato) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -912,14 +1048,26 @@ function CambioStatoDASI(uidatto, stato) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
 function GetCounterAlert(lista, selezionaTutti) {
     var text_counter = "";
+    // NaN fix: nella griglia consiglieri client-side i vecchi campi nascosti
+    // (#hdLimitePaginazioneDocumenti / #hdTotaleDocumenti) possono non esistere ancora.
+    // Il totale robusto si legge dalla paginazione corrente, come in GetCounterAlertStampa.
+    var total_entities = parseInt($('ul.pagination').first().data('totale-risultati'));
+    if (isNaN(total_entities)) {
+        total_entities = parseInt($("#hdTotaleDocumenti").val());
+    }
+    if (isNaN(total_entities)) {
+        total_entities = 0;
+    }
     var size = parseInt($("#hdLimitePaginazioneDocumenti").val());
-    var total_entities = parseInt($("#hdTotaleDocumenti").val());
+    if (isNaN(size)) {
+        size = total_entities; // nessun cap qui se il limite non e' disponibile (gestito a valle)
+    }
 
     if (selezionaTutti && lista.length == 0) {
         if (total_entities < size) {
@@ -943,7 +1091,19 @@ function GetCounterAlert(lista, selezionaTutti) {
 
 function GetCounterAlertStampa(lista, selezionaTutti) {
     var text_counter = "";
-    var total_entities = parseInt($("#hdTotaleDocumenti").val());
+
+    // v2026.5.1: il totale viene letto dall'attributo data-totale-risultati
+    // della <ul class="pagination"> (sempre valorizzato lato server in
+    // _PaginationBar.cshtml). Il vecchio fallback su #hdTotaleDocumenti
+    // restava undefined quando la paginazione bottom non era ancora
+    // renderizzata e produceva NaN nel titolo della modale stampa.
+    var total_entities = parseInt($('ul.pagination').first().data('totale-risultati'));
+    if (isNaN(total_entities)) {
+        total_entities = parseInt($("#hdTotaleDocumenti").val());
+    }
+    if (isNaN(total_entities)) {
+        total_entities = 0;
+    }
 
     if (selezionaTutti && lista.length == 0) {
         text_counter = total_entities;
@@ -956,54 +1116,82 @@ function GetCounterAlertStampa(lista, selezionaTutti) {
     return text_counter;
 }
 
-function CambioStatoMassivo(stato) {
-    const listaEM = [...document.querySelectorAll('input[type="checkbox"][id^="chk_EM_"]:checked')]
-        .map(cb => cb.id.replace('chk_EM_', ''));
+// #1678: unico punto di invio del cambio stato emendamenti. Ritorna una promise vera, cosi' i
+// comandi massivi possono aspettare la fine di un blocco prima di mandare il successivo: le
+// richieste sovrapposte si accodano sul lock di sessione e piantano il resto dell'applicazione.
+async function inviaCambioStatoEM(payload) {
+    const response = await fetch(baseUrl + "/emendamenti/modifica-stato", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify(payload)
+    });
 
-    var obj = {};
-    obj.Stato = stato;
-    obj.Lista = listaEM;
-    obj.AttoUId = $("#hdUIdAtto").val();
-    waiting(true);
-    $.ajax({
-        url: baseUrl + "/emendamenti/modifica-stato",
-        type: "POST",
-        data: JSON.stringify(obj),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json"
-    }).done(function(data) {
-        waiting(false);
-        if (data.message) {
-            console.log("error", data.message);
-            ErrorAlert(data.message);
-            return;
-        }
-        DeselectALLEM();
-        location.reload();
-    }).fail(function(err) {
-        waiting(false);
-        console.log("error", err);
-        Error(err);
+    if (!response.ok) {
+        throw new Error("Errore di rete (" + response.status + ")");
+    }
+
+    const esito = await response.json();
+    if (esito && esito.message) {
+        throw new Error(esito.message);
+    }
+    return esito;
+}
+
+// Mostra quanti emendamenti sono stati davvero aggiornati e, se ce ne sono, il motivo degli scarti.
+function mostraEsitoCambioStatoEM(esito) {
+    var aggiornati = (esito && esito.aggiornati) || 0;
+    var saltati = (esito && esito.saltati) || 0;
+
+    if (saltati === 0) {
+        M.toast({
+            html: `<span>${aggiornati} emendamenti aggiornati</span>`,
+            classes: 'rounded',
+            displayLength: 4000
+        });
+        return new Promise(resolve => setTimeout(resolve, 1500));
+    }
+
+    var dettagli = (esito.dettagli || []).join(', ');
+    return swal({
+        title: "Operazione completata",
+        text: `${aggiornati} emendamenti aggiornati, ${saltati} non modificati.`
+            + (dettagli ? ` Motivo: ${dettagli}` : ''),
+        icon: "warning"
     });
 }
 
-function CambioStatoMassivoSoloIds(stato, lista) {
-    
-    var obj = {};
-    obj.Stato = stato;
-    obj.Lista = lista;
-    obj.AttoUId = $("#hdUIdAtto").val();
+async function CambioStatoMassivo(stato) {
+    const listaEM = [...document.querySelectorAll('input[type="checkbox"][id^="chk_EM_"]:checked')]
+        .map(cb => cb.id.replace('chk_EM_', ''));
 
-    $.ajax({
-        url: baseUrl + "/emendamenti/modifica-stato",
-        type: "POST",
-        data: JSON.stringify(obj),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json"
-    }).done(function(data) {
-        
-    }).fail(function(err) {
+    if (listaEM.length === 0) {
+        ErrorAlert("Seleziona almeno un emendamento");
+        return;
+    }
+
+    waiting(true);
+    try {
+        const esito = await inviaCambioStatoEM({
+            Stato: stato,
+            Lista: listaEM,
+            AttoUId: $("#hdUIdAtto").val()
+        });
+        waiting(false);
+        DeselectALLEM();
+        await mostraEsitoCambioStatoEM(esito);
+        location.reload();
+    } catch (err) {
+        waiting(false);
         console.log("error", err);
+        ErrorAlert(err.message);
+    }
+}
+
+function CambioStatoMassivoSoloIds(stato, lista) {
+    return inviaCambioStatoEM({
+        Stato: stato,
+        Lista: lista,
+        AttoUId: $("#hdUIdAtto").val()
     });
 }
 
@@ -1153,7 +1341,7 @@ function GetPersoneFromDB() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1167,7 +1355,7 @@ function GetPersonePerInviti(attoUId, tipo) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1181,7 +1369,7 @@ function GetPersonePerInvitiDASI(tipo) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1214,7 +1402,7 @@ function Ordina_EMTrattazione(attoUId) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1350,7 +1538,7 @@ function CreaArticolo(attoUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1381,7 +1569,7 @@ function CreaComma(articoloUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1412,7 +1600,7 @@ function CreaLettera(commaUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1443,7 +1631,7 @@ function EliminaArticolo(articoloUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1475,7 +1663,7 @@ function EliminaComma(commaUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1507,7 +1695,7 @@ function EliminaLettera(letteraUId) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                Error(err);
+                MostraErrore(err);
             });
         });
 }
@@ -1545,7 +1733,7 @@ function PubblicaFascicolo(attoUId, ordine) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1575,7 +1763,7 @@ function BloccaODG(attoUId, blocca) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1617,7 +1805,7 @@ function BloccaEM(attoUId) {
         $("#chkBloccoEM_" + attoUId).data("blocco", new_blocco);
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1648,35 +1836,10 @@ function JollyODG(attoUId, jolly) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
-function InviaAlProtocollo(attoUId) {
-    waiting(true);
-    $.ajax({
-        url: baseUrl + "/dasi/invia-al-protocollo",
-        data: { id: attoUId },
-        type: "GET"
-    }).done(function(result) {
-        waiting(false);
-        if (result.message) {
-            swal({
-                title: "Errore",
-                text: result.message,
-                icon: "error"
-            });
-            return;
-        }
-        swal("Atto inviato al protocollo con successo!").then((val) => {
-                location.reload();
-            });
-    }).fail(function(err) {
-        console.log("error", err);
-        waiting(false);
-        Error(err);
-    });
-}
 
 //NOTIFICHE
 
@@ -1691,7 +1854,7 @@ function GetDestinatariNotifica(notificaId) {
         panel.append(data);
     }).fail(function(err) {
         console.log("error", err);
-        Error(err);
+        MostraErrore(err);
     });
 }
 
@@ -1757,6 +1920,12 @@ function StampaUOLA(ctrl) {
             },
             success: function (response) {
                 console.log("Risposta ricevuta", response);
+                // #1674: in errore l'API risponde 200 con { message }, non con l'url del file
+                if (response && response.message) {
+                    waiting(false);
+                    ErrorAlert(response.message);
+                    return;
+                }
                 var a = document.createElement("a");
                 a.href = response;
 				a.target = '_blank';
@@ -1819,10 +1988,31 @@ function ErrorAlert(message) {
     });
 }
 
-function Error(ex) {
+// Errore imprevisto: all'utente il messaggio generico, il dettaglio tecnico in console.
+// Il motivo arriva in forme diverse a seconda del chiamante: jqXHR dai .fail() di $.ajax,
+// ErrorResponse gia' deserializzato dai pannelli filtri che usano fetch, Error dai catch.
+// Prima veniva letto solo statusText e finiva a video come "Motivo: undefined"; adesso il
+// messaggio vero resta in console, dove serve a noi, e non arriva addosso a chi usa il
+// portale (sono testi in inglese, quando non nomi di tabelle e colonne).
+function MostraErrore(ex) {
+    var motivo = "";
+    if (typeof ex === "string") {
+        motivo = ex;
+    } else if (ex) {
+        if (ex.responseJSON && ex.responseJSON.message) {
+            motivo = ex.responseJSON.message;
+        } else if (ex.message) {
+            motivo = ex.message;
+        } else if (ex.statusText) {
+            motivo = ex.statusText;
+        }
+    }
+
+    console.error("MostraErrore:", motivo || "(nessun motivo)", ex);
+
     swal({
         title: "Errore",
-        text: MESSAGGIO_ERRORE_500 + " Motivo: " + ex.statusText,
+        text: MESSAGGIO_ERRORE_500,
         icon: "error",
         button: "Ok"
     });

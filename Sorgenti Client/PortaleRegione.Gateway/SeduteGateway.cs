@@ -96,6 +96,15 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        // #1627 - Ultime 20 sedute chiuse (ordinate dalla piu' recente) per l'iscrizione ex post.
+        public async Task<BaseResponse<SeduteDto>> GetChiuse()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.GetChiuse}";
+            var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+            lst!.Results = lst.Results.OrderByDescending(item => item.Data_seduta);
+            return lst;
+        }
+
         public async Task Modifica(SeduteFormUpdateDto seduta)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.Edit}";

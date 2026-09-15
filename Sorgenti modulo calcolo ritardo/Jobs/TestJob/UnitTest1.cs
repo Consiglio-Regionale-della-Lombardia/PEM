@@ -13,7 +13,7 @@ namespace TestJob
         {
             var manager = new Manager(new ThreadWorkerModel
             {
-                connectionString = @"Data Source=DESKTOP-FJ2A7DR\GAM01;Initial Catalog=dbEmendamenti_TestImport;User ID=admin_test_import;Password=123456;"
+                connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=dbEmendamenti;Integrated Security=True;"
             });
 
             await manager.Run();

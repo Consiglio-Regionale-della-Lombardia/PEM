@@ -100,7 +100,7 @@ namespace PortaleRegione.Client.Controllers
             return Json(await apiGateway.Stampe.InserisciStampa(new NuovaStampaRequest
             {
                 Lista = res,
-                Modulo = ModuloStampaEnum.PEM,
+                Modulo = ModuloEnum.PEM,
                 Ordinamento = modelInCache.Ordinamento,
                 Da = model.da,
                 A = model.a,
@@ -113,8 +113,8 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> NuovaStampaDasi(StampaModel model)
         {
             var apiGateway = new ApiGateway(Token);
-            var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
-            
+            var parseClientMode = int.TryParse(model.client_mode, out int CLIENT_MODE);
+
             try
             {
                 if (model.Tutti)
@@ -125,24 +125,15 @@ namespace PortaleRegione.Client.Controllers
                         size = 99999,
                         param = new Dictionary<string, object>
                         {
-                            { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }
+                            { "CLIENT_MODE", (parseClientMode) ? CLIENT_MODE : (int)ClientModeEnum.GRUPPI }
                         }
                     };
 
-                    if (modelInCache != null)
-                    {
-                        request.filtro.AddRange(modelInCache.Data.Filters);
-                    }
-                    else
-                    {
-                        // #1340
-                        if (model.sort_settings_dasi.Any())
-                        {
-                            request.dettagliOrdinamento = model.sort_settings_dasi;
-                        }
+                    // #1340: i filtri (chips) e l'ordinamento arrivano dal client, non piu' dalla Session.
+                    if (model.sort_settings_dasi.Any())
+                        request.dettagliOrdinamento = model.sort_settings_dasi;
 
-                        request.filtro.AddRange(Utility.ParseFilterDasi(model.filters_dasi));
-                    }
+                    request.filtro.AddRange(Utility.ParseFilterDasi(model.filters_dasi));
 
                     var list = await apiGateway.DASI.GetSoloIds(request);
 
@@ -164,7 +155,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(await apiGateway.Stampe.InserisciStampa(new NuovaStampaRequest
                 {
                     Lista = res,
-                    Modulo = ModuloStampaEnum.DASI,
+                    Modulo = ModuloEnum.DASI,
                     Da = model.da,
                     A = model.a
                 }), JsonRequestBehavior.AllowGet);

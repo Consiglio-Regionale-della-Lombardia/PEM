@@ -19,6 +19,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
@@ -59,10 +60,10 @@ namespace PortaleRegione.API.Controllers
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic,
             StampeLogic stampeLogic,
-            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic,
             notificheLogic,
-            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+            esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
         }
 

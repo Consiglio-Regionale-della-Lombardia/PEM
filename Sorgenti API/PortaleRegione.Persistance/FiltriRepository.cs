@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Persistance
 {
@@ -35,21 +36,24 @@ namespace PortaleRegione.Persistance
 
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
-        public async Task<List<FILTRI>> GetByUser(Guid uidPersona)
+        public async Task<List<FILTRI>> GetByUser(Guid uidPersona, ModuloEnum modulo)
         {
             var res = await PRContext.FILTRI
-                .Where(f => f.UId_persona.Equals(uidPersona))
+                .Where(f => f.UId_persona.Equals(uidPersona) && f.Modulo == modulo)
                 .OrderByDescending(f => f.Preferito)
                 .ThenBy(f => f.Nome)
                 .ToListAsync();
             return res;
         }
 
-        public async Task<FILTRI> Get(string nomeFiltro, Guid UidPersona)
+        public async Task<FILTRI> Get(string nomeFiltro, Guid UidPersona, ModuloEnum modulo)
         {
             var res = await PRContext
                 .FILTRI
-                .FirstOrDefaultAsync(f => f.UId_persona.Equals(UidPersona) && f.Nome.Equals(nomeFiltro));
+                .FirstOrDefaultAsync(f =>
+                    f.UId_persona.Equals(UidPersona)
+                    && f.Nome.Equals(nomeFiltro)
+                    && f.Modulo == modulo);
             return res;
         }
     }

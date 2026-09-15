@@ -277,6 +277,13 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
                 var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);
                 var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+
+                // #1618 - allineamento a #1521: il tipo di risposta fornita va esposto solo se la
+                // risposta e' stata effettivamente fornita dall'organo (almeno una risposta con data
+                // valorizzata). In caso contrario il ws restituisce stringa vuota.
+                if (!risposteInDb.Any(r => r.Data.HasValue))
+                    tipo_risposta_fornita = string.Empty;
+
                 var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
                 {
                     data = r.Data.HasValue ? r.Data.Value.ToString("dd/MM/yyyy") : string.Empty,
@@ -293,10 +300,19 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
                 }).ToList();
                 var documentiInDb = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
+                // #1621 - per gli atti di sindacato (ITL, ITR, IQT) il titolo del documento di risposta
+                // riporta le informazioni della risposta al posto del valore statico "Testo risposta".
+                var attoDiSindacato = attoInDb.Tipo == (int)TipoAttoEnum.ITL
+                                      || attoInDb.Tipo == (int)TipoAttoEnum.ITR
+                                      || attoInDb.Tipo == (int)TipoAttoEnum.IQT;
                 var documenti = documentiInDb.Select(d => new AttiDocumentiPublicDto
                 {
                     Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
-                    Titolo = d.Titolo,
+                    Titolo = attoDiSindacato
+                             && (d.Tipo == (int)TipoDocumentoEnum.RISPOSTA ||
+                                 d.Tipo == (int)TipoDocumentoEnum.TESTO_RISPOSTA)
+                        ? GetTitoloDocumentoRisposta(d, risposteInDb, attoInDb) // #1621
+                        : d.Titolo,
                     Link = $"{hostUrl}/{ApiRoutes.ScaricaDocumento}?path={d.Path.Replace('\\', '/')}", // #1429
                     TipoEnum = (TipoDocumentoEnum)d.Tipo
                 }).ToList();
@@ -365,6 +381,29 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     ? attoInDb.Timestamp.Value.ToString("dd/MM/yyyy")
                     : CryptoHelper.DecryptString(attoInDb.DataPresentazione,
                         AppSettingsConfigurationHelper.masterKey);
+
+                // #1617 - la deliberazione si considera presente solo se il numero DCR è valorizzato (> 0).
+                // In sua assenza tutti i campi correlati (dcrl, dcr, dcrc) devono tornare vuoti, per evitare
+                // valori spuri come "XII/0" o "/0" derivanti dai default (legislatura impostata, numero a 0).
+                var dcrPresente = attoInDb.DCR.HasValue && attoInDb.DCR.Value > 0;
+
+                // #1619 - per ITL e ITR il campo data_chiusura_iter espone la data della risposta fornita
+                // dall'organo interrogato/interpellato. In presenza di piu' risposte si considera la prima
+                // ricevuta (data piu' antica). In assenza di risposta il comportamento resta invariato
+                // (data di chiusura iter dell'atto).
+                var data_chiusura_iter = attoInDb.DataChiusuraIter.HasValue
+                    ? attoInDb.DataChiusuraIter.Value.ToString("dd/MM/yyyy")
+                    : string.Empty;
+                if (attoInDb.Tipo == (int)TipoAttoEnum.ITL || attoInDb.Tipo == (int)TipoAttoEnum.ITR)
+                {
+                    var primaRisposta = risposteInDb
+                        .Where(r => r.Data.HasValue)
+                        .OrderBy(r => r.Data.Value)
+                        .FirstOrDefault();
+                    if (primaRisposta != null)
+                        data_chiusura_iter = primaRisposta.Data.Value.ToString("dd/MM/yyyy");
+                }
+
                 var attoDto = new AttoDasiPublicDto
                 {
                     uidAtto = attoInDb.UIDAtto,
@@ -380,9 +419,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     tipo_risposta_richiesta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
                     tipo_risposta_fornita = tipo_risposta_fornita,
                     area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
-                    data_chiusura_iter = attoInDb.DataChiusuraIter.HasValue
-                        ? attoInDb.DataChiusuraIter.Value.ToString("dd/MM/yyyy")
-                        : string.Empty,
+                    data_chiusura_iter = data_chiusura_iter, // #1619
                     data_annunzio = attoInDb.DataAnnunzio.HasValue
                         ? attoInDb.DataAnnunzio.Value.ToString("dd/MM/yyyy")
                         : string.Empty,
@@ -399,9 +436,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     risposte = risposte,
                     documenti = documenti,
                     abbinamenti = abbinamenti,
-                    dcrl = string.IsNullOrEmpty(attoInDb.DCRL) ? string.Empty : attoInDb.DCRL, // #1549
-                    dcr = attoInDb.DCR.HasValue ? attoInDb.DCR.ToString() : string.Empty,
-                    dcrc = attoInDb.DCCR.HasValue ? attoInDb.DCCR.ToString() : string.Empty,
+                    dcrl = dcrPresente && !string.IsNullOrEmpty(attoInDb.DCRL) ? attoInDb.DCRL : string.Empty, // #1617 (era #1549)
+                    dcr = dcrPresente ? attoInDb.DCR.Value.ToString() : string.Empty, // #1617
+                    dcrc = dcrPresente && attoInDb.DCCR.HasValue && attoInDb.DCCR.Value > 0 ? attoInDb.DCCR.Value.ToString() : string.Empty, // #1617
                     firme = firme,
                     burl = string.IsNullOrEmpty(attoInDb.BURL) ? string.Empty : attoInDb.BURL, // #1427
                     note = note,
@@ -430,6 +467,44 @@ namespace PortaleRegione.Api.Public.Business_Layer
             {
                 Log.Error(currentMethod, e);
                 throw e;
+            }
+        }
+
+        /// <summary>
+        ///     #1621 - Costruisce il titolo del documento di risposta per gli atti di sindacato
+        ///     (ITL, ITR, IQT), riportando le informazioni della risposta (tipo, assessore, eventuale
+        ///     commissione) al posto del valore statico "Testo risposta".
+        /// </summary>
+        private static string GetTitoloDocumentoRisposta(ATTI_DOCUMENTI documento, List<ATTI_RISPOSTE> risposte,
+            ATTI_DASI atto)
+        {
+            var rispostaCollegata = risposte.FirstOrDefault(r => r.UIDDocumento == documento.Uid);
+            if (rispostaCollegata == null)
+                return documento.Titolo;
+
+            var assessore = rispostaCollegata.DescrizioneOrgano ?? string.Empty;
+
+            // IQT: nessun dettaglio sul tipo, solo l'assessore che ha fornito la risposta.
+            if (atto.Tipo == (int)TipoAttoEnum.IQT)
+                return $"Testo della risposta fornita da {assessore}";
+
+            switch ((TipoRispostaEnum)atto.IDTipo_Risposta_Effettiva.GetValueOrDefault(0))
+            {
+                case TipoRispostaEnum.ORALE:
+                    return $"Testo della risposta orale fornita da {assessore}";
+                case TipoRispostaEnum.SCRITTA:
+                    return $"Testo della risposta scritta fornita da {assessore}";
+                case TipoRispostaEnum.COMMISSIONE:
+                    // Per le risposte in commissione l'organo della risposta collegata e' la commissione,
+                    // mentre gli assessori che hanno risposto sono nelle risposte associate.
+                    var assessoriAssociati = string.Join(", ",
+                        risposte.Where(r => r.UIDRispostaAssociata == rispostaCollegata.Uid)
+                            .Select(r => r.DescrizioneOrgano));
+                    return string.IsNullOrWhiteSpace(assessoriAssociati)
+                        ? $"Testo della risposta fornita in {assessore}"
+                        : $"Testo della risposta fornita da {assessoriAssociati} in {assessore}";
+                default:
+                    return documento.Titolo;
             }
         }
 

@@ -161,6 +161,16 @@
 
 					@Html.Partial("_DocsPanel", Model)
 					@Html.Partial("_TagsPanel", Model)
+						@* #1622 - carta bianca: nasconde il gruppo politico nell'intestazione dell'atto *@
+						<div class="form-group">
+							<p>
+								<label>
+									<input id="Emendamento_NascondiGruppo" type="checkbox" value="true"
+									       @Html.Raw(Model.Emendamento.NascondiGruppo ? "checked=\"checked\"" : "")>
+									<span>Nascondi gruppo</span>
+								</label>
+							</p>
+						</div>
 				}
 
 				<div class="fixed-action-btn">

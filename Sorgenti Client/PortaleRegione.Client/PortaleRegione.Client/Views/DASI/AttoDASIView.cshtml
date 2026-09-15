@@ -16,18 +16,6 @@
 
     ViewBag.Title = title;
 
-    PersonaDto currentUser = null;
-    var modeFromCache = (int)ClientModeEnum.TRATTAZIONE;
-    if (HttpContext.Current.User.Identity.IsAuthenticated)
-    {
-	    var data = TryReadChunkedCookies.GetJson<PersonaDto>(Request, "PRCookies");
-	    if (data != null)
-	    {
-		    currentUser = data;
-		    modeFromCache = Convert.ToInt16(HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}"));
-	    }
-    }
-
     var firmeGroup = new List<AttiFirmeDto>();
     firmeGroup.AddRange(atto.FirmeAnte);
     firmeGroup.AddRange(atto.FirmePost);
@@ -115,8 +103,7 @@
      || atto.Eliminabile
      || atto.Ritirabile
      || atto.Modificabile
-     || (atto.Invito_Abilitato
-         && Convert.ToInt16(modeFromCache) != (int)ClientModeEnum.TRATTAZIONE))
+     || (atto.Invito_Abilitato))
 {
     <div class="card-action grey lighten-4 center" style="border-top: unset">
         <div class="row" style="margin: 0 !important">
@@ -161,6 +148,7 @@
         </div>
     </div>
 }
+
 <div class="card-content">
 	@*### IQT ###*@
 
@@ -649,7 +637,6 @@
 							sedute.push(item);
 						}
 					});
-					return;
 				}else if ('@atto.DisplayTipo' == '@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)'){
 		            console.log("Sono una MOZ! :)", data.Results);
 		            $.each(data.Results, function(index, item){
@@ -657,7 +644,6 @@
 				            sedute.push(item);
 			            }
 		            });
-		            return;
 	            }else{
 					sedute = data.Results;
 				}                
@@ -879,7 +865,7 @@
 
                 }).fail(function(err) {
                     console.log("error", err);
-                    Error(err);
+                    MostraErrore(err);
                 });
             }
         });
@@ -948,7 +934,7 @@
 				}).fail(function (err) {
 					waiting(false);
 					console.log("error", err);
-					Error(err);
+					MostraErrore(err);
 				});
 			});
 	}
@@ -991,7 +977,7 @@
 					}
 				}).fail(function (err) {
 					console.log("error", err);
-					Error(err);
+					MostraErrore(err);
 				});
 			});
 		$("#modalActionDASI").modal("open");
@@ -1036,7 +1022,7 @@
 					});
 				}).fail(function (err) {
 					console.log("error", err);
-					Error(err);
+					MostraErrore(err);
 				});
 			});
 	}
@@ -1081,7 +1067,7 @@
 					}
 				}).fail(function (err) {
 					console.log("error", err);
-					Error(err);
+					MostraErrore(err);
 				});
 			});
 	}

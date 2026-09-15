@@ -59,7 +59,7 @@ namespace PortaleRegione.Persistance
 
             if (em.ATTI.Chiuso) return false;
 
-            if (persona.IsSegreteriaAssemblea)
+            if (persona.IsSegreteriaAssemblea_Vista)
                 return true;
 
             if (persona.Gruppo == null) return false;
@@ -96,7 +96,7 @@ namespace PortaleRegione.Persistance
                 return false;
             }
 
-            if (persona.IsSegreteriaAssemblea)
+            if (persona.IsSegreteriaAssemblea_Vista)
                 return false;
 
             if (persona.Gruppo == null) return false;
@@ -175,7 +175,7 @@ namespace PortaleRegione.Persistance
                 return await query.CountAsync();
             }
 
-            if (currentUser.IsSegreteriaAssemblea)
+            if (currentUser.IsSegreteriaAssemblea_Vista)
                 return 0;
 
             var resultNotificheNonViste = await queryDestinatari
@@ -264,7 +264,7 @@ namespace PortaleRegione.Persistance
                     .ToListAsync();
             }
 
-            if (currentUser.IsSegreteriaAssemblea)
+            if (currentUser.IsSegreteriaAssemblea_Vista)
                 return new List<NOTIFICHE>();
             queryDestinatari = queryDestinatari
                 .Where(nd => nd.Visto == false);

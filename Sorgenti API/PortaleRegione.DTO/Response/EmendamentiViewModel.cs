@@ -28,6 +28,7 @@ namespace PortaleRegione.DTO.Response
         {
             ConteggiGruppi = new List<View_Conteggi_EM_Gruppi_PoliticiDto>();
             ConteggiAreePolitiche = new List<View_Conteggi_EM_Area_PoliticaDto>();
+            EmendamentiSaltati = new List<string>();
         }
         public BaseResponse<EmendamentiDto> Data { get; set; }
         public PersonaDto CurrentUser { get; set; }
@@ -37,5 +38,12 @@ namespace PortaleRegione.DTO.Response
         public OrdinamentoEnum Ordinamento { get; set; } = OrdinamentoEnum.Presentazione;
         public ICollection<View_Conteggi_EM_Gruppi_PoliticiDto> ConteggiGruppi { get; set; }
         public ICollection<View_Conteggi_EM_Area_PoliticaDto> ConteggiAreePolitiche { get; set; }
+
+        /// <summary>
+        ///     Identificatori (formato "EM N" / "SUBEM N") degli emendamenti che il backend non
+        ///     e' riuscito a mappare in DTO (es. <c>IDStato</c> corrotto). Il riepilogo li mostra
+        ///     con un avviso anziche' nasconderli.
+        /// </summary>
+        public ICollection<string> EmendamentiSaltati { get; set; }
     }
 }

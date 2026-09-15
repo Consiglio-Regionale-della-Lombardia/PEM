@@ -29,6 +29,10 @@ namespace PortaleRegione.Gateway
         Task<FileResponse> EsportaWORD(EmendamentiViewModel model);
         Task<FileResponse> EsportaXLS(EmendamentiViewModel model);
         Task<FileResponse> EsportaXLS_UOLA(EmendamentiViewModel model);
+
+        // #1626 - Export della ricerca trasversale EM/SUBEM (Area Aula), cross-atto.
+        Task<FileResponse> EsportaXLSGlobale(EmendamentiViewModel model);
+        Task<FileResponse> EsportaWORDGlobale(EmendamentiViewModel model);
         Task<FileResponse> EsportaXLSDASI(List<Guid> lista);
         Task<FileResponse> EsportaXLSConsiglieriDASI(List<Guid> lista);
         Task<FileResponse> EsportaZipDASI(List<Guid> lista);

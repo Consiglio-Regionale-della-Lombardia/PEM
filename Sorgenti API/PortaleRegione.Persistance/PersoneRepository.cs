@@ -406,14 +406,31 @@ namespace PortaleRegione.Persistance
             return user != null;
         }
 
-        public async Task<List<View_consiglieri>> GetProponentiFirmatari(string legislaturaId)
+        public async Task<List<View_consiglieri>> GetProponentiFirmatari(string legislaturaId, int? gruppoId = null)
         {
             if (int.TryParse(legislaturaId, out int idLegislatura))
             {
-                return await PRContext
+                var query = PRContext
                     .View_consiglieri
-                    .Where(c => c.id_legislatura == idLegislatura)
-                    .ToListAsync();
+                    .Where(c => c.id_legislatura == idLegislatura);
+
+                // #1630 - nell'area privata del gruppo proponiamo solo i consiglieri del gruppo.
+                // Il vincolo si applica solo quando viene passato un gruppo (area GRUPPI consiglieri/PEM);
+                // admin e area trattazione/aula continuano a vedere tutti i consiglieri della legislatura.
+                if (gruppoId.HasValue && gruppoId.Value > 0)
+                {
+                    var idPersoneGruppo = PRContext
+                        .join_persona_gruppi_politici
+                        .Where(j => !j.deleted
+                                    && j.id_legislatura == idLegislatura
+                                    && j.id_gruppo == gruppoId.Value
+                                    && j.id_persona.HasValue)
+                        .Select(j => j.id_persona.Value);
+
+                    query = query.Where(c => idPersoneGruppo.Contains(c.id_persona));
+                }
+
+                return await query.ToListAsync();
             }
 
             throw new ArgumentException($"L'ID [{legislaturaId}] della legislatura fornito non è valido.");

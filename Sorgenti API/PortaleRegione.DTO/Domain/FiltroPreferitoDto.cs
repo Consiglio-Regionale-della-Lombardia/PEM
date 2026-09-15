@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+using PortaleRegione.DTO.Enum;
+
 namespace PortaleRegione.DTO.Domain
 {
     public class FiltroPreferitoDto
@@ -24,5 +26,9 @@ namespace PortaleRegione.DTO.Domain
         public string sorting { get; set; }
         public string name { get; set; }
         public bool favourite { get; set; }
+
+        // Modulo applicativo a cui appartiene il filtro (PEM o DASI).
+        // Permette di usare la stessa tabella FILTRI per i preferiti dei due moduli.
+        public ModuloEnum modulo { get; set; }
     }
 }

@@ -1,0 +1,80 @@
+@using PortaleRegione.DTO.Enum
+
+@*
+    Pannello laterale ricerche del modulo Emendamenti.
+    Versione semplificata: contiene solo la collection dei filtri standard/preferiti.
+    La tab "Report" e relativa collection sono state rimosse perche' il salvataggio
+    dei report come preferito non e' piu' supportato.
+*@
+
+<style>
+    #data-collection-em > .collection-item {
+        border-bottom: unset;
+    }
+
+    .badgeCollectionFilter {
+        background-color: white;
+        border-left: 1em solid #2196f3;
+        color: black;
+        font-weight: bold;
+        min-width: unset !important;
+    }
+
+    .badgeStarCollectionFilter {
+        background-color: black;
+        border-left: 1em solid yellow;
+        color: black;
+        font-weight: bold;
+        min-width: unset !important;
+    }
+</style>
+
+<div id="slide-em-DX" class="sidenav" style="overflow: auto !important; width:unset!important">
+    <div class="row">
+        <div class="col s12">
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">search</i>
+                    <input id="search-input-em" type="text" placeholder="Cerca...">
+                </div>
+                <div class="col s12">
+                    <div id="data-collection-em" class="collection"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function updateCollectionEMVisibility() {
+            var searchQuery = document.getElementById('search-input-em').value.toLowerCase();
+            var collectionItems = document.querySelectorAll('#data-collection-em .collection-item');
+
+            collectionItems.forEach(function (item) {
+                var itemText = item.textContent.toLowerCase();
+                item.style.display = itemText.indexOf(searchQuery) !== -1 ? '' : 'none';
+            });
+        }
+
+        var searchInput = document.getElementById('search-input-em');
+        if (searchInput) searchInput.addEventListener('input', updateCollectionEMVisibility);
+    });
+
+    function openEMSearch() {
+        var elems = document.querySelector("#slide-em-DX");
+        var instances = M.Sidenav.init(elems,
+            {
+                edge: "right",
+                draggable: true,
+                onOpenStart: function () {
+                    $("#slide-out").css("z-index", 997);
+                },
+                onCloseEnd: function () {
+                    $("#slide-out").css("z-index", 999);
+                }
+            });
+
+        instances.open();
+    }
+</script>

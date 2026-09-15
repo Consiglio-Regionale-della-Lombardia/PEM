@@ -3,7 +3,7 @@
 
 @if (Model.ConteggiAreePolitiche.Any())
 {
-    if (Model.CurrentUser.IsSegreteriaAssemblea || Model.Mode == ClientModeEnum.TRATTAZIONE)
+    if (Model.CurrentUser.IsSegreteriaAssemblea_Vista || Model.Mode == ClientModeEnum.TRATTAZIONE)
     {
 
         <ul class="collection">

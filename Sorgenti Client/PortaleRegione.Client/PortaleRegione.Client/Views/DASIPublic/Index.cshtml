@@ -1,10 +1,21 @@
-﻿@model object
+@model object
 
 @{
 	Layout = null;
 }
 
 @Styles.Render("~/Content/css")
+@* #1620 - font icone per il bottone di stampa (la pagina non usa il layout) *@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+@* #1620 - bottone per scaricare il PDF del testo dell'atto (incluso allegato parte integrante se pubblico) *@
+@if (ViewBag.PdfUrl != null)
+{
+    <a href="@ViewBag.PdfUrl" title="Stampa"
+       style="position: fixed; top: 16px; right: 16px; z-index: 1000; width: 56px; height: 56px; border-radius: 50%; background: #ffffff; color: #000000; box-shadow: 0 3px 5px rgba(0,0,0,.2); display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+        <i class="material-icons">print</i>
+    </a>
+}
 
 <div class="row">
     <div class="col s12">

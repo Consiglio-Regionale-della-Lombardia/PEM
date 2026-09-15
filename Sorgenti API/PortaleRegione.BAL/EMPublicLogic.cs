@@ -31,10 +31,11 @@ namespace PortaleRegione.BAL
 {
     public class EMPublicLogic : BaseLogic
     {
-        public EMPublicLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm)
+        public EMPublicLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEm;
+            _mapper = mapper;
         }
 
         public async Task<string> GetBody(EM em, IEnumerable<FirmeDto> firme)
@@ -44,9 +45,9 @@ namespace PortaleRegione.BAL
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
 
                 var persona = Users.First(p => p.UID_persona == em.UIDPersonaProponente);
-                var personaDto = Mapper.Map<PersonaLightDto, PersonaDto>(persona);
+                var personaDto = _mapper.Map<PersonaLightDto, PersonaDto>(persona);
                 var emendamentoDto = await _logicEm.GetEM_DTO(em.UIDEM, atto, personaDto);
-                var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
+                var attoDto = _mapper.Map<ATTI, AttiDto>(atto);
 
                 try
                 {

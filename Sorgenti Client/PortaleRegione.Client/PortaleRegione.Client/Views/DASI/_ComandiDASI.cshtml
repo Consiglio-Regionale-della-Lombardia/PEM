@@ -143,7 +143,9 @@
                 obj.Azione = action;
                 obj.Lista = lista.length > 0 ? lista : [];
 				obj.Tutti = selezionaTutti;
-				obj.Richiesta_Firma = $('#checkAllMy').is(':checked');
+				// "Seleziona tutto": gli id (incluso il filtro "richiesta la mia firma", ora chip)
+				// sono risolti dal server tramite i filtri correnti inviati qui, non piu' dalla Session.
+				obj.Filter = (typeof buildDasiFilterRequest === 'function') ? buildDasiFilterRequest(1, 99999) : null;
 
                 $.ajax({
                     url: baseUrl + "/dasi/azioni-massive",
@@ -171,7 +173,7 @@
                 }).fail(function(err) {
                     waiting(false);
                     console.log("error", err);
-                    Error(err);
+                    MostraErrore(err);
                 });
             });
     }

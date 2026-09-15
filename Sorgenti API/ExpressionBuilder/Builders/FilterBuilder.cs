@@ -92,32 +92,58 @@ namespace ExpressionBuilder.Builders
         public Expression<Func<T, bool>> GetExpression<T>(IFilter filter) where T : class
         {
             var param = Expression.Parameter(typeof(T), "x");
-            Expression expression = null;
-            var connector = FilterStatementConnector.And;
+
+            // I run di statement collegati da Or (o con connettore non valorizzato) vengono
+            // parentesizzati come un unico gruppo "(v1 OR v2 OR ...)" che poi va in AND con i
+            // gruppi adiacenti. Senza questo raggruppamento il fold lineare trasformerebbe
+            // "A AND (B OR C)" in "(A AND B) OR C", facendo decadere le altre condizioni quando
+            // un filtro a selezione multipla genera piu' statement OR (es. piu' "Tipo atto").
+            Expression resultExpr = null; // AND dei gruppi gia' chiusi
+            Expression groupExpr = null; // gruppo OR in costruzione
+            var connector = FilterStatementConnector.And; // connettore dello statement precedente
+
             foreach (var statement in filter.Statements)
             {
+                Expression expr;
                 try
                 {
-                    Expression expr;
-                    if (IsList(statement))
-                    {
-                        expr = ProcessListStatement(param, statement);
-                    }
-                    else
-                    {
-                        expr = GetExpression(param, statement);
-                    }
-
-                    expression = expression == null ? expr : CombineExpressions(expression, expr, connector);
-                    connector = statement.Connector;
+                    expr = IsList(statement)
+                        ? ProcessListStatement(param, statement)
+                        : GetExpression(param, statement);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    // ignored
+                    // statement non valido: ignorato, senza spostare il connettore corrente
+                    continue;
                 }
+
+                if (groupExpr == null)
+                {
+                    groupExpr = expr;
+                }
+                else if (connector == FilterStatementConnector.And)
+                {
+                    // il connettore precedente era And: chiudo il gruppo OR e ne apro uno nuovo
+                    resultExpr = resultExpr == null
+                        ? groupExpr
+                        : Expression.AndAlso(resultExpr, groupExpr);
+                    groupExpr = expr;
+                }
+                else
+                {
+                    // connettore Or (o non valorizzato): lo statement entra nel gruppo OR corrente
+                    groupExpr = Expression.OrElse(groupExpr, expr);
+                }
+
+                connector = statement.Connector;
             }
 
-            expression = expression ?? Expression.Constant(true);
+            if (groupExpr != null)
+                resultExpr = resultExpr == null
+                    ? groupExpr
+                    : Expression.AndAlso(resultExpr, groupExpr);
+
+            var expression = resultExpr ?? Expression.Constant(true);
 
             return Expression.Lambda<Func<T, bool>>(expression, param);
         }

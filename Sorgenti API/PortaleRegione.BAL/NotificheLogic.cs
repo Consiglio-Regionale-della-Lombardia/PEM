@@ -38,7 +38,8 @@ namespace PortaleRegione.BAL
     public class NotificheLogic : BaseLogic
     {
         public NotificheLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM, PersoneLogic logicPersone,
-            UtilsLogic logicUtil, FirmeLogic logicFirme, DASILogic logicDASI, AttiFirmeLogic logicFirmeDASI)
+            UtilsLogic logicUtil, FirmeLogic logicFirme, DASILogic logicDASI, AttiFirmeLogic logicFirmeDASI,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEM;
@@ -47,6 +48,7 @@ namespace PortaleRegione.BAL
             _logicFirme = logicFirme;
             _logicDasi = logicDASI;
             _logicAttiFirme = logicFirmeDASI;
+            _mapper = mapper;
         }
 
         public async Task<RiepilogoNotificheModel> GetNotificheInviate(BaseRequest<NotificaDto> model,
@@ -68,7 +70,7 @@ namespace PortaleRegione.BAL
 
                 var notifiche = (await _unitOfWork.Notifiche
                         .GetNotificheInviate(currentUser, idGruppo, Archivio, model.page, model.size, queryFilter))
-                    .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
+                    .Select(_mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
 
                 var result = new List<NotificaDto>();
@@ -128,7 +130,7 @@ namespace PortaleRegione.BAL
             var notifiche = (await _unitOfWork.Notifiche
                     .GetNotificheRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste, model.page, model.size,
                         queryFilter))
-                .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
+                .Select(_mapper.Map<NOTIFICHE, NotificaDto>)
                 .ToList();
 
             var result = new List<NotificaDto>();
@@ -181,7 +183,7 @@ namespace PortaleRegione.BAL
             var notifiche = (await _unitOfWork.Notifiche
                     .GetNotificheRicevute(currentUser, idGruppo, false, true, 1, 1,
                         queryFilter))
-                .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
+                .Select(_mapper.Map<NOTIFICHE, NotificaDto>)
                 .ToList();
 
             return notifiche.Count == 0 ? 0 : 1;
@@ -196,7 +198,7 @@ namespace PortaleRegione.BAL
             var result = new List<DestinatariNotificaDto>();
             foreach (var destinatario in destinatari)
             {
-                var dto = Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>(destinatario);
+                var dto = _mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>(destinatario);
                 if (destinatario.NOTIFICHE.UIDEM != null)
                     dto.Firmato = await _unitOfWork
                         .Firme

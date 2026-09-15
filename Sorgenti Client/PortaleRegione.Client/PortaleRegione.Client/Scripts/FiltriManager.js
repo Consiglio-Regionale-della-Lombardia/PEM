@@ -97,22 +97,27 @@ function GetLegislature() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
 
-function GetProponenti(idLegislatura) {
+function GetProponenti(idLegislatura, gruppoId) {
     return new Promise(async function(resolve, reject) {
+        var url = baseUrl + "/persone/proponenti-firmatari?legislaturaId=" + idLegislatura;
+        // #1630 - in area privata del gruppo restringe la lista ai soli consiglieri del gruppo
+        if (gruppoId) {
+            url += "&gruppoId=" + gruppoId;
+        }
         $.ajax({
-            url: baseUrl + "/persone/proponenti-firmatari?legislaturaId=" + idLegislatura,
+            url: url,
             type: "GET"
         }).done(function(result) {
             set_ListaProponenti(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -234,7 +239,7 @@ function GetOrganiDisponibili(legislaturaId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -248,7 +253,7 @@ function GetSedutaByData(dataSeduta) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -262,7 +267,7 @@ function GetSeduteAttive() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -276,7 +281,7 @@ function GetSeduteAttiveMOZU() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -290,7 +295,22 @@ function GetSeduteAttiveDashboard() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
+        });
+    });
+}
+
+// #1627 - Ultime 20 sedute chiuse per l'iscrizione ex post di un atto da parte di UOLA
+function GetSeduteChiuse() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/pem/sedute-chiuse",
+            type: "GET"
+        }).done(function (result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            MostraErrore(err);
         });
     });
 }
@@ -305,7 +325,7 @@ function GetTags() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -320,7 +340,7 @@ function GetRiepilogoFirmeAtto() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -334,7 +354,7 @@ function GetGruppiInDb() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -493,7 +513,7 @@ function GetStatiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -513,21 +533,39 @@ function GetStatiDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
+        });
+    });
+}
+
+// FiltriController unificato (v2026.5.1): /filtri/{modulo}. ModuloEnum.PEM = 1.
+// Persistenza solo server, niente piu' fallback localStorage per evitare divergenze
+// tra cache client e tabella FILTRI.
+function GetFiltriPreferitiEM() {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/filtri/1",
+            type: "GET"
+        }).done(function(result) {
+            resolve(Array.isArray(result) ? result : []);
+        }).fail(function(err) {
+            console.log("error GetFiltriPreferitiEM", err);
+            resolve([]);
         });
     });
 }
 
 function GetFiltriPreferitiDASI() {
+    // FiltriController unificato (v2026.5.1): /filtri/{modulo}. ModuloEnum.DASI = 2.
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/dasi/gruppo-filtri",
+            url: baseUrl + "/filtri/2",
             type: "GET"
         }).done(function(result) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -541,7 +579,7 @@ function GetReportsDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -561,7 +599,7 @@ function GetTipiDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -581,7 +619,7 @@ function GetTipiMOZDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -595,7 +633,7 @@ function GetAttiSeduteAttive() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -609,7 +647,7 @@ function GetTipiMOZAbbinabiliDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -629,7 +667,7 @@ function GetSoggettiInterrogabiliDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -677,7 +715,7 @@ function GetTipiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -917,7 +955,7 @@ function GetPartiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -932,7 +970,7 @@ function GetArticoli(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -947,7 +985,7 @@ function GetGrigliaTesto(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -962,7 +1000,7 @@ function GetGrigliaTestoEM(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -977,7 +1015,7 @@ function GetGrigliaOrdinamentoEM(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -991,7 +1029,7 @@ function GetCommi(articoloUId, expanded) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1007,7 +1045,7 @@ function GetLettere(commaUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1027,7 +1065,7 @@ function GetMissioni() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }
@@ -1047,7 +1085,7 @@ function GetTitoliMissioni() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            Error(err);
+            MostraErrore(err);
         });
     });
 }

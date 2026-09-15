@@ -1,0 +1,3 @@
+#!/bin/sh
+# Verifica drift fra Secrets.config locali e Secrets.config.example versionati.
+exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(git rev-parse --show-toplevel)/tools/check-secrets-template.ps1"

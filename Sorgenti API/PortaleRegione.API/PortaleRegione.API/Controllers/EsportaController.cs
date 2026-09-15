@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
@@ -58,9 +59,9 @@ namespace PortaleRegione.API.Controllers
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
-            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
-            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+            esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
         }
 
@@ -192,6 +193,44 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("EsportaGrigliaDOC", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     #1626 - Export Excel della ricerca trasversale EM/SUBEM (Area Aula), cross-atto.
+        /// </summary>
+        [HttpPost]
+        [Route(ApiRoutes.Esporta.EsportaGrigliaExcelGlobale)]
+        public async Task<IHttpActionResult> EsportaGrigliaExcelGlobale(EmendamentiViewModel model)
+        {
+            try
+            {
+                var file = await _esportaLogic.EsportaGrigliaExcelGlobale(model, CurrentUser);
+                return ResponseMessage(file);
+            }
+            catch (Exception e)
+            {
+                Log.Error("EsportaGrigliaXLSGlobale", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     #1626 - Export Word della ricerca trasversale EM/SUBEM (Area Aula), cross-atto.
+        /// </summary>
+        [HttpPost]
+        [Route(ApiRoutes.Esporta.EsportaGrigliaWordGlobale)]
+        public async Task<IHttpActionResult> EsportaGrigliaWordGlobale(EmendamentiViewModel model)
+        {
+            try
+            {
+                var response = ResponseMessage(await _esportaLogic.HTMLtoWORDGlobale(model, CurrentUser));
+                return response;
+            }
+            catch (Exception e)
+            {
+                Log.Error("EsportaGrigliaDOCGlobale", e);
                 return ErrorHandler(e);
             }
         }

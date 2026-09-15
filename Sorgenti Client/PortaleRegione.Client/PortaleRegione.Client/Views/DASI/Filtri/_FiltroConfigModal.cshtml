@@ -1,4 +1,5 @@
 ﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
 <div id="modalFiltroConfig" class="modal">
     <div class="modal-content">
         <h4>Filtro</h4>
@@ -13,16 +14,24 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="input-field col s12">
-                <p>
-                    <label>
-                        <input id="filter_favourite" type="checkbox"/>
-                        <span>Preferito</span>
-                    </label>
-                </p>
+        @* #1650: il checkbox "Preferito" e' riservato a chi vede l'area UOLA
+           (IsSegreteriaAssemblea_Vista include Amministratore PEM e sola lettura:
+           il filtro e' dato personale, non un atto). Per i consiglieri il filtro
+           salvato e' sempre prioritario, quindi il checkbox non viene
+           renderizzato e favourite viene forzato a true lato client. *@
+        @if (Model.CurrentUser.IsSegreteriaAssemblea_Vista)
+        {
+            <div class="row">
+                <div class="input-field col s12">
+                    <p>
+                        <label>
+                            <input id="filter_favourite" type="checkbox"/>
+                            <span>Preferito</span>
+                        </label>
+                    </p>
+                </div>
             </div>
-        </div>
+        }
     </div>
     <div class="modal-footer">
         <button type="button" class="btn-flat modal-close">Annulla</button>
@@ -46,10 +55,16 @@
         request.columns = JSON.stringify(columns);
         request.sorting = JSON.stringify(sorting);
         request.name = document.getElementById('filter_name').value;
-        request.favourite = document.getElementById('filter_favourite').checked;
+        // #1650: per i consiglieri il checkbox non viene renderizzato (filtro sempre
+        // prioritario): se assente forziamo favourite = true; UOLA/Admin usa il checkbox.
+        var chkFavourite = document.getElementById('filter_favourite');
+        request.favourite = chkFavourite ? chkFavourite.checked : true;
+        // ModuloEnum.DASI = 2 (vedi PortaleRegione.DTO.Enum.ModuloEnum).
+        // Il payload viaggia verso il FiltriController unificato.
+        request.modulo = 2;
 
         // Invia la richiesta al server
-        const response = await fetch('@Url.Action("SalvaGruppoFiltri")', {
+        const response = await fetch('@Url.Action("Salva", "Filtri")', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -75,6 +90,8 @@
     });
 
 	function openModalWithContent_Preferiti(name, filters) {
+		// #1650: il checkbox "Preferito" esiste solo per UOLA/Admin; per i consiglieri
+		// non e' renderizzato (la prop su selezione vuota e' un no-op innocuo in jQuery).
 		$('#filter_favourite').prop("checked", false);
 		$('#filter_name').val(name);
 		$('#chips-container-config').empty();
@@ -101,9 +118,14 @@
 		var existingChip = document.querySelector(`.chip[data-nome-gruppo-filtri="${name}"]`);
 
 		if (existingChip) {
-			return;
+			// #1651 - salvataggio su un preferito gia' esistente: rimuovo la vecchia chip
+			// e la lascio ricreare piu' sotto con i filtri aggiornati. Prima si usciva
+			// subito e la chip restava ancorata ai filtri vecchi tramite la closure onclick,
+			// percio' in area gruppi i preferiti non si aggiornavano fino al reload.
+			existingChip.remove();
+			toggleChipsGroupsRow();
 		}
-				
+
 		var item = {};
 		item.name = name;
 		item.favourite = favourite;
@@ -257,8 +279,10 @@
 				}).then(async (value) => {
 					if (value == true) {
 						try {
-							let deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
-							deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
+							// ModuloEnum.DASI = 2: il nuovo FiltriController distingue il modulo
+							// tramite query string (nessun cambio di semantica rispetto a prima).
+							let deleteUrl = '@Url.Action("Elimina", "Filtri")';
+							deleteUrl = `${deleteUrl}?modulo=2&nome=${encodeURIComponent(item.name)}`;
 							const response = await fetch(deleteUrl, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 							if (!response.ok) throw new Error('Network response was not ok');
 

@@ -59,16 +59,84 @@ namespace PortaleRegione.API.Controllers
         /// <param name="stampeLogic"></param>
         /// <param name="utilsLogic"></param>
         /// <param name="adminLogic"></param>
+        private readonly DASIProtocollazioneService _protocollazioneService;
+
         public DASIController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic,
             StampeLogic stampeLogic,
-            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic,
+            DASIProtocollazioneService protocollazioneService, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic,
             notificheLogic,
-            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+            esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
+            _protocollazioneService = protocollazioneService;
+        }
+
+        /// <summary>
+        ///     Scrive manualmente il campo Protocollo dell'atto, riservato
+        ///     alla segreteria come rete di sicurezza per atti pre-EDMA o
+        ///     casi anomali. Disabilitato a default: si attiva impostando il
+        ///     feature flag EDMA_AbilitaEditManualeProtocollo a true nel
+        ///     file Edma.config.
+        /// </summary>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route(ApiRoutes.DASI.ProtocolloManuale)]
+        public async Task<IHttpActionResult> ProtocolloManuale(Guid id, [FromBody] string protocollo)
+        {
+            try
+            {
+                if (!AppSettingsConfiguration.EDMA_AbilitaEditManualeProtocollo)
+                    return BadRequest("Modifica manuale del protocollo non abilitata.");
+
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                    throw new UnauthorizedAccessException(
+                        $"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+
+                await _dasiLogic.SalvaProtocolloManuale(id, protocollo, currentUser);
+                return Ok(new { Protocollo = protocollo ?? string.Empty });
+            }
+            catch (Exception e)
+            {
+                Log.Error("ProtocolloManuale DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Avvia la protocollazione su EDMA dell'atto indicato. E' l'endpoint
+        ///     che la segreteria UOLA invoca dal click "Protocolla" sul dettaglio
+        ///     dell'atto. Internamente esegue l'intero flusso a cinque step e
+        ///     restituisce un esito sintetico con segnatura, numero pratica ed
+        ///     eventuali messaggi di errore.
+        /// </summary>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route(ApiRoutes.DASI.Protocolla)]
+        public async Task<IHttpActionResult> Protocolla(Guid id)
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                    throw new UnauthorizedAccessException(
+                        $"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+
+                var esito = await _protocollazioneService.ProtocollaAttoAsync(id, currentUser);
+                if (!esito.Success)
+                    return Content(System.Net.HttpStatusCode.BadGateway, esito);
+
+                return Ok(esito);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Protocolla DASI", e);
+                return ErrorHandler(e);
+            }
         }
 
         /// <summary>
@@ -98,6 +166,28 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     #1636 - Numero di atti per i quali e' richiesta la firma dell'utente corrente
+        ///     (atti ancora da firmare). Popola il contatore accanto alla spunta
+        ///     "Visualizza solo gli atti per i quali e' richiesta la mia firma".
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.ContatoreFirme)]
+        public async Task<IHttpActionResult> ContatoreFirme()
+        {
+            try
+            {
+                var currentUser = CurrentUser;
+                return Ok(await _dasiLogic.CountAttiDaFirmare(currentUser));
+            }
+            catch (Exception e)
+            {
+                Log.Error("ContatoreFirme", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere l'oggetto atto da modificare
         /// </summary>
         /// <param name="id">Identificativo atto</param>
@@ -115,7 +205,7 @@ namespace PortaleRegione.API.Controllers
 
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
-                if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea)
+                if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea_Vista)
                     return NotFound();
 
                 return Ok(await _dasiLogic.ModificaModello(atto, currentUser));
@@ -146,7 +236,7 @@ namespace PortaleRegione.API.Controllers
 
                 var nuovoAtto = await _dasiLogic.Salva(request, CurrentUser);
 
-                return Created(new Uri(Request.RequestUri.ToString()), Mapper.Map<ATTI_DASI, AttoDASIDto>(nuovoAtto));
+                return Created(new Uri(Request.RequestUri.ToString()), _mapper.Map<ATTI_DASI, AttoDASIDto>(nuovoAtto));
             }
             catch (Exception e)
             {
@@ -633,6 +723,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route(ApiRoutes.DASI.Save_Privacy)]
         public async Task<IHttpActionResult> Salva_PrivacyAtto(AttoDASIDto request)
@@ -715,6 +806,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.CambiaOrdineVisualizzazione(firme);
                 return Ok();
             }
@@ -737,6 +832,8 @@ namespace PortaleRegione.API.Controllers
             {
                 var currentUser = CurrentUser;
                 var atto = await _dasiLogic.GetAttoDto(id, currentUser);
+                // #1671 atto inesistente o eliminato
+                if (atto == null) return NotFound();
 
                 // #711 Controllo se l'utente che sta richiedendo (consigliere/assessore) ha una notifica pendente.
                 // In quel caso aggiorno il campo "Visto" nei destinatari della notifica
@@ -845,6 +942,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
@@ -884,6 +985,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
@@ -923,6 +1028,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var currentUser = CurrentUser;
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = currentUser.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
@@ -963,6 +1072,10 @@ namespace PortaleRegione.API.Controllers
             
             try
             {
+                if (currentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 // Tentativo di lock
                 var locked = await _dasiLogic.TryAcquireDepositoLock(currentUser.UID_persona);
                 if (!locked)
@@ -1108,6 +1221,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
 
@@ -1133,6 +1250,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
 
@@ -1211,6 +1332,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.RichiediIscrizione(model, CurrentUser);
                 return Ok();
             }
@@ -1254,6 +1379,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.RimuoviRichiesta(model, CurrentUser);
                 return Ok();
             }
@@ -1275,6 +1404,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.ProponiMozioneUrgente(model, CurrentUser);
                 return Ok();
             }
@@ -1296,6 +1429,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.ProponiMozioneAbbinata(model, CurrentUser);
                 return Ok();
             }
@@ -1525,29 +1662,6 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per inviare l'atto al protocollo
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [HttpGet]
-        [Route(ApiRoutes.DASI.InviaAlProtocollo)]
-        public async Task<IHttpActionResult> InviaAlProtocollo(Guid id)
-        {
-            try
-            {
-                await _dasiLogic.InviaAlProtocollo(id);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Invio al protocollo", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
         ///     Endpoint per declassare una lista di mozioni e farle tornare ORDINARIE
         /// </summary>
         /// <param name="data">Lista di mozioni urgenti da declassare</param>
@@ -1558,6 +1672,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 await _dasiLogic.DeclassaMozione(data, CurrentUser);
                 return Ok();
             }
@@ -1588,70 +1706,9 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        /// <summary>
-        ///     Endpoint per salvare un gruppo di filtri
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route(ApiRoutes.DASI.SalvaFiltriPreferiti)]
-        public async Task<IHttpActionResult> SalvaGruppoFiltri(FiltroPreferitoDto request)
-        {
-            try
-            {
-                await _dasiLogic.SalvaGruppoFiltri(request, CurrentUser);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Salva gruppo di filtri", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
-        ///     Endpoint per avere il proprio gruppo di filtri preferito
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route(ApiRoutes.DASI.GetFiltriPreferiti)]
-        public async Task<IHttpActionResult> GetGruppoFiltri()
-        {
-            try
-            {
-                var res = await _dasiLogic.GetGruppoFiltri(CurrentUser);
-
-                return Ok(res);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Get filtri preferiti", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
-        ///     Endpoint per eliminare un gruppo di filtri preferiti
-        /// </summary>
-        /// <returns></returns>
-        [HttpDelete]
-        [Route(ApiRoutes.DASI.EliminaFiltriPreferiti)]
-        public async Task<IHttpActionResult> EliminaGruppoFiltri(string nomeFiltro)
-        {
-            try
-            {
-                await _dasiLogic.EliminaGruppoFiltri(nomeFiltro, CurrentUser);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Elimina filtri preferiti", e);
-                return ErrorHandler(e);
-            }
-        }
+        // I 3 endpoint SalvaGruppoFiltri/GetGruppoFiltri/EliminaGruppoFiltri
+        // sono stati spostati nel nuovo FiltriController unificato (v2026.5.1).
+        // Il client DASI ora chiama direttamente /api/filtri/* con Modulo = DASI.
 
         /// <summary>
         ///     Endpoint per generare i report

@@ -581,429 +581,6 @@ namespace PortaleRegione.Common
                 }).ToList();
         }
 
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="numero_em"></param>
-        public static void AddFilter_ByNUM(ref BaseRequest<EmendamentiDto> model, string numero_em, string subem)
-        {
-            if (subem != "on")
-            {
-                // cerca emendamenti
-                if (!string.IsNullOrEmpty(numero_em))
-                {
-                    model.filtro.Add(new FilterStatement<EmendamentiDto>
-                    {
-                        PropertyId = nameof(EmendamentiDto.N_EM),
-                        Operation = Operation.EqualTo,
-                        Value = numero_em,
-                        Connector = FilterStatementConnector.And
-                    });
-                }
-            }
-            else
-            {
-                // cerca subemendamenti
-                if (!string.IsNullOrEmpty(numero_em))
-                {
-                    model.filtro.Add(new FilterStatement<EmendamentiDto>
-                    {
-                        PropertyId = nameof(EmendamentiDto.N_SUBEM),
-                        Operation = Operation.EqualTo,
-                        Value = numero_em,
-                        Connector = FilterStatementConnector.And
-                    });
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="numero_em"></param>
-        public static void AddFilter_ByAtto(ref BaseRequest<EmendamentiDto> model, string atto)
-        {
-            if (!string.IsNullOrEmpty(atto))
-                model.filtro.Add(new FilterStatement<EmendamentiDto>
-                {
-                    PropertyId = nameof(EmendamentiDto.UIDAtto),
-                    Operation = Operation.EqualTo,
-                    Value = atto,
-                    Connector = FilterStatementConnector.And
-                });
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="stringa1"></param>
-        /// <param name="stringa2"></param>
-        /// <param name="connettore"></param>
-        public static void AddFilter_ByText(ref BaseRequest<EmendamentiDto> model, string stringa1,
-            string stringa2 = "", int connettore = 0)
-        {
-            if (!string.IsNullOrEmpty(stringa1))
-            {
-                var filtro1 = new FilterStatement<EmendamentiDto>
-                {
-                    PropertyId = nameof(EmendamentiDto.TestoEM_originale),
-                    Operation = Operation.Contains,
-                    Value = stringa1
-                };
-                if (connettore > 0) filtro1.Connector = (FilterStatementConnector)connettore;
-
-                model.filtro.Add(filtro1);
-            }
-
-            if (!string.IsNullOrEmpty(stringa2))
-            {
-                var filtro2 = new FilterStatement<EmendamentiDto>
-                {
-                    PropertyId = nameof(EmendamentiDto.TestoEM_originale),
-                    Operation = Operation.Contains,
-                    Value = stringa2
-                };
-                if (connettore > 0) filtro2.Connector = (FilterStatementConnector)connettore;
-
-                model.filtro.Add(filtro2);
-            }
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="q_parte"></param>
-        /// <param name="q_parte_titolo"></param>
-        /// <param name="q_parte_capo"></param>
-        /// <param name="q_parte_articolo"></param>
-        /// <param name="q_parte_comma"></param>
-        /// <param name="q_parte_lettera"></param>
-        /// <param name="q_parte_letteraOLD"></param>
-        /// <param name="q_parte_missione"></param>
-        /// <param name="q_parte_programma"></param>
-        public static void AddFilter_ByPart(ref BaseRequest<EmendamentiDto> model, string q_parte,
-            string q_parte_titolo,
-            string q_parte_capo,
-            string q_parte_articolo, string q_parte_comma, string q_parte_lettera, string q_parte_letteraOLD,
-            string q_parte_missione, string q_parte_programma)
-        {
-            if (!string.IsNullOrEmpty(q_parte) && q_parte != "0")
-            {
-                model.filtro.Add(new FilterStatement<EmendamentiDto>
-                {
-                    PropertyId = nameof(EmendamentiDto.IDParte),
-                    Operation = Operation.EqualTo,
-                    Value = q_parte,
-                    Connector = FilterStatementConnector.And
-                });
-                var filtro_parte_enum = Convert.ToInt16(q_parte);
-                switch ((PartiEMEnum)filtro_parte_enum)
-                {
-                    case PartiEMEnum.Titolo_PDL:
-                        break;
-                    case PartiEMEnum.Titolo:
-                        if (!string.IsNullOrEmpty(q_parte_titolo))
-                            model.filtro.Add(new FilterStatement<EmendamentiDto>
-                            {
-                                PropertyId = nameof(EmendamentiDto.NTitolo),
-                                Operation = Operation.EqualTo,
-                                Value = q_parte_titolo,
-                                Connector = FilterStatementConnector.And
-                            });
-
-                        break;
-                    case PartiEMEnum.Capo:
-                        if (!string.IsNullOrEmpty(q_parte_capo))
-                            model.filtro.Add(new FilterStatement<EmendamentiDto>
-                            {
-                                PropertyId = nameof(EmendamentiDto.NCapo),
-                                Operation = Operation.EqualTo,
-                                Value = q_parte_capo,
-                                Connector = FilterStatementConnector.And
-                            });
-
-                        break;
-                    case PartiEMEnum.Articolo:
-                        if (!string.IsNullOrEmpty(q_parte_articolo) && q_parte_articolo != "0")
-                            model.filtro.Add(new FilterStatement<EmendamentiDto>
-                            {
-                                PropertyId = nameof(EmendamentiDto.UIDArticolo),
-                                Operation = Operation.EqualTo,
-                                Value = q_parte_articolo,
-                                Connector = FilterStatementConnector.And
-                            });
-
-                        if (!string.IsNullOrEmpty(q_parte_comma) && q_parte_comma != "0")
-                            model.filtro.Add(new FilterStatement<EmendamentiDto>
-                            {
-                                PropertyId = nameof(EmendamentiDto.UIDComma),
-                                Operation = Operation.EqualTo,
-                                Value = q_parte_comma,
-                                Connector = FilterStatementConnector.And
-                            });
-
-                        if (!string.IsNullOrEmpty(q_parte_lettera) && q_parte_lettera != "0")
-                            model.filtro.Add(new FilterStatement<EmendamentiDto>
-                            {
-                                PropertyId = nameof(EmendamentiDto.UIDLettera),
-                                Operation = Operation.EqualTo,
-                                Value = q_parte_lettera,
-                                Connector = FilterStatementConnector.And
-                            });
-
-                        if (!string.IsNullOrEmpty(q_parte_letteraOLD))
-                            model.filtro.Add(new FilterStatement<EmendamentiDto>
-                            {
-                                PropertyId = nameof(EmendamentiDto.NLettera),
-                                Operation = Operation.EqualTo,
-                                Value = q_parte_letteraOLD,
-                                Connector = FilterStatementConnector.And
-                            });
-
-                        break;
-                    case PartiEMEnum.Missione:
-                        if (!string.IsNullOrEmpty(q_parte_missione) && q_parte_missione != "0")
-                            model.filtro.Add(new FilterStatement<EmendamentiDto>
-                            {
-                                PropertyId = nameof(EmendamentiDto.NMissione),
-                                Operation = Operation.EqualTo,
-                                Value = q_parte_missione,
-                                Connector = FilterStatementConnector.And
-                            });
-
-                        if (!string.IsNullOrEmpty(q_parte_programma))
-                            model.filtro.Add(new FilterStatement<EmendamentiDto>
-                            {
-                                PropertyId = nameof(EmendamentiDto.NProgramma),
-                                Operation = Operation.EqualTo,
-                                Value = q_parte_programma,
-                                Connector = FilterStatementConnector.And
-                            });
-
-                        break;
-                    case PartiEMEnum.Allegato_Tabella:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="statoId"></param>
-        public static void AddFilter_ByState(ref BaseRequest<EmendamentiDto> model, string statoId)
-        {
-            if (!string.IsNullOrEmpty(statoId))
-            {
-                if (statoId.Equals(((int)StatiEnum.Approvato).ToString()))
-                {
-                    model.filtro.Add(new FilterStatement<EmendamentiDto>
-                    {
-                        PropertyId = nameof(EmendamentiDto.IDStato),
-                        Operation = Operation.EqualTo,
-                        Value = Convert.ToInt32(statoId),
-                        Connector = FilterStatementConnector.Or
-                    });
-                    model.filtro.Add(new FilterStatement<EmendamentiDto>
-                    {
-                        PropertyId = nameof(EmendamentiDto.IDStato),
-                        Operation = Operation.EqualTo,
-                        Value = (int)StatiEnum.Approvato_Con_Modifiche,
-                        Connector = FilterStatementConnector.And
-                    });
-                }
-                else
-                {
-                    model.filtro.Add(new FilterStatement<EmendamentiDto>
-                    {
-                        PropertyId = nameof(EmendamentiDto.IDStato),
-                        Operation = Operation.EqualTo,
-                        Value = statoId,
-                        Connector = FilterStatementConnector.And
-                    });
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="tipoId"></param>
-        public static void AddFilter_ByType(ref BaseRequest<EmendamentiDto> model, string tipoId)
-        {
-            if (!string.IsNullOrEmpty(tipoId) && tipoId != "0")
-                model.filtro.Add(new FilterStatement<EmendamentiDto>
-                {
-                    PropertyId = nameof(EmendamentiDto.IDTipo_EM),
-                    Operation = Operation.EqualTo,
-                    Value = tipoId,
-                    Connector = FilterStatementConnector.And
-                });
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="personaUID"></param>
-        /// <param name="solo_miei"></param>
-        public static void AddFilter_My(ref BaseRequest<EmendamentiDto> model, Guid personaUID, string solo_miei)
-        {
-            if (solo_miei != "on") return;
-
-            var filtro1 = new FilterStatement<EmendamentiDto>
-            {
-                PropertyId = nameof(EmendamentiDto.IDStato),
-                Operation = Operation.NotEqualTo,
-                Value = (int)StatiEnum.Bozza_Riservata,
-                Connector = FilterStatementConnector.Or
-            };
-            model.filtro.Add(filtro1);
-            var filtro2 = new FilterStatement<EmendamentiDto>
-            {
-                PropertyId = nameof(EmendamentiDto.IDStato),
-                Operation = Operation.EqualTo,
-                Value = (int)StatiEnum.Bozza_Riservata,
-                Connector = FilterStatementConnector.And
-            };
-            model.filtro.Add(filtro2);
-            var filtro3 = new FilterStatement<EmendamentiDto>
-            {
-                PropertyId = nameof(EmendamentiDto.UIDPersonaProponente),
-                Operation = Operation.EqualTo,
-                Value = personaUID,
-                Connector = FilterStatementConnector.Or
-            };
-            model.filtro.Add(filtro3);
-            var filtro4 = new FilterStatement<EmendamentiDto>
-            {
-                PropertyId = nameof(EmendamentiDto.UIDPersonaCreazione),
-                Operation = Operation.EqualTo,
-                Value = personaUID,
-                Connector = FilterStatementConnector.Or
-            };
-            model.filtro.Add(filtro4);
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="solo_effetti_finanziari"></param>
-        public static void AddFilter_Financials(ref BaseRequest<EmendamentiDto> model, string solo_effetti_finanziari)
-        {
-            if (solo_effetti_finanziari != "on") return;
-
-            var filtro1 = new FilterStatement<EmendamentiDto>
-            {
-                PropertyId = nameof(EmendamentiDto.EffettiFinanziari),
-                Operation = Operation.EqualTo,
-                Value = 1,
-                Connector = FilterStatementConnector.And
-            };
-            model.filtro.Add(filtro1);
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="gruppi"></param>
-        public static void AddFilter_Groups(ref BaseRequest<EmendamentiDto> model, string gruppi)
-        {
-            if (string.IsNullOrEmpty(gruppi)) return;
-
-            var gruppi_split = gruppi.Split(',');
-            if (gruppi_split.Length <= 0) return;
-
-            foreach (var groupId in gruppi_split)
-            {
-                var filtro = new FilterStatement<EmendamentiDto>
-                {
-                    PropertyId = nameof(EmendamentiDto.id_gruppo),
-                    Operation = Operation.EqualTo,
-                    Value = groupId,
-                    Connector = FilterStatementConnector.Or
-                };
-                model.filtro.Add(filtro);
-            }
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="proponenti"></param>
-        public static void AddFilter_Proponents(ref BaseRequest<EmendamentiDto> model, string proponenti)
-        {
-            if (string.IsNullOrEmpty(proponenti)) return;
-
-            var prop_split = proponenti.Split(',');
-            if (prop_split.Length <= 0) return;
-
-            foreach (var personaUId in prop_split)
-            {
-                var filtro = new FilterStatement<EmendamentiDto>
-                {
-                    PropertyId = nameof(EmendamentiDto.UIDPersonaProponente),
-                    Operation = Operation.EqualTo,
-                    Value = personaUId,
-                    Connector = FilterStatementConnector.Or
-                };
-                model.filtro.Add(filtro);
-            }
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="firmatari"></param>
-        public static void AddFilter_Signers(ref BaseRequest<EmendamentiDto> model, string firmatari)
-        {
-            if (string.IsNullOrEmpty(firmatari)) return;
-
-            var firma_split = firmatari.Split(',');
-            if (firma_split.Length <= 0) return;
-
-            foreach (var personaUId in firma_split)
-            {
-                var filtro = new FilterStatement<EmendamentiDto>
-                {
-                    PropertyId = "Firmatario",
-                    Operation = Operation.EqualTo,
-                    Value = personaUId
-                };
-                model.filtro.Add(filtro);
-            }
-        }
-
-        /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="tags"></param>
-        public static void AddFilter_Tags(ref BaseRequest<EmendamentiDto> model, string tags)
-        {
-            if (string.IsNullOrEmpty(tags)) return;
-
-            var filtro = new FilterStatement<EmendamentiDto>
-            {
-                PropertyId = "Tags",
-                Operation = Operation.EqualTo,
-                Value = tags
-            };
-            model.filtro.Add(filtro);
-        }
-
         public static string StripHTML(string input)
         {
             return Regex.Replace(input, "<.*?>", string.Empty).Replace("&nbsp;", " ");
@@ -1298,9 +875,14 @@ namespace PortaleRegione.Common
                 {
                     if (filterItem.property.Equals(nameof(AttoDASIDto.DCR)))
                     {
+                        // #1637: "Non vuoti" su DCR/DCCR deve restituire solo gli atti con un
+                        // numero effettivamente assegnato. Non si puo' usare DCRL (legislatura),
+                        // che e' quasi sempre valorizzato di default: il marcatore viaggia sul
+                        // campo DCR e la condizione vera (DCR > 0 OR DCCR > 0) viene applicata
+                        // nel repository (vedi DASIRepository.ApplyFilters).
                         result.Add(new FilterStatement<AttoDASIDto>
                         {
-                            PropertyId = nameof(AttoDASIDto.DCRL),
+                            PropertyId = nameof(AttoDASIDto.DCR),
                             Operation = Operation.IsNotEmpty,
                             Connector = FilterStatementConnector.And
                         });
@@ -1525,6 +1107,164 @@ namespace PortaleRegione.Common
             {
                 throw new Exception($"Data in errore: {dateTime}", e);
             }
+        }
+
+        /// <summary>
+        ///     Traduce le chip del pannello filtri Emendamenti in <see cref="FilterStatement{EmendamentiDto}" />.
+        ///     Per il testo libero la chip serializza fino a due frammenti separati da '|' col connettore
+        ///     intermedio (es. "ciao|And|mondo"); la chip Parte e' composta, vedi <c>AggiungiStatementParteComposta</c>.
+        /// </summary>
+        public static List<FilterStatement<EmendamentiDto>> ParseFilterEM(List<FilterItem> clientFilters)
+        {
+            var result = new List<FilterStatement<EmendamentiDto>>();
+            if (clientFilters == null) return result;
+
+            foreach (var filterItem in clientFilters)
+            {
+                if (string.IsNullOrEmpty(filterItem.property)) continue;
+
+                if (filterItem.property == nameof(EmendamentiDto.TestoEM_originale))
+                {
+                    AggiungiStatementTestoLibero(result, filterItem.value);
+                    continue;
+                }
+
+                if (filterItem.property == nameof(EmendamentiDto.IDParte))
+                {
+                    // La chip Parte viene serializzata dal pannello filtri come valore composto
+                    // "<idParte>|art:<uid>|com:<uid>|let:<uid>|tit:<n>|capo:<n>|mis:<n>|prog:<n>|titm:<n>".
+                    // Lo spacchettiamo in piu' FilterStatement separati (uno per IDParte e uno
+                    // per ciascun campo di cascata) cosi' il backend puo' applicarli singolarmente.
+                    AggiungiStatementParteComposta(result, filterItem.value);
+                    continue;
+                }
+
+                if (filterItem.not_empty)
+                {
+                    result.Add(new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = filterItem.property,
+                        Operation = Operation.IsNotNullNorWhiteSpace,
+                        Connector = FilterStatementConnector.And
+                    });
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(filterItem.value))
+                {
+                    result.Add(new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = filterItem.property,
+                        Operation = Operation.IsNullOrWhiteSpace,
+                        Connector = FilterStatementConnector.And
+                    });
+                    continue;
+                }
+
+                result.Add(new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = filterItem.property,
+                    Operation = Operation.EqualTo,
+                    Value = filterItem.value,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            return result;
+        }
+
+        private static void AggiungiStatementParteComposta(List<FilterStatement<EmendamentiDto>> result, string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return;
+
+            var segmenti = raw.Split('|');
+            // Il primo segmento e' l'IDParte (intero), gli altri sono "<prefisso>:<valore>".
+            var parteValue = segmenti[0]?.Trim();
+            if (!string.IsNullOrEmpty(parteValue))
+            {
+                result.Add(new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = nameof(EmendamentiDto.IDParte),
+                    Operation = Operation.EqualTo,
+                    Value = parteValue,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            for (var i = 1; i < segmenti.Length; i++)
+            {
+                var seg = segmenti[i];
+                if (string.IsNullOrEmpty(seg)) continue;
+                var sep = seg.IndexOf(':');
+                if (sep <= 0) continue;
+                var prefisso = seg.Substring(0, sep).Trim().ToLowerInvariant();
+                var valore = seg.Substring(sep + 1).Trim();
+                if (string.IsNullOrEmpty(valore)) continue;
+
+                string propertyId;
+                switch (prefisso)
+                {
+                    case "art": propertyId = nameof(EmendamentiDto.UIDArticolo); break;
+                    case "com": propertyId = nameof(EmendamentiDto.UIDComma); break;
+                    case "let": propertyId = nameof(EmendamentiDto.UIDLettera); break;
+                    case "tit": propertyId = nameof(EmendamentiDto.NTitolo); break;
+                    case "capo": propertyId = nameof(EmendamentiDto.NCapo); break;
+                    case "mis": propertyId = nameof(EmendamentiDto.NMissione); break;
+                    case "prog": propertyId = nameof(EmendamentiDto.NProgramma); break;
+                    // #1640 - TitoloM (NTitoloB) aggiunto come filtro della Parte=Missione.
+                    // Prefisso "titm" distinto da "tit" (NTitolo, usato dalla Parte=Titolo).
+                    case "titm": propertyId = nameof(EmendamentiDto.NTitoloB); break;
+                    default: continue;
+                }
+
+                result.Add(new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = propertyId,
+                    Operation = Operation.EqualTo,
+                    Value = valore,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+        }
+
+        private static void AggiungiStatementTestoLibero(List<FilterStatement<EmendamentiDto>> result, string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return;
+
+            var parts = raw.Split('|');
+            // #1643 - Niente TRIM sul testo cercato: gli spazi a inizio/fine sono
+            // significativi (servono a delimitare il valore ed evitare il match parziale
+            // dei numeri). Si usa IsNullOrWhiteSpace solo come guardia di non-vuoto.
+            var primo = parts[0];
+            if (!string.IsNullOrWhiteSpace(primo))
+            {
+                result.Add(new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = nameof(EmendamentiDto.TestoEM_originale),
+                    Operation = Operation.Contains,
+                    Value = primo,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (parts.Length < 3) return;
+            // #1643 - Anche il secondo testo non viene trimmato (vedi sopra).
+            var secondo = parts[2];
+            if (string.IsNullOrWhiteSpace(secondo)) return;
+
+            var connettoreRaw = parts[1]?.Trim();
+            var connettore = FilterStatementConnector.And;
+            if (string.Equals(connettoreRaw, "Or", StringComparison.OrdinalIgnoreCase)
+                || connettoreRaw == ((int)FilterStatementConnector.Or).ToString())
+                connettore = FilterStatementConnector.Or;
+
+            result.Add(new FilterStatement<EmendamentiDto>
+            {
+                PropertyId = nameof(EmendamentiDto.TestoEM_originale),
+                Operation = Operation.Contains,
+                Value = secondo,
+                Connector = connettore
+            });
         }
     }
 }

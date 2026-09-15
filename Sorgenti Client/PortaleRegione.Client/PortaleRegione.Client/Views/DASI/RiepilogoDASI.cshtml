@@ -6,38 +6,11 @@
 
 @{
     ViewBag.Title = "DASI";
-    var classTabBozza = "";
-    var classTabPresentati = "";
-    var classTabTrattazione = "";
-    var classTabChiusi = "";
-    switch (Model.Stato)
-    {
-        case StatiAttoEnum.BOZZA:
-            classTabBozza = "active";
-            break;
-        case StatiAttoEnum.PRESENTATO:
-            classTabPresentati = "active";
-            break;
-        case StatiAttoEnum.IN_TRATTAZIONE:
-            classTabTrattazione = "active";
-            break;
-        case StatiAttoEnum.COMPLETATO:
-            classTabChiusi = "active";
-            break;
-    }
     var url = Url.Action("Index", "Home");
-    var data_seduta = "";
-    if (Model.ClientMode == ClientModeEnum.TRATTAZIONE && Model.Data.Paging.Entities > 0)
+    if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
     {
-        var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
-        url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
-
-        data_seduta = Model.Data.Results.First().Seduta.Data_seduta.ToString("dd/MM/yyyy");
+        url = Url.Action("Index", "AttiTrattazione");
     }
-
-    var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
-    var textTitoloRicerca = filtri_attivi ? " - Ricerca" : string.Empty;
-
 }
 
 <div id="waiting" class="modal" style="height: 120px">
@@ -70,14 +43,17 @@
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
                     <h4>
-                        <b>Riepilogo Atti Sindacato Ispettivo @textTitoloRicerca</b>
+                        <b>Riepilogo Atti Sindacato Ispettivo</b>
                     </h4>
                 }
                 else
                 {
                     var tipo = Convert.ToInt16(Model.Tipo);
                     <h4>
-                        <b>@Utility.GetText_Tipo(tipo) iscritte alla seduta del @data_seduta @textTitoloRicerca</b>
+                        <div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
+                            @PortaleRegione.Common.Utility.GetText_Tipo(tipo)
+                        </div>
+                        <b> - Riepilogo atti di indirizzo e di sindacato ispettivo</b>
                     </h4>
                 }
             </div>
@@ -88,71 +64,152 @@
 
 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
 {
-    <div class="row center">
-        @{
-            Html.RenderPartial("_CounterBar_RiepilogoDASI", Model);
-        }
+    var statoLabel = Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato));
+    var bozzaText = Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA);
+    var presentatoText = Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO);
+    var trattazioneText = Utility.GetText_StatoDASI((int)StatiAttoEnum.IN_TRATTAZIONE);
+    var completatoText = Utility.GetText_StatoDASI((int)StatiAttoEnum.COMPLETATO);
+    @* #1632: pannello "Scorciatoie di filtro" reso a scomparsa (chiuso di default).
+       Usa il collapsible Materialize: l'inizializzazione avviene dall'M.Collapsible.init
+       globale a fondo pagina; il chevron viene ruotato via CSS sfruttando la classe
+       .active che Materialize applica al <li> aperto, senza JS dedicato. *@
+    <style>
+        .filtri-rapidi-collapsible { margin-top: 0; }
+        .filtri-rapidi-collapsible .collapsible-header { padding: 12px 16px; }
+        .filtri-rapidi-collapsible .collapsible-header i { width: auto; margin: 0; }
+        .filtri-rapidi-collapsible .collapsible-header .toggle-icon { margin-left: auto; transition: transform .2s ease; }
+        .filtri-rapidi-collapsible li.active .collapsible-header .toggle-icon { transform: rotate(180deg); }
+        .filtri-rapidi-collapsible .collapsible-body { padding: 12px 16px; }
+    </style>
+    <ul class="collapsible filtri-rapidi-collapsible">
+        <li>
+            <div class="collapsible-header">
+                <span class="grey-text text-darken-2">
+                    <i class="material-icons tiny" style="vertical-align: middle;">flash_on</i>
+                    <b>Scorciatoie di filtro</b>
+                </span>
+                <span class="grey-text text-lighten-1" style="margin-left: 8px; font-size: 0.85rem;">
+                    clicca una voce per aggiungerla ai filtri attivi
+                </span>
+                <i class="material-icons toggle-icon grey-text">expand_more</i>
+            </div>
+            <div class="collapsible-body">
+                <div class="row valign-wrapper" style="margin-bottom: 0;">
+                    <div class="col s12 l2">
+                        <span class="grey-text text-darken-1" style="font-size: 0.8rem;">Tipo atto</span>
+                    </div>
+                    <div class="col s12 l10">
+                        <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="filtraByTipo(@((int)TipoAttoEnum.TUTTI))">Tutti</button>
+                        <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.ITL)" onclick="filtraByTipo(@((int)TipoAttoEnum.ITL))">ITL</button>
+                        <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.ITR)" onclick="filtraByTipo(@((int)TipoAttoEnum.ITR))">ITR</button>
+                        <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.IQT)" onclick="filtraByTipo(@((int)TipoAttoEnum.IQT))">IQT</button>
+                        <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="filtraByTipo(@((int)TipoAttoEnum.MOZ))">MOZ</button>
+                        <button type="button" class="chip chip-centered hoverable waves-effect @Html.Raw(TipoAttoCSSConst.ODG)" onclick="filtraByTipo(@((int)TipoAttoEnum.ODG))">ODG</button>
+                    </div>
+                </div>
+
+                <div class="divider" style="margin: 10px 0;"></div>
+
+                <div class="row valign-wrapper" style="margin-bottom: 0;">
+                    <div class="col s12 l2">
+                        <span class="grey-text text-darken-1" style="font-size: 0.8rem;">Stato</span>
+                    </div>
+                    <div class="col s12 l10">
+                        <button type="button" class="chip chip-centered hoverable waves-effect"
+                                onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.BOZZA)', '@bozzaText', '@statoLabel: @bozzaText', true, true);">@bozzaText</button>
+                        <button type="button" class="chip chip-centered hoverable waves-effect"
+                                onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.PRESENTATO)', '@presentatoText', '@statoLabel: @presentatoText', true, true);">@presentatoText</button>
+                        <button type="button" class="chip chip-centered hoverable waves-effect"
+                                onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.IN_TRATTAZIONE)', '@trattazioneText', '@statoLabel: @trattazioneText', true, true);">@trattazioneText</button>
+                        <button type="button" class="chip chip-centered hoverable waves-effect"
+                                onclick="addChipIfNotExists('@nameof(AttoDASIDto.IDStato)', '@statoLabel', '@((int)StatiAttoEnum.COMPLETATO)', '@completatoText', '@statoLabel: @completatoText', true, true);">@completatoText</button>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+}
+
+@{
+    Html.RenderPartial("Filtri/_FiltriRapidiDASIPanelConsiglieri", Model);
+}
+
+@if (Model.ClientMode == ClientModeEnum.GRUPPI)
+{
+    @* Issue #1646: spunta "richiesta la mia firma" spostata qui, sopra la griglia (come in PEM),
+       fuori dal cluster dei filtri (prima era tra le scorciatoie e il pannello di ricerca).
+       Resta sempre visibile e NON dentro #comandiGriglia: quella barra e' nascosta finche' non
+       ci sono risultati, mentre #1633 usa questa spunta anche come ricerca autonoma (vedi gate in
+       _FiltriRapidiDASIPanelConsiglieri) e l'utente deve poterla togliere anche a 0 risultati.
+       Unica leva al posto del vecchio parametro "Atti da firmare": da sola mostra gli atti
+       propri/da invito non ancora firmati; con altre chip raffina in AND. E' un toggle di vista:
+       non viene salvata nei filtri/preferiti/report. *@
+    <div class="row" style="margin-bottom: 0;">
+        <div class="col s12">
+            <label>
+                <input type="checkbox" id="chkRichiestaFirmaDASI" onchange="filtraDASI_RichiestaFirma(this.checked)"/>
+                @* #1636 - contatore degli atti ancora da firmare, dentro la label. Nascosto a 0. *@
+                <span for="chkRichiestaFirmaDASI">Visualizza solo gli atti per i quali &#232; richiesta la mia firma<span id="contatoreFirmeDASI" class="new badge" style="display:none;" data-badge-caption=""></span></span>
+            </label>
+        </div>
     </div>
 }
 
+<div id="loadingSpinner" class="progress">
+    <div class="indeterminate"></div>
+</div>
+
 <div id="contentTable" class="row">
-    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
-    {
-        if (string.IsNullOrEmpty(classTabPresentati)
-            && string.IsNullOrEmpty(classTabBozza)
-            && string.IsNullOrEmpty(classTabTrattazione)
-            && string.IsNullOrEmpty(classTabChiusi))
-        {
-        }
-        else
-        {
-            <div class="col s12">
-                <ul class="tabs">
-                    <li class="tab col l3 s12">
-                        <a class="@classTabBozza" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.BOZZA));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
-                            Bozza (@Model.CountBarData.BOZZE)
-                        </a>
-                    </li>
-                    <li class="tab col l3 s12">
-                        <a class="@classTabPresentati" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.PRESENTATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
-                            Depositati (@Model.CountBarData.PRESENTATI)
-                        </a>
-                    </li>
-                    <li class="tab col l3 s12">
-                        <a class="@classTabTrattazione" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.IN_TRATTAZIONE));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
-                            In Trattazione (@Model.CountBarData.IN_TRATTAZIONE)
-                        </a>
-                    </li>
-                    <li class="tab col l3 s12">
-                        <a class="@classTabChiusi" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.COMPLETATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
-                            Chiusi (@Model.CountBarData.CHIUSO)
-                        </a>
-                    </li>
-                </ul>
+    <div id="paginazione-container-top"></div>
+    <div id="comandiGriglia" class="col s12" style="display:none;">
+        <div class="row valign-wrapper">
+            <div class="col l6 s6">
+                <label>
+                    <input type="checkbox" id="checkAll" onclick="checkAllFunc(this)"/>
+                    <span for="checkAll">Seleziona tutto</span>
+                </label>
+                <br/>
+                <label>
+                    <input type="checkbox" id="expandAll"/>
+                    <span for="expandAll">Espandi tutti</span>
+                </label>
             </div>
-        }
-    }
-
-    <div class="col s12">
-        @{
-            if (Model.ViewMode == ViewModeEnum.GRID)
-            {
-                Html.RenderPartial("_GridView_RiepilogoDASI", Model);
-            }
-            else
-            {
-                Html.RenderPartial("_ZoomView_RiepilogoDASI", Model);
-            }
-        }
+            <div class="col l6 s6 right-align">
+                <button type="button" role="button" id="btnExportXLSConsiglieri" class="btn-floating white green-text tooltipped" data-tooltip="Estrazione rapida in excel" data-href="@Url.Action("EsportaXLSConsiglieriRapido", "DASI")">
+                    <i class="material-icons">grid_on</i>
+                </button>
+                <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="bottom">
+                    <i class="icon material-icons">print</i>
+                </button>
+                <button type="button" role="button" class="btn-floating white black-text tooltipped" onclick="gotoPreviewModeAdmin()" data-tooltip="Cambia visualizzazione" data-position="bottom">
+                    <i class="icon material-icons">desktop_windows</i>
+                </button>
+            </div>
+        </div>
     </div>
-
+    <div id="tableResults" class="col s12">
+        <div class="card-panel blue lighten-5 center">
+            <span class="center">
+                <p>Esegui una ricerca per poter visualizzare gli atti</p>
+                @* #1669 - pulsante di avvio ricerca: mostra tutti gli atti del gruppo/legislatura senza
+                   costringere il consigliere ad aggiungere un filtro. Solo area GRUPPI (dove c'e' il
+                   gate #1647); in TRATTAZIONE la griglia si popola con la sua logica. *@
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                {
+                    <button type="button" class="btn waves-effect waves-light blue" style="margin-top: 10px;" onclick="avviaRicercaCompletaDASI()">
+                        <i class="material-icons left">search</i>Avvia ricerca
+                    </button>
+                }
+            </span>
+        </div>
+    </div>
 </div>
 
 @{
     Html.RenderPartial("_ProponiMozioneUrgenteModal");
     Html.RenderPartial("_ProponiMozioneAbbinataModal");
     Html.RenderPartial("_RichiestaIscrizioneASedutaModal", true);
-    Html.RenderPartial("_PannelloRicercheConsiglieri");
+    Html.RenderPartial("_PannelloRicercheConsiglieri_New", Model);
     Html.RenderPartial("_ComandiDASI");
     Html.RenderPartial("_GeasiViewPartial");
     Html.RenderPartial("_ScriptRiepilogoDASI");
@@ -162,6 +219,39 @@
 
 
 <script>
+    // Init collapsible Filtri rapidi
+    document.addEventListener('DOMContentLoaded', function() {
+        var collapsibleElems = document.querySelectorAll('.collapsible');
+        M.Collapsible.init(collapsibleElems);
+    });
+
+    // Override filtraByTipo per usare le chip invece del form POST
+    function filtraByTipo(tipo) {
+        if (tipo == @((int)TipoAttoEnum.TUTTI)) {
+            // #1669 - "Tutti" = mostra tutti gli atti senza filtro tipo: rimuove l'eventuale chip tipo
+            // e avvia comunque la ricerca. Prima, senza una chip tipo gia' presente, non partiva nulla.
+            var existingChip = document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.Tipo)"]');
+            if (existingChip) {
+                delete chipsKeys['@nameof(AttoDASIDto.Tipo)'];
+                existingChip.remove();
+                salvaFiltri();
+            }
+            window.ricercaConfermataDASI = true;
+            inviaDatiChips(1, 20);
+            return;
+        }
+        var tipoText = '';
+        switch (tipo) {
+            case @((int)TipoAttoEnum.ITL): tipoText = 'ITL'; break;
+            case @((int)TipoAttoEnum.ITR): tipoText = 'ITR'; break;
+            case @((int)TipoAttoEnum.IQT): tipoText = 'IQT'; break;
+            case @((int)TipoAttoEnum.MOZ): tipoText = 'MOZ'; break;
+            case @((int)TipoAttoEnum.ODG): tipoText = 'ODG'; break;
+            case @((int)TipoAttoEnum.RIS): tipoText = 'RIS'; break;
+        }
+        addChipIfNotExists('@nameof(AttoDASIDto.Tipo)', 'Tipo atto', tipo.toString(), tipoText, 'Tipo atto: ' + tipoText, true, true);
+    }
+
 	window.addEventListener("message", (event) => {
 		// Controlla l'origine del messaggio per motivi di sicurezza
 		if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") {
@@ -234,7 +324,7 @@
 			}).fail(function (err) {
 				waiting(false);
 				console.log("error", err);
-				Error(err);
+				MostraErrore(err);
 			});
 		});
 }
@@ -273,7 +363,7 @@ function ConfirmActionDASI(id, name, action) {
 				}
 			}).fail(function (err) {
 				console.log("error", err);
-				Error(err);
+				MostraErrore(err);
 			});
 		});
 	$("#modalActionDASI").modal("open");

@@ -49,6 +49,17 @@
                 </p>
             </div>
         </div>
+        @* #1623: estrazione massiva in Word con un file per atto (ZIP), disponibile solo per il formato WORD *@
+        <div class="row" id="file-separati-panel" style="display: none;">
+            <div class="col s12">
+                <p>
+                    <label>
+                        <input type="checkbox" id="chk-file-separati"/>
+                        <span>Genera un file separato per ogni atto (ZIP)</span>
+                    </label>
+                </p>
+            </div>
+        </div>
         <div class="row" id="extraOptions-panel" style="display: none;">
             <div class="input-field col s6">
                 <select name="coverType">
@@ -99,6 +110,15 @@
 				extraOptions.style.display = 'none';
 			}
 
+		// #1623: il flag "un file per atto (ZIP)" ha senso solo per il formato WORD
+		var fileSeparatiPanel = document.getElementById('file-separati-panel');
+		if (exportFormat == '@Html.Raw((int)ExportFormatEnum.WORD)') {
+			fileSeparatiPanel.style.display = 'block';
+		} else {
+			fileSeparatiPanel.style.display = 'none';
+			document.getElementById('chk-file-separati').checked = false;
+		}
+
 		var columnsOptions = document.getElementById('columns-select-panel');
 		if (exportFormat == '@Html.Raw((int)ExportFormatEnum.EXCEL_SITUAZIONE)'
 			|| exportFormat == '@Html.Raw((int)ExportFormatEnum.EXCEL_COMMISSIONI)' ) {
@@ -147,6 +167,8 @@
 		request.dataviewtype_template = document.querySelector('select[name="dataViewType_Templates"]').value;
 		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
 		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
+		// #1688: il flag va salvato tra i parametri, non solo passato alla generazione
+		request.file_separati = document.getElementById('chk-file-separati').checked;
 
 		request.sorting = localStorage.getItem('selectedSortColumns');
 
@@ -207,6 +229,8 @@
 		request.dataviewtype_template = document.querySelector('select[name="dataViewType_Templates"]').value;
 		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
 		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
+		// #1623: se attivo (solo WORD) il report genera un file per atto raccolto in uno ZIP
+		request.file_separati = document.getElementById('chk-file-separati').checked;
 
         var url = '@Url.Action("GeneraReport", "DASI")';
 
@@ -294,6 +318,8 @@
 		document.getElementById('columns-select-panel').style.display = 'block';
 		document.getElementById('extraOptions-panel').style.display = 'none';
 		document.getElementById('panelDataViewType_Templates').style.display = 'none';
+		document.getElementById('file-separati-panel').style.display = 'none';
+		document.getElementById('chk-file-separati').checked = false;
 
 		var cardTemplates = await GetCardTemplates();
 		var cardTemplatesTypeSelect = $('select[name="dataViewType_Templates"]');
@@ -354,6 +380,12 @@
 
 			if (selectedReport.exportformat != '@Html.Raw((int)ExportFormatEnum.EXCEL)'){
 				document.getElementById('extraOptions-panel').style.display = 'block';
+			}
+			// #1688: impostando il formato via val() l'onchange non scatta, quindi il
+			// pannello del flag "un file per atto (ZIP)" va riaperto a mano
+			if (selectedReport.exportformat == '@Html.Raw((int)ExportFormatEnum.WORD)'){
+				document.getElementById('file-separati-panel').style.display = 'block';
+				document.getElementById('chk-file-separati').checked = !!selectedReport.file_separati;
 			}
 			if (selectedReport.dataviewtype == '@Html.Raw((int)DataViewTypeEnum.TEMPLATE)'){
 				document.getElementById('panelDataViewType_Templates').style.display = 'block';
@@ -542,7 +574,7 @@
 				resolve(result);
 			}).fail(function (err) {
 				console.log("error", err);
-				Error(err);
+				MostraErrore(err);
 			});
 		});
 	}
@@ -556,7 +588,7 @@
 				resolve(result);
 			}).fail(function (err) {
 				console.log("error", err);
-				Error(err);
+				MostraErrore(err);
 			});
 		});
 	}

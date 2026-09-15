@@ -9,7 +9,8 @@ CREATE TABLE [dbo].[REPORTS](
 	[TipoVisualizzazione_Card_Template] [varchar](50) NULL,
 	[FormatoEsportazione] [int] NOT NULL,
 	[Colonne] [varchar](max) NOT NULL,
-	[DettagliOrdinamento] [varchar](max) NULL
+	[DettagliOrdinamento] [varchar](max) NULL,
+	[FileSeparati] [bit] NOT NULL CONSTRAINT [DF_REPORTS_FileSeparati] DEFAULT ((0))
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 

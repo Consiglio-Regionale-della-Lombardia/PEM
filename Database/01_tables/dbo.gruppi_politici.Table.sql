@@ -24,6 +24,3 @@ CREATE TABLE [dbo].[gruppi_politici](
 ) ON [PRIMARY]
 GO
 
-ALTER TABLE [dbo].[gruppi_politici] ADD  CONSTRAINT [DF_gruppi_politici_TipoArea]  DEFAULT ((0)) FOR [TipoArea]
-GO
-

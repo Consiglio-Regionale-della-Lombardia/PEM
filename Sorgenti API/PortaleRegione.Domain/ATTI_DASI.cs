@@ -165,6 +165,19 @@ namespace PortaleRegione.Domain
         public bool StampaValida { get; set; } = false;
         public bool NascondiGruppo { get; set; } = false;
 
+        // Integrazione EDMA: tracciamento dei riferimenti restituiti dai servizi
+        // e stato del flusso di protocollazione. Vedi script
+        // Database/06_updates/2026-05-27_001_ATTI_DASI_EDMA_columns.sql.
+        public string EDMA_IdPratica { get; set; }
+        public string EDMA_NumeroPratica { get; set; }
+        public string EDMA_IdDocumento { get; set; }
+        public string EDMA_IdAllegatoGenerico { get; set; }
+        public string EDMA_IdProtocollo { get; set; }
+        public string EDMA_Segnatura { get; set; }
+        public int EDMA_TentativiInvio { get; set; } = 0;
+        public string EDMA_UltimoErrore { get; set; }
+        public DateTime? EDMA_DataUltimoTentativo { get; set; }
+
         public string GetLegislatura()
         {
             if (!string.IsNullOrEmpty(Etichetta))

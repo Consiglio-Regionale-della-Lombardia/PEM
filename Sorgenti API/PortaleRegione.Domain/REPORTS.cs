@@ -43,5 +43,9 @@ namespace PortaleRegione.Domain
         public Guid UId_persona { get; set; }
         public string TipoVisualizzazione_Card_Template { get; set; }
         public string DettagliOrdinamento { get; set; }
+
+        // #1688: flag "un file per atto (ZIP)" della #1623, valido solo per il formato WORD.
+        // La colonna sul DB e' bit NOT NULL DEFAULT 0 (vedi 2026-09-10_001_REPORTS_FileSeparati.sql).
+        public bool FileSeparati { get; set; }
     }
 }

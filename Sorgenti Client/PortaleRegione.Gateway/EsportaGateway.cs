@@ -97,5 +97,20 @@ namespace PortaleRegione.Gateway
             var lst = await GetFile(requestUrl, body, _token);
             return lst;
         }
+
+        // #1626 - Export della ricerca trasversale EM/SUBEM (Area Aula), cross-atto.
+        public async Task<FileResponse> EsportaXLSGlobale(EmendamentiViewModel model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaExcelGlobale}";
+            var body = JsonConvert.SerializeObject(model);
+            return await GetFile(requestUrl, body, _token);
+        }
+
+        public async Task<FileResponse> EsportaWORDGlobale(EmendamentiViewModel model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaWordGlobale}";
+            var body = JsonConvert.SerializeObject(model);
+            return await GetFile(requestUrl, body, _token);
+        }
     }
 }

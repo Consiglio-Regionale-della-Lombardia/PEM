@@ -1,4 +1,22 @@
-﻿using AutoMapper;
+﻿/*
+ * Copyright (C) 2019 Consiglio Regionale della Lombardia
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using PortaleRegione.BAL.proxyAd;
 using PortaleRegione.Contracts;
@@ -21,9 +39,10 @@ namespace PortaleRegione.BAL
 {
     public class AuthLogic : BaseLogic
     {
-        public AuthLogic(IUnitOfWork unitOfWork)
+        public AuthLogic(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<LoginResponse> Login(LoginRequest loginModel)
@@ -100,7 +119,7 @@ namespace PortaleRegione.BAL
                 }
 #endif
                 var personaInDb = await _unitOfWork.Persone.Get(@"CONSIGLIO\" + loginModel.Username);
-                var persona = Mapper.Map<View_UTENTI, PersonaDto>(personaInDb);
+                var persona = _mapper.Map<View_UTENTI, PersonaDto>(personaInDb);
 
                 if (persona == null)
                 {
@@ -167,7 +186,7 @@ namespace PortaleRegione.BAL
                     throw new Exception("Ruolo non trovato");
                 }
 
-                var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
+                var persona = _mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
                 var intranetAdService = new proxyAD();
                 var Gruppi_Utente = new List<string>(intranetAdService.GetGroups(
                     persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_",
@@ -186,7 +205,7 @@ namespace PortaleRegione.BAL
                 persona.CurrentRole = ruolo;
                 persona.Gruppo = await _unitOfWork.Gruppi.GetGruppoPersona(lRuoli, persona.IsGiunta);
                 persona.Carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
-                persona.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
+                persona.Ruoli = ruoli_utente.Select(_mapper.Map<RUOLI, RuoliDto>);
 
                 var token = GetToken(persona);
 
@@ -207,8 +226,8 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var gruppiDto = Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(await _unitOfWork.Gruppi.Get(gruppo));
-                var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
+                var gruppiDto = _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(await _unitOfWork.Gruppi.Get(gruppo));
+                var persona = _mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
                 var intranetAdService = new proxyAD();
                 var Gruppi_Utente = new List<string>(intranetAdService.GetGroups(
                     persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_",
@@ -221,7 +240,7 @@ namespace PortaleRegione.BAL
                 persona.Gruppo = gruppiDto ?? throw new Exception("ListaGruppo non trovato");
                 persona.CurrentRole = RuoliIntEnum.Responsabile_Segreteria_Politica;
                 persona.Carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
-                persona.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
+                persona.Ruoli = ruoli_utente.Select(_mapper.Map<RUOLI, RuoliDto>);
                 var token = GetToken(persona);
 
                 return new LoginResponse
@@ -252,9 +271,9 @@ namespace PortaleRegione.BAL
                     AppSettingsConfiguration.JWT_MASTER);
 
                 var ruoli_utente = await _unitOfWork.Ruoli.RuoliUtente(lRuoli_Gruppi);
-                personaDto.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
+                personaDto.Ruoli = ruoli_utente.Select(_mapper.Map<RUOLI, RuoliDto>);
                 personaDto.CurrentRole = (RuoliIntEnum)ruoli_utente.First().IDruolo;
-                personaDto.Gruppo = Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                personaDto.Gruppo = _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                     await _unitOfWork.Gruppi.GetGruppoAttuale(lRuoli_Gruppi, personaDto.CurrentRole));
                 personaDto.Carica = await _unitOfWork.Persone.GetCarica(personaDto.UID_persona);
 

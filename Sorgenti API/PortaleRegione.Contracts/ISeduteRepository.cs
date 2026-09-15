@@ -36,5 +36,6 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<SEDUTE>> GetAll(int legislaturaId, int pageIndex, int pageSize, Filter<SEDUTE> filtro = null);
         Task<IEnumerable<SEDUTE>> GetAttive(bool riservato_dasi, bool convocata);
         Task<IEnumerable<SEDUTE>> GetAttiveDashboard();
+        Task<IEnumerable<SEDUTE>> GetChiuse(int take = 20);
     }
 }

@@ -45,7 +45,7 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool firma, bool deposito);
         Task<LoginResponse> Login(LoginRequest request);
         Task SalvaPin(CambioPinModel model);
-        Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId);
+        Task<List<PersonaPublicDto>> GetProponentiFirmatari(string legislaturaId, int? gruppoId = null);
         Task Logout(Guid uidPersona);
     }
 }

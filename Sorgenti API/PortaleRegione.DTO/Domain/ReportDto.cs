@@ -29,4 +29,10 @@ public class ReportDto
     public string filters { get; set; }
     public string sorting { get; set; }
     public int wordsize { get; set; }
+
+    /// <summary>
+    ///     #1623: se attivo (solo per formato WORD) genera un file Word separato per ogni atto
+    ///     filtrato e li raccoglie in un unico archivio ZIP, invece di un unico documento.
+    /// </summary>
+    public bool file_separati { get; set; }
 }

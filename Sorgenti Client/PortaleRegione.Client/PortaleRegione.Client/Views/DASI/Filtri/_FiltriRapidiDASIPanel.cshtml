@@ -4,6 +4,15 @@
 @using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
+@{
+    // #1668 - La Segreteria d'Aula (UOLA, anche in sola lettura) non deve poter filtrare
+    // gli atti per Bozza e Bozza riservata: sono stati privati del proponente.
+    // L'Amministratore continua a vederli (cfr. #1653).
+    var nascondiBozzeUOLA = Model.CurrentUser != null
+                            && (Model.CurrentUser.IsSoloSegreteriaAssemblea
+                                || Model.CurrentUser.IsSegreteriaAssemblea_Read);
+}
+
 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
 {
     <div class="row">
@@ -119,10 +128,10 @@ else
     document.addEventListener('DOMContentLoaded',
         async function() {
             document.getElementById('loadingSpinner').style.display = 'none';
-            var clientMode = localStorage.getItem('clientMode');
-            if (clientMode != @Html.Raw((int)Model.ClientMode)){
-                localStorage.setItem('clientMode', @Html.Raw((int)Model.ClientMode));
-            }
+            // #1673 - la modalita' e' quella autorevole della pagina (Model.ClientMode): non usare il
+            // valore stale di localStorage per scegliere ramo e set di filtri.
+            var clientMode = @Html.Raw((int)Model.ClientMode);
+            localStorage.setItem('clientMode', clientMode);
 
             var dataSource = clientMode == @Html.Raw((int)ClientModeEnum.TRATTAZIONE)
                 ? availableFilterTrattazioneArray
@@ -497,6 +506,17 @@ else
                             }
                         }
                         chipText = keyLabel + ": " + text;
+
+                        // #1625 - la spunta "solo atti iscritti in seduta" diventa un chip
+                        // dedicato, cosi' da essere salvata insieme al filtro/report.
+                        var chkSoloIscritti = document.getElementById('chkSoloIscrittiSeduta');
+                        if (chkSoloIscritti && chkSoloIscritti.checked) {
+                            addChipIfNotExists('@nameof(AttoDASIDto.SoloAttiIscrittiInSeduta)',
+                                'Solo atti iscritti in seduta', 'true', 'true',
+                                'Solo atti effettivamente iscritti in seduta', false, true);
+                        } else {
+                            rimuoviChipPerChiave('@nameof(AttoDASIDto.SoloAttiIscrittiInSeduta)');
+                        }
                     } else if (key === "@nameof(AttoDASIDto.DataIscrizioneSeduta)") {
                         text = "";
                         val = "";
@@ -726,8 +746,9 @@ else
         localStorage.setItem('pagingDasi', JSON.stringify(paging));
 
         document.getElementById('tableResults').innerHTML = "";
-        document.getElementById('paginazione-container-top').innerHTML = "";
-        document.getElementById('paginazione-container-bottom').innerHTML = "";
+        // Issue #1614: la barra di paginazione viene rigenerata da creaPaginazione(), che prima
+        // distrugge le istanze Tooltip. Svuotarla qui staccherebbe i nodi senza passare per destroy(),
+        // lasciando orfani i .material-tooltip nel body (label "appese" tipo "Prossima pagina").
         document.getElementById('loadingSpinner').style.display = 'block';
 
         var request = {};
@@ -1389,6 +1410,20 @@ else
      Iscrivi
  </button>`;
                     }
+                } else if (col.propertyName === '@nameof(AttoDASIDto.Protocollo)') {
+                    // Colonna Protocollo: se valorizzato mostra il numero pratica;
+                    // se vuoto, l'utente e' segreteria e l'atto e' in uno stato
+                    // protocollabile, mostra il pulsante "Protocolla" (come "Iscrivi").
+                    if (result.Protocollo) {
+                        td.innerHTML = result.Protocollo;
+                    } else if (responseData.CurrentUser && responseData.CurrentUser.IsSegreteriaAssemblea
+                        && (result.IDStato == @Html.Raw((int)StatiAttoEnum.PRESENTATO)
+                            || result.IDStato == @Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)
+                            || result.IDStato == @Html.Raw((int)StatiAttoEnum.COMPLETATO))) {
+                        td.innerHTML = `<button type="button" role="button" class="btn-flat teal-text tooltipped" data-tooltip="Invia al protocollo EDMA" aria-label="Invia al protocollo EDMA" onclick="ProtocollaDASI('${result.UIDAtto}', '${result.Display}')">
+     <i class="material-icons tiny left">send</i>Protocolla
+ </button>`;
+                    }
                 } else {
                     if (dateRegex.test(result[col.propertyName])) {
                         const match = result[col.propertyName].match(dateRegex);
@@ -1436,112 +1471,24 @@ else
         var instances = M.Tooltip.init(elems, {});
     }
 
+    // Barra di paginazione: il rendering e' centralizzato in renderPaginazione (site.js),
+    // condiviso con PEM. DASI accoda gli <input hidden> (hdPaginazioneCorrente ecc.) letti
+    // dalle funzioni di filtro per conoscere pagina/taglio correnti.
     function creaPaginazione(data) {
-        if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
-            document.getElementById('paginazione-container-top').innerHTML = "";
-            document.getElementById('paginazione-container-bottom').innerHTML = "";
-            return;
+        var afterHtml = "";
+        if (data && data.Data && data.Data.Results && data.Data.Results.length > 0) {
+            var p = data.Data.Paging;
+            afterHtml = '<input id="hdPaginaCorrente" type="hidden" value="' + p.Page + '"/>'
+                + '<input id="hdPaginazioneCorrente" type="hidden" value="' + p.Limit + '"/>'
+                + '<input id="hdTotaleDocumenti" type="hidden" value="' + p.Total + '"/>';
         }
-
-        // Dati della paginazione ottenuti dalla risposta JSON
-        var totalePagine = data.Data.Paging.Last_Page;
-        var paginaCorrente = data.Data.Paging.Page;
-        var totaleRisultati = data.Data.Paging.Total;
-        var risultatiPerPagina = data.Data.Paging.Limit;
-
-        // Elemento HTML per la paginazione
-        var paginationHTML = `<ul class="pagination" data-totale-pagine="${totalePagine}" data-totale-risultati="${totaleRisultati}" data-risultati-pagina="${risultatiPerPagina}" data-pagina-corrente="${paginaCorrente}">`;
-
-        // Aggiungi controlli di navigazione se necessario
-        if (data.Data.Paging.Has_Prev) {
-            paginationHTML += `
-            <li class="waves-effect" style="margin-top: 7px;">
-                <a onclick="filterByPage(1)">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prima pagina" aria-label="Prima pagina">first_page</i>
-                </a>
-            </li>
-            <li class="waves-effect" style="margin-top: 7px;">
-                <a onclick="filterByPage(${paginaCorrente - 1})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente" aria-label="Pagina precedente">chevron_left</i>
-                </a>
-            </li>`;
-        }
-
-        // Informazioni sulla pagina corrente e input per selezione diretta della pagina
-        paginationHTML += `
-    <li class="waves-effect">
-        <div style="margin-top: -2px;">
-            Pagina <input type="number" id="page-input" min="1" max="${totalePagine}" value="${paginaCorrente}" style="width: 50px; text-align: center;" onchange="goToPage(this.value, ${totalePagine})">
-            di ${totalePagine}
-        </div>
-    </li>`;
-
-        // Aggiungi controlli di navigazione se necessario
-        if (data.Data.Paging.Has_Next) {
-            paginationHTML += `
-            <li class="waves-effect" style="margin-top: 7px;">
-                <a onclick="filterByPage(${paginaCorrente + 1})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina" aria-label="Prossima pagina">chevron_right</i>
-                </a>
-            </li>
-            <li class="waves-effect" style="margin-top: 7px;">
-                <a onclick="filterByPage(${totalePagine})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina" aria-label="Ultima pagina">last_page</i>
-                </a>
-            </li>`;
-        }
-
-        paginationHTML += `
-<li class="waves-effect" style="margin-top:5px;padding-left:10px;height:36px;">
-    <span class="chip deep-purple lighten-4">${totaleRisultati} risultati</span>
-</li>`;
-
-        paginationHTML += `</ul>`;
-
-        // Costruzione del selettore per i tagli di paginazione
-        var tagliPaginazione = [20, 50, 100];
-        var dropdownHTML_top = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
-        Paginazione
-        <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-top" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
-        <ul id="ddlPaginazione-top" class="dropdown-content">`;
-        var dropdownHTML_bottom = `<div class="chip deep-purple lighten-4 center" style="min-width: unset">
-        Paginazione
-        <a class="dropdown-trigger chip white trigger-paginazione" data-target="ddlPaginazione-bottom" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
-        <ul id="ddlPaginazione-bottom" class="dropdown-content">`;
-
-        tagliPaginazione.forEach(function(limite) {
-            // Verifica se il limite corrente è uguale al valore selezionato per aggiungere la classe "selected"
-            var selectedClass = risultatiPerPagina == limite ? 'class="selected"' : '';
-
-            dropdownHTML_top += `<li ${selectedClass}><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
-            dropdownHTML_bottom += `<li ${selectedClass}><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+        renderPaginazione({
+            data: data,
+            onPage: function (page) { filterByPage(page); },
+            onSize: function (size) { filterBySize(1, size); },
+            afterHtml: afterHtml
         });
-
-        dropdownHTML_top += `</ul></div>`;
-        dropdownHTML_bottom += `</ul></div>`;
-        var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/>
-    <input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>
-    <input id="hdTotaleDocumenti" type="hidden" value="${totaleRisultati}"/>`;
-
-        // Inserisci l'HTML nel DOM
-        document.getElementById('paginazione-container-top').innerHTML = paginationHTML + dropdownHTML_top;
-        document.getElementById('paginazione-container-bottom').innerHTML = paginationHTML + dropdownHTML_bottom + hiddenHTML;
-
-        // Inizializza il dropdown con Materialize
-        var elems = document.querySelectorAll('.dropdown-trigger.trigger-paginazione');
-        var instances = M.Dropdown.init(elems, { constrainWidth: true });
     }
-
-// Funzione per andare alla pagina specificata dall'utente
-    function goToPage(pageNumber, totalePagine) {
-        var page = parseInt(pageNumber);
-        if (!isNaN(page) && page > 0 && page <= totalePagine) {
-            filterByPage(page);
-        } else {
-            ErrorAlert("Inserisci un numero di pagina valido tra 1 e " + totalePagine);
-        }
-    }
-
 
     function AggiornaContatori(responseData) {
         aggiornaConteggi('li.collection-item div', "TOTALE", responseData.CountBarData.TUTTI);
@@ -1552,7 +1499,7 @@ else
         aggiornaConteggi('li.collection-item div', "ODG", responseData.CountBarData.ODG);
         aggiornaConteggi('li.collection-item div', "RIS", responseData.CountBarData.RIS);
 
-        if (!responseData.CurrentUser.IsSegreteriaAssemblea) {
+        if (!responseData.CurrentUser.IsSegreteriaAssemblea_Vista) {
             aggiornaConteggi('li.collection-item div', "BOZZE", responseData.CountBarData.BOZZE);
         }
         aggiornaConteggi('li.collection-item div', "PRESENTATI", responseData.CountBarData.PRESENTATI);
@@ -1565,6 +1512,55 @@ else
             if (element.textContent.includes(testo)) {
                 element.querySelector('span').textContent = valore;
             }
+        });
+    }
+
+    // Lancia la protocollazione EDMA dell'atto direttamente dalla griglia,
+    // usando lo stesso endpoint del pulsante nel dettaglio
+    // (POST ~/DASI/protocolla/{id}). In caso di successo ricarica la griglia;
+    // in caso di errore mostra il messaggio restituito da EDMA.
+    function ProtocollaDASI(uid, display) {
+        if (!uid) return;
+        swal({
+            title: "Conferma protocollazione",
+            text: "Verranno create la pratica e il protocollo su EDMA per l'atto " + (display || '') + ". Procedere?",
+            icon: "warning",
+            buttons: ["Annulla", "Protocolla"]
+        }).then(function (answer) {
+            if (!answer) return;
+
+            var url = '@Url.Content("~/DASI/protocolla/")' + uid;
+            waiting(true, 'Protocollazione EDMA in corso...');
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                success: function (data) {
+                    waiting(false);
+                    if (data && data.Success) {
+                        var html = 'Atto protocollato' +
+                            (data.NumeroPratica ? ' &middot; protocollo <b>' + data.NumeroPratica + '</b>' : '');
+                        M.toast({ html: html, classes: 'green', displayLength: 5000 });
+                        setTimeout(function () { location.reload(); }, 1200);
+                    } else {
+                        var messaggio = (data && (data.Messaggio || data.Message)) ||
+                            'Errore durante la protocollazione EDMA.';
+                        swal({ title: 'Errore protocollazione EDMA', text: messaggio, icon: 'error', buttons: { ok: 'Chiudi' } });
+                    }
+                },
+                error: function (err) {
+                    waiting(false);
+                    var payload = null;
+                    if (err && err.responseJSON) {
+                        payload = err.responseJSON;
+                    } else if (err && err.responseText) {
+                        try { payload = JSON.parse(err.responseText); } catch (_) { /* ignore */ }
+                    }
+                    var messaggio = (payload && (payload.Messaggio || payload.Message)) ||
+                        'Errore durante la protocollazione EDMA.';
+                    swal({ title: 'Errore protocollazione EDMA', text: messaggio, icon: 'error', buttons: { ok: 'Chiudi' } });
+                }
+            });
         });
     }
 
@@ -1590,6 +1586,22 @@ else
             break;
         case '@nameof(AttoDASIDto.IDStato)':
             var stati = [];
+            @if (!nascondiBozzeUOLA)
+            {
+                <text>
+            // #1653 - L'Amministratore puo' filtrare anche gli atti in bozza (bozza
+            // riservata e bozza). #1668 - la Segreteria d'Aula (UOLA) no: per lei le
+            // due voci restano nascoste.
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.BOZZA_RISERVATA),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA_RISERVATA))'
+            });
+            stati.push({
+                IDStato: @((int)StatiAttoEnum.BOZZA),
+                Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.BOZZA))'
+            });
+                </text>
+            }
             stati.push({
                 IDStato: @((int)StatiAttoEnum.PRESENTATO),
                 Stato: '@(Utility.GetText_StatoDASI((int)StatiAttoEnum.PRESENTATO))'
@@ -2267,6 +2279,14 @@ else
       Oggi
     </button>    
     ${buttonsHTML_A}
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <label>
+      <input type="checkbox" id="chkSoloIscrittiSeduta" class="filled-in" ${document.querySelector('.chip[data-filterby="@nameof(AttoDASIDto.SoloAttiIscrittiInSeduta)"]') ? 'checked' : ''} />
+      <span>Solo atti effettivamente iscritti in seduta</span>
+    </label>
   </div>
 </div>
 `;
@@ -3707,19 +3727,34 @@ else
         }
     }
 
+    // #1625 - rimuove un chip dato il suo data-filterby (senza ricaricare la griglia:
+    // il refresh lo fa la chiamata principale che segue).
+    function rimuoviChipPerChiave(key) {
+        var chip = document.querySelector(`.chip[data-filterby="${key}"]`);
+        if (chip) {
+            delete chipsKeys[key];
+            chip.remove();
+            salvaFiltri();
+        }
+    }
+
     function addIconsToChip(chip, key, keyLabel, val) {
 
-        // Aggiungi un'icona per modificare la chip, se desiderato
-        var editIcon = document.createElement('i');
-        editIcon.classList.add('material-icons', 'tiny');
-        editIcon.style.setProperty('margin-left', '10px');
-        editIcon.style.setProperty('top', '2px');
-        editIcon.textContent = 'edit';
-        editIcon.onclick = async function(event) {
-            event.stopPropagation();
-            await openModalWithContent(key, keyLabel, true, val);
-        };
-        chip.appendChild(editIcon);
+        // #1625 - il chip "solo atti iscritti in seduta" non e' modificabile a se' stante
+        // (si gestisce dalla spunta nella modale Data seduta): mostra solo la rimozione.
+        if (key !== '@nameof(AttoDASIDto.SoloAttiIscrittiInSeduta)') {
+            // Aggiungi un'icona per modificare la chip, se desiderato
+            var editIcon = document.createElement('i');
+            editIcon.classList.add('material-icons', 'tiny');
+            editIcon.style.setProperty('margin-left', '10px');
+            editIcon.style.setProperty('top', '2px');
+            editIcon.textContent = 'edit';
+            editIcon.onclick = async function(event) {
+                event.stopPropagation();
+                await openModalWithContent(key, keyLabel, true, val);
+            };
+            chip.appendChild(editIcon);
+        }
 
         // Aggiungi un'icona per rimuovere la chip
         var closeIcon = document.createElement('i');
@@ -3763,16 +3798,35 @@ else
     function ripristinaFiltri() {
         $('#chips-container').empty();
         const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
-        console.log("FILTRI", filtri)
         if (filtri) {
-            filtri.forEach(function(filtro) {
+            // Le chip senza valore (es. id_gruppo non impostato per admin/UOLA) non vengono
+            // ripristinate: per l'amministratore devono comparire solo se valorizzate, per il
+            // consigliere la chip "Gruppo" e' gestita come fissa invisibile nel pannello dedicato.
+            const filtriValorizzati = filtri.filter(function (f) {
+                if (!f || f.val === null || f.val === undefined || String(f.val).trim() === '') {
+                    return false;
+                }
+                // Scarta la chip "Gruppo" fissa/invisibile ereditata dall'area consiglieri tramite
+                // il localStorage condiviso: admin/UOLA non hanno un gruppo di appartenenza, quindi
+                // una chip id_gruppo senza testo visibile e' un residuo da ignorare (altrimenti
+                // comparirebbe vuota e filtrerebbe di nascosto i risultati). Un filtro Gruppo
+                // aggiunto a mano dall'admin ha invece il chipText valorizzato e resta.
+                var chipText = f.chipText !== null && f.chipText !== undefined ? String(f.chipText).trim() : '';
+                if (f.key === '@Html.Raw(nameof(AttoDASIDto.id_gruppo))' && chipText === '') {
+                    return false;
+                }
+                return true;
+            });
+            filtriValorizzati.forEach(function (filtro) {
                 addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false, true);
             });
-            const paging = JSON.parse(localStorage.getItem('pagingDasi'));
-            if (paging) {
-                inviaDatiChips(paging.page, paging.size);
-            } else {
-                inviaDatiChips(1, 20);
+            if (filtriValorizzati.length > 0) {
+                const paging = JSON.parse(localStorage.getItem('pagingDasi'));
+                if (paging) {
+                    inviaDatiChips(paging.page, paging.size);
+                } else {
+                    inviaDatiChips(1, 20);
+                }
             }
         }
     }

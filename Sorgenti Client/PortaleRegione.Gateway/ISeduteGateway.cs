@@ -34,5 +34,6 @@ namespace PortaleRegione.Gateway
         Task<BaseResponse<SeduteDto>> GetAttive();
         Task<BaseResponse<SeduteDto>> GetAttiveMOZU();
         Task<BaseResponse<SeduteDto>> GetAttiveDashboard();
+        Task<BaseResponse<SeduteDto>> GetChiuse();
     }
 }

@@ -72,6 +72,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string GetAttive = Base + "/attive";
                 public const string GetAttiveMOZU = Base + "/attive/mozioni-urgenti";
                 public const string GetAttiveDashboard = Base + "/attive/dashboard";
+                public const string GetChiuse = Base + "/chiuse";
                 public const string Delete = Base + "/{id}";
                 public const string Create = Base + "/create";
                 public const string Edit = Base + "/edit";
@@ -149,6 +150,8 @@ namespace PortaleRegione.DTO.Routes
                 public const string AggiornaMetaDati = Base + "/edit/model/meta";
                 public const string Edit = Base + "/edit";
                 public const string GetAll = Base + "/all";
+                // #1626 - Ricerca trasversale EM/SUBEM (Area Aula), non vincolata al singolo atto.
+                public const string GetAllGlobale = Base + "/all/globale";
                 public const string GetAllSoloIds = Base + "/all/solo-ids";
                 public const string GetByJson = Base + "/all-by-json";
                 public const string GetAllRichiestaPropriaFirma = Base + "/all/richiesta-firma";
@@ -244,6 +247,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Elimina = Base + "/{id}/elimina";
 
             public const string GetFirmatari = Base + "/{id}/firme/{tipo}";
+            public const string ContatoreFirme = Base + "/firme/contatore"; // #1636
             public const string GetBody = Base + "/get-corpo";
             public const string GetBodyCopertina = Base + "/get-copertina";
             public const string DownloadDoc = Base + "/scarica-documento";
@@ -260,13 +264,9 @@ namespace PortaleRegione.DTO.Routes
 
             public const string StampaImmediata = Base + "/{id}/stampa-immediata";
             public const string StampaImmediataPrivacy = Base + "/{id}/stampa-immediata-privacy";
-            public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
             public const string CambiaOrdineVisualizzazioneFirme = Base + "/change-signature-order-view";
             public const string SaveCartaceo = Base + "/salva-bozza-cartacea";
             public const string CambiaPrioritaFirma = Base + "/cambia-priorità-firma";
-            public const string SalvaFiltriPreferiti = Base + "/filters/salva";
-            public const string GetFiltriPreferiti = Base + "/filters";
-            public const string EliminaFiltriPreferiti = Base + "/filters/elimina";
             public const string GeneraReport = Base + "/reports/genera";
             public const string GeneraZIP = Base + "/reports/genera-zip";
             public const string SalvaReport = Base + "/reports/salva";
@@ -278,6 +278,13 @@ namespace PortaleRegione.DTO.Routes
             public const string GetReportsCovers = Base + "/reports/templates/covers";
             public const string GetReportsCardTemplates = Base + "/reports/templates/cards";
             public const string GetCommissioniAttive = Base + "/commissioni-attive";
+            // Click "Protocolla" della segreteria UOLA: orchestra l'intero
+            // flusso a 5 step verso EDMA (creazione pratica, creazione
+            // documento, fascicolazione, protocollazione applicativa).
+            public const string Protocolla = Base + "/{id:guid}/protocolla";
+            // Edit manuale del campo Protocollo, riservato alla segreteria e governato dal feature
+            // flag EDMA_AbilitaEditManualeProtocollo.
+            public const string ProtocolloManuale = Base + "/{id:guid}/protocollo-manuale";
         }
 
         public static class Notifiche
@@ -321,6 +328,17 @@ namespace PortaleRegione.DTO.Routes
             public const string GetAttuale = Base + "/attuale";
         }
 
+        public static class Filtri
+        {
+            // api/filtri — gestione filtri preferiti utente, trasversale ai moduli PEM e DASI.
+            // Sostituisce le vecchie route DASI /dasi/filters/* (rimosse).
+            private const string Base = Root + "/filtri";
+
+            public const string Salva = Base + "/salva";
+            public const string Get = Base + "/{modulo}";
+            public const string Elimina = Base + "/{modulo}/{nome}";
+        }
+
         public static class Esporta
         {
             // api/legislature
@@ -332,6 +350,10 @@ namespace PortaleRegione.DTO.Routes
             public const string EsportaGrigliaExcel = Base + "/pem/griglia-xls";
             public const string EsportaGrigliaExcelUOLA = Base + "/pem/griglia-xls-uola";
             public const string EsportaGrigliaWord = Base + "/pem/griglia-doc";
+
+            // #1626 - Export della ricerca trasversale EM/SUBEM (Area Aula), cross-atto.
+            public const string EsportaGrigliaExcelGlobale = Base + "/pem/griglia-xls-globale";
+            public const string EsportaGrigliaWordGlobale = Base + "/pem/griglia-doc-globale";
         }
 
         public static class Persone
@@ -355,6 +377,7 @@ namespace PortaleRegione.DTO.Routes
 
             public const string ViewEM = Base + "/em/{id}";
             public const string ViewDASI = Base + "/dasi/{id}/{approvato}";
+            public const string ViewDASI_PDF = Base + "/dasi/{id}/{approvato}/pdf"; // #1620
         }
 
         public static class Ruoli

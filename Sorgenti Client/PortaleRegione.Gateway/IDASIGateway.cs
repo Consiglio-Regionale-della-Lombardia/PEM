@@ -37,6 +37,7 @@ namespace PortaleRegione.Gateway
         Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, RuoliIntEnum ruolo, int legislatura, bool propria_firma = false);
         Task<RiepilogoDASIModel> Get(BaseRequest<AttoDASIDto> model);
         Task<List<Guid>> GetSoloIds(BaseRequest<AttoDASIDto> model);
+        Task<int> ContatoreFirme(); // #1636
         Task<List<AttoDASIDto>> GetMOZAbbinabili();
         Task<List<AttiDto>> GetAttiSeduteAttive();
         Task<Dictionary<Guid, string>> Presenta(ComandiAzioneModel model);
@@ -72,15 +73,13 @@ namespace PortaleRegione.Gateway
         Task PresentazioneCartacea(PresentazioneCartaceaModel model);
         Task<FileResponse> Download(Guid id);
         Task<FileResponse> DownloadWithPrivacy(Guid id);
-        Task InviaAlProtocollo(Guid id);
         Task DeclassaMozione(List<string> data);
         Task<List<AttoDASIDto>> GetCartacei();
         Task SalvaCartaceo(AttoDASIDto atto);
         Task CambiaPrioritaFirma(AttiFirmeDto firma);
         Task CambiaOrdineVisualizzazioneFirme(List<AttiFirmeDto> firme);
-        Task SalvaGruppoFiltri(FiltroPreferitoDto model);
-        Task<List<FiltroPreferitoDto>> GetGruppoFiltri();
-        Task EliminaGruppoFiltri(string nomeFiltro);
+        // Filtri preferiti DASI migrati al FiltriGateway unificato (v2026.5.1):
+        //   apiGateway.Filtri.Salva/Get/Elimina con ModuloEnum.DASI.
         Task<FileResponse> GeneraReport(ReportDto request);
         Task<FileResponse> GeneraZIP(ReportDto request);
         Task SalvaReport(ReportDto report);
@@ -110,5 +109,7 @@ namespace PortaleRegione.Gateway
         Task Pubblica_Documento(AttiDocumentiDto request);
         Task Salva_ComandoMassivo(SalvaComandoMassivoRequest request);
         Task Rimuovi_ComandoMassivo(RimuoviComandoMassivoRequest request);
+        Task<EdmaProtocollazioneEsitoDto> Protocolla(Guid id);
+        Task SalvaProtocolloManuale(Guid id, string protocollo);
     }
 }

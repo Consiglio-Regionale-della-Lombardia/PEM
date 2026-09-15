@@ -34,7 +34,6 @@ namespace CalcoloRitardoAttoJob
 
         public async Task<bool> ExecuteAsync()
         {
-            // List to hold the rows that need updating:
             var rowsToUpdate = new List<(Guid UIDAtto, int NewRitardo)>();
 
             try
@@ -43,19 +42,20 @@ namespace CalcoloRitardoAttoJob
                 {
                     await connection.OpenAsync();
 
-                    // Retrieve rows from ATTI_DASI along with DataRisposta (if available) from ATTI_RISPOSTE.
-                    // Using OUTER APPLY to get the TOP 1 Data (ordered ascending) for each ATTI_DASI.
-                    var selectQuery = @"
-                        SELECT 
+                    // Una riga per atto + la prima risposta non eliminata (se c'è).
+                    // Quando non c'è risposta DataRisposta torna NULL e viene gestito sotto.
+                    var selectQuery = $@"
+                        SELECT
                             d.UIDAtto,
                             d.DataAnnunzio,
                             d.Ritardo,
                             r.Data AS DataRisposta
                         FROM ATTI_DASI d
                         OUTER APPLY (
-                            SELECT TOP 1 r.Data 
+                            SELECT TOP 1 r.Data
                             FROM ATTI_RISPOSTE r
                             WHERE r.UIDAtto = d.UIDAtto
+                              AND r.Eliminato = 0
                             ORDER BY r.Data ASC
                         ) r
                         WHERE d.Eliminato = 0
@@ -66,18 +66,15 @@ namespace CalcoloRitardoAttoJob
                     {
                         while (await reader.ReadAsync())
                         {
-                            // Get UIDAtto
                             Guid uidAtto = reader.GetGuid(reader.GetOrdinal("UIDAtto"));
 
-                            // Retrieve DataAnnunzio if present. (It is a datetime column and can be null.)
                             DateTime? dataAnnunzio = reader.IsDBNull(reader.GetOrdinal("DataAnnunzio"))
                                 ? (DateTime?)null
                                 : reader.GetDateTime(reader.GetOrdinal("DataAnnunzio"));
 
-                            // Get the current Ritardo value.
                             int currentRitardo = reader.GetInt32(reader.GetOrdinal("Ritardo"));
 
-                            // Get DataRisposta if present, otherwise substitute DateTime.Now.
+                            // Atto non ancora risposto: per far avanzare il conteggio uso la data odierna.
                             DateTime dataRisposta;
                             if (reader.IsDBNull(reader.GetOrdinal("DataRisposta")))
                             {
@@ -88,22 +85,24 @@ namespace CalcoloRitardoAttoJob
                                 dataRisposta = reader.GetDateTime(reader.GetOrdinal("DataRisposta"));
                             }
 
-                            // If DataAnnunzio is null, we cannot compute a valid difference.
+                            // Senza data di annunzio non c'è nulla da cui partire, salto l'atto.
                             if (!dataAnnunzio.HasValue)
                             {
                                 continue;
                             }
 
-                            // Calculate the difference in days between DataRisposta and DataAnnunzio, then add 20 days.
-                            int calculatedRitardo = (int)((dataRisposta.Date - dataAnnunzio.Value.Date).TotalDays) + 20;
+                            // Gap di 20 gg dall'annunzio: dal 21esimo giorno si conta
+                            // un giorno di ritardo per ogni giorno trascorso. Il clamp qui sotto
+                            // azzera i casi ancora dentro il gap.
+                            int calculatedRitardo = (int)((dataRisposta.Date - dataAnnunzio.Value.Date).TotalDays) - 20;
 
-                            // If the calculation is negative, set to zero.
                             if (calculatedRitardo < 0)
                             {
                                 calculatedRitardo = 0;
                             }
 
-                            // Only update if the new value differs from the current value.
+                            // Aggiorno solo se il valore cambia davvero, così evito UPDATE inutili
+                            // e righe di audit superflue sul trigger di ATTI_DASI.
                             if (calculatedRitardo != currentRitardo)
                             {
                                 rowsToUpdate.Add((uidAtto, calculatedRitardo));
@@ -111,7 +110,6 @@ namespace CalcoloRitardoAttoJob
                         }
                     }
 
-                    // Update each row that requires a change.
                     foreach (var row in rowsToUpdate)
                     {
                         var updateQuery = "UPDATE ATTI_DASI SET Ritardo = @NewRitardo WHERE UIDAtto = @UIDAtto";
@@ -126,7 +124,7 @@ namespace CalcoloRitardoAttoJob
             }
             catch (Exception ex)
             {
-                // Consider logging the exception details.
+                // TODO: convogliare l'errore su un logger strutturato invece che su Console.Error.
                 Console.Error.WriteLine($"Error executing Worker: {ex.Message}");
                 return false;
             }

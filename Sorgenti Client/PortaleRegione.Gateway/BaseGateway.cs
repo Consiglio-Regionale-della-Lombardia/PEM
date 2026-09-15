@@ -72,6 +72,9 @@ namespace PortaleRegione.Gateway
             try
             {
                 using var httpClient = new HttpClient();
+                // #1678: senza timeout esplicito si resta ai 100 secondi di default di HttpClient e i
+                // comandi massivi mollano mentre l'api sta ancora lavorando. Allineato agli altri verbi.
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 if (!string.IsNullOrEmpty(token))
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");

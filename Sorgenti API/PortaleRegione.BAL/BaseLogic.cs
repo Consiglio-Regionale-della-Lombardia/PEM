@@ -26,6 +26,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Caching;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using AutoMapper;
@@ -46,6 +47,15 @@ namespace PortaleRegione.BAL
 {
     public class BaseLogic
     {
+        // #1674
+        private static readonly Regex RegexTitolo =
+            new Regex(@"<h([1-6])\b[^>]*>(.*?)</h\1>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        private static readonly Regex RegexBloccoAnnidato =
+            new Regex(@"<(p|div|table|ul|ol)\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        private static readonly Regex RegexTagHtml = new Regex("<[^>]+>", RegexOptions.Singleline);
+
         private readonly MemoryCache memoryCache = MemoryCache.Default;
         internal AttiLogic _logicAtti;
         internal AttiFirmeLogic _logicAttiFirme;
@@ -56,6 +66,8 @@ namespace PortaleRegione.BAL
         internal SeduteLogic _logicSedute;
         internal UtilsLogic _logicUtil;
         internal IUnitOfWork _unitOfWork;
+        // Mapper risolto via Unity, valorizzato dai costruttori delle Logic figlie
+        internal IMapper _mapper;
 
         internal List<PersonaLightDto> Users
         {
@@ -88,7 +100,7 @@ namespace PortaleRegione.BAL
                 return;
             var task_op = Task.Run(async () => await _unitOfWork.Persone.GetAll());
             var personeInDb = task_op.Result;
-            var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+            var personeInDbLight = personeInDb.Select(_mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
             Users = personeInDbLight;
         }
@@ -99,7 +111,7 @@ namespace PortaleRegione.BAL
                 return;
             var task_op = Task.Run(async () => await _unitOfWork.Gruppi.GetAllWithGiunta());
             var personeInDb = task_op.Result;
-            var personeInDbLight = personeInDb.Select(Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>).ToList();
+            var personeInDbLight = personeInDb.Select(_mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>).ToList();
 
             Groups = personeInDbLight;
         }
@@ -222,8 +234,8 @@ namespace PortaleRegione.BAL
 
         internal string GetNomeEM(EM emendamento, EM riferimento)
         {
-            return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento),
-                Mapper.Map<EM, EmendamentiDto>(riferimento));
+            return GetNomeEM(_mapper.Map<EM, EmendamentiDto>(emendamento),
+                _mapper.Map<EM, EmendamentiDto>(riferimento));
         }
 
         internal string GetNome(string nAtto, int? progressivo)
@@ -330,6 +342,33 @@ namespace PortaleRegione.BAL
             var result = File.ReadAllText(path);
 
             return result;
+        }
+
+        /// <summary>
+        ///     #1674: nella conversione in Word i titoli che non producono testo mandano in eccezione
+        ///     HtmlToOpenXml. Capita con l'HTML incollato da Word, dove un h1..h6 puo' essere vuoto
+        ///     oppure contenere un blocco annidato. Il titolo viene chiuso prima del blocco - come fa
+        ///     il parser dei browser - e scartato se resta senza testo, cosi' il documento rispecchia
+        ///     quello che si vede a video.
+        /// </summary>
+        internal static string NormalizzaTitoliPerWord(string body)
+        {
+            if (string.IsNullOrEmpty(body)) return body;
+
+            return RegexTitolo.Replace(body, titolo =>
+            {
+                var contenuto = titolo.Groups[2].Value;
+                var tagApertura = titolo.Value.Substring(0, titolo.Value.IndexOf('>') + 1);
+
+                var blocco = RegexBloccoAnnidato.Match(contenuto);
+                var testa = blocco.Success ? contenuto.Substring(0, blocco.Index) : contenuto;
+                var coda = blocco.Success ? contenuto.Substring(blocco.Index) : string.Empty;
+
+                var testo = RegexTagHtml.Replace(testa, "").Replace("&nbsp;", " ").Trim();
+                if (testo.Length == 0) return coda;
+
+                return $"{tagApertura}{testa}</h{titolo.Groups[1].Value}>{coda}";
+            });
         }
 
         internal void GetBodyTemporaneo(EmendamentiDto emendamento, AttiDto atto, ref string body)
@@ -490,9 +529,11 @@ namespace PortaleRegione.BAL
 
             var allegato_generico = new StringBuilder();
 
+            // #1624 - nel corpo dell'atto vanno inclusi solo gli allegati parte integrante
+            // marcati come pubblici: UOLA puo' inibirne la pubblicazione togliendo la spunta.
             if (atto.Documenti.Any())
-                if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
-                    foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
+                if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO && d.Pubblico))
+                    foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO && d.Pubblico))
                         allegato_generico.AppendLine(
                             $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a class='blue-text' href='{doc.Link}' target='_blank'>SCARICA - {doc.Titolo}</a></td></tr>");
 
@@ -512,7 +553,9 @@ namespace PortaleRegione.BAL
             body = body.Replace("{DepositatoEMView}", testo_deposito);
 
             body = body.Replace("{STATO}", emendamento.STATI_EM.Stato.ToUpper());
-            body = body.Replace("{GRUPPO_POLITICO}", emendamento.gruppi_politici.nome_gruppo);
+            // #1622 - carta bianca: se richiesto, l'intestazione non riporta il gruppo politico
+            body = body.Replace("{GRUPPO_POLITICO}",
+                emendamento.NascondiGruppo ? "" : emendamento.gruppi_politici.nome_gruppo);
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
             
             var logoBase64 = PdfCssProvider.GetLogoBase64();
@@ -631,7 +674,7 @@ namespace PortaleRegione.BAL
 
             if (currentUser != null)
             {
-                if (currentUser.IsSegreteriaAssemblea &&
+                if (currentUser.IsSegreteriaAssemblea_Vista &&
                     !string.IsNullOrEmpty(emendamento.NOTE_EM))
                     body = body.Replace("{lblNotePrivateEMView}",
                             $"Note Riservate: {emendamento.NOTE_EM}")
@@ -773,6 +816,23 @@ namespace PortaleRegione.BAL
             }
 
             #endregion
+
+            // #1603
+            if (atto.Note != null && atto.Note.Any(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA))
+                atto.Note_Pubbliche += string.Join("\n",
+                    atto.Note
+                        .Where(n => n.TipoEnum == TipoNotaEnum.GENERALE_PUBBLICA)
+                        .Select(n => n.Nota)
+                );
+
+            body = body.Replace("{lblNotePubblicheATTOView}",
+                    !string.IsNullOrEmpty(atto.Note_Pubbliche)
+                        ? $"{atto.Note_Pubbliche}"
+                        : string.Empty)
+                .Replace("{NOTE_PUBBLICHE_COMMENTO_START}",
+                    !string.IsNullOrEmpty(atto.Note_Pubbliche) ? string.Empty : "<!--")
+                .Replace("{NOTE_PUBBLICHE_COMMENTO_END}",
+                    !string.IsNullOrEmpty(atto.Note_Pubbliche) ? string.Empty : "-->");
 
             // #1443
             if (body.Contains("STATO_PREVIEW"))

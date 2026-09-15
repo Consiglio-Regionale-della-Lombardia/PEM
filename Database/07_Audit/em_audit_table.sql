@@ -34,7 +34,7 @@ CREATE TABLE [dbo].[EM_Audit] (
     [UIDArticolo] UNIQUEIDENTIFIER NULL,
     [UIDComma] UNIQUEIDENTIFIER NULL,
     [UIDLettera] UNIQUEIDENTIFIER NULL,
-    [NLettera] VARCHAR(5) COLLATE Latin1_General_CI_AI NULL,
+    [NLettera] VARCHAR(50) COLLATE Latin1_General_CI_AI NULL,
     [UIDParte_LR] UNIQUEIDENTIFIER NULL,
     [NNumero] VARCHAR(5) COLLATE Latin1_General_CI_AI NULL,
     [UIDMissione] UNIQUEIDENTIFIER NULL,
@@ -68,5 +68,6 @@ CREATE TABLE [dbo].[EM_Audit] (
     [DataUltimaStampa] DATETIME NULL,
     [PathStampa] VARCHAR(MAX) COLLATE Latin1_General_CI_AI NULL,
     [StampaValida] BIT NOT NULL,
+    [NascondiGruppo] BIT NOT NULL CONSTRAINT [DF_EM_Audit_NascondiGruppo] DEFAULT ((0)),
     CONSTRAINT [PK_EM_Audit] PRIMARY KEY ([IdEM_Audit])
 );

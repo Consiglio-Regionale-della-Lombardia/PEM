@@ -23,7 +23,9 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using ExpressionBuilder.Interfaces;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.Crypto;
@@ -32,6 +34,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
 
 namespace PortaleRegione.Persistance
 {
@@ -47,11 +50,10 @@ namespace PortaleRegione.Persistance
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
         /// <summary>
-        ///     Conteggio emendamenti nell'atto
+        ///     Conteggio emendamenti, firma legacy con liste tipizzate. Mantenuta per i flussi
+        ///     non migrati; i nuovi chiamanti devono usare l'overload basato su <see cref="QueryExtendedRequestEM" />.
         /// </summary>
-        /// <param name="attoUId"></param>
-        /// <param name="persona"></param>
-        /// <returns></returns>
+        [Obsolete("Usa l'overload basato su QueryExtendedRequestEM.")]
         public async Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter_emendamenti,
             int CLIENT_MODE,
             Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null,
@@ -74,7 +76,7 @@ namespace PortaleRegione.Persistance
                 if (persona.IsGiunta)
                     query = query
                         .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-                else if (!persona.IsSegreteriaAssemblea
+                else if (!persona.IsSegreteriaAssemblea_Vista
                          && !persona.IsPresidente)
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
@@ -278,13 +280,13 @@ namespace PortaleRegione.Persistance
                     return await query.CountAsync();
                 }
                 case CounterEmendamentiEnum.EM:
-                    if (persona.IsSegreteriaAssemblea)
+                    if (persona.IsSegreteriaAssemblea_Vista)
                         return await query.CountAsync(e =>
                             !string.IsNullOrEmpty(e.N_EM) && string.IsNullOrEmpty(e.N_SUBEM));
                     return await query.CountAsync(e => string.IsNullOrEmpty(e.N_SUBEM));
 
                 case CounterEmendamentiEnum.SUB_EM:
-                    if (persona.IsSegreteriaAssemblea)
+                    if (persona.IsSegreteriaAssemblea_Vista)
                         return await query.CountAsync(e =>
                             string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM));
                     return await query.CountAsync(e => !string.IsNullOrEmpty(e.N_SUBEM));
@@ -415,28 +417,21 @@ namespace PortaleRegione.Persistance
             return result.FirstOrDefault();
         }
 
+        // #1671 GetByQR restituisce l'entita' senza passare dalla Get: il filtro va ripetuto qui,
+        // altrimenti il canale pubblico resta aperto sugli emendamenti eliminati.
         public async Task<EM> GetByQR(Guid id)
         {
             return await PRContext
                 .EM
-                .FirstOrDefaultAsync(em => em.UID_QRCode == id);
+                .FirstOrDefaultAsync(em => em.UID_QRCode == id && !em.Eliminato);
         }
 
         /// <summary>
-        ///     Riepilogo emendamenti
+        ///     Riepilogo emendamenti, firma legacy con liste tipizzate. Mantenuta per export Word,
+        ///     stampe e richiesta firma; i nuovi chiamanti devono usare l'overload basato su
+        ///     <see cref="QueryExtendedRequestEM" />.
         /// </summary>
-        /// <param name="persona"></param>
-        /// <param name="ordine"></param>
-        /// <param name="page"></param>
-        /// <param name="size"></param>
-        /// <param name="CLIENT_MODE"></param>
-        /// <param name="filtro"></param>
-        /// <param name="firmatari"></param>
-        /// <param name="proponenti"></param>
-        /// <param name="gruppi"></param>
-        /// <param name="stati"></param>
-        /// <param name="tagDtos"></param>
-        /// <returns></returns>
+        [Obsolete("Usa l'overload basato su QueryExtendedRequestEM.")]
         public async Task<IEnumerable<Guid>> GetAll(PersonaDto persona, OrdinamentoEnum ordine, int? page,
             int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null,
             List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null)
@@ -472,7 +467,7 @@ namespace PortaleRegione.Persistance
                     if (persona.IsGiunta)
                         query = query
                             .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-                    else if (!persona.IsSegreteriaAssemblea
+                    else if (!persona.IsSegreteriaAssemblea_Vista
                              && !persona.IsPresidente)
                         query = query
                             .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
@@ -672,7 +667,7 @@ namespace PortaleRegione.Persistance
                             .Where(em => stati.Contains(em.IDStato));
 
                 if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE ||
-                    persona.IsSegreteriaAssemblea
+                    persona.IsSegreteriaAssemblea_Vista
                     || persona.IsPresidente)
                     switch (ordine)
                     {
@@ -756,7 +751,7 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
 
-                if (persona.IsSegreteriaAssemblea)
+                if (persona.IsSegreteriaAssemblea_Vista)
                     query = query.Where(em =>
                         !string.IsNullOrEmpty(em.DataDeposito) ||
                         em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
@@ -817,7 +812,9 @@ namespace PortaleRegione.Persistance
         /// </summary>
         /// <param name="emendamentoUId"></param>
         /// <returns></returns>
-        public async Task<EM> Get(Guid emendamentoUId, bool includes = true)
+        // #1671 Come per gli atti DASI: un emendamento eliminato non e' piu' leggibile per id,
+        // quindi nemmeno firmabile o depositabile. includeEliminati solo per audit/ripristino.
+        public async Task<EM> Get(Guid emendamentoUId, bool includes = true, bool includeEliminati = false)
         {
             var query = PRContext.EM.AsQueryable();
             if (includes)
@@ -828,7 +825,8 @@ namespace PortaleRegione.Persistance
                     .Include(em => em.STATI_EM)
                     .Include(em => em.TIPI_EM);
 
-            var result = await query.SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId);
+            var result = await query.SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId
+                                                               && (includeEliminati || !em.Eliminato));
 
             return result;
         }
@@ -1000,7 +998,17 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public bool CheckIfEliminabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (persona.Gruppo == null) return false;
+            // #1607
+            if (persona.Gruppo == null)
+            {
+                if (persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea 
+                    && persona.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+                {
+                    return false;
+                }
+
+                return string.IsNullOrEmpty(em.DataDeposito);
+            }
 
             if (em.id_gruppo != persona.Gruppo.id_gruppo) return false;
 
@@ -1314,5 +1322,572 @@ namespace PortaleRegione.Persistance
                 .Where(em => listaEmendamenti.Contains(em.UIDEM))
                 .ToListAsync();
         }
+
+        #region Riepilogo basato su QueryExtendedRequestEM
+
+        /// <summary>
+        ///     Riepilogo emendamenti, pattern unificato: filtri specializzati in <see cref="QueryExtendedRequestEM" />,
+        ///     statement residui nel <paramref name="filtro" />.
+        ///     Costruisce un'unica IQueryable: scoping per ruolo + range N_EM/N_SUBEM + statement
+        ///     promossi + sub-query EF per Firmatari/MyEM/EMDaFirmare + ordinamento primario
+        ///     per ruolo + paginazione. Niente materializzazione
+        ///     intermedia (eccetto Tags, dove il pattern di traduzione EF6 dell'OR su lista non
+        ///     e' garantito).
+        /// </summary>
+        public async Task<IEnumerable<Guid>> GetAll(PersonaDto persona, int? page, int? size, int CLIENT_MODE,
+            OrdinamentoEnum ordine, Filter<EM> filtro, QueryExtendedRequestEM queryExtended)
+        {
+            if (queryExtended == null) queryExtended = new QueryExtendedRequestEM();
+
+            // 1. Promozione dei filtri specializzati a statement del Filter<EM> + estrazione
+            //    delle liste tipizzate (firmatari, proponenti, gruppi, stati, tag).
+            var filtroPromosso = PromuoviFiltriEM(filtro, queryExtended);
+            var firmatari = queryExtended.Firmatari != null && queryExtended.Firmatari.Count > 0
+                ? queryExtended.Firmatari : null;
+            var proponenti = queryExtended.Proponenti != null && queryExtended.Proponenti.Count > 0
+                ? queryExtended.Proponenti : null;
+            var gruppi = queryExtended.GruppiProponenti != null && queryExtended.GruppiProponenti.Count > 0
+                ? queryExtended.GruppiProponenti : null;
+            var stati = PromuoviStatiEM(queryExtended.Stati);
+            var tags = queryExtended.Tags != null && queryExtended.Tags.Count > 0
+                ? queryExtended.Tags : null;
+
+            // 2. Base + scoping per ruolo/modalita'. In ricerca trasversale (#1626) lo scoping
+            //    non e' legato a un singolo atto: si parte da tutti i depositati.
+            IQueryable<EM> query;
+            if (queryExtended.RicercaGlobale)
+            {
+                query = ApplicaScopingGlobaleEM();
+            }
+            else
+            {
+                query = await ApplicaScopingBaseEM(filtroPromosso, persona, CLIENT_MODE, ordine, queryExtended.UIDAtto);
+                if (query == null) return new List<Guid>();
+            }
+
+            // 3. Range N_EM/N_SUBEM (token "1,3-5,7") estratti dagli statement e applicati come
+            //    OR di Where; gli statement consumati vengono rimossi dal Filter<EM>.
+            query = ApplicaRangeNEM(query, filtroPromosso);
+            query = ApplicaRangeNSubEM(query, filtroPromosso);
+
+            // 4. Statement residui (UIDAtto, IDTipo_EM, IDParte, UIDArticolo, UIDComma, ecc.).
+            filtroPromosso?.BuildExpression(ref query);
+
+            // 5. Liste tipizzate inline come sub-query EF.
+            query = ApplicaFiltriEstesi(query, firmatari, proponenti, gruppi, stati, tags,
+                queryExtended, persona);
+
+            // 5-bis. Filtri specifici della ricerca trasversale (legislatura, area politica, EM/SUBEM).
+            if (queryExtended.RicercaGlobale)
+                query = ApplicaFiltriGlobaliEM(query, queryExtended);
+
+            // 6. Ordinamento primario per ruolo (in ricerca trasversale gli EM appartengono
+            //    ad atti diversi: si raggruppa per atto).
+            var ordered = queryExtended.RicercaGlobale
+                ? ApplicaOrdinamentoGlobaleEM(query)
+                : ApplicaOrdinamentoEM(query, ordine, persona, CLIENT_MODE);
+
+            // 7. Paginazione.
+            if (!size.HasValue || size.Value == -1)
+                return await ordered.Select(em => em.UIDEM).ToListAsync();
+
+            return await ordered.Select(em => em.UIDEM)
+                .Skip(((page ?? 1) - 1) * size.Value)
+                .Take(size.Value)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        ///     Conteggio emendamenti, pattern unificato. Replica lo stesso schema di GetAll
+        ///     (scoping + range + Filter + sub-query) ma termina con un CountAsync,
+        ///     differenziando EM / SUB_EM / NONE.
+        /// </summary>
+        public async Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter,
+            int CLIENT_MODE, Filter<EM> filtro, QueryExtendedRequestEM queryExtended)
+        {
+            if (queryExtended == null) queryExtended = new QueryExtendedRequestEM();
+
+            var filtroPromosso = PromuoviFiltriEM(filtro, queryExtended);
+            var firmatari = queryExtended.Firmatari != null && queryExtended.Firmatari.Count > 0
+                ? queryExtended.Firmatari : null;
+            var proponenti = queryExtended.Proponenti != null && queryExtended.Proponenti.Count > 0
+                ? queryExtended.Proponenti : null;
+            var gruppi = queryExtended.GruppiProponenti != null && queryExtended.GruppiProponenti.Count > 0
+                ? queryExtended.GruppiProponenti : null;
+            var stati = PromuoviStatiEM(queryExtended.Stati);
+            var tags = queryExtended.Tags != null && queryExtended.Tags.Count > 0
+                ? queryExtended.Tags : null;
+
+            // Per il count l'UIDAtto e' sempre quello richiesto: lo applichiamo subito sulla base.
+            var query = PRContext.EM.Where(em => em.UIDAtto == attoUId && !em.Eliminato);
+            query = ApplicaScopingRuolo(query, persona, CLIENT_MODE);
+
+            query = ApplicaRangeNEM(query, filtroPromosso);
+            query = ApplicaRangeNSubEM(query, filtroPromosso);
+
+            filtroPromosso?.BuildExpression(ref query);
+
+            query = ApplicaFiltriEstesi(query, firmatari, proponenti, gruppi, stati, tags,
+                queryExtended, persona);
+
+            switch (counter)
+            {
+                case CounterEmendamentiEnum.NONE:
+                    return await query.CountAsync();
+                case CounterEmendamentiEnum.EM:
+                    return persona.IsSegreteriaAssemblea_Vista
+                        ? await query.CountAsync(e =>
+                            !string.IsNullOrEmpty(e.N_EM) && string.IsNullOrEmpty(e.N_SUBEM))
+                        : await query.CountAsync(e => string.IsNullOrEmpty(e.N_SUBEM));
+                case CounterEmendamentiEnum.SUB_EM:
+                    return persona.IsSegreteriaAssemblea_Vista
+                        ? await query.CountAsync(e =>
+                            string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM))
+                        : await query.CountAsync(e => !string.IsNullOrEmpty(e.N_SUBEM));
+                default:
+                    return 0;
+            }
+        }
+
+        /// <summary>
+        ///     Base query per il riepilogo: scoping per ruolo/atto (TRATTAZIONE: visibili solo i
+        ///     depositati; GRUPPI: nasconde le bozze riservate altrui, restringe a giunta /
+        ///     gruppo / segreteria a seconda del ruolo). In TRATTAZIONE early-return su atti che
+        ///     non hanno OrdinePresentazione/Votazione attivi.
+        /// </summary>
+        private async Task<IQueryable<EM>> ApplicaScopingBaseEM(Filter<EM> filtroPromosso,
+            PersonaDto persona, int CLIENT_MODE, OrdinamentoEnum ordine, Guid? uidAttoExtended)
+        {
+            var query = PRContext.EM.Where(em => !em.Eliminato);
+
+            if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
+            {
+                var uidAtto = uidAttoExtended ?? Guid.Empty;
+                if (uidAtto == Guid.Empty && filtroPromosso != null)
+                {
+                    var attoStmt = filtroPromosso._statements
+                        .FirstOrDefault(s => s.PropertyId == nameof(EM.UIDAtto));
+                    if (attoStmt?.Value != null)
+                        Guid.TryParse(attoStmt.Value.ToString(), out uidAtto);
+                }
+
+                if (uidAtto != Guid.Empty)
+                {
+                    var atto = await PRContext.ATTI.SingleOrDefaultAsync(a => a.UIDAtto == uidAtto);
+                    if (atto != null)
+                    {
+                        if (atto.OrdinePresentazione == false && ordine == OrdinamentoEnum.Presentazione)
+                            return null;
+                        if (atto.OrdineVotazione == false && ordine == OrdinamentoEnum.Votazione)
+                            return null;
+                    }
+                }
+
+                query = query.Where(em =>
+                    em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
+                return query;
+            }
+
+            return ApplicaScopingRuolo(query, persona, CLIENT_MODE);
+        }
+
+        private IQueryable<EM> ApplicaScopingRuolo(IQueryable<EM> query, PersonaDto persona, int CLIENT_MODE)
+        {
+            if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
+                return query.Where(em =>
+                    em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
+
+            query = query.Where(em => em.IDStato != (int)StatiEnum.Bozza_Riservata
+                                      || (em.IDStato == (int)StatiEnum.Bozza_Riservata
+                                          && (em.UIDPersonaCreazione == persona.UID_persona
+                                              || em.UIDPersonaProponente == persona.UID_persona
+                                              || (persona.IsCapoGruppo && em.UIDPersonaPrimaFirma.HasValue))));
+
+            if (persona.IsGiunta)
+                query = query.Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
+            else if (!persona.IsSegreteriaAssemblea_Vista && !persona.IsPresidente)
+                query = query.Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
+
+            if (persona.IsSoloSegreteriaAssemblea)
+                query = query.Where(em => !string.IsNullOrEmpty(em.DataDeposito)
+                                          || em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
+
+            return query;
+        }
+
+        /// <summary>
+        ///     #1626 - Base per la ricerca trasversale EM/SUBEM (Area Aula): tutti gli emendamenti
+        ///     non eliminati e depositati, senza vincolo di singolo atto ne' di gruppo. La
+        ///     visibilita' "depositati da tutti i gruppi" e' garantita dalla regola sullo stato,
+        ///     coerente con la modalita' TRATTAZIONE.
+        /// </summary>
+        private IQueryable<EM> ApplicaScopingGlobaleEM()
+        {
+            return PRContext.EM.Where(em =>
+                !em.Eliminato
+                && em.IDStato >= (int)StatiEnum.Depositato
+                && !string.IsNullOrEmpty(em.DataDeposito));
+        }
+
+        /// <summary>
+        ///     #1626 - Filtri specifici della ricerca trasversale: legislatura (join su ATTI),
+        ///     area politica (campo EM.AreaPolitica) e tipo EM/SUBEM (presenza di Rif_UIDEM).
+        /// </summary>
+        private IQueryable<EM> ApplicaFiltriGlobaliEM(IQueryable<EM> query, QueryExtendedRequestEM qx)
+        {
+            if (qx.Legislature != null && qx.Legislature.Count > 0)
+            {
+                var legislature = qx.Legislature;
+                query = query.Where(em => PRContext.ATTI.Any(a =>
+                    a.UIDAtto == em.UIDAtto
+                    && a.Legislatura.HasValue
+                    && legislature.Contains(a.Legislatura.Value)));
+            }
+
+            if (qx.AreePolitiche != null && qx.AreePolitiche.Count > 0)
+            {
+                var aree = qx.AreePolitiche;
+                query = query.Where(em => em.AreaPolitica.HasValue && aree.Contains(em.AreaPolitica.Value));
+            }
+
+            switch ((TipoRicercaEmendamentiEnum)qx.TipoRicerca)
+            {
+                case TipoRicercaEmendamentiEnum.SoloEM:
+                    query = query.Where(em => !em.Rif_UIDEM.HasValue);
+                    break;
+                case TipoRicercaEmendamentiEnum.SoloSubEM:
+                    query = query.Where(em => em.Rif_UIDEM.HasValue);
+                    break;
+            }
+
+            return query;
+        }
+
+        /// <summary>
+        ///     #1626 - Ordinamento per la ricerca trasversale: gli EM provengono da atti diversi,
+        ///     quindi si raggruppa per atto e poi per EM/SUBEM e ordine di presentazione.
+        /// </summary>
+        private IOrderedQueryable<EM> ApplicaOrdinamentoGlobaleEM(IQueryable<EM> query)
+        {
+            return query
+                .OrderBy(em => em.UIDAtto)
+                .ThenBy(em => em.SubEM)
+                .ThenBy(em => em.OrdinePresentazione);
+        }
+
+        /// <summary>
+        ///     #1626 - Conteggio per la ricerca trasversale: replica la pipeline di GetAll in
+        ///     modalita' globale (scoping depositati + filtri estesi + filtri globali) e termina
+        ///     con un CountAsync.
+        /// </summary>
+        public async Task<int> CountGlobale(PersonaDto persona, Filter<EM> filtro, QueryExtendedRequestEM queryExtended)
+        {
+            if (queryExtended == null) queryExtended = new QueryExtendedRequestEM();
+            queryExtended.RicercaGlobale = true;
+
+            var filtroPromosso = PromuoviFiltriEM(filtro, queryExtended);
+            var firmatari = queryExtended.Firmatari != null && queryExtended.Firmatari.Count > 0
+                ? queryExtended.Firmatari : null;
+            var proponenti = queryExtended.Proponenti != null && queryExtended.Proponenti.Count > 0
+                ? queryExtended.Proponenti : null;
+            var gruppi = queryExtended.GruppiProponenti != null && queryExtended.GruppiProponenti.Count > 0
+                ? queryExtended.GruppiProponenti : null;
+            var stati = PromuoviStatiEM(queryExtended.Stati);
+            var tags = queryExtended.Tags != null && queryExtended.Tags.Count > 0
+                ? queryExtended.Tags : null;
+
+            var query = ApplicaScopingGlobaleEM();
+            query = ApplicaRangeNEM(query, filtroPromosso);
+            query = ApplicaRangeNSubEM(query, filtroPromosso);
+            filtroPromosso?.BuildExpression(ref query);
+            query = ApplicaFiltriEstesi(query, firmatari, proponenti, gruppi, stati, tags,
+                queryExtended, persona);
+            query = ApplicaFiltriGlobaliEM(query, queryExtended);
+
+            return await query.CountAsync();
+        }
+
+        /// <summary>
+        ///     Estrae lo statement N_EM (tokens "1,3-5,7") dal <paramref name="filtro" />, lo applica
+        ///     come OR di condizioni cifrate sul campo cifrato e rimuove lo statement consumato.
+        /// </summary>
+        private IQueryable<EM> ApplicaRangeNEM(IQueryable<EM> query, Filter<EM> filtro)
+        {
+            if (filtro?._statements == null) return query;
+            var stmt = filtro._statements.FirstOrDefault(s => s.PropertyId == nameof(EM.N_EM));
+            if (stmt?.Value == null) return query;
+
+            var numeri = ParseTokensRange(stmt.Value.ToString());
+            if (numeri.Count > 0)
+            {
+                Expression<Func<EM, bool>> combined = null;
+                foreach (var n in numeri)
+                {
+                    var encryt = CryptoHelper.EncryptString(n.ToString(), AppSettingsConfiguration.masterKey);
+                    Expression<Func<EM, bool>> piece = e =>
+                        (!e.Timestamp.HasValue && e.Progressivo == n) || e.N_EM == encryt;
+                    combined = combined == null
+                        ? piece
+                        : ExpressionExtensions.CombineExpressions(combined, piece);
+                }
+                if (combined != null) query = query.Where(combined);
+            }
+
+            filtro._statements.Remove(stmt);
+            return query;
+        }
+
+        private IQueryable<EM> ApplicaRangeNSubEM(IQueryable<EM> query, Filter<EM> filtro)
+        {
+            if (filtro?._statements == null) return query;
+            var stmt = filtro._statements.FirstOrDefault(s => s.PropertyId == nameof(EM.N_SUBEM));
+            if (stmt?.Value == null) return query;
+
+            var numeri = ParseTokensRange(stmt.Value.ToString());
+            if (numeri.Count > 0)
+            {
+                Expression<Func<EM, bool>> combined = null;
+                foreach (var n in numeri)
+                {
+                    var encryt = CryptoHelper.EncryptString(n.ToString(), AppSettingsConfiguration.masterKey);
+                    Expression<Func<EM, bool>> piece = e =>
+                        (!e.Timestamp.HasValue && e.SubProgressivo == n) || e.N_SUBEM == encryt;
+                    combined = combined == null
+                        ? piece
+                        : ExpressionExtensions.CombineExpressions(combined, piece);
+                }
+                if (combined != null) query = query.Where(combined);
+            }
+
+            filtro._statements.Remove(stmt);
+            return query;
+        }
+
+        /// <summary>
+        ///     Parser dei range numerici accettati dalle chip N_EM / N_SUBEM: "1,3-5,7" ->
+        ///     [1, 3, 4, 5, 7]. Tollerante: token non parsabili vengono ignorati.
+        /// </summary>
+        private static List<int> ParseTokensRange(string raw)
+        {
+            var result = new List<int>();
+            if (string.IsNullOrEmpty(raw)) return result;
+
+            var tokens = raw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(t => t.Trim());
+            foreach (var tok in tokens)
+            {
+                if (tok.Contains("-"))
+                {
+                    var bounds = tok.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(s => s.Trim()).ToArray();
+                    if (bounds.Length == 2 && int.TryParse(bounds[0], out var a) && int.TryParse(bounds[1], out var b))
+                    {
+                        var start = Math.Min(a, b);
+                        var end = Math.Max(a, b);
+                        for (var i = start; i <= end; i++) result.Add(i);
+                    }
+                }
+                else if (int.TryParse(tok, out var num))
+                {
+                    result.Add(num);
+                }
+            }
+            return result.Distinct().ToList();
+        }
+
+        /// <summary>
+        ///     Applica i filtri estesi (firmatari come sub-query EF, proponenti, gruppi, stati con
+        ///     regola Approvato + Approvato_Con_Modifiche, tag con materializzazione fallback,
+        ///     MyEM ed EMDaFirmare come sub-query inline su NOTIFICHE_DESTINATARI / FIRME).
+        /// </summary>
+        private IQueryable<EM> ApplicaFiltriEstesi(IQueryable<EM> query,
+            List<Guid> firmatari, List<Guid> proponenti, List<int> gruppi, List<int> stati,
+            List<TagDto> tags, QueryExtendedRequestEM qx, PersonaDto persona)
+        {
+            if (firmatari != null && firmatari.Count > 0)
+                query = query.Where(em => PRContext.FIRME
+                    .Any(f => f.UIDEM == em.UIDEM && firmatari.Contains(f.UID_persona)));
+
+            if (proponenti != null && proponenti.Count > 0)
+                query = query.Where(em => proponenti.Contains(em.UIDPersonaProponente));
+
+            if (gruppi != null && gruppi.Count > 0)
+                query = query.Where(em => gruppi.Contains(em.id_gruppo));
+
+            if (stati != null && stati.Count > 0)
+                query = query.Where(em => stati.Contains(em.IDStato));
+
+            // #1644 - Chip "Sub-emendamenti": presenza/assenza del riferimento all'EM padre.
+            // true => solo SUBEM (Rif_UIDEM valorizzato), false => solo EM.
+            if (qx.SoloSubEM.HasValue)
+                query = qx.SoloSubEM.Value
+                    ? query.Where(em => em.Rif_UIDEM.HasValue)
+                    : query.Where(em => !em.Rif_UIDEM.HasValue);
+
+            if (tags != null && tags.Count > 0)
+            {
+                // EF6 non traduce in modo affidabile un OR su lista di stringhe combinato con
+                // Contains su un campo, quindi manteniamo il pattern di materializzazione
+                // intermedia degli UIDEM gia' presente nella firma legacy.
+                var tagEm = new List<Guid>();
+                foreach (var t in tags)
+                {
+                    var arr = PRContext.EM
+                        .Where(em => em.Tags.Contains(t.tag))
+                        .Select(em => em.UIDEM)
+                        .ToList();
+                    foreach (var u in arr)
+                        if (!tagEm.Contains(u)) tagEm.Add(u);
+                }
+                query = query.Where(em => tagEm.Contains(em.UIDEM));
+            }
+
+            if (qx.MyEM && qx.UIDPersonaCorrente.HasValue)
+            {
+                var uid = qx.UIDPersonaCorrente.Value;
+                query = query.Where(em =>
+                    em.UIDPersonaProponente == uid || em.UIDPersonaCreazione == uid);
+            }
+
+            if (qx.EMDaFirmare && qx.UIDPersonaCorrente.HasValue)
+            {
+                var uid = qx.UIDPersonaCorrente.Value;
+                query = query.Where(em =>
+                    (
+                        PRContext.NOTIFICHE_DESTINATARI.Any(nd =>
+                            nd.UIDPersona == uid && !nd.Chiuso && nd.NOTIFICHE.UIDEM == em.UIDEM)
+                        || (em.UIDPersonaProponente == uid && !em.UIDPersonaPrimaFirma.HasValue)
+                    )
+                    && !PRContext.FIRME.Any(f =>
+                        f.UIDEM == em.UIDEM && f.UID_persona == uid
+                        && string.IsNullOrEmpty(f.Data_ritirofirma)));
+            }
+
+            return query;
+        }
+
+        /// <summary>
+        ///     Ordinamento primario per ruolo / modalita'. Per TRATTAZIONE, segreteria assemblea
+        ///     e presidente segue la regola OrdinamentoEnum (SubEM + OrdinePresentazione, oppure
+        ///     OrdineVotazione, oppure IDStato + DataCreazione). Per il consigliere usa l'ordine
+        ///     "naturale" della lista emendamenti.
+        /// </summary>
+        private IOrderedQueryable<EM> ApplicaOrdinamentoEM(IQueryable<EM> query, OrdinamentoEnum ordine,
+            PersonaDto persona, int CLIENT_MODE)
+        {
+            // v2026.5.1 - L'ordine richiesto esplicitamente (Presentazione o Votazione)
+            // prevale sul ruolo: il client cambia tab "Presentazione/Votazione" e si
+            // aspetta che la griglia rispetti la scelta sia per il consigliere che per
+            // l'admin/segreteria, sia in modalita' GRUPPI che TRATTAZIONE.
+            // Bug precedente: lo switch era annidato nel ramo "segreteria/presidente/
+            // trattazione", quindi il consigliere PEM in GRUPPI (e anche l'admin PEM
+            // in GRUPPI) cadeva sempre nell'ordine "naturale" per stato, ignorando il
+            // parametro ordine inviato dal client.
+            switch (ordine)
+            {
+                case OrdinamentoEnum.Presentazione:
+                    return query.OrderBy(em => em.SubEM).ThenBy(em => em.OrdinePresentazione);
+                case OrdinamentoEnum.Votazione:
+                    return query.OrderBy(em => em.OrdineVotazione);
+            }
+
+            // Default: fallback su ordine "naturale". Per segreteria/presidente o vista
+            // TRATTAZIONE manteniamo il ramo IDStato + DataCreazione; per il consigliere
+            // GRUPPI manteniamo IDStato + Timestamp + progressivi.
+            if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE
+                || persona.IsSegreteriaAssemblea_Vista
+                || persona.IsPresidente)
+            {
+                return query.OrderBy(em => em.IDStato).ThenByDescending(em => em.DataCreazione);
+            }
+
+            return query.OrderBy(em => em.IDStato)
+                .ThenBy(em => em.Timestamp)
+                .ThenBy(em => em.Progressivo)
+                .ThenBy(em => em.SubProgressivo);
+        }
+
+        /// <summary>
+        ///     Promuove le liste specializzate del <see cref="QueryExtendedRequestEM" /> a statement
+        ///     del <see cref="Filter{T}" />, cosi' BuildExpression li applica in una sola passata
+        ///     dentro la query. Gli statement gia' presenti nel filtro vengono preservati.
+        /// </summary>
+        private Filter<EM> PromuoviFiltriEM(Filter<EM> filtroBase, QueryExtendedRequestEM qx)
+        {
+            var filtro = new Filter<EM>();
+            if (filtroBase?._statements != null)
+                foreach (var s in filtroBase._statements)
+                    filtro._statements.Add(s);
+
+            AggiungiStatementOr(filtro, nameof(EM.IDTipo_EM), qx.Tipi);
+            AggiungiStatementOr(filtro, nameof(EM.IDParte), qx.Parti);
+            AggiungiStatementOr(filtro, nameof(EM.UIDArticolo), qx.Articoli);
+            AggiungiStatementOr(filtro, nameof(EM.UIDComma), qx.Commi);
+            AggiungiStatementOr(filtro, nameof(EM.UIDLettera), qx.Lettere);
+            AggiungiStatementOr(filtro, nameof(EM.NLettera), qx.LettereLegacy);
+            AggiungiStatementOr(filtro, nameof(EM.NTitolo), qx.NTitoli);
+            AggiungiStatementOr(filtro, nameof(EM.NCapo), qx.NCapi);
+            AggiungiStatementOr(filtro, nameof(EM.NMissione), qx.NMissioni);
+            AggiungiStatementOr(filtro, nameof(EM.NProgramma), qx.NProgrammi);
+
+            // #1645 - "Effetti finanziari" e' tri-stato: Si' => solo EM con effetti (== 1),
+            // No => solo EM senza effetti (== 0), chip assente (null) => nessun filtro.
+            if (qx.EffettiFinanziari.HasValue)
+                filtro._statements.Add(new FilterStatement<int>(
+                    nameof(EM.EffettiFinanziari), Operation.EqualTo,
+                    qx.EffettiFinanziari.Value ? 1 : 0));
+
+            if (!string.IsNullOrEmpty(qx.TestoLibero1))
+            {
+                filtro._statements.Add(new FilterStatement<string>(
+                    nameof(EM.TestoEM_originale), Operation.Contains, qx.TestoLibero1));
+                if (!string.IsNullOrEmpty(qx.TestoLibero2))
+                {
+                    var connettore = qx.TestoLiberoConnettore == (int)FilterStatementConnector.Or
+                        ? FilterStatementConnector.Or
+                        : FilterStatementConnector.And;
+                    filtro._statements.Add(new FilterStatement<string>(
+                        nameof(EM.TestoEM_originale), Operation.Contains, qx.TestoLibero2,
+                        default, connettore));
+                }
+            }
+
+            if (qx.UIDAtto.HasValue
+                && filtro._statements.All(s => s.PropertyId != nameof(EM.UIDAtto)))
+                filtro._statements.Add(new FilterStatement<Guid>(
+                    nameof(EM.UIDAtto), Operation.EqualTo, qx.UIDAtto.Value));
+
+            return filtro;
+        }
+
+        private void AggiungiStatementOr<T>(Filter<EM> filtro, string propertyId, ICollection<T> valori)
+        {
+            if (valori == null || valori.Count == 0) return;
+            var lista = valori.ToList();
+            for (var i = 0; i < lista.Count; i++)
+            {
+                var connettore = i < lista.Count - 1
+                    ? FilterStatementConnector.Or
+                    : FilterStatementConnector.And;
+                filtro._statements.Add(new FilterStatement<T>(
+                    propertyId, Operation.EqualTo, lista[i], default, connettore));
+            }
+        }
+
+        /// <summary>
+        ///     Se l'utente filtra per stato "Approvato", include anche "Approvato con modifiche"
+        ///     (a meno che non sia gia' selezionato esplicitamente).
+        /// </summary>
+        private List<int> PromuoviStatiEM(List<int> stati)
+        {
+            if (stati == null || stati.Count == 0) return null;
+            var lista = stati.ToList();
+            if (lista.Contains((int)StatiEnum.Approvato)
+                && !lista.Contains((int)StatiEnum.Approvato_Con_Modifiche))
+                lista.Add((int)StatiEnum.Approvato_Con_Modifiche);
+            return lista;
+        }
+
+        #endregion
     }
 }

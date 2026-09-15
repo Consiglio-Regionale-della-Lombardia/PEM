@@ -91,12 +91,41 @@ namespace PortaleRegione.API.Controllers
                 var results =
                     await _emendamentiLogic.GetEmendamenti(model, user, Convert.ToInt16(CLIENT_MODE), (int)VIEW_MODE,
                         presidente, Request.RequestUri);
-                results.Atto = Mapper.Map<ATTI, AttiDto>(atto);
+                results.Atto = _mapper.Map<ATTI, AttiDto>(atto);
                 return Ok(results);
             }
             catch (Exception e)
             {
                 Log.Error("GetEmendamenti", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     #1626 - Endpoint per la ricerca trasversale degli emendamenti/subemendamenti
+        ///     (Area Aula): non vincolata a un singolo atto, applica i filtri su tutto l'archivio
+        ///     dei depositati e restituisce per ogni EM l'atto e la seduta di riferimento.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.PEM.Emendamenti.GetAllGlobale)]
+        public async Task<IHttpActionResult> GetEmendamentiGlobale(BaseRequest<EmendamentiDto> model)
+        {
+            try
+            {
+                model.param.TryGetValue("VIEW_MODE", out var viewMode);
+                var VIEW_MODE = ViewModeEnum.GRID;
+                if (viewMode != null)
+                    Enum.TryParse(viewMode.ToString(), out VIEW_MODE);
+
+                var results = await _emendamentiLogic.GetEmendamentiGlobale(model, CurrentUser,
+                    (int)VIEW_MODE, Request.RequestUri);
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetEmendamentiGlobale", e);
                 return ErrorHandler(e);
             }
         }
@@ -184,7 +213,7 @@ namespace PortaleRegione.API.Controllers
                         model.filtro,
                         results.Count,
                         Request.RequestUri),
-                    Atto = Mapper.Map<ATTI, AttiDto>(atto),
+                    Atto = _mapper.Map<ATTI, AttiDto>(atto),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     CurrentUser = user
                 });
@@ -438,6 +467,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
@@ -574,6 +607,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var user = CurrentUser;
+                if (user.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = user.IsSegreteriaAssemblea;
                 if (firmaUfficio)
                 {
@@ -624,6 +661,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var user = CurrentUser;
+                if (user.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = user.IsSegreteriaAssemblea;
                 if (firmaUfficio)
                 {
@@ -672,6 +713,10 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var user = CurrentUser;
+                if (user.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var firmaUfficio = user.IsSegreteriaAssemblea;
                 if (firmaUfficio)
                 {
@@ -720,6 +765,10 @@ namespace PortaleRegione.API.Controllers
             var user = CurrentUser;
             try
             {
+                if (user.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 // Tentativo di lock
                 var locked = await _emendamentiLogic.TryAcquireDepositoLock(user.UID_persona);
                 if (!locked)
@@ -777,6 +826,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
@@ -812,6 +865,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (CurrentUser.IsSegreteriaAssemblea_Read)
+                {
+                    throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
+                }
                 var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
@@ -1285,9 +1342,9 @@ namespace PortaleRegione.API.Controllers
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
             EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
-            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
             seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
-            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+            esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
         }
     }

@@ -9,6 +9,10 @@
 <li class="menuTrattazione itemArchivio bold">
     <a class="waves-effect" href="@Url.Action("Archivio", "AttiTrattazione")"><i class="material-icons">chevron_right</i>Tutte le sedute</a>
 </li>
+@* #1626 - Ricerca trasversale EM/SUBEM su tutte le sedute/PDL di una o piu' legislature *@
+<li class="menuTrattazione itemRicercaEM bold">
+    <a class="waves-effect" href="@Url.Action("RicercaEmendamenti", "Emendamenti")"><i class="material-icons">search</i>Ricerca emendamenti</a>
+</li>
 <li class="menuTrattazione itemAreaGruppi bold">
     <a class="waves-effect red-text" href="#!" onclick="AbilitaTrattazione(@Html.Raw((int)ClientModeEnum.GRUPPI))"><i class="material-icons red-text">exit_to_app</i>Esci dall' Aula</a>
 </li>

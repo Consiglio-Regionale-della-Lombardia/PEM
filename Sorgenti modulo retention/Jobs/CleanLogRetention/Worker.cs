@@ -25,6 +25,10 @@ namespace CleanLogRetention
 {
     public class Worker
     {
+        // Le tabelle di audit sono scritte dai trigger, che valorizzano DatAudit con la data dell'evento.
+        // Chi ha una colonna diversa la dichiara nella configurazione con la sintassi TABELLA:COLONNA.
+        private const string ColonnaDataPredefinita = "DatAudit";
+
         private readonly ThreadWorkerModel _model;
 
         public Worker(ThreadWorkerModel model)
@@ -45,17 +49,32 @@ namespace CleanLogRetention
 
                     foreach (var table in tables)
                     {
-                        // Pulizia di eventuali spazi
-                        var trimmedTable = table.Trim();
-                        var columnName = "DataCreazione";
+                        var voce = table.Trim();
+                        if (string.IsNullOrEmpty(voce))
+                            continue;
+
+                        string tableName;
+                        string columnName;
+                        LeggiVoce(voce, out tableName, out columnName);
 
                         var startTime = DateTime.Now;
                         var retentionDate = DateTime.Now.AddDays(-_model.retention);
-                        var rowsDeleted = await DeleteOldLogsAsync(connection, trimmedTable, columnName, retentionDate);
-                        var endTime = DateTime.Now;
 
-                        // Log dei risultati
-                        LogResults(trimmedTable, startTime, endTime, retentionDate, rowsDeleted);
+                        // Ogni tabella va per conto suo: un nome sbagliato in configurazione
+                        // non deve impedire la pulizia di quelle che seguono
+                        try
+                        {
+                            var rowsDeleted =
+                                await DeleteOldLogsAsync(connection, tableName, columnName, retentionDate);
+
+                            LogResults(tableName, startTime, endTime: DateTime.Now, retentionDate: retentionDate,
+                                rowsDeleted: rowsDeleted);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Errore sulla tabella {tableName}: {ex.Message}");
+                            LogErrore(tableName, startTime, DateTime.Now, retentionDate, ex);
+                        }
                     }
                 }
 
@@ -68,9 +87,24 @@ namespace CleanLogRetention
             }
         }
 
+        private static void LeggiVoce(string voce, out string tableName, out string columnName)
+        {
+            var separatore = voce.IndexOf(':');
+            if (separatore < 0)
+            {
+                tableName = voce;
+                columnName = ColonnaDataPredefinita;
+                return;
+            }
+
+            tableName = voce.Substring(0, separatore).Trim();
+            var colonna = voce.Substring(separatore + 1).Trim();
+            columnName = string.IsNullOrEmpty(colonna) ? ColonnaDataPredefinita : colonna;
+        }
+
         private async Task<int> DeleteOldLogsAsync(SqlConnection connection, string tableName, string columnName, DateTime retentionDate)
         {
-            var query = $"DELETE FROM [{tableName}] WHERE {columnName} < @RetentionDate";
+            var query = $"DELETE FROM [{Escape(tableName)}] WHERE [{Escape(columnName)}] < @RetentionDate";
 
             using (var command = new SqlCommand(query, connection))
             {
@@ -80,10 +114,28 @@ namespace CleanLogRetention
             }
         }
 
+        // Nome tabella e colonna arrivano dalla configurazione e finiscono concatenati nella query
+        private static string Escape(string identificatore)
+        {
+            return identificatore.Replace("]", "]]");
+        }
+
         private void LogResults(string tableName, DateTime startTime, DateTime endTime, DateTime retentionDate, int rowsDeleted)
         {
             var logEntry = $"DataInizio: {startTime:yyyy-MM-dd HH:mm:ss}, DataFine: {endTime:yyyy-MM-dd HH:mm:ss}, Tabella: {tableName}, DataInizioRetention: {retentionDate:yyyy-MM-dd HH:mm:ss}, RigheEliminate: {rowsDeleted}";
 
+            Scrivi(logEntry);
+        }
+
+        private void LogErrore(string tableName, DateTime startTime, DateTime endTime, DateTime retentionDate, Exception ex)
+        {
+            var logEntry = $"DataInizio: {startTime:yyyy-MM-dd HH:mm:ss}, DataFine: {endTime:yyyy-MM-dd HH:mm:ss}, Tabella: {tableName}, DataInizioRetention: {retentionDate:yyyy-MM-dd HH:mm:ss}, Errore: {ex.Message}";
+
+            Scrivi(logEntry);
+        }
+
+        private void Scrivi(string logEntry)
+        {
             var logFileName = $"log_clean_retention_{DateTime.Now:yyyyMMdd}.txt";
             var logFilePath = Path.Combine(_model.pathReport, logFileName);
 

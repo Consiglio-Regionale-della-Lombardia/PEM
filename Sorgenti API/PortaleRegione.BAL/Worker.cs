@@ -48,7 +48,7 @@ namespace PortaleRegione.BAL
         private StampaDto _stampa;
 
         public Worker(IUnitOfWork unitOfWork, DASILogic logicDASI, EmendamentiLogic logicEm,
-            AttiFirmeLogic logicAttiFirme, FirmeLogic logicFirme, AttiLogic logicAtti)
+            AttiFirmeLogic logicAttiFirme, FirmeLogic logicFirme, AttiLogic logicAtti, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logicDasi = logicDASI;
@@ -56,6 +56,7 @@ namespace PortaleRegione.BAL
             _logicAttiFirme = logicAttiFirme;
             _logicFirme = logicFirme;
             _logicAtti = logicAtti;
+            _mapper = mapper;
             _stamper = new PdfStamper_Playwright();
         }
 
@@ -273,7 +274,7 @@ namespace PortaleRegione.BAL
 
                 var bodyCopertina = await _logicEm.GetCopertina(new CopertinaModel
                 {
-                    Atto = Mapper.Map<ATTI, AttiDto>(atto),
+                    Atto = _mapper.Map<ATTI, AttiDto>(atto),
                     Totale = listaEMendamenti.Count,
                     Ordinamento = _stampa.Ordine.HasValue
                         ? (OrdinamentoEnum)_stampa.Ordine.Value

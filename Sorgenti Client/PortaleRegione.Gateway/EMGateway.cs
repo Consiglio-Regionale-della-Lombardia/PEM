@@ -93,6 +93,15 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        // #1626 - Ricerca trasversale EM/SUBEM (Area Aula), non vincolata al singolo atto.
+        public async Task<EmendamentiViewModel> GetGlobale(BaseRequest<EmendamentiDto> model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetAllGlobale}";
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<EmendamentiViewModel>(await Post(requestUrl, body, _token));
+            return lst;
+        }
+
         public async Task<List<Guid>> GetSoloIds(BaseRequest<EmendamentiDto> model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetAllSoloIds}";
@@ -273,11 +282,12 @@ namespace PortaleRegione.Gateway
             await Put(requestUrl, body, _token);
         }
 
-        public async Task CambioStato(ModificaStatoModel model)
+        public async Task<Dictionary<Guid, string>> CambioStato(ModificaStatoModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.ModificaStato}";
             var body = JsonConvert.SerializeObject(model);
-            await Put(requestUrl, body, _token);
+            var result = await Put(requestUrl, body, _token);
+            return JsonConvert.DeserializeObject<Dictionary<Guid, string>>(result);
         }
 
         public async Task<Dictionary<Guid, string>> Raggruppa(RaggruppaEmendamentiModel model)

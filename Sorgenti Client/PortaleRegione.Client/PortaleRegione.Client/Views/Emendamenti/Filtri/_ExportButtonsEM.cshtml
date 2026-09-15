@@ -1,0 +1,68 @@
+@*
+    Funzioni JS di export emendamenti.
+    v2026.5.1: i pulsanti rotondi (Word / Excel / Excel Segreteria) sono renderizzati
+    dinamicamente da renderComandiBarraEM in _FiltriRapidiEMPanel.cshtml, accanto agli
+    altri comandi della barra sopra la griglia (ordinamento, stampa, view).
+
+    Questo partial espone solo le funzioni JS exportEM(formato) e _timestampReportEM()
+    invocate da quei pulsanti. Il flusso server (action GeneraReport + EsportaXLS /
+    EsportaWORD / EsportaXLS_UOLA) e' rimasto identico al precedente.
+*@
+
+<script>
+    // Genera il file di export per il formato richiesto. Il nome file segue il
+    // pattern Estrazione_{timestamp} (es. Estrazione_20260528_143215).
+    function exportEM(formato) {
+        if (typeof buildFilterRequestEM !== 'function') {
+            console.error('buildFilterRequestEM non disponibile: pannello filtri non inizializzato.');
+            return;
+        }
+
+        var payload = {
+            Filter: buildFilterRequestEM(),
+            ReportName: 'Estrazione_' + _timestampReportEM(),
+            ExportFormat: formato.toString()
+        };
+
+        var url = '@Url.Action("GeneraReport", "Emendamenti")';
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: JSON.stringify(payload),
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function () {
+                waiting(true, "Generazione export in corso...");
+            },
+            success: function (response) {
+                if (response && response.message) {
+                    swal({ title: "Errore", text: response.message, icon: "error" });
+                    return;
+                }
+                var a = document.createElement("a");
+                a.href = response;
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            },
+            error: function (xhr, status, error) {
+                console.error("Errore nella richiesta export EM: " + status + ". Motivo: " + error);
+            },
+            complete: function () {
+                waiting(false);
+            }
+        });
+    }
+
+    function _timestampReportEM() {
+        var d = new Date();
+        var pad = function (n) { return n.toString().padStart(2, '0'); };
+        return d.getFullYear().toString()
+            + pad(d.getMonth() + 1)
+            + pad(d.getDate())
+            + '_'
+            + pad(d.getHours())
+            + pad(d.getMinutes())
+            + pad(d.getSeconds());
+    }
+</script>

@@ -8,7 +8,17 @@
 /Sorgenti API/ExpressionBuilder/bin/Release
 /Sorgenti API/ExpressionBuilder/obj
 *.nupkg
-*.config
+
+# File di configurazione con credenziali: tenuti fuori dal repository.
+# I Web.config / App.config strutturali sono invece versionati e leggono i
+# secrets da Secrets.config tramite l'attributo file= di <appSettings>,
+# e la configurazione EDMA da Edma.config tramite configSource sulla
+# sezione custom <edmaSettings>.
+Secrets.config
+*.Secrets.config
+Edma.config
+*.Edma.config
+*.local.config
 /Sorgenti API/PortaleRegione.API/.vs/PortaleRegione.API/v16/TestStore/0
 /Sorgenti API/PortaleRegione.API/packages
 /Sorgenti API/PortaleRegione.API/PortaleRegione.API/esportazioni
@@ -74,6 +84,7 @@
 Sorgenti Scheduler Quartz/Scheduler Quartz/obj/
 
 .vs/
+.idea/
 
 Sorgenti Scheduler Quartz/Scheduler Service/obj/
 
@@ -120,6 +131,7 @@ Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/JobTest/bin
 Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/JobTest/obj
 Sorgenti modulo retention/Jobs/CleanLogRetention/obj
 Sorgenti modulo calcolo ritardo/Jobs/TestJob/obj
+Sorgenti modulo calcolo ritardo/Jobs/CalcoloRitardoAttoJob/packages
 Sorgenti API/PortaleRegione.API/.idea
 Sorgenti API/PortaleRegione.API/PortaleRegione.SDK.GEA/obj
 Sorgenti API/PortaleRegione.SDK.GEA/obj
@@ -132,3 +144,10 @@ Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/TestProject/obj
 Sorgenti modulo di stampa asincrona/Jobs/GeneraStampeJob/TestProject/testsettings.json
 Sorgenti Scheduler Quartz/Scheduler Quartz/.idea
 Sorgenti Scheduler Quartz/Scheduler Service/.idea
+Sorgenti API/PortaleRegione.SDK.EDMA/obj
+Sorgenti API/PortaleRegione.SDK.EDMA/bin
+Sorgenti modulo calcolo ritardo/Jobs/CalcoloRitardoAttoJob/bin
+Sorgenti modulo calcolo ritardo/Jobs/CalcoloRitardoAttoJob/obj
+Sorgenti modulo calcolo ritardo/Jobs/TestJob/bin
+Sorgenti API/ExpressionBuilder/bin
+Sorgenti modulo retention/Jobs/CleanLogRetention/bin

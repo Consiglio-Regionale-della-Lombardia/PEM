@@ -38,7 +38,7 @@ CREATE TABLE [dbo].[EM](
 	[UIDArticolo] [uniqueidentifier] NULL,
 	[UIDComma] [uniqueidentifier] NULL,
 	[UIDLettera] [uniqueidentifier] NULL,
-	[NLettera] [varchar](5) NULL,
+	[NLettera] [varchar](50) NULL,
 	[UIDParte_LR] [uniqueidentifier] NULL,
 	[NNumero] [varchar](5) NULL,
 	[UIDMissione] [uniqueidentifier] NULL,
@@ -73,7 +73,8 @@ CREATE TABLE [dbo].[EM](
 	[DataUltimaStampa] [datetime] NULL,
 	[PathStampa] [varchar](max) NULL,
 	[StampaValida] [bit] NOT NULL,
- CONSTRAINT [PK_EM] PRIMARY KEY CLUSTERED 
+	[NascondiGruppo] [bit] NOT NULL,
+ CONSTRAINT [PK_EM] PRIMARY KEY CLUSTERED
 (
 	[UIDEM] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
@@ -105,6 +106,9 @@ ALTER TABLE [dbo].[EM] ADD  CONSTRAINT [DF_EM_VersioneStampa]  DEFAULT ((0)) FOR
 GO
 
 ALTER TABLE [dbo].[EM] ADD  CONSTRAINT [DF_EM_StampaValida]  DEFAULT ((0)) FOR [StampaValida]
+GO
+
+ALTER TABLE [dbo].[EM] ADD  CONSTRAINT [DF_EM_NascondiGruppo]  DEFAULT ((0)) FOR [NascondiGruppo]
 GO
 
 

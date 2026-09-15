@@ -38,10 +38,11 @@ namespace PortaleRegione.BAL
 {
     public class AttiLogic : BaseLogic
     {
-        public AttiLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM)
+        public AttiLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEM;
+            _mapper = mapper;
 
             GetUsersInDb();
         }
@@ -57,7 +58,7 @@ namespace PortaleRegione.BAL
 
                 var appoggioAttiDtos = (await _unitOfWork.Atti.GetAll(model.id, model.page, model.size, CLIENT_MODE,
                         currentUser, queryFilter))
-                    .Select(Mapper.Map<ATTI, AttiDto>);
+                    .Select(_mapper.Map<ATTI, AttiDto>);
                 var result = new List<AttiDto>();
                 foreach (var appoggio in appoggioAttiDtos)
                 {
@@ -66,11 +67,15 @@ namespace PortaleRegione.BAL
                     appoggio.Conteggio_SubEM = await _unitOfWork.Emendamenti.Count(appoggio.UIDAtto,
                         currentUser, CounterEmendamentiEnum.SUB_EM, CLIENT_MODE);
                     appoggio.CounterODG = await _unitOfWork.DASI.CountODGByAttoPEM(appoggio.UIDAtto);
-                    if (currentUser.IsSegreteriaAssemblea)
+                    if (currentUser.IsSegreteriaAssemblea_Vista)
                     {
-                        appoggio.CanMoveUp = _unitOfWork.Atti.CanMoveUp(appoggio.Priorita.Value);
-                        appoggio.CanMoveDown =
-                            await _unitOfWork.Atti.CanMoveDown(appoggio.UIDSeduta.Value, appoggio.Priorita.Value);
+                        // #1670 - le frecce di spostamento restano a chi puo' scrivere
+                        if (currentUser.IsSegreteriaAssemblea)
+                        {
+                            appoggio.CanMoveUp = _unitOfWork.Atti.CanMoveUp(appoggio.Priorita.Value);
+                            appoggio.CanMoveDown =
+                                await _unitOfWork.Atti.CanMoveDown(appoggio.UIDSeduta.Value, appoggio.Priorita.Value);
+                        }
 
                         var listaArticoli = await _unitOfWork.Articoli.GetArticoli(appoggio.UIDAtto);
                         var listaRelatori = await _unitOfWork.Persone.GetRelatori(appoggio.UIDAtto);
@@ -124,7 +129,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var atto = Mapper.Map<AttiFormUpdateModel, ATTI>(attoModel);
+                var atto = _mapper.Map<AttiFormUpdateModel, ATTI>(attoModel);
                 atto.UIDAtto = Guid.NewGuid();
                 atto.Eliminato = false;
                 atto.UIDPersonaCreazione = currentUser.UID_persona;
@@ -171,7 +176,7 @@ namespace PortaleRegione.BAL
             {
                 attoInDb.UIDPersonaModifica = currentUser.UID_persona;
                 attoInDb.DataModifica = DateTime.Now;
-                Mapper.Map(attoModel, attoInDb);
+                _mapper.Map(attoModel, attoInDb);
                 if (!attoModel.Data_chiusura.HasValue)
                 {
                     attoInDb.Data_chiusura = null;
@@ -238,7 +243,7 @@ namespace PortaleRegione.BAL
 
         public async Task<IEnumerable<ArticoliDto>> GetArticoli(Guid id)
         {
-            return (await _unitOfWork.Articoli.GetArticoli(id)).Select(Mapper.Map<ARTICOLI, ArticoliDto>);
+            return (await _unitOfWork.Articoli.GetArticoli(id)).Select(_mapper.Map<ARTICOLI, ArticoliDto>);
         }
 
         public async Task CreaArticoli(Guid id, string articoli)
@@ -567,7 +572,7 @@ namespace PortaleRegione.BAL
             {
                 var articoliModel = new ArticoliModel
                 {
-                    Data = Mapper.Map<ARTICOLI, ArticoliDto>(articolo)
+                    Data = _mapper.Map<ARTICOLI, ArticoliDto>(articolo)
                 };
 
                 if (viewEm)
@@ -589,7 +594,7 @@ namespace PortaleRegione.BAL
                     {
                         var commiModel = new CommiModel
                         {
-                            Data = Mapper.Map<COMMI, CommiDto>(comma)
+                            Data = _mapper.Map<COMMI, CommiDto>(comma)
                         };
 
                         if (viewEm)
@@ -610,7 +615,7 @@ namespace PortaleRegione.BAL
                             {
                                 var letteraModel = new LettereModel
                                 {
-                                    Data = Mapper.Map<LETTERE, LettereDto>(lettera)
+                                    Data = _mapper.Map<LETTERE, LettereDto>(lettera)
                                 };
 
                                 if (viewEm)
@@ -697,6 +702,7 @@ namespace PortaleRegione.BAL
             var atto_clone = attoInDb.Clona();
             _unitOfWork.Atti.Add(atto_clone);
             attoInDb.UIDSeduta = uidSeduta;
+            attoInDb.Priorita = await _unitOfWork.Atti.PrioritaAtto(uidSeduta);
             await _unitOfWork.CompleteAsync();
         }
     }

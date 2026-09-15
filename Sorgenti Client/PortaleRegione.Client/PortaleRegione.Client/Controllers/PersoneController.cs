@@ -49,10 +49,10 @@ namespace PortaleRegione.Client.Controllers
 
         [HttpGet]
         [Route("proponenti-firmatari")]
-        public async Task<ActionResult> GetProponentiFirmatari(string legislaturaId)
+        public async Task<ActionResult> GetProponentiFirmatari(string legislaturaId, int? gruppoId = null)
         {
             var apiGateway = new ApiGateway(Token);
-            return Json(await apiGateway.Persone.GetProponentiFirmatari(legislaturaId), JsonRequestBehavior.AllowGet);
+            return Json(await apiGateway.Persone.GetProponentiFirmatari(legislaturaId, gruppoId), JsonRequestBehavior.AllowGet);
         }
 
         [Route("cambio-pin")]

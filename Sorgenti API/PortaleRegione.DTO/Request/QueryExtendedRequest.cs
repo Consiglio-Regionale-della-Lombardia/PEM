@@ -34,6 +34,10 @@ public class QueryExtendedRequest
     public List<Guid> Proponenti { get; set; } = new();
     public List<Guid> Provvedimenti { get; set; } = new();
     public List<Guid> AttiDaFirmare { get; set; } = new();
+
+    // #1616 - flag "Atti da firmare" arrivato come chip dal pannello filtri consiglieri.
+    // Quando true si popola AttiDaFirmare (inviti aperti + atti propri non ancora firmati).
+    public bool RequireMySign { get; set; } = false;
     public List<int> Risposte { get; set; } = new();
     public List<int> Organi { get; set; } = new();
     public List<int> Organi_Commissione { get; set; } = new();
@@ -43,6 +47,10 @@ public class QueryExtendedRequest
     public bool RispostaMancante { get; set; }
     public bool OrganiIsNull { get; set; }
     public List<DateTime> DataSeduta { get; set; } = new();
+
+    // #1625 - estrai solo gli atti effettivamente iscritti in seduta da UOLA
+    // (default false = comportamento storico: iscritti + atti con richiesta iscrizione)
+    public bool SoloAttiIscrittiInSeduta { get; set; } = false;
     public List<DateTime> DataRisposta { get; set; } = new();
     public bool DataRispostaIsNull { get; set; }
     public bool DataAnnunzioIsNull { get; set; }
@@ -59,6 +67,9 @@ public class QueryExtendedRequest
     public List<Guid> Firmatari { get; set; } = new();
     public List<int> GruppiFirmatari { get; set; } = new();
     public List<int> AreaPolitica { get; set; } = new();
+    
+    // #1608
+    public List<int> Legislature { get; set; } = new();
     public bool? Ritardo { get; set; }
     public List<bool> RitardoList { get; set; } = new();
     public bool TipoVotazioneMancante { get; set; } = false;
@@ -78,6 +89,7 @@ public class QueryExtendedRequest
             Proponenti = new List<Guid>(Proponenti),
             Provvedimenti = new List<Guid>(Provvedimenti),
             AttiDaFirmare = new List<Guid>(AttiDaFirmare),
+            RequireMySign = RequireMySign, // #1616
             Risposte = new List<int>(Risposte),
             Organi = new List<int>(Organi),
             DataTrasmissione = new List<DateTime>(DataTrasmissione),
@@ -85,6 +97,7 @@ public class QueryExtendedRequest
             RispostaMancante = RispostaMancante,
             OrganiIsNull = OrganiIsNull,
             DataSeduta = new List<DateTime>(DataSeduta),
+            SoloAttiIscrittiInSeduta = SoloAttiIscrittiInSeduta, // #1625
             DataRisposta = new List<DateTime>(DataRisposta),
             DataRispostaIsNull = DataRispostaIsNull,
             DataAnnunzioIsNull = DataAnnunzioIsNull,
@@ -100,7 +113,8 @@ public class QueryExtendedRequest
             GruppiProponenti = new List<int>(GruppiProponenti),
             Firmatari = new List<Guid>(Firmatari),
             GruppiFirmatari = new List<int>(GruppiFirmatari),
-            AreaPolitica = new List<int>(AreaPolitica)
+            AreaPolitica = new List<int>(AreaPolitica),
+            Legislature = new List<int>(Legislature) // #1608
         };
     }
 }

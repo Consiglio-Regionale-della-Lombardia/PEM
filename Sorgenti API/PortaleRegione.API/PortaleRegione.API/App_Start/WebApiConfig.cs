@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using AutoMapper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using PortaleRegione.BAL;
@@ -49,6 +50,19 @@ namespace PortaleRegione.API
 
             // DI
             var container = new UnityContainer();
+
+            // AutoMapper: una sola configurazione validata al boot, IMapper come singleton.
+            // ShouldMapMethod = _ => false disattiva la convenzione "metodo Get<Membro>() come
+            // sorgente del mapping": diversi DTO/Domain espongono un GetLegislatura() (string)
+            // accanto alla property Legislatura (int) e la convention di v10 li mette in conflitto.
+            var mapperConfig = new MapperConfiguration(c =>
+            {
+                c.ShouldMapMethod = _ => false;
+                c.AddProfile<MappingProfile>();
+            });
+            mapperConfig.AssertConfigurationIsValid();
+            container.RegisterInstance<IMapper>(mapperConfig.CreateMapper());
+
             container.RegisterType<IUnitOfWork, UnitOfWork>(new HierarchicalLifetimeManager());
             container.RegisterType<AuthLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<PersoneLogic>(new HierarchicalLifetimeManager());
@@ -58,8 +72,10 @@ namespace PortaleRegione.API
             container.RegisterType<FirmeLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<StampeLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<EsportaLogic>(new HierarchicalLifetimeManager());
+            container.RegisterType<FiltriLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<UtilsLogic>(new HierarchicalLifetimeManager());
             container.RegisterType<NotificheLogic>(new HierarchicalLifetimeManager());
+            container.RegisterType<DASIProtocollazioneService>(new HierarchicalLifetimeManager());
             config.DependencyResolver = new UnityResolver(container);
 
             // Route dell'API Web

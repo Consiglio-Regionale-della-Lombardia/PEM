@@ -53,6 +53,8 @@
     <Compile Include="EMGateway.cs" />
     <Compile Include="EMGateway_Pubblico.cs" />
     <Compile Include="EsportaGateway.cs" />
+    <Compile Include="FiltriGateway.cs" />
+    <Compile Include="IFiltriGateway.cs" />
     <Compile Include="IAdminGateway.cs" />
     <Compile Include="IApiGateway.cs" />
     <Compile Include="IAttiGateway.cs" />

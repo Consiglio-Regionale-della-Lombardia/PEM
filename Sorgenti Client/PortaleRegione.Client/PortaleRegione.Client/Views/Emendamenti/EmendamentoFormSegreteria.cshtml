@@ -154,6 +154,16 @@
 					</div>
 					@Html.Partial("_DocsPanel", Model)
 					@Html.Partial("_TagsPanel", Model)
+						@* #1622 - carta bianca: nasconde il gruppo politico nell'intestazione dell'atto *@
+						<div class="form-group">
+							<p>
+								<label>
+									<input id="Emendamento_NascondiGruppo" type="checkbox" value="true"
+									       @Html.Raw(Model.Emendamento.NascondiGruppo ? "checked=\"checked\"" : "")>
+									<span>Nascondi gruppo</span>
+								</label>
+							</p>
+						</div>
 				}
 				<div class="fixed-action-btn">
 					<button class="btn-floating btn-large blue darken-3" id="btnSave">
@@ -174,6 +184,12 @@
 }
 
 @Html.Partial("_EMFormScript")
+
+<script>
+    // #1666 - EM/SUBEM cartaceo: blocca l'autocompletamento del testo per non sovrascrivere la frase standard del proponente
+    // (impostato solo per la Segreteria Assemblea, cioe' l'unico contesto in cui il testo cartaceo viene precompilato lato server)
+    window.bloccaTestoAutomaticoEM = @(Model.CurrentUser != null && Model.CurrentUser.IsSegreteriaAssemblea ? "true" : "false");
+</script>
 
 <script>
     $(document).ready(function() {

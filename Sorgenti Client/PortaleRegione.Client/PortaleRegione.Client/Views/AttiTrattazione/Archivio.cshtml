@@ -47,8 +47,23 @@
                     css_sedutaAttiva = string.Empty;
                 }
             }
+            
+            var colorStato = "badgeSedutaArchiviata";
 
-            <li class="badgeBody">
+            if (!seduta.Data_apertura.HasValue)
+            {
+                colorStato = "badgeSedutaChiusa";
+            }
+            else if (seduta.Data_apertura > DateTime.Now)
+            {
+                colorStato = "badgeSedutaChiusa";
+            }
+            else if (!string.IsNullOrEmpty(css_sedutaAttiva))
+            {
+                colorStato = "badgeSedutaAperta";
+            }
+
+            <li class="badgeBody @colorStato">
                 <div class="collapsible-header" tabindex="0">
                     <div class="col s8 valign-wrapper">
                         <span style="padding-right: 50px">Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")</span>
@@ -79,33 +94,6 @@
                     <div class="row">
                         <div class="col s12">
                             <ul class="collection">
-                                @{
-                                    var testoStato = "Archiviata";
-                                    var colorStato = "blue-text";
-
-                                    if (!seduta.Data_apertura.HasValue)
-                                    {
-                                        testoStato = "Chiuso";
-                                        colorStato = "grey-text";
-
-                                    }
-                                    else if (seduta.Data_apertura > DateTime.Now)
-                                    {
-                                        testoStato = "Chiuso";
-                                        colorStato = "grey-text";
-
-                                    }
-                                    else if (!string.IsNullOrEmpty(css_sedutaAttiva))
-                                    {
-                                        testoStato = "Aperta";
-                                        colorStato = "green-text";
-                                    }
-                                }
-                                <li class="collection-item">
-                                    <div>
-                                        <label>Stato:</label><a href="#!" class="secondary-content @colorStato">@testoStato</a>
-                                    </div>
-                                </li>
                                 @foreach (var atto in seduta.AttiList)
                                 {
                                     <li class="collection-item">

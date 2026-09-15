@@ -163,5 +163,22 @@ namespace PortaleRegione.Client.Controllers
             var legislatura_corrente = split[split.Length - 2];
             return legislatura_corrente;
         }
+
+        /// <summary>
+        ///     Json senza il tetto di 2 MB del JavaScriptSerializer, per gli endpoint che
+        ///     restituiscono intere pagine di griglia. Oltre il limite la serializzazione
+        ///     salta dentro ExecuteResult, cioe' fuori dal try/catch dell'action: il client
+        ///     riceve un 500 al posto dei dati e non ha modo di spiegare cosa e' successo.
+        /// </summary>
+        protected JsonResult JsonSenzaLimiti(object data,
+            JsonRequestBehavior behavior = JsonRequestBehavior.DenyGet)
+        {
+            return new JsonResult
+            {
+                Data = data,
+                JsonRequestBehavior = behavior,
+                MaxJsonLength = int.MaxValue
+            };
+        }
     }
 }

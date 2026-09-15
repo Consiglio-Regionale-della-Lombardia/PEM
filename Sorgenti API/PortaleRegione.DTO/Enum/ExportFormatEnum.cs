@@ -24,6 +24,10 @@ namespace PortaleRegione.DTO.Enum
         PDF = 2,
         EXCEL = 3,
         EXCEL_SITUAZIONE = 4,
-        EXCEL_COMMISSIONI = 5
+        EXCEL_COMMISSIONI = 5,
+        // v2026.5.1 - Export PEM dedicato per l'Ufficio Ordinamento Lavori d'Aula
+        // (UOLA). Semanticamente distinto da EXCEL_SITUAZIONE che e' invece il
+        // report DASI.
+        EXCEL_UOLA = 6
     }
 }

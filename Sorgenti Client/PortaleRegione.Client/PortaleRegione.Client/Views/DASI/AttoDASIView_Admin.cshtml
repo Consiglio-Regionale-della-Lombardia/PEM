@@ -100,7 +100,12 @@
         <div class="chip @Utility.GetCSS_StatoDASI(atto.IDStato) white" style="min-width: unset;border-color:black!important;color:black!important;">@labelStato</div>
     </div>
 </div>
-
+@*
+    Il vecchio pulsante "Protocollo EDMA (BETA)" e' stato rimosso da qui:
+    l'azione "Protocolla" ora vive accanto alla casella Protocollo nelle
+    informazioni generali dell'atto, cosi' la segreteria UOLA ha tutto a
+    portata di mano nello stesso pannello.
+*@
 <div class="row" style="padding-top: 35px">
 <div class="col s12">
 <ul class="collapsible expandable">
@@ -236,7 +241,7 @@
                     </div>
                 </div>
                 @if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
-                        || Model.CurrentUser.IsSegreteriaAssemblea
+                        || Model.CurrentUser.IsSegreteriaAssemblea_Vista
                         || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
                         || (Model.CurrentUser.IsCapoGruppo && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
                     {
@@ -398,8 +403,42 @@
                 }
                 <div class="row">
                     <div class="input-field col s12 m12 l6">
-                        @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
+                        @* La segnatura di protocollo arriva esclusivamente dal
+                           flusso "Protocolla" verso EDMA: il campo e' percio'
+                           in sola lettura. Eventuale edit manuale per gli atti
+                           va aggiunto in seguito come azione
+                           separata, governata dal feature flag
+                           EDMA_AbilitaEditManualeProtocollo. *@
+                        @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control", @readonly = "readonly" })
                         @Html.LabelFor(s => s.Atto.Protocollo)
+                        @if (Model.CurrentUser.IsSegreteriaAssemblea)
+                        {
+                            var isProtocollato = !string.IsNullOrEmpty(Model.Atto.Protocollo);
+                            var titolo = isProtocollato
+                                ? "Atto gia' protocollato"
+                                : "Invia l'atto al protocollo EDMA";
+                            <button type="button"
+                                    id="btnProtocollaEdma"
+                                    class="btn-flat teal-text tooltipped"
+                                    style="margin-top: 6px"
+                                    data-tooltip="@titolo"
+                                    data-id="@Model.Atto.UIDAtto"
+                                    @(isProtocollato ? "disabled" : "")>
+                                <i class="material-icons left">send</i>
+                                Protocolla
+                            </button>
+                            if (PortaleRegione.Client.Helpers.AppSettingsConfiguration.EDMA_AbilitaEditManualeProtocollo)
+                            {
+                                <button type="button"
+                                        id="btnEditProtocolloManuale"
+                                        class="btn-flat grey-text text-darken-2 tooltipped"
+                                        style="margin-top: 6px"
+                                        data-tooltip="Modifica manuale"
+                                        data-id="@Model.Atto.UIDAtto">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                            }
+                        }
                     </div>
                     <div class="input-field col s12 m12 l6">
                         @Html.TextBoxFor(model => model.Atto.CodiceMateria, new { @class = "form-control" })
@@ -2180,8 +2219,6 @@
                         } else {
                             console.warn('Errore automatismo tabella risposte non trovata');
                         }
-                    } else {
-                        document.querySelector('input[name="Atto.DataChiusuraIter"]').value = "";
                     }
                 }
             }
@@ -2667,7 +2704,7 @@
 
                 }).fail(function(err) {
                     console.log("error", err);
-                    Error(err);
+                    MostraErrore(err);
                 });
             }
         });
@@ -2705,6 +2742,186 @@
         // Primo render (se i campi hanno già un valore server-side)
         updateLabel();
     });
+
+    // Gestione del pulsante "Protocolla" accanto alla casella Protocollo.
+    // Click -> swal di conferma -> POST /DASI/Protocolla/{id} -> aggiorna
+    // la casella con la segnatura restituita; in caso di errore mostra un
+    // modale dettagliato con lo step EDMA fallito e l'eventuale risposta
+    // grezza, utile durante il collaudo con Regione visto che da locale gli
+    // endpoint EDMA non sono raggiungibili per policy di sicurezza.
+    $(document).on('click', '#btnProtocollaEdma', function () {
+        var btn = $(this);
+        var id = btn.data('id');
+        if (!id) return;
+
+        swal({
+            title: "Conferma protocollazione",
+            text: "Verranno create la pratica e il protocollo su EDMA in un'unica operazione. Procedere?",
+            icon: "warning",
+            buttons: ["Annulla", "Protocolla"]
+        }).then(function (answer) {
+            if (!answer) return;
+
+            // NB: usiamo Url.Content e non Url.Action perche' Url.Action riusa
+            // automaticamente l'id presente nei RouteValues della pagina
+            // corrente (l'atto in dettaglio), e poi appendendo "/+ id"
+            // otterremmo il guid duplicato nel path.
+            var url = '@Url.Content("~/DASI/protocolla/")' + id;
+            waiting(true, 'Protocollazione EDMA in corso...');
+            btn.prop('disabled', true);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                success: function (data) {
+                    waiting(false);
+                    if (data && data.Success) {
+                        // La casella "Protocollo" mostra il numero pratica EDMA
+                        // (cio' che la segreteria chiama protocollo); la segnatura
+                        // resta informativa nel toast e viene riportata sul PDF.
+                        if (data.NumeroPratica) {
+                            var $input = $('#Atto_Protocollo');
+                            $input.val(data.NumeroPratica);
+                            // Materialize: forza il label "active" quando
+                            // popoliamo l'input via JavaScript, altrimenti
+                            // resta sovrapposto al valore.
+                            $input.siblings('label').addClass('active');
+                        }
+                        var html = 'Atto protocollato' +
+                            (data.NumeroPratica ? ' &middot; protocollo <b>' + data.NumeroPratica + '</b>' : '') +
+                            (data.Segnatura ? ' (segnatura ' + data.Segnatura + ')' : '');
+                        M.toast({ html: html, classes: 'green', displayLength: 6000 });
+                        btn.attr('data-tooltip', 'Atto gia\' protocollato');
+                    } else {
+                        mostraErroreProtocollazione(data);
+                        btn.prop('disabled', false);
+                    }
+                },
+                error: function (err) {
+                    waiting(false);
+                    btn.prop('disabled', false);
+
+                    // 502 BadGateway o altri errori HTTP: il body contiene
+                    // comunque l'EdmaProtocollazioneEsitoDto con
+                    // StepFallito e Dettaglio, lo estraiamo da responseJSON
+                    // se disponibile.
+                    var payload = null;
+                    if (err && err.responseJSON) {
+                        payload = err.responseJSON;
+                    } else if (err && err.responseText) {
+                        try { payload = JSON.parse(err.responseText); } catch (_) { /* ignore */ }
+                    }
+                    if (payload) {
+                        mostraErroreProtocollazione(payload);
+                    } else {
+                        MostraErrore(err);
+                    }
+                }
+            });
+        });
+    });
+
+    // Edit manuale del campo Protocollo: prompt SweetAlert con campo testo precompilato col valore
+    // corrente, POST a /DASI/ProtocolloManuale/{id}, aggiornamento
+    // immediato della casella in caso di esito positivo.
+    $(document).on('click', '#btnEditProtocolloManuale', function () {
+        var btn = $(this);
+        var id = btn.data('id');
+        if (!id) return;
+        var valoreCorrente = $('#Atto_Protocollo').val() || '';
+
+        swal({
+            title: "Modifica manuale protocollo",
+            text: "Inserisci la segnatura manualmente per atti. " +
+                  "Lasciare vuoto per svuotare il campo.",
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "AAO.AAAA.0000000",
+                    type: "text",
+                    value: valoreCorrente
+                }
+            },
+            buttons: ["Annulla", "Salva"]
+        }).then(function (nuovoValore) {
+            // SweetAlert v1: passa null se l'utente annulla, altrimenti la
+            // stringa inserita (anche vuota = ammessa, vuol dire svuotare).
+            if (nuovoValore === null) return;
+
+            var url = '@Url.Content("~/DASI/protocollo-manuale/")' + id;
+            waiting(true, 'Salvataggio protocollo in corso...');
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: { protocollo: nuovoValore },
+                success: function (data) {
+                    waiting(false);
+                    var nuovo = (data && typeof data.Protocollo !== 'undefined')
+                        ? data.Protocollo : nuovoValore;
+                    var $input = $('#Atto_Protocollo');
+                    $input.val(nuovo);
+                    if (nuovo) {
+                        $input.siblings('label').addClass('active');
+                    }
+                    M.toast({ html: 'Protocollo aggiornato manualmente.', classes: 'green' });
+                },
+                error: function (err) {
+                    waiting(false);
+                    MostraErrore(err);
+                }
+            });
+        });
+    });
+
+    // Modale di errore dettagliato per la protocollazione EDMA. Mostra
+    // il messaggio principale e (sotto un blocco <pre>) lo step fallito e
+    // la risposta grezza di EDMA quando disponibili. Cosi' in fase di test
+    // con Regione si capisce subito cosa ha risposto il server EDMA.
+    function mostraErroreProtocollazione(data) {
+        var messaggio = (data && (data.Messaggio || data.Message)) ||
+                        'Errore durante la protocollazione EDMA.';
+        var step = data && data.StepFallito;
+        var dettaglio = data && (data.Dettaglio || data.UltimoErrore);
+
+        var wrapper = document.createElement('div');
+        wrapper.style.textAlign = 'left';
+
+        var p = document.createElement('p');
+        p.textContent = messaggio;
+        wrapper.appendChild(p);
+
+        if (step) {
+            var sLabel = document.createElement('p');
+            sLabel.innerHTML = '<b>Step fallito:</b> ' + step;
+            wrapper.appendChild(sLabel);
+        }
+
+        if (dettaglio) {
+            var dLabel = document.createElement('p');
+            dLabel.innerHTML = '<b>Dettaglio EDMA:</b>';
+            wrapper.appendChild(dLabel);
+
+            var pre = document.createElement('pre');
+            pre.textContent = dettaglio;
+            pre.style.maxHeight = '240px';
+            pre.style.overflow = 'auto';
+            pre.style.background = '#f5f5f5';
+            pre.style.border = '1px solid #ddd';
+            pre.style.padding = '8px';
+            pre.style.fontSize = '11px';
+            pre.style.whiteSpace = 'pre-wrap';
+            pre.style.wordBreak = 'break-word';
+            wrapper.appendChild(pre);
+        }
+
+        swal({
+            title: 'Errore protocollazione EDMA',
+            content: wrapper,
+            icon: 'error',
+            buttons: { ok: 'Chiudi' }
+        });
+    }
 
 </script>
 

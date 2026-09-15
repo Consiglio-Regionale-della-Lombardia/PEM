@@ -58,7 +58,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="stampeLogic"></param>
         /// <param name="utilsLogic"></param>
         /// <param name="adminLogic"></param>
-        public TemplatesController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic, LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic, FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic, EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic, UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic, seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic, esportaLogic, stampeLogic, utilsLogic, adminLogic)
+        public TemplatesController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic, LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic, FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic, EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic, UtilsLogic utilsLogic, AdminLogic adminLogic, IMapper mapper) : base(unitOfWork, authLogic, personeLogic, legislatureLogic, seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic, esportaLogic, stampeLogic, utilsLogic, adminLogic, mapper)
         {
         }
 

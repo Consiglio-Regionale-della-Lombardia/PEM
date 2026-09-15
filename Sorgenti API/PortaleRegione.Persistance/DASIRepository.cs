@@ -23,6 +23,7 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Interfaces;
 using PortaleRegione.BAL;
@@ -48,11 +49,15 @@ namespace PortaleRegione.Persistance
 
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
-        public async Task<ATTI_DASI> Get(Guid attoUId)
+        // #1671 Un atto eliminato non e' piu' raggiungibile nemmeno per id. Il filtro sta qui
+        // perche' e' l'unico punto da cui passano tutti i canali di accesso puntuale
+        // (link email, QR pubblico, firma, deposito). includeEliminati solo per audit/ripristino.
+        public async Task<ATTI_DASI> Get(Guid attoUId, bool includeEliminati = false)
         {
             var result = await PRContext
                 .DASI
-                .SingleOrDefaultAsync(a => a.UIDAtto == attoUId);
+                .SingleOrDefaultAsync(a => a.UIDAtto == attoUId
+                                           && (includeEliminati || !a.Eliminato));
             return result;
         }
 
@@ -556,9 +561,9 @@ namespace PortaleRegione.Persistance
                                                 && (atto.UIDPersonaCreazione == persona.UID_persona
                                                     || atto.UIDPersonaProponente == persona.UID_persona)));
 
-                if (persona.IsSegreteriaAssemblea)
+                if (persona.IsSegreteriaAssemblea_Vista)
                     query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
-                else if (!persona.IsSegreteriaAssemblea
+                else if (!persona.IsSegreteriaAssemblea_Vista
                          && !persona.IsPresidente)
                     query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
             }
@@ -639,6 +644,40 @@ namespace PortaleRegione.Persistance
                                && !dasi.Eliminato)
                 .Select(dasi => dasi.UIDAtto)
                 .ToListAsync();
+        }
+
+        // #1636 - Conteggio degli atti per i quali e' richiesta la firma della persona, in una sola
+        // query (niente ciclo N+1). E' lo stesso universo usato dal filtro "atti da firmare"
+        // (vedi AddRequireMySignData): inviti a firmare ancora aperti + atti propri non ancora
+        // firmati. Serve a popolare il contatore "(n)" accanto alla spunta "richiesta la mia firma".
+        public async Task<int> CountAttiDaFirmare(Guid personaUid)
+        {
+            // Atti con invito a firmare ancora aperto per la persona: notifiche DASI (UIDEM nullo)
+            // non chiuse e destinatario non chiuso.
+            var attiDaInvito = PRContext
+                .NOTIFICHE_DESTINATARI
+                .Where(nd => nd.UIDPersona == personaUid && !nd.Chiuso)
+                .Join(PRContext.NOTIFICHE.Where(n => !n.Chiuso && !n.UIDEM.HasValue),
+                    nd => nd.UIDNotifica, n => n.UIDNotifica, (nd, n) => n.UIDAtto);
+
+            // Atti propri non ancora firmati (stessa logica di GetAttiProponente).
+            var allowStates = new List<int>
+            {
+                (int)StatiAttoEnum.BOZZA,
+                (int)StatiAttoEnum.BOZZA_RISERVATA,
+                (int)StatiAttoEnum.PRESENTATO,
+                (int)StatiAttoEnum.IN_TRATTAZIONE
+            };
+            var attiPropri = PRContext
+                .DASI
+                .Where(dasi => dasi.UIDPersonaProponente == personaUid
+                               && !dasi.UIDPersonaPrimaFirma.HasValue
+                               && allowStates.Contains(dasi.IDStato)
+                               && !dasi.UIDSeduta.HasValue
+                               && !dasi.Eliminato)
+                .Select(dasi => dasi.UIDAtto);
+
+            return await attiDaInvito.Union(attiPropri).Distinct().CountAsync();
         }
 
         public async Task<List<AttiRisposteDto>> GetRisposte(Guid uidAtto)
@@ -1055,7 +1094,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<GruppiDto>> GetGruppiDisponibili(int legislaturaId, int page, int size)
         {
-            var query = PRContext
+            var gruppi = await PRContext
                 .View_gruppi_politici_ws
                 .Where(a => a.id_legislatura.Equals(legislaturaId))
                 .Distinct()
@@ -1066,13 +1105,37 @@ namespace PortaleRegione.Persistance
                     codice_gruppo = a.codice_gruppo,
                     data_inizio = a.data_inizio,
                     data_fine = a.data_fine
-                });
+                })
+                .ToListAsync();
 
-            return await query
-                .OrderBy(abb => abb.nome_gruppo)
+            // #1684 - La Giunta non e' censita in gruppi_politici, quindi non passa dalla view
+            // dei gruppi per legislatura: l'unica tabella che la tiene e' JOIN_GRUPPO_AD, dove
+            // il flag GiuntaRegionale la distingue e id_legislatura dice a quale legislatura
+            // appartiene (l'id cambia da una legislatura all'altra). Senza questa aggiunta il
+            // filtro "Gruppo / Giunta" non puo' proporla e gli emendamenti a firma Giunta
+            // restano fuori dalla ricerca.
+            var idGiunta = await PRContext
+                .JOIN_GRUPPO_AD
+                .Where(g => g.GiuntaRegionale && g.id_legislatura == legislaturaId)
+                .Select(g => g.id_gruppo)
+                .Distinct()
+                .ToListAsync();
+
+            gruppi.AddRange(idGiunta.Select(id => new GruppiDto
+            {
+                id_gruppo = id,
+                nome_gruppo = "GIUNTA REGIONALE",
+                codice_gruppo = "GIUNTA",
+                giunta = true
+            }));
+
+            // I gruppi di una legislatura sono poche decine e ora arrivano da due tabelle
+            // diverse: l'impaginazione si fa in memoria sull'elenco gia' unito.
+            return gruppi
+                .OrderBy(g => g.nome_gruppo)
                 .Skip((page - 1) * size)
                 .Take(size)
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task<List<OrganoDto>> GetOrganiDisponibili(int legislaturaId)
@@ -1160,7 +1223,7 @@ namespace PortaleRegione.Persistance
                 .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
-            if (!currentUser.IsSegreteriaAssemblea)
+            if (!currentUser.IsSegreteriaAssemblea_Vista)
             {
                 queryExtended.Tipi.Clear();
                 queryExtended.Stati.Clear();
@@ -1183,7 +1246,7 @@ namespace PortaleRegione.Persistance
                 .Where(item => !item.Eliminato
                                && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
-            if (!currentUser.IsSegreteriaAssemblea)
+            if (!currentUser.IsSegreteriaAssemblea_Vista)
             {
                 queryExtended.Stati.Clear();
             }
@@ -1432,6 +1495,14 @@ namespace PortaleRegione.Persistance
                     if (combinedRangePredicate != null)
                         query = query.Where(combinedRangePredicate);
                 }
+                else if ((f.PropertyId == nameof(ATTI_DASI.DCR) || f.PropertyId == nameof(ATTI_DASI.DCCR))
+                         && f.Operation == Operation.IsNotEmpty)
+                {
+                    // #1637: filtro "Non vuoti" su DCR/DCCR -> l'atto ha un numero DCR oppure DCCR
+                    // assegnato. A db il campo puo' essere 0, null o vuoto: solo > 0 vale come
+                    // "valorizzato" (in EF il confronto > 0 esclude correttamente sia 0 sia null).
+                    query = query.Where(item => item.DCR > 0 || item.DCCR > 0);
+                }
                 else if ((f.PropertyId == nameof(ATTI_DASI.DCR) || f.PropertyId == nameof(ATTI_DASI.DCCR)) && hasText)
                 {
                     var tokens = rawVal.Split(new[]{';'}, StringSplitOptions.RemoveEmptyEntries)
@@ -1537,11 +1608,11 @@ namespace PortaleRegione.Persistance
                                                 && (atto.UIDPersonaCreazione == currentUser.UID_persona
                                                     || atto.UIDPersonaProponente == currentUser.UID_persona)));
 
-                if (!currentUser.IsSegreteriaAssemblea
+                if (!currentUser.IsSegreteriaAssemblea_Vista
                     && !currentUser.IsPresidente)
                     query = query.Where(item => item.id_gruppo == currentUser.Gruppo.id_gruppo);
 
-                if (currentUser.IsSegreteriaAssemblea && !queryExtended.Stati.Any())
+                if (currentUser.IsSegreteriaAssemblea_Vista && !queryExtended.Stati.Any())
                 {
                     query = query.Where(atto => atto.IDStato == (int)StatiAttoEnum.PRESENTATO
                                                 || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
@@ -1598,6 +1669,10 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.AttiDaFirmare.Any())
                 query = query.Where(i => queryExtended.AttiDaFirmare.Contains(i.UIDAtto));
+            
+            // #1608
+            if (queryExtended.Legislature.Any())
+                query = query.Where(i => queryExtended.Legislature.Contains(i.Legislatura));
 
             #endregion
 
@@ -1712,38 +1787,49 @@ namespace PortaleRegione.Persistance
 
             if (queryExtended.DataSeduta.Any())
             {
+                // #1625 - sedute interessate dal filtro (range DA-A oppure data singola).
+                // I due rami sono stati uniformati: in entrambi i casi si applica la stessa
+                // logica in base all'opzione "solo atti effettivamente iscritti in seduta".
+                List<SEDUTE> seduteList;
                 if (queryExtended.DataSeduta.Count > 1)
                 {
                     var startDate = queryExtended.DataSeduta[0];
                     var endDate = queryExtended.DataSeduta[1];
 
-                    var seduteList = PRContext.SEDUTE
+                    seduteList = PRContext.SEDUTE
                         .Where(s => s.Data_seduta >= startDate && s.Data_seduta <= endDate)
                         .ToList();
-                    
-                    var ids = seduteList.Select(s => s.UIDSeduta).ToList();
-                    
+                }
+                else
+                {
+                    var singleDate = queryExtended.DataSeduta[0];
+
+                    seduteList = PRContext.SEDUTE
+                        .Where(s => s.Data_seduta.Date == singleDate.Date)
+                        .ToList();
+                }
+
+                var ids = seduteList.Select(s => s.UIDSeduta).ToList();
+
+                if (queryExtended.SoloAttiIscrittiInSeduta)
+                {
+                    // #1625 - solo gli atti effettivamente iscritti in seduta da UOLA
+                    query = query.Where(a => a.UIDSeduta.HasValue && ids.Contains(a.UIDSeduta.Value));
+                }
+                else
+                {
+                    // #1625 - comportamento storico: atti iscritti + atti con sola richiesta
+                    // di iscrizione (data proposta seduta dai gruppi)
                     // #1341
                     var listaDateSedutaCrypt = seduteList
                         .Select(s => CryptoHelper.EncryptString(
                             s.Data_seduta.ToString("dd/MM/yyyy"),
                             AppSettingsConfiguration.masterKey))
                         .ToList();
-                    
+
                     query = query.Where(a =>
                         (a.UIDSeduta.HasValue && ids.Contains(a.UIDSeduta.Value))
                         || listaDateSedutaCrypt.Contains(a.DataRichiestaIscrizioneSeduta));
-                }
-                else
-                {
-                    var singleDate = queryExtended.DataSeduta[0];
-
-                    var seduteIds = PRContext.SEDUTE
-                        .Where(s => s.Data_seduta.Date == singleDate.Date)
-                        .Select(s => s.UIDSeduta)
-                        .Distinct();
-
-                    query = query.Where(a => a.UIDSeduta.HasValue && seduteIds.Contains(a.UIDSeduta.Value));
                 }
             }
 

@@ -17,6 +17,7 @@
  */
 
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Request;
 using System;
 using System.Collections.Generic;
 
@@ -30,5 +31,7 @@ namespace PortaleRegione.DTO.Model
         public Guid AttoUId { get; set; }
         public OrdinamentoEnum Ordine { get; set; }
         public ClientModeEnum Mode { get; set; }
+
+        public FilterRequestEM Filter { get; set; }
     }
 }

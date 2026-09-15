@@ -111,5 +111,18 @@ namespace PortaleRegione.Persistance
             return await query.OrderBy(c => c.Data_seduta)
                 .ToListAsync();
         }
+
+        // #1627 - Ultime sedute gia' chiuse (Data_effettiva_fine valorizzata), per consentire
+        // a UOLA di iscrivere ex post un atto a una seduta gia' terminata.
+        public async Task<IEnumerable<SEDUTE>> GetChiuse(int take = 20)
+        {
+            var query = PRContext.SEDUTE.Include(s => s.legislature)
+                .Where(c => (c.Eliminato == false || !c.Eliminato.HasValue)
+                            && c.Data_effettiva_fine.HasValue);
+
+            return await query.OrderByDescending(c => c.Data_seduta)
+                .Take(take)
+                .ToListAsync();
+        }
     }
 }

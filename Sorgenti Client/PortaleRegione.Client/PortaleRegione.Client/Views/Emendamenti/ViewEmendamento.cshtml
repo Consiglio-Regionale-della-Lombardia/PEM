@@ -77,11 +77,15 @@
 			<div class="card">
 				<div class="card-action grey lighten-4 center">
 					<div class="chip @Model.STATI_EM.CssClass white" style="min-width: unset; position: absolute; right: 10px; top: -18px; border-color:black!important;color:black!important;">@Model.STATI_EM.Stato</div>
-					<h6>
-						<b>
-							<span>@Html.Raw(gruppoText)</span>
-						</b>
-					</h6>
+					@* #1622 - carta bianca: l'intestazione non riporta il gruppo politico se richiesto *@
+					@if (!Model.NascondiGruppo)
+					{
+						<h6>
+							<b>
+								<span>@Html.Raw(gruppoText)</span>
+							</b>
+						</h6>
+					}
 				</div>
 				@if (Model.Firmabile || Model.Depositabile || Model.Eliminabile || Model.Ritirabile || Model.Modificabile)
 				{
@@ -329,7 +333,7 @@
 					}
 				}).fail(function (err) {
 					console.log("error", err);
-					Error(err);
+					MostraErrore(err);
 				});
 			});
 		$("#modalAction").modal("open");
@@ -370,7 +374,7 @@
 					});
 				}).fail(function (err) {
 					console.log("error", err);
-					Error(err);
+					MostraErrore(err);
 				});
 			});
 	}
@@ -415,7 +419,7 @@
 					}
 				}).fail(function (err) {
 					console.log("error", err);
-					Error(err);
+					MostraErrore(err);
 				});
 			});
 	}
@@ -477,7 +481,7 @@
 				}).fail(function (err) {
 					waiting(false);
 					console.log("error", err);
-					Error(err);
+					MostraErrore(err);
 				});
 			});
 	}

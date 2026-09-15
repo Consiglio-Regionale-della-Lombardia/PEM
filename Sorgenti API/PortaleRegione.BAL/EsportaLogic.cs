@@ -53,7 +53,8 @@ namespace PortaleRegione.BAL
     public class EsportaLogic : BaseLogic
     {
         public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, DASILogic logicDASI,
-            FirmeLogic logicFirme, AttiLogic logicAtti, AttiFirmeLogic logicFirmeAtti, PersoneLogic logicPersona)
+            FirmeLogic logicFirme, AttiLogic logicAtti, AttiFirmeLogic logicFirmeAtti, PersoneLogic logicPersona,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEm;
@@ -62,6 +63,7 @@ namespace PortaleRegione.BAL
             _logicAtti = logicAtti;
             _logicPersona = logicPersona;
             _logicAttiFirme = logicFirmeAtti;
+            _mapper = mapper;
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
@@ -205,7 +207,9 @@ namespace PortaleRegione.BAL
                         persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                             ? $"{em.PersonaProponente.id_persona}-{em.PersonaProponente.DisplayName}"
                             : em.PersonaProponente.DisplayName, ref columnIndex);
-                    SetColumnValue(ref row, excelSheet, "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        em.AreaPolitica.HasValue ? Utility.GetText_AreaPolitica(em.AreaPolitica.Value) : "",
+                        ref columnIndex);
 
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                     {
@@ -276,6 +280,161 @@ namespace PortaleRegione.BAL
                 Log.Error("Logic - EsportaGrigliaXLS", e);
                 throw e;
             }
+        }
+
+        /// <summary>
+        ///     #1626 - Export Excel della ricerca trasversale EM/SUBEM (Area Aula). Griglia piatta
+        ///     cross-atto: ogni riga riporta legislatura, atto (PDL), seduta e i dati dell'EM.
+        /// </summary>
+        public async Task<HttpResponseMessage> EsportaGrigliaExcelGlobale(EmendamentiViewModel model,
+            PersonaDto persona)
+        {
+            try
+            {
+                var emList = (await _logicEm.ScaricaEmendamentiGlobale(model, persona)).ToList();
+
+                var excelPackage = new ExcelPackage();
+                var excelSheet = excelPackage.Workbook.Worksheets.Add("Ricerca Emendamenti");
+
+                var row = 1;
+                var columnIndex = 1;
+
+                SetColumnValue(ref row, excelSheet, "Legislatura", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Atto", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Oggetto atto", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Seduta", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Numero", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Data Deposito", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Stato", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Tipo", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Proponente", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Gruppo", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Area Politica", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Effetti Finanziari", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "LinkEM", ref columnIndex);
+
+                foreach (var em in emList)
+                {
+                    row++;
+                    columnIndex = 1;
+
+                    var atto = em.ATTI;
+                    SetColumnValue(ref row, excelSheet, atto?.Legislatura?.ToString() ?? "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        atto != null ? $"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}" : "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        atto != null ? Utility.StripWordMarkup(atto.Oggetto) : "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        atto?.SEDUTE != null ? atto.SEDUTE.Data_seduta.ToString("dd/MM/yyyy") : "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, em.N_EM, ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, em.DataDeposito, ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, em.STATI_EM?.Stato ?? "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, em.TIPI_EM?.Tipo_EM ?? "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, em.PersonaProponente?.DisplayName ?? "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, em.gruppi_politici?.nome_gruppo ?? "", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        em.AreaPolitica.HasValue ? Utility.GetText_AreaPolitica(em.AreaPolitica.Value) : "",
+                        ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, em.EffettiFinanziari == 1 ? "Si" : "No", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}", ref columnIndex);
+                }
+
+                var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+                var fileName = $"Ricerca_Emendamenti_{Guid.NewGuid()}.xlsx";
+                var filePath = Path.Combine(tempFolderPath, fileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                {
+                    excelPackage.SaveAs(fileStream);
+                }
+
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{fileName}");
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+                return response;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - EsportaGrigliaExcelGlobale", e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     #1626 - Export Word della ricerca trasversale EM/SUBEM (Area Aula). Riusa la
+        ///     generazione del documento Word degli emendamenti (atto-agnostica); se il numero
+        ///     supera il limite configurato genera piu' file e li zippa.
+        /// </summary>
+        public async Task<HttpResponseMessage> HTMLtoWORDGlobale(EmendamentiViewModel model, PersonaDto persona)
+        {
+            try
+            {
+                var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+                var limite = AppSettingsConfiguration.LimiteEmendamentiFascicoloWord;
+
+                var emList = (await _logicEm.ScaricaEmendamentiGlobale(model, persona)).ToList();
+                var totalCount = emList.Count;
+
+                if (totalCount <= limite)
+                {
+                    var fileName = $"Ricerca_Emendamenti_{Guid.NewGuid()}.docx";
+                    var filePath = Path.Combine(tempFolderPath, fileName);
+
+                    var wordBytes = await GenerateSingleWordDocument(emList, model.Ordinamento);
+                    File.WriteAllBytes(filePath, wordBytes);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{fileName}");
+                    response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+                    return response;
+                }
+
+                var wordFiles = new List<FileModel>();
+                var totalBlocks = (int)Math.Ceiling((double)totalCount / limite);
+                for (var blockIndex = 0; blockIndex < totalBlocks; blockIndex++)
+                {
+                    var startIndex = blockIndex * limite;
+                    var endIndex = Math.Min(startIndex + limite, totalCount);
+                    var blockEmendamenti = emList.Skip(startIndex).Take(limite).ToList();
+                    var blockFileName = $"Ricerca_Emendamenti_{startIndex + 1}-{endIndex}.docx";
+
+                    var wordBytes = await GenerateSingleWordDocument(blockEmendamenti, model.Ordinamento);
+                    wordFiles.Add(new FileModel { Name = blockFileName, Content = wordBytes });
+                }
+
+                return ResponseZipWordGlobale(wordFiles);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - HTMLtoWORDGlobale", e);
+                throw;
+            }
+        }
+
+        private HttpResponseMessage ResponseZipWordGlobale(List<FileModel> wordFiles)
+        {
+            var outputMemoryStream = new MemoryStream();
+            var zipStream = new ZipOutputStream(outputMemoryStream);
+            zipStream.SetLevel(9);
+            foreach (var wordFile in wordFiles) AddToZip(zipStream, wordFile);
+            zipStream.IsStreamOwner = false;
+            zipStream.Close();
+
+            outputMemoryStream.Position = 0;
+            var zipByteArray = outputMemoryStream.ToArray();
+
+            var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+            var filename = $"Ricerca_Emendamenti_{DateTime.Now.Ticks}.zip";
+            var pathZip = Path.Combine(tempFolderPath, filename);
+            using (var fileStream = new FileStream(pathZip, FileMode.Create))
+            {
+                fileStream.Write(zipByteArray, 0, zipByteArray.Length);
+            }
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{filename}");
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+            return response;
         }
 
         public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(EmendamentiViewModel model, PersonaDto persona)
@@ -506,7 +665,7 @@ namespace PortaleRegione.BAL
             var pdfs = new List<FileModel>();
             foreach (var dto in attiList)
             {
-                var pdf = await _logicDasi.PDFIstantaneo(Mapper.Map<AttoDASIDto, ATTI_DASI>(dto), null);
+                var pdf = await _logicDasi.PDFIstantaneo(_mapper.Map<AttoDASIDto, ATTI_DASI>(dto), null);
                 pdfs.Add(new FileModel
                 {
                     Name = dto.Display + ".pdf",
@@ -1157,7 +1316,7 @@ namespace PortaleRegione.BAL
                     {
                         var converter = new HtmlConverter(mainPart);
                         var resHtml = ComposeWordTableFromList(emendamenti, ordine);
-                        converter.ParseHtml(resHtml);
+                        converter.ParseHtml(NormalizzaTitoliPerWord(resHtml)); // #1674
                     }
                     catch (Exception e)
                     {

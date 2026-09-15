@@ -201,6 +201,14 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        // #1636 - Contatore atti per i quali e' richiesta la firma dell'utente corrente.
+        public async Task<int> ContatoreFirme()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.ContatoreFirme}";
+            var result = JsonConvert.DeserializeObject<int>(await Get(requestUrl, _token));
+            return result;
+        }
+
         public async Task<List<AttoDASIDto>> GetMOZAbbinabili()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetMOZAbbinabili}";
@@ -655,12 +663,6 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task InviaAlProtocollo(Guid id)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.InviaAlProtocollo.Replace("{id}", id.ToString())}";
-            await Get(requestUrl, _token);
-        }
-
         public async Task DeclassaMozione(List<string> data)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.DeclassaMozione}";
@@ -702,25 +704,9 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
-        public async Task SalvaGruppoFiltri(FiltroPreferitoDto model)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.SalvaFiltriPreferiti}";
-            var body = JsonConvert.SerializeObject(model);
-            await Post(requestUrl, body, _token);
-        }
-
-        public async Task<List<FiltroPreferitoDto>> GetGruppoFiltri()
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetFiltriPreferiti}";
-            var lst = JsonConvert.DeserializeObject<List<FiltroPreferitoDto>>(await Get(requestUrl, _token));
-            return lst;
-        }
-
-        public async Task EliminaGruppoFiltri(string nomeFiltro)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.EliminaFiltriPreferiti}?nomeFiltro={nomeFiltro}";
-            await Delete(requestUrl, _token);
-        }
+        // I tre metodi SalvaGruppoFiltri/GetGruppoFiltri/EliminaGruppoFiltri sono
+        // stati migrati a FiltriGateway (v2026.5.1): apiGateway.Filtri.Salva/Get/Elimina
+        // con ModuloEnum.DASI.
 
         public async Task<FileResponse> GeneraReport(ReportDto request)
         {
@@ -806,6 +792,27 @@ namespace PortaleRegione.Gateway
             var body = JsonConvert.SerializeObject(model);
             var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
             return result;
+        }
+        
+        public async Task<EdmaProtocollazioneEsitoDto> Protocolla(Guid id)
+        {
+            // La route in ApiRoutes contiene il placeholder "{id:guid}" perche'
+            // viene risolta lato server da WebApi; qui dobbiamo sostituirlo con
+            // l'id reale dell'atto.
+            var path = ApiRoutes.DASI.Protocolla.Replace("{id:guid}", id.ToString());
+            var requestUrl = $"{apiUrl}/{path}";
+            var raw = await Post(requestUrl, "{}", _token);
+            return JsonConvert.DeserializeObject<EdmaProtocollazioneEsitoDto>(raw);
+        }
+
+        public async Task SalvaProtocolloManuale(Guid id, string protocollo)
+        {
+            var path = ApiRoutes.DASI.ProtocolloManuale.Replace("{id:guid}", id.ToString());
+            var requestUrl = $"{apiUrl}/{path}";
+            // L'endpoint accetta [FromBody] string: in WebApi e' necessario
+            // serializzare il valore come stringa JSON (con i doppi apici).
+            var body = JsonConvert.SerializeObject(protocollo ?? string.Empty);
+            await Post(requestUrl, body, _token);
         }
     }
 }

@@ -41,6 +41,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway();
                 var atto = await apiGateway.DASI_Pubblico.GetBody(id);
+                ViewBag.PdfUrl = Url.Action("ScaricaPdfOriginale", new { id }); // #1620
                 return View("Index", (object)atto);
             }
             catch (Exception e)
@@ -58,7 +59,39 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway();
                 var atto = await apiGateway.DASI_Pubblico.GetBody(id, true);
+                ViewBag.PdfUrl = Url.Action("ScaricaPdfApprovato", new { id }); // #1620
                 return View("Index", (object)atto);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        // #1620 - scarica il PDF del testo originale (incluso allegato parte integrante se pubblico)
+        [HttpGet]
+        [Route("public/originale/{id:guid}/pdf")]
+        public Task<ActionResult> ScaricaPdfOriginale(Guid id)
+        {
+            return ScaricaPdf(id, false);
+        }
+
+        // #1620 - scarica il PDF del testo in trattazione/approvato (incluso allegato parte integrante se pubblico)
+        [HttpGet]
+        [Route("public/{id:guid}/pdf")]
+        public Task<ActionResult> ScaricaPdfApprovato(Guid id)
+        {
+            return ScaricaPdf(id, true);
+        }
+
+        private async Task<ActionResult> ScaricaPdf(Guid id, bool approvato)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway();
+                var file = await apiGateway.DASI_Pubblico.GetPdf(id, approvato);
+                return File(file.Content, "application/pdf", file.FileName);
             }
             catch (Exception e)
             {

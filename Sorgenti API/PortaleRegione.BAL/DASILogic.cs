@@ -65,7 +65,7 @@ namespace PortaleRegione.API.Controllers
         internal AdminLogic _logicAdmin;
 
         public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicAttiFirme,
-            SeduteLogic logicSedute, AttiLogic logicAtti, UtilsLogic logicUtil, AdminLogic logicAdmin)
+            SeduteLogic logicSedute, AttiLogic logicAtti, UtilsLogic logicUtil, AdminLogic logicAdmin, IMapper mapper)
         {
             _logicAdmin = logicAdmin;
             _unitOfWork = unitOfWork;
@@ -74,6 +74,7 @@ namespace PortaleRegione.API.Controllers
             _logicSedute = logicSedute;
             _logicAtti = logicAtti;
             _logicUtil = logicUtil;
+            _mapper = mapper;
 
             GetUsersInDb();
             GetGroupsInDb();
@@ -325,8 +326,11 @@ namespace PortaleRegione.API.Controllers
             attoInDb.IDStato = request.Stato;
             InputSanitizer.ValidateAndThrowIfDangerous(request.CodiceMateria, "Codice Materia");
             attoInDb.CodiceMateria = request.CodiceMateria;
-            InputSanitizer.ValidateAndThrowIfDangerous(request.Protocollo, "Protocollo");
-            attoInDb.Protocollo = request.Protocollo;
+            // Il campo Protocollo NON viene piu' scritto dal "Salva informazioni":
+            // la segnatura arriva esclusivamente dal flusso "Protocolla" verso
+            // EDMA (DASIProtocollazioneService). L'edit manuale per la sola
+            // segreteria su atti pre-EDMA, se abilitato dal feature flag in
+            // configurazione, e' gestito dalla UI con un endpoint dedicato.
 
             if (request.DataAnnunzio > DateTime.MinValue)
             {
@@ -514,7 +518,7 @@ namespace PortaleRegione.API.Controllers
                 notaInDb.UIDPersona = currentUser.UID_persona;
                 notaInDb.Data = DateTime.Now;
                 await _unitOfWork.CompleteAsync();
-                return Mapper.Map<ATTI_NOTE, NoteDto>(notaInDb);
+                return _mapper.Map<ATTI_NOTE, NoteDto>(notaInDb);
             }
             else
             {
@@ -543,7 +547,7 @@ namespace PortaleRegione.API.Controllers
                 _unitOfWork.DASI.AggiungiNota(newNota);
                 await _unitOfWork.CompleteAsync();
 
-                return Mapper.Map<ATTI_NOTE, NoteDto>(newNota);
+                return _mapper.Map<ATTI_NOTE, NoteDto>(newNota);
             }
         }
 
@@ -809,7 +813,9 @@ namespace PortaleRegione.API.Controllers
                 viewMode = (ViewModeEnum)fromRequest;
             }
 
-            await AddRequireMySignData(queryExtended, persona, Convert.ToBoolean(RequireMySign));
+            // #1616 - "atti da firmare" attivo sia dal vecchio param RequireMySign sia dalla chip
+            await AddRequireMySignData(queryExtended, persona,
+                Convert.ToBoolean(RequireMySign) || queryExtended.RequireMySign);
 
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(model.filtro);
@@ -853,6 +859,36 @@ namespace PortaleRegione.API.Controllers
         private QueryExtendedRequest CreateQueryExtendedRequest(BaseRequest<AttoDASIDto> model)
         {
             var queryExtended = new QueryExtendedRequest();
+
+            // #1625 - opzione "solo atti effettivamente iscritti in seduta": chip booleano
+            // legato al filtro Data seduta. Lo leggo qui e lo rimuovo da model.filtro cosi'
+            // da non passarlo al filtro SQL generico (stesso schema di Ritardo).
+            var statementSoloIscritti = model.filtro
+                .FirstOrDefault(statement =>
+                    statement.PropertyId == nameof(AttoDASIDto.SoloAttiIscrittiInSeduta));
+            if (statementSoloIscritti != null)
+            {
+                queryExtended.SoloAttiIscrittiInSeduta =
+                    statementSoloIscritti.Value != null
+                    && statementSoloIscritti.Value.ToString().Equals("true");
+                model.filtro.RemoveAll(statement =>
+                    statement.PropertyId == nameof(AttoDASIDto.SoloAttiIscrittiInSeduta));
+            }
+
+            // #1616 - chip "Atti da firmare" del pannello filtri consiglieri. Viaggia come filtro
+            // generico ma non corrisponde a una colonna di ATTI_DASI: la leggo qui, attivo il flag
+            // RequireMySign quando vale "true" e la rimuovo da model.filtro cosi' da non passarla al
+            // filtro SQL generico (dove verrebbe silenziosamente ignorata). Stesso schema di EMDaFirmare.
+            const string attiDaFirmareKey = "AttiDaFirmare";
+            var statementDaFirmare = model.filtro
+                .FirstOrDefault(statement => statement.PropertyId == attiDaFirmareKey);
+            if (statementDaFirmare != null)
+            {
+                queryExtended.RequireMySign =
+                    statementDaFirmare.Value != null
+                    && statementDaFirmare.Value.ToString().Equals("true");
+                model.filtro.RemoveAll(statement => statement.PropertyId == attiDaFirmareKey);
+            }
 
             ExtractAndAddFilters(model, nameof(AttoDASIDto.UIDPersonaProponente), queryExtended.Proponenti, Guid.Parse,
                 queryExtended);
@@ -914,6 +950,9 @@ namespace PortaleRegione.API.Controllers
 
             ExtractAndAddFilters(model, nameof(AttoDASIDto.Ritardo), queryExtended.RitardoList, bool.Parse,
                 queryExtended);
+            
+            // #1608
+            ExtractAndAddFilters(model, nameof(AttoDASIDto.Legislatura), queryExtended.Legislature, int.Parse, queryExtended);
 
             return queryExtended;
         }
@@ -1146,6 +1185,13 @@ namespace PortaleRegione.API.Controllers
                 {
                     queryExtended.AttiDaFirmare.Add(guid);
                 }
+
+                // #1633 - se l'utente non ha atti per cui e' richiesta la sua firma la lista resta
+                // vuota: senza sentinella il filtro a valle (AttiDaFirmare.Any()) verrebbe ignorato e
+                // la griglia mostrerebbe TUTTI gli atti invece di nessuno. Aggiungo un UID impossibile
+                // per forzare il risultato vuoto, coerente con "solo gli atti da firmare".
+                if (!queryExtended.AttiDaFirmare.Any())
+                    queryExtended.AttiDaFirmare.Add(Guid.Empty);
             }
         }
 
@@ -1180,6 +1226,11 @@ namespace PortaleRegione.API.Controllers
             if (queryExtended.Risposte.Any())
                 model.filtro.AddRange(
                     CreateFilterStatements(nameof(AttoDASIDto.Risposte), queryExtended.Risposte));
+            
+            // #1608
+            if (queryExtended.Legislature.Any())
+                model.filtro.AddRange(
+                    CreateFilterStatements(nameof(AttoDASIDto.Legislatura), queryExtended.Legislature));
         }
 
         private List<FilterStatement<AttoDASIDto>> CreateFilterStatements<T>(string propertyId, List<T> values)
@@ -1266,7 +1317,9 @@ namespace PortaleRegione.API.Controllers
             if (RequireMySign == null)
                 RequireMySign = false;
 
-            await AddRequireMySignData(queryExtended, persona, Convert.ToBoolean(RequireMySign));
+            // #1616 - "atti da firmare" attivo sia dal vecchio param RequireMySign sia dalla chip
+            await AddRequireMySignData(queryExtended, persona,
+                Convert.ToBoolean(RequireMySign) || queryExtended.RequireMySign);
 
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(model.filtro);
@@ -1278,7 +1331,7 @@ namespace PortaleRegione.API.Controllers
         {
             var attoInDb = await _unitOfWork.DASI.Get(attoUid);
 
-            var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+            var dto = _mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
             dto.DisplayTipo = Utility.GetText_Tipo(attoInDb.Tipo);
 
@@ -1300,7 +1353,7 @@ namespace PortaleRegione.API.Controllers
 
                 if (dto.id_gruppo > 0)
                     dto.gruppi_politici =
-                        Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                        _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                             await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
 
                 if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
@@ -1336,6 +1389,8 @@ namespace PortaleRegione.API.Controllers
             dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
             dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
 
+            await PopolaInfoODGAbbinato(dto, attoInDb);
+
             dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
             if (attoInDb.Tipo == (int)TipoAttoEnum.RIS)
                 dto.CommissioniProponenti = await _unitOfWork.DASI.GetCommissioniProponenti(attoInDb.UIDAtto);
@@ -1365,11 +1420,11 @@ namespace PortaleRegione.API.Controllers
                 : dto.PersonaCreazione;
 
             if (attoInDb.UIDSeduta.HasValue)
-                dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(await _unitOfWork.Sedute.Get(attoInDb.UIDSeduta.Value));
+                dto.Seduta = _mapper.Map<SEDUTE, SeduteDto>(await _unitOfWork.Sedute.Get(attoInDb.UIDSeduta.Value));
 
             var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
             dto.Organi = commissioni
-                .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
+                .Select(_mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
 
             return dto;
         }
@@ -1383,7 +1438,7 @@ namespace PortaleRegione.API.Controllers
 
             columns ??= typeof(AttiDASIColums).GetProperties().Select(prop => prop.Name).ToList();
 
-            var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+            var dto = _mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
             // #1191
             if (cleanText)
@@ -1504,7 +1559,7 @@ namespace PortaleRegione.API.Controllers
 
                 if (!dto.IsRIS())
                     dto.gruppi_politici =
-                        Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                        _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                             await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
 
                 if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
@@ -1543,7 +1598,7 @@ namespace PortaleRegione.API.Controllers
 
                 var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
                 dto.Organi = commissioni
-                    .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
+                    .Select(_mapper.Map<View_Commissioni_attive, OrganoDto>).ToList();
 
                 if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO
                     && attoInDb.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
@@ -1567,7 +1622,7 @@ namespace PortaleRegione.API.Controllers
 
                     if (sedutaInDb != null)
                     {
-                        dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
+                        dto.Seduta = _mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
                         var presentato_oltre_termini = IsOutdate(dto);
                         dto.PresentatoOltreITermini = presentato_oltre_termini;
                     }
@@ -1583,30 +1638,7 @@ namespace PortaleRegione.API.Controllers
 
                 dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
 
-                if (dto.IsODG() && attoInDb.UID_Atto_ODG.HasValue)
-                {
-                    var abbinamentoSecondario =
-                        dto.Abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_Atto_ODG);
-                    if (abbinamentoSecondario != null) dto.Abbinamenti.Remove(abbinamentoSecondario);
-
-                    var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
-                    dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO
-                        ? "Dibattito"
-                        : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
-
-                    dto.ODG_Atto_Oggetto_PEM = attoPem.Oggetto;
-                }
-                else if (dto.IsODG() && dto.Abbinamenti.Any())
-                {
-                    var primoAbbinamentoUid = dto.Abbinamenti.First().UidAttoAbbinato;
-                    var primoAbbinamento = await _unitOfWork.Atti.GetAbbinamento(primoAbbinamentoUid);
-                    if (primoAbbinamento.TipoAttoAbbinato.Equals(Utility.GetText_Tipo((int)TipoAttoEnum.ALTRO)))
-                        dto.ODG_Atto_PEM = $"{primoAbbinamento.NumeroAttoAbbinato}";
-                    else
-                        dto.ODG_Atto_PEM = $"{primoAbbinamento.TipoAttoAbbinato} {primoAbbinamento.NumeroAttoAbbinato}";
-
-                    dto.ODG_Atto_Oggetto_PEM = primoAbbinamento.OggettoAttoAbbinato;
-                }
+                await PopolaInfoODGAbbinato(dto, attoInDb);
 
                 dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
 
@@ -1662,6 +1694,39 @@ namespace PortaleRegione.API.Controllers
             }
 
             return sb.Aggregate((i, j) => i + "<br>" + j);
+        }
+
+        private async Task PopolaInfoODGAbbinato(AttoDASIDto dto, ATTI_DASI attoInDb)
+        {
+            if (!dto.IsODG()) return;
+
+            if (attoInDb.UID_Atto_ODG.HasValue)
+            {
+                var abbinamentoSecondario =
+                    dto.Abbinamenti.FirstOrDefault(a => a.UidAttoAbbinato == attoInDb.UID_Atto_ODG);
+                if (abbinamentoSecondario != null) dto.Abbinamenti.Remove(abbinamentoSecondario);
+
+                var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                if (attoPem == null) return;
+
+                dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO
+                    ? "Dibattito"
+                    : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+
+                dto.ODG_Atto_Oggetto_PEM = attoPem.Oggetto;
+                return;
+            }
+
+            if (!dto.Abbinamenti.Any()) return;
+
+            var primoAbbinamentoUid = dto.Abbinamenti.First().UidAttoAbbinato;
+            var primoAbbinamento = await _unitOfWork.Atti.GetAbbinamento(primoAbbinamentoUid);
+            if (primoAbbinamento.TipoAttoAbbinato.Equals(Utility.GetText_Tipo((int)TipoAttoEnum.ALTRO)))
+                dto.ODG_Atto_PEM = $"{primoAbbinamento.NumeroAttoAbbinato}";
+            else
+                dto.ODG_Atto_PEM = $"{primoAbbinamento.TipoAttoAbbinato} {primoAbbinamento.NumeroAttoAbbinato}";
+
+            dto.ODG_Atto_Oggetto_PEM = primoAbbinamento.OggettoAttoAbbinato;
         }
 
         private Filter<ATTI_DASI> PulisciFiltroTipo(Filter<ATTI_DASI> filtro)
@@ -2522,6 +2587,11 @@ namespace PortaleRegione.API.Controllers
 
                 var contatore = await _unitOfWork.DASI.GetContatore(atto.Tipo, atto.IDTipo_Risposta);
                 var contatore_progressivo = contatore.Inizio + contatore.Contatore;
+                if (contatore_progressivo > contatore.Fine)
+                {
+                    results.Add(idGuid, $"ERROR: Contatore massimo raggiunto. Contattare l'amministratore di sistema.");
+                    continue;
+                }
                 var etichetta_progressiva =
                     $"{Utility.GetText_Tipo(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
                 var etichetta_encrypt =
@@ -2642,7 +2712,7 @@ namespace PortaleRegione.API.Controllers
                 || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
             {
                 var firmatari =
-                    await _logicAttiFirme.GetFirme(Mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
+                    await _logicAttiFirme.GetFirme(_mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
                 var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma) && i.Prioritario).ToList();
                 var firmatari_di_altri_gruppi = firme.Any(i => i.id_gruppo != atto.id_gruppo);
 
@@ -2660,9 +2730,10 @@ namespace PortaleRegione.API.Controllers
                 var consiglieriGruppo =
                     await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
                 var count_consiglieri = consiglieriGruppo.Count();
-                var minimo_firme = count_consiglieri < minimo_consiglieri && !firmatari_di_altri_gruppi
-                                                                          && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA
-                                                                          && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA
+                // #1677 la deroga sul minimo firme per i gruppi piccoli vale solo per le IQT
+                var minimo_firme = atto.Tipo == (int)TipoAttoEnum.IQT
+                                   && count_consiglieri < minimo_consiglieri
+                                   && !firmatari_di_altri_gruppi
                     ? count_consiglieri
                     : minimo_consiglieri;
 
@@ -2691,6 +2762,9 @@ namespace PortaleRegione.API.Controllers
                     var moz_firmatari =
                         await _unitOfWork.Atti_Firme.GetFirmatari(moz_da_esaminare.Select(i => i.UIDAtto).ToList(),
                             minimo_consiglieri_config);
+
+                    // #1677 come per le IQT il conteggio parte dal minimo di regolamento
+                    count_firme = minimo_consiglieri_config;
 
                     foreach (var firma in firme.Take(minimo_consiglieri_config).ToList())
                     {
@@ -3092,7 +3166,7 @@ namespace PortaleRegione.API.Controllers
         {
             var result = await _unitOfWork.DASI.GetSoggettiInterrogabili();
             return result
-                .Select(Mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>)
+                .Select(_mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>)
                 .ToList();
         }
 
@@ -3163,7 +3237,7 @@ namespace PortaleRegione.API.Controllers
         {
             var result = await _unitOfWork.DASI.GetCommissioniAttive();
             return result
-                .Select(Mapper.Map<View_Commissioni_attive, OrganoDto>)
+                .Select(_mapper.Map<View_Commissioni_attive, OrganoDto>)
                 .ToList();
         }
 
@@ -3341,7 +3415,7 @@ namespace PortaleRegione.API.Controllers
                     return;
                 var attoDto = await GetAttoDto(atto.UIDAtto);
                 attoDto.Seduta =
-                    Mapper.Map<SEDUTE, SeduteDto>(
+                    _mapper.Map<SEDUTE, SeduteDto>(
                         await _unitOfWork.Sedute.Get(Convert.ToDateTime(attoDto.DataRichiestaIscrizioneSeduta)));
                 var out_of_date = IsOutdate(attoDto);
                 try
@@ -3518,7 +3592,7 @@ namespace PortaleRegione.API.Controllers
                     return;
                 atto = await GetAttoDto(guid);
                 atto.Seduta =
-                    Mapper.Map<SEDUTE, SeduteDto>(
+                    _mapper.Map<SEDUTE, SeduteDto>(
                         await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta)));
                 if (IsOutdate(atto))
                     try
@@ -3728,7 +3802,7 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .GetInvitati(atto.UIDAtto);
                 var destinatari = invitati
-                    .Select(Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>)
+                    .Select(_mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>)
                     .ToList();
                 var result = new List<DestinatariNotificaDto>();
                 foreach (var destinatario in destinatari)
@@ -3744,6 +3818,22 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Logic - GetInvitati", e);
+                throw e;
+            }
+        }
+
+        // #1636 - Numero di atti per i quali e' richiesta la firma della persona (atti ancora da
+        // firmare). Stesso universo del filtro "Visualizza solo gli atti per i quali e' richiesta
+        // la mia firma": serve al contatore "(n)" mostrato accanto alla spunta in area consiglieri.
+        public async Task<int> CountAttiDaFirmare(PersonaDto persona)
+        {
+            try
+            {
+                return await _unitOfWork.DASI.CountAttiDaFirmare(persona.UID_persona);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Count Atti Da Firmare DASI", e);
                 throw e;
             }
         }
@@ -3820,16 +3910,30 @@ namespace PortaleRegione.API.Controllers
             var templateItemIndice = GetTemplate(TemplateTypeEnum.INDICE_DASI);
             var bodyIndice = new StringBuilder();
             foreach (var dasiDto in atti)
+            {
+                // #1588
+                var proponente_firmatari = string.Empty;
+                if (dasiDto.IsRIS())
+                {
+                    proponente_firmatari =
+                        $"{(!string.IsNullOrEmpty(dasiDto.Firme) ? dasiDto.Firme.Replace("<br>", ", ") : "")}";
+                }
+                else
+                {
+                    proponente_firmatari = $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}";    
+                }
+                
                 bodyIndice.Append(templateItemIndice
                     .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
                     .Replace("{NAtto}", dasiDto.NAtto)
                     .Replace("{Oggetto}", dasiDto.OggettoView())
                     .Replace("{Firmatari}",
-                        $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
+                        proponente_firmatari)
                     .Replace("{DataDeposito}",
                         string.IsNullOrEmpty(dasiDto.DataPresentazione)
                             ? ""
                             : "<br>Depositato il " + dasiDto.Timestamp.Value.ToString("dd/MM/yyyy")));
+            }
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -3861,16 +3965,29 @@ namespace PortaleRegione.API.Controllers
             var templateItemIndice = GetTemplate(TemplateTypeEnum.INDICE_DASI);
             var bodyIndice = new StringBuilder();
             foreach (var dasiDto in atti)
+            {
+                // #1588
+                var proponente_firmatari = string.Empty;
+                if (dasiDto.IsRIS())
+                {
+                    proponente_firmatari =
+                        $"{(!string.IsNullOrEmpty(dasiDto.Firme) ? dasiDto.Firme.Replace("<br>", ", ") : "")}";
+                }
+                else
+                {
+                    proponente_firmatari = $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}";    
+                }
                 bodyIndice.Append(templateItemIndice
                     .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
                     .Replace("{NAtto}", dasiDto.NAtto)
                     .Replace("{Oggetto}", dasiDto.OggettoView())
                     .Replace("{Firmatari}",
-                        $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
+                        proponente_firmatari)
                     .Replace("{DataDeposito}",
                         string.IsNullOrEmpty(dasiDto.DataPresentazione)
                             ? ""
                             : "<br>Depositato il " + dasiDto.Timestamp.Value.ToString("dd/MM/yyyy")));
+            }
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -3883,7 +4000,10 @@ namespace PortaleRegione.API.Controllers
             var stati = Enum.GetValues(typeof(StatiAttoEnum));
             foreach (var stato in stati)
             {
-                if (persona.IsSegreteriaAssemblea)
+                // #1653 - L'Amministratore PEM deve vedere lo stato "Bozza" nel filtro
+                // della ricerca atti: la Segreteria "pura" continua a non vedere le bozze,
+                // l'admin invece ricade nel ramo standard (nasconde solo la bozza cartacea).
+                if (persona.IsSegreteriaAssemblea_Vista && !persona.IsAmministratorePEM)
                 {
                     if (Utility.statiNonVisibili_Segreteria.Contains(Convert.ToInt16(stato)))
                         continue;
@@ -4175,9 +4295,6 @@ namespace PortaleRegione.API.Controllers
             }
 
             var body = await GetBodyDASI(atto.UIDAtto, persona, TemplateTypeEnum.PDF, privacy);
-            /*var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-            return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}",
-                listAttachments);*/
 
             try
             {
@@ -4194,27 +4311,76 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task InviaAlProtocollo(Guid id)
+        /// <summary>
+        ///     Genera il PDF del testo dell'atto per la pagina pubblica (anonima). #1620
+        ///     A differenza della stampa immediata interna, l'allegato parte integrante
+        ///     viene incluso solo se marcato come pubblico.
+        /// </summary>
+        /// <param name="atto">Atto da stampare</param>
+        /// <param name="persona">Utente corrente (puo' essere nullo su pagina pubblica)</param>
+        /// <param name="approvato">Variante testo: true = trattazione/approvato, false = originale</param>
+        public async Task<HttpResponseMessage> DownloadPDFIstantaneoPubblico(ATTI_DASI atto, PersonaDto persona,
+            bool approvato)
         {
-            var atto = await _unitOfWork.DASI.Get(id);
-            var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)}-{GetNome(atto.NAtto, atto.Progressivo)}";
-            var content = await PDFIstantaneo(atto, null);
-            var mailModel = new MailModel
+            var content = await PDFIstantaneoPubblico(atto, persona, approvato);
+            var res = ComposeFileResponse(content,
+                $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}.pdf");
+            return res;
+        }
+
+        internal async Task<byte[]> PDFIstantaneoPubblico(ATTI_DASI atto, PersonaDto persona, bool approvato)
+        {
+            var attoDto = await GetAttoDto(atto.UIDAtto);
+            var listAttachments = new List<string>();
+
+            // #1620 - includi l'allegato parte integrante solo se marcato come pubblico
+            var allegati = await _unitOfWork.DASI.GetDocumento(atto.UIDAtto, TipoDocumentoEnum.TESTO_ALLEGATO);
+            var allegatoPubblico = allegati.FirstOrDefault(d => d.Pubblica);
+            if (allegatoPubblico != null && !string.IsNullOrEmpty(allegatoPubblico.Path))
             {
-                DA = AppSettingsConfiguration.EmailInvioDASI,
-                A = AppSettingsConfiguration.EmailProtocolloDASI,
-                OGGETTO = $"Richiesta di protocollazione dell’atto {nome_atto}",
-                MESSAGGIO =
-                    $"Si invia in allegato l'atto {nome_atto} con oggetto \"{atto.Oggetto}\". " +
-                    $"Si chiede l'apertura del fascicolo dedicato e la protocollazione dell'atto con preghiera di comunicare i relativi protocolli inviando una email a: {AppSettingsConfiguration.EmailInvioDASI} " +
-                    "<br> Cordiali saluti, <br><br>Segreteria dell’Assemblea Consiliare",
-                ATTACHMENTS = new List<AllegatoMail> { new AllegatoMail(content, $"{nome_atto}.pdf") }
-            };
-            await _logicUtil.InvioMail(mailModel);
+                var complete_path = Path.Combine(
+                    AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                    Path.GetFileName(allegatoPubblico.Path));
+                listAttachments.Add(complete_path);
+            }
 
-            atto.Inviato_Al_Protocollo = true;
-            atto.DataInvioAlProtocollo = DateTime.Now;
+            // Stesso testo mostrato a video sulla pagina pubblica (approvato = privacy),
+            // ma reso come la stampa immediata (QR e logo attivi).
+            var body = await GetBodyDASI(atto.UIDAtto, persona, TemplateTypeEnum.PDF, approvato);
 
+            try
+            {
+                var stamper = new PdfStamper_Playwright();
+                return await stamper.CreaPDFInMemory(
+                    body,
+                    $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}",
+                    listAttachments);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     Scrive manualmente il campo Protocollo dell'atto, bypassando il
+        ///     flusso EDMA. Pensato come rete di sicurezza per atti pre-EDMA o
+        ///     casi anomali in cui la segreteria deve allineare a mano la
+        ///     segnatura. L'autorizzazione (ruolo segreteria + feature flag)
+        ///     viene verificata dall'endpoint API che chiama questo metodo.
+        /// </summary>
+        public async Task SalvaProtocolloManuale(Guid uidAtto, string protocollo, PersonaDto persona)
+        {
+            var atto = await _unitOfWork.DASI.Get(uidAtto);
+            if (atto == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            InputSanitizer.ValidateAndThrowIfDangerous(protocollo, "Protocollo");
+
+            atto.Protocollo = protocollo ?? string.Empty;
+            atto.UIDPersonaModifica = persona.UID_persona;
+            atto.DataModifica = DateTime.Now;
             await _unitOfWork.CompleteAsync();
         }
 
@@ -4591,7 +4757,8 @@ namespace PortaleRegione.API.Controllers
                     TipoCopertina = report.covertype,
                     TipoVisualizzazione = report.dataviewtype,
                     TipoVisualizzazione_Card_Template = report.dataviewtype_template,
-                    DettagliOrdinamento = report.sorting
+                    DettagliOrdinamento = report.sorting,
+                    FileSeparati = report.file_separati
                 };
 
                 _unitOfWork.Reports.Add(item);
@@ -4605,53 +4772,16 @@ namespace PortaleRegione.API.Controllers
                 reportInDb.TipoVisualizzazione = report.dataviewtype;
                 reportInDb.TipoVisualizzazione_Card_Template = report.dataviewtype_template;
                 reportInDb.DettagliOrdinamento = report.sorting;
+                reportInDb.FileSeparati = report.file_separati;
             }
 
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task SalvaGruppoFiltri(FiltroPreferitoDto request, PersonaDto currentUser)
-        {
-            if (string.IsNullOrEmpty(request.name))
-                throw new Exception("E' necessario dare un nome al filtro per poterlo salvare.");
-
-            var filtro = new FILTRI
-            {
-                UId_persona = currentUser.UID_persona,
-                Filtri = request.filters,
-                Colonne = request.columns,
-                DettagliOrdinamento = request.sorting,
-                Nome = request.name,
-                Preferito = request.favourite
-            };
-
-            _unitOfWork.Filtri.Add(filtro);
-            await _unitOfWork.CompleteAsync();
-        }
-
-        public async Task<List<FiltroPreferitoDto>> GetGruppoFiltri(PersonaDto currentUser)
-        {
-            var listFromDb = await _unitOfWork.Filtri.GetByUser(currentUser.UID_persona);
-            var res = new List<FiltroPreferitoDto>();
-            foreach (var f in listFromDb)
-                res.Add(new FiltroPreferitoDto
-                {
-                    name = f.Nome,
-                    favourite = f.Preferito,
-                    filters = f.Filtri,
-                    columns = f.Colonne,
-                    sorting = f.DettagliOrdinamento
-                });
-
-            return res;
-        }
-
-        public async Task EliminaGruppoFiltri(string nomeFiltro, PersonaDto currentUser)
-        {
-            var filtro = await _unitOfWork.Filtri.Get(nomeFiltro, currentUser.UID_persona);
-            _unitOfWork.Filtri.Remove(filtro);
-            await _unitOfWork.CompleteAsync();
-        }
+        // I metodi SalvaGruppoFiltri/GetGruppoFiltri/EliminaGruppoFiltri sono
+        // stati spostati in FiltriLogic (v2026.5.1) per renderli condivisi tra
+        // i moduli PEM e DASI. Il consumer client passa esplicitamente
+        // Modulo = DASI al nuovo endpoint /api/filtri/*.
 
         public async Task<List<ReportDto>> GetReports(PersonaDto currentUser)
         {
@@ -4667,7 +4797,8 @@ namespace PortaleRegione.API.Controllers
                     dataviewtype = f.TipoVisualizzazione,
                     dataviewtype_template = f.TipoVisualizzazione_Card_Template,
                     exportformat = f.FormatoEsportazione,
-                    sorting = f.DettagliOrdinamento
+                    sorting = f.DettagliOrdinamento,
+                    file_separati = f.FileSeparati
                 });
 
             return res;
@@ -4704,6 +4835,12 @@ namespace PortaleRegione.API.Controllers
                 case ExportFormatEnum.WORD:
                     try
                     {
+                        // #1623: con il flag attivo si produce un file Word per ogni atto filtrato,
+                        // raccolti in un unico ZIP (es. generazione massiva delle DCR), invece del
+                        // singolo documento riepilogativo.
+                        if (model.file_separati)
+                            return await GeneraZipWord(model, currentUser);
+
                         filePath += ".docx";
                         var bodyWord = await ComposeReportBodyFromTemplate(model, currentUser);
                         CreateWordReport(filePath, bodyWord, (WordSizeEnum)model.wordsize);
@@ -4764,6 +4901,67 @@ namespace PortaleRegione.API.Controllers
             return ResponseZip(pdfs);
         }
 
+        /// <summary>
+        ///     #1623: genera un file Word per ogni atto che soddisfa i filtri (riusando lo stesso
+        ///     template scelto nel report) e li raccoglie in un unico archivio ZIP. Usato, ad esempio,
+        ///     per estrarre in blocco le DCR degli atti presenti in griglia.
+        /// </summary>
+        private async Task<HttpResponseMessage> GeneraZipWord(ReportDto model, PersonaDto currentUser)
+        {
+            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
+            var request = new BaseRequest<AttoDASIDto>
+            {
+                filtro = Utility.ParseFilterDasi(filtri),
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+            };
+
+            if (!string.IsNullOrEmpty(model.sorting))
+            {
+                var ordinamento = JsonConvert.DeserializeObject<List<SortingInfo>>(model.sorting);
+                request.dettagliOrdinamento = ordinamento;
+            }
+
+            var idsList = await GetSoloIds(request, currentUser, null);
+
+            var files = new List<FileModel>();
+            foreach (var uid in idsList)
+            {
+                var dto = await GetAttoDto(uid);
+
+                // Riusa la composizione del documento singolo, restringendo i filtri al solo atto corrente:
+                // ogni file Word risulta identico a quello prodotto dalla generazione del report sul singolo atto.
+                var reportSingolo = new ReportDto
+                {
+                    covertype = model.covertype,
+                    columns = model.columns,
+                    dataviewtype = model.dataviewtype,
+                    dataviewtype_template = model.dataviewtype_template,
+                    exportformat = (int)ExportFormatEnum.WORD,
+                    wordsize = model.wordsize,
+                    filters = JsonConvert.SerializeObject(new List<FilterItem>
+                    {
+                        new FilterItem
+                        {
+                            property = nameof(AttoDASIDto.UIDAtto),
+                            value = uid.ToString()
+                        }
+                    })
+                };
+
+                var body = await ComposeReportBodyFromTemplate(reportSingolo, currentUser);
+                var contenuto = CreateWordReportToBytes(body, (WordSizeEnum)model.wordsize);
+
+                var nomeFile = string.Join("_", dto.Display.Split(Path.GetInvalidFileNameChars()));
+                files.Add(new FileModel
+                {
+                    Name = $"{nomeFile}.docx",
+                    Content = contenuto
+                });
+            }
+
+            return ResponseZip(files);
+        }
+
         private HttpResponseMessage ResponseZip(List<FileModel> pdfs)
         {
             var outputMemoryStream = new MemoryStream();
@@ -4812,7 +5010,7 @@ namespace PortaleRegione.API.Controllers
             var pdfs = new List<FileModel>();
             foreach (var dto in attiList)
             {
-                var pdf = await PDFIstantaneo(Mapper.Map<AttoDASIDto, ATTI_DASI>(dto), null);
+                var pdf = await PDFIstantaneo(_mapper.Map<AttoDASIDto, ATTI_DASI>(dto), null);
                 pdfs.Add(new FileModel
                 {
                     Name = dto.Display + ".pdf",
@@ -4882,20 +5080,43 @@ namespace PortaleRegione.API.Controllers
                         {
                             cell.Value = "";
                         }
-                        else if (DateTime.TryParse(cellValue.ToString(), out var resDate))
-                        {
-                            // Prova un formato che Excel riconosce come "Data" standard
-                            cell.Style.Numberformat.Format = "dd/mm/yyyy"; // formato data senza orario
-                            cell.Value = resDate;
-                        }
-                        else if (int.TryParse(cellValue.ToString(), out var resInt))
-                        {
-                            cell.Style.Numberformat.Format = "0";
-                            cell.Value = resInt;
-                        }
                         else
                         {
-                            cell.Value = Utility.StripWordMarkup(cellValue.ToString()); // #1274
+                            // #1590 
+                            // Verifica il tipo della proprietà per determinare il formato corretto
+                            var propertyInfo = typeof(AttoDASIDto).GetProperty(column);
+                            var propertyType = propertyInfo?.PropertyType;
+
+                            if (propertyType == typeof(DateTime) || propertyType == typeof(DateTime?))
+                            {
+                                if (DateTime.TryParse(cellValue.ToString(), out var resDate))
+                                {
+                                    cell.Style.Numberformat.Format = "dd/mm/yyyy";
+                                    cell.Value = resDate;
+                                }
+                                else
+                                {
+                                    cell.Value = cellValue.ToString();
+                                }
+                            }
+                            else if (propertyType == typeof(int) || propertyType == typeof(int?))
+                            {
+                                if (int.TryParse(cellValue.ToString(), out var resInt))
+                                {
+                                    cell.Style.Numberformat.Format = "0";
+                                    cell.Value = resInt;
+                                }
+                                else
+                                {
+                                    cell.Value = cellValue.ToString();
+                                }
+                            }
+                            else
+                            {
+                                // Per stringhe e altri tipi, forza formato testo
+                                cell.Style.Numberformat.Format = "@"; // Formato testo esplicito
+                                cell.Value = Utility.StripWordMarkup(cellValue.ToString());
+                            }
                         }
                     }
                 }
@@ -5492,10 +5713,20 @@ namespace PortaleRegione.API.Controllers
             if (propValue == null)
                 return "";
 
-            if (DateTime.TryParse(propValue.ToString(), out var resDate)) return resDate.ToString("dd/MM/yyyy");
-            if (bool.TryParse(propValue.ToString(), out var resBool)) return resBool ? "Si" : "No";
+            // #1590
+            if (propertyInfo.PropertyType == typeof(DateTime) || propertyInfo.PropertyType == typeof(DateTime?))
+            {
+                if (propValue is DateTime date)
+                    return date.ToString("dd/MM/yyyy");
+            }
 
-            return propertyInfo.GetValue(atto);
+            if (propertyInfo.PropertyType == typeof(bool) || propertyInfo.PropertyType == typeof(bool?))
+            {
+                if (propValue is bool boolValue)
+                    return boolValue ? "Si" : "No";
+            }
+
+            return propValue;
         }
 
         private async Task<string> ComposeReportBodyFromTemplate(ReportDto model, PersonaDto currentUser)
@@ -5632,6 +5863,26 @@ namespace PortaleRegione.API.Controllers
         private void CreateWordReport(string filePath, string body, WordSizeEnum wordSize = WordSizeEnum.A4)
         {
             using var document = WordprocessingDocument.Create(filePath, WordprocessingDocumentType.Document);
+            PopolaWordReport(document, body, wordSize);
+        }
+
+        /// <summary>
+        ///     #1623: variante di <see cref="CreateWordReport" /> che restituisce il documento Word
+        ///     in memoria, per poterlo impacchettare in uno ZIP senza passare da file su disco.
+        /// </summary>
+        private byte[] CreateWordReportToBytes(string body, WordSizeEnum wordSize = WordSizeEnum.A4)
+        {
+            using var stream = new MemoryStream();
+            using (var document = WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document))
+            {
+                PopolaWordReport(document, body, wordSize);
+            }
+
+            return stream.ToArray();
+        }
+
+        private void PopolaWordReport(WordprocessingDocument document, string body, WordSizeEnum wordSize)
+        {
             var mainPart = document.MainDocumentPart;
 
             if (mainPart == null)
@@ -5653,7 +5904,7 @@ namespace PortaleRegione.API.Controllers
 
             // Converti l'HTML in contenuto Word e aggiungilo al documento
             var converter = new HtmlConverter(mainPart);
-            converter.ParseHtml(body);
+            converter.ParseHtml(NormalizzaTitoliPerWord(body)); // #1674
 
             // Salva il documento
             mainPart.Document.Save();
@@ -5756,8 +6007,11 @@ namespace PortaleRegione.API.Controllers
             var res = await _unitOfWork.DASI.GetAbbinamentiDisponibili(legislaturaId, page, size);
             foreach (var item in res)
             {
+                if (item.natto == "$$") item.natto = "";
                 item.tipo_esteso = Utility.GetText_Tipo(int.Parse(item.tipo));
-                item.display = $"{item.tipo_esteso} {item.natto}";
+                item.display = string.IsNullOrEmpty(item.natto)
+                    ? item.tipo_esteso
+                    : $"{item.tipo_esteso} {item.natto}";
             }
 
             return res;
@@ -5869,6 +6123,11 @@ namespace PortaleRegione.API.Controllers
         public async Task Rimuovi_Documento(AttiDocumentiDto request, PersonaDto currentUser)
         {
             var doc = await _unitOfWork.DASI.GetDocumento(request.Uid);
+            // #1624 - se rimuovo un allegato parte integrante gia' pubblicato devo ricertificare
+            // l'atto: rilevo tipo e stato di pubblicazione prima del soft-delete.
+            var eraAllegatoPubblicato =
+                (TipoDocumentoEnum)doc.Tipo == TipoDocumentoEnum.TESTO_ALLEGATO && doc.Pubblica;
+            var uidAttoDoc = doc.UIDAtto;
             doc.UIDUtenteModifica = currentUser.UID_persona;
             doc.DataModifica = DateTime.Now;
             doc.Eliminato = true;
@@ -5899,6 +6158,15 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
 
+            // #1624 - la rimozione di un allegato parte integrante pubblicato cambia il
+            // contenuto pubblicato: rigenero il corpo certificato dell'atto.
+            if (eraAllegatoPubblicato)
+            {
+                var atto = await _unitOfWork.DASI.Get(uidAttoDoc);
+                if (atto != null)
+                    await RicertificaAttoPerAllegato(atto, currentUser);
+            }
+
             /*var pathFile = $"{AppSettingsConfiguration.PercorsoCompatibilitaDocumenti}/{doc.Path}";
 
             if (File.Exists(pathFile))
@@ -5918,6 +6186,58 @@ namespace PortaleRegione.API.Controllers
             doc.Pubblica = !doc.Pubblica;
             doc.UIDUtenteModifica = currentUser.UID_persona;
             doc.DataModifica = DateTime.Now;
+            await _unitOfWork.CompleteAsync();
+
+            // #1624 - pubblicare o inibire un allegato parte integrante deve avere effetto
+            // sulla visualizzazione e sulla stampa: se l'atto e' gia' certificato si rigenera
+            // il corpo certificato (il testo dell'atto e le firme restano invariati).
+            if ((TipoDocumentoEnum)doc.Tipo == TipoDocumentoEnum.TESTO_ALLEGATO)
+            {
+                var atto = await _unitOfWork.DASI.Get(doc.UIDAtto);
+                if (atto != null)
+                    await RicertificaAttoPerAllegato(atto, currentUser);
+            }
+        }
+
+        /// <summary>
+        ///     #1624 - Rigenera e ri-cifra il corpo certificato di un atto a seguito di un
+        ///     intervento di UOLA su un allegato parte integrante (pubblicazione, inibizione o
+        ///     rimozione). Il testo dell'atto non cambia e le firme restano valide: si aggiorna
+        ///     solo l'elenco degli allegati pubblicati nel corpo. Riusa la stessa meccanica di
+        ///     ri-certificazione gia' adottata altrove (re-crypt #527), con la chiave dell'atto.
+        ///     Se l'atto e' gia' presentato/in trattazione si invalida la stampa, cosi' il modulo
+        ///     asincrono archivia e rigenera il PDF aggiornato (stesso pattern usato per le firme).
+        /// </summary>
+        private async Task RicertificaAttoPerAllegato(ATTI_DASI atto, PersonaDto currentUser)
+        {
+            // Atto non ancora certificato: il corpo e' gia' generato "vivo" e filtrato, niente da fare.
+            if (string.IsNullOrEmpty(atto.Atto_Certificato))
+                return;
+
+            var body = await GetBodyDASI(atto.UIDAtto, currentUser, TemplateTypeEnum.FIRMA);
+            atto.Atto_Certificato = CryptoHelper.EncryptString(body, BALHelper.Decrypt(atto.Hash));
+
+            // Backup/rigenerazione della stampa solo se esiste gia' un PDF ufficiale da riallineare.
+            if (atto.IDStato == (int)StatiAttoEnum.PRESENTATO ||
+                atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE)
+            {
+                atto.StampaValida = false;
+                _unitOfWork.Stampe.Add(new STAMPE
+                {
+                    UIDStampa = Guid.NewGuid(),
+                    UIDUtenteRichiesta = currentUser.UID_persona,
+                    CurrentRole = (int)currentUser.CurrentRole,
+                    DataRichiesta = DateTime.Now,
+                    UIDAtto = atto.UIDAtto,
+                    Da = 1,
+                    A = 1,
+                    Ordine = 1,
+                    Notifica = true,
+                    Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                    DASI = true
+                });
+            }
+
             await _unitOfWork.CompleteAsync();
         }
 

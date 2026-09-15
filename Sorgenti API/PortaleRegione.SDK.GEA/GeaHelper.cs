@@ -28,20 +28,31 @@ namespace PortaleRegione.SDK.GEA
 {
     public class GeaHelper
     {
-        public async Task<string> RicercaAtti(CercaAttiGeaRequest request, string username, string password)
+        private string _url;
+        private string _username;
+        private string _password;
+
+        public GeaHelper(string url, string username, string password)
+        {
+            _url = url;
+            _username = username;
+            _password = password;
+        }
+        
+        public async Task<string> RicercaAtti(CercaAttiGeaRequest request)
         {
             try
             {
                 using var httpClient = new HttpClient();
                 httpClient.Timeout = TimeSpan.FromMinutes(10);
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var byteArray = Encoding.ASCII.GetBytes($"{username}:{password}");
+                var byteArray = Encoding.ASCII.GetBytes($"{_username}:{_password}");
                 var token = Convert.ToBase64String(byteArray);
 
                 httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic", token);
             
-                var endpoint = $"http://10.177.4.12:8082/alfresco/s/crl/atto/ricerca/avanzata";
+                var endpoint = $"{_url}/alfresco/s/crl/atto/ricerca/avanzata";
                 var jsonRequest = JsonConvert.SerializeObject(
                     new { atto = request },
                     new JsonSerializerSettings
