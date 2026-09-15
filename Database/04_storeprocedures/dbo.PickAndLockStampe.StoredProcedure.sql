@@ -1,6 +1,3 @@
-USE [dbGEDASI_PROD]
-GO
-
 /****** Object:  StoredProcedure [dbo].[PickAndLockStampe]    Script Date: 19/07/2025 11:35:43 ******/
 SET ANSI_NULLS ON
 GO

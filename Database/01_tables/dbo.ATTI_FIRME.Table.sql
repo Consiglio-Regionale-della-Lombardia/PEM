@@ -17,7 +17,9 @@ CREATE TABLE [dbo].[ATTI_FIRME](
 	[PrimoFirmatario] [bit] NOT NULL,
 	[id_gruppo] [int] NOT NULL,
 	[Valida] [bit] NOT NULL,
-	[Capogruppo] [bit] NOT NULL
+	[Capogruppo] [bit] NOT NULL,
+	[Prioritario] [bit] NOT NULL,
+	[OrdineVisualizzazione] [int] NOT NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -34,5 +36,11 @@ ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_Valida]  DEFAULT (
 GO
 
 ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_Capogruppo]  DEFAULT ((0)) FOR [Capogruppo]
+GO
+
+ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_Prioritario]  DEFAULT ((1)) FOR [Prioritario]
+GO
+
+ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_OrdineVisualizzazione]  DEFAULT ((0)) FOR [OrdineVisualizzazione]
 GO
 

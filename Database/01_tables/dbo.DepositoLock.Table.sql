@@ -1,6 +1,3 @@
-USE [dbGEDASI_PROD]
-GO
-
 /****** Object:  Table [dbo].[DepositoLock]    Script Date: 19/07/2025 11:36:12 ******/
 SET ANSI_NULLS ON
 GO

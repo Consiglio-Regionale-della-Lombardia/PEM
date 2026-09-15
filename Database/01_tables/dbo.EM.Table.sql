@@ -38,7 +38,7 @@ CREATE TABLE [dbo].[EM](
 	[UIDArticolo] [uniqueidentifier] NULL,
 	[UIDComma] [uniqueidentifier] NULL,
 	[UIDLettera] [uniqueidentifier] NULL,
-	[NLettera] [varchar](5) NULL,
+	[NLettera] [varchar](50) NULL,
 	[UIDParte_LR] [uniqueidentifier] NULL,
 	[NNumero] [varchar](5) NULL,
 	[UIDMissione] [uniqueidentifier] NULL,
