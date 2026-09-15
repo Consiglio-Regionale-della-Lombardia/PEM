@@ -2,7 +2,7 @@
 # Struttura del database
 
 Qui di seguito elenchiamo gli oggetti contenuti nel database del Portale PEM-DASI. 
-Il legame tra questi oggetti è visibile nel diagramma entità-relazioni in calce al presente documento.
+Il legame tra questi oggetti è visibile nel diagramma entità-relazioni in calce al presente documento, fermo al 2021.
 
 ## Contenuti
 
@@ -11,6 +11,7 @@ Il legame tra questi oggetti è visibile nel diagramma entità-relazioni in calc
 - [Viste](#Viste)
 - [Funzioni](#Funzioni)
 - [Stored procedure](#Stored_procedure)
+- [Script di aggiornamento](#script_di_aggiornamento)
 - [Diagramma Entità-Relazioni](#Diagramma_Entita-Relazioni)
 
 
@@ -218,23 +219,29 @@ Inviato_Al_Protocollo: bit //indica se è già stata inoltrata la richiesta di p
  
 DataInvioAlProtocollo: datetime //data della richiesta di protocollazione
 
+Protocollo: varchar(150) //numero di protocollo dell'atto: la protocollazione EDMA vi copia il numero pratica (EDMA_NumeroPratica), per gli atti precedenti viene inserito a mano dalla segreteria
+
+Ritardo: int //giorni di ritardo nella risposta, scritti solo dal job CalcoloRitardoAttoJob (default 0). Per gli atti non eliminati negli stati presentato, in trattazione e completato vale la differenza in giorni fra DataAnnunzio e la data della prima risposta non eliminata, o la data del calcolo se la risposta manca, meno 20, con minimo 0; gli atti senza DataAnnunzio non vengono aggiornati
+
+NascondiGruppo: bit //se true il gruppo politico non compare nell'intestazione del testo dell'atto (default 0)
+
 EDMA_IdPratica: varchar(50) //id EDMA del FascicoloPratica creato per l'atto (integrazione EDMA)
 
-EDMA_NumeroPratica: varchar(100) //numero pratica restituito da EDMA dopo la creazione, mostrato nel dettaglio atto
+EDMA_NumeroPratica: varchar(100) //numero pratica restituito da EDMA dopo la creazione; a protocollazione completata viene copiato nel campo Protocollo
 
 EDMA_IdDocumento: varchar(50) //id EDMA del DocumentoFile che contiene il pdf principale dell'atto
 
 EDMA_IdAllegatoGenerico: varchar(50) //id EDMA del DocumentoFile figlio creato per l'eventuale allegato dell'atto
 
-EDMA_IdProtocollo: varchar(50) //id della scheda di protocollo (modulo 9000 di EDMA), utile in caso di annullo
+EDMA_IdProtocollo: varchar(50) //id della scheda di protocollo restituito da EDMA
 
-EDMA_Segnatura: varchar(100) //segnatura di protocollo nel formato AOO.AAAA.0000000 restituita da EDMA
+EDMA_Segnatura: varchar(100) //segnatura di protocollo nel formato AOO.AAAA.0000000 restituita da EDMA; se è valorizzata l'atto risulta già protocollato
 
-EDMA_TentativiInvio: int //numero di tentativi del job di retry verso EDMA (default 0)
+EDMA_TentativiInvio: int //numero di tentativi di protocollazione non riusciti (default 0)
 
-EDMA_UltimoErrore: nvarchar(max) //testo dell'ultimo errore EDMA, mostrato come tooltip in segreteria
+EDMA_UltimoErrore: nvarchar(max) //testo dell'ultimo errore EDMA, con il passo del flusso in cui si è fermato; viene azzerato quando la protocollazione riesce
 
-EDMA_DataUltimoTentativo: datetime //timestamp dell'ultimo tentativo verso EDMA (riuscito o fallito)
+EDMA_DataUltimoTentativo: datetime //data e ora dell'ultimo tentativo verso EDMA (riuscito o fallito)
  
 #### ATTI_DASI_CONTATORI
 Tabella che mappa la codifica da dare a ogni tipologia di atto quando viene depositato (i contatori andranno ripristinati all'avvio di legislatura)
@@ -414,13 +421,15 @@ Colore: String //Colore dell’emendamento, utilizzato per gestire la funzione �
 
 Tags: varchar(max) //memorizza i #tags dell'emendamento
 
+NascondiGruppo: bit //se true il gruppo politico del proponente non compare nell'intestazione dell'EM/SUBEM, a video e nel pdf (default 0)
+
 #### FILTRI
-Tabella per la persistenza dei filtri preferiti utente. Originariamente usata solo dal modulo DASI, dalla versione 2026.5.1 ospita anche i filtri preferiti del modulo PEM grazie alla colonna `Modulo`.
+Tabella dei filtri salvati dagli utenti nei riepiloghi dei moduli PEM e DASI: criteri di ricerca, colonne e ordinamento della griglia. La colonna `Modulo` indica il modulo a cui appartiene il filtro.
 
 ##### Campi
 Id: Guid //chiave primaria del record
 
-UId_persona: Guid //utente proprietario del filtro preferito
+UId_persona: Guid //utente proprietario del filtro
 
 DataCreazione: DateTime //data/ora di salvataggio
 
@@ -428,13 +437,13 @@ Nome: varchar(100) //nome del filtro mostrato in interfaccia
 
 Filtri: varchar(max) //payload JSON delle chip filtro applicate
 
-Preferito: bit //true se il filtro deve apparire come chip "prioritaria" in homepage del riepilogo
+Preferito: bit //se true il filtro compare anche come chip sopra la griglia, oltre che nell'elenco dei filtri salvati. Nel modulo DASI la casella "Preferito" è visibile solo ad Amministratore PEM e Segreteria dell'Assemblea (anche in sola lettura); per gli altri utenti e nel modulo PEM il client salva sempre true
 
 Colonne: varchar(max) //payload JSON delle colonne visibili (configurazione griglia)
 
 DettagliOrdinamento: varchar(max) //payload JSON dell'ordinamento multi-colonna
 
-Modulo: tinyint //modulo applicativo (1 = PEM, 2 = DASI). DEFAULT = 2 per backfill record storici DASI
+Modulo: tinyint //modulo del filtro secondo ModuloEnum (1 = PEM, 2 = DASI); il default 2 assegna al modulo DASI i filtri salvati prima dell'aggiunta della colonna
 
 #### FIRME
 Tabella per la gestione delle FIRME degli EMENDAMENTI/SUBEMENDAMENTI
@@ -629,6 +638,34 @@ Al: DateTime
 FIRMA_e_DEPOSITO: Boolean
 
 RichiediModificaPIN: Boolean
+
+#### REPORTS
+Tabella dei report salvati dagli utenti del modulo DASI: criteri di ricerca, colonne, ordinamento, impaginazione e formato del file da produrre
+
+##### Campi
+Id: uniqueidentifier //chiave primaria del record
+
+UId_persona: uniqueidentifier //utente proprietario del report
+
+DataCreazione: datetime //data/ora di salvataggio
+
+Nome: varchar(255) //nome del report; salvare con un nome già usato dallo stesso utente aggiorna il report esistente
+
+Filtri: varchar(max) //payload JSON dei filtri applicati
+
+TipoCopertina: varchar(50) //identificativo del template di copertina (tabella TEMPLATES); se il valore non è un identificativo il report esce senza copertina (default 0)
+
+TipoVisualizzazione: int //impaginazione degli atti: 1 = griglia, 2 = card, 3 = template
+
+TipoVisualizzazione_Card_Template: varchar(50) //identificativo del template (tabella TEMPLATES) usato quando TipoVisualizzazione vale 3
+
+FormatoEsportazione: int //formato del file prodotto: 1 = Word, 2 = PDF, 3 = Excel, 4 = Excel situazione, 5 = Excel commissioni
+
+Colonne: varchar(max) //payload JSON delle colonne esposte
+
+DettagliOrdinamento: varchar(max) //payload JSON dell'ordinamento multi-colonna
+
+FileSeparati: bit //solo per i report in Word: se true si produce un file per ogni atto, raccolti in un unico ZIP, invece del documento riepilogativo (default 0)
 
 #### RUOLI
 Tabella di supporto per la memorizzazione dei ruoli da assegnare agli utenti dell’applicazione (Consigliere, Responsabile di segreteria politica, Assessore, Amministratore, ecc)
@@ -999,7 +1036,26 @@ Store procedure che esegue tutte le operazioni per spostare nella posizione spec
 Store procedure che esegue tutte le operazioni per spostare in una posizione precedente l'ordine di votazione di un emendamento
 
 
+## Script_di_aggiornamento
+
+La cartella `Database/06_updates` contiene gli script che portano un database esistente allo schema richiesto dalle versioni successive delle applicazioni. Il nome comincia con la data (AAAA-MM-GG) e un progressivo: vanno eseguiti in quest'ordine e prima di aggiornare le applicazioni, perché il modello Entity Framework legge le nuove colonne e fallisce se non le trova. Gli script sono idempotenti: ogni colonna viene aggiunta solo se non esiste (`COL_LENGTH(...) IS NULL`), quindi si possono rieseguire. Su un database creato con gli script delle altre cartelle le colonne sono già presenti.
+
+#### 2026-05-27_001_ATTI_DASI_EDMA_columns.sql
+Aggiunge alla tabella ATTI_DASI le colonne EDMA_* che tracciano la protocollazione su EDMA
+
+#### 2026-05-28_001_FILTRI_Modulo_column.sql
+Aggiunge alla tabella FILTRI la colonna Modulo, con default 2 (DASI) per i filtri già salvati
+
+#### 2026-06-18_001_EM_NascondiGruppo.sql
+Aggiunge la colonna NascondiGruppo alle tabelle EM ed EM_Audit e ricrea il trigger TrigEM perché la copi nell'audit
+
+#### 2026-09-10_001_REPORTS_FileSeparati.sql
+Aggiunge alla tabella REPORTS la colonna FileSeparati, con default 0 per i report già salvati
+
+
 ## Diagramma_Entita-Relazioni
+
+Il diagramma risale al 2021: non comprende le tabelle del modulo DASI né quelle aggiunte in seguito.
 
 ![EntityDesignerDiagram](/Database/EntityDesignerDiagram.jpg)
 
