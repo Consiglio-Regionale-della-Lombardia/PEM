@@ -150,3 +150,5 @@ Sorgenti API/PortaleRegione.SDK.EDMA/bin
 Sorgenti modulo calcolo ritardo/Jobs/CalcoloRitardoAttoJob/bin
 Sorgenti modulo calcolo ritardo/Jobs/CalcoloRitardoAttoJob/obj
 Sorgenti modulo calcolo ritardo/Jobs/TestJob/bin
+Sorgenti API/ExpressionBuilder/bin
+Sorgenti modulo retention/Jobs/CleanLogRetention/bin
