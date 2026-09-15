@@ -28,7 +28,7 @@ BEGIN
         [PATH_AllegatoGenerico], [PATH_AllegatoTecnico], [EffettiFinanziari], [NOTE_EM], [NOTE_Griglia],
         [TestoEM_Modificabile], [IDStato], [Firma_su_invito], [UID_QRCode], [AreaPolitica], [Eliminato],
         [UIDPersonaElimina], [DataElimina], [chkf], [chkem], [Timestamp], [Colore], [Tags],
-        [VersioneStampa], [DataUltimaStampa], [PathStampa], [StampaValida]
+        [VersioneStampa], [DataUltimaStampa], [PathStampa], [StampaValida], [NascondiGruppo]
     )
     SELECT
         @DatAudit, @UteAudit,
@@ -42,7 +42,7 @@ BEGIN
         d.[PATH_AllegatoGenerico], d.[PATH_AllegatoTecnico], d.[EffettiFinanziari], d.[NOTE_EM], d.[NOTE_Griglia],
         d.[TestoEM_Modificabile], d.[IDStato], d.[Firma_su_invito], d.[UID_QRCode], d.[AreaPolitica], d.[Eliminato],
         d.[UIDPersonaElimina], d.[DataElimina], d.[chkf], d.[chkem], d.[Timestamp], d.[Colore], d.[Tags],
-        d.[VersioneStampa], d.[DataUltimaStampa], d.[PathStampa], d.[StampaValida]
+        d.[VersioneStampa], d.[DataUltimaStampa], d.[PathStampa], d.[StampaValida], d.[NascondiGruppo]
     FROM deleted d;
 END
 GO

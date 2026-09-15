@@ -68,5 +68,6 @@ CREATE TABLE [dbo].[EM_Audit] (
     [DataUltimaStampa] DATETIME NULL,
     [PathStampa] VARCHAR(MAX) COLLATE Latin1_General_CI_AI NULL,
     [StampaValida] BIT NOT NULL,
+    [NascondiGruppo] BIT NOT NULL CONSTRAINT [DF_EM_Audit_NascondiGruppo] DEFAULT ((0)),
     CONSTRAINT [PK_EM_Audit] PRIMARY KEY ([IdEM_Audit])
 );
