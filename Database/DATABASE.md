@@ -6,13 +6,13 @@ Il legame tra questi oggetti è visibile nel diagramma entità-relazioni in calc
 
 ## Contenuti
 
-- [Tabelle proprietarie](#Tabelle_proprietarie)
-- [Tabelle replicate](#Tabelle_replicate)
-- [Viste](#Viste)
-- [Funzioni](#Funzioni)
-- [Stored procedure](#Stored_procedure)
+- [Tabelle proprietarie](#tabelle_proprietarie)
+- [Tabelle replicate](#tabelle_replicate)
+- [Viste](#viste)
+- [Funzioni](#funzioni)
+- [Stored procedure](#stored_procedure)
 - [Script di aggiornamento](#script_di_aggiornamento)
-- [Diagramma Entità-Relazioni](#Diagramma_Entita-Relazioni)
+- [Diagramma Entità-Relazioni](#diagramma_entita-relazioni)
 
 
 ## Tabelle_proprietarie
