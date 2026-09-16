@@ -64,6 +64,19 @@ else
 <script>
     var selectedSortColumns = [];
 
+    // #1689 - per questi filtri il valore vuoto e' un criterio di ricerca vero ("atti senza
+    // protocollo"), non una chip residua: va conservato al ripristino ed etichettato.
+    var chiaviVuotoAmmesso = [
+        "@nameof(AttoDASIDto.Protocollo)",
+        "@nameof(AttoDASIDto.BURL)",
+        "@nameof(AttoDASIDto.CodiceMateria)"
+    ];
+
+    function etichettaChip(keyLabel, val) {
+        var valore = val === null || val === undefined ? '' : String(val).trim();
+        return keyLabel + ": " + (valore === '' ? '(vuoto)' : val);
+    }
+
     var availableFilterArray = [
         { tag: "@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))", id: "@nameof(AttoDASIDto.Legislatura)" },
         { tag: "@Utility.GetDisplayName(typeof(AttoDASIReportDto), nameof(AttoDASIReportDto.IDStato))", id: "@nameof(AttoDASIDto.IDStato)" },
@@ -209,7 +222,7 @@ else
                     } else if (key === "@nameof(AttoDASIDto.BURL)") {
                         val = document.getElementById('burl').value;
                         text = val;
-                        chipText = keyLabel + ": " + val;
+                        chipText = etichettaChip(keyLabel, val);
                     } else if (key === "@nameof(AttoDASIDto.Note)") {
                         val = document.getElementById('note').value;
                         text = val;
@@ -217,7 +230,7 @@ else
                     } else if (key === "@nameof(AttoDASIDto.Protocollo)") {
                         val = document.getElementById('protocollo').value;
                         text = val;
-                        chipText = keyLabel + ": " + val;
+                        chipText = etichettaChip(keyLabel, val);
                     } else if (key === "@nameof(AttoDASIDto.DCR)") {
                         var dcrValue = document.getElementById('dcr').value.trim();
                         var dcrcValue = document.getElementById('dcrc').value.trim();
@@ -302,7 +315,7 @@ else
                     } else if (key === "@nameof(AttoDASIDto.CodiceMateria)") {
                         val = document.getElementById('codice_materia').value;
                         text = val;
-                        chipText = keyLabel + ": " + val;
+                        chipText = etichettaChip(keyLabel, val);
                     } else if (key === "@nameof(AttoDASIDto.Sollecito)") {
                         val = document.getElementById('sollecito').checked;
                         text = val ? 'Si' : 'No';
@@ -3803,7 +3816,13 @@ else
             // ripristinate: per l'amministratore devono comparire solo se valorizzate, per il
             // consigliere la chip "Gruppo" e' gestita come fissa invisibile nel pannello dedicato.
             const filtriValorizzati = filtri.filter(function (f) {
-                if (!f || f.val === null || f.val === undefined || String(f.val).trim() === '') {
+                if (!f) {
+                    return false;
+                }
+                // #1689 - scartare qui anche i filtri con vuoto ammesso e' il motivo per cui
+                // sparivano dai report salvati e al rientro nell'area.
+                if (chiaviVuotoAmmesso.indexOf(f.key) === -1
+                    && (f.val === null || f.val === undefined || String(f.val).trim() === '')) {
                     return false;
                 }
                 // Scarta la chip "Gruppo" fissa/invisibile ereditata dall'area consiglieri tramite
