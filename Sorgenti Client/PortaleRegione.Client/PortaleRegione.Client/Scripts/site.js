@@ -1755,8 +1755,9 @@ function BloccaODG(attoUId, blocca) {
                 text: data.message,
                 icon: "error"
             });
+            return;
         }
-        if (blocca == true) {
+        if (blocca == 1) {
             SuccessAlert("Presentazione ordini del giorno bloccata");
         } else {
             SuccessAlert("Presentazione ordini del giorno abilitata");
@@ -1829,10 +1830,10 @@ function JollyODG(attoUId, jolly) {
             });
             return;
         }
-        if (blocca == true) {
-            SuccessAlert("Ordini del giorno: jolly disabilitato");
-        } else {
+        if (jolly == 1) {
             SuccessAlert("Ordini del giorno: jolly abilitato");
+        } else {
+            SuccessAlert("Ordini del giorno: jolly disabilitato");
         }
     }).fail(function(err) {
         console.log("error", err);
