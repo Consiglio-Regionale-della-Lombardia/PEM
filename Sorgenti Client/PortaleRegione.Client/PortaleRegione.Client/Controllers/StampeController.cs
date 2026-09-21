@@ -66,20 +66,19 @@ namespace PortaleRegione.Client.Controllers
         [Route("nuova")]
         public async Task<ActionResult> NuovaStampa(StampaModel model)
         {
+            // Filtri e ordine arrivano dalla griglia: da quando si carica via AJAX nessuno
+            // scrive piu' in sessione il riepilogo emendamenti.
+            if (model.Filter == null)
+                return Json(new ErrorResponse(
+                        "Filtri correnti non disponibili. Aggiornare la pagina e riprovare."),
+                    JsonRequestBehavior.AllowGet);
+
             var apiGateway = new ApiGateway(Token);
-            var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
+            var request = EmendamentiController.BuildBaseRequestEM(model.Filter);
 
             if (model.Tutti)
             {
-                var request = new BaseRequest<EmendamentiDto>
-                {
-                    id = modelInCache.Atto.UIDAtto,
-                    page = 1,
-                    size = modelInCache.Data.Paging.Total,
-                    filtro = modelInCache.Data.Filters,
-                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } },
-                    ordine = modelInCache.Ordinamento
-                };
+                request.size = -1;
                 var list = await apiGateway.Emendamento.GetSoloIds(request);
 
                 if (model.Lista != null)
@@ -101,7 +100,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 Lista = res,
                 Modulo = ModuloEnum.PEM,
-                Ordinamento = modelInCache.Ordinamento,
+                Ordinamento = request.ordine,
                 Da = model.da,
                 A = model.a,
                 UIDAtto = new Guid(model.uid_atto)

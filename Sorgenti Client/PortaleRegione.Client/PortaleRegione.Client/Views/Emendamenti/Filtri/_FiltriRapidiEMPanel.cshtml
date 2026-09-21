@@ -1108,6 +1108,11 @@
         var presAttiva = ordinamento === 1;
         var votAttiva = ordinamento === 2;
 
+        // ORDINA ATTO (solo vista admin) era reso lato server in base all'ordine dell'URL:
+        // il tab non ricarica piu' la pagina, quindi la visibilita' segue la risposta AJAX.
+        var btnOrdinaAtto = document.getElementById('btnOrdinaAtto');
+        if (btnOrdinaAtto) btnOrdinaAtto.style.display = votAttiva ? '' : 'none';
+
         var clientMode = data && data.Mode != null
             ? data.Mode
             : parseInt(document.getElementById('hdMode').value || '1', 10);
@@ -1342,9 +1347,14 @@
     }
 
     // Cambia l'ordinamento principale (Presentazione/Votazione) e ricarica i risultati.
+    // L'ordine resta anche nell'URL, come quando il tab ricaricava la pagina: gli spostamenti
+    // degli EM finiscono con location.reload() e devono riaprire lo stesso tab.
     window.cambiaOrdinamentoEM = function (nuovoOrdinamento) {
         var hidden = document.getElementById('inputFilterOrdine');
         if (hidden) hidden.value = nuovoOrdinamento;
+        var url = new URL(window.location.href);
+        url.searchParams.set('ordine', nuovoOrdinamento);
+        history.replaceState(history.state, '', url.toString());
         if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(1);
     };
 
