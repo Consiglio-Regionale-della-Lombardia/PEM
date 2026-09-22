@@ -1455,7 +1455,7 @@ else
                 row.appendChild(td);
             });
 
-            var linkGeasi = `https://www.consiglio.regione.lombardia.it/wps/portal/crl/home/leggi-e-banche-dati/Atti-di-indirizzo-e-controllo/Dettaglio-atto-di-indirizzo-e-controllo?tipoatto=${result.DisplayTipo}&numeroatto=${result.NAtto}&idlegislatura=${result.Legislatura}`;
+            var linkGeasi = linkBancaDatiPortale(result.UIDAtto, result.DisplayTipo, result.NAtto, result.Legislatura);
             const tdCommandsValue = document.createElement('td');
             tdCommandsValue.classList.add('center');
             tdCommandsValue.style.width = '5%';

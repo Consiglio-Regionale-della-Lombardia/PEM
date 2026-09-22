@@ -89,8 +89,15 @@
             console.log(e);
         }
         waiting(false);
-        $('#Geasi_LINK').attr("href", "@AppSettingsConfiguration.URL_WEB_PUBLIC_CLIENT?tipoatto=" + tipoatto + "&numeroatto=" + natto + "&idlegislatura=" + idlegislatura);
+        $('#Geasi_LINK').attr("href", linkBancaDatiPortale(uidAtto, tipoatto, natto, idlegislatura));
         $('#modalGeasiView').modal("open");
+    }
+
+    // Scheda dell'atto sul portale del Consiglio, anche per l'occhio della griglia admin:
+    // senza uid la pagina non carica l'atto (#1695).
+    function linkBancaDatiPortale(uidAtto, tipoatto, natto, idlegislatura) {
+        return "@AppSettingsConfiguration.URL_WEB_PUBLIC_CLIENT?tipoatto=" + tipoatto + "&numeroatto=" + natto
+            + "&idlegislatura=" + idlegislatura + "&uid=" + uidAtto;
     }
 
     
