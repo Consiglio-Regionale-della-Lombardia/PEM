@@ -35,6 +35,11 @@ namespace PortaleRegione.Client.Models
         public ICollection<Guid> Lista { get; set; }
         public bool Tutti { get; set; } = false;
 
+        /// <summary>
+        ///     Filtro corrente della griglia emendamenti, ordine compreso.
+        /// </summary>
+        public FilterRequestEM Filter { get; set; }
+
         public List<FilterItem> filters_dasi { get; set; } = new List<FilterItem>();
         public List<SortingInfo> sort_settings_dasi { get; set; } = new List<SortingInfo>();
 

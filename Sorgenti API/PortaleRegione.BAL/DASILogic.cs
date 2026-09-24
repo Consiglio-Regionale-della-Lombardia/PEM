@@ -2500,6 +2500,13 @@ namespace PortaleRegione.API.Controllers
                         .Distinct()
                         .ToList();
 
+                    // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
+                    var dataSedutaPerODG = new DateTime(
+                        seduta.Data_seduta.Year,
+                        seduta.Data_seduta.Month,
+                        seduta.Data_seduta.Day);
+                    var capogruppoInSeduta = await ProponenteCapogruppoInSeduta(atto, dataSedutaPerODG);
+
                     //Jolly attivo limite impostato {MassimoODG_Jolly}
                     // #840 Funzione Jolly
                     if (attoPEM.Jolly)
@@ -2511,60 +2518,47 @@ namespace PortaleRegione.API.Controllers
                                 $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                             continue;
                         }
+
+                        // #1691 il jolly toglie al capogruppo il limite dei depositi in seduta, non l'esenzione dal ritardo
+                        if (capogruppoInSeduta) atto.CapogruppoNeiTermini = true;
+                    }
+                    else if (capogruppoInSeduta)
+                    {
+                        // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/886
+                        var atti_dopo_scadenza =
+                            my_atti.Where(a => a.Timestamp >= dataSedutaPerODG
+                                               && a.UID_Atto_ODG ==
+                                               attoPEM
+                                                   .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
+                                .ToList();
+                        if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                        {
+                            results.Add(idGuid,
+                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+
+                            continue;
+                        }
+
+                        atto.CapogruppoNeiTermini = true;
                     }
                     else
                     {
-                        // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/886
-                        var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(atto.id_gruppo);
-                        var proponente = await _logicPersona.GetPersona(atto.UIDPersonaProponente.Value);
-                        if (capogruppo != null)
-                            if (capogruppo.id_persona == proponente.id_persona)
-                                proponente.IsCapoGruppo = true;
-                        var dataOdierna = DateTime.Now;
-                        // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
-                        var dataSedutaPerODG = new DateTime(
-                            seduta.Data_seduta.Year,
-                            seduta.Data_seduta.Month,
-                            seduta.Data_seduta.Day);
+                        //Matteo Cattapan #484
+                        //Massimo ODG presentabili per provvedimento
+                        var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
+                            .OrderBy(group => group.Key)
+                            .Select(group => Tuple.Create(group.Key, group.Count()));
+                        var current_group =
+                            group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
+                        var count_odg_per_atto = 0;
+                        if (current_group != null) count_odg_per_atto = current_group.Item2;
 
-                        if (proponente.IsCapoGruppo
-                            && dataSedutaPerODG <= dataOdierna)
+                        if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
                         {
-                            var atti_dopo_scadenza =
-                                my_atti.Where(a => a.Timestamp >= dataSedutaPerODG
-                                                   && a.UID_Atto_ODG ==
-                                                   attoPEM
-                                                       .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
-                                    .ToList();
-                            if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
-                            {
-                                results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                            results.Add(idGuid,
+                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
 
-                                continue;
-                            }
-
-                            atto.CapogruppoNeiTermini = true;
-                        }
-                        else
-                        {
-                            //Matteo Cattapan #484
-                            //Massimo ODG presentabili per provvedimento
-                            var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
-                                .OrderBy(group => group.Key)
-                                .Select(group => Tuple.Create(group.Key, group.Count()));
-                            var current_group =
-                                group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
-                            var count_odg_per_atto = 0;
-                            if (current_group != null) count_odg_per_atto = current_group.Item2;
-
-                            if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
-                            {
-                                results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-
-                                continue;
-                            }
+                            continue;
                         }
                     }
                 }
@@ -4569,6 +4563,18 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        // #886 #919 - dal giorno della seduta in poi (la seduta può durare più giorni) il capogruppo proponente è nei termini
+        private async Task<bool> ProponenteCapogruppoInSeduta(ATTI_DASI atto, DateTime dataSedutaPerODG)
+        {
+            if (dataSedutaPerODG > DateTime.Now) return false;
+
+            var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(atto.id_gruppo);
+            if (capogruppo == null) return false;
+
+            var proponente = await _logicPersona.GetPersona(atto.UIDPersonaProponente.Value);
+            return capogruppo.id_persona == proponente.id_persona;
+        }
+
         private async Task PresentaCartaceo(ATTI_DASI atto, AttoDASIDto dto, PersonaDto persona)
         {
             // #1403
@@ -4616,6 +4622,13 @@ namespace PortaleRegione.API.Controllers
                     .Distinct()
                     .ToList();
 
+                // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
+                var dataSedutaPerODG = new DateTime(
+                    seduta.Data_seduta.Year,
+                    seduta.Data_seduta.Month,
+                    seduta.Data_seduta.Day);
+                var capogruppoInSeduta = await ProponenteCapogruppoInSeduta(atto, dataSedutaPerODG);
+
                 //Jolly attivo limite impostato {MassimoODG_Jolly}
                 // #840 Funzione Jolly
                 if (attoPEM.Jolly)
@@ -4624,53 +4637,40 @@ namespace PortaleRegione.API.Controllers
                         AppSettingsConfiguration.MassimoODG_Jolly)
                         throw new InvalidOperationException(
                             $"ERROR: {nome_atto} non depositabile. Il proponente non può depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+
+                    // #1691 il jolly toglie al capogruppo il limite dei depositi in seduta, non l'esenzione dal ritardo
+                    if (capogruppoInSeduta) atto.CapogruppoNeiTermini = true;
+                }
+                else if (capogruppoInSeduta)
+                {
+                    // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/886
+                    var atti_dopo_scadenza =
+                        my_atti.Where(a => a.Timestamp >= dataSedutaPerODG
+                                           && a.UID_Atto_ODG ==
+                                           attoPEM
+                                               .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
+                            .ToList();
+                    if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                        throw new InvalidOperationException(
+                            $"ERROR: {nome_atto} non depositabile. Il proponente capogruppo non può depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+
+                    atto.CapogruppoNeiTermini = true;
                 }
                 else
                 {
-                    // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/886
-                    var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(atto.id_gruppo);
-                    var proponente = await _logicPersona.GetPersona(atto.UIDPersonaProponente.Value);
-                    if (capogruppo != null)
-                        if (capogruppo.id_persona == proponente.id_persona)
-                            proponente.IsCapoGruppo = true;
-                    var dataOdierna = DateTime.Now;
-                    // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
-                    var dataSedutaPerODG = new DateTime(
-                        seduta.Data_seduta.Year,
-                        seduta.Data_seduta.Month,
-                        seduta.Data_seduta.Day);
+                    //Matteo Cattapan #484
+                    //Massimo ODG presentabili per provvedimento
+                    var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
+                        .OrderBy(group => group.Key)
+                        .Select(group => Tuple.Create(group.Key, group.Count()));
+                    var current_group =
+                        group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
+                    var count_odg_per_atto = 0;
+                    if (current_group != null) count_odg_per_atto = current_group.Item2;
 
-                    if (proponente.IsCapoGruppo
-                        && dataSedutaPerODG <= dataOdierna)
-                    {
-                        var atti_dopo_scadenza =
-                            my_atti.Where(a => a.Timestamp >= dataSedutaPerODG
-                                               && a.UID_Atto_ODG ==
-                                               attoPEM
-                                                   .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
-                                .ToList();
-                        if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
-                            throw new InvalidOperationException(
-                                $"ERROR: {nome_atto} non depositabile. Il proponente capogruppo non può depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-
-                        atto.CapogruppoNeiTermini = true;
-                    }
-                    else
-                    {
-                        //Matteo Cattapan #484
-                        //Massimo ODG presentabili per provvedimento
-                        var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
-                            .OrderBy(group => group.Key)
-                            .Select(group => Tuple.Create(group.Key, group.Count()));
-                        var current_group =
-                            group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
-                        var count_odg_per_atto = 0;
-                        if (current_group != null) count_odg_per_atto = current_group.Item2;
-
-                        if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
-                            throw new InvalidOperationException(
-                                $"ERROR: {nome_atto} non depositabile. Il proponente non può depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-                    }
+                    if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
+                        throw new InvalidOperationException(
+                            $"ERROR: {nome_atto} non depositabile. Il proponente non può depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                 }
             }
 

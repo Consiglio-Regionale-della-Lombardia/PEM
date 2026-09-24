@@ -1330,7 +1330,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Costruisce il <see cref="BaseRequest{EmendamentiDto}" /> a partire dalla
         ///     <see cref="FilterRequestEM" /> inviata dal client.
         /// </summary>
-        private BaseRequest<EmendamentiDto> BuildBaseRequestEM(FilterRequestEM model)
+        internal static BaseRequest<EmendamentiDto> BuildBaseRequestEM(FilterRequestEM model)
         {
             var request = new BaseRequest<EmendamentiDto>
             {

@@ -143,7 +143,7 @@
                                 <label>
                                     <input type="checkbox"
                                            id="chkBloccoODG_@atto.UIDAtto"
-                                           onchange="BloccaODG('@atto.UIDAtto', @(Convert.ToInt16(!atto.BloccoODG)))"
+                                           onchange="BloccaODG('@atto.UIDAtto', this.checked ? 1 : 0)"
                                            @Html.Raw(atto.BloccoODG ? "checked=\"checked\"" : "")>
                                     <span>Blocco ODG</span>
                                 </label>
@@ -152,7 +152,7 @@
                                 <label>
                                     <input type="checkbox"
                                            id="chkJollyODG_@atto.UIDAtto"
-                                           onchange="JollyODG('@atto.UIDAtto', @(Convert.ToInt16(!atto.Jolly)))"
+                                           onchange="JollyODG('@atto.UIDAtto', this.checked ? 1 : 0)"
                                            @Html.Raw(atto.Jolly ? "checked=\"checked\"" : "")>
                                     <span>Jolly</span>
                                 </label>

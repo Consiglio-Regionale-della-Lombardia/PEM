@@ -1,0 +1,5 @@
+﻿@Scripts.Render("~/bundles/editor")
+@*Trumbowyg deduce il path delle icone leggendo il src del proprio <script>: dentro un
+    bundle quel nome non compare piu' e la toolbar dell'editor resta senza icone. Le pagine
+    senza layout caricano l'editor da qui, altrimenti perdono l'impostazione (#1690).*@
+<script>$.trumbowyg.svgPath = '@Url.Content("~/Content/editor/ui/icons.svg")';</script>

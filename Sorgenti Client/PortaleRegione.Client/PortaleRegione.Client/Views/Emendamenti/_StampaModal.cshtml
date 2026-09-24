@@ -80,7 +80,8 @@
             data.a = $("#txtA").val();
 			data.Tutti = getSelezionaTutti();
 			data.Lista = getListaEmendamenti();
-            
+            data.Filter = (typeof buildFilterRequestEM === 'function') ? buildFilterRequestEM() : null;
+
             waiting(true);
             var url = baseUrl + "/stampe/nuova";
             $.ajax({
@@ -90,7 +91,16 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(stampa) {
-                
+                if (stampa && stampa.message) {
+                    waiting(false);
+                    swal({
+                        title: "Errore",
+                        text: stampa.message,
+                        icon: "error"
+                    });
+                    return;
+                }
+
                 $("#modalStampa").modal("close");
                 $("#btnConfermaStampa").off("click");
                 waiting(false);

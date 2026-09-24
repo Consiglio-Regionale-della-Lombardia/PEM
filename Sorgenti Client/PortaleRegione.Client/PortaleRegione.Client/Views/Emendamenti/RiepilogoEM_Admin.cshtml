@@ -46,12 +46,10 @@
                     </h3>
                 </div>
                 <div class="col s8 right-align">
-                    @if (Model.Ordinamento == OrdinamentoEnum.Votazione)
-                    {
-                        <button type="button" role="button" class="btn-flat orange-text tooltipped" data-tooltip="Esegui ordinamento dell'atto con drag&drop" onclick="viewOrdinamentoAtto();">
-                            ORDINA ATTO
-                        </button>
-                    }
+                    @* Lo mostra renderTabsOrdinamentoEM quando e' attivo il tab dell'ordine di votazione. *@
+                    <button type="button" role="button" id="btnOrdinaAtto" class="btn-flat orange-text tooltipped" data-tooltip="Esegui ordinamento dell'atto con drag&drop" onclick="viewOrdinamentoAtto();" style="display: none;">
+                        ORDINA ATTO
+                    </button>
                     @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
                     {
                         <button type="button" role="button" class="btn-flat pink-text tooltipped"
