@@ -568,6 +568,12 @@ namespace PortaleRegione.BAL
                 var result = new List<AdminGruppiModel>();
                 var intranetAdService = new proxyAD();
 
+                // Nei gruppi AD stanno anche le segreterie, legate al gruppo proprio da quell'appartenenza:
+                // tra i membri in piu' si segnalano solo consiglieri e assessori dell'anagrafica.
+                var utenze_anagrafica = new HashSet<string>(
+                    (await _unitOfWork.Gruppi.GetUtenzeADConsiglieriAssessori()).Select(SenzaDominio),
+                    StringComparer.OrdinalIgnoreCase);
+
                 foreach (var gruppiDto in gruppi)
                 {
                     var gruppoModel = new AdminGruppiModel
@@ -575,36 +581,28 @@ namespace PortaleRegione.BAL
                         Gruppo = gruppiDto
                     };
 
-                    var users_ad = intranetAdService.GetUser_in_Group(gruppiDto.GruppoAD.Replace(@"CONSIGLIO\", ""),
-                        AppSettingsConfiguration.TOKEN_R);
+                    var membri_ad = new HashSet<string>(
+                        intranetAdService.GetUser_in_Group(SenzaDominio(gruppiDto.GruppoAD),
+                            AppSettingsConfiguration.TOKEN_R) ?? Array.Empty<string>(),
+                        StringComparer.OrdinalIgnoreCase);
 
-                    if (gruppiDto.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID)
-                    {
-                        var assessori = await _unitOfWork.Gruppi.GetAssessoriInCarica();
-                        foreach (var assessore in assessori)
-                        {
-                            if (!users_ad.Contains(assessore.Replace(@"CONSIGLIO\", "")))
-                            {
-                                gruppoModel.Error_AD_Message += $"{assessore};";
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var consiglieri = await _unitOfWork.Gruppi.GetConsiglieriInCarica(gruppiDto.id_gruppo);
-                        foreach (var consigliere in consiglieri)
-                        {
-                            if (!users_ad.Contains(consigliere.Replace(@"CONSIGLIO\", "")))
-                            {
-                                gruppoModel.Error_AD_Message += $"{consigliere};";
-                            }
-                        }
-                    }
+                    var in_carica = gruppiDto.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID
+                        ? await _unitOfWork.Gruppi.GetAssessoriInCarica()
+                        : await _unitOfWork.Gruppi.GetConsiglieriInCarica(gruppiDto.id_gruppo);
+                    var attesi = new HashSet<string>(in_carica.Select(SenzaDominio), StringComparer.OrdinalIgnoreCase);
 
-                    gruppoModel.Error_AD = !string.IsNullOrEmpty(gruppoModel.Error_AD_Message);
-                    if (gruppoModel.Error_AD_Message.Length > 0)
-                        gruppoModel.Error_AD_Message =
-                            gruppoModel.Error_AD_Message.Substring(0, gruppoModel.Error_AD_Message.Length - 1);
+                    var da_aggiungere = attesi.Where(u => !membri_ad.Contains(u)).ToList();
+                    var da_togliere = membri_ad.Where(u => utenze_anagrafica.Contains(u) && !attesi.Contains(u))
+                        .ToList();
+
+                    var anomalie = new List<string>();
+                    if (da_aggiungere.Any())
+                        anomalie.Add($"Da aggiungere al gruppo AD: {string.Join("; ", da_aggiungere)}");
+                    if (da_togliere.Any())
+                        anomalie.Add($"Da togliere dal gruppo AD: {string.Join("; ", da_togliere)}");
+
+                    gruppoModel.Error_AD = anomalie.Any();
+                    gruppoModel.Error_AD_Message = string.Join(". ", anomalie);
                     result.Add(gruppoModel);
                 }
 
@@ -614,6 +612,11 @@ namespace PortaleRegione.BAL
             {
                 throw e;
             }
+        }
+
+        private static string SenzaDominio(string utenza)
+        {
+            return utenza.Replace(@"CONSIGLIO\", "");
         }
 
         public async Task<Guid> SalvaUtente(PersonaUpdateRequest request, RuoliIntEnum ruolo, PersonaDto currentUser)

@@ -224,6 +224,15 @@ namespace PortaleRegione.Persistance
             }
         }
 
+        public async Task<IEnumerable<string>> GetUtenzeADConsiglieriAssessori()
+        {
+            return await PRContext
+                .join_persona_AD
+                .Where(p => p.UserAD != null)
+                .Select(p => p.UserAD)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<UTENTI_NoCons>> GetSegreteriaPolitica(int id, bool notifica_firma,
             bool notifica_deposito)
         {
