@@ -73,26 +73,7 @@ namespace PortaleRegione.BAL
                     .Select(_mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
 
-                var result = new List<NotificaDto>();
-                foreach (var notifica in notifiche)
-                {
-                    if (notifica.UIDEM == Guid.Empty)
-                    {
-                        var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser);
-                        notifica.ATTO_DASI = atto_dasi;
-                        idGruppo = notifica.ATTO_DASI.id_gruppo;
-                    }
-                    else
-                    {
-                        var atto = await _unitOfWork.Atti.Get(notifica.UIDAtto);
-                        notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser);
-                        idGruppo = notifica.EM.id_gruppo;
-                    }
-
-                    notifica.UTENTI_NoCons = await _logicPersona.GetPersona(notifica.Mittente,
-                        idGruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-                    result.Add(notifica);
-                }
+                var result = await CompletaNotifiche(notifiche, currentUser);
 
                 return new RiepilogoNotificheModel
                 {
@@ -133,29 +114,7 @@ namespace PortaleRegione.BAL
                 .Select(_mapper.Map<NOTIFICHE, NotificaDto>)
                 .ToList();
 
-            var result = new List<NotificaDto>();
-
-            foreach (var notifica in notifiche)
-            {
-                if (notifica.UIDEM == Guid.Empty)
-                {
-                    var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser);
-                    if (atto_dasi == null)
-                        continue;
-                    notifica.ATTO_DASI = atto_dasi;
-                    idGruppo = notifica.ATTO_DASI.id_gruppo;
-                }
-                else
-                {
-                    var atto = await _unitOfWork.Atti.Get(notifica.UIDAtto);
-                    notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser);
-                    idGruppo = notifica.EM.id_gruppo;
-                }
-
-                notifica.UTENTI_NoCons = await _logicPersona.GetPersona(notifica.Mittente,
-                    idGruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-                result.Add(notifica);
-            }
+            var result = await CompletaNotifiche(notifiche, currentUser);
 
             return new RiepilogoNotificheModel
             {
@@ -169,6 +128,41 @@ namespace PortaleRegione.BAL
                     uri),
                 CurrentUser = currentUser
             };
+        }
+
+        // Eliminare un atto o un EM non chiude le sue notifiche: quelle rimaste orfane si saltano,
+        // altrimenti mandano in errore l'intero riepilogo.
+        private async Task<List<NotificaDto>> CompletaNotifiche(List<NotificaDto> notifiche, PersonaDto currentUser)
+        {
+            var result = new List<NotificaDto>();
+
+            foreach (var notifica in notifiche)
+            {
+                int idGruppo;
+                if (notifica.UIDEM == Guid.Empty)
+                {
+                    var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser);
+                    if (atto_dasi == null)
+                        continue;
+                    notifica.ATTO_DASI = atto_dasi;
+                    idGruppo = notifica.ATTO_DASI.id_gruppo;
+                }
+                else
+                {
+                    var atto = await _unitOfWork.Atti.Get(notifica.UIDAtto);
+                    var em = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser);
+                    if (em == null)
+                        continue;
+                    notifica.EM = em;
+                    idGruppo = notifica.EM.id_gruppo;
+                }
+
+                notifica.UTENTI_NoCons = await _logicPersona.GetPersona(notifica.Mittente,
+                    idGruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
+                result.Add(notifica);
+            }
+
+            return result;
         }
 
         public async Task<int> GetCounterNotificheRicevute(PersonaDto currentUser)
