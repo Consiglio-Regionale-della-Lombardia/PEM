@@ -44,8 +44,13 @@ namespace PortaleRegione.Persistance
 
         public async Task<GruppiDto> GetGruppoPersona(List<string> LGruppi, bool IsGiunta = false)
         {
+            // All'utenza possono restare i gruppi AD delle legislature passate: contano solo quelli in corso.
+            var legislature_attive = PRContext.legislature.Where(l => l.attiva).Select(l => l.id_legislatura);
+
             var query = PRContext.JOIN_GRUPPO_AD
-                .Where(p => LGruppi.Contains(p.GruppoAD) && p.GiuntaRegionale == IsGiunta)
+                .Where(p => LGruppi.Contains(p.GruppoAD)
+                            && p.GiuntaRegionale == IsGiunta
+                            && legislature_attive.Contains(p.id_legislatura))
                 .Join(PRContext.View_gruppi_politici_con_giunta,
                     p => p.id_gruppo,
                     g => g.id_gruppo,
@@ -60,18 +65,15 @@ namespace PortaleRegione.Persistance
                     });
 
             var lstGruppi = await query.OrderByDescending(g => g.id_gruppo).ToListAsync();
-            
-            if (lstGruppi.Count == 2)
+
+            // Con piu' gruppi politici in AD l'utenza entrerebbe con uno qualsiasi, quindi non entra.
+            if (!IsGiunta && lstGruppi.Count > 1)
             {
-                if (!lstGruppi.Any(g => g.giunta))
-                    throw new Exception("Contatta SUBITO l'amministratore del sistema PEM.");
-            }
-            else if (lstGruppi.Count > 1)
-            {
-                throw new Exception("Contatta SUBITO l'amministratore del sistema PEM.");
+                throw new Exception(
+                    $"La tua utenza risulta in più gruppi politici ({string.Join(", ", lstGruppi.Select(g => g.codice_gruppo))}): accesso bloccato. Contatta l'amministratore del sistema PEM.");
             }
 
-            return lstGruppi.Any() ? lstGruppi[0] : null;
+            return lstGruppi.FirstOrDefault();
         }
 
         public async Task<IEnumerable<KeyValueDto>> GetAllAttivi(int id_legislatura)
@@ -301,29 +303,6 @@ namespace PortaleRegione.Persistance
             if (gruppo.id_AreaPolitica.HasValue) return gruppo.id_AreaPolitica.Value;
 
             return (int)AreaPoliticaIntEnum.Misto;
-        }
-
-        public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi,
-            RuoliIntEnum role)
-        {
-            var query = PRContext
-                .JOIN_GRUPPO_AD
-                .Where(g => lGruppi.Contains(g.GruppoAD));
-
-            if (role == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
-                role == RuoliIntEnum.Amministratore_Giunta ||
-                role == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
-                role == RuoliIntEnum.Segreteria_Giunta_Regionale)
-                query = query.Where(g => g.GiuntaRegionale);
-
-            var join_gruppo = await query.FirstOrDefaultAsync();
-
-            if (join_gruppo == null) return null;
-
-            var gruppo = await PRContext
-                .View_gruppi_politici_con_giunta
-                .SingleOrDefaultAsync(g => g.id_gruppo == join_gruppo.id_gruppo);
-            return gruppo;
         }
 
         public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(Guid personaUId, bool isGiunta)

@@ -273,8 +273,7 @@ namespace PortaleRegione.BAL
                 var ruoli_utente = await _unitOfWork.Ruoli.RuoliUtente(lRuoli_Gruppi);
                 personaDto.Ruoli = ruoli_utente.Select(_mapper.Map<RUOLI, RuoliDto>);
                 personaDto.CurrentRole = (RuoliIntEnum)ruoli_utente.First().IDruolo;
-                personaDto.Gruppo = _mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                    await _unitOfWork.Gruppi.GetGruppoAttuale(lRuoli_Gruppi, personaDto.CurrentRole));
+                personaDto.Gruppo = await _unitOfWork.Gruppi.GetGruppoPersona(lRuoli_Gruppi, personaDto.IsGiunta);
                 personaDto.Carica = await _unitOfWork.Persone.GetCarica(personaDto.UID_persona);
 
                 if (personaDto.Gruppo != null)

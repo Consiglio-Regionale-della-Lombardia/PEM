@@ -19,7 +19,6 @@
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
@@ -44,7 +43,6 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<string>> GetAssessoriInCarica();
         Task<IEnumerable<string>> GetUtenzeADConsiglieriAssessori();
 
-        Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi, RuoliIntEnum personaDtoCurrentRole);
         Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(Guid personaUId, bool IsGiunta);
 
         Task<IEnumerable<JOIN_GRUPPO_AD>> GetGruppiPoliticiAD(int id_legislatura, bool soloRuoliGiunta);

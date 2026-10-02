@@ -574,17 +574,34 @@ namespace PortaleRegione.BAL
                     (await _unitOfWork.Gruppi.GetUtenzeADConsiglieriAssessori()).Select(SenzaDominio),
                     StringComparer.OrdinalIgnoreCase);
 
-                foreach (var gruppiDto in gruppi)
+                var membri_per_gruppo = gruppi
+                    .Select(g => new
+                    {
+                        gruppo = g,
+                        membri_ad = new HashSet<string>(
+                            intranetAdService.GetUser_in_Group(SenzaDominio(g.GruppoAD),
+                                AppSettingsConfiguration.TOKEN_R) ?? Array.Empty<string>(),
+                            StringComparer.OrdinalIgnoreCase)
+                    })
+                    .ToList();
+
+                // Chi sta in piu' gruppi politici AD viene bloccato al login (GetGruppoPersona): qui compare
+                // su ciascuno dei gruppi. La Giunta non conta, ci stanno anche i consiglieri-assessori.
+                var gruppi_per_utenza = membri_per_gruppo
+                    .Where(m => m.gruppo.id_gruppo < AppSettingsConfiguration.GIUNTA_REGIONALE_ID)
+                    .SelectMany(m => m.membri_ad.Select(u => new { utenza = u, m.gruppo }))
+                    .GroupBy(x => x.utenza, StringComparer.OrdinalIgnoreCase)
+                    .Where(x => x.Count() > 1)
+                    .ToDictionary(x => x.Key, x => x.Select(y => y.gruppo).ToList(), StringComparer.OrdinalIgnoreCase);
+
+                foreach (var m in membri_per_gruppo)
                 {
+                    var gruppiDto = m.gruppo;
+                    var membri_ad = m.membri_ad;
                     var gruppoModel = new AdminGruppiModel
                     {
                         Gruppo = gruppiDto
                     };
-
-                    var membri_ad = new HashSet<string>(
-                        intranetAdService.GetUser_in_Group(SenzaDominio(gruppiDto.GruppoAD),
-                            AppSettingsConfiguration.TOKEN_R) ?? Array.Empty<string>(),
-                        StringComparer.OrdinalIgnoreCase);
 
                     var in_carica = gruppiDto.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID
                         ? await _unitOfWork.Gruppi.GetAssessoriInCarica()
@@ -594,12 +611,21 @@ namespace PortaleRegione.BAL
                     var da_aggiungere = attesi.Where(u => !membri_ad.Contains(u)).ToList();
                     var da_togliere = membri_ad.Where(u => utenze_anagrafica.Contains(u) && !attesi.Contains(u))
                         .ToList();
+                    var in_piu_gruppi = gruppiDto.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID
+                        ? new List<string>()
+                        : membri_ad
+                            .Where(gruppi_per_utenza.ContainsKey)
+                            .Select(u =>
+                                $"{u} (anche {string.Join(", ", gruppi_per_utenza[u].Where(g => g != gruppiDto).Select(g => g.codice_gruppo))})")
+                            .ToList();
 
                     var anomalie = new List<string>();
                     if (da_aggiungere.Any())
                         anomalie.Add($"Da aggiungere al gruppo AD: {string.Join("; ", da_aggiungere)}");
                     if (da_togliere.Any())
                         anomalie.Add($"Da togliere dal gruppo AD: {string.Join("; ", da_togliere)}");
+                    if (in_piu_gruppi.Any())
+                        anomalie.Add($"In più gruppi politici AD: {string.Join("; ", in_piu_gruppi)}");
 
                     gruppoModel.Error_AD = anomalie.Any();
                     gruppoModel.Error_AD_Message = string.Join(". ", anomalie);
