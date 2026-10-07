@@ -56,6 +56,13 @@ namespace PortaleRegione.BAL
 
         private static readonly Regex RegexTagHtml = new Regex("<[^>]+>", RegexOptions.Singleline);
 
+        // #1700
+        private static readonly Regex RegexTabella =
+            new Regex(@"(<table\b[^>]*>)(.*)</table\s*>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        private static readonly Regex RegexSezioneTabella =
+            new Regex(@"</?(thead|tbody|tfoot)\b[^>]*>", RegexOptions.IgnoreCase);
+
         private readonly MemoryCache memoryCache = MemoryCache.Default;
         internal AttiLogic _logicAtti;
         internal AttiFirmeLogic _logicAttiFirme;
@@ -369,6 +376,24 @@ namespace PortaleRegione.BAL
 
                 return $"{tagApertura}{testa}</h{titolo.Groups[1].Value}>{coda}";
             });
+        }
+
+        /// <summary>
+        ///     #1700: l'editor dei template salva la testata di una griglia come tabella intera. Dentro
+        ///     la tabella del report diventa una tabella annidata fuori da ogni cella, su cui HtmlToOpenXml
+        ///     va in eccezione. Restano le sole righe; il tag di apertura torna in tagTabella perche'
+        ///     bordi e spaziature scelti nel template valgano per la tabella del report.
+        /// </summary>
+        internal static string RigheDellaGriglia(string html, out string tagTabella)
+        {
+            tagTabella = null;
+            if (string.IsNullOrEmpty(html)) return html;
+
+            var tabella = RegexTabella.Match(html);
+            if (!tabella.Success) return html;
+
+            tagTabella = tabella.Groups[1].Value;
+            return RegexSezioneTabella.Replace(tabella.Groups[2].Value, string.Empty);
         }
 
         internal void GetBodyTemporaneo(EmendamentiDto emendamento, AttiDto atto, ref string body)

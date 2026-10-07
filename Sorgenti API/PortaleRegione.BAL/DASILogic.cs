@@ -5817,9 +5817,12 @@ namespace PortaleRegione.API.Controllers
 
                     if (templateFromDb.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_GRID)
                     {
-                        body += "<table>";
+                        var testata = RigheDellaGriglia(templateFromDb.Testata, out var tagTabella); // #1700
+                        templateItemCard = RigheDellaGriglia(templateItemCard, out _);
+
+                        body += tagTabella ?? "<table>";
                         body += "<thead>";
-                        body += templateFromDb.Testata;
+                        body += testata;
                         body += "</thead>";
                         body += "<tbody>";
                     }

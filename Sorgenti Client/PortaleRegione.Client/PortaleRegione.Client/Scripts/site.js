@@ -1921,18 +1921,7 @@ function StampaUOLA(ctrl) {
             },
             success: function (response) {
                 console.log("Risposta ricevuta", response);
-                // #1674: in errore l'API risponde 200 con { message }, non con l'url del file
-                if (response && response.message) {
-                    waiting(false);
-                    ErrorAlert(response.message);
-                    return;
-                }
-                var a = document.createElement("a");
-                a.href = response;
-				a.target = '_blank';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+                ApriFileGenerato(response);
             },
             error: function(xhr, status, error) {
                 console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
@@ -1944,6 +1933,25 @@ function StampaUOLA(ctrl) {
             }
         });
     }
+
+// #1674, #1700: in errore le action che generano un file rispondono 200 con { message } al posto
+// dell'url, e aprirlo senza guardare portava su "[object Object]". Restituisce false in errore,
+// cosi' chi chiama puo' lasciare aperta la modale.
+function ApriFileGenerato(response) {
+    if (response && response.message) {
+        waiting(false);
+        ErrorAlert(response.message);
+        return false;
+    }
+
+    var a = document.createElement("a");
+    a.href = response;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return true;
+}
 
 // NOTIFICATION SWEETALERT.JS
 

@@ -155,13 +155,8 @@
             contentType: "application/json; charset=utf-8",
             beforeSend: function () { waiting(true, "Elaborazione in corso..."); },
             success: function (response) {
-                var a = document.createElement("a");
-                a.href = response;
-                a.target = '_blank';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                $('#modalReportConfig').modal("close");
+                if (ApriFileGenerato(response))
+                    $('#modalReportConfig').modal("close");
             },
             error: function (xhr, status, error) { console.error("Errore: " + status); waiting(false); },
             complete: function () { waiting(false); }
