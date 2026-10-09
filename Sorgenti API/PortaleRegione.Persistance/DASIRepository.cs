@@ -628,22 +628,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<Guid>> GetAttiProponente(Guid personaUid)
         {
-            var allowStates = new List<int>
-            {
-                (int)StatiAttoEnum.BOZZA,
-                (int)StatiAttoEnum.BOZZA_RISERVATA,
-                (int)StatiAttoEnum.PRESENTATO,
-                (int)StatiAttoEnum.IN_TRATTAZIONE
-            };
-            return await PRContext
-                .DASI
-                .Where(dasi => dasi.UIDPersonaProponente == personaUid
-                               && !dasi.UIDPersonaPrimaFirma.HasValue
-                               && allowStates.Contains(dasi.IDStato)
-                               && !dasi.UIDSeduta.HasValue
-                               && !dasi.Eliminato)
-                .Select(dasi => dasi.UIDAtto)
-                .ToListAsync();
+            return await AttiPropriDaFirmare(personaUid).ToListAsync();
         }
 
         // #1636 - Conteggio degli atti per i quali e' richiesta la firma della persona, in una sola
@@ -660,7 +645,14 @@ namespace PortaleRegione.Persistance
                 .Join(PRContext.NOTIFICHE.Where(n => !n.Chiuso && !n.UIDEM.HasValue),
                     nd => nd.UIDNotifica, n => n.UIDNotifica, (nd, n) => n.UIDAtto);
 
-            // Atti propri non ancora firmati (stessa logica di GetAttiProponente).
+            return await attiDaInvito.Union(AttiPropriDaFirmare(personaUid)).Distinct().CountAsync();
+        }
+
+        // Atti propri non ancora firmati: una sola query per il filtro "atti da firmare" e per il suo
+        // contatore. #1705 - l'iscrizione in aula si legge da DataIscrizioneSeduta, come in
+        // CheckIfFirmabile: l'ODG eredita UIDSeduta dall'atto PEM fin dalla creazione.
+        private IQueryable<Guid> AttiPropriDaFirmare(Guid personaUid)
+        {
             var allowStates = new List<int>
             {
                 (int)StatiAttoEnum.BOZZA,
@@ -668,16 +660,14 @@ namespace PortaleRegione.Persistance
                 (int)StatiAttoEnum.PRESENTATO,
                 (int)StatiAttoEnum.IN_TRATTAZIONE
             };
-            var attiPropri = PRContext
+            return PRContext
                 .DASI
                 .Where(dasi => dasi.UIDPersonaProponente == personaUid
                                && !dasi.UIDPersonaPrimaFirma.HasValue
                                && allowStates.Contains(dasi.IDStato)
-                               && !dasi.UIDSeduta.HasValue
+                               && !dasi.DataIscrizioneSeduta.HasValue
                                && !dasi.Eliminato)
                 .Select(dasi => dasi.UIDAtto);
-
-            return await attiDaInvito.Union(attiPropri).Distinct().CountAsync();
         }
 
         public async Task<List<AttiRisposteDto>> GetRisposte(Guid uidAtto)
