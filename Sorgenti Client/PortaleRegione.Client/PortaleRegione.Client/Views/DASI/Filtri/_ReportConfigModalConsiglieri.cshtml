@@ -100,13 +100,27 @@
         $('#columns-select').formSelect();
     });
 
+    // #1702: senza colonne il report esce con le schede vuote
+    function colonneReport() {
+        var colonne = Array.from(document.querySelector('select[name="columns"]').selectedOptions)
+            .map(function (o) { return o.value; });
+        if (colonne.length === 0) {
+            ErrorAlert('Scegliere almeno una colonna da visualizzare');
+            return null;
+        }
+        return JSON.stringify(colonne);
+    }
+
     document.getElementById('btnSalvaReport').addEventListener('click', async function () {
+        var colonne = colonneReport();
+        if (!colonne) return;
+
         var request = {};
         request.filters = localStorage.getItem('filtriDasi');
         request.reportname = document.getElementById('report_name').value;
         request.covertype = document.querySelector('select[name="coverType"]').value;
         request.dataviewtype = document.querySelector('select[name="dataViewType"]').value;
-        request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(function(o) { return o.value; }));
+        request.columns = colonne;
         request.exportformat = document.querySelector('select[name="exportFormat"]').value;
         request.sorting = localStorage.getItem('selectedSortColumns');
 
@@ -130,6 +144,9 @@
     });
 
     document.getElementById('btnGenerateReport').addEventListener('click', function () {
+        var colonne = colonneReport();
+        if (!colonne) return;
+
         var request = {};
         var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
         var filtriList = [];
@@ -145,7 +162,7 @@
         request.reportname = document.getElementById('report_name').value;
         request.covertype = document.querySelector('select[name="coverType"]').value;
         request.dataviewtype = document.querySelector('select[name="dataViewType"]').value;
-        request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(function(o) { return o.value; }));
+        request.columns = colonne;
         request.exportformat = document.querySelector('select[name="exportFormat"]').value;
 
         $.ajax({
@@ -184,6 +201,8 @@
         $('#chips-container-report-sort').empty();
         $('select[name="columns"]').val([]);
         $('select[name="columns"]').find('option').each(function () { $(this).prop('selected', false); });
+        // #1702: val() non fa scattare il change e il widget continuerebbe a mostrare le colonne di prima
+        $('select[name="columns"]').formSelect();
 
         var existingChip = document.querySelector('div[data-selected-report]');
         if (existingChip) {

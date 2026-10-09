@@ -5021,8 +5021,24 @@ namespace PortaleRegione.API.Controllers
             return pdfs;
         }
 
+        /// <summary>
+        ///     #1702: senza colonne la tabella, le schede e il foglio Excel escono vuoti. L'elenco vuoto
+        ///     arrivava dal modale dei consiglieri e puo' essere rimasto nei report salvati.
+        /// </summary>
+        private static void VerificaColonneReport(ReportDto model)
+        {
+            var colonne = string.IsNullOrEmpty(model.columns)
+                ? null
+                : JsonConvert.DeserializeObject<List<string>>(model.columns);
+
+            if (colonne == null || colonne.Count == 0)
+                throw new InvalidOperationException("Scegliere almeno una colonna da visualizzare");
+        }
+
         private async Task CreateExcelReport(string filePath, ReportDto model, PersonaDto currentUser)
         {
+            VerificaColonneReport(model); // #1702
+
             var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
             var filterStatements = Utility.ParseFilterDasi(filtri);
 
@@ -5731,6 +5747,10 @@ namespace PortaleRegione.API.Controllers
 
         private async Task<string> ComposeReportBodyFromTemplate(ReportDto model, PersonaDto currentUser)
         {
+            // #1702: il template ha i suoi segnaposto, tabella e schede invece vivono delle colonne
+            if (model.dataviewtype != (int)DataViewTypeEnum.TEMPLATE)
+                VerificaColonneReport(model);
+
             var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
             var filterStatements = Utility.ParseFilterDasi(filtri);
 
