@@ -5767,7 +5767,12 @@ namespace PortaleRegione.API.Controllers
 
             var properties = typeof(AttoDASIReportDto).GetProperties();
 
-            switch ((DataViewTypeEnum)model.dataviewtype)
+            // #1701: lasciata da scegliere nel modale, la visualizzazione arriva a 0 e vale come tabellare
+            var dataViewType = model.dataviewtype == 0
+                ? DataViewTypeEnum.GRID
+                : (DataViewTypeEnum)model.dataviewtype;
+
+            switch (dataViewType)
             {
                 case DataViewTypeEnum.GRID:
                     body += "<table>";
@@ -5812,7 +5817,14 @@ namespace PortaleRegione.API.Controllers
 
                     break;
                 case DataViewTypeEnum.TEMPLATE:
-                    var templateFromDb = await _unitOfWork.Templates.Get(Guid.Parse(model.dataviewtype_template));
+                    // #1701: dal modale il template puo' arrivare non scelto
+                    if (!Guid.TryParse(model.dataviewtype_template, out var uidTemplate))
+                        throw new InvalidOperationException("Indicare il template della visualizzazione dati");
+
+                    var templateFromDb = await _unitOfWork.Templates.Get(uidTemplate);
+                    if (templateFromDb == null)
+                        throw new InvalidOperationException("Template non trovato");
+
                     var templateItemCard = templateFromDb.Corpo;
 
                     if (templateFromDb.Tipo == (int)TemplateTypeEnum.REPORT_ITEM_GRID)
