@@ -493,7 +493,7 @@ I consiglieri e i collaboratori dei gruppi accederanno alla loro area personale 
 
 Una volta fatto il login si verrà reindirizzati nella schermata principale del portale PEM- DASI. 
 Per la redazione delle varie tipologie di ATTI è necessario entrare nel Modulo DASI. 
-Apparirà la schermata riepilogativa degli ATTI, inizialmente senza risultati: la ricerca parte con il pulsante “Avvia ricerca” oppure cliccando una delle scorciatoie di filtro (tipo di atto e stato), che si aggiungono ai filtri attivi. La spunta “Visualizza solo gli atti per i quali è richiesta la mia firma” limita l’elenco agli atti ancora da firmare, il cui numero è riportato accanto. Anche i consiglieri possono salvare i filtri e generare report, con le modalità descritte in [Gestione degli atti](#gestione-degli-atti).
+Apparirà la schermata riepilogativa degli ATTI, inizialmente senza risultati: la ricerca parte con il pulsante “Avvia ricerca” oppure cliccando una delle scorciatoie di filtro (tipo di atto e stato), che si aggiungono ai filtri attivi. La spunta “Visualizza solo gli atti per i quali è richiesta la mia firma”, visibile ai soli consiglieri, limita l’elenco agli atti ancora da firmare, il cui numero è riportato accanto. Anche i consiglieri possono salvare i filtri e generare report, con le modalità descritte in [Gestione degli atti](#gestione-degli-atti).
 
 Mediante il pulsante + in basso a destra apparirà un menù a scomparsa che permetterà di selezionare il tipo di atto che si vuole redigere. 
 

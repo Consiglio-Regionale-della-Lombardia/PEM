@@ -134,7 +134,9 @@
     Html.RenderPartial("Filtri/_FiltriRapidiDASIPanelConsiglieri", Model);
 }
 
-@if (Model.ClientMode == ClientModeEnum.GRUPPI)
+@* #1704 - solo per i consiglieri: e' l'unico ruolo che firma i DASI (DASILogic.Firma), mentre
+   sugli EM firmano anche gli assessori. *@
+@if (Model.ClientMode == ClientModeEnum.GRUPPI && Model.CurrentUser.IsConsigliereRegionale)
 {
     @* Issue #1646: spunta "richiesta la mia firma" spostata qui, sopra la griglia (come in PEM),
        fuori dal cluster dei filtri (prima era tra le scorciatoie e il pannello di ricerca).
