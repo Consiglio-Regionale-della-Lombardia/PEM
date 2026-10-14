@@ -1797,8 +1797,12 @@ namespace PortaleRegione.Persistance
 
                 if (queryExtended.SoloAttiIscrittiInSeduta)
                 {
-                    // #1625 - solo gli atti effettivamente iscritti in seduta da UOLA
-                    query = query.Where(a => a.UIDSeduta.HasValue && ids.Contains(a.UIDSeduta.Value));
+                    // #1625 - solo gli atti effettivamente iscritti in seduta da UOLA.
+                    // #1706 - l'ODG eredita UIDSeduta dall'atto PEM fin dalla creazione: per lui
+                    // l'iscrizione si legge da DataIscrizioneSeduta, come in GetAttiBySeduta.
+                    query = query.Where(a => a.UIDSeduta.HasValue && ids.Contains(a.UIDSeduta.Value)
+                                             && (a.Tipo != (int)TipoAttoEnum.ODG
+                                                 || a.DataIscrizioneSeduta.HasValue));
                 }
                 else
                 {
