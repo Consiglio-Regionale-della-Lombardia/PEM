@@ -104,7 +104,6 @@ namespace PortaleRegione.Contracts
         Task<ATTI_MONITORAGGIO> GetMonitoraggio(Guid UidAtto, int organoId);
         void AggiungiMonitoraggio(ATTI_MONITORAGGIO monitoraggio);
         void RimuoviMonitoraggio(ATTI_MONITORAGGIO monitoraggioInDb);
-        Task<ATTI_NOTE> GetNota(Guid requestUidAtto, TipoNotaEnum requestTipoEnum);
         Task<ATTI_NOTE> GetNota(Guid requestUidNota);
         void RimuoviNota(ATTI_NOTE notaInDb);
         void AggiungiNota(ATTI_NOTE notaInDb);

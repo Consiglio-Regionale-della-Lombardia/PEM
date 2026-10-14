@@ -1075,7 +1075,7 @@
                                 <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
                                     <i class="material-icons">edit</i>
                                 </button>
-                                <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                <button class="btn-flat red-text" onclick="rimuoviNota(this)" data-uidnota="@nota.Uid">
                                     <i class="material-icons">close</i>
                                 </button>
                             </td>
@@ -1517,7 +1517,7 @@
                                             <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
                                                 <i class="material-icons">edit</i>
                                             </button>
-                                            <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                            <button class="btn-flat red-text" onclick="rimuoviNota(this)" data-uidnota="@nota.Uid">
                                                 <i class="material-icons">close</i>
                                             </button>
                                         </td>
@@ -1611,10 +1611,7 @@
 <li>
     <div class="collapsible-header collection-header-custom @cssClass">
         <i class="material-icons">comment</i>Note
-        @if (atto.Note.Any())
-        {
-            <div class="chip" style="position: absolute;margin-top:-5px;margin-left:20px;left:200px;">@atto.Note.Count</div>
-        }
+        <div id="chipContatoreNote" class="chip @(atto.Note.Any() ? "" : "hide")" style="position: absolute;margin-top:-5px;margin-left:20px;left:200px;">@atto.Note.Count</div>
     </div>
     <div class="collapsible-body">
 
@@ -1654,7 +1651,7 @@
                                     <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
                                         <i class="material-icons">edit</i>
                                     </button>
-                                    <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                    <button class="btn-flat red-text" onclick="rimuoviNota(this)" data-uidnota="@nota.Uid">
 										<i class="material-icons">close</i>
                                     </button>
                                 </td>
@@ -1765,7 +1762,7 @@
                                             <button class="btn-flat blue-text" onclick="modificaNota(this, @((int)nota.TipoEnum))" data-uidnota="@nota.Uid">
                                                 <i class="material-icons">edit</i>
                                             </button>
-                                            <button class="btn-flat red-text" onclick="rimuoviNota(this, @((int)nota.TipoEnum))">
+                                            <button class="btn-flat red-text" onclick="rimuoviNota(this)" data-uidnota="@nota.Uid">
                                                 <i class="material-icons">close</i>
                                             </button>
                                         </td>

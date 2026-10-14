@@ -846,12 +846,6 @@ namespace PortaleRegione.Persistance
             PRContext.ATTI_MONITORAGGIO.Remove(monitoraggioInDb);
         }
 
-        public async Task<ATTI_NOTE> GetNota(Guid requestUidAtto, TipoNotaEnum requestTipoEnum)
-        {
-            return await PRContext.ATTI_NOTE.FirstOrDefaultAsync(n => n.UIDAtto == requestUidAtto
-                                                                      && n.Tipo == (int)requestTipoEnum);
-        }
-        
         public async Task<ATTI_NOTE> GetNota(Guid requestUidNota)
         {
             return await PRContext.ATTI_NOTE.FirstOrDefaultAsync(n => n.Uid == requestUidNota);

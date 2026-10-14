@@ -105,11 +105,12 @@ async function btnSalvaNota() {
 			<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 			<td class="center">
 			    <button class="btn-flat blue-text" onclick="modificaNota(this, ${tipoNotaValue})" data-uidnota="${uidNota}"><i class="material-icons">edit</i></button>
-				<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
+				<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this)" data-uidnota="${uidNota}"><i class="material-icons">close</i></button>
 			</td>
 `;
 
 		document.querySelector('#tableNoteGenerali tbody').appendChild(newRow);
+		aggiornaContatoreNote();
 	}
 	
 	if (tipoNotaValue == @((int)TipoNotaEnum.PRIVACY)) {
@@ -132,7 +133,7 @@ async function btnSalvaNota() {
 			<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 			<td class="center">
 				<button class="btn-flat blue-text" onclick="modificaNota(this, ${tipoNotaValue})" data-uidnota="${uidNota}"><i class="material-icons">edit</i></button>
-				<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
+				<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this)" data-uidnota="${uidNota}"><i class="material-icons">close</i></button>
 			</td>
 		`;
 			document.querySelector('#tableNote_Privacy tbody').appendChild(newPrivacyRow);
@@ -172,7 +173,7 @@ async function btnSalvaNota() {
 				<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 				<td class="center">
 					<button class="btn-flat blue-text" onclick="modificaNota(this, ${tipoNotaValue})" data-uidnota="${uidNota}"><i class="material-icons">edit</i></button>
-					<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
+					<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this)" data-uidnota="${uidNota}"><i class="material-icons">close</i></button>
 				</td>
 			`;
 				document.querySelector('#tableNote_ChiusuraIter tbody').appendChild(newchiusuraIterRow);
@@ -200,7 +201,7 @@ async function btnSalvaNota() {
 			<td>@Html.Raw(Model.CurrentUser.DisplayName)</td>
 			<td class="center">
 				<button class="btn-flat blue-text" onclick="modificaNota(this, ${tipoNotaValue})" data-uidnota="${uidNota}"><i class="material-icons">edit</i></button>
-				<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this, ${tipoNotaValue})"><i class="material-icons">close</i></button>
+				<button type="button" role="button" class="btn-flat red-text truncate" onclick="rimuoviNota(this)" data-uidnota="${uidNota}"><i class="material-icons">close</i></button>
 			</td>
 `;
 			document.querySelector('#tableNote_Risposte tbody').appendChild(newrisposteRow);
@@ -218,9 +219,14 @@ async function btnSalvaNota() {
 	$('#modalNota').modal('close');
 }
     
-function rimuoviNota(ctrl, tipoNota) {
-	var row = $(ctrl).closest('tr');
-	var id = tipoNota;
+function aggiornaContatoreNote() {
+	// Le note dell'atto le elencano tutte, qualunque sia il tipo
+	var totale = $('#tableNoteGenerali tbody tr').length;
+	$('#chipContatoreNote').text(totale).toggleClass('hide', totale === 0);
+}
+
+function rimuoviNota(ctrl) {
+	var uidNota = $(ctrl).data('uidnota');
 
 	swal({
 		title: "Rimuovi nota",
@@ -237,7 +243,7 @@ function rimuoviNota(ctrl, tipoNota) {
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ TipoEnum: id, UIDAtto: '@Model.Atto.UIDAtto' })
+				body: JSON.stringify({ Uid: uidNota, UIDAtto: '@Model.Atto.UIDAtto' })
 			});
 
 			if (!response.ok) {
@@ -255,11 +261,12 @@ function rimuoviNota(ctrl, tipoNota) {
 			}
 
 			waiting(false);
-			// Rimuovi la riga dalla tabella
-			row.remove();
+			// Una nota di tipo privacy, chiusura iter o risposta compare anche nella tabella del suo pannello
+			$('button[data-uidnota="' + uidNota + '"]').closest('tr').remove();
+			aggiornaContatoreNote();
 
 			M.toast({
-				html: `<span>Nota rimossa con successo. Aggiorna la pagina per vedere le modifiche aggiornate.</span>`,
+				html: `<span>Nota rimossa con successo</span>`,
 				classes: 'rounded',
 				displayLength: 5000
 			});

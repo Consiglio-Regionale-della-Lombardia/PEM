@@ -494,9 +494,9 @@ namespace PortaleRegione.API.Controllers
             attoInDb.UIDPersonaModifica = currentUser.UID_persona;
             attoInDb.DataModifica = DateTime.Now;
 
-            var notaInDb = await _unitOfWork.DASI.GetNota(request.UIDAtto, request.TipoEnum);
-            if (notaInDb == null)
-                return;
+            var notaInDb = await _unitOfWork.DASI.GetNota(request.Uid);
+            if (notaInDb == null || notaInDb.UIDAtto != request.UIDAtto)
+                throw new InvalidOperationException("Nota non trovata");
             _unitOfWork.DASI.RimuoviNota(notaInDb);
             await _unitOfWork.CompleteAsync();
         }
