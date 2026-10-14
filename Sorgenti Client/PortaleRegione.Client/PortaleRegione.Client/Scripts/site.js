@@ -1330,6 +1330,17 @@ async function IscrizioneASedutaMassivoDASISoloIds(uidSeduta, lista) {
         waiting(false);
         throw new Error('Network response was not ok');
     }
+
+    // #1707: il client risponde 200 anche quando l'API rifiuta l'iscrizione, l'errore sta nel corpo
+    let esito = null;
+    try {
+        esito = await response.json();
+    } catch (error) {
+        // ignored
+    }
+    if (esito && esito.message) {
+        throw new Error(esito.message);
+    }
 }
 
 function GetPersoneFromDB() {

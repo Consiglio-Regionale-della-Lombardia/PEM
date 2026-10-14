@@ -170,7 +170,7 @@
                 if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
                     swal({
                         title: "Errore",
-                        text: "Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto,
+                        text: "Seleziona la seduta in cui iscrivere gli atti",
                         icon: "error"
                     });
                     return;
@@ -200,8 +200,29 @@
                 }).then(async (value) => {
                     if (value === "griglia") {
                         // Flusso normale - solo atti selezionati in griglia
-                        
-                        await IscrizioneASedutaMassivoDASISoloIds(uidSeduta, listaAtti);
+                        waiting(true);
+                        try {
+                            await IscrizioneASedutaMassivoDASISoloIds(uidSeduta, listaAtti);
+                        } catch (error) {
+                            waiting(false);
+                            // #1707: l'API si ferma al primo atto rifiutato dopo aver salvato i precedenti,
+                            // quindi la griglia va ricaricata anche in caso di errore
+                            swal({
+                                title: "Errore",
+                                text: error.message,
+                                icon: "error"
+                            }).then(() => location.reload());
+                            return;
+                        }
+                        waiting(false);
+                        M.toast({
+                            html: `<span>Iscrizione in seduta completata</span>`,
+                            classes: 'rounded',
+                            displayLength: 5000
+                        });
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1500);
                     } else if (value === "tutti") {
                         // Nuovo flusso - tutti gli atti con progress modal
                         var totalePagine = $(".pagination").data("totale-pagine");
