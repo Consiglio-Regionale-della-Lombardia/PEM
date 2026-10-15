@@ -975,12 +975,10 @@ namespace PortaleRegione.Persistance
         
         public async Task ReleaseDepositoLock(Guid userId)
         {
-            var row = await PRContext.DepositoLock.FirstOrDefaultAsync(l => l.LockedBy == userId);
-            if (row != null)
-            {
-                PRContext.DepositoLock.Remove(row);
-                await PRContext.SaveChangesAsync();
-            }
+            // #1709 non SaveChanges: si porterebbe dietro le modifiche rimaste in sospeso nel contesto
+            // e, se una di quelle fallisce, il lock resterebbe per 10 minuti
+            await PRContext.Database.ExecuteSqlCommandAsync(
+                "DELETE FROM DepositoLock WHERE Id = 1 AND LockedBy = @p0", userId);
         }
 
         public async Task<List<NoteDto>> GetNote(Guid uidAtto)
@@ -1331,6 +1329,28 @@ namespace PortaleRegione.Persistance
                                     && item.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                     && item.UID_Atto_ODG == uidAtto
                                     && item.DataIscrizioneSeduta.HasValue);
+        }
+
+        public async Task<int> CountODGProponenteInSeduta(Guid uidSeduta, string dataRichiesta, Guid? uidProponente,
+            Guid? uidAttoPEM = null, DateTime? depositatiDal = null)
+        {
+            // #1709 si conta sul DB: caricare per intero tutti gli ODG della seduta a ogni atto depositato
+            // teneva il lock di deposito per minuti
+            var query = PRContext.DASI.Where(atto => !atto.Eliminato
+                                                     && atto.Tipo == (int)TipoAttoEnum.ODG
+                                                     && !atto.TipoChiusuraIter.HasValue
+                                                     && atto.UIDPersonaProponente == uidProponente
+                                                     && (atto.IDStato == (int)StatiAttoEnum.PRESENTATO
+                                                         || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
+                                                         || atto.IDStato == (int)StatiAttoEnum.COMPLETATO)
+                                                     && ((atto.UIDSeduta == uidSeduta
+                                                          && atto.DataIscrizioneSeduta.HasValue)
+                                                         || atto.DataRichiestaIscrizioneSeduta == dataRichiesta));
+
+            if (uidAttoPEM.HasValue) query = query.Where(atto => atto.UID_Atto_ODG == uidAttoPEM);
+            if (depositatiDal.HasValue) query = query.Where(atto => atto.Timestamp >= depositatiDal);
+
+            return await query.CountAsync();
         }
 
         public async Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona)

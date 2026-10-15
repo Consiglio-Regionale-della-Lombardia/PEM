@@ -1240,12 +1240,10 @@ namespace PortaleRegione.Persistance
         
         public async Task ReleaseDepositoLock(Guid userId)
         {
-            var row = await PRContext.DepositoLock.FirstOrDefaultAsync(l => l.LockedBy == userId);
-            if (row != null)
-            {
-                PRContext.DepositoLock.Remove(row);
-                await PRContext.SaveChangesAsync();
-            }
+            // #1709 non SaveChanges: si porterebbe dietro le modifiche rimaste in sospeso nel contesto
+            // e, se una di quelle fallisce, il lock resterebbe per 10 minuti
+            await PRContext.Database.ExecuteSqlCommandAsync(
+                "DELETE FROM DepositoLock WHERE Id = 1 AND LockedBy = @p0", userId);
         }
 
         /// <summary>

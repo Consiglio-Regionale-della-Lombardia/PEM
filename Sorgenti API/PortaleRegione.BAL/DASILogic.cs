@@ -2428,9 +2428,11 @@ namespace PortaleRegione.API.Controllers
                 if (id_gruppo == 0)
                     id_gruppo = atto.id_gruppo;
 
+                // #1709 prima di GetAttoDto: con "seleziona tutto" arrivano anche tutti gli atti già depositati
+                if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) continue;
+
                 var attoDto = await GetAttoDto(idGuid, persona);
                 var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
-                if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) continue;
 
                 if (!attoDto.Presentabile)
                 {
@@ -2453,14 +2455,6 @@ namespace PortaleRegione.API.Controllers
                 SEDUTE seduta = null;
                 if (atto.Tipo == (int)TipoAttoEnum.ODG)
                 {
-                    /*
-                     *  Ogni consigliere può depositare, come primo firmatario, fino a {MassimoODG} ODG per atto/argomento e fino alla "data scadenza ODG"
-                     *  (poi risultano fuori orario se < {MassimoODG} e comunque sono bloccati se > {MassimoODG}).
-                     *
-                     *  I capigruppo il giorno della seduta possono presentare fino a {MassimoODG_DuranteSeduta} ODG per atto/argomento, a prescindere da quanti ne hanno presentati prima
-                     *  (quindi il quarto è sempre bloccato) e fino a quando non viene attivato il falg BloccoODG
-                     */
-
                     //Atto PEM associato all'ODG
                     attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
                     //Seduta associata all'atto PEM
@@ -2476,91 +2470,15 @@ namespace PortaleRegione.API.Controllers
 
                     var dataRichiesta = CryptoHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                         AppSettingsConfiguration.masterKey);
+                    var erroreLimiteODG = await ControlloLimiteODG(atto, attoPEM, seduta, dataRichiesta, nome_atto);
+                    if (!string.IsNullOrEmpty(erroreLimiteODG))
+                    {
+                        results.Add(idGuid, erroreLimiteODG);
+                        continue;
+                    }
+
                     atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
-
-                    //Ricava tutti gli ODG iscritti in seduta
-                    var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
-                        TipoAttoEnum.ODG, 0);
-                    //Ricava tutti gli ODG proposti in seduta
-                    var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
-                        TipoAttoEnum.ODG, 0);
-
-                    var atti = new List<ATTI_DASI>();
-                    atti.AddRange(odg_in_seduta.Where(a => !a.TipoChiusuraIter.HasValue));
-                    atti.AddRange(odg_proposte);
-
-                    //Ricava tutti gli ODG iscritti in seduta
-
-                    //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
-                    var my_atti = atti.Where(a => a.UIDPersonaProponente == attoDto.UIDPersonaProponente
-                                                  && (a.IDStato == (int)StatiAttoEnum.COMPLETATO
-                                                      || a.IDStato == (int)StatiAttoEnum.PRESENTATO
-                                                      || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
-                        .Distinct()
-                        .ToList();
-
-                    // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
-                    var dataSedutaPerODG = new DateTime(
-                        seduta.Data_seduta.Year,
-                        seduta.Data_seduta.Month,
-                        seduta.Data_seduta.Day);
-                    var capogruppoInSeduta = await ProponenteCapogruppoInSeduta(atto, dataSedutaPerODG);
-
-                    //Jolly attivo limite impostato {MassimoODG_Jolly}
-                    // #840 Funzione Jolly
-                    if (attoPEM.Jolly)
-                    {
-                        if (my_atti.Count + 1 >=
-                            AppSettingsConfiguration.MassimoODG_Jolly)
-                        {
-                            results.Add(idGuid,
-                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-                            continue;
-                        }
-
-                        // #1691 il jolly toglie al capogruppo il limite dei depositi in seduta, non l'esenzione dal ritardo
-                        if (capogruppoInSeduta) atto.CapogruppoNeiTermini = true;
-                    }
-                    else if (capogruppoInSeduta)
-                    {
-                        // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/886
-                        var atti_dopo_scadenza =
-                            my_atti.Where(a => a.Timestamp >= dataSedutaPerODG
-                                               && a.UID_Atto_ODG ==
-                                               attoPEM
-                                                   .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
-                                .ToList();
-                        if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
-                        {
-                            results.Add(idGuid,
-                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-
-                            continue;
-                        }
-
-                        atto.CapogruppoNeiTermini = true;
-                    }
-                    else
-                    {
-                        //Matteo Cattapan #484
-                        //Massimo ODG presentabili per provvedimento
-                        var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
-                            .OrderBy(group => group.Key)
-                            .Select(group => Tuple.Create(group.Key, group.Count()));
-                        var current_group =
-                            group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
-                        var count_odg_per_atto = 0;
-                        if (current_group != null) count_odg_per_atto = current_group.Item2;
-
-                        if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
-                        {
-                            results.Add(idGuid,
-                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-
-                            continue;
-                        }
-                    }
                 }
 
                 //controllo max firme
@@ -4575,6 +4493,67 @@ namespace PortaleRegione.API.Controllers
             return capogruppo.id_persona == proponente.id_persona;
         }
 
+        /*
+         *  Ogni consigliere può depositare, come primo firmatario, fino a {MassimoODG} ODG per atto/argomento e fino alla "data scadenza ODG"
+         *  (poi risultano fuori orario se < {MassimoODG} e comunque sono bloccati se > {MassimoODG}).
+         *
+         *  I capigruppo il giorno della seduta possono presentare fino a {MassimoODG_DuranteSeduta} ODG per atto/argomento, a prescindere da quanti ne hanno presentati prima
+         *  (quindi il quarto è sempre bloccato) e fino a quando non viene attivato il flag BloccoODG
+         */
+        // #1709 unico per deposito e deposito cartaceo: restituisce l'errore, vuoto se l'ODG si può depositare
+        private async Task<string> ControlloLimiteODG(ATTI_DASI atto, ATTI attoPEM, SEDUTE seduta,
+            string dataRichiesta, string nome_atto)
+        {
+            var nome_atto_pem = $"{Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}";
+
+            // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
+            var dataSedutaPerODG = new DateTime(
+                seduta.Data_seduta.Year,
+                seduta.Data_seduta.Month,
+                seduta.Data_seduta.Day);
+            var capogruppoInSeduta = await ProponenteCapogruppoInSeduta(atto, dataSedutaPerODG);
+
+            //Jolly attivo limite impostato {MassimoODG_Jolly}
+            // #840 Funzione Jolly
+            if (attoPEM.Jolly)
+            {
+                // #1709 il jolly conta gli ODG del proponente su tutta la seduta, non solo su quest'atto
+                var odg_in_seduta = await _unitOfWork.DASI.CountODGProponenteInSeduta(atto.UIDSeduta.Value,
+                    dataRichiesta, atto.UIDPersonaProponente);
+                if (odg_in_seduta + 1 > AppSettingsConfiguration.MassimoODG_Jolly)
+                    return
+                        $"ERROR: {nome_atto} non depositabile. Il proponente ha raggiunto il limite di {AppSettingsConfiguration.MassimoODG_Jolly} ordini del giorno depositabili nella seduta del {seduta.Data_seduta:dd/MM/yyyy}.";
+
+                // #1691 il jolly toglie al capogruppo il limite dei depositi in seduta, non l'esenzione dal ritardo
+                if (capogruppoInSeduta) atto.CapogruppoNeiTermini = true;
+                return string.Empty;
+            }
+
+            if (capogruppoInSeduta)
+            {
+                // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/886
+                // #852 conteggio solo del provvedimento selezionato
+                var atti_dopo_scadenza = await _unitOfWork.DASI.CountODGProponenteInSeduta(atto.UIDSeduta.Value,
+                    dataRichiesta, atto.UIDPersonaProponente, attoPEM.UIDAtto, dataSedutaPerODG);
+                if (atti_dopo_scadenza + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                    return
+                        $"ERROR: {nome_atto} non depositabile. In seduta il capogruppo può depositare al massimo {AppSettingsConfiguration.MassimoODG_DuranteSeduta} ordini del giorno per l'atto {nome_atto_pem}.";
+
+                atto.CapogruppoNeiTermini = true;
+                return string.Empty;
+            }
+
+            //Matteo Cattapan #484
+            //Massimo ODG presentabili per provvedimento
+            var count_odg_per_atto = await _unitOfWork.DASI.CountODGProponenteInSeduta(atto.UIDSeduta.Value,
+                dataRichiesta, atto.UIDPersonaProponente, attoPEM.UIDAtto);
+            if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
+                return
+                    $"ERROR: {nome_atto} non depositabile. Il proponente non può depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {nome_atto_pem}.";
+
+            return string.Empty;
+        }
+
         private async Task PresentaCartaceo(ATTI_DASI atto, AttoDASIDto dto, PersonaDto persona)
         {
             // #1403
@@ -4583,14 +4562,6 @@ namespace PortaleRegione.API.Controllers
             var nome_atto = dto.Display;
             if (atto.Tipo == (int)TipoAttoEnum.ODG)
             {
-                /*
-                 *  Ogni consigliere può depositare, come primo firmatario, fino a {MassimoODG} ODG per atto/argomento e fino alla "data scadenza ODG"
-                 *  (poi risultano fuori orario se < {MassimoODG} e comunque sono bloccati se > {MassimoODG}).
-                 *
-                 *  I capigruppo il giorno della seduta possono presentare fino a {MassimoODG_DuranteSeduta} ODG per atto/argomento, a prescindere da quanti ne hanno presentati prima
-                 *  (quindi il quarto è sempre bloccato) e fino a quando non viene attivato il falg BloccoODG
-                 */
-
                 //Atto PEM associato all'ODG
                 attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
                 //Seduta associata all'atto PEM
@@ -4598,80 +4569,12 @@ namespace PortaleRegione.API.Controllers
 
                 var dataRichiesta = CryptoHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
+                var erroreLimiteODG = await ControlloLimiteODG(atto, attoPEM, seduta, dataRichiesta, nome_atto);
+                if (!string.IsNullOrEmpty(erroreLimiteODG))
+                    throw new InvalidOperationException(erroreLimiteODG);
+
                 atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                 atto.UIDPersonaRichiestaIscrizione = atto.UIDPersonaProponente;
-
-                //Ricava tutti gli ODG iscritti in seduta
-                var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
-                    TipoAttoEnum.ODG, 0);
-                //Ricava tutti gli ODG proposti in seduta
-                var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
-                    TipoAttoEnum.ODG, 0);
-
-                var atti = new List<ATTI_DASI>();
-                atti.AddRange(odg_in_seduta.Where(a => !a.TipoChiusuraIter.HasValue));
-                atti.AddRange(odg_proposte);
-
-                //Ricava tutti gli ODG iscritti in seduta
-
-                //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
-                var my_atti = atti.Where(a => a.UIDPersonaProponente == atto.UIDPersonaProponente
-                                              && (a.IDStato == (int)StatiAttoEnum.COMPLETATO
-                                                  || a.IDStato == (int)StatiAttoEnum.PRESENTATO
-                                                  || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
-                    .Distinct()
-                    .ToList();
-
-                // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
-                var dataSedutaPerODG = new DateTime(
-                    seduta.Data_seduta.Year,
-                    seduta.Data_seduta.Month,
-                    seduta.Data_seduta.Day);
-                var capogruppoInSeduta = await ProponenteCapogruppoInSeduta(atto, dataSedutaPerODG);
-
-                //Jolly attivo limite impostato {MassimoODG_Jolly}
-                // #840 Funzione Jolly
-                if (attoPEM.Jolly)
-                {
-                    if (my_atti.Count + 1 >=
-                        AppSettingsConfiguration.MassimoODG_Jolly)
-                        throw new InvalidOperationException(
-                            $"ERROR: {nome_atto} non depositabile. Il proponente non può depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-
-                    // #1691 il jolly toglie al capogruppo il limite dei depositi in seduta, non l'esenzione dal ritardo
-                    if (capogruppoInSeduta) atto.CapogruppoNeiTermini = true;
-                }
-                else if (capogruppoInSeduta)
-                {
-                    // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/886
-                    var atti_dopo_scadenza =
-                        my_atti.Where(a => a.Timestamp >= dataSedutaPerODG
-                                           && a.UID_Atto_ODG ==
-                                           attoPEM
-                                               .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
-                            .ToList();
-                    if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
-                        throw new InvalidOperationException(
-                            $"ERROR: {nome_atto} non depositabile. Il proponente capogruppo non può depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-
-                    atto.CapogruppoNeiTermini = true;
-                }
-                else
-                {
-                    //Matteo Cattapan #484
-                    //Massimo ODG presentabili per provvedimento
-                    var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
-                        .OrderBy(group => group.Key)
-                        .Select(group => Tuple.Create(group.Key, group.Count()));
-                    var current_group =
-                        group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
-                    var count_odg_per_atto = 0;
-                    if (current_group != null) count_odg_per_atto = current_group.Item2;
-
-                    if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
-                        throw new InvalidOperationException(
-                            $"ERROR: {nome_atto} non depositabile. Il proponente non può depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-                }
             }
 
             if (atto.Tipo == (int)TipoAttoEnum.RIS)

@@ -1069,7 +1069,8 @@ namespace PortaleRegione.API.Controllers
         public async Task<IHttpActionResult> Presenta(ComandiAzioneModel presentazioneModel)
         {
             var currentUser = CurrentUser;
-            
+            var locked = false;
+
             try
             {
                 if (currentUser.IsSegreteriaAssemblea_Read)
@@ -1077,7 +1078,7 @@ namespace PortaleRegione.API.Controllers
                     throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
                 }
                 // Tentativo di lock
-                var locked = await _dasiLogic.TryAcquireDepositoLock(currentUser.UID_persona);
+                locked = await _dasiLogic.TryAcquireDepositoLock(currentUser.UID_persona);
                 if (!locked)
                     return BadRequest("E' in corso un'altra operazione di deposito. Riprova tra qualche minuto.");
 
@@ -1108,7 +1109,9 @@ namespace PortaleRegione.API.Controllers
             }
             finally
             {
-                await _dasiLogic.ReleaseDepositoLock(currentUser.UID_persona);
+                // #1709 la richiesta respinta dal lock lo toglieva a quella in corso dello stesso utente
+                if (locked)
+                    await _dasiLogic.ReleaseDepositoLock(currentUser.UID_persona);
             }
         }
 

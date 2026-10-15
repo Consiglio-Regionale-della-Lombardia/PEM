@@ -763,6 +763,7 @@ namespace PortaleRegione.API.Controllers
         public async Task<IHttpActionResult> DepositaEmendamento(ComandiAzioneModel depositoModel)
         {
             var user = CurrentUser;
+            var locked = false;
             try
             {
                 if (user.IsSegreteriaAssemblea_Read)
@@ -770,7 +771,7 @@ namespace PortaleRegione.API.Controllers
                     throw new UnauthorizedAccessException($"Il ruolo {RuoliExt.ConvertToAD(RuoliIntEnum.Segreteria_Assemblea_Read)} non ha accesso a quest'area.");
                 }
                 // Tentativo di lock
-                var locked = await _emendamentiLogic.TryAcquireDepositoLock(user.UID_persona);
+                locked = await _emendamentiLogic.TryAcquireDepositoLock(user.UID_persona);
                 if (!locked)
                     return BadRequest("E' in corso un'altra operazione di deposito. Riprova tra qualche minuto.");
 
@@ -811,7 +812,9 @@ namespace PortaleRegione.API.Controllers
             }
             finally
             {
-                await _emendamentiLogic.ReleaseDepositoLock(user.UID_persona);
+                // #1709 la richiesta respinta dal lock lo toglieva a quella in corso dello stesso utente
+                if (locked)
+                    await _emendamentiLogic.ReleaseDepositoLock(user.UID_persona);
             }
         }
 
