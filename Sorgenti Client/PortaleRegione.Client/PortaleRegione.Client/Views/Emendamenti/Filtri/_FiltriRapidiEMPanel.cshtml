@@ -1638,7 +1638,11 @@
     // Pattern allineato al riepilogo DASI (_FiltriRapidiDASIPanel.cshtml > createCard):
     // una card per emendamento con i pulsanti in alto a destra e, sotto, il BodyEM
     // formattato in HTML che il backend popola nello stesso ramo del flusso EmendamentiLogic.
+    // #1710: chip dello stato e FIRMA/DEPOSITA come nella vecchia _ZoomView_RiepilogoEM.cshtml;
+    // lo stato va disegnato qui perche' il template HTML del BodyEM non lo riporta.
     function renderPreviewListaEM(results, emSaltati, saltatiList) {
+        // Il modale dei meta-dati esiste solo in RiepilogoEM_Admin, servita agli stessi ruoli.
+        var metaDatiAbilitati = @(load_gruppi ? "true" : "false");
         var html = '';
         if (emSaltati > 0) {
             var elenco = saltatiList.map(function (e) { return escapeText(e); }).join(', ');
@@ -1651,6 +1655,31 @@
         }
         results.filter(function (em) { return em != null; }).forEach(function (em) {
             var bodyEm = sanitizePreviewBodyEM(em.BodyEM) || '<em class="grey-text">Anteprima non disponibile</em>';
+            var statoCss = em.STATI_EM && em.STATI_EM.CssClass ? em.STATI_EM.CssClass : '';
+            var statoLabel = em.STATI_EM && em.STATI_EM.Stato ? escapeText(em.STATI_EM.Stato) : '';
+            var IDStato = em.IDStato != null ? em.IDStato : 0;
+
+            var chipStato = '';
+            if (statoLabel) {
+                chipStato = '  <div class="col s12 center" style="margin-top:10px;">'
+                    + '    <div class="chip center ' + statoCss + '" style="min-width: 180px">' + statoLabel + '</div>'
+                    + '  </div>';
+            }
+
+            var comandiFirma = '';
+            if (em.Firmabile && IDStato <= @((int)StatiEnum.Depositato)) {
+                comandiFirma += '<button type="button" class="btn-flat green-text" '
+                    + 'onclick="RevealFirmaDeposito(\'' + em.UIDEM + '\', @((int)ActionEnum.FIRMA))">'
+                    + '<i class="material-icons right green-text">gavel</i>FIRMA</button>';
+            }
+            if (em.Depositabile && IDStato <= @((int)StatiEnum.Bozza)) {
+                comandiFirma += '<button type="button" class="btn-flat purple-text" '
+                    + 'onclick="RevealFirmaDeposito(\'' + em.UIDEM + '\', @((int)ActionEnum.DEPOSITA))">'
+                    + '<i class="material-icons right purple-text">lock</i>DEPOSITA</button>';
+            }
+            if (comandiFirma) {
+                comandiFirma = '  <div class="col s12 card-action right-align">' + comandiFirma + '</div>';
+            }
 
             html += '<div class="row card" style="margin-bottom: 12px;">'
                 + '  <div class="col s12 right-align" style="position:absolute;margin-top:10px;z-index:1;">'
@@ -1663,26 +1692,84 @@
                 + '       href="' + baseUrl + '/emendamenti/file?id=' + em.UIDEM + '" target="_blank">'
                 + '      <i class="material-icons">print</i>'
                 + '    </a>'
-                + '    <button type="button" class="btn-flat blue-text tooltipped" '
-                + '            onclick="openMetaDati(\'' + em.UIDEM + '\')" style="margin:2px" '
-                + '            data-position="bottom" data-tooltip="Modifica meta-dati">'
-                + '      <i class="material-icons">edit</i>'
-                + '    </button>'
+                + (metaDatiAbilitati
+                    ? '    <button type="button" class="btn-flat blue-text tooltipped" '
+                    + '            onclick="openMetaDati(\'' + em.UIDEM + '\')" style="margin:2px" '
+                    + '            data-position="bottom" data-tooltip="Modifica meta-dati">'
+                    + '      <i class="material-icons">edit</i>'
+                    + '    </button>'
+                    : '')
                 + '    <button type="button" class="btn-flat green-text tooltipped" '
                 + '            onclick="goIntoOtherTab(\'' + baseUrl + '/emendamenti/view/' + em.UIDEM + '\')" '
                 + '            style="margin:2px" data-position="bottom" data-tooltip="Visualizza emendamento">'
                 + '      <i class="material-icons">chevron_right</i>'
                 + '    </button>'
                 + '  </div>'
+                + chipStato
                 + '  <div class="col s12 card-content">'
                 + bodyEm
                 + '  </div>'
+                + comandiFirma
                 + '</div>';
         });
         if (html === '') {
             html = '<div class="card-panel panel-warning center">Nessun emendamento da visualizzare</div>';
         }
         return html;
+    }
+
+    // Stava in RiepilogoEM.cshtml, ma FIRMA e DEPOSITA d'ufficio servono anche nella pagina admin.
+    // Il riepilogo si apre con go() nella stessa scheda: window.opener e' null e il postMessage
+    // al padre della vecchia versione andava in errore prima del reload.
+    function RevealFirmaDeposito(id, action) {
+        var text = "";
+        var button = "";
+        if (action == @((int)ActionEnum.FIRMA)) {
+            text = "Inserisci il PIN per firmare";
+            button = "Firma";
+        } else if (action == @((int)ActionEnum.DEPOSITA)) {
+            text = "Inserisci il PIN per presentare";
+            button = "Presenta";
+        }
+
+        swal(text,
+            {
+                content: {
+                    element: "input",
+                    attributes: { placeholder: "******", className: "password" }
+                },
+                icon: "info",
+                buttons: { cancel: "Annulla", confirm: button }
+            })
+            .then(function (value) {
+                if (value == null || value == "") return;
+
+                waiting(true);
+                $.ajax({
+                    url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+                    method: "GET"
+                }).done(function (data) {
+                    waiting(false);
+                    if (!data.message) {
+                        waiting(true);
+                        location.reload();
+                        return;
+                    }
+                    swal({
+                        title: "Esito " + button,
+                        text: data.message,
+                        icon: data.message.indexOf("OK") > 0 ? "success" : "error",
+                        button: "OK"
+                    }).then(function () {
+                        waiting(true);
+                        location.reload();
+                    });
+                }).fail(function (err) {
+                    waiting(false);
+                    console.log("error", err);
+                    MostraErrore(err);
+                });
+            });
     }
 
     function renderRigaEM(em, ordinamento, attoVisMisProg) {
