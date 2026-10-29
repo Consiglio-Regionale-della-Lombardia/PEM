@@ -961,6 +961,16 @@
         if (page) document.getElementById('inputFilterPage').value = page;
 
         var request = window.buildFilterRequestEM();
+
+        // #1711 - ordine, vista e risultati per pagina restano nell'URL, che il GET del riepilogo
+        // rilegge: le azioni sugli EM (meta-dati, spostamenti, firma...) finiscono con
+        // location.reload() e devono riaprire la griglia com'era.
+        var url = new URL(window.location.href);
+        url.searchParams.set('ordine', request.ordine);
+        url.searchParams.set('view', request.viewMode);
+        url.searchParams.set('size', request.size);
+        history.replaceState(history.state, '', url.toString());
+
         if (!request.filters || request.filters.length === 0) {
             document.getElementById('tableResults').innerHTML =
                 '<div class="card-panel blue lighten-5 center">Aggiungi almeno un filtro per avviare la ricerca.</div>';
@@ -1266,7 +1276,6 @@
         var current = parseInt(hidden.value || '0', 10);
         var nuovo = current === @((int)ViewModeEnum.GRID) ? @((int)ViewModeEnum.PREVIEW) : @((int)ViewModeEnum.GRID);
         hidden.value = nuovo;
-        try { localStorage.setItem('viewModeEm', nuovo); } catch (e) { /* ignore */ }
         if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(1);
     };
 
@@ -1347,14 +1356,9 @@
     }
 
     // Cambia l'ordinamento principale (Presentazione/Votazione) e ricarica i risultati.
-    // L'ordine resta anche nell'URL, come quando il tab ricaricava la pagina: gli spostamenti
-    // degli EM finiscono con location.reload() e devono riaprire lo stesso tab.
     window.cambiaOrdinamentoEM = function (nuovoOrdinamento) {
         var hidden = document.getElementById('inputFilterOrdine');
         if (hidden) hidden.value = nuovoOrdinamento;
-        var url = new URL(window.location.href);
-        url.searchParams.set('ordine', nuovoOrdinamento);
-        history.replaceState(history.state, '', url.toString());
         if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(1);
     };
 
@@ -1375,7 +1379,6 @@
     window.paginazioneSizeEM = function (size) {
         var hidden = document.getElementById('inputFilterSize');
         if (hidden) hidden.value = size;
-        try { localStorage.setItem('pagingEm.size', size); } catch (e) { /* ignore */ }
         if (typeof inviaDatiChipsEM === 'function') inviaDatiChipsEM(1);
     };
 
