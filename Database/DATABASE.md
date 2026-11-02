@@ -1038,7 +1038,7 @@ Store procedure che esegue tutte le operazioni per spostare in una posizione pre
 
 ## Script_di_aggiornamento
 
-La cartella `Database/06_updates` contiene gli script che portano un database esistente allo schema richiesto dalle versioni successive delle applicazioni. Il nome comincia con la data (AAAA-MM-GG) e un progressivo: vanno eseguiti in quest'ordine e prima di aggiornare le applicazioni, perché il modello Entity Framework legge le nuove colonne e fallisce se non le trova. Gli script sono idempotenti: ogni colonna viene aggiunta solo se non esiste (`COL_LENGTH(...) IS NULL`), quindi si possono rieseguire. Su un database creato con gli script delle altre cartelle le colonne sono già presenti.
+La cartella `Database/06_updates` contiene gli script che portano un database esistente allo schema e ai dati richiesti dalle versioni successive delle applicazioni. Il nome comincia con la data (AAAA-MM-GG) e un progressivo: vanno eseguiti in quest'ordine e prima di aggiornare le applicazioni, perché il modello Entity Framework legge le nuove colonne e fallisce se non le trova. Gli script sono idempotenti: ogni colonna viene aggiunta solo se non esiste (`COL_LENGTH(...) IS NULL`) e ogni correzione di dati tocca solo le righe ancora da correggere, quindi si possono rieseguire. Su un database creato con gli script delle altre cartelle le colonne sono già presenti.
 
 #### 2026-05-27_001_ATTI_DASI_EDMA_columns.sql
 Aggiunge alla tabella ATTI_DASI le colonne EDMA_* che tracciano la protocollazione su EDMA
@@ -1051,6 +1051,9 @@ Aggiunge la colonna NascondiGruppo alle tabelle EM ed EM_Audit e ricrea il trigg
 
 #### 2026-09-10_001_REPORTS_FileSeparati.sql
 Aggiunge alla tabella REPORTS la colonna FileSeparati, con default 0 per i report già salvati
+
+#### 2026-11-02_001_ATTI_DASI_Timestamp_bozze.sql
+Riporta a NULL la data di presentazione delle bozze DASI rimaste al 01/01/1970, il valore iniziale che l'entità ATTI_DASI dava a Timestamp fino al 2024
 
 
 ## Diagramma_Entita-Relazioni

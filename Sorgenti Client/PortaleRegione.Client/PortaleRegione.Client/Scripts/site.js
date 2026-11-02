@@ -2092,7 +2092,8 @@ function handleDateValue(currentValue) {
 }
 
 // Verifica se il valore è nel formato /Date(XXXXXXXXXXXX)/
-		const dateRegex = /\/Date\((\d+)\)\//;
+// #1712 - Prima del 01/01/1970 UTC i millisecondi sono negativi: senza il "-" la griglia mostrava il valore grezzo.
+		const dateRegex = /\/Date\((-?\d+)(?:[+-]\d{4})?\)\//;
 
 const formatDate = (data) => {
 			const match = data.match(dateRegex);
